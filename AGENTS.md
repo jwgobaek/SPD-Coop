@@ -9,3 +9,5 @@ Java/libGDX 및 Wrapper를 유지한다. 변경 전 기준 테스트를 확보�
 LAN 변경은 docs/coop/lan-protocol.md와 실제 프레임을 함께 갱신한다. 수신 스레드에서 Dungeon/CoopSession을 호출하지 않는다. 독립 JVM 시나리오의 좌석별 적용 횟수와 실제 호스트 상태를 함께 검증한다.
 
 SYNC1에서 새 상태를 공개할 때는 SeatProjection의 좌석별 필터, 원본 직접 시야, StateImage 정규화와 DisplayReplica의 원자적 적용을 함께 검증한다. 행동 결과 조회 전에 연결·좌석을 인증한다. 상세 형식은 docs/coop/state-sync.md에 있다.
+
+협동 규칙을 수정할 때는 두 좌석의 직접 시야·기억·소유권과 사망 상태를 함께 검사한다. 구역 계산은 Actor나 RNG를 변경하지 않는다. 부활은 앙크 소유자와 원래 Actor ID를 보존하고 확정된 행동의 재전송을 검증한다. 현재 지원 범위와 Phase 7 저장 경계는 ARCHITECTURE.md 및 docs/coop/state-sync.md를 참조한다.

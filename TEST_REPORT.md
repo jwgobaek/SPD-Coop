@@ -164,3 +164,56 @@ scripts/verify-android-build.sh /workspace/deliverables/phase5-verified
 |NOT RUN|외부 검증|coop/phase5 일반 푸시 후 GitHub Actions의 브랜치 실행 기록 0건. 실제 Android 설치·화면·터치·무선 LAN과 재접속은 미검증이다.|
 
 빌드 스크립트 종료 코드 0. APK 파일에 sha256sum -c, 증거 ZIP에 unzip -tq를 실행해 통과했다. [최종 빌드 로그·JUnit XML·패키지와 서명 검사·소스 커밋](docs/coop/phase5-cloud-evidence.zip). ZIP SHA-256은 a82bb060ac2581b227074313f059bf46432f2205705d79f92775f7ab067911e7이다. APK는 Cloud 작업 공간의 /workspace/deliverables/phase5-verified/android-debug.apk에 있다.
+
+## Phase 6 — 2026-11-24
+
+기준 브랜치 coop/phase5와 실제 원격 d86d21ffb8ab2203077dc6bf86e7a0efc711bc19를 확인했다. 아래 최종 수치는 엔진 커밋 53770eabfd0c40ead0d4d1848ddf480c2743930b의 단일 Cloud 검증 빌드에서 얻었다. 단계별 반복 실행은 최종 합계에 더하지 않았다.
+
+| 결과 | 실행 | 관측 |
+|---|---|---|
+| PASS | 변경 전 전체 회귀 | 싱글 9, 협동 엔진 10, LAN 6, 동기화 4. 총 29건 |
+| PASS | 6A 체크포인트 | 전체 29건. 실제 벽 차폐, 다른 좌석의 숨은 몹·더미 제외, 시야 밖에서 지형을 수정한 뒤 원래 기억 유지, 스냅샷 복원과 재관측 갱신을 검사 |
+| PASS | 6B 체크포인트 | 선택 회귀 13건. 벽으로 분리한 두 전투, 표적 변경, 경계 병합·분리 5회, 몹 사망, Actor 집합·시간·턴·HP 불변 검사 |
+| PASS | 6C 체크포인트 | 선택 회귀 14건. 원본 가방에 식량 스택 병합, 한 단위 드롭, 분할 후 새 ID와 소유권, 타인 가방 수집 실패, 소유자가 다른 바닥 스택 공존, 원본 장비 해제와 재장착 |
+| FAIL → PASS | 6D 체크포인트 | 테스트에서 외부 강제 사망으로 취소된 입력 차례를 곧바로 사용해 좌석 -1 오류가 났다. 호스트의 외부 효과 묶음을 finishEffects로 마친 뒤 생존자의 실제 차례를 검증했다. 수정 후 선택 회귀 15건 통과 |
+| FAIL → PASS | 동일 몹 교전 소멸 검사 | 두 영웅의 실제 공격을 받은 몹의 최근 교전이 만료된 후, 테스트 구역에 다른 생성 몹이 접근해 새 교전이 형성될 수 있었다. 단일 표적 테스트에서 다른 몹을 격리했다. 엔진의 표적 선택과 구역 소멸 조건을 유지한 채 선택 회귀 16건 통과 |
+| PASS | 최종 원본 회귀 및 확장 | 기존 29건과 새 JUnit 메서드 5건, 합계 34건. 실패·오류·스킵 0. 기존 치명상 중단 기대값은 새로운 DEAD·동료 진행·과거 턴 거부 검사로 변경했다. 싱글플레이 축복 앙크·최종 사망·슬롯 정리 회귀도 통과 |
+| PASS | 엔진 세부 검증 | 100, 17, 10, 9, 3, 2, 1과 큰 정수의 부활 HP 및 최대 HP 상한, 실제 Rat 근접 공격·Poison.act 치명상, 사망 후 반복 die, 거리·턴·자원 검사, 동결 시계 리베이스와 부활 후 행동, 앙크 1회 소모, 공동 표적에 대한 실제 공격을 검사 |
+| PASS | 원본 Foresight 및 공개 범위 | 게스트에 실제 Foresight를 부여하고 원본 search로 차폐 너머 지형만 파악했다. 호스트의 mapped와 원본 level.mapped 배열이 변하지 않는지 확인했다. 현재 시야의 숨은 더미, 비공개 인벤토리, 은폐된 몹, 시야를 떠난 몹은 공개 대상에서 제외됐다. |
+| PASS | 이전 독립 JVM 시나리오 | v1 실제 행동 310회 및 로비 50회, 기존 SYNC1 행동 1,343회. 응답 유실·재전송·과거 버전과 엔진 중단 회귀 통과 |
+| PASS | Phase 6 독립 JVM | 아래 세 시나리오, 합계 1,023회. 주어진 게임 행동으로 구역을 합치고 분리한 뒤 실제 아이템·부활·전멸까지 확인 |
+| PASS | Android Cloud 빌드 | 4.0.2-INDEV, versionCode 922, org.spdcoop.dungeon.indev, minSdk 21, targetSdk 36, 36,823,839바이트. 디버그 서명 v1·v2를 검증하고 체크섬을 다시 확인했다. apksigner의 META-INF 경고 및 v3/v4 미적용은 apk.txt에 있다. |
+| NOT RUN | GitHub Actions | 엔진 커밋 푸시 후 브랜치 실행 기록 0, 등록 워크플로 0. android.yml 수동 실행은 조회 단계에서 HTTP 404였다. 포크의 관리자 설정은 확정하지 않았다. GitHub Actions APK 아티팩트는 없다. |
+| NOT RUN | 실기기 | Android 설치·화면·터치·무선 Wi-Fi·핫스팟·기기별 성능. 협동 UI, 저장 및 재접속은 후속 단계다. |
+
+### 독립 프로세스 시나리오
+
+RuleIntegrationTest는 HeadlessApplication 호스트에 실제 생성된 첫 던전을 열고 결정적 검사용 지형, 분리벽·통로, 원본 Rat 두 마리, 일반 식량과 앙크를 배치했다. 다른 생성 몹은 이 시나리오에서 제외했다. 두 Rat가 일정 시간 제자리에 있도록 처음 행동을 지연했고 부활·전멸 지점에서는 테스트 Actor가 원본 공격·피해 함수를 호출했다. 일반 몹의 자율 AI와 무작위 월드 회귀는 기존 테스트가 별도로 실행했다. 별도 JVM의 RuleScenarioClient가 두 TCP 좌석으로 접속하고 표시 모델에서 행동을 선택했다.
+
+| 시드 | 방장 / 게스트 | 확정 행동 | 전송 요청 | SYNC·PAGE 조회 | 거부 | 캐시 응답 | 재동기화 | 부활 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| 402 | 전사 / 사냥꾼 | 341 | 1,049 | 694 | 1 | 2 | 1 | 1 |
+| 2402 | 사냥꾼 / 전사 | 341 | 1,049 | 694 | 1 | 2 | 1 | 1 |
+| 3402 | 전사 / 사냥꾼 | 341 | 1,049 | 694 | 1 | 2 | 1 | 1 |
+| 합계 | | **1,023** | **3,147** | **2,082** | **3** | **6** | **3** | **3** |
+
+각 실행에는 일반 APPLIED 340회와 파티 전멸을 확정한 마지막 행동 1회가 포함된다. 로비·협상 요청은 총 33건이다. 실제 턴·버전이 거부와 재전송에서 증가하지 않는지 확인했다. 클라이언트에서 수신한 스냅샷 조각을 한 차례 손상시켜 재동기화를 일으켰다. 복구된 상태 행·해시와 기존 표시 상태를 비교하고 이후 행동을 계속했다. 호스트에서는 실제 구역 수, HP 17 → 5, 인벤토리에서 사라진 앙크, 최종 행동 횟수를 대조했다. 두 프로세스 모두 정상 종료했다.
+
+### 재현과 결과물
+
+```bash
+git ls-remote coop refs/heads/coop/phase5 refs/heads/coop/phase6
+git switch -c coop/phase6 d86d21f
+source /tmp/spd-env
+./gradlew --offline :core:cleanTest :core:test
+./gradlew --offline :core:cleanTest :core:test --tests '*CoopSessionTest' --tests '*SyncIntegrationTest.directSight*' --tests '*SchedulerRegressionTest'
+./gradlew --offline :core:cleanTest :core:test --tests '*CoopSessionTest' --tests '*LanIntegrationTest' --tests '*SyncIntegrationTest.directSight*'
+./gradlew --offline :core:cleanTest :core:test --tests '*CoopSessionTest' --tests '*EndgameRegressionTest' --tests '*SyncIntegrationTest.directSight*'
+./gradlew --offline :core:cleanTest :core:test --tests '*RuleIntegrationTest'
+scripts/verify-android-build.sh /workspace/deliverables/phase6-verified
+git diff --check
+git push -u coop coop/phase6
+gh workflow run android.yml --repo jwgobaek/SPD-Coop --ref coop/phase6
+```
+
+최종 APK SHA-256은 `690e3c4070a5401c549cd31400708e6e011dd9c6932d985d984d2275b29a642a`이다. Cloud 경로는 `/workspace/deliverables/phase6-verified/android-debug.apk`다. 증거 ZIP은 최종 JUnit XML·빌드·서명 로그·소스 커밋·변경 파일과 중간 실패 및 재검증 기록을 포함한다. ZIP 무결성 검사와 APK의 sha256sum -c가 통과했다. ZIP SHA-256은 `d8c7330421bfd252c34b928415f7315ace96d380a116bf3817879fdd74cc2a27`이다. [Git에 보존한 검증 ZIP](docs/coop/phase6-cloud-evidence.zip)

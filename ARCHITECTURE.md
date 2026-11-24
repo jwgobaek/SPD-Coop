@@ -67,3 +67,17 @@ LanRoom.synchronizedGame이 만든 방은 START에서 RoomSync를 엔진 소유 
 Level.updateDirectSight는 원본 시야 계산의 차폐·거리 부분이다. 기존 updateFieldOfView는 이 계산 뒤 원본의 특수 감지와 탐험 처리를 계속한다. 협동 전송은 매 확정 경계에서 각 영웅의 현재 위치로 직접 시야를 새로 계산한다. 전송 대상에는 자기 캐릭터·공개 장비/수량·버프, 현재 볼 수 있는 지형과 몹만 들어간다. Mob.wasDefeatedBy와 전후 관측을 확인한 직접 처치는 관측 상실과 구분한다.
 
 StateImage는 좌석별 불변 공개 행과 정규화 해시를 갖는다. 호스트는 현재·직전 이미지를 비교해 변화한 행만 만든다. 클라이언트 DisplayReplica는 후보 상태의 해시를 직접 검증한다. SeatActions는 표시 모델을 교체해도 유지하는 논리 행동 번호와 재전송용 Pending을 관리한다. [프로토콜·공개 필드·자원 상한](docs/coop/state-sync.md)
+
+## Phase 6 협동 규칙의 실행 경계
+
+| 경로 | 보관 상태와 실행 책임 |
+|---|---|
+| CoopSession.knowledge / observe, FloorKnowledge.observe / reveal | 호스트가 branch·depth별로 좌석 수만큼 독립된 메모리를 보유한다. Level.updateDirectSight와 원본 ShadowCaster로 직접 보이는 discoverable 셀을 구해 visited와 마지막 관측 지형을 갱신한다. 자기 칸도 생존 중에만 보인다. 지도 효과로 배운 셀은 mapped에 따로 표시한다. |
+| Hero.handle / getCloser / search, Foresight.attachTo | 협동 탐색 대상과 함정의 기지 여부는 행동자의 기억을 사용한다. 원본 Foresight 버프의 탐색 반경, 비밀 탐지와 셀 공개 경로를 실행해 해당 좌석에 기록한다. 기본 렌더링과 기존 원본 코드에는 Dungeon.hero와 level.heroFOV가 남는다. 좌석 공개 모델은 직접 시야를 다시 계산하며 level.visited·mapped·heap.seen을 수신자의 기록으로 가져오지 않는다. |
+| CombatZones.calculate / corridor / edgeMask | 현재 HUNTING 상태인 몹의 실제 표적과 최근 두 입력 차례 안의 실제 공격 대상을 연결한다. 살아 있는 지원 몹과 영웅이 시야 안에 있고 통행 가능한 동서남북 경로가 8보 이내일 때 교전 영역을 만든다. 두 끝까지의 거리 합이 최단경로 길이+2 이하인 통행 셀을 취한다. 겹치는 영역을 합집합으로 묶는다. 같은 몹이나 영웅을 공유하면 그 셀에서 겹친다. 매 계산에서 죽음·차폐·표적 변경·관계 만료를 새로 평가한다. |
+| SeatProjection.capture / writeMemory | 수신자별로 보이는 참여자와 지형만으로 경계를 재계산한다. 공개 경계 계산에 사용하는 차폐 지도에서 미관측 셀은 불투명하다. 공개된 셀에서 4방향 테두리만 전송한다. 몬스터와 아이템은 현재 시야에 한정하며 숨은 더미를 제외한다. |
+| ItemOwnership, Heap.drop, Item.collect / merge / split / dropCoopUnit, CoopSession.act | 호스트의 세션 내 아이템 번호와 소유 player ID를 실제 Item에 대응시킨다. 바닥 최초 등록과 스택 분할 때 내부 번호를 부여한다. 시작 장비를 귀속하고, 가방 수용 가능 여부를 검사한 뒤 원본 추가·병합 경로에서 신규 전리품을 귀속한다. 분할한 한 단위는 새 번호와 기존 소유자를 가진다. 소비·병합으로 사라진 객체는 현재 가방·장비·더미에서 찾을 수 없고 공개 핸들도 회수된다. 강한 참조가 사라진 항목은 레지스트리의 약한 키에서 해제할 수 있다. |
+| Char.damage / attack, Hero.die, CoopSession.fallen / revive / finishEffects, Actor.freezeCoop / process / fixTime | 방어·보호막 계산 뒤 HP 차감 직전 값을 보관한다. 일반 피해, 원본 추가 치명타와 직접 처형 분기를 구분한다. 양의 HP에서 강제 die가 오면 그 HP를 사용한다. 선행 HP가 없는 외부 0 대입 경로는 자원 소모 없이 최종 사망으로 처리한다. 생존자에게만 입력을 제안한다. 전투 불능인 영웅은 셀·Actor ID·장비를 유지하며 자신과 부착 버프의 남은 시간을 동결한다. Actor 등록을 유지한 채 선택과 시간 리베이스에서 건너뛴다. 부활 시 호스트의 현재 시각에 남은 시간을 더해 같은 Actor를 재개한다. |
+| LanRoom.dispatch, RoomSync.apply, SeatActions.prepare, StateImage.rememberedTerrain / mappedOnly | 새 행동도 세션·좌석·턴·버전·영수증 캐시를 거친다. 부활 확정은 원본 스케줄러가 다음 입력에 도달한 뒤 두 좌석의 생존·HP·소지품을 한 버전으로 반영한다. 파티 전멸 결과도 캐시하여 터미널 상태에서 같은 영수증을 조회할 수 있다. 표시 코드는 DisplayReplica.image()에서 검증이 끝난 불변 모델을 받는다. |
+
+전투 구역 계산은 로컬 배열과 BitSet을 사용한다. 실제 Actor 목록이나 PathFinder의 공용 거리 배열, RNG, HP, 행동 시간을 변경하지 않는다. 구역·현재 시야·공개 경계·전송용 아이템 핸들은 복원 후 재계산할 수 있다. 좌석별 visited·mapped·기억 지형, 내부 아이템 ID·소유자, 생존 상태·사망 직전 HP·동결된 상대 시각과 재전송 방지 기록은 저장해야 한다.

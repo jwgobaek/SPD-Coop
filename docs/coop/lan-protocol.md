@@ -43,3 +43,7 @@ Phase 5는 v1 호환 또는 명시적 버전 거부를 유지하면서 호스트
 ## Phase 5 호환 모드
 
 기존 v1 방과 ACT는 Phase 4 회귀 경로로 유지한다. 호스트가 생성 시 선택하는 SYNC1 방은 동일 TCP 프레이밍과 로비를 사용하며, 참가 전 MODE 협상과 별도의 DO·SYNC·PAGE를 요구한다. 두 모드의 행동 명령은 섞어 쓸 수 없다. [SYNC1 명세](state-sync.md)
+
+## Phase 6
+
+SYNC1의 DROP·UNEQUIP·REVIVE, 좌석별 기억 지형과 파티 전멸은 [상태 동기화 명세](state-sync.md)에 정의한다. v1 방은 신규 동사에 ERROR MODE를 반환한다. 두 방 모드 모두 일반 피해로 쓰러진 좌석을 행동 순서에서 제외하고 호스트의 아이템 귀속 검사를 적용한다.
