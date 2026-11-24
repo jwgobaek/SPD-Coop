@@ -310,3 +310,35 @@ Desktop 실행 명령과 X11 전제는 BUILD.md에 있다. 시험은 실제 생�
 | 4.0.2-INDEV-p8c1 최종 첫 층 알파 | 6649af1dd625385009bb1aee3bc8f1dff06d422f | 35,224,379 | 7f7c85982bf0cadbd524edcd776b9d48b22a251a64b1f5d2f652974a382e3b03 |
 
 두 APK 모두 org.spdcoop.dungeon.indev, versionCode 922, minSdk 21, targetSdk 36이다. aapt 패키지 검사와 apksigner의 v1·v2 검증에 통과했다. 서명 인증서 SHA-256은 0dd9070b5f17192a8b07e5ddb6735161b0d2bb6e49013e4d61ca5ee6216ddb53이며 기존 Cloud 디버그 키와 일치했다. 빌드 환경이 바뀌면 같은 키가 있는지 확인해야 한다. iPad에서 볼 수 있는 GitHub 검증 ZIP에는 빌드 로그·JUnit XML·화면·파일 목록이 있다. APK는 Cloud의 /workspace/deliverables/phase8-final/android-debug.apk 및 /workspace/deliverables/phase8-ui/android-debug.apk에 있다. [검증 ZIP](docs/coop/phase8-cloud-evidence.zip)
+
+
+## 마법사 시작 지팡이 및 하수도 왕복
+
+기준 브랜치 coop/phase8의 원격 HEAD는 시작 시 92ebf943ceb40fe0c63f149f6be9f6ec3e71fa8d였다. 변경 전 깨끗한 별도 체크아웃에서 50건을 실행했다. 엔진 변경과 증거 문서 커밋을 분리했다.
+
+| 검증 | 결과 | 실행 결과 |
+|---|---|---|
+| 기준 회귀 | PASS | 50건 |
+| 8C-2 JUnit 및 APK | PASS | 52건, 693b0b997d73, 35,226,848바이트, SHA-256 `7c88193e226d1b5d837a262e338ee9f15d52de405f60410d298506ca11be8cad` |
+| 8D-1 JUnit 및 APK | PASS | 57건, 0d06cfe84426, 35,234,290바이트, SHA-256 `792ee83464d47916ba40a1916b71352594877a54c1b3d0ba9677a117d3b07b3c` |
+| 영문·한국어 Desktop | PASS | 실제 LWJGL, 가상 X11, 기존 Noosa 제스처. 마법사 선택·표적 취소·발사·저장·재접속 및 층 이동 동의·하행·상행 |
+| 알파 저장본 전체 마이그레이션 | PASS | 이전 커밋으로 저장 후 새 호스트에서 전환. 양쪽 기존 키 인증, 동일 영수증·몹·HP·스케줄러·RNG 스택·귀속·탐험 기억, DOWNED 이후 부활, 원본 세대 보존 |
+| 호스팅 GitHub Actions | NOT RUN | 해당 브랜치 실행 기록 0건 |
+| Android 설치·화면·터치·생명주기·Wi-Fi·핫스팟·성능 | NOT RUN | 실제 기기 미사용 |
+
+두 APK의 패키지는 org.spdcoop.dungeon.indev, versionCode 922이고 버전명은 4.0.2-INDEV-p8c2와 4.0.2-INDEV-p8d1이다. 두 파일 모두 apksigner v1·v2 검사가 통과했다. 이전 알파와 같은 디버그 서명 인증서 SHA-256은 0dd9070b5f17192a8b07e5ddb6735161b0d2bb6e49013e4d61ca5ee6216ddb53이다.
+
+**실제 네트워크 및 디스크**. 시작 지팡이를 호스트·게스트 각각에 배정해 발사, 재접속, 동일 행동 재전송, 내구성 확정 직후 응답 전 호스트 강제 종료와 재개 후 새 발사를 확인했다. 하수도 시험은 원본 시드 415에서 정상 행동을 실제 소켓으로 전송했다. 시험 안내기가 원본 지도를 읽어 경로를 골랐으며 맵·캐릭터 위치를 바꾸지 않았다. 최종 실행의 이동은 76회, 근접 공격은 13회, 마력탄은 1회, 탐색은 1회였다. 식량 드롭·수량 보존·재획득, 계단 동의·취소, 영수증 재조회는 각각 별도로 확인했다. 하강 HEAD 발행 직후와 상승 HEAD 교체 직전에 실제 호스트를 강제 종료했다. 첫 경우는 2층에서 같은 영수증을 돌려줬고, 둘째 경우에는 2층 그대로 미확정 UNKNOWN을 확인했다. 새 동의 후 1층에 복귀했다. 현재 세대를 손상시켜 명시적인 백업 복구와 새 epoch를 검증했다. Desktop 계단 화면은 별도 준비 코드가 두 영웅을 원본 계단 옆에 놓은 후 실제 동의·이동·재접속 입력으로 촬영했다.
+
+**Cloud 성능**. 각각 21회 같은 상태에서 명시적으로 저장했다. 측정에는 동기화된 파일 쓰기·검증·HEAD 발행이 포함된다. 세대·디렉터리는 측정 시점의 바이트 수이고 힙은 호스트 JVM 한 시점의 사용량이다.
+
+| 조건 | 중앙값 | 95백분위 | 세대 / 디렉터리 | JVM 힙 |
+|---|---:|---:|---:|---:|
+| 활성 1층만 저장 | 13.19 ms | 32.07 ms | 55755 / 111574 B | 101151480 B |
+| 활성 2층과 휴면 1층 저장 | 16.87 ms | 26.6 ms | 112132 / 224328 B | 22139512 B |
+
+이동·전투·식량 행동의 ACK 96건에서 중앙값 14.24 ms, 95백분위 35.37 ms였다. 계단 상승 한 번의 확정 응답은 29.6 ms였다. 이전 7.5/30 ms의 단일 층 시험과 세계 상태·JVM·실행 부하가 다르다.
+
+**발견 및 수정**. 초기 마법사 장착 시험은 싱글플레이 배지 조회에서 실패했다. 협동 장착이 그 경로에 들어가지 않게 수정했다. 첫 층 숨은 입구는 협동 화면에서 제공하는 원본 탐색으로 찾도록 했다. 휴면 층을 복원할 때 원본 게임이 이미 읽은 문서 아이템을 여과해 소유권 개수가 달라지던 오류를 협동 복원 경계에서 수정했다. 특수 방의 희생 제단은 렌더링 전용 emitter에 접근하기 전에 존재 여부를 검사한다. 미지원 목적지에 대해서는 이동 전 확정 상태를 복원한 뒤 명시적으로 거절하는 시험이 통과했다.
+
+실행 명령은 `git ls-remote coop`, `./gradlew --offline :core:test`, `scripts/verify-android-build.sh <결과 디렉터리>`, `python3 scripts/verify-alpha-migration.py /tmp/spd-c2-base`, `./gradlew --offline :desktop:compileTestJava :desktop:release`, `CoopRenderSmoke <드라이버 출력> mage|floors` 및 일반 `git push coop …:refs/heads/coop/phase8`였다. APK 검사 상세, JUnit XML, 실제 스크린샷, 로그, 성능 원자료와 파일 목록은 [검증 ZIP](docs/coop/phase8-mage-floors-evidence.zip)에 있다.
