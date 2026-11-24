@@ -60,6 +60,34 @@ public class LanBoundaryTest {
                 assertThrows(LanClient.NetworkException.class,() -> new LanClient(address)).code);
     }
 
+    @Test(timeout=12000)
+    public void stalledTcpReaderIsClosedBeforeIdleDeadline() throws Exception {
+        try (LanTransport transport = new LanTransport(loop,0,0,UUID.randomUUID());
+             Socket slow = new Socket()) {
+            slow.setReceiveBufferSize(1024);
+            slow.connect(new InetSocketAddress(loop,transport.listener.socket().getLocalPort()));
+            DataOutputStream out = new DataOutputStream(slow.getOutputStream());
+            byte[] hello = "1 1 - HELLO".getBytes(StandardCharsets.US_ASCII);
+            out.writeInt(hello.length);
+            out.write(hello);
+            LanTransport.Request request = transport.requests.poll(1,TimeUnit.SECONDS);
+            assertNotNull(request);
+            LanTransport.Peer peer = request.peer;
+            peer.channel.socket().setSendBufferSize(1024);
+            char[] data = new char[LanClient.MAX_FRAME];
+            Arrays.fill(data,'A');
+            String payload = new String(data);
+            long end = System.nanoTime()+9000000000L;
+            while (!peer.dead && System.nanoTime() < end) {
+                // Keep the writer supplied without reaching the separate 16-frame queue limit.
+                if (peer.output.size() < 4) peer.reply(payload);
+                Thread.sleep(1);
+            }
+            assertTrue("Write stall deadline expired",peer.dead);
+            assertTrue(transport.worker.isAlive());
+        }
+    }
+
     @Test(timeout=8000)
     public void queuePressureAndTruncatedFrameDoNotReachEngine() throws Exception {
         try (LanTransport transport = new LanTransport(loop,0,0,UUID.randomUUID())) {
