@@ -1,0 +1,122 @@
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Duser.home=/tmp/spd-user
+Fetching distribution.
+Downloading https://services.gradle.org/distributions/gradle-9.5.0-bin.zip
+.............10%.............20%..............30%.............40%.............50%..............60%.............70%..............80%.............90%.............100%
+
+Welcome to Gradle 9.5.0!
+
+Here are the highlights of this release:
+ - Task provenance in reports and failure messages
+ - Type-safe accessors for precompiled Kotlin Settings plugins
+
+For more details see https://docs.gradle.org/9.5.0/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.5.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+Checking the license for package Android SDK Platform-Tools in /tmp/spd-sdk/licenses
+License for package Android SDK Platform-Tools accepted.
+Preparing "Install Android SDK Platform-Tools v.37.0.3".
+"Install Android SDK Platform-Tools v.37.0.3" ready.
+Installing Android SDK Platform-Tools in /tmp/spd-sdk/platform-tools
+"Install Android SDK Platform-Tools v.37.0.3" complete.
+"Install Android SDK Platform-Tools v.37.0.3" finished.
+> Task :services:updates:debugUpdates:processResources NO-SOURCE
+> Task :services:news:debugNews:processResources NO-SOURCE
+> Task :core:processResources NO-SOURCE
+> Task :services:compileJava
+> Task :android:preBuild UP-TO-DATE
+> Task :android:preDebugBuild UP-TO-DATE
+> Task :android:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :services:processResources NO-SOURCE
+> Task :services:classes
+> Task :services:jar
+> Task :android:generateDebugResources
+> Task :android:packageDebugResources
+
+> Task :SPD-classes:compileJava
+Note: /workspace/spd-coop/SPD-classes/src/main/java/com/watabou/noosa/TextInput.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :services:updates:debugUpdates:compileJava
+> Task :services:updates:debugUpdates:classes
+> Task :services:updates:debugUpdates:jar
+> Task :services:news:debugNews:compileJava
+> Task :services:news:debugNews:classes
+> Task :services:news:debugNews:jar
+> Task :SPD-classes:processResources NO-SOURCE
+> Task :SPD-classes:classes
+> Task :SPD-classes:jar
+> Task :android:processDebugNavigationResources
+> Task :android:javaPreCompileDebug
+> Task :android:generateDebugAssets UP-TO-DATE
+> Task :android:parseDebugLocalResources
+> Task :android:mergeDebugAssets
+> Task :android:generateDebugRFile
+> Task :android:compressDebugAssets
+> Task :android:generateDebugGlobalSynthetics
+
+> Task :core:compileJava
+Note: /workspace/spd-coop/core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/messages/Messages.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :android:checkDebugDuplicateClasses
+> Task :core:classes
+> Task :android:desugarDebugFileDependencies
+> Task :core:jar
+> Task :android:compileDebugKotlin NO-SOURCE
+> Task :android:mergeExtDexDebug
+
+> Task :android:compileDebugJavaWithJavac
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Duser.home=/tmp/spd-user
+
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Duser.home=/tmp/spd-user
+
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Duser.home=/tmp/spd-user
+
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :android:processDebugJavaRes NO-SOURCE
+> Task :android:checkDebugAarMetadata
+> Task :android:mapDebugSourceSetPaths
+> Task :android:mergeDebugJavaResource
+> Task :android:mergeLibDexDebug
+> Task :android:compileDebugNavigationResources
+> Task :android:createDebugCompatibleScreenManifests
+> Task :android:extractDeepLinksDebug
+> Task :android:processDebugMainManifest
+> Task :android:mergeDebugResources
+> Task :android:processDebugManifest
+> Task :android:copyAndroidNatives
+> Task :android:mergeDebugJniLibFolders
+> Task :android:mergeDebugNativeLibs
+> Task :android:validateSigningDebug
+> Task :android:writeDebugAppMetadata
+> Task :android:writeDebugSigningConfigVersions
+> Task :android:processDebugManifestForPackage
+
+> Task :android:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libgdx-freetype.so, libgdx.so. Run with --info option to learn more.
+
+> Task :android:processDebugResources
+> Task :android:dexBuilderDebug
+> Task :android:mergeProjectDexDebug
+> Task :android:packageDebug
+> Task :android:createDebugApkListingFileRedirect
+> Task :android:assembleDebug
+
+[Incubating] Problems report is available at: file:///workspace/spd-coop/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.5.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 23s
+46 actionable tasks: 46 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.5.0/userguide/configuration_cache_enabling.html

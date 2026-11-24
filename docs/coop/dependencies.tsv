@@ -1,0 +1,1289 @@
+group	path	lines (one entry per match)
+global progress	android/src/main/java/com/shatteredpixel/shatteredpixeldungeon/android/AndroidBackupHandler.java	60,64
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/Badges.java	417,421,426,431,436,448,452,457,462,467,697,697,860,881,901,939,986,987,988,989,989,991,992,992,995,996,996,1024,1025,1031,1050,1051,1052,1142
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/Badges.java	840,912
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/Badges.java	347,348,354,358,363,368,373,385,390,395,400,405,479,483,488,493,498,510,514,519,524,529,539,548,901,968,974,980,1023,1059,1063,1180,1188,1218,1218,1300,1326
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/Bones.java	70,71
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/Bones.java	60,62,119,261,264,267
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/Bones.java	128,131,132,133
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/Bones.java	60,245
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/Dungeon.java	448,448,458,458,898,899,901
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/Dungeon.java	299,456,457,457,480,521,745,746,828,978,978,986,986,1028,1029,1041,1043,1047,1071
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/Dungeon.java	914,931,931,931,937,951,951,951,952,952,952,953,953,953,961,961,961,962,962,962,963,963,963,971,971,971,972,972,972,973,973,973,979,979,979,980,980,980,981,981,981,987,987,987,988,988,988,989,989,989,1014,1014,1014
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/Dungeon.java	286,508,711,712,714
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/Dungeon.java	256,257,284,286,385,386,388,389,391,396,400,401,671,672,688,691,694,703,711,712,714,714,725,805,807,810,821,831,845,853,855,858,869,875,883,892
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/GamesInProgress.java	152,153,154,154,155,156,157,158,159,160,161
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/GamesInProgress.java	144
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/GamesInProgress.java	42,44
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/GamesInProgress.java	163,164,205,205,207,207,216,216,218,218
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/Rankings.java	98,101,102,103,112,113,114,178,183,190,194,196,203,239,271,278,300,303,307,347,364,365
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/Rankings.java	183,286,287,294,348,351
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/Rankings.java	115,116,119,126,173,183,190,190,191,191,193,204,205,208,212,212,212,213,213,215,216,217,218,221,222,223,226,227,228,231,232,232,233,233,239,239,240,240,242,242,242,244,244,248,249,249,251,251,251,251,252,252,254,254,254,256,311,316,350,362,367,374
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/Statistics.java	117,271
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/Actor.java	194,194,202,301,301
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/Actor.java	204,209,213
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/Actor.java	195
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/Char.java	238,271,271,301,302,303,306,411,411,412,425,425,426,428,428,429,443,469,470,471,472,563,565,576,654,655,658,670,671,674,732,735,736,737,740,747,747,748,749,750,760,761,761,762,763,764,856,871,872,873,874,880,1032,1033,1034,1035,1040,1041,1326
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/Char.java	199,200,202,212,218,223,233,238,250,255,256,272,272,314,314,376,376,396,471,749,760,763,873,1034,1131,1131,1302,1305,1305,1306,1315,1327,1330,1334
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/Char.java	314,314,376,376,1327
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/Char.java	571,857,1003
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Alchemy.java	47,48
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Alchemy.java	38,39
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Blizzard.java	37,38,40,44
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Blob.java	63,69,129,147,147,158,162,163,177,178,181,182,228,229,251,276
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Blob.java	242
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/ConfusionGas.java	44
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/CorrosiveGas.java	55
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Electricity.java	78
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Electricity.java	52,58,69,85,107,107
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Fire.java	41,45,51,65,77,78,105,110
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Foliage.java	86
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Foliage.java	47,51,56,78
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Foliage.java	78
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Foliage.java	40,41
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Freezing.java	44,48,75,92,112,119,124,129,134
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Freezing.java	134
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/GooWarn.java	49
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Inferno.java	39,40,42,46,60,61,67,70,71
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/ParalyticGas.java	49
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Regrowth.java	45,47,53
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/SacrificialFire.java	77,78,86,93,95,97,108,118,164,166,168,203,205,205,223
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/SacrificialFire.java	86,93
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/SacrificialFire.java	68,69,178,193
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/StenchGas.java	58
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/StenchGas.java	46,55
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/StenchGas.java	59
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/StormCloud.java	39,42,44
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/ToxicGas.java	47
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/ToxicGas.java	73
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/VaultFlameTraps.java	90
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/VaultFlameTraps.java	66,85,104,109,116
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/VaultFlameTraps.java	116
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/VaultFlameTraps.java	96
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/WaterOfAwareness.java	68
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/WaterOfAwareness.java	52,54,57,59
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/WaterOfAwareness.java	59
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/WaterOfAwareness.java	34
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/WaterOfHealth.java	72
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/WaterOfHealth.java	42
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Web.java	46,83,89
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/WellWater.java	60,60
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/WellWater.java	47,48,65,93,93,94,116,131
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/WellWater.java	131
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/WellWater.java	127,136
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/AllyBuff.java	65,66,67
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Amok.java	46
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/AscensionChallenge.java	106,106,129,130,132,133,141,143,153,154,162,163,169,207,208,216,256,257,257,335
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/AscensionChallenge.java	131,252,253,262,263,264,270,272,275,280,303
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/AscensionChallenge.java	252,253,279,336
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Berserk.java	325
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Bleeding.java	115,126
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Bleeding.java	117,119
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Burning.java	99,122,141,171,179
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Burning.java	255
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/ChampionEnemy.java	135,143,145,145,177,180,226,229
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Charm.java	72
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Combo.java	232,238,244,250,256,296,504,508,531
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Combo.java	385,399,490,496,502,502,513
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Combo.java	490
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Combo.java	106
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Corrosion.java	134
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Degrade.java	43,52
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Dread.java	63
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Dread.java	62,63,69
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Dread.java	62
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/EnhancedRings.java	40,49,64
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/FireImbue.java	71,72
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Foresight.java	47,49
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Foresight.java	48
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Foresight.java	48
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Frost.java	61,82,111
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/GreaterHaste.java	77
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/HoldFast.java	104,105,106
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Hunger.java	66
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Hunger.java	214
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Invisibility.java	85,87
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Levitation.java	59
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/LifeLink.java	80
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Light.java	41,42,53
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/LockedFloor.java	39
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Momentum.java	69,77,112,121
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java	213,274,301,301,340,340,342,345,485,537,537,539,542
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java	362,491,504,504,511,515,519,558,602
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java	362,558
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Ooze.java	106
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Ooze.java	93,118
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Paralysis.java	59
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Paralysis.java	59
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/PhysicalEmpower.java	49
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/PinCushion.java	72
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Poison.java	140
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Preparation.java	87,99,138,275,275,280,281,282,288,301,301,308,310,314,315,319,321,321,322,322,323,326,327
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Preparation.java	275,288,288,293,293,301,301,315
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Preparation.java	275
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Preparation.java	281,326
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/PrismaticGuard.java	59,59,64,69,70,70
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/PrismaticGuard.java	58
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Regeneration.java	53,60,61,62,63,64,114
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/RevealedArea.java	58
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Shadows.java	59,60,61,67,94,95
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/SnipersMark.java	53,91,118
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/SuperNovaTracker.java	111
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/SuperNovaTracker.java	45,46,59,59,66,83,84,84,103,104,110,119,120,140,140
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/SwarmIntelTracker.java	41,43
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/TimeStasis.java	45
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/ToxicImbue.java	75
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Belongings.java	65,65
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Belongings.java	225,344,352,360,366,373,381
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Hero.java	764,1335,1336,1513,1513,2266,2268,2279
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Hero.java	760,769,840,852,950,960,1007,1009,1011,1023,1062,1086,1118,1161,1197,1200,1205,1205,1207,1207,1250,1254,1256,1262,1278,1283,1313,1315,1316,1317,1318,1319,1326,1333,1346,1357,1365,1371,1378,1390,1431,1438,1440,1721,1740,1768,1775,1820,1825,1825,1829,1830,1831,1839,1844,1851,1852,1853,1854,1881,1881,1926,1927,1928,1931,1931,1932,1933,1934,1941,1943,1956,1958,1959,1960,1961,1984,1985,1986,1987,1991,1994,1995,1996,1996,2243,2244,2245,2246,2256,2273,2273,2273,2286,2330,2335,2337,2339,2340,2341,2396,2405,2407,2410,2422,2432,2447,2457,2463,2463,2469,2469,2501,2504,2512,2521,2533,2535,2535,2539,2546,2549,2551,2571,2572,2576,2586,2590,2612
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Hero.java	247,840,1733,1734,1853,1854,1931,1931,2245,2245,2254,2501,2504,2539,2546
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Hero.java	224,862,869,895,896,898,899,901,902,904,905,907,908,910,911,913,914,916,917,919,920,922,923,939,986,987,987,988,989,991,997,1153,1441,1945,1950,1952,1963,1973,1976,1981,1989,1998,2002,2173,2308,2357,2379,2393,2395,2445,2447,2483
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Hero.java	351,952,955,1205,1207,1262,1278,1283,1723,1769,1777,2106,2197,2308,2410,2422,2432,2463,2469
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java	147,148,179,198,214,215,227,241,242,257
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java	156,159,161,163,165,167,169,338,338,340,340,342,342,344,344,346,346
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java	72
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java	258,452,452,515,539,542,569,572,580,809,810,811,811,815,816,817,819,826,827
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java	560,564,730,731,732,744,747
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java	452
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java	452
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/Ratmogrify.java	266,281,282
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/Ratmogrify.java	87,99,154,170
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/Ratmogrify.java	87
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/Ratmogrify.java	306
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/PowerOfMany.java	78,79,83,84,149,323
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/PowerOfMany.java	139,155,155,323
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/PowerOfMany.java	139
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java	127,128,129,133,142,143,146,147,147,148,156,157,167,168,169,173,176,177,180,181,181,182,190,191,202,216,217,217,232,243,243,244,244,245,245,253,254,260,261,261,278,377,378,391,392,456,458,460,462,464,466,466,467,534,534
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java	219,220
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java	327,332,338,343,348,354,359
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Challenge.java	153,154,158,160,160,161,256,257,260,261,269,270,271,271,273,274,275,281,284
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Challenge.java	93,109,109,120,120,125,125,130,130,132,132,133,133,146,154,244
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Challenge.java	93
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/ElementalStrike.java	260,314,344,347,348,350,387,658
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/ElementalStrike.java	355,360,376,445,445,474,561,634,634
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/ElementalStrike.java	561
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Feint.java	92,218,219,219,221,222,223,225,226
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Feint.java	87,98,108,112,144,146
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/SpectralBlades.java	92,93,148
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/SpiritHawk.java	152,153,154,175,176,191,217,220,221,270,271
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/SpiritHawk.java	98,98,223
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/ElementalBlast.java	447
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/ElementalBlast.java	135,136,138,138,139,145,146,148,205,206,212,218,225,240,241,244,247,258,262,305,396
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/ElementalBlast.java	241
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/WarpBeacon.java	65,66,106
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/WarpBeacon.java	98,105,117,117,146,147,158,200,200,204,209,209,210,211,211,212,212,220,221,245
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/WarpBeacon.java	200,200
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/WildMagic.java	82,95
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/DeathMark.java	114,115,116,120,127,128,201,203,204,219,221,222
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/DeathMark.java	83,121
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/DeathMark.java	83
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/ShadowClone.java	163,208,209,210,220,221,222,231,232,241,241,242,251,252,253,266,277,286,307,308,325
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/ShadowClone.java	100,266,277,291,295,296,303,303,318,318,325
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/ShadowClone.java	318,318,325
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/SmokeBomb.java	176,176,184,185
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/SmokeBomb.java	95,95,98,111,112,129,143
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/SmokeBomb.java	98
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/warrior/Endure.java	107,109,123,131,133
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/warrior/Endure.java	127
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/warrior/HeroicLeap.java	94
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/AuraOfProtection.java	49,50,51
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/BeamingRay.java	62,62,62,87,114,144
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/BeamingRay.java	92,97,97,100,101,101,102,102,122,157,158,158
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/BeamingRay.java	97,100
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/BlessSpell.java	132,133
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/BlessSpell.java	70
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/BlessSpell.java	70
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/BodyForm.java	51,72
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Cleanse.java	59,61,62,100
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Cleanse.java	76,77
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Cleanse.java	77
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/ClericSpell.java	57,61
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/DivineIntervention.java	89,90,91,103,103,113,113
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/DivineSense.java	80,80
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Flash.java	71,71,71,72
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Flash.java	71,71
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/GuidingLight.java	122,125,170,172
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/GuidingLight.java	94
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HallowedGround.java	141,162,163,178,195,195,224,229,231,232,244
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HallowedGround.java	91,91,98,99,101,173,182,191,192
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HallowedGround.java	91
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyLance.java	63,64,65,118,119
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyLance.java	146
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyWard.java	64,67,90
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyWeapon.java	69,72,95
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Judgement.java	96,98,99,102
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Judgement.java	75
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Judgement.java	75
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/LayOnHands.java	52,52
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/LayOnHands.java	71
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/LifeLinkSpell.java	53,53,53,71,117
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/MindForm.java	58,72,83,122,124,127,127,132,146,147,154,161,162
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/MnemonicPrayer.java	194,194
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/MnemonicPrayer.java	94
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/MnemonicPrayer.java	94
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Radiance.java	64,68,69
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Radiance.java	69
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/RecallInscription.java	59,59,152
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/ShieldOfLight.java	105,107
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/ShieldOfLight.java	72
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/ShieldOfLight.java	72
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Smite.java	60,61,62
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Smite.java	89
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Smite.java	89
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/SpiritForm.java	81,102,106,138,146,196,203,214,215,224,247,248,251
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/SpiritForm.java	204,219,220,228,229,239,240
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Stasis.java	62,62,122,122,123,141,171
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Stasis.java	100,156,156
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Sunray.java	58,59,60,61
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/WallOfLight.java	57,57,118,228
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/WallOfLight.java	67,68,81,82,83,106,106,167,168,176,177,178,194,195,202,211,217,218,232,254,279,285
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Acidic.java	50
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/ArmoredBrute.java	63
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/ArmoredBrute.java	63
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/ArmoredStatue.java	47,119
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bee.java	197,198,215
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bee.java	161,166,176,182,184,188,188,197,218,219
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Brute.java	107
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Brute.java	107
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CausticSlime.java	53
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CausticSlime.java	60,60,61
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalGuardian.java	127
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalGuardian.java	79,129,130,207,216,219,234,235,236,258
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalGuardian.java	79,219
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalGuardian.java	135
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalMimic.java	118,119,128,129,188
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalMimic.java	117,134,160,188,188
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalMimic.java	117,188
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalSpire.java	101,134,144,144,163,194,203,220,251,316,317,323,332,439,450,463,464
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalSpire.java	90,91,93,143,144,144,150,151,151,161,238,238,253,253,275,275,362,363,364,367,368,424,425,426,430
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalSpire.java	135
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalWisp.java	135
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalWisp.java	70,71,99
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalWisp.java	136
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM100.java	107
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM100.java	87
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM100.java	112
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM200.java	132,132
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM201.java	100
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM201.java	57,58,76,107,107,108
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM300.java	179,182,193,194,198,199,293,294,296,306,316,374,411,419,420,429,430,489,596,699
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM300.java	171,172,173,179,182,185,188,257,327,334,415,425,443,448,451,453,458,458,525,578,586,587,610,617,617,626,626,627,637,638,641,647,648,648
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM300.java	334
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM300.java	307,590,591,592,594
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DemonSpawner.java	90
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DemonSpawner.java	104,116,123,125
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DemonSpawner.java	86,145,146,152,153
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DwarfKing.java	458,458,458,485,524,582,588,589,632,716
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DwarfKing.java	329,339,356,356,380,380,393,398,402,403,405,414,418,419,421,554,557,557,563,563,565,574,682,701,788
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DwarfKing.java	459,464,467,568,569,570,572,633
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/EbonyMimic.java	77,78
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/EbonyMimic.java	76,83
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/EbonyMimic.java	76
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java	324,334,374,531,552
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java	143,243,251,278,327,344,363,365,417,426,427,495,525
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java	278,344
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java	375,419,532
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Eye.java	203
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Eye.java	140,140,179,181,198,231,231,232,233,235
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Eye.java	140,140,198
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Eye.java	204
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/FetidRat.java	70,99
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/FetidRat.java	70,99
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/FetidRat.java	71
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/FungalSpinner.java	54,55
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Ghoul.java	111,111,113,115,131,154,160,219,248,249,252,257,273,275,293,294,310,366,367,369
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Ghoul.java	310
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollExile.java	102,159
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollExile.java	76,80,81,114,114,115,159,170
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollExile.java	159,170
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollGeomancer.java	194,197,203,218,233,238,243,259,260,634,640,723,732,738,841,846
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollGeomancer.java	104,116,236,339,349,356,357,357,377,380,405,406,407,408,410,412,414,414,415,417,420,421,422,422,423,424,426,429,430,433,434,450,460,463,464,465,491,536,537,537,582,596,597,660,661,686,686,750,778,779,783,786,788,795,796,806,810,854,855,855
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollGeomancer.java	733,739,842
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollGuard.java	106
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollGuard.java	96,106,125
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollSapper.java	206,212
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollSapper.java	133,154,169,183,184
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollTrickster.java	153
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollTrickster.java	72,93,121,153
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollTrickster.java	82
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GoldenMimic.java	76,77
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GoldenMimic.java	75
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GoldenMimic.java	75
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Golem.java	129,133,152,154,154,177,177
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Goo.java	73,113,235,275
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Goo.java	109,119,135,146,189,221,265,287,290,290,298,299,316
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Goo.java	119,189,221
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Goo.java	74,75,111,236,237,302,303,304,306
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GreatCrab.java	83,106,127
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GreatCrab.java	127
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GreatCrab.java	88,107
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Guard.java	128,129
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Guard.java	78,84,85,126,133,183
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Guard.java	133
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/HermitCrab.java	44
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/HermitCrab.java	45
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mimic.java	156,161,162,163,164,165,166,170,180,216,217
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mimic.java	138,215,276
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mimic.java	138,215
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob.java	335,396,437,437,438,464,464,465,504,510,740,743,785,786,820,835,856,857,884,885,888,888,890,890,892,892,892,893,911,950,951,955,972,977,988,993,994,999,1001,1004,1006,1008,1010,1014,1015,1038,1039,1040,1041,1043,1044,1045,1046,1047,1047,1053,1063,1078,1080,1082,1086,1097,1110,1114,1129,1130,1248,1249,1647,1699,1720
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob.java	308,327,330,421,429,446,459,484,560,572,574,581,593,599,615,616,621,627,640,665,665,682,688,720,740,741,741,743,745,912,970,1003,1053,1067,1104,1116,1123,1294,1350,1407,1407,1459,1482,1614,1618,1618,1619,1619,1621,1646,1698,1738,1754,1754,1766,1767,1805
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob.java	741,741,745,1053,1067,1646,1698
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob.java	847,848,852,853,980,981,982,1032,1033,1211
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/MobSpawner.java	41,41,43,44,51,59
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Necromancer.java	233,323,377
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Necromancer.java	90,201,206,207,208,208,224,251,291,297,302,303,304,309,310,312,312,322,322,346,349,358,362,364,365,365,376,376
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Necromancer.java	322,322,376,376
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Necromancer.java	234
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/PhantomPiranha.java	53
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/PhantomPiranha.java	55,62,65,102,103,104,113
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/PhantomPiranha.java	104,113
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Piranha.java	100
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Piranha.java	65,66,72,85,85,90,95,101,102,103,139,139,150,150,173,185,198
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Piranha.java	118,119
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Pylon.java	140,205
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Pylon.java	74,75,77,108,110,216
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Pylon.java	108,110
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Pylon.java	141,142
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Rat.java	46,48
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Rat.java	45
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Rat.java	45
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RipperDemon.java	128,267
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RipperDemon.java	163,163,164,171,171,172,189,189,189,212,232,237,243,244,263,263,284
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RipperDemon.java	189,189,189,263,263
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RotHeart.java	76,100,100,111
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RotHeart.java	113
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RotLasher.java	78
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RotLasher.java	59
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RotLasher.java	79
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Scorpio.java	74,102
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Shaman.java	122,129
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Shaman.java	93
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Shaman.java	130
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Skeleton.java	104,108,109,110,113,120,127
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Skeleton.java	133
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Skeleton.java	133
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Snake.java	62
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Snake.java	62
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Snake.java	66,66
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/SpectralNecromancer.java	61,135
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/SpectralNecromancer.java	68,68,69,110,111,112,112,128,155
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/SpectralNecromancer.java	136
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java	110,201
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java	172,194,195,196,200
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java	200
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Statue.java	142
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Statue.java	59,60,99,114,161
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Statue.java	167,168,174
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Succubus.java	94,101,112,138,138,142,144
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Succubus.java	94,101
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Swarm.java	93,93,95,97,97,98,113
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java	154,214,227,249,265,292,293,337,344,514,518,522,525,529,535,642,876,992,1003,1071
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java	108,133,137,172,183,208,215,243,244,245,252,253,262,296,314,579,580,580,629,655,676,810,813,816,862,881,886,891,892,939,939,942,947,947,989,989,990,990,992,1000,1000,1003,1018,1056
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java	270,275,300,307,318,323
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java	730,1125
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java	221,222,223,225,643,644,877,878,1072,1073
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Thief.java	202
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Thief.java	101,140,154,201,202,207,211,211,217,218
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Thief.java	201,211,217,218
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/TormentedSpirit.java	76
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Warlock.java	112,122
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Warlock.java	85
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Warlock.java	123
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Wraith.java	123,127,158
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/YogDzewa.java	180,180,194,220,234,252,255,256,267,267,277,288,306,306,316,316,330,434,483,484,485
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/YogDzewa.java	163,164,166,180,183,206,207,230,256,257,267,306,306,316,316,331,415,425,426,427,443,445,446,447,452,452,470,471,512,513,526,533,546
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/YogDzewa.java	183,230
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/YogDzewa.java	135,143,221,235,537,538,540,542,542,544,580
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/YogFist.java	94,95,97,154,530,549,562,600,619,635
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/YogFist.java	115,115,116,131,229,240,249,249,261,270,270,305,329,330,392,392,393,393,394,394,412,552,553,554,556,556,625,626,627,629,629
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/YogFist.java	553,626
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/YogFist.java	531,601
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Blacksmith.java	68,83,92,122,123,125,155,157,447,450,453,454,457,460
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Blacksmith.java	125,348,348
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Blacksmith.java	62,63,70,73,465
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/DirectableAlly.java	86,91,138
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/DirectableAlly.java	84,124,163
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/DirectableAlly.java	84,124,163
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Ghost.java	91,135,176,179,182
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Ghost.java	77,77,185,200,201,304,304,315,319,368,380,381,391
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Ghost.java	85,86,93,372,398,398
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Imp.java	72,85,89,122,124,132,142,143,148,149,198
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Imp.java	79,87,88,306,306,368,372
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Imp.java	87,88
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Imp.java	66,67,381,382,382,389,390,390
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/ImpShopkeeper.java	41,42,44
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/ImpShopkeeper.java	40
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/ImpShopkeeper.java	40
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/MirrorImage.java	179
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/NPC.java	40
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/NPC.java	40
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/RatKing.java	120,124,130,148,148,153,162,172,172
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/RatKing.java	84,91,96,97,101,103,104,108
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/RatKing.java	90,91,133,149
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Sheep.java	82,83
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Sheep.java	48
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Sheep.java	48
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Shopkeeper.java	87,213,230,230,239,270,272,273,312,317
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Shopkeeper.java	108,127,133,135,146,180,202,267,273,281,315
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Shopkeeper.java	108,146
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Shopkeeper.java	76,77,167,268
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultLaser.java	102,158,160
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultLaser.java	75,87,90,91,150
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultLaser.java	75,87,150
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultLaser.java	108,111
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultMirror.java	142
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultMirror.java	61,63,63,144
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultSentry.java	142,208
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultSentry.java	81,86,87,89,112,200
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultSentry.java	81,112,200
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultSentry.java	146,149
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultTokenDoor.java	56,58,58
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Wandmaker.java	76,105,107,117,120,123,138,141,144,159,167,382,389,394,410,412,413,439
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Wandmaker.java	355,355,382,389,403,410,420,421,439,440
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Wandmaker.java	70,71,455,455,458
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultBossElemental.java	248,257,277,292,326,326,357,357,367,367,371,371,388,392,392,568,589,669,687,782,937,1030,1092,1255,1341,1380,1435
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultBossElemental.java	124,225,226,227,430,562,566,568,589,593,607,620,648,658,680,687,727,730,738,756,777,777,814,814,826,826,882,930,946,960,961,977,1149,1154,1157,1157,1167,1173,1174,1174,1178,1179,1179,1295,1302,1305,1311,1314,1337,1341,1345,1355,1355,1361,1361,1376,1380,1413,1414,1415,1452,1452,1458,1458,1464,1464
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultBossElemental.java	334,670,784,938,941,1094,1258,1260,1438,1440
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultGhoul.java	50,52
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/BadgeBanner.java	144
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/BlobEmitter.java	61,62,62,63,64,64
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/BlobEmitter.java	62,62,64,64
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/CheckedCell.java	50
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/FloatingText.java	337,343,362,363,366,373,376,439,445,456,457,460
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/Pushing.java	57
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/Pushing.java	72,72
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/Pushing.java	72,72
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/Ripple.java	42,43
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/Surprise.java	92
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/Surprise.java	46,47
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/Swap.java	81,81
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/Swap.java	50,78,79
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/Wound.java	92
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/Wound.java	47,48
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/particles/FlowParticle.java	89,89
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/particles/FlowParticle.java	89,89
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/particles/LeafParticle.java	50,50
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/particles/SpectralWallParticle.java	37,74
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/particles/WindParticle.java	94,94
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/effects/particles/WindParticle.java	94,94
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Amulet.java	137,137
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Amulet.java	75,76,111,112,115
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/ArcaneResin.java	131,193,193,194
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/ArcaneResin.java	72,139,139,141,143
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/BrokenSeal.java	76,78,97,148,157,157,165,171,177,177,180,324,324
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/BrokenSeal.java	118,226
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Dewdrop.java	66
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Dewdrop.java	57
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/EnergyCrystal.java	62
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/EnergyCrystal.java	60
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/EquipableItem.java	77,81,86,139,146,148
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Generator.java	777,798,806,831,839
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Gold.java	65,91,91
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Gold.java	63,66,67
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Heap.java	249,364
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Heap.java	249
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Honeypot.java	76,89,93,99,110
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Honeypot.java	99
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Honeypot.java	180
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Item.java	235,235,237,253,265,265,267,283,387,387,388,388,465,465,519
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Item.java	141,191,253,275,329,346,596,597,621
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Item.java	160,161,662,665,667,668,670,671,690,708,709,711,712,719,719
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Item.java	236,240,266,270,467,520,520,525
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/KindOfWeapon.java	70,78,83,267,270
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/KindOfWeapon.java	132,179
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/KindofMisc.java	104,114,117
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/KindofMisc.java	102,120,122
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/KingsCrown.java	70
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/LiquidMetal.java	160,180,215
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/LiquidMetal.java	84,84,90,91
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/LiquidMetal.java	91
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/LiquidMetal.java	76,183,183,186
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/LostBackpack.java	84,84
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Stylus.java	71,97,104,104,105,106,109,110
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/TengusMask.java	71,96,99,100,102,103,105,106,109,109,112
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/TengusMask.java	80
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/Armor.java	204,204,216,216,261,317,318,325,326,480,480,480,481,503,504,505,531,532,533,534,535,542,543,574,574,575,591,591,597,597,612,612,613,624,734,735,735,784,784,785,824,825,826,827
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/Armor.java	195,533,826
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/Armor.java	206,218,312,555,737
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/ClassArmor.java	299,299,300,303,327
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/ClassArmor.java	255
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/curses/AntiEntropy.java	51
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/curses/Bulk.java	44,44
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/curses/Multiplicity.java	62,62,85,95
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Camouflage.java	46
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Camouflage.java	46
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Entanglement.java	53
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Flow.java	42
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Repulsion.java	45
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Stone.java	59,60,63,73,74,77
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Swiftness.java	51
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Viscosity.java	151
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Viscosity.java	153
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/AlchemistsToolkit.java	117,117,124,124,149,179,187
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/AlchemistsToolkit.java	93,96,114,121
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/Artifact.java	151,153,157,158,159,161,165,166,168,176,179,259
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/CapeOfThorns.java	67
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/CapeOfThorns.java	107
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/ChaliceOfBlood.java	110,219
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/ChaliceOfBlood.java	161
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/CloakOfShadows.java	101,240,241
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/DriedRose.java	186,248,588,596,619,620,636,684,716,758,792,908,909,947,948,950,983,984,1022,1023,1025
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/DriedRose.java	131,165,165,176,455,455,716,797,800,827,909,984
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/DriedRose.java	503
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/EtherealChains.java	305
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/EtherealChains.java	127,127,130,130,131,165,167,180,203,227,228,228,236,248,271
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/EtherealChains.java	127,127
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/EtherealChains.java	95,131,136,139,141
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/HolyTome.java	147,161,296,297,333,347,364
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/HolyTome.java	353,366,368
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/HornOfPlenty.java	108,146,147,148,149,150,151,201,337
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/HornOfPlenty.java	342
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/HornOfPlenty.java	135,159
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/LloydsBeacon.java	131,147,160,162,166,174,228,249
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/LloydsBeacon.java	249
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/LloydsBeacon.java	130,201,202,203,205,208,209,210,213,214,216,218,253
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/MasterThievesArmband.java	152,187,250,309
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/MasterThievesArmband.java	120,170,265,266
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/MasterThievesArmband.java	91,120,130,131,136,140,166,168,170,195
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/SandalsOfNature.java	200,312,361
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/SandalsOfNature.java	339,339
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/SandalsOfNature.java	339
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/SandalsOfNature.java	339,343,349,363
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/SkeletonKey.java	165,203,265,302,323,379,420
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/SkeletonKey.java	135,135,142,143,147,148,148,173,188,210,215,215,231,233,238,240,241,241,270,273,278,280,289,289,299,310,310,320,344,344,352,468,469,492,528,534,585,586,587,589,591,593,597,598,599,600,601,608,609,610,614,617,622,625,630,633,638,641,642,646,648,649,653,655,656
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/SkeletonKey.java	135,135
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/SkeletonKey.java	99,137,142,157,160,166,167,170,176,182,183,186,195,198,206,207,213,230,241,241,258,266,267,286,295,298,299,303,304,307,316,319,320,324,325,328,339,344,345,359,362,363,364,368,369,380,381,384
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/SkeletonKey.java	210,210,641,642,648,649,655,656
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/TalismanOfForesight.java	123,235,238
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/TalismanOfForesight.java	146,150,156,160,171,171,171,172,176,177,179,203,308,309,315,316,323,324,328,330,331,332,333,333,401,402
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/TalismanOfForesight.java	171,171,172,330
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/TalismanOfForesight.java	143,146,147,150,153,156,160,165,170,193,194,198,205,234,241,242
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/TimekeepersHourglass.java	128,129,143,145,146,210,316
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/TimekeepersHourglass.java	133,134,395,399,412,414,416,439,443
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/TimekeepersHourglass.java	134
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/TimekeepersHourglass.java	510
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/UnstableSpellbook.java	183,187,200,231,304,393
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/UnstableSpellbook.java	210,211,217
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/UnstableSpellbook.java	211
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/UnstableSpellbook.java	157,158,177,181,185,198,231,232
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bags/Bag.java	90,109,123,129
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bags/Bag.java	97
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bags/ScrollHolder.java	58,58
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/ArcaneBomb.java	82
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/ArcaneBomb.java	67,109,115
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/ArcaneBomb.java	83
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/Bomb.java	203,250
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/Bomb.java	122,152,157,158,159,172,176,177,183,300
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/Bomb.java	152,172
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/Bomb.java	205
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/Firebomb.java	51,54
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/FlashBangBomb.java	78,82,90
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/FlashBangBomb.java	63
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/FlashBangBomb.java	83
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/FrostBomb.java	50
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/HolyBomb.java	55
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/HolyBomb.java	54,60
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/HolyBomb.java	54
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/Noisemaker.java	75,103
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/RegrowthBomb.java	76
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/RegrowthBomb.java	64,70,74,83,95,114
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/RegrowthBomb.java	64
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/ShrapnelBomb.java	79
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/ShrapnelBomb.java	56,57,58,58,64,64
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/ShrapnelBomb.java	64
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/SmokeBomb.java	48
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/WoollyBomb.java	53,62,64,69
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/food/Berry.java	44,45,46,47,48,49
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/food/Berry.java	61
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/food/Blandfruit.java	193,193,205
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/food/Food.java	102,103,104,105,106,107
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/food/Food.java	91,92
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/food/Pasty.java	119,136
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/food/SupplyRation.java	45,46,47,48,49,50
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/keys/Key.java	56,59
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/Potion.java	360
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/Potion.java	310,310,318,338,420,431
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/Potion.java	338,431
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/Potion.java	303,303,325
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/Potion.java	362
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfExperience.java	45
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfFrost.java	43,50
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfFrost.java	43
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfHealing.java	59,60,65
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfLevitation.java	47
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfLevitation.java	47
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfLiquidFlame.java	43,51
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfLiquidFlame.java	43
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfMindVision.java	46
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfParalyticGas.java	42
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfParalyticGas.java	42
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfPurity.java	57,61,67,74,83
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfPurity.java	74,83
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfStrength.java	51,52
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfToxicGas.java	42
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfToxicGas.java	42
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/brews/AquaBrew.java	43,43
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/brews/BlizzardBrew.java	43,50
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/brews/BlizzardBrew.java	43
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/brews/CausticBrew.java	52,56
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/brews/CausticBrew.java	52
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/brews/InfernalBrew.java	44,51
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/brews/InfernalBrew.java	44
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/brews/ShockingBrew.java	44,48
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/brews/ShockingBrew.java	44
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/brews/UnstableBrew.java	114
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/elixirs/ElixirOfAquaticRejuvenation.java	79
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/elixirs/ElixirOfHoneyedHealing.java	55
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/elixirs/ElixirOfHoneyedHealing.java	55
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/elixirs/ElixirOfHoneyedHealing.java	63
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/elixirs/ElixirOfMight.java	67,67
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/elixirs/ElixirOfMight.java	62,63
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfCleansing.java	60
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfCleansing.java	60
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfCleansing.java	51
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfCorrosiveGas.java	43,52
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfCorrosiveGas.java	43
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfDivineInspiration.java	119,120
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfDivineInspiration.java	60,106,109,109,113,114,114,116,135,141,141
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfDragonsBreath.java	169,175,175,193,193,194
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfDragonsBreath.java	69,109,123,123,127,129,129,133,134,137,146,148,154,156,201,206,206
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfMastery.java	60,96,118,118,121,121,128,128
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfShroudingFog.java	43,52
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfShroudingFog.java	43
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfSnapFreeze.java	45,52
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfSnapFreeze.java	45
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfStormClouds.java	43,52
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfStormClouds.java	43
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/CeremonialCandle.java	124,128,134,134,135,136,136,137,176,176,191,192
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/CorpseDust.java	84,125,130,191
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/CorpseDust.java	109,126,127,128,130,150,161,162
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/CorpseDust.java	127
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/CorpseDust.java	195
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/EscapeCrystal.java	260,261,261,279,280,281,286,332
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/EscapeCrystal.java	84,101,101,105,121,124,285,288,308,311,312,314,316,316,328,329,334,335
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/Pickaxe.java	69,79,93
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/Pickaxe.java	93
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/VaultBeacon.java	43
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/remains/BowFragment.java	53,54,55,67,70
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/rings/Ring.java	164,193,351,436
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/rings/Ring.java	166,343
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/rings/RingOfAccuracy.java	40,40,42
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/rings/RingOfArcana.java	40,40,42
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/rings/RingOfElements.java	52,52,54
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/rings/RingOfEnergy.java	43,43,45
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/rings/RingOfEvasion.java	40,40,42
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/rings/RingOfForce.java	131,131,135,135,136,148,148,161,161,162,162,187,187,241,241,242,244,244,245
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/rings/RingOfFuror.java	40,40,42
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/rings/RingOfHaste.java	40,40,42
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/rings/RingOfMight.java	83,83,85,85
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/rings/RingOfSharpshooting.java	40,40,42,42
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/rings/RingOfTenacity.java	40,40,42
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/rings/RingOfWealth.java	70,70,72
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/rings/RingOfWealth.java	273
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/InventoryScroll.java	43,43,69,118,119,127,128,128,130,132,133,137,139,141,143
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/Scroll.java	222
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/Scroll.java	198,199,200,206,206
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/Scroll.java	224
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfIdentify.java	52,52
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfIdentify.java	80
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfLullaby.java	48,49
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfLullaby.java	49
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfLullaby.java	44,45,55
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfMagicMapping.java	46,47,48,49,62,64
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfMagicMapping.java	48,48,59,64
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfMagicMapping.java	45,80
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfMirrorImage.java	73
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfMirrorImage.java	49,50
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfRage.java	46,48
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfRage.java	48
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfRage.java	45,47,56
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfRecharging.java	45,46,47,53
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfRemoveCurse.java	86,86
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfRemoveCurse.java	57,58,66,68,69,72,101,103,105,106
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfRemoveCurse.java	154
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfRetribution.java	60,61
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfRetribution.java	61
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfRetribution.java	47,51,51,51,74,75
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTeleportation.java	77,86,130,135,272,277,292,307
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTeleportation.java	73,73,75,75,84,101,101,113,117,127,145,145,149,203,207,209,232,235,240,242,244,246,268,288,288,292,307,319,323,330
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTeleportation.java	171,244,246,288,288,292,307,319,330
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTeleportation.java	62,65
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTerror.java	51,52
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTerror.java	52
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTerror.java	45,46,53
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTransmutation.java	111,115,119,120,121,123,124,126,126,129,131,135,136,142,264,305,308
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTransmutation.java	74,110,117,134,141,143,305,308
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTransmutation.java	107,107,117,134,150,151
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTransmutation.java	148
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfUpgrade.java	97,99,117,119,133
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfUpgrade.java	70,76,81,83
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfUpgrade.java	140,141,142,161
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfAntiMagic.java	38,39,40
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfChallenge.java	55,110,110,110,114,115,116,116,131,131
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfChallenge.java	54,56,59,59,63
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfDivination.java	55,56,56
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfDread.java	48,49
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfDread.java	49
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfDread.java	44,45,51,53
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfEnchantment.java	61,61,84,118,118,133,133,146,184,187,246,249
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfForesight.java	39,42
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfMetamorphosis.java	79,80,135,135,139,211,231
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfMetamorphosis.java	63,63,72,73,76,77,94,120,161,200,201,201,242,276,277
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfMysticalEnergy.java	41,43,48,50
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfPassage.java	55,55
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfPassage.java	42
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfPrismaticImage.java	47
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfPrismaticImage.java	45,63,63
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfPsionicBlast.java	58,59
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfPsionicBlast.java	59
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfPsionicBlast.java	49,73,73,74,75,76
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfPsionicBlast.java	80
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfSirensSong.java	88,89
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfSirensSong.java	89
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfSirensSong.java	54,54,84,90,97,100,109,109
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/Alchemize.java	288,293
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/Alchemize.java	287,288,293,300,300,301,301,301,301
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/BeaconOfReturning.java	100,228,229
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/BeaconOfReturning.java	127,128,157,157,166,167,179
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/BeaconOfReturning.java	221,221
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/BeaconOfReturning.java	101,101,111,111,119,119,122,122,131,131,215,215
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/CurseInfusion.java	60,93
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/CurseInfusion.java	95
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/InventorySpell.java	77,78,86,87,87,90,91,92,93,94,94,99,100,101,101,101,101
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/MagicalInfusion.java	68,73,78,79,80,80,85,86,87,87,87,92,94
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/MagicalInfusion.java	109,113
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/PhaseShift.java	56
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/ReclaimTrap.java	99,99,99,100,119,119,119,120
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/ReclaimTrap.java	65
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/ReclaimTrap.java	80
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/Recycle.java	89
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/Recycle.java	86,89,91,92
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/Spell.java	61
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/SummonElemental.java	123,200
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/SummonElemental.java	97
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/SummonElemental.java	108,119,120,120,121,126,126,203,209,215,221,226,226
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/TargetedSpell.java	52,54,61,64,67,67,83,85,86,91,94,102,106
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/TelekineticGrab.java	73,91,102,104
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/TelekineticGrab.java	52,54
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/UnstableSpell.java	95,113
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/spells/WildEnergy.java	55
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/InventoryStone.java	56,70,71,72,72,111,112,118
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/Runestone.java	52
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/Runestone.java	53,61
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/Runestone.java	58
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/StoneOfAggression.java	83
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/StoneOfAugmentation.java	64,66,66,68,68,76,78,78,80,80,162,174
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/StoneOfBlink.java	55
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/StoneOfClairvoyance.java	44,51,61,63,63,66,68,69,71,72
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/StoneOfClairvoyance.java	66,71
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/StoneOfDetectMagic.java	88,88,90,90
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/StoneOfEnchantment.java	54,54,56,56,69,70
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/StoneOfFear.java	50
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/StoneOfFear.java	47
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/StoneOfFlock.java	47,56,58,63
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/StoneOfIntuition.java	80,81
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/StoneOfIntuition.java	126,126,132,133,135,135,136,138,138
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/StoneOfShock.java	55
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/stones/StoneOfShock.java	70,71,74
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/trinkets/ChaoticCenser.java	118,178,191,195,195,221,221,224,265,265
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/trinkets/ChaoticCenser.java	178,181,182,191,194,195,195,202,208,247,248,257,257,262
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/trinkets/ChaoticCenser.java	182
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/trinkets/MossyClump.java	72
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/trinkets/ShardOfOblivion.java	200,200,203,203,206,206,209,209,212,212,215,218
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/trinkets/ShardOfOblivion.java	80,81,108,108,113,113,118,118,128,128,130,130
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/trinkets/ShardOfOblivion.java	127
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/trinkets/TrapMechanism.java	84
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/trinkets/Trinket.java	49,49,53
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/trinkets/TrinketCatalyst.java	219,222,230,233
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/trinkets/TrinketCatalyst.java	233
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/trinkets/TrinketCatalyst.java	236,237
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/trinkets/VialOfBlood.java	80,80
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/CursedWand.java	124,137,495,498,581,582,755,786,787,930,931,976,1147,1147,1163,1163,1166,1168,1170,1214,1257
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/CursedWand.java	241,286,307,338,342,394,444,445,446,458,547,547,548,548,549,549,558,558,559,559,560,560,647,714,720,755,758,759,760,800,801,802,802,806,807,821,1028,1039,1055,1087,1184,1232,1232,1245,1246,1251,1251,1258,1259
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/CursedWand.java	499,503,583,587,932,936
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/DamageWand.java	53
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/Wand.java	211,212,213,216,217,223,225,229,230,231,233,237,238,240,309,309,395,396,397,460,463,481,481,482,483,484,485,507,508,509,511,514,515,517,520,521,522,522,526,527,528,530,537,732,733,734,746,747,748,815
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/Wand.java	122,123,442,444,476,493,500,543,671,673,674,679,682,682,683,683,685,695,696,697,698,700,700,702,704,711,719,721,725,727,730,730,737,739,758,759,773,774
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/Wand.java	472
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfBlastWave.java	173,185,285
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfBlastWave.java	79,80,93,110,137,181,184,188,188,253,254
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfBlastWave.java	188,188
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfBlastWave.java	221,223
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfBlastWave.java	175
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfCorrosion.java	77
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfCorrosion.java	84,86
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfCorrosion.java	71
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfCorruption.java	147,149,191
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfCorruption.java	232,266,268
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfCorruption.java	139
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfDisintegration.java	83,97,97,104,108,110
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfDisintegration.java	97,97
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfDisintegration.java	150,150
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfFireblast.java	97,103,104,104,107,108,129,129,130,183,191
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfFireblast.java	232,234,241,243
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfFrost.java	61,66,71,102,108
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfFrost.java	119,121
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLightning.java	87,156
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLightning.java	84,145,152
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLightning.java	74,74,92,94,147,187,190,195
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLightning.java	95,183
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLivingEarth.java	238,468,470,472
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLivingEarth.java	79,133,138,138,151,161,194,227
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLivingEarth.java	90,98,108,117,138,138,145,181,187,216,218
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfMagicMissile.java	76
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfMagicMissile.java	68,69,70
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfPrismaticLight.java	72,112,118,119,121,124
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfPrismaticLight.java	119
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfPrismaticLight.java	74,76,157,158
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfRegrowth.java	92,190,193,194,195,291,307
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfRegrowth.java	102,108,167,173,179,222,226,353,354,355,362,363,365,393,394,395,402,437
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfRegrowth.java	260,262,269,271
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfRegrowth.java	118
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfTransfusion.java	193,193,202,202
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfTransfusion.java	93,125,126,131,151,153,175,176
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfTransfusion.java	154
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfWarding.java	386,454
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfWarding.java	67,136,151,154,156,163,165
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfWarding.java	67
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfWarding.java	99,172,174
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfWarding.java	387
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/SpiritBow.java	146,148,149,170,190,191,192,198,199,200,273,273,320
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/SpiritBow.java	235,481,482
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/SpiritBow.java	90,91,368,372,433,455,497
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/Weapon.java	142,143,144,188,189,261,261,273,273,412,412,413,458,459,459,508,508,509
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/Weapon.java	201,263,275,461
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/curses/Annoying.java	46
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/curses/Dazzling.java	48
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/curses/Dazzling.java	53,53
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/curses/Dazzling.java	53,53
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/curses/Displacing.java	46
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/curses/Displacing.java	46
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/curses/Explosive.java	75,77,77
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Blooming.java	78,97,100
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Crystal.java	60,114
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Eldritch.java	56
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Shocking.java	89,102
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Crossbow.java	89,90,92
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Dagger.java	115,118,130,130,131,132,135,137,137,138
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Dagger.java	115,115,116,132
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Dagger.java	116
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Flail.java	98
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Greataxe.java	79
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Greataxe.java	79
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Mace.java	90
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Mace.java	90
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/MagesStaff.java	175,226,226,227,257,258,262,356,447,448
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/MagesStaff.java	232,269,271,273,477
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/MagesStaff.java	141,474,475,479,482
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/MagesStaff.java	277
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/MeleeWeapon.java	77,77,78,272,272,272,274,274,275,275,283,313,314,316,317,322,322,340,340,341,352,365,365,386,387,388,434,439,461,471,484,485,487,536,539,548,551,565,569,569,569,574,575,575,576,578,578
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Rapier.java	99,106,107,115,117,117,118,118,136,140
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Rapier.java	99
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RunicBlade.java	70
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RunicBlade.java	70
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Sai.java	146,147,148,149,150,151
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Sai.java	91
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Sai.java	91
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Sickle.java	90
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Sickle.java	90
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Spear.java	91,97
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Spear.java	91
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Sword.java	92
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Sword.java	92
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Whip.java	64,67,67
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Whip.java	64
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ForceCube.java	112,129
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ForceCube.java	68,77,86,98,98,106,106
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ForceCube.java	106,106,111,120
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ForceCube.java	113
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/HeavyBoomerang.java	74,74,81,81,127
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/HeavyBoomerang.java	74,74,81,81,122,122,139,148,152,159
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/MissileWeapon.java	102,103,117,118,152,169,199,299,299,300,301,318,318,341,342,458,458,459,468,469,495,499,501,662,663,665,666,671,671
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/MissileWeapon.java	206,206,207,224,279,424
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/MissileWeapon.java	270,274,275,276,278,278,281,287
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/Shuriken.java	51,53
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/Tomahawk.java	58,66
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/ChillingDart.java	41
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/CleansingDart.java	80
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/Dart.java	86,103,120,122,123,124,126,187,198,205,216,217
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/Dart.java	188,339,355
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/Dart.java	288,295,327,332,333,333,335,335,339,341,342,343,343,346,348,349,349,351,351,355,357,358,359,359
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/DisplacingDart.java	98
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/DisplacingDart.java	59,59,61,62,65,68,81,82,88,89,97,101
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/DisplacingDart.java	68,101
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/IncendiaryDart.java	43,49
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/IncendiaryDart.java	43
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/TippedDart.java	175,176,191,206,206
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/TippedDart.java	110,145
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/TippedDart.java	191,191
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/journal/Bestiary.java	312,315,347
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/journal/Catalog.java	312,315,338
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/journal/Document.java	69,70,83,96,135,136
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/journal/Notes.java	558,572,580
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java	285,395,395,917
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java	259,287,305,310,311,320,358,810,813,816,822,823,827,829,830,850,852,862,864,865,878,892,893,897,898,898
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java	358
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java	300,920,922
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesLevel.java	275,275,282,290,290
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesLevel.java	275,275
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesLevel.java	82
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityBossLevel.java	318,333,339
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityBossLevel.java	470,626,636,637,643,645,658,659,661,663,669,671,692,768
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityBossLevel.java	341
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityBossLevel.java	328
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityLevel.java	162,169,172
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityLevel.java	294,294,337,337
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityLevel.java	294,294,337,337
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityLevel.java	85
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/DeadEndLevel.java	78,84
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/HallsBossLevel.java	245
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/HallsBossLevel.java	245,441,441,480,480
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/HallsBossLevel.java	88,255,352
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/HallsLevel.java	66,221,226,226
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/HallsLevel.java	226,226
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/HallsLevel.java	80
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/LastLevel.java	276,278,279,283,297,304
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/LastLevel.java	93,106,111
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/LastLevel.java	56,293,309
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Level.java	615,617,621,623,626,631,636,639,648,655,656,678,771,783,1189,1189,1198,1201,1205,1265,1268,1282,1283,1378,1411,1412,1424,1432,1515,1523
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Level.java	224,259,538,679,720,755,757,760,762,805,965,1021,1024,1044,1145,1170,1325,1326,1330,1334,1338,1338,1347,1348,1350,1353,1362,1490,1490,1501,1508,1508
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Level.java	154,155,160,204,205,336,337,339,392,393,490,491,805,1021,1170,1432,1515
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Level.java	754
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonBossLevel.java	338,448,491,515,516,517,518,518,519,538,543,578,672
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonBossLevel.java	339,345,713,808,810,828,829,830,837,838,839,861,881
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonBossLevel.java	363,364
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonBossLevel.java	432
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonLevel.java	145
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonLevel.java	166,167,244,244
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonLevel.java	244,244
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonLevel.java	75
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/RegularLevel.java	507,531,532,535
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/RegularLevel.java	158,194,207,212,222,283,416,431,437,455,510,535,573,591,629
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/RegularLevel.java	335
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/RegularLevel.java	208,859,859,859
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerBossLevel.java	182
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerLevel.java	77,121,131,273,273,278
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerLevel.java	273,273
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerLevel.java	168
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerLevel.java	76,77,157,166,168,169
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/VaultLevel.java	579,582,589
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/VaultLevel.java	581,584
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/VaultLevel.java	179
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/features/Chasm.java	87,107,108,119,133
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/features/Chasm.java	63,110,111,145
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/features/Chasm.java	113,113,125
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/features/Door.java	39,53,56
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/features/Door.java	39,56
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/features/HighGrass.java	107,108,109,121,135,151,151,172
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/features/HighGrass.java	172
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/features/LevelTransition.java	72,73,77,78,113
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/painters/CityPainter.java	49
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/painters/RegularPainter.java	126,188,190,271,272
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/connection/ConnectionRoom.java	82
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/AmbitiousImpRoom.java	113,114,206,208,213,215,215,220,225,227,232
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/BlacksmithRoom.java	107,108,231,232,242,256,257,257,265,266,266
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/MineEntrance.java	99
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/RotGardenRoom.java	52
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/vault/VaultEntranceRoom.java	145
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/vault/VaultFinalRoom.java	298,299,322
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/vault/VaultFinalRoom.java	268,272,290,291,296,297,301,302,303,304,370,371,372,373,374,497,501,502,502,504,506,507,509,511,519,521,529,529,534,546,582,586,588,589,591,593,594,599,600,603,606,607,608,609,611,638,639,640,642,642,643,643,645,647,651,653,676,677
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/vault/VaultTokensRoom.java	117
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/vault/VaultTokensRoom.java	228,229
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/secret/RatKingRoom.java	141,146,162,163,176,177,188,189,211,213,241,243,243
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/secret/SecretChestChasmRoom.java	88,95,102,109
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/secret/SecretHoardRoom.java	48
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/secret/SecretHoneypotRoom.java	50
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/secret/SecretLarderRoom.java	59
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/secret/SecretMazeRoom.java	102,107
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/ArmoryRoom.java	78
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/CryptRoom.java	51,77
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/CrystalChoiceRoom.java	132,135
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/CrystalPathRoom.java	246,247,248
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/CrystalVaultRoom.java	86,89
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/DemonSpawnerRoom.java	93,94,98,101
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/DemonSpawnerRoom.java	52,108
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/GardenRoom.java	43
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/LaboratoryRoom.java	65,121
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/LibraryRoom.java	65
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/MagicWellRoom.java	60
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/MagicalFireRoom.java	163,164,166,172,208,209,212,223,224,225,226,257
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/PitRoom.java	94
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/PoolRoom.java	116,122,128
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/RunestoneRoom.java	64
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/SacrificeRoom.java	79,87
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/SentryRoom.java	252,253,254,255,256,262,264,265,271,275,283,291,292,293,299,299
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/SentryRoom.java	180,186,192,239,243,244,246,254,255,292,292,314
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/SentryRoom.java	239
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/SentryRoom.java	294
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/ShopRoom.java	272,310
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/ShopRoom.java	228,315
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/SpecialRoom.java	159,172,183
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/StatueRoom.java	46
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/ToxicGasRoom.java	132,135,136,137
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/TrapsRoom.java	69,138,143
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/TreasuryRoom.java	58,76
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/WeakFloorRoom.java	89,118,119
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/WeakFloorRoom.java	109,110
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/standard/StandardRoom.java	191
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/standard/entrance/EntranceRoom.java	61,70,92,107,120,185
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/standard/entrance/RegionDecoPatchEntranceRoom.java	53,62,98
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/standard/entrance/WaterBridgeEntranceRoom.java	53,62,84
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/standard/exit/ExitRoom.java	122
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/AlarmTrap.java	43,47
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/AlarmTrap.java	47
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/BlazingTrap.java	48,51,51
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/BurningTrap.java	48
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ChillingTrap.java	45,51
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ChillingTrap.java	45
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/CursingTrap.java	66,66,67
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/CursingTrap.java	53,58
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/CursingTrap.java	53
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/DisarmingTrap.java	80,80,81
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/DisarmingTrap.java	50,56,57,58,62,67,89,92,100,103,105
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/DisarmingTrap.java	67,105
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/DisintegrationTrap.java	92
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/DisintegrationTrap.java	59,64,79,86,86
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/DisintegrationTrap.java	86,86
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/DisintegrationTrap.java	95,98
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/DistortionTrap.java	77,77,99,134,151,159
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ExplosiveTrap.java	49
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ExplosiveTrap.java	50
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FlashingTrap.java	60,64
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FlashingTrap.java	64
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FlockTrap.java	50,60,62,69,76
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FrostTrap.java	47,52
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FrostTrap.java	47
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GatewayTrap.java	71,73,78,90,97,104,136,139
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GeyserTrap.java	115
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GeyserTrap.java	59,60,63,68,120,120
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GnollRockfallTrap.java	96
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GnollRockfallTrap.java	58,61,64,77,78,102,103,104
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GnollRockfallTrap.java	77
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GnollRockfallTrap.java	99
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GrimTrap.java	99,113
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GrimTrap.java	70,75,104,104
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GrimTrap.java	104,104
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GrimTrap.java	116,119
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GuardianTrap.java	66
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GuardianTrap.java	48,52,63
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GuardianTrap.java	52
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/OozeTrap.java	44
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PitfallTrap.java	58,71,110,136
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PitfallTrap.java	53,53,59,60,64,64,73,95,95,98,99,99,117,128
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PitfallTrap.java	73
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PoisonDartTrap.java	116
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PoisonDartTrap.java	84,89,109,109,118
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PoisonDartTrap.java	109,109
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PoisonDartTrap.java	119,120,125
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/RockfallTrap.java	108
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/RockfallTrap.java	63,65,66,72,73,80,91,92
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/RockfallTrap.java	91
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/RockfallTrap.java	111
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ShockingTrap.java	45,50
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ShockingTrap.java	45
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/StormTrap.java	46,50
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/StormTrap.java	46
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/SummoningTrap.java	60,60,77,78,79,95,103
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/TeleportationTrap.java	59,61,66
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/Trap.java	96,100,111,118,118
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/Trap.java	96
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/WarpingTrap.java	37
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/WarpingTrap.java	37,38,39
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/WarpingTrap.java	38,39
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/WeakeningTrap.java	42
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/WeakeningTrap.java	42
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/WornDartTrap.java	102
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/WornDartTrap.java	70,75,95,95
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/WornDartTrap.java	95,95
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/WornDartTrap.java	105
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/mechanics/Ballistica.java	75,115,122,123,130,131,131
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/mechanics/ConeAOE.java	52,56,85,86,87,88,97,98,99
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/BlandfruitBush.java	36
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Blindweed.java	57,62
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Blindweed.java	62
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Earthroot.java	50,50
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Earthroot.java	56
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Earthroot.java	56
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Fadeleaf.java	57,73
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Fadeleaf.java	73
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Fadeleaf.java	51
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Firebloom.java	59
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Firebloom.java	59
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Icecap.java	52
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Plant.java	71,73,73,127,127,163,225,225
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Plant.java	71,85,87,103,155,156,157,162,165
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Plant.java	71,87,194,194
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Rotberry.java	55,57,62
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Rotberry.java	57
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Sorrowmoss.java	57
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Sorrowmoss.java	57
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Starflower.java	47
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Starflower.java	47
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Sungrass.java	57
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Sungrass.java	57
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Swiftthistle.java	140,144,157,159,161,182,186
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/AlchemyScene.java	251,252,277,312,314,364,536,583,585,729,761,864,1003
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/AlchemyScene.java	131,429,654,700,702,761,864,878,1003
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/AlchemyScene.java	546,547,764,765,770,771,830,831,850,851
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/AmuletScene.java	82
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/AmuletScene.java	82,83
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/CellSelector.java	92,92,93,95,153,331,344,344,345,373,387,396,396,408,413,415,416,467,470,474,477
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/CellSelector.java	101,112,143,411
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/GameScene.java	227,234,323,569,570,574,574,579,583,588,612,664,674,681,682,689,731,732,773,782,785,842,882,896,922,922,956,995,1318,1581,1627,1645,1710,1718,1718,1718,1720,1721,1784,1796,1797,1819,1845,1846
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/GameScene.java	227,232,257,258,259,280,294,294,300,309,327,340,352,358,358,377,381,385,574,594,597,598,602,604,606,609,627,629,639,640,659,661,665,665,666,667,694,696,700,704,708,712,716,720,725,1097,1195,1357,1358,1359,1380,1380,1381,1381,1382,1382,1383,1383,1384,1384,1385,1385,1529,1531,1536,1753,1754,1754,1785,1790,1793,1800,1854,1855,1855,1882,1885
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/GameScene.java	1097,1531,1536,1754,1754,1785,1855,1855
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/GameScene.java	790,1581,1582,1718,1720
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/GameScene.java	589,627,638,697,697,701,701,705,705,709,709,713,713,717,717,721,721,790,790,811,812,844,845,1581,1582,1582
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/HeroSelectScene.java	104,157,752
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/HeroSelectScene.java	117,155,176,178,391,392,415,495,584,601,945
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/HeroSelectScene.java	106,107,117,155,176,178,236,236,391,392,395,395,415,416,495,584,601,642,642,666,666,703,703,718,718,801,801,834,834,843,943,945
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/InterlevelScene.java	138,280,624,680,745,757,759,759,760,760,772,773,781,784,784,788,789,790,793,793,794,796,802
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/InterlevelScene.java	131,143,154,159,568,589,633,634,637,638,639,643,644,650,650,650,654,659,660,662,662,678,684,685,685,694,694,694,698,703,704,706,706,718,722,723,724,724,740,741,751,754,755,777,807,809
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/InterlevelScene.java	778,779,780
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/InterlevelScene.java	134,135,640,663,686,707,725,739,742,744
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/InterlevelScene.java	134,134,135,135,144,280,640,663,686,707,725,739,741,742,744,800,800
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/JournalScene.java	62
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/JournalScene.java	63,64,242
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/PixelScene.java	378,399
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/RankingsScene.java	173,173
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/StartScene.java	122,344,345
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/StartScene.java	59,60,87,87,89,103,113,115,122,198,198,344,345
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/SurfaceScene.java	151,158,183,194,194,195,195,197,225
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/TitleScene.java	151,152,163,164
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/TitleScene.java	150,151,152,163,164,298,299,299
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/WelcomeScene.java	157,158,159
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/scenes/WelcomeScene.java	157,158,158,159,253,254,287,288
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/BlacksmithSprite.java	82
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/BlacksmithSprite.java	82
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/CharSprite.java	157
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/CharSprite.java	154,186,187,206,230,287,288,297,818
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/CrystalSpireSprite.java	91,92,93,94,96,97,98,99,101,102,112,113,114,115
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/FungalCoreSprite.java	64,65,67,68,70,71,80,81,82,83
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/FungalSentrySprite.java	61
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/GnollTricksterSprite.java	63
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/GooSprite.java	106,107,108,110,112
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/HeroSprite.java	55,58,73,98
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/ItemSprite.java	151,152,157,344,348,350,352,353,354,356
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/LotusSprite.java	73,74
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/MirrorSprite.java	39,39
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/MissileSprite.java	165,166
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/MissileSprite.java	57,58,64,69
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/NecromancerSprite.java	77,132
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/NecromancerSprite.java	77,132
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/RatKingSprite.java	60,60,89,89
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/ScorpioSprite.java	65
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/SkeletonSprite.java	66
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/SkeletonSprite.java	66
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/SpectralNecromancerSprite.java	79,132
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/SpectralNecromancerSprite.java	79,132
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/TenguSprite.java	79,95
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/UndeadSprite.java	56
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/UndeadSprite.java	56
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/sprites/VaultBossElementalSprite.java	190,193,194
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/tiles/CustomTilemap.java	44,57,58,59,59,60,60,106,107
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/tiles/DungeonTerrainTilemap.java	35,37,37,46
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/tiles/DungeonTileSheet.java	132,133,134,162,344,373,527
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/tiles/DungeonTilemap.java	62,88,89,91,121,121,154,154,159,160,165,166
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/tiles/DungeonWallsTilemap.java	34,36,36,87,89,91,93,95
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/tiles/FogOfWar.java	198,200,285,325,325,325
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/tiles/FogOfWar.java	44,49,168,169,172,172,174,174,175,175,201,201,292,294,325,325,325
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/tiles/GridTileMap.java	34,34
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/tiles/RaisedTerrainTilemap.java	35,35,49
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/tiles/TerrainFeaturesTilemap.java	49,50,50,69,70,70
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/tiles/WallBlockingTilemap.java	46,46,53,72,114,195,195,198,198,205,209,213
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/tiles/WallBlockingTilemap.java	195,195,198,198
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/tiles/WallOcclusionTilemap.java	51,51,55,55,68
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/tiles/custom/Carpet.java	78
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/ActionIndicator.java	125,139
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/AttackIndicator.java	103,105,117,119,120,183,184,185
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/BadgesGrid.java	45,45,47,58,59,59,60,60,64,66,102,107
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/BadgesList.java	43,43,45,85,90
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/BossHealthBar.java	181,285
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/BuffIndicator.java	162
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/BuffIndicator.java	307
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/BusyIndicator.java	40,40
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/Compass.java	55,60,60
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/Compass.java	60,60
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/CurrencyIndicator.java	101,103,114,115
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/CustomNoteButton.java	64,64,64,98,98,133,142,173,177,179,186,188,192,228,237,275,344,368,379
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/DangerIndicator.java	91,92,113,115,118,120
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/DangerIndicator.java	120
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/InventoryPane.java	294,358,386,388,391,449,449,450,450,452,499,549,554,554,567,579,584,584
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/InventoryPane.java	334,338,340,416
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/InventoryPane.java	416
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/InventorySlot.java	79,80,81,82,83,84,85,105
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/ItemJournalButton.java	54,56,58,61,61,61,68,72,84,95
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/ItemSlot.java	257,257
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/KeyDisplay.java	76,79,79
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/KeyDisplay.java	75,75,75
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/LootIndicator.java	52,52,52,53,89,90,118
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/LootIndicator.java	90
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/MenuPane.java	88,91,99,100,110,113,114,115
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/QuickRecipe.java	120,121,164,256
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/QuickSlotButton.java	86,86,100,102,220,307,353,358,366
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/QuickSlotButton.java	274,288,306,307,324,363
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/QuickSlotButton.java	324
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/QuickSlotButton.java	278,385
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/ResumeIndicator.java	71,72,83,85,86
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/RightClickMenu.java	60,104,129,144
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/StatusPane.java	113,129,158,177,300,301,302,303,305,346,346,351,351,356,356,357,357,360,366,382,385,392
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/StatusPane.java	134,134
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/StatusPane.java	134
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/TalentButton.java	116,117,118,119,133,133,154,154,171,178,179,184,185,189,190,191,201,250,251
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/TalentButton.java	130
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/TalentsPane.java	54,60,60,76,79,81,183,204,206,222,258,259,260
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/TalentsPane.java	65,65,67,67,67,67,69,69,222
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/Toolbar.java	122,122,130,156,180,201,201,203,223,223,225,236,236,238,253,253,254,255,255,256,256,258,259,259,261,262,262,264,267,273,273,275,290,290,296,313,326,326,326,331,397,397,398,423,427,465,656,656,657,657,666
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/ui/Toolbar.java	111,127,129,153,155,255,863,867,876
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndBadge.java	38,55
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndBag.java	131,151,157,164,167,170,246,256,290,310
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndBag.java	179,186,203,219
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndBlacksmith.java	93,94,96,181,181,269,270,272,273,275,280,283,400,440,441,525,526,527,529
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndBlacksmith.java	96,280,529
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndBlacksmith.java	103,103,295,302,302,403,403,443,446,446,535,535
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndChooseAbility.java	143
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndChooseAbility.java	83,128
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndChooseSubclass.java	132
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndChooseSubclass.java	81,117
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndClericSpells.java	147,149,160,168,170,194,197,231,234
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndClericSpells.java	199,201,236,238
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndCombo.java	58,59
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndEnergizeItem.java	136,136,139,148,153
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndEnergizeItem.java	157
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndGame.java	77,77,82
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndGame.java	82,83
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndGame.java	82,83,83
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndGameInProgress.java	123
+input	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndGameInProgress.java	121
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndGameInProgress.java	54,54,121
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndHero.java	155,303
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndHero.java	199,200
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndHeroInfo.java	109,109,124,124
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndImpOld.java	73,77,78
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndImpOld.java	80
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndInfoCell.java	43,44,46,51,52,53,62,77,89,90,91,100,117,117,126,127,128,137,162,162,167,167,175,176
+vision	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndInfoCell.java	176
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndInfoPlant.java	33
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndInfoTalent.java	59,59
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndInfoTrap.java	33
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndJournal.java	1086
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndJournal.java	528
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndJournal.java	497,497,497,500,502,524,526,526,533,1109
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndMonkAbilities.java	66,89
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndQuickBag.java	67,75,76,77,101,101,101,107,166,166,168,168
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndQuickBag.java	109
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndRanking.java	99,114,170,171,181,201,231,231,233,235,237,270,336,337,337,338,338,339,340,340,360,413,419
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndRanking.java	381,397,398
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndRanking.java	94,216,238,239,240,242,262,263,264,265,271,271,456
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndResurrect.java	83,94,131
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndResurrect.java	128
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndSadGhost.java	120,121
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndSadGhost.java	123
+global progress	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndScoreBreakdown.java	53,53,56,56,59,59,62,62,65,65,69,69,72,72,76,77,79,80,82
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndTradeItem.java	161,170,188,240,274,301
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndTradeItem.java	156,175,193,196,298,302
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndUpgrade.java	86,223,223,376,376,376,377,436,448,449,477,491
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndUseItem.java	51,51,54,56,61,61,62
+hero	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndWandmaker.java	80,94,116,119,120,125
+world	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/windows/WndWandmaker.java	122
