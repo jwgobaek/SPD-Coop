@@ -107,6 +107,7 @@ public final class PublicDungeon {
         if(cell==ally) return "DOWNED".equals(source.rows.get("allylife")) && c.act(source,"REVIVE",cell,0);
         if("Ghost".equals(monsters.get(cell)) || "Sentry".equals(monsters.get(cell))) return false;
         if(monsters.containsKey(cell)) return c.act(source,"ATTACK",cell,0);
+        if(terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.LOCKED_DOOR) return c.act(source,"UNLOCK",cell,0);
         if(chest(cell)) return c.act(source,"OPEN",cell,0);
         if(cell==pos) return floor.containsKey(cell) && c.act(source,"PICK_UP",cell,floor.get(cell).id);
         return c.act(source,"MOVE",cell,0);

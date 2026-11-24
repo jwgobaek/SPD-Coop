@@ -1215,7 +1215,7 @@ public abstract class Level implements Bundlable {
 			}
 			
 			//characters which are not the hero or a sheep 'soft' press cells
-			pressCell( ch.pos, ch instanceof Hero || ch instanceof Sheep);
+			pressCell(ch.pos, ch instanceof Hero || ch instanceof Sheep, ch);
 		} else {
 			if (map[ch.pos] == Terrain.DOOR){
 				Door.enter( ch.pos );
@@ -1229,12 +1229,12 @@ public abstract class Level implements Bundlable {
 	
 	//public method for forcing the hard press of a cell. e.g. when an item lands on it
 	public void pressCell( int cell ){
-		pressCell( cell, true );
+		pressCell(cell, true, Actor.findChar(cell));
 	}
 	
 	//a 'soft' press ignores hidden traps
 	//a 'hard' press triggers all things
-	private void pressCell( int cell, boolean hard ) {
+	private void pressCell(int cell, boolean hard, Char presser) {
 
 		Trap trap = null;
 		
@@ -1265,11 +1265,11 @@ public abstract class Level implements Bundlable {
 			break;
 		}
 
-		TimekeepersHourglass.timeFreeze timeFreeze =
-				Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class);
+		Char clockOwner = Dungeon.coop == null ? Dungeon.hero : presser;
+		TimekeepersHourglass.timeFreeze timeFreeze = clockOwner == null ? null : clockOwner.buff(TimekeepersHourglass.timeFreeze.class);
 
 		Swiftthistle.TimeBubble bubble =
-				Dungeon.hero.buff(Swiftthistle.TimeBubble.class);
+				clockOwner == null ? null : clockOwner.buff(Swiftthistle.TimeBubble.class);
 
 		if (trap != null) {
 			if (bubble != null){
@@ -1283,8 +1283,8 @@ public abstract class Level implements Bundlable {
 				timeFreeze.setDelayedPress(cell);
 				
 			} else {
-				if (Dungeon.hero.pos == cell) {
-					Dungeon.hero.interrupt();
+				if (clockOwner instanceof Hero && clockOwner.pos == cell) {
+					((Hero)clockOwner).interrupt();
 				}
 				trap.trigger();
 

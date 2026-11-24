@@ -78,6 +78,8 @@ final class SeatProjection {
                     if (mask != 0) rows.put("z"+cell, Integer.toString(mask));
                 }
             }
+            rows.put("keys",Integer.toString(com.shatteredpixel.shatteredpixeldungeon.journal.Notes.keyCount(
+                    new com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey(Dungeon.depth))));
             rows.put("width",Integer.toString(level.width()));
             rows.put("self",hero.id()+","+hero.pos+","+hero.HP+","+hero.HT+","+hero.heroClass.name()+","+hero.lvl+","+hero.exp);
             rows.put("selftier",Integer.toString(hero.tier()));
@@ -96,6 +98,13 @@ final class SeatProjection {
                 if (!sight.visible(cell)) continue;
                 rows.put("t"+cell,Integer.toString(sight.terrain(cell)));
                 if (stench != null && stench.volume>0 && stench.cur[cell]>0) rows.put("stench"+cell,"1");
+                com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap trap = level.traps.get(cell);
+                if (trap != null && trap.visible) {
+                    int color = trap.active ? trap.color : com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap.BLACK;
+                    rows.put("trap"+cell,Integer.toString(color + 16*trap.shape));
+                }
+                if (com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob.volumeAt(cell,
+                        com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire.class)>0) rows.put("fire"+cell,"1");
                 Heap heap = level.heaps.get(cell);
                 if (heap != null && heap.hidden) continue;
                 if (heap != null && heap.type == Heap.Type.HEAP && heap.peek()!=null) {

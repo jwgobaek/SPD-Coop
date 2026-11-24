@@ -201,6 +201,7 @@ public class Heap implements Bundlable {
 		int index = items.indexOf( a );
 		if (index != -1) {
 			items.remove( index );
+			if (Dungeon.coop != null) Dungeon.coop.ownership.split(a,b);
 			for (Item i : items) {
 				if (i.canStackWith( b )) {
 					i.merge( b );
@@ -255,7 +256,7 @@ public class Heap implements Bundlable {
 		
 		if (burnt || evaporated) {
 			
-			if (Dungeon.level.heroFOV[pos]) {
+			if (Dungeon.coop == null && Dungeon.level.heroFOV[pos]) {
 				if (burnt) {
 					burnFX( pos );
 				} else {
@@ -357,6 +358,7 @@ public class Heap implements Bundlable {
 	}
 	
 	public static void burnFX( int pos ) {
+		if (Dungeon.coop != null) return;
 		CellEmitter.get( pos ).burst( ElmoParticle.FACTORY, 6 );
 		Sample.INSTANCE.play( Assets.Sounds.BURNING );
 	}

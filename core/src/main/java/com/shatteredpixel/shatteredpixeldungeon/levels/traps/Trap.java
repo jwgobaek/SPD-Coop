@@ -93,7 +93,7 @@ public abstract class Trap implements Bundlable {
 
 	public void trigger() {
 		if (active) {
-			if (Dungeon.level.heroFOV[pos]) {
+			if (Dungeon.coop == null && Dungeon.level.heroFOV[pos]) {
 				Sample.INSTANCE.play(Assets.Sounds.TRAP);
 			}
 			if (disarmedByActivation) disarm();

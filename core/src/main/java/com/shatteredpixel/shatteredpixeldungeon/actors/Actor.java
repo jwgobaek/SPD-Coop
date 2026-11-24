@@ -265,7 +265,14 @@ public abstract class Actor implements Bundlable {
 		
 		add( Dungeon.hero );
 		
-		for (Mob mob : Dungeon.level.mobs) {
+		Iterable<Mob> residents = Dungeon.level.mobs;
+        if (Dungeon.coop != null) {
+            // An unregistered resident receives its ID in add(). HashSet iteration is JVM-specific.
+            java.util.ArrayList<Mob> ordered = new java.util.ArrayList<>(Dungeon.level.mobs);
+            ordered.sort(java.util.Comparator.comparingInt(mob -> mob.pos));
+            residents = ordered;
+        }
+		for (Mob mob : residents) {
 			add( mob );
 		}
 

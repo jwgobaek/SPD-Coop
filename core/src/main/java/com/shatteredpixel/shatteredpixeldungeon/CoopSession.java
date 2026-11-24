@@ -25,6 +25,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.BattleAxe;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CrystalMimic;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GoldenMimic;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Projecting;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Unstable;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Scimitar;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dirk;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.RoundShield;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat;
@@ -32,6 +34,11 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
+import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.WornDartTrap;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.items.Honeypot;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bee;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -61,7 +68,7 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN;
+    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK;
         public boolean requiresItem() {
             return this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER;
         }
@@ -353,21 +360,31 @@ public final class CoopSession implements AutoCloseable {
         if (!(item instanceof MeleeWeapon)) return false;
         Class<?> base = item.getClass();
         if (base != Sickle.class && base != BattleAxe.class && base != Shortsword.class
-                && base != Dirk.class && base != RoundShield.class) return false;
+                && base != Dirk.class && base != RoundShield.class && base != Scimitar.class) return false;
         Weapon.Enchantment effect = ((Weapon)item).enchantment;
         if (effect == null) return false;
         Class<?> type = effect.getClass();
-        return type == Kinetic.class || type == Venomous.class || type == Vampiric.class || type == Projecting.class;
+        return type == Kinetic.class || type == Venomous.class || type == Vampiric.class || type == Projecting.class || type == Unstable.class;
     }
 
     public static boolean disguised(Char actor) {
         return actor instanceof Mimic && basicMob(actor) && actor.alignment==Char.Alignment.NEUTRAL;
     }
 
+    /** Landing effects shared by voluntary and forced movement on supported sewer floors. */
+    public static boolean supportedLanding(int cell) {
+        Level level = Dungeon.level;
+        if (!level.insideMap(cell) || level.pit[cell] || level.plants.get(cell) != null) return false;
+        Trap trap = level.traps.get(cell);
+        return trap == null || !trap.active || trap.getClass() == WornDartTrap.class;
+    }
+
     private boolean safeFloor(int cell,boolean moving) {
         Level level = Dungeon.level;
-        if (!level.insideMap(cell) || !level.passable[cell] || level.pit[cell] || level.getTransition(cell) != null
-                || level.traps.get(cell) != null || level.plants.get(cell) != null) return false;
+        if (!supportedLanding(cell) || level.getTransition(cell) != null) return false;
+        if (level.traps.get(cell) != null)
+            return moving && (level.map[cell] == Terrain.TRAP || level.map[cell] == Terrain.INACTIVE_TRAP);
+        if (!level.passable[cell]) return false;
         int terrain = level.map[cell];
         return (moving && (terrain == Terrain.DOOR || terrain == Terrain.OPEN_DOOR))
                 || terrain == Terrain.EMPTY || terrain == Terrain.EMPTY_SP || terrain == Terrain.GRASS
@@ -436,11 +453,20 @@ public final class CoopSession implements AutoCloseable {
                     Heap destination = level.heaps.get(cell);
                     if (destination != null && destination.type != Heap.Type.HEAP) return false;
                     hero.checkVisibleMobs();
+                    boolean unsteady = hero.buff(Vertigo.class) != null;
                     hero.handle(cell);
                     if (hero.curAction instanceof HeroAction.PickUp) hero.curAction = new HeroAction.Move(cell);
                     if (!(hero.curAction instanceof HeroAction.Move)) throw new IllegalStateException("Unexpected move action");
                     hero.act();
-                    if (hero.pos != cell) throw new IllegalStateException("Move was interrupted");
+                    if (!unsteady && hero.pos != cell) throw new IllegalStateException("Move was interrupted");
+                    break;
+                case UNLOCK:
+                    if (!level.insideMap(cell) || !level.adjacent(hero.pos,cell) || !knowledge(activeSeat).visible(cell)
+                            || level.map[cell]!=Terrain.LOCKED_DOOR || Dungeon.branch!=0
+                            || Notes.keyCount(new IronKey(Dungeon.depth))<1) return false;
+                    hero.curAction = new HeroAction.Unlock(cell);
+                    hero.act();
+                    if (level.map[cell]!=Terrain.DOOR) throw new IllegalStateException("Door remained locked");
                     break;
                 case OPEN:
                     if (!level.insideMap(cell) || !level.adjacent(hero.pos,cell) || !knowledge(activeSeat).visible(cell)) return false;
@@ -489,8 +515,8 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (item.getClass()!=Gold.class && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
-                            || (item.getClass()!=Gold.class && !hero.belongings.backpack.canHold(item))) return false;
+                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && !hero.belongings.backpack.canHold(item))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
                     hero.act();

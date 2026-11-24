@@ -19,10 +19,10 @@ public class CoopFloorsTest extends HeadlessDungeon {
 
     // The guide can inspect the seed's map. Every movement and hit is a normal host action.
     public static int nextStep(CoopSession game,int goal) {
-        return nextStep(game,goal,false);
+        return nextStep(game,goal,false,false);
     }
 
-    private static int nextStep(CoopSession game,int goal,boolean avoidOccupiedCorridors) {
+    private static int nextStep(CoopSession game,int goal,boolean avoidOccupiedCorridors,boolean allowGrass) {
         Level l=Dungeon.level;
         int start=game.hero(game.activeSeat()).pos;
         if(l.distance(start,goal)<=1) return start;
@@ -42,6 +42,9 @@ public class CoopFloorsTest extends HeadlessDungeon {
                 switch(l.map[c]) {
                     case Terrain.SECRET_DOOR: case Terrain.EMPTY: case Terrain.EMPTY_SP: case Terrain.GRASS: case Terrain.WATER:
                     case Terrain.EMBERS: case Terrain.EMPTY_DECO: case Terrain.DOOR: case Terrain.OPEN_DOOR: break;
+                    case Terrain.HIGH_GRASS: case Terrain.FURROWED_GRASS:
+                        if(allowGrass) break;
+                        continue;
                     default: continue;
                 }
                 first[c]=p==start?c:first[p];
@@ -138,13 +141,18 @@ public class CoopFloorsTest extends HeadlessDungeon {
         for(long seed:new long[]{408,411,416,420}) walkAndRestore(seed);
     }
 
+    @Test public void exploreFromNativeEntranceBeforeTheUnstableAndGoldenFloors() throws Exception {
+        for(long seed:new long[]{421,427,428,434,435,437}) walkAndRestore(seed);
+    }
+
     private void walkAndRestore(long seed) throws Exception {
         File disk=temporary.newFile();
         int[] playerIds=new int[2],map;
         Map<Integer,String> monsters=new TreeMap<>();
         long owned; int drop,steps=0,attacks=0,searches=0,casts=0;
+        boolean newRoute=seed==421 || seed==427 || seed==428 || seed==434 || seed==435 || seed==437;
         try(CoopSession game=CoopSession.open(seed,1,HeroClass.MAGE)) {
-            game.join(2,HeroClass.WARRIOR);
+            game.join(2,newRoute ? HeroClass.MAGE : HeroClass.WARRIOR);
             com.watabou.utils.Random.pushGenerator(seed);
             Level l=Dungeon.level;
             drop=game.hero(0).pos;
@@ -152,7 +160,7 @@ public class CoopFloorsTest extends HeadlessDungeon {
             assertTrue(step(game,CoopSession.Action.DROP,drop,ration));
             owned=game.ownership.identity(l.heaps.get(drop).peek());
             for(int i=0;i<2;i++) playerIds[i]=game.hero(i).id();
-            for(int i=0;i<250 && game.stairs.stair()<0;i++) {
+            for(int i=0;i<(newRoute?1000:250) && game.stairs.stair()<0;i++) {
                 int seat=game.activeSeat();
                 assertTrue("Party defeated on seeded route "+seed,seat>=0);
                 Hero h=game.hero(seat);
@@ -171,13 +179,24 @@ public class CoopFloorsTest extends HeadlessDungeon {
                         continue;
                     }
                 }
+                if (newRoute && h.HP<h.HT*3/4 && h.getVisibleEnemies().isEmpty()) {
+                    com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger hunger=h.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger.class);
+                    if (hunger!=null && hunger.isStarving()) {
+                        Food meal=h.belongings.getItem(Food.class);
+                        if(meal!=null && step(game,CoopSession.Action.EAT,0,meal)) continue;
+                    } else {
+                        assertTrue(step(game,CoopSession.Action.WAIT,0,null));
+                        continue;
+                    }
+                }
                 int target=-1;
-                for(Mob m:l.mobs) if(l.adjacent(h.pos,m.pos) && game.observe(seat).visible(m.pos)) { target=m.pos;break; }
+                for(Mob m:l.mobs) if(m.alignment==Char.Alignment.ENEMY && l.adjacent(h.pos,m.pos)
+                        && game.observe(seat).visible(m.pos) && (target<0 || m.pos<target)) target=m.pos;
                 if(target!=-1) {
                     assertTrue(step(game,CoopSession.Action.ATTACK,target,null));
                     attacks++;
                 } else {
-                    int next=nextStep(game,l.exit(),seed!=415);
+                    int next=nextStep(game,l.exit(),seed!=415,newRoute);
                     if(next<0 || next==h.pos) assertTrue(step(game,CoopSession.Action.WAIT,0,null));
                     else if(l.map[next]==Terrain.SECRET_DOOR) {
                         assertTrue(step(game,CoopSession.Action.SEARCH,h.pos,null));

@@ -55,7 +55,7 @@ public abstract class Key extends Item {
 		Catalog.setSeen(getClass());
 		Statistics.itemTypesDiscovered.add(getClass());
 		GameScene.pickUpJournal(this, pos);
-		WndJournal.last_index = 0;
+		if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop == null) WndJournal.last_index = 0;
 		Notes.add(this);
 		Sample.INSTANCE.play( Assets.Sounds.ITEM );
 		hero.spendAndNext( pickupDelay() );

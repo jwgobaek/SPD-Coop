@@ -39,6 +39,15 @@ final class CoopBoard extends Group {
                 com.watabou.noosa.ColorBlock gas=new com.watabou.noosa.ColorBlock(TILE,TILE,0x447DA63A);
                 gas.x=px;gas.y=py;add(gas);
             }
+            String trap=view.source.rows.get("trap"+cell);
+            if (trap!=null) {
+                int feature=Integer.parseInt(trap);
+                place(new Image(Assets.Environment.TERRAIN_FEATURES,(feature%16)*TILE,(feature/16)*TILE,TILE,TILE),px,py);
+            }
+            if (view.source.rows.containsKey("fire"+cell)) {
+                com.watabou.noosa.ColorBlock fire = new com.watabou.noosa.ColorBlock(TILE,TILE,0x77ED6525);
+                fire.x=px; fire.y=py; add(fire);
+            }
             String z=view.source.rows.get("z"+cell);
             if(z!=null) edges(px,py,Integer.parseInt(z));
             PublicDungeon.Loot loot=view.floor.get(cell);

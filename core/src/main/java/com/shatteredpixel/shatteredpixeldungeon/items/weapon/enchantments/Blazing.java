@@ -60,7 +60,7 @@ public class Blazing extends Weapon.Enchantment {
 				}
 			}
 			
-			defender.sprite.emitter().burst( FlameParticle.FACTORY, level + 1 );
+			if (Dungeon.coop == null) defender.sprite.emitter().burst( FlameParticle.FACTORY, level + 1 );
 			
 		}
 

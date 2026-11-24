@@ -563,7 +563,7 @@ public abstract class Char extends Actor {
 				enemy.sprite.flash();
 			}
 
-			if (!enemy.isAlive() && visibleFight) {
+			if (Dungeon.coop == null && !enemy.isAlive() && visibleFight) {
 				if (enemy == Dungeon.hero) {
 					
 					if (this == Dungeon.hero) {
@@ -983,7 +983,7 @@ public abstract class Char extends Actor {
 			b.attachTo(this);
 			b.set(bleedAmt, bleedSrc);
 			sprite.showStatus(CharSprite.WARNING, Messages.titleCase(b.name()) + " " + dmg);
-			Splash.at( sprite.center(), -PointF.PI / 2, PointF.PI / 6, sprite.blood(), 10 );
+			if (Dungeon.coop == null) Splash.at( sprite.center(), -PointF.PI / 2, PointF.PI / 6, sprite.blood(), 10 );
 			return;
 		}
 
@@ -1004,7 +1004,7 @@ public abstract class Char extends Actor {
 				beforeHit = HP;
 				HP -= extraDmg;
 
-				sprite.emitter().burst( ShadowParticle.UP, 5 );
+				if (Dungeon.coop == null) sprite.emitter().burst( ShadowParticle.UP, 5 );
 				if (!isAlive() && ((Char) src).buff(Grim.GrimTracker.class).qualifiesForBadge){
 					Badges.validateGrimWeapon();
 				}
@@ -1315,6 +1315,8 @@ public abstract class Char extends Actor {
 					|| Actor.findChar( newPos ) != null)
 				return;
 			else {
+				if (Dungeon.coop != null && !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(newPos))
+					throw new UnsupportedOperationException("Unsupported vertigo landing");
 				sprite.move(pos, newPos);
 				step = newPos;
 			}

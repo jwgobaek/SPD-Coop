@@ -104,7 +104,7 @@ public class Blooming extends Weapon.Enchantment {
 				Level.set(cell, Terrain.HIGH_GRASS);
 			}
 			GameScene.updateMap(cell);
-			CellEmitter.get( cell ).burst( LeafParticle.LEVEL_SPECIFIC, 4 );
+			if (Dungeon.coop == null) CellEmitter.get( cell ).burst( LeafParticle.LEVEL_SPECIFIC, 4 );
 			return true;
 		}
 		return false;

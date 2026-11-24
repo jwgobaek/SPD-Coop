@@ -54,7 +54,7 @@ public class Pushing extends Actor {
 		this.to = to;
 		this.callback = null;
 
-		if (ch == Dungeon.hero){
+		if (Dungeon.coop == null && ch == Dungeon.hero){
 			Camera.main.panFollow(ch.sprite, 20f);
 		}
 	}
@@ -67,6 +67,10 @@ public class Pushing extends Actor {
 	@Override
 	protected boolean act() {
 		Actor.remove( Pushing.this );
+        if (Dungeon.coop != null) {
+            if (callback != null) callback.call();
+            return true;
+        }
 
 		if (sprite != null && sprite.parent != null) {
 			if (Dungeon.level.heroFOV[from] || Dungeon.level.heroFOV[to]){

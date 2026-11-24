@@ -92,7 +92,7 @@ public class WornDartTrap extends Trap {
 						Buff.prolong(target, Trap.HazardAssistTracker.class, HazardAssistTracker.DURATION);
 					}
 					final Char finalTarget = target;
-					if (Dungeon.level.heroFOV[pos] || Dungeon.level.heroFOV[target.pos]) {
+					if (Dungeon.coop == null && (Dungeon.level.heroFOV[pos] || Dungeon.level.heroFOV[target.pos])) {
 						((MissileSprite) ShatteredPixelDungeon.scene().recycle(MissileSprite.class)).
 								reset(pos, finalTarget.sprite, new Dart(), new Callback() {
 									@Override

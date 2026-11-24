@@ -164,13 +164,15 @@ public class WandOfBlastWave extends DamageWand {
 					ch.sprite.place(ch.pos);
 					return;
 				}
-				int oldPos = ch.pos;
+				if (Dungeon.coop != null && !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(newPos))
+                    throw new UnsupportedOperationException("Unsupported forced landing");
+                int oldPos = ch.pos;
 				ch.pos = newPos;
 				if (finalCollided && ch.isActive()) {
 					ch.damage(Random.NormalIntRange(finalDist, 2*finalDist), new Knockback());
 					if (ch.isActive()) {
 						Paralysis.prolong(ch, Paralysis.class, 1 + finalDist/2f);
-					} else if (ch == Dungeon.hero){
+					} else if (Dungeon.coop == null && ch == Dungeon.hero){
 						if (cause instanceof Wand || cause instanceof Weapon.Enchantment){
 							Badges.validateDeathFromFriendlyMagic();
 						}
@@ -182,6 +184,7 @@ public class WandOfBlastWave extends DamageWand {
 					Door.leave(oldPos);
 				}
 				Dungeon.level.occupyCell(ch);
+				if (Dungeon.coop != null) return;
 				if (ch == Dungeon.hero){
 					Dungeon.observe();
 					GameScene.updateFog();

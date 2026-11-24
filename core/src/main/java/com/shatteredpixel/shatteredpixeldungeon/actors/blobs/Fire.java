@@ -91,7 +91,7 @@ public class Fire extends Blob {
 			}
 		}
 
-		if (observe) {
+		if (observe && Dungeon.coop == null) {
 			Dungeon.observe();
 		}
 	}

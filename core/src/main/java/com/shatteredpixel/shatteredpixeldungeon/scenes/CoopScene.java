@@ -269,6 +269,8 @@ public class CoopScene extends PixelScene {
         String line=f.pending!=0 ? ("TRAVEL".equals(f.pendingVerb)?msg("travelling"):msg("pending",f.pending)) : f.image.rows.containsKey("reason") ?
                 status(f.image.rows.get("reason")) : !"ALIVE".equals(f.image.rows.get("life")) ?
                 status(f.image.rows.get("life")) : msg(v.offered?"yourturn":"theirturn");
+        if (!"0".equals(f.image.rows.get("keys")) && f.image.rows.containsKey("keys"))
+            line+=" · "+msg("ironkeys",Integer.parseInt(f.image.rows.get("keys")));
         if(v.ally>=0 && "DOWNED".equals(f.image.rows.get("allylife"))) line+=" / "+msg("reviveally");
         if(f.lastResult.startsWith("REJECT") || f.lastResult.equals("UNKNOWN")) line+=" · "+status(f.lastResult);
         label(targetView!=null ? msg("aim") : line,7,v.offered?0xB4DA80:0xCBC6BA);

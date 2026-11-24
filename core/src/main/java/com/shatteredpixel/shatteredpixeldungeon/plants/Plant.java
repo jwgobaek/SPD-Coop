@@ -84,7 +84,7 @@ public abstract class Plant implements Bundlable {
 	public void wither() {
 		Dungeon.level.uproot( pos );
 
-		if (Dungeon.level.heroFOV[pos]) {
+		if (Dungeon.coop == null && Dungeon.level.heroFOV[pos]) {
 			CellEmitter.get( pos ).burst( LeafParticle.GENERAL, 6 );
 		}
 

@@ -19,6 +19,9 @@ import static org.junit.Assert.*;
 
 /** Fresh host process for every invocation. Control files are confined to a test-private directory. */
 public final class RestartHost {
+    static boolean hazard(String mode) {
+        return mode.equals("dart") || mode.equals("iron-door");
+    }
     static boolean guardian(String mode) {
         return mode.equals("statue") || mode.equals("phantom") || mode.equals("exile");
     }
@@ -63,7 +66,7 @@ public final class RestartHost {
                 Runtime.getRuntime().halt(78);
         });
         InetAddress loop=InetAddress.getLoopbackAddress();
-        boolean special = mode.equals("blocked-start") || guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
+        boolean special = hazard(mode) || mode.equals("blocked-start") || guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
         try(LanRoom room=(special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup"))) {
             if (mode.startsWith("crystal-") && !mode.equals("crystal-new")) crystalResumeFixture(path,mode);
@@ -117,7 +120,12 @@ public final class RestartHost {
                 }
                 if (special && room.state()==LanRoom.State.IN_GAME && arrangedDepth!=Dungeon.depth) {
                     arrangedDepth=Dungeon.depth;
-                    if (arrangedDepth==1) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
+                    if (hazard(mode)) {
+                        CoopSession game = Dungeon.coop;
+                        int cell = com.shatteredpixel.shatteredpixeldungeon.SewerHazardsTest.approach(game,1,mode.equals("dart"));
+                        if (mode.equals("iron-door")) Dungeon.level.drop(new com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey(1),game.hero(1).pos);
+                        write(path,"hazard-cell",Integer.toString(cell));
+                    } else if (arrangedDepth==1) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
                     else if (guardian(mode)) {
                         Mob resident;
                         if (mode.equals("phantom")) {

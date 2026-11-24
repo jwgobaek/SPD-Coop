@@ -53,7 +53,7 @@ public class Eldritch extends Weapon.Enchantment {
 					continue;
 				}
 				if (ch.fieldOfView != null && (ch.fieldOfView[attacker.pos] || ch.fieldOfView[defender.pos])){
-					if (ch == Dungeon.hero){
+					if (Dungeon.coop == null ? ch == Dungeon.hero : Dungeon.coop.playerOf(ch) != 0){
 						Buff.affect( defender, Vertigo.class, 5f );
 					} else {
 						Buff.affect(ch, Terror.class, powerMulti * 5f).object = attacker.id();
@@ -61,7 +61,7 @@ public class Eldritch extends Weapon.Enchantment {
 				}
 			}
 
-			new Flare( 5, 24 ).color( 0xFF0000, true ).show( attacker.sprite, 1f );
+			if (Dungeon.coop == null) new Flare( 5, 24 ).color( 0xFF0000, true ).show( attacker.sprite, 1f );
 		}
 
 		return damage;

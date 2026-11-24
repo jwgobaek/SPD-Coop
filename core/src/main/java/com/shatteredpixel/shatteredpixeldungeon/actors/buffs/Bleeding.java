@@ -112,7 +112,7 @@ public class Bleeding extends Buff implements Buff.DOTbuff {
 							target.sprite.blood(), Math.min( 10 * dmg / target.HT, 10 ) );
 				}
 				
-				if (target == Dungeon.hero && !target.isAlive()) {
+				if (Dungeon.coop == null && target == Dungeon.hero && !target.isAlive()) {
 					if (source == Chasm.class){
 						Badges.validateDeathFromFalling();
 					} else if (source == Sacrificial.class){

@@ -21,6 +21,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -57,7 +58,7 @@ public class Blocking extends Weapon.Enchantment {
 			int shield = Math.round(powerMulti * (2 + weapon.buffedLvl()));
 			b.setShield(shield);
 			attacker.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shield), FloatingText.SHIELDING);
-			attacker.sprite.emitter().burst(Speck.factory(Speck.LIGHT), 5);
+			if (Dungeon.coop == null) attacker.sprite.emitter().burst(Speck.factory(Speck.LIGHT), 5);
 		}
 		
 		return damage;

@@ -21,10 +21,10 @@ public class SewerGenerationTest extends HeadlessDungeon {
         int admitted=0, rejected=0;
         for (int seed=402; seed<=423; seed++) {
             boolean traveled=checkGate(seed,"gate");
-            if (seed!=421) assertTrue("Previously playable native seed "+seed,traveled);
+            assertTrue("Previously playable native seed "+seed,traveled);
             if (traveled) admitted++; else rejected++;
         }
-        assertTrue(admitted>=21);
+        assertEquals(22,admitted);
         assertEquals(22,admitted+rejected);
     }
 

@@ -113,7 +113,7 @@ public final class RestartClient {
     }
 
     private void run(String mode) throws Exception {
-        boolean special=mode.equals("blocked-start") || RestartHost.guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
+        boolean special=RestartHost.hazard(mode) || mode.equals("blocked-start") || RestartHost.guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
         if (special) {
             try (LanClient old = new LanClient(address)) {
                 assertEquals("ERROR VERSION", old.request("MODE SYNC3"));
@@ -141,6 +141,23 @@ public final class RestartClient {
             refresh();
             if(mode.equals("walk")) { walk(); return; }
             act("WAIT",0,0);
+            if (RestartHost.hazard(mode)) {
+                offer(1);
+                int cell=Integer.parseInt(RestartHost.read(path,"hazard-cell"));
+                boolean dart=mode.equals("dart");
+                if (dart) assertTrue(state(1).rows.containsKey("trap"+cell));
+                else {
+                    assertEquals("0",state(1).rows.get("keys"));
+                    verifyAfterReconnect(act("PICK_UP",pos(1),item(1,"F"+pos(1),"OTHER")),1);
+                    assertEquals("1",state(0).rows.get("keys"));
+                    offer(1);
+                }
+                SeatActions.Pending pending=actions[1].prepare(state(1),dart?"MOVE":"UNLOCK",cell,0);
+                RestartHost.write(path,"hazard-receipt",pending.id+" "+new PublicDungeon(state(1)).hp+" "+pending.command);
+                RestartHost.write(path,"kill-before-reply","1");
+                assertThrows(IOException.class,()->pending.submit(clients[1]));
+                return;
+            }
             if (RestartHost.guardian(mode)) {
                 int seat=active();
                 assertTrue(consentAndCross().submit(clients[seat]).endsWith(" APPLIED")); applied++;
@@ -225,6 +242,24 @@ public final class RestartClient {
         barrier();
         if (mode.startsWith("crystal-")) {
             crystalResume(mode);
+            return;
+        }
+        if (mode.equals("dart-receipt") || mode.equals("door-receipt")) {
+            String[] saved=RestartHost.read(path,"hazard-receipt").split(" ",3);
+            int cell=Integer.parseInt(RestartHost.read(path,"hazard-cell"));
+            String reply=clients[1].request("LOOKUP "+epoch+" "+saved[0]);
+            assertTrue(reply,reply.endsWith(" APPLIED"));
+            assertEquals(reply,clients[1].request(saved[2]));
+            PublicDungeon guest=new PublicDungeon(state(1));
+            if (mode.equals("dart-receipt")) {
+                assertEquals(cell,guest.pos);
+                assertTrue(guest.hp<Integer.parseInt(saved[1]));
+                assertEquals(com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.INACTIVE_TRAP,guest.terrain(cell));
+            } else {
+                assertEquals("0",state(1).rows.get("keys"));
+                assertEquals(com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.DOOR,guest.terrain(cell));
+            }
+            act("WAIT",0,0);
             return;
         }
         if (mode.equals("mimicreceipt") || mode.equals("goldenreceipt")) {
