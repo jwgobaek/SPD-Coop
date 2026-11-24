@@ -167,6 +167,9 @@ public class AndroidLauncher extends AndroidApplication {
 
 		Button.longClick = ViewConfiguration.getLongPressTimeout()/1000f;
 		
+        com.shatteredpixel.shatteredpixeldungeon.lan.CoopPlatform.configure(
+                new java.io.File(getNoBackupFilesDir(),"multiplayer"),
+                Build.VERSION.SDK_INT >= 23 ? new AndroidSeatKeys() : null);
 		initialize(new ShatteredPixelDungeon(support), config);
 		
 	}

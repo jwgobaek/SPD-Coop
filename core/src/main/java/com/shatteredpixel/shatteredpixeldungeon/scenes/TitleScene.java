@@ -70,6 +70,7 @@ public class TitleScene extends PixelScene {
 
 	private StyledButton btnPlay;
 	private StyledButton btnSupport;
+	private StyledButton btnCoop;
 	private StyledButton btnRankings;
 	private StyledButton btnJournal;
 	private StyledButton btnNews;
@@ -144,7 +145,7 @@ public class TitleScene extends PixelScene {
 
 		final Chrome.Type GREY_TR = Chrome.Type.GREY_BUTTON_TR;
 		
-		btnPlay = new StyledButton(GREY_TR, Messages.get(this, "enter")){
+		btnPlay = new StyledButton(GREY_TR, Messages.get(CoopScene.class, "solo")){
 			@Override
 			protected void onClick() {
 				if (GamesInProgress.checkAll().size() == 0){
@@ -170,6 +171,11 @@ public class TitleScene extends PixelScene {
 		};
 		btnPlay.icon(Icons.get(Icons.ENTER));
 		add(btnPlay);
+
+        btnCoop = new StyledButton(GREY_TR, Messages.get(CoopScene.class, "title")) {
+            @Override protected void onClick() { ShatteredPixelDungeon.switchNoFade(CoopScene.class); }
+        };
+        add(btnCoop);
 
 		btnSupport = new SupportButton(GREY_TR, Messages.get(this, "support"));
 		add(btnSupport);
@@ -241,6 +247,16 @@ public class TitleScene extends PixelScene {
 			btnSettings.setRect(btnNews.left(), btnNews.bottom()+GAP, btnRankings.width(), BTN_HEIGHT);
 			btnAbout.setRect(btnSettings.right()+2, btnSettings.top(), btnSettings.width(), BTN_HEIGHT);
 		}
+
+        if (landscape()) {
+            float third = btnRankings.width();
+            btnPlay.setSize(third,BTN_HEIGHT);
+            btnCoop.setRect(btnJournal.left(),btnPlay.top(),third,BTN_HEIGHT);
+            btnSupport.setRect(btnNews.left(),btnPlay.top(),third,BTN_HEIGHT);
+        } else {
+            btnPlay.setSize(btnRankings.width(),BTN_HEIGHT);
+            btnCoop.setRect(btnJournal.left(),btnPlay.top(),btnJournal.width(),BTN_HEIGHT);
+        }
 
 		version = new BitmapText( "v" + Game.version, pixelFont);
 		version.measure();
@@ -315,6 +331,7 @@ public class TitleScene extends PixelScene {
 		//signs.am = alpha; handles this itself
 
 		btnPlay.enable(alpha != 0);
+		btnCoop.enable(alpha != 0);
 		btnSupport.enable(alpha != 0);
 		btnRankings.enable(alpha != 0);
 		btnJournal.enable(alpha != 0);
@@ -324,6 +341,7 @@ public class TitleScene extends PixelScene {
 		btnAbout.enable(alpha != 0);
 
 		btnPlay.alpha(alpha);
+		btnCoop.alpha(alpha);
 		btnSupport.alpha(alpha);
 		btnRankings.alpha(alpha);
 		btnJournal.alpha(alpha);

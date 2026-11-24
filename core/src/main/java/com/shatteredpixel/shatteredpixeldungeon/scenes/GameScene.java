@@ -814,6 +814,17 @@ public class GameScene extends PixelScene {
 		super.destroy();
 	}
 	
+    /** Called only after leaving the solo scene, before a local co-op host opens its dungeon. */
+    public static void releaseInactiveDungeon() throws InterruptedException {
+        if (scene!=null || Dungeon.coop!=null) throw new IllegalStateException("ENGINE_BUSY");
+        endActorThread();
+        if (actorThread!=null) {
+            actorThread.join(4500);
+            if(actorThread.isAlive()) throw new IllegalStateException("ENGINE_BUSY");
+        }
+        Actor.clear(); Dungeon.hero=null; Dungeon.level=null;
+    }
+
 	public static void endActorThread(){
 		if (actorThread != null && actorThread.isAlive()){
 			Actor.keepActorThreadAlive = false;

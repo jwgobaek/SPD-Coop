@@ -10,7 +10,7 @@ import java.util.UUID;
 /** Private client identity. Enroll its public key once before roster lock. */
 public final class SeatCredential {
     private final KeyPair keys;
-    private SeatCredential(KeyPair keys) { this.keys = keys; }
+    public SeatCredential(KeyPair keys) { this.keys = keys; }
 
     public static SeatCredential generate() throws GeneralSecurityException {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");

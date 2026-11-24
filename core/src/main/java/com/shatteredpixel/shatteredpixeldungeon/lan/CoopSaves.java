@@ -54,11 +54,16 @@ public final class CoopSaves {
         public final UUID session;
         public final long generation, backup, turn, version;
         public final int depth;
+        public final long savedAt;
+        public final String hostClass, guestClass;
         public final boolean defeated;
         Summary(UUID id,Slot slot,boolean older,Bundle state) {
             Bundle engine=state.getBundle("engine");
             session=id; generation=older ? slot.previous : slot.current; backup=slot.previous;
             turn=engine.getLong("turn"); version=state.getBundle("sync").getLong("version");
+            savedAt=new File(slot.dir,"g"+generation).lastModified();
+            hostClass=engine.getBundle("world").getBundle("hero").getString("class");
+            guestClass=engine.getBundle("guest").getString("class");
             depth=engine.getBundle("world").getInt("depth"); defeated=engine.getBoolean("defeat");
         }
     }
@@ -228,7 +233,7 @@ public final class CoopSaves {
         catch (NoSuchAlgorithmException impossible) { throw new AssertionError(impossible); }
     }
 
-    private static void syncDirectory(File dir) throws IOException {
+    static void syncDirectory(File dir) throws IOException {
         if (!"Dalvik".equals(System.getProperty("java.vm.name"))) { JvmDirectory.sync(dir); return; }
         try {
             Class<?> os = Class.forName("android.system.Os");

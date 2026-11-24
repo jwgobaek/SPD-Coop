@@ -131,6 +131,7 @@ public class ShatteredPixelDungeon extends Game {
 	
 	@Override
 	public void destroy(){
+        com.shatteredpixel.shatteredpixeldungeon.scenes.CoopScene.stopSession();
 		super.destroy();
 		GameScene.endActorThread();
 	}
