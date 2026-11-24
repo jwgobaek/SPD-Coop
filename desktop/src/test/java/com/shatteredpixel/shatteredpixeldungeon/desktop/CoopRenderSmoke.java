@@ -3,6 +3,8 @@ package com.shatteredpixel.shatteredpixeldungeon.desktop;
 import com.badlogic.gdx.Gdx;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.lan.*;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.*;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndCoopBag;
@@ -19,7 +21,7 @@ import java.util.concurrent.*;
 import java.util.function.Predicate;
 import javax.imageio.ImageIO;
 
-/** Optional real LWJGL/X11 test. Use an isolated desktop profile and English locale. */
+/** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
@@ -76,10 +78,14 @@ public final class CoopRenderSmoke {
         }
         return null;
     }
+    private static String label(String key) {
+        if(key.equals("warriorClass")) return HeroClass.WARRIOR.title();
+        return Messages.get(CoopScene.class,key);
+    }
     private static Point button(String name) throws Exception {
         return render(()->{
             StyledButton b=(StyledButton)find(Game.scene(),g->g instanceof StyledButton && g.active &&
-                    ((StyledButton)g).text().equalsIgnoreCase(name));
+                    ((StyledButton)g).text().equalsIgnoreCase(name.startsWith("#") ? name.substring(1) : label(name)));
             return b==null?null:b.camera().cameraToScreen(b.left()+b.width()/2,b.top()+b.height()/2);
         });
     }
@@ -127,8 +133,8 @@ public final class CoopRenderSmoke {
     private static void exercise() throws Exception {
         await(()->Gdx.app!=null && render(()->Game.scene()!=null));
         render(()->{ShatteredPixelDungeon.switchNoFade(TitleScene.class);return null;});
-        await(()->button("Single player")!=null);
-        shot("title"); click("Single player");
+        await(()->button("solo")!=null);
+        shot("title"); click("solo");
         await(()->render(()->Game.scene() instanceof HeroSelectScene || Game.scene() instanceof StartScene));
         shot("solo-entry");
         render(()->{ShatteredPixelDungeon.switchNoFade(TitleScene.class);return null;});
@@ -138,15 +144,15 @@ public final class CoopRenderSmoke {
                     new java.util.Random(){@Override public long nextLong(){return 402;}}));
             return null;
         });
-        click("Multiplayer"); await(()->button("Create room")!=null);
-        shot("multiplayer"); click("Create room"); await(()->button("Warrior")!=null);
-        shot("lobby"); click("Warrior");
+        click("title"); await(()->button("host")!=null);
+        shot("multiplayer"); click("host"); await(()->button("warriorClass")!=null);
+        shot("lobby"); click("warriorClass");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
         Process child=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-cp",System.getProperty("java.class.path"),
                 CoopRenderSmoke.class.getName(),"guest",root.toString()).inheritIO().start();
         try {
-            click("Ready"); await(()->button("Start game")!=null); shot("ready"); click("Start game");
-            await(()->frame().dungeon!=null); await(()->button("Inventory")!=null);
+            click("ready"); await(()->button("start")!=null); shot("ready"); click("start");
+            await(()->frame().dungeon!=null); await(()->button("bag")!=null);
             shot("dungeon");
             PublicDungeon before=frame().dungeon;
             int destination=-1;
@@ -158,7 +164,7 @@ public final class CoopRenderSmoke {
             if(destination<0) throw new AssertionError("No directly visible adjacent floor");
             final int target=destination;
             press(mapPoint(before,target)); await(()->frame().dungeon.pos==target); await(()->frame().dungeon.offered);
-            click("Inventory");
+            click("bag");
             await(()->render(()->find(Game.scene(),g->g instanceof WndCoopBag)!=null)); shot("inventory");
             PublicDungeon bag=frame().dungeon;
             java.util.ArrayList<PublicDungeon.Loot> sorted=new java.util.ArrayList<>(bag.belongings);
@@ -171,33 +177,33 @@ public final class CoopRenderSmoke {
                 WndCoopBag wnd=(WndCoopBag)find(Game.scene(),g->g instanceof WndCoopBag);
                 return wnd.camera().cameraToScreen(13+24*(slot%5),28+22*(slot/5));
             });
-            press(item); click("Eat"); await(()->frame().lastAction>=2 && "APPLIED".equals(frame().lastResult));
+            press(item); click("eat"); await(()->frame().lastAction>=2 && "APPLIED".equals(frame().lastResult));
             await(()->frame().dungeon.offered);
-            click("Wait"); await(()->frame().lastAction>=3 && "APPLIED".equals(frame().lastResult));
+            click("wait"); await(()->frame().lastAction>=3 && "APPLIED".equals(frame().lastResult));
             await(()->frame().dungeon.offered);
             RenderEncounter.arrange(hostController());
-            click("Wait"); await(()->"DOWNED".equals(frame().image.rows.get("allylife")) && frame().dungeon.offered);
+            click("wait"); await(()->"DOWNED".equals(frame().image.rows.get("allylife")) && frame().dungeon.offered);
             if(frame().image.rows.keySet().stream().noneMatch(k->k.startsWith("z"))) throw new AssertionError("No visible battle edges");
             shot("encounter-revive"); PublicDungeon rescue=frame().dungeon; press(mapPoint(rescue,rescue.ally));
             await(()->"ALIVE".equals(frame().image.rows.get("allylife")) && frame().lastResult.equals("APPLIED"));
             await(()->frame().dungeon.offered); PublicDungeon combat=frame().dungeon;
             press(mapPoint(combat,combat.pos-1)); await(()->frame().lastAction>=6 && frame().lastResult.equals("APPLIED"));
-            click("Game menu"); click("Diagnostics"); await(()->button("Share or copy report")!=null); shot("diagnostics"); click("Back");
-            click("Game menu"); click("Save and close room"); await(()->button("Saved games")!=null);
-            click("Saved games"); await(()->frame().list.size()==1); shot("saves"); click("Back");
-            click("Reconnect"); await(()->frame().list.size()==1 && frame().page==CoopController.Page.TICKETS);
-            shot("reconnect"); click("Back"); click("Saved games");
+            click("menu"); click("diagnostics"); await(()->button("export")!=null); shot("diagnostics"); click("back");
+            click("menu"); click("saveexit"); await(()->button("saves")!=null);
+            click("saves"); await(()->frame().list.size()==1); shot("saves"); click("back");
+            click("reconnect"); await(()->frame().list.size()==1 && frame().page==CoopController.Page.TICKETS);
+            shot("reconnect"); click("back"); click("saves");
             await(()->frame().page==CoopController.Page.SAVES && frame().list.size()==1);
             CoopController.Entry saved=frame().list.get(0);
-            String label=saved.id.toString().substring(0,8)+"  Floor "+saved.current.depth+" · generation "+saved.current.generation;
-            click(label); click("Continue game"); await(()->frame().image!=null);
+            String label=saved.id.toString().substring(0,8)+"  "+Messages.get(CoopScene.class,"floor",saved.current.depth,saved.current.generation);
+            click("#"+label); click("resume"); await(()->frame().image!=null);
             if(!child.waitFor(5,TimeUnit.SECONDS)) throw new AssertionError("Old guest did not exit");
             child=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-cp",System.getProperty("java.class.path"),
                     CoopRenderSmoke.class.getName(),"guest",root.toString(),"resume").inheritIO().start();
             await(()->frame().dungeon!=null && frame().dungeon.offered);
             shot("resumed"); long resumedVersion=frame().image.version;
-            click("Wait"); await(()->frame().image.version>resumedVersion && "APPLIED".equals(frame().lastResult));
-            click("Game menu"); click("Save and close room"); await(()->button("Create room")!=null);
+            click("wait"); await(()->frame().image.version>resumedVersion && "APPLIED".equals(frame().lastResult));
+            click("menu"); click("saveexit"); await(()->button("host")!=null);
         } finally {
             if(child.isAlive()) child.destroy(); if(!child.waitFor(5,TimeUnit.SECONDS)) child.destroyForcibly();
         }

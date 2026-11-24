@@ -29,6 +29,29 @@ public class CoopControllerTest extends HeadlessDungeon {
                 && (t.getName().equals("Coop client") || t.getName().equals("Coop engine") || t.getName().equals("spd-lan-io")));
     }
 
+    @Test(timeout=15000) public void discoveryErrorsAndClosingAnUnstartedRoom() throws Exception {
+        InetAddress loop=InetAddress.getLoopbackAddress();
+        File root=temporary.newFolder();
+        CoopController ui=new CoopController(root,null,loop,0,0);
+        try {
+            InetSocketAddress discovery;
+            try(LanRoom advertised=LanRoom.persistentGame(loop,0,0,402,new CoopSaves(temporary.newFolder()))) {
+                discovery=new InetSocketAddress(loop,advertised.udpPort());
+                ui.discover(discovery);
+                CoopController.Frame found=until(ui,f->f.page==CoopController.Page.ROOMS);
+                assertEquals(1,found.list.size()); assertEquals(advertised.session,found.list.get(0).id);
+                assertTrue(found.list.get(0).address.endsWith(":"+advertised.tcpPort()));
+            }
+            ui.discover(discovery); until(ui,f->f.page==CoopController.Page.ROOMS && f.list.isEmpty());
+            ui.join("127.0.0.1:65536",null);
+            assertEquals("ADDRESS",until(ui,f->f.page==CoopController.Page.DISCONNECTED).notice);
+            ui.menu(); until(ui,f->f.page==CoopController.Page.MENU);
+            ui.host(); until(ui,f->f.page==CoopController.Page.LOBBY);
+            ui.leave(true); assertEquals("LEFT",until(ui,f->f.page==CoopController.Page.MENU).notice);
+            ui.saved(false); assertTrue(until(ui,f->f.page==CoopController.Page.SAVES).list.isEmpty());
+        } finally {stop(ui);}
+    }
+
     @Test(timeout=60000) public void realLobbySaveAndColdClientResume() throws Exception {
         File hr=temporary.newFolder(), gr=temporary.newFolder();
         InetAddress loop=InetAddress.getLoopbackAddress();
