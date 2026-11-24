@@ -19,10 +19,27 @@ def output(directory, suite, cases):
     return root.findtext("system-out", "")
 
 
-def main(directory):
+def main(directory, gates_only=False):
     report = output(directory, "SewerGenerationTest", {
         "sampleNativeSewerRegion", "roundTripOrRestoreTheEntryBoundaryOnEachSampledSeed",
     })
+    if gates_only:
+        samples = re.findall(r"(gate|additional|rare) seed=(\d+) placed_at_stairs=(true|false) "
+                             r"outcome=(\w+) restored=(\w+) rng=(\w+) next_action=(\w+) blocker=([^\n]+)", report)
+        expected = set(range(402,446)) | {479}
+        if {int(seed) for _,seed,*_ in samples} != expected or len(samples)!=len(expected):
+            raise ValueError("Incomplete native seed cohorts")
+        writer = csv.writer(sys.stdout, delimiter="\t", lineterminator="\n")
+        writer.writerow(("cohort", "seed", "start", "placed_at_stairs", "descend", "restored_depth",
+                         "ascend", "next_action", "random_state_equal", "unsupported_residents"))
+        for cohort,seed,placed,outcome,restored,rng,acted,blocker in sorted(samples,key=lambda row:int(row[1])):
+            entered=outcome=="ROUND_TRIP"
+            writer.writerow((cohort, seed, "REJECT" if outcome=="REJECT_START" else "PASS", placed,
+                             "PASS" if entered else "REJECT" if placed=="true" else "NOT RUN",
+                             (2 if entered else 1) if restored=="true" else "NOT RUN",
+                             "PASS" if entered else "NOT RUN", "PASS" if acted=="true" else "NOT RUN",
+                             "PASS" if rng=="true" else "NOT RUN", blocker))
+        return
     wire = output(directory, "HostRestartTest", {"generatedSewersRoundTripAcrossProcessDeath"})
     route = re.search(r"native socket route moves=(\d+) melee=(\d+) searches=(\d+) casts=(\d+)", wire)
     if not route or min(map(int, route.groups())) <= 0 or "mode=verifyfloor" not in wire:
@@ -53,4 +70,6 @@ def main(directory):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("junit", type=Path)
-    main(parser.parse_args().junit)
+    parser.add_argument("--gates", action="store_true", help="Output re-entry and RNG results for all cohorts")
+    args=parser.parse_args()
+    main(args.junit,args.gates)

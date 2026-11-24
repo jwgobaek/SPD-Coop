@@ -52,6 +52,14 @@ public class HostRestartTest {
         run(temp.getRoot().toPath(),new String[]{"statue"});
     }
 
+    @Test(timeout=90000) public void guestEngagesNativeExileAndPhantomOnAuthenticatedSockets() throws Exception {
+        for(String mode:new String[]{"exile","phantom"}) run(temp.newFolder().toPath(),new String[]{mode});
+    }
+
+    @Test(timeout=45000) public void unsupportedNativeEntranceReturnsToLobbyWithoutExposingContents() throws Exception {
+        run(temp.getRoot().toPath(),new String[]{"blocked-start"});
+    }
+
     private void run(Path dir,String[] modes) throws Exception {
         for(String mode:modes) {
             Files.deleteIfExists(dir.resolve("fault-armed"));

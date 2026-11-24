@@ -310,6 +310,13 @@ public final class LanRoom implements AutoCloseable {
                 game = CoopSession.open(seed,self.player,self.type);
                 game.join(seats[1].player,seats[1].type);
                 if (peer.syncMode) sync = new RoomSync(session,game);
+            } catch (com.shatteredpixel.shatteredpixeldungeon.CoopFloors.UnsupportedDestination unsupported) {
+                // open() released the unstarted engine. Keep the two lobby seats and expose
+                // no unobserved actor or weapon names over the network.
+                locked = false;
+                io.discoverable = true;
+                lobby();
+                return "ERROR UNSUPPORTED_FLOOR";
             } catch (RuntimeException e) { return pause(e.toString()); }
             state = State.IN_GAME;
             if (slot!=null) { sync.connectionBoundary(epoch,false); persist(false); }

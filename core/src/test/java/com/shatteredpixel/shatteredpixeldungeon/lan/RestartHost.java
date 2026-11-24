@@ -19,6 +19,25 @@ import static org.junit.Assert.*;
 
 /** Fresh host process for every invocation. Control files are confined to a test-private directory. */
 public final class RestartHost {
+    static boolean guardian(String mode) {
+        return mode.equals("statue") || mode.equals("phantom") || mode.equals("exile");
+    }
+    private static long seedFor(String mode) {
+        switch (mode) {
+            case "blocked-start": return 434;
+            case "phantom": return 479;
+            case "exile": return 420;
+            case "statue": return 416;
+            case "crystal-new": return 411;
+            case "mimic": return 408;
+            case "hive": return 409;
+            case "quest": return 403;
+            case "piranha": return 406;
+            case "walk": return 415;
+            default: return 402;
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         Path base=Paths.get(args[0]);
         String mode=args[1];
@@ -43,8 +62,8 @@ public final class RestartHost {
                 Runtime.getRuntime().halt(78);
         });
         InetAddress loop=InetAddress.getLoopbackAddress();
-        boolean special = mode.equals("statue") || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || mode.equals("mimic");
-        try(LanRoom room=(special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,mode.equals("statue")?416:mode.equals("crystal-new")?411:mode.equals("mimic")?408:mode.equals("hive")?409:mode.equals("quest")?403:mode.equals("piranha")?406:mode.equals("walk")?415:402,saves)
+        boolean special = mode.equals("blocked-start") || guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || mode.equals("mimic");
+        try(LanRoom room=(special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup"))) {
             if (mode.startsWith("crystal-") && !mode.equals("crystal-new")) crystalResumeFixture(path,mode);
             Rat rat=null;
@@ -98,10 +117,18 @@ public final class RestartHost {
                 if (special && room.state()==LanRoom.State.IN_GAME && arrangedDepth!=Dungeon.depth) {
                     arrangedDepth=Dungeon.depth;
                     if (arrangedDepth==1) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
-                    else if (mode.equals("statue")) {
-                        Statue statue=SewerSpecialActorTest.actor(Statue.class);
-                        SewerGhostTest.meet(Dungeon.coop,1,statue);
-                        write(path,"statue-id",Integer.toString(statue.id()));
+                    else if (guardian(mode)) {
+                        Mob resident;
+                        if (mode.equals("phantom")) {
+                            PhantomPiranha fish=SewerSpecialActorTest.actor(PhantomPiranha.class);
+                            SewerGuardiansTest.approachPool(Dungeon.coop,1,fish);
+                            resident=fish;
+                        } else {
+                            resident=mode.equals("statue") ? SewerSpecialActorTest.actor(Statue.class)
+                                    : SewerSpecialActorTest.actor(GnollExile.class);
+                            SewerGhostTest.meet(Dungeon.coop,1,resident);
+                        }
+                        write(path,"resident-id",Integer.toString(resident.id()));
                     } else if (mode.equals("crystal-new")) {
                         CrystalMimic thief=SewerSpecialActorTest.actor(CrystalMimic.class);
                         Food food=SewerCrystalMimicTest.pack(Dungeon.coop,1,3);
@@ -175,6 +202,9 @@ public final class RestartHost {
             if (mode.equals("soak")) Runtime.getRuntime().halt(79);
             if (mode.equals("failure")) {
                 assertEquals(LanRoom.State.PAUSED,room.state());
+                assertThrows(IOException.class,room::saveAndClose);
+            } else if (mode.equals("blocked-start")) {
+                assertNull(Dungeon.coop);
                 assertThrows(IOException.class,room::saveAndClose);
             } else room.saveAndClose();
         }

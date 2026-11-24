@@ -202,6 +202,23 @@ public class SewerGuardiansTest extends HeadlessDungeon {
         return units;
     }
 
+    public static void approachPool(CoopSession game,int seat,PhantomPiranha fish) {
+        Level level=Dungeon.level;
+        Hero caster=game.hero(seat);
+        int cell=-1;
+        for(int p=0;p<level.length();p++) {
+            if (!level.passable[p] || level.pit[p] || level.traps.get(p)!=null || Actor.findChar(p)!=null
+                    || level.distance(p,fish.pos)<2 || level.distance(p,fish.pos)>5) continue;
+            if (new Ballistica(p,fish.pos,Ballistica.MAGIC_BOLT).collisionPos!=fish.pos) continue;
+            boolean landing=false;
+            for(int off:com.watabou.utils.PathFinder.NEIGHBOURS8) if(level.water[p+off] && Actor.findChar(p+off)==null) landing=true;
+            if (landing) {cell=p;break;}
+        }
+        assertTrue(cell>=0);
+        caster.pos=cell;
+        game.observe(seat);
+    }
+
     @Test public void distantMagicMakesPhantomPiranhaJumpTowardsTheActualCaster() {
         for (int seat=0;seat<2;seat++) {
             Bundle parked;
@@ -212,19 +229,8 @@ public class SewerGuardiansTest extends HeadlessDungeon {
                 PhantomPiranha fish=SewerSpecialActorTest.actor(PhantomPiranha.class);
                 SewerBeeTest.offer(game,seat);
                 Level level=Dungeon.level;
+                approachPool(game,seat,fish);
                 Hero caster=game.hero(seat);
-                int cell=-1;
-                for(int p=0;p<level.length();p++) {
-                    if (!level.passable[p] || level.pit[p] || level.traps.get(p)!=null || Actor.findChar(p)!=null
-                            || level.distance(p,fish.pos)<2 || level.distance(p,fish.pos)>5) continue;
-                    if (new Ballistica(p,fish.pos,Ballistica.MAGIC_BOLT).collisionPos!=fish.pos) continue;
-                    boolean landing=false;
-                    for(int off:com.watabou.utils.PathFinder.NEIGHBOURS8) if(level.water[p+off] && Actor.findChar(p+off)==null) landing=true;
-                    if (landing) {cell=p;break;}
-                }
-                assertTrue(cell>=0);
-                caster.pos=cell;
-                game.observe(seat);
                 int hp=fish.HP;
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ZAP,fish.pos,caster.belongings.weapon()));
                 assertTrue(fish.HP<hp);

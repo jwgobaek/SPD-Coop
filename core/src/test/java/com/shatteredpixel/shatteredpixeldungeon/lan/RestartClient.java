@@ -113,7 +113,7 @@ public final class RestartClient {
     }
 
     private void run(String mode) throws Exception {
-        boolean special=mode.equals("statue") || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || mode.equals("mimic");
+        boolean special=mode.equals("blocked-start") || RestartHost.guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || mode.equals("mimic");
         if (special) {
             try (LanClient old = new LanClient(address)) {
                 assertEquals("ERROR VERSION", old.request("MODE SYNC3"));
@@ -127,21 +127,27 @@ public final class RestartClient {
                 epoch=UUID.fromString(keys[i].enroll(clients[i]).split(" ")[1]);
                 actions[i]=new SeatActions(session,i,i+1);
                 models[i]=new DisplayReplica(session,i);
-                String character=(mode.equals("quest") || mode.equals("statue") || mode.equals("crystal-new"))?"MAGE":mode.startsWith("cast") && i==Integer.parseInt(mode.substring(4)) ? "MAGE" : mode.equals("walk") ? (i==0?"MAGE":"WARRIOR") : i==0?"WARRIOR":"HUNTRESS";
+                String character=(mode.equals("quest") || RestartHost.guardian(mode) || mode.equals("crystal-new"))?"MAGE":mode.startsWith("cast") && i==Integer.parseInt(mode.substring(4)) ? "MAGE" : mode.equals("walk") ? (i==0?"MAGE":"WARRIOR") : i==0?"WARRIOR":"HUNTRESS";
                 assertEquals("OK",clients[i].request("SELECT "+character)); clients[i].request("READY 1");
+            }
+            if (mode.equals("blocked-start")) {
+                assertEquals("ERROR UNSUPPORTED_FLOOR",clients[0].request("START"));
+                assertTrue(clients[1].request("STATE").startsWith("LOBBY READY"));
+                assertEquals("OK",clients[1].request("READY 0"));
+                return;
             }
             assertEquals("GAME_STARTED",clients[0].request("START"));
             RestartHost.write(path,"epoch",epoch.toString());
             refresh();
             if(mode.equals("walk")) { walk(); return; }
             act("WAIT",0,0);
-            if (mode.equals("statue")) {
+            if (RestartHost.guardian(mode)) {
                 int seat=active();
                 assertTrue(consentAndCross().submit(clients[seat]).endsWith(" APPLIED")); applied++;
                 refresh(); act("WAIT",0,0); offer(1);
-                String key="m"+RestartHost.read(path,"statue-id");
+                String key="m"+RestartHost.read(path,"resident-id");
                 String[] mob=state(1).rows.get(key).split(",");
-                assertEquals("Statue",mob[1]);
+                assertEquals(mode.equals("statue") ? "Statue" : mode.equals("exile") ? "GnollExile" : "PhantomPiranha",mob[1]);
                 verifyAfterReconnect(act("ZAP",Integer.parseInt(mob[0]),item(1,"WEAPON","STAFF")),1);
                 assertTrue(Integer.parseInt(state(1).rows.get(key).split(",")[2])<Integer.parseInt(mob[2]));
                 assertFalse(state(1).rows.toString().contains("Kinetic"));

@@ -35,7 +35,7 @@ public final class CoopFloors {
         return t.cell();
     }
 
-    static final class UnsupportedDestination extends RuntimeException {
+    public static final class UnsupportedDestination extends RuntimeException {
         UnsupportedDestination(String mob) { super("Unsupported destination actor: "+mob); }
     }
 

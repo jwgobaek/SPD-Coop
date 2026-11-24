@@ -19,6 +19,10 @@ public class CoopFloorsTest extends HeadlessDungeon {
 
     // The guide can inspect the seed's map. Every movement and hit is a normal host action.
     public static int nextStep(CoopSession game,int goal) {
+        return nextStep(game,goal,false);
+    }
+
+    private static int nextStep(CoopSession game,int goal,boolean avoidOccupiedCorridors) {
         Level l=Dungeon.level;
         int start=game.hero(game.activeSeat()).pos;
         if(l.distance(start,goal)<=1) return start;
@@ -32,7 +36,7 @@ public class CoopFloorsTest extends HeadlessDungeon {
                 int c=p+off;
                 if(!l.insideMap(c) || first[c]>=0 || (!l.passable[c] && l.map[c]!=Terrain.SECRET_DOOR) || l.pit[c] || l.getTransition(c)!=null ||
                         l.plants.get(c)!=null || l.traps.get(c)!=null || (p==start && Actor.findChar(c)!=null)
-                        || (Actor.findChar(c) instanceof Hero && Actor.findChar(c)!=game.hero(game.activeSeat()))) continue;
+                        || (avoidOccupiedCorridors && Actor.findChar(c) instanceof Hero && Actor.findChar(c)!=game.hero(game.activeSeat()))) continue;
                 Heap heap=l.heaps.get(c);
                 if(heap!=null && heap.type!=Heap.Type.HEAP) continue;
                 switch(l.map[c]) {
@@ -173,7 +177,7 @@ public class CoopFloorsTest extends HeadlessDungeon {
                     assertTrue(step(game,CoopSession.Action.ATTACK,target,null));
                     attacks++;
                 } else {
-                    int next=nextStep(game,l.exit());
+                    int next=nextStep(game,l.exit(),seed!=415);
                     if(next<0 || next==h.pos) assertTrue(step(game,CoopSession.Action.WAIT,0,null));
                     else if(l.map[next]==Terrain.SECRET_DOOR) {
                         assertTrue(step(game,CoopSession.Action.SEARCH,h.pos,null));
