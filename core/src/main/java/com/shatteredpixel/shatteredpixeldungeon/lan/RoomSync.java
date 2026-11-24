@@ -6,6 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import java.util.*;
+import com.watabou.utils.Bundle;
 
 /** All calls are serialized by LanRoom.pump. */
 final class RoomSync {
@@ -50,6 +51,79 @@ final class RoomSync {
             seat.view.capture(game,next,status,attacked,seat.view.seat==actor ? receipt : null);
         }
         version=next;
+    }
+
+    long highest(int seat) { return seats[seat].highWater; }
+
+    String lookup(int index,long id) {
+        if (id<=0) return "ERROR ACTION_ID";
+        Seat s=seats[index];
+        Record record=s.results.get(id);
+        return record!=null ? record.result : id<=s.highWater ? "ERROR EXPIRED" : "UNKNOWN";
+    }
+
+    boolean matches(int index,long v,String checksum) {
+        return v==version && seats[index].view.current.checksum.equals(checksum);
+    }
+
+    void connectionBoundary(UUID epoch,boolean waiting) {
+        for (Seat s:seats) {
+            s.view.epoch=epoch;
+            if (waiting) s.view.resetHandles(s.view.cursor());
+        }
+        commit(null,-1,null,game.defeated() ? "PARTY_DEFEATED" : waiting ? "RECONNECTING" : "IN_GAME");
+    }
+
+    Bundle checkpoint() {
+        if (paused) throw new IllegalStateException("Uncertain receipt ledger");
+        Bundle b=new Bundle();
+        b.put("version",version);
+        for (int i=0;i<seats.length;i++) {
+            Seat seat=seats[i];
+            Bundle ledger=new Bundle();
+            ledger.put("highest",seat.highWater);
+            ledger.put("cursor",seat.view.cursor());
+            ledger.put("count",seat.results.size());
+            int n=0;
+            for (Map.Entry<Long,Record> e:seat.results.entrySet()) {
+                Bundle record=new Bundle();
+                record.put("id",e.getKey().longValue());
+                record.put("body",e.getValue().body); record.put("result",e.getValue().result);
+                ledger.put("r"+n++,record);
+            }
+            b.put("seat"+i,ledger);
+        }
+        return b;
+    }
+
+    void restore(Bundle b,UUID epoch) {
+        version=b.getLong("version");
+        if (version<=0 || version>=Long.MAX_VALUE-1) throw new IllegalArgumentException("Invalid state version");
+        for (int i=0;i<seats.length;i++) {
+            Seat s=seats[i];
+            Bundle ledger=b.getBundle("seat"+i);
+            int count=ledger.getInt("count");
+            long high=ledger.getLong("highest"), last=0;
+            if (count<0 || count>CACHE || high<0 || ledger.getKeys().size()!=count+3)
+                throw new IllegalArgumentException("Invalid ledger");
+            s.view.resetHandles(ledger.getLong("cursor"));
+            for (int n=0;n<count;n++) {
+                Bundle entry=ledger.getBundle("r"+n);
+                long id=entry.getLong("id");
+                String body=entry.getString("body"), result=entry.getString("result");
+                String[] f=result.split(" "), args=body.split(" ");
+                if (id<=last || id>high || f.length!=8 || args.length!=5 || !f[0].equals("RESULT") ||
+                        Long.parseLong(f[1])!=id || Integer.parseInt(f[2])!=i || Integer.parseInt(f[3])!=game.hero(i).id() ||
+                        !f[4].equals(args[1]) || !f[5].equals(args[0]) || Long.parseLong(f[6])>version ||
+                        Long.parseLong(f[6])<1 || !f[7].matches("APPLIED|PARTY_DEFEATED|REJECT_(DEFEATED|VERSION|TURN|ACTION|ITEM|INVALID)"))
+                    throw new IllegalArgumentException("Invalid action receipt");
+                Long.parseLong(args[0]); Long.parseLong(args[1]); Integer.parseInt(args[3]); Long.parseLong(args[4]);
+                s.results.put(id,new Record(body,result)); last=id;
+            }
+            if (last!=high) throw new IllegalArgumentException("Ledger ceiling");
+            s.highWater=high;
+        }
+        connectionBoundary(epoch,true);
     }
 
     void peerDisconnected() {

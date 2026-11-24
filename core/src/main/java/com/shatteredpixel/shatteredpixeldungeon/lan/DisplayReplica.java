@@ -34,6 +34,14 @@ public final class DisplayReplica {
         deaths=lost=Collections.emptySet();
     }
 
+    /** A new connection always checks a fresh seat-specific snapshot before voting to resume. */
+    public void confirmReconnect(LanClient client) throws IOException {
+        if (closed || !session.toString().equals(client.session)) throw new IOException("Session mismatch");
+        receive(client::request,client.request("SYNC 0 NEW"));
+        if (!"CONFIRMED".equals(client.request("CONFIRM "+image.version+" "+image.checksum)))
+            throw new IOException("Snapshot confirmation failed");
+    }
+
     /** A missing base or an invalid transfer gets one fresh, bounded snapshot attempt. */
     public void refresh(LanClient client) throws IOException {
         if (closed || !session.toString().equals(client.session)) throw new IOException("Session mismatch");

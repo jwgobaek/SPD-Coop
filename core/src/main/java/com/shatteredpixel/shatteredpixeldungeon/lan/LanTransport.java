@@ -17,7 +17,9 @@ final class LanTransport implements Closeable {
         final ArrayBlockingQueue<ByteBuffer> output = new ArrayBlockingQueue<>(16);
         volatile boolean dead, draining;
         // Accessed only by the room executor.
-        long lastRequest;
+        long lastRequest, challengeDeadline;
+        String nonce;
+        int challengeSeat;
         boolean greeted, syncMode;
         long lastFrame = System.nanoTime(), rateStart = lastFrame, lastWrite = lastFrame;
         int count;
@@ -157,7 +159,7 @@ final class LanTransport implements Closeable {
             String line = new String(payload,StandardCharsets.US_ASCII);
             if (++peer.count > 128 || !line.matches("[A-Za-z0-9_ -]+")) { peer.dead = true; break; }
             String[] fields = line.split(" ", -1);
-            if (fields.length < 4 || fields.length > (fields[3].equals("DO") ? 13 : 12) || !requests.offer(new Request(peer,fields))) {
+            if (fields.length < 4 || fields.length > ((fields[3].equals("DO") || fields[3].startsWith("DO_")) ? 13 : 12) || !requests.offer(new Request(peer,fields))) {
                 peer.dead = true; break;
             }
             peer.lastFrame = now;

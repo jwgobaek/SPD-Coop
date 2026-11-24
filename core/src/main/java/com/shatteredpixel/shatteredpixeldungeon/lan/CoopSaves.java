@@ -49,7 +49,25 @@ public final class CoopSaves {
         return Collections.unmodifiableList(ids);
     }
 
-    public Slot open(UUID session) throws IOException { return new Slot(session); }
+    /** Offline menu summary. Integrity is checked without constructing game objects. */
+    public static final class Summary {
+        public final UUID session;
+        public final long generation, backup, turn, version;
+        public final int depth;
+        public final boolean defeated;
+        Summary(UUID id,Slot slot,boolean older,Bundle state) {
+            Bundle engine=state.getBundle("engine");
+            session=id; generation=older ? slot.previous : slot.current; backup=slot.previous;
+            turn=engine.getLong("turn"); version=state.getBundle("sync").getLong("version");
+            depth=engine.getBundle("world").getInt("depth"); defeated=engine.getBoolean("defeat");
+        }
+    }
+
+    public Summary inspect(UUID session,boolean backup) throws IOException {
+        try (Slot slot=open(session)) { return new Summary(session,slot,backup,slot.read(backup)); }
+    }
+
+    Slot open(UUID session) throws IOException { return new Slot(session); }
 
     public final class Slot implements Closeable {
         public final UUID session;

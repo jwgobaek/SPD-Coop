@@ -11,18 +11,26 @@ import com.watabou.utils.PathFinder;
 import java.net.*;
 import java.io.*;
 import java.util.*;
+import java.security.*;
+import com.watabou.utils.Bundle;
 
 /** Construct, pump and close on the engine executor. Clients (including the host seat) use TCP. */
 public final class LanRoom implements AutoCloseable {
     public enum State { LOBBY_OPEN, PLAYER_JOINED, READY, STARTING, ROSTER_LOCKED, IN_GAME, PAUSED, PARTY_DEFEATED, CLOSED }
     private static final class Seat {
-        final LanTransport.Peer peer;
+        LanTransport.Peer peer;
+        PublicKey verifier;
+        boolean confirmed;
         final long player;
         HeroClass type;
         boolean ready;
         Seat(LanTransport.Peer peer, long player) { this.peer = peer; this.player = player; }
     }
-    public final UUID session = UUID.randomUUID();
+    public final UUID session;
+    private UUID epoch;
+    private CoopSaves.Slot slot;
+    private boolean waiting, persistenceFailed;
+    private final SecureRandom challenges = new SecureRandom();
     private final String hostKey = UUID.randomUUID().toString();
     private final Thread owner = Thread.currentThread();
     private final LanTransport io;
@@ -50,10 +58,84 @@ public final class LanRoom implements AutoCloseable {
     }
 
     private LanRoom(InetAddress bind,int tcp,int udp,long seed,boolean synchronizedRoom) throws IOException {
+        this(bind,tcp,udp,seed,synchronizedRoom,UUID.randomUUID());
+    }
+
+    private LanRoom(InetAddress bind,int tcp,int udp,long seed,boolean synchronizedRoom,UUID session) throws IOException {
+        this.session=session;
         this.synchronizedRoom=synchronizedRoom;
         this.seed = seed;
         io = new LanTransport(bind,tcp,udp,session);
     }
+    public static LanRoom persistentGame(InetAddress bind,int tcp,int udp,long seed,CoopSaves saves) throws IOException {
+        LanRoom room=new LanRoom(bind,tcp,udp,seed,true);
+        try {
+            room.slot=saves.open(room.session);
+            room.epoch=UUID.randomUUID();
+            return room;
+        } catch (IOException | RuntimeException failure) { room.close(); throw failure; }
+    }
+
+    public static LanRoom resume(InetAddress bind,int tcp,int udp,CoopSaves saves,UUID session,boolean recoverBackup) throws IOException {
+        CoopSaves.Slot disk=saves.open(session);
+        LanRoom room=null;
+        try {
+            Bundle b=disk.read(recoverBackup);
+            if (!b.getBoolean("locked") || !b.contains("epoch")) throw new IOException("Invalid locked roster");
+            UUID savedEpoch=UUID.fromString(b.getString("epoch"));
+            room=new LanRoom(bind,tcp,udp,0,true,session);
+            room.slot=disk;
+            room.io.discoverable=false;
+            room.epoch=recoverBackup ? UUID.randomUUID() : savedEpoch;
+            room.locked=true;
+            room.waiting=true;
+            room.game=CoopSession.restore(b.getBundle("engine"));
+            for (int i=0;i<room.seats.length;i++) {
+                Seat s=room.seats[i]=new Seat(null,room.game.player(i));
+                s.type=room.game.hero(i).heroClass;
+                s.verifier=SeatCredential.verifier(b.getString("key"+i));
+            }
+            room.sync=new RoomSync(session,room.game);
+            room.sync.restore(b.getBundle("sync"),room.epoch);
+            room.state=room.game.defeated() ? State.PARTY_DEFEATED : State.PAUSED;
+            room.persist(recoverBackup);
+            return room;
+        } catch (IOException | RuntimeException | GeneralSecurityException failure) {
+            if (room!=null) room.close(); else disk.close();
+            throw new IOException("Cannot restore selected generation",failure);
+        }
+    }
+
+    public long save() throws IOException { checkOwner(); return persist(false); }
+
+    public void saveAndClose() throws IOException { save(); close(); }
+
+    private long persist(boolean recover) throws IOException {
+        if (slot==null || !locked || sync==null || sync.paused || persistenceFailed) throw new IOException("No safe checkpoint");
+        try {
+            Bundle b=new Bundle();
+            b.put("locked",true); b.put("epoch",epoch.toString());
+            for(int i=0;i<seats.length;i++) b.put("key"+i,SeatCredential.hex(seats[i].verifier.getEncoded()));
+            b.put("engine",game.checkpoint()); b.put("sync",sync.checkpoint());
+            return slot.publish(b,recover);
+        } catch (IOException | RuntimeException failure) {
+            persistenceFailed=true; state=State.PAUSED; problem="CHECKPOINT_FAILED";
+            throw new IOException("Checkpoint failed",failure);
+        }
+    }
+
+    private void disconnected(int i) {
+        seats[i].peer=null;
+        if (!waiting) {
+            waiting=true;
+            for (Seat seat:seats) seat.confirmed=false;
+            if (!persistenceFailed && sync!=null && !sync.paused) {
+                sync.connectionBoundary(epoch,true);
+                if (!game.defeated()) state=State.PAUSED;
+            }
+        }
+    }
+
     public int tcpPort() { return io.listener.socket().getLocalPort(); }
     public int udpPort() { return io.discoveryFailure == null ? io.discovery.socket().getLocalPort() : -1; }
     public String discoveryFailure() { return io.discoveryFailure; }
@@ -69,7 +151,8 @@ public final class LanRoom implements AutoCloseable {
         if (state == State.CLOSED) return;
         if (io.failure != null) { problem = io.failure; close(); return; }
         for (int i=0; i<seats.length; i++) {
-            if (seats[i] != null && seats[i].peer.dead) {
+            if (seats[i] != null && seats[i].peer!=null && seats[i].peer.dead) {
+                if (slot!=null && locked) { disconnected(i); continue; }
                 if (i == 0) { close(); return; }
                 if (locked) {
                     if (state == State.PARTY_DEFEATED) continue;
@@ -104,12 +187,13 @@ public final class LanRoom implements AutoCloseable {
             peer.lastRequest = id;
             try { result = dispatch(peer,f); }
             catch (NumberFormatException invalid) { result = "ERROR NUMBER"; }
+            catch (IOException failed) { result = "ERROR CHECKPOINT_FAILED"; }
         }
         peer.reply("1 " + id + " " + result);
         if (result.equals("BYE")) peer.draining = true;
     }
 
-    private String dispatch(LanTransport.Peer peer, String[] f) {
+    private String dispatch(LanTransport.Peer peer, String[] f) throws IOException {
         String verb = f[3];
         if (verb.equals("HELLO") && f.length == 4 && f[2].equals("-")) {
             peer.greeted = true;
@@ -139,9 +223,44 @@ public final class LanRoom implements AutoCloseable {
             lobby();
             return "JOINED " + seat + " " + seats[seat].player;
         }
+        if (slot!=null && locked && peer.syncMode && (verb.equals("CHALLENGE") || verb.equals("PROVE")))
+            return authenticate(peer,seat,f);
         if (seat < 0) return "ERROR JOIN_FIRST";
         Seat self = seats[seat];
+        if (slot!=null && verb.equals("ENROLL") && !locked && f.length==5) {
+            if (self.verifier!=null) return "ERROR ALREADY_ENROLLED";
+            try { self.verifier=SeatCredential.verifier(f[4]); }
+            catch (GeneralSecurityException invalid) { return "ERROR KEY"; }
+            return "ENROLLED "+epoch;
+        }
+        if (persistenceFailed) return "ERROR CHECKPOINT_FAILED";
         if (peer.syncMode && sync != null) {
+            if (slot!=null) {
+                for(int i=0;i<seats.length;i++) if(seats[i].peer!=null && seats[i].peer.dead) disconnected(i);
+                if (verb.equals("CONFIRM") && f.length==6) {
+                    if (!waiting || sync.paused || !sync.matches(seat,Long.parseLong(f[4]),f[5])) return "ERROR SNAPSHOT";
+                    self.confirmed=true;
+                    if (seats[0].confirmed && seats[1].confirmed && seats[0].peer!=null && seats[1].peer!=null) {
+                        waiting=false;
+                        sync.connectionBoundary(epoch,false);
+                        state=game.defeated() ? State.PARTY_DEFEATED : State.IN_GAME;
+                        persist(false);
+                    }
+                    return "CONFIRMED";
+                }
+                if (verb.equals("LOOKUP") && f.length==6)
+                    return epoch.toString().equals(f[4]) ? sync.lookup(seat,Long.parseLong(f[5])) : "ERROR EPOCH";
+                if (verb.equals("DO") || verb.startsWith("DO_")) {
+                    if (!verb.equals("DO_"+epoch)) return "ERROR EPOCH";
+                    if (waiting || sync.paused) return "ERROR PAUSED";
+                    long before=sync.highest(seat);
+                    String result=sync.action(seat,f);
+                    if (sync.paused) { state=State.PAUSED; problem=sync.failure; return result; }
+                    if (game.defeated()) state=State.PARTY_DEFEATED;
+                    if (sync.highest(seat)!=before) persist(false);
+                    return result;
+                }
+            }
             if (verb.equals("SYNC") && f.length == 6) return sync.sync(seat,Long.parseLong(f[4]),f[5]);
             if (verb.equals("PAGE") && f.length == 6) return sync.part(seat,Long.parseLong(f[4]),Integer.parseInt(f[5]));
             if (verb.equals("DO")) {
@@ -162,7 +281,7 @@ public final class LanRoom implements AutoCloseable {
             self.type = HeroClass.valueOf(f[4]);
             self.ready = false;
         } else if (verb.equals("READY") && f.length == 5) {
-            if (self.type == null || !(f[4].equals("0") || f[4].equals("1"))) return "ERROR READY";
+            if ((slot!=null && self.verifier==null) || self.type == null || !(f[4].equals("0") || f[4].equals("1"))) return "ERROR READY";
             self.ready = f[4].equals("1");
         } else if (verb.equals("START") && f.length == 4) {
             if (seat != 0) return "ERROR AUTH";
@@ -177,10 +296,44 @@ public final class LanRoom implements AutoCloseable {
                 if (peer.syncMode) sync = new RoomSync(session,game);
             } catch (RuntimeException e) { return pause(e.toString()); }
             state = State.IN_GAME;
+            if (slot!=null) { sync.connectionBoundary(epoch,false); persist(false); }
             return "GAME_STARTED";
         } else return "ERROR COMMAND";
         lobby();
         return "OK";
+    }
+
+    private String authenticate(LanTransport.Peer peer,int attached,String[] f) {
+        if (persistenceFailed || sync==null || sync.paused) return "ERROR PAUSED";
+        if (attached>=0) return "ERROR DUPLICATE";
+        if (f[3].equals("CHALLENGE")) {
+            peer.nonce=null;
+            if (f.length!=7) return "ERROR FORMAT";
+            if (!epoch.toString().equals(f[4])) return "RECOVERY_EPOCH "+epoch;
+            int index=Integer.parseInt(f[5]);
+            if (index<0 || index>=seats.length || Long.parseLong(f[6])!=seats[index].player) return "ERROR AUTH";
+            if (seats[index].peer!=null && !seats[index].peer.dead) return "ERROR DUPLICATE";
+            byte[] bytes=new byte[32];
+            challenges.nextBytes(bytes);
+            peer.nonce=SeatCredential.hex(bytes); peer.challengeSeat=index;
+            peer.challengeDeadline=System.nanoTime()+5000000000L;
+            return "NONCE "+peer.nonce;
+        }
+        String nonce=peer.nonce;
+        peer.nonce=null;
+        if (nonce==null || f.length!=5 || System.nanoTime()-peer.challengeDeadline>=0) return "ERROR AUTH";
+        int index=peer.challengeSeat;
+        Seat target=seats[index];
+        if (target.peer!=null && !target.peer.dead) return "ERROR DUPLICATE";
+        try {
+            Signature verifier=Signature.getInstance("SHA256withECDSA");
+            verifier.initVerify(target.verifier);
+            verifier.update(SeatCredential.message(session.toString(),epoch,index,target.player,nonce));
+            if (!verifier.verify(SeatCredential.bytes(f[4],80))) return "ERROR AUTH";
+        } catch (GeneralSecurityException invalid) { return "ERROR AUTH"; }
+        if (target.peer!=null) disconnected(index);
+        target.peer=peer; target.confirmed=false;
+        return "RESUMED "+index+" "+target.player+" "+game.hero(index).id()+" "+sync.highest(index);
     }
 
     private String pause(String reason) {
@@ -264,6 +417,10 @@ public final class LanRoom implements AutoCloseable {
         checkOwner();
         if (state == State.CLOSED) return;
         state = State.CLOSED;
-        try { io.close(); } finally { if (game != null) game.close(); }
+        try { io.close(); } finally {
+            try { if (game != null) game.close(); } finally {
+                if (slot!=null) try { slot.close(); } catch (IOException failed) { problem="CLOSE_FAILED"; }
+            }
+        }
     }
 }

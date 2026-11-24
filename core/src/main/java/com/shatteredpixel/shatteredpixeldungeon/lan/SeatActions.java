@@ -17,6 +17,12 @@ public final class SeatActions {
         this.player=player;
     }
 
+    public SeatActions(UUID session,int seat,long player,long highWater) {
+        this(session,seat,player);
+        if (highWater<0) throw new IllegalArgumentException("Action ID ceiling");
+        sequence=highWater;
+    }
+
     long allocate() {
         if (sequence==Long.MAX_VALUE) throw new IllegalStateException("Action sequence exhausted");
         return ++sequence;
@@ -28,7 +34,8 @@ public final class SeatActions {
         if (!action.matches("WAIT|MOVE|ATTACK|PICK_UP|EQUIP|EAT|DROP|UNEQUIP|REVIVE")) throw new IllegalArgumentException("Action");
         long id=allocate();
         String actor=image.rows.get("self").split(",",2)[0];
-        String command="DO "+player+" "+seat+" "+actor+" "+id+" "+image.version+" "+image.rows.get("turn")+" "+action+" "+cell+" "+item;
+        String epoch=image.rows.get("epoch");
+        String command=(epoch==null ? "DO" : "DO_"+epoch)+" "+player+" "+seat+" "+actor+" "+id+" "+image.version+" "+image.rows.get("turn")+" "+action+" "+cell+" "+item;
         return new Pending(session,id,command);
     }
 

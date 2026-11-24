@@ -27,6 +27,16 @@ final class SeatProjection {
         nextItem = seat + 1;
     }
 
+    UUID epoch;
+    long cursor() { return nextItem; }
+    void resetHandles(long start) {
+        if (start < seat+1 || start % 2 != (seat+1)%2 || start > Long.MAX_VALUE-32768)
+            throw new IllegalArgumentException("Invalid handle cursor");
+        nextItem = start;
+        ids.clear(); items=Collections.emptyMap();
+        previous=null; current=null;
+    }
+
     Item resolve(long handle) { return items.get(handle); }
 
     void capture(CoopSession game, long version, String status, Mob attacked,String receipt) {
@@ -35,6 +45,7 @@ final class SeatProjection {
         boolean playing=status.equals("IN_GAME");
         boolean defeated = status.equals("PARTY_DEFEATED");
         rows.put("status",playing || defeated ? status : "PAUSED");
+        if (epoch!=null) rows.put("epoch",epoch.toString());
         rows.put("life",game.life(seat).name());
         rows.put("revivable",game.life(seat) == CoopSession.Life.DOWNED ? "1" : "0");
         if (!playing && !defeated) rows.put("reason",status);
@@ -43,7 +54,7 @@ final class SeatProjection {
         rows.put("turn",Long.toString(game.turn()));
         rows.put("active",Integer.toString(playing ? game.activeSeat() : -1));
         witnessedDeath = null;
-        if (playing) {
+        if (playing || status.equals("RECONNECTING")) {
             Hero hero = game.hero(seat);
             Level level = Dungeon.level;
             FloorKnowledge sight = game.observe(seat);
