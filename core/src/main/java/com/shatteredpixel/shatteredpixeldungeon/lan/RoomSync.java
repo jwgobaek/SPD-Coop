@@ -40,23 +40,27 @@ final class RoomSync {
     RoomSync(UUID session,CoopSession game) {
         this.game=game;
         seats=new Seat[]{new Seat(session,0),new Seat(session,1)};
-        commit(null);
+        commit(null,-1,null,"IN_GAME");
     }
 
-    private void commit(Mob attacked) {
+    private void commit(Mob attacked,int actor,String receipt,String status) {
         long next=version+1;
         for (Seat seat : seats) {
             seat.wire=null;
-            seat.view.capture(game,next,paused ? "PAUSED" : "IN_GAME",attacked);
+            seat.view.capture(game,next,status,attacked,seat.view.seat==actor ? receipt : null);
         }
         version=next;
     }
 
-    void pause(String reason) {
+    void peerDisconnected() {
+        pause("DISCONNECTED","Peer disconnected",-1,null);
+    }
+
+    private void pause(String code,String reason,int actor,String receipt) {
         if (paused) return;
         failure=reason;
         paused=true;
-        commit(null);
+        commit(null,actor,receipt,code);
     }
 
     String sync(int index,long base,String hash) {
@@ -90,14 +94,14 @@ final class RoomSync {
         if (cached!=null) return body.equals(cached.body) ? cached.result : "ERROR CONFLICT";
         if (id<=seat.highWater) return "ERROR EXPIRED";
         seat.highWater=id;
-        String outcome=apply(index,base,turn,f[10],cell,handle);
+        String outcome=apply(index,id,base,turn,f[10],cell,handle);
         String result="RESULT "+id+" "+index+" "+actor+" "+turn+" "+base+" "+version+" "+outcome;
         if (seat.results.size()==CACHE) seat.results.remove(seat.results.keySet().iterator().next());
         seat.results.put(id,new Record(body,result));
         return result;
     }
 
-    private String apply(int seat,long base,long turn,String verb,int cell,long handle) {
+    private String apply(int seat,long id,long base,long turn,String verb,int cell,long handle) {
         if (paused) return "REJECT_PAUSED";
         if (base!=version) return "REJECT_VERSION";
         if (turn!=game.turn() || seat!=game.activeSeat()) return "REJECT_TURN";
@@ -115,13 +119,14 @@ final class RoomSync {
         try {
             if (!game.act(game.player(seat),turn,action,cell,item)) return "REJECT_INVALID";
             if (game.stopped()) {
-                pause(game.stopReason());
+                pause("ENGINE_STOPPED",game.stopReason(),seat,id+","+verb+",APPLIED_STOPPED");
                 return "APPLIED_STOPPED";
             }
-            commit(target instanceof Mob && ((Mob)target).wasDefeatedBy(game.hero(seat)) ? (Mob)target : null);
+            Mob defeated=target instanceof Mob && ((Mob)target).wasDefeatedBy(game.hero(seat)) ? (Mob)target : null;
+            commit(defeated,seat,id+","+verb+",APPLIED","IN_GAME");
             return "APPLIED";
         } catch (RuntimeException failure) {
-            pause(failure.toString());
+            pause("ENGINE_ERROR",failure.toString(),seat,id+","+verb+",HALTED_UNCERTAIN");
             return "HALTED_UNCERTAIN";
         }
     }

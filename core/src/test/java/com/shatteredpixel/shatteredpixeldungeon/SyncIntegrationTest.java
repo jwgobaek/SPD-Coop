@@ -79,6 +79,12 @@ public class SyncIntegrationTest extends HeadlessDungeon {
                         assertTrue(Actor.now()>=clock);
                         clock=Actor.now();
                         committed++;
+                        if (!faults && committed==100) {
+                            float elapsed=Statistics.duration+Actor.now();
+                            Actor.fixTime();
+                            assertEquals(elapsed,Statistics.duration+Actor.now(),0.0001f);
+                            clock=Actor.now();
+                        }
                         if (faults && committed==target) {
                             assertFalse(rat.isAlive());
                             assertSame(sword,game.hero(0).belongings.weapon);

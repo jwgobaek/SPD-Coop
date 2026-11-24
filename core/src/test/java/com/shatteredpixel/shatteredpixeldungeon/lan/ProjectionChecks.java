@@ -33,8 +33,8 @@ public final class ProjectionChecks {
         level.drop(new Food(),hidden.pos);
         UUID session=UUID.randomUUID();
         SeatProjection a=new SeatProjection(session,0), b=new SeatProjection(session,1);
-        a.capture(game,1,"IN_GAME",null);
-        b.capture(game,1,"IN_GAME",null);
+        a.capture(game,1,"IN_GAME",null,null);
+        b.capture(game,1,"IN_GAME",null,null);
         String mobKey="m"+near.id(), hiddenKey="m"+hidden.id();
         assertTrue(a.current.rows.containsKey(mobKey));
         assertFalse(a.current.rows.containsKey(hiddenKey));
@@ -52,12 +52,12 @@ public final class ProjectionChecks {
         assertEquals(a.current.rows,display.image().rows);
         near.HP--;
         Buff buff=Buff.prolong(host,Haste.class,4);
-        a.capture(game,2,"IN_GAME",null);
+        a.capture(game,2,"IN_GAME",null,null);
         display.apply(a.current.encode(a.previous,null));
         assertTrue(display.image().rows.containsKey("b"+buff.id()));
         assertEquals(""+near.HP,display.image().rows.get(mobKey).split(",")[2]);
         near.pos=guest.pos-w;
-        a.capture(game,3,"IN_GAME",null);
+        a.capture(game,3,"IN_GAME",null,null);
         String delta=a.current.encode(a.previous,a.witnessedDeath);
         display.apply(delta);
         assertTrue(display.lostMonsters().contains(mobKey));
@@ -67,7 +67,7 @@ public final class ProjectionChecks {
         level.mobs.remove(near);
         hidden.pos++;
         buff.detach();
-        a.capture(game,4,"IN_GAME",near);
+        a.capture(game,4,"IN_GAME",near,null);
         assertNull(a.witnessedDeath);
         assertFalse(a.current.encode(a.previous,null).contains(mobKey));
         String snapshot=a.current.encode(null,null);

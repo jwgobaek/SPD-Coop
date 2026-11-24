@@ -29,14 +29,18 @@ final class SeatProjection {
 
     Item resolve(long handle) { return items.get(handle); }
 
-    void capture(CoopSession game, long version, String status, Mob attacked) {
+    void capture(CoopSession game, long version, String status, Mob attacked,String receipt) {
         Map<String,String> rows = new TreeMap<>();
         Map<Long,Item> visibleItems = new HashMap<>();
-        rows.put("status",status);
+        boolean playing=status.equals("IN_GAME");
+        rows.put("status",playing ? status : "PAUSED");
+        if (!playing) rows.put("reason",status);
+        if (receipt!=null) rows.put("receipt",receipt);
+        rows.put("clock",Float.toString(Statistics.duration+com.shatteredpixel.shatteredpixeldungeon.actors.Actor.now()));
         rows.put("turn",Long.toString(game.turn()));
-        rows.put("active",Integer.toString(status.equals("IN_GAME") ? game.activeSeat() : -1));
+        rows.put("active",Integer.toString(playing ? game.activeSeat() : -1));
         witnessedDeath = null;
-        if (status.equals("IN_GAME")) {
+        if (playing) {
             Hero hero = game.hero(seat);
             Level level = Dungeon.level;
             boolean[] sight = new boolean[level.length()];

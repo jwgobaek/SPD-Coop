@@ -73,7 +73,7 @@ public final class LanRoom implements AutoCloseable {
                 if (i == 0) { close(); return; }
                 if (locked) {
                     state = State.PAUSED;
-                    if (sync != null) sync.pause("Guest disconnected");
+                    if (sync != null) sync.peerDisconnected();
                 }
                 else { seats[i] = null; lobby(); }
             }
@@ -144,7 +144,7 @@ public final class LanRoom implements AutoCloseable {
             if (verb.equals("SYNC") && f.length == 6) return sync.sync(seat,Long.parseLong(f[4]),f[5]);
             if (verb.equals("PAGE") && f.length == 6) return sync.part(seat,Long.parseLong(f[4]),Integer.parseInt(f[5]));
             if (verb.equals("DO")) {
-                for (Seat member : seats) if (member.peer.dead) sync.pause("Peer disconnected");
+                for (Seat member : seats) if (member.peer.dead) sync.peerDisconnected();
                 String result = sync.action(seat,f);
                 if (sync.paused) { state = State.PAUSED; problem = sync.failure; }
                 return result;

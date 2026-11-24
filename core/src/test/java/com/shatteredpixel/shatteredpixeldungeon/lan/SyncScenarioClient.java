@@ -185,6 +185,10 @@ public final class SyncScenarioClient {
                     terminal++;
                     models[seat].refresh(client);
                     assertEquals("PAUSED",models[seat].image().rows.get("status"));
+                    assertEquals("ENGINE_ERROR",models[seat].image().rows.get("reason"));
+                    assertEquals(pending.id+",WAIT,HALTED_UNCERTAIN",models[seat].image().rows.get("receipt"));
+                    models[1-seat].refresh(clients[1-seat]);
+                    assertFalse(models[1-seat].image().rows.containsKey("receipt"));
                     break;
                 }
                 assertTrue(reply,reply.endsWith(" APPLIED"));
