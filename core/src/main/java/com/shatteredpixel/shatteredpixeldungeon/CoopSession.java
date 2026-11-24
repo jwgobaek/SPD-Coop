@@ -225,8 +225,13 @@ public final class CoopSession implements AutoCloseable {
         for (int offset : PathFinder.NEIGHBOURS8) {
             int cell = heroes[0].pos + offset;
             if (safeFloor(cell,false) && Actor.findChar(cell) == null && level.heaps.get(cell) == null) {
-                spawn = cell;
-                break;
+                // Preserve the established placement when grass and bare cells are both free.
+                if (level.map[cell] == Terrain.HIGH_GRASS || level.map[cell] == Terrain.FURROWED_GRASS) {
+                    if (spawn == -1) spawn = cell;
+                } else {
+                    spawn = cell;
+                    break;
+                }
             }
         }
         if (spawn == -1) throw new IllegalStateException("No free entrance neighbour");

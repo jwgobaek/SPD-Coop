@@ -31,6 +31,9 @@ public final class RestartClient {
         try { c.run(args[1]); }
         finally { for(LanClient socket:c.clients) if(socket!=null) socket.close(); }
         System.out.println("mode="+args[1]+" acknowledged="+c.applied+" authenticated="+c.reconnections);
+        if (c.state(0)!=null && c.state(1)!=null)
+            System.out.println("public_snapshot mode="+args[1]+" seat0_bytes="+c.state(0).snapshotBytes()
+                    +" seat1_bytes="+c.state(1).snapshotBytes());
     }
 
     private void refresh() throws IOException { for(int i=0;i<2;i++) models[i].refresh(clients[i]); }

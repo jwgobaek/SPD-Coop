@@ -8,7 +8,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Honeypot;
 import com.shatteredpixel.shatteredpixeldungeon.items.Honeypot.ShatteredPot;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.PathFinder;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -20,6 +23,57 @@ public class SewerBeeTest extends HeadlessDungeon {
     static void cross(CoopSession g,int stair) {
         SewerSpecialActorTest.atGate(g,stair);
         CoopFloorsTest.cross(g);
+    }
+
+    @Test public void tallGrassTramplesAccordingToTheMovingSeatAndSurvivesRestore() {
+        for (int seat=0; seat<2; seat++) {
+            HeroClass[] classes = {HeroClass.HUNTRESS,HeroClass.WARRIOR};
+            Bundle saved;
+            int grass=-1;
+            try (CoopSession g=CoopSession.open(409,1,classes[seat])) {
+                g.join(2,classes[1-seat]);
+                offer(g,seat);
+                Level level=Dungeon.level;
+                Hero moving=g.hero(seat);
+                for (int p=0;p<level.length() && grass<0;p++) {
+                    if (level.map[p]!=Terrain.HIGH_GRASS || Actor.findChar(p)!=null || level.heaps.get(p)!=null
+                            || level.traps.get(p)!=null || level.plants.get(p)!=null) continue;
+                    for (int offset:PathFinder.NEIGHBOURS8) {
+                        int beside=p+offset;
+                        if (level.insideMap(beside) && level.passable[beside] && !level.pit[beside]
+                                && Actor.findChar(beside)==null) {
+                            moving.pos=beside;
+                            grass=p;
+                            break;
+                        }
+                    }
+                }
+                assertTrue(grass>=0);
+                g.observe(seat);
+                assertTrue(CoopFloorsTest.step(g,CoopSession.Action.MOVE,grass,null));
+                assertEquals(grass,moving.pos);
+                assertEquals(Terrain.FURROWED_GRASS,level.map[grass]);
+                saved=g.checkpoint();
+            }
+            try (CoopSession g=CoopSession.restore(saved)) {
+                assertEquals(Terrain.FURROWED_GRASS,Dungeon.level.map[grass]);
+                // Other seat approaches the same native tile after the huntress leaves it.
+                Hero huntress=g.hero(seat), warrior=g.hero(1-seat);
+                int left=-1, right=-1;
+                for (int off:PathFinder.NEIGHBOURS8) {
+                    int p=grass+off;
+                    if (!Dungeon.level.passable[p] || Dungeon.level.pit[p] || Actor.findChar(p)!=null) continue;
+                    if (left<0) left=p; else { right=p; break; }
+                }
+                assertTrue(right>=0);
+                huntress.pos=left;
+                warrior.pos=right;
+                offer(g,1-seat);
+                g.observe(1-seat);
+                assertTrue(CoopFloorsTest.step(g,CoopSession.Action.MOVE,grass,null));
+                assertEquals(Terrain.GRASS,Dungeon.level.map[grass]);
+            }
+        }
     }
 
     @Test public void generatedHiveAndShatteredPotRetainDistinctBeeAndOwnerAcrossFloors() {

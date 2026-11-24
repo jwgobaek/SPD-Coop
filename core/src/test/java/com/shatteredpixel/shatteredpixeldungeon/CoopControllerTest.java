@@ -12,9 +12,11 @@ public class CoopControllerTest extends HeadlessDungeon {
     private static CoopController.Frame until(CoopController c,Predicate<CoopController.Frame> match) throws Exception {
         long end=System.nanoTime()+8000000000L;
         while(System.nanoTime()<end) {
-            CoopController.Frame f=c.frame();
-            if(!c.busy() && match.test(f)) return f;
-            if(f.page==CoopController.Page.DISCONNECTED) fail("Disconnected "+f.notice);
+            if (!c.busy()) {
+                CoopController.Frame f=c.frame();
+                if (match.test(f)) return f;
+                if (f.page==CoopController.Page.DISCONNECTED) fail("Disconnected "+f.notice);
+            }
             Thread.sleep(5);
         }
         throw new AssertionError("Timeout "+c.frame().page+" "+c.frame().notice+" "+c.frame().roster);

@@ -173,10 +173,14 @@ public final class RestartHost {
                 if(entry.getFileName().toString().matches("g[0-9]+")) size=Math.max(size,n);
             }
         }
+        Bundle checkpoint = Dungeon.coop.checkpoint();
+        int parkedBytes = checkpoint.contains("parked") ? checkpoint.getBundle("parked").toString()
+                .getBytes(java.nio.charset.StandardCharsets.UTF_8).length : 0;
         Arrays.sort(samples);
         Runtime vm=Runtime.getRuntime();
         write(path,"perf"+depth,"floor="+depth+" explicit_disk_saves=21 median_us="+samples[10]/1000+
                 " p95_us="+samples[19]/1000+" generation_bytes="+size+" slot_bytes="+disk+
+                " active_actors="+Actor.all().size()+" parked_utf8_bytes="+parkedBytes+
                 " host_used_heap_bytes="+(vm.totalMemory()-vm.freeMemory()));
     }
 

@@ -39,6 +39,8 @@ VERIFIED = {
     "levels/Terrain.EXIT": "sewer 1 to 2, native walking route, duplicate receipt / CoopFloorsTest, HostRestartTest",
     "levels/Terrain.EMPTY": "ordinary adjacent movement, seat occupancy / CoopSessionTest",
     "levels/Terrain.WALL": "blocked movement, independent visibility and zone separation / CoopSessionTest",
+    "levels/Terrain.HIGH_GRASS": "original huntress trample on both seats / SewerBeeTest",
+    "levels/Terrain.FURROWED_GRASS": "disk-world restore and warrior trample on both seats / SewerBeeTest",
     "levels/Terrain.GRASS": "remember, hide an unseen change and reveal it when observed / ProjectionChecks",
     "levels/Terrain.SECRET_DOOR": "hidden appearance, adjacent intentional host search, native route / ProjectionChecks, HostRestartTest",
     "levels/Terrain.SECRET_TRAP": "hide undiscovered terrain identity from recipient / ProjectionChecks",
