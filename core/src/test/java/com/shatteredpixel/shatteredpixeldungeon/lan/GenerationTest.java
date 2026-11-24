@@ -45,6 +45,22 @@ public class GenerationTest {
         assertArrayEquals(new byte[]{7,12},Files.readAllBytes(single.toPath()));
     }
 
+    @Test public void missingHeadAllowsOnlyExplicitValidatedRollback() throws Exception {
+        UUID id=UUID.randomUUID();
+        CoopSaves saves=new CoopSaves(temporary.getRoot());
+        try(CoopSaves.Slot s=saves.open(id)) { s.publish(value(1),false); s.publish(value(2),false); }
+        File dir=new File(new File(temporary.getRoot(),"coop-saves-v1"),id.toString());
+        Files.delete(dir.toPath().resolve("HEAD"));
+        assertTrue(saves.sessions().contains(id));
+        try(CoopSaves.Slot s=saves.existing(id)) {
+            assertThrows(IOException.class,()->s.read(false));
+            assertThrows(IOException.class,()->s.publish(value(2),false));
+            assertEquals(1,s.read(true).getInt("action"));
+            s.publish(s.read(true),true);
+            assertEquals(1,s.read(false).getInt("action"));
+        }
+    }
+
     @Test public void interruptedOrMixedGenerationRequiresExplicitRecovery() throws Exception {
         File base = temporary.getRoot();
         UUID id = UUID.randomUUID();

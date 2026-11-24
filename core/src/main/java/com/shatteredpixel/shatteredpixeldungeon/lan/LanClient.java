@@ -56,6 +56,9 @@ public final class LanClient implements Closeable {
         }
     }
 
+    /** Local endpoint status; PING checks whether the remote room is still reachable. */
+    public boolean isOpen() { return channel.isOpen() && !socket.isClosed(); }
+
     public synchronized long requestCount() { return sequence; }
 
     public synchronized String request(String command) throws IOException {

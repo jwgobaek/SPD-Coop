@@ -11,6 +11,44 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class CheckpointTest extends HeadlessDungeon {
+    @Test public void inconsistentReceiptDoesNotRestoreASeatLedger() {
+        try(CoopSession game=CoopSession.open(402,1,HeroClass.WARRIOR)) {
+            game.join(2,HeroClass.HUNTRESS);
+            com.shatteredpixel.shatteredpixeldungeon.lan.LedgerChecks.verify(game);
+        }
+    }
+
+    @Test public void twentyDiskRestorationsKeepInputAndNextActionAcrossTwoSeeds() throws Exception {
+        int restoredCount=0;
+        for(long seed:new long[]{402,2402}) {
+            java.io.File file=temporary.newFile();
+            HeroClass host=seed==402 ? HeroClass.WARRIOR : HeroClass.HUNTRESS;
+            HeroClass guest=host==HeroClass.WARRIOR ? HeroClass.HUNTRESS : HeroClass.WARRIOR;
+            long turn;
+            int next, actor;
+            float now;
+            try(CoopSession game=CoopSession.open(seed,71,host)) {
+                game.join(94,guest);
+                turn=game.turn(); next=game.activeSeat(); actor=game.hero(next).id(); now=Actor.now();
+                assertTrue(Bundle.write(game.checkpoint(),new java.io.FileOutputStream(file),false));
+            }
+            for(int n=0;n<10;n++) {
+                Bundle saved;
+                try(java.io.InputStream in=new java.io.FileInputStream(file)) { saved=Bundle.read(in); }
+                try(CoopSession game=CoopSession.restore(saved)) {
+                    assertEquals(turn,game.turn()); assertEquals(now,Actor.now(),0);
+                    assertEquals(next,game.activeSeat()); assertEquals(actor,game.hero(next).id());
+                    assertTrue(game.act(game.player(next),turn,CoopSession.Action.WAIT,0,null));
+                    assertEquals(turn+1,game.turn());
+                    turn=game.turn(); next=game.activeSeat(); actor=game.hero(next).id(); now=Actor.now();
+                    assertTrue(Bundle.write(game.checkpoint(),new java.io.FileOutputStream(file),false));
+                    restoredCount++;
+                }
+            }
+        }
+        System.out.println("engine disk restorations="+restoredCount+" subsequent actions="+restoredCount);
+    }
+
     @Test public void rejectsInconsistentWorldWithoutInstallingIt() {
         Bundle b;
         try (CoopSession session=CoopSession.open(402,1,HeroClass.WARRIOR)) {

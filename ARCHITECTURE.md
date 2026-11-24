@@ -81,3 +81,11 @@ StateImage는 좌석별 불변 공개 행과 정규화 해시를 갖는다. 호�
 | LanRoom.dispatch, RoomSync.apply, SeatActions.prepare, StateImage.rememberedTerrain / mappedOnly | 새 행동도 세션·좌석·턴·버전·영수증 캐시를 거친다. 부활 확정은 원본 스케줄러가 다음 입력에 도달한 뒤 두 좌석의 생존·HP·소지품을 한 버전으로 반영한다. 파티 전멸 결과도 캐시하여 터미널 상태에서 같은 영수증을 조회할 수 있다. 표시 코드는 DisplayReplica.image()에서 검증이 끝난 불변 모델을 받는다. |
 
 전투 구역 계산은 로컬 배열과 BitSet을 사용한다. 실제 Actor 목록이나 PathFinder의 공용 거리 배열, RNG, HP, 행동 시간을 변경하지 않는다. 구역·현재 시야·공개 경계·전송용 아이템 핸들은 복원 후 재계산할 수 있다. 좌석별 visited·mapped·기억 지형, 내부 아이템 ID·소유자, 생존 상태·사망 직전 HP·동결된 상대 시각과 재전송 방지 기록은 저장해야 한다.
+
+## Phase 7 저장 가능한 방
+
+LanRoom.persistentGame은 하나의 엔진 실행 스레드에서 두 Hero의 원본 Bundle, Level, Actor 스케줄, 좌석별 탐험, 귀속 아이템, 난수 스택과 RoomSync 영수증을 하나의 체크포인트로 만든다. CoopSaves가 세대를 디스크에 발행한 뒤 TCP 응답을 허용한다. 엔진 실행 또는 저장이 불확실하면 정상 진행을 중지한다.
+
+호스트 재시작은 LanRoom.resume가 담당한다. 두 좌석의 공개 키를 복원하고 네트워크 연결과 공개 모델을 새로 만든다. 각 좌석이 자신의 전체 모델을 검증할 때까지 입력을 잠근다. 기존 v1과 메모리 전용 SYNC1 진입점은 이전 동작을 유지한다.
+
+[저장 형식](docs/coop/save-format.md) · [재접속과 Phase 8 API](docs/coop/reconnect.md)

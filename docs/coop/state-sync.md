@@ -72,3 +72,7 @@ SYNC1의 2,048바이트 요청 프레임, 1,400바이트 조각 64개, 상태 2,
 | PARTY_DEFEATED | 마지막 생존자가 쓰러진 행동의 확정 결과와 최종 status다. active는 -1이다. 그 뒤 새 행동은 REJECT_DEFEATED, 동일 행동의 재조회는 원래 영수증을 반환한다. 엔진 예외에는 기존 HALTED_UNCERTAIN을 사용한다. |
 
 행동·소유권 검사는 CoopSession.act에서 v1과 공유한다. 기존 v1 ACT에서는 세 신규 동사를 ERROR MODE로 거부한다. SYNC1에서는 각 DO의 action ID·base·turn·cell·공개 핸들이 기존 캐시 규칙을 따른다. 투척과 직접 전달 명령은 지원하지 않는다.
+
+## 디스크 복원 경계
+
+영구 방의 모델에는 epoch가 포함된다. 재접속 대기 중에는 status=PAUSED, reason=RECONNECTING, active=-1과 해당 좌석이 확인할 수 있는 전체 공개 상태를 제공한다. 재접속용 새 DisplayReplica에서 전체 스냅샷을 확인하고 체크섬을 호스트에 제출한다. 복원과 단절은 공개 아이템 핸들을 무효화한다. 저장된 발급 상한부터 새 핸들을 할당한다. 영수증은 원본 요청의 핸들 문자열을 보존한다. [재접속 명세](reconnect.md)

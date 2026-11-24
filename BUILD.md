@@ -45,3 +45,13 @@ scripts/verify-android-build.sh /tmp/spd-build-report-001
 ```
 
 검증 스크립트의 첫 번째 인수로 새 출력 디렉터리 경로를 지정한다. 커밋, 실제 JUnit 결과, 빌드 로그, 검사 결과, APK와 SHA256SUMS가 생성된다. 스크립트는 비어 있거나 실패·오류·스킵이 있는 JUnit 결과를 거부한다. GitHub Actions Artifact에는 GitHub run ID가 있어야 한다.
+
+## Phase 7 실제 프로세스와 파일 시스템 검사
+
+전체 검증은 기존 scripts/verify-android-build.sh를 사용한다. 빠른 재검증은 다음 명령으로 수행한다.
+
+```bash
+./gradlew :core:cleanTest :core:test --tests '*CheckpointTest' --tests '*GenerationTest' --tests '*ReconnectTest' --tests '*HostRestartTest'
+```
+
+JUnit이 임시 앱 저장 경로와 독립된 호스트 및 클라이언트 JVM을 관리한다. Runtime.halt는 테스트 자식 프로세스에만 적용한다. 증거에는 JUnit XML·빌드 로그·APK 검사 및 체크섬만 수집한다. 임시 게임 디렉터리와 양쪽 좌석의 개인 키 파일은 업로드 대상에서 제외한다.

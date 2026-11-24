@@ -71,13 +71,14 @@ public final class LanRoom implements AutoCloseable {
         LanRoom room=new LanRoom(bind,tcp,udp,seed,true);
         try {
             room.slot=saves.open(room.session);
+            if (room.slot.currentGeneration()!=0) throw new IOException("Session already exists");
             room.epoch=UUID.randomUUID();
             return room;
         } catch (IOException | RuntimeException failure) { room.close(); throw failure; }
     }
 
     public static LanRoom resume(InetAddress bind,int tcp,int udp,CoopSaves saves,UUID session,boolean recoverBackup) throws IOException {
-        CoopSaves.Slot disk=saves.open(session);
+        CoopSaves.Slot disk=saves.existing(session);
         LanRoom room=null;
         try {
             Bundle b=disk.read(recoverBackup);
@@ -95,6 +96,7 @@ public final class LanRoom implements AutoCloseable {
                 s.type=room.game.hero(i).heroClass;
                 s.verifier=SeatCredential.verifier(b.getString("key"+i));
             }
+            if (room.seats[0].verifier.equals(room.seats[1].verifier)) throw new IOException("Duplicate roster key");
             room.sync=new RoomSync(session,room.game);
             room.sync.restore(b.getBundle("sync"),room.epoch);
             room.state=room.game.defeated() ? State.PARTY_DEFEATED : State.PAUSED;
@@ -229,7 +231,12 @@ public final class LanRoom implements AutoCloseable {
         Seat self = seats[seat];
         if (slot!=null && verb.equals("ENROLL") && !locked && f.length==5) {
             if (self.verifier!=null) return "ERROR ALREADY_ENROLLED";
-            try { self.verifier=SeatCredential.verifier(f[4]); }
+            try {
+                PublicKey key=SeatCredential.verifier(f[4]);
+                Seat other=seats[1-seat];
+                if (other!=null && key.equals(other.verifier)) return "ERROR DUPLICATE_KEY";
+                self.verifier=key;
+            }
             catch (GeneralSecurityException invalid) { return "ERROR KEY"; }
             return "ENROLLED "+epoch;
         }

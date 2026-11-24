@@ -117,7 +117,13 @@ final class RoomSync {
                         !f[4].equals(args[1]) || !f[5].equals(args[0]) || Long.parseLong(f[6])>version ||
                         Long.parseLong(f[6])<1 || !f[7].matches("APPLIED|PARTY_DEFEATED|REJECT_(DEFEATED|VERSION|TURN|ACTION|ITEM|INVALID)"))
                     throw new IllegalArgumentException("Invalid action receipt");
-                Long.parseLong(args[0]); Long.parseLong(args[1]); Integer.parseInt(args[3]); Long.parseLong(args[4]);
+                long base=Long.parseLong(args[0]), turn=Long.parseLong(args[1]), after=Long.parseLong(f[6]);
+                Integer.parseInt(args[3]); Long.parseLong(args[4]);
+                if (f[7].equals("APPLIED") || f[7].equals("PARTY_DEFEATED")) {
+                    CoopSession.Action.valueOf(args[2]);
+                    if (turn<1 || turn>game.turn() || base<1 || base!=after-1)
+                        throw new IllegalArgumentException("Inconsistent committed boundary");
+                }
                 s.results.put(id,new Record(body,result)); last=id;
             }
             if (last!=high) throw new IllegalArgumentException("Ledger ceiling");

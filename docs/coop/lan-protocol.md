@@ -47,3 +47,7 @@ Phase 5는 v1 호환 또는 명시적 버전 거부를 유지하면서 호스트
 ## Phase 6
 
 SYNC1의 DROP·UNEQUIP·REVIVE, 좌석별 기억 지형과 파티 전멸은 [상태 동기화 명세](state-sync.md)에 정의한다. v1 방은 신규 동사에 ERROR MODE를 반환한다. 두 방 모드 모두 일반 피해로 쓰러진 좌석을 행동 순서에서 제외하고 호스트의 아이템 귀속 검사를 적용한다.
+
+## 영구 저장 SYNC1 방
+
+호스트가 persistentGame을 선택하면 최초 좌석 등록에 ENROLL이 추가된다. 게임 명령에는 epoch가 붙고 단절 후 CHALLENGE, PROVE, SYNC, LOOKUP, CONFIRM을 사용한다. 기존 프레이밍·요청 빈도·페이지 크기 제한을 유지한다. [메시지 및 상태 전이 명세](reconnect.md)
