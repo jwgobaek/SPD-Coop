@@ -29,7 +29,7 @@ final class LanTransport implements Closeable {
             byte[] bytes = response.getBytes(StandardCharsets.US_ASCII);
             ByteBuffer frame = ByteBuffer.allocate(4 + bytes.length);
             frame.putInt(bytes.length).put(bytes);
-            frame.flip();
+            ((Buffer)frame).flip();
             if (bytes.length > LanClient.MAX_FRAME || !output.offer(frame)) dead = true;
         }
     }
@@ -45,7 +45,7 @@ final class LanTransport implements Closeable {
     final String advert;
     final Thread worker;
     private volatile boolean closing;
-    volatile String failure;
+    volatile String failure, discoveryFailure;
     volatile boolean discoverable = true;
     private final List<Peer> peers = new ArrayList<>();
 
@@ -54,15 +54,43 @@ final class LanTransport implements Closeable {
         try {
             listener.socket().bind(new InetSocketAddress(bind,tcp), 8);
             listener.configureBlocking(false);
-            discovery = DatagramChannel.open();
-            try {
-                discovery.socket().bind(new InetSocketAddress(bind,udp));
-                discovery.configureBlocking(false);
-            } catch (IOException | RuntimeException e) { discovery.close(); throw e; }
+            discovery = openDiscovery(bind, udp);
         } catch (IOException | RuntimeException e) { listener.close(); throw e; }
         advert = "SPD1_ROOM " + room + " " + listener.socket().getLocalPort();
         worker = new Thread(this::run, "spd-lan-io");
         worker.start();
+    }
+
+    private DatagramChannel openDiscovery(InetAddress bind, int port) {
+        DatagramChannel channel = null;
+        try {
+            channel = DatagramChannel.open();
+            channel.socket().bind(new InetSocketAddress(bind,port));
+            channel.configureBlocking(false);
+            return channel;
+        } catch (IOException e) {
+            closeQuietly(channel);
+            discoveryFailure = "UDP_UNAVAILABLE";
+            return null;
+        } catch (RuntimeException e) {
+            closeQuietly(channel);
+            throw e;
+        }
+    }
+
+    private void pollDiscovery(ByteBuffer datagram) {
+        if (discovery == null || discoveryFailure != null) return;
+        try {
+            ((Buffer)datagram).clear();
+            SocketAddress source = discovery.receive(datagram);
+            if (source != null && discoverable && "SPD1 DISCOVER".equals(
+                    new String(datagram.array(),0,datagram.position(),StandardCharsets.US_ASCII))) {
+                discovery.send(ByteBuffer.wrap(advert.getBytes(StandardCharsets.US_ASCII)),source);
+            }
+        } catch (IOException e) {
+            discoveryFailure = "UDP_UNAVAILABLE";
+            closeQuietly(discovery);
+        }
     }
 
     private void run() {
@@ -79,12 +107,7 @@ final class LanTransport implements Closeable {
                         channel.socket().setTcpNoDelay(true);
                     }
                 }
-                datagram.clear();
-                SocketAddress source = discovery.receive(datagram);
-                if (source != null && discoverable && "SPD1 DISCOVER".equals(
-                        new String(datagram.array(),0,datagram.position(),StandardCharsets.US_ASCII))) {
-                    discovery.send(ByteBuffer.wrap(advert.getBytes(StandardCharsets.US_ASCII)),source);
-                }
+                pollDiscovery(datagram);
                 long now = System.nanoTime();
                 for (Iterator<Peer> it = peers.iterator(); it.hasNext();) {
                     Peer peer = it.next();
@@ -122,12 +145,12 @@ final class LanTransport implements Closeable {
         int read = peer.channel.read(input);
         if (read < 0) { peer.dead = true; return; }
         if (read == 0) return;
-        input.flip();
+        ((Buffer)input).flip();
         while (input.remaining() >= 4) {
-            input.mark();
+            ((Buffer)input).mark();
             int n = input.getInt();
             if (n < 1 || n > LanClient.MAX_FRAME) { peer.dead = true; break; }
-            if (input.remaining() < n) { input.reset(); break; }
+            if (input.remaining() < n) { ((Buffer)input).reset(); break; }
             byte[] payload = new byte[n];
             input.get(payload);
             if (now - peer.rateStart >= 1000000000L) { peer.rateStart = now; peer.count = 0; }
@@ -143,7 +166,7 @@ final class LanTransport implements Closeable {
     }
 
     private static void closeQuietly(Closeable socket) {
-        try { socket.close(); } catch (IOException ignored) { }
+        try { if (socket != null) socket.close(); } catch (IOException ignored) { }
     }
 
     public void close() {

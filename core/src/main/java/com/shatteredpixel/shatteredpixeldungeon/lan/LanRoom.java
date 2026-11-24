@@ -44,7 +44,8 @@ public final class LanRoom implements AutoCloseable {
         io = new LanTransport(bind,tcp,udp,session);
     }
     public int tcpPort() { return io.listener.socket().getLocalPort(); }
-    public int udpPort() { return io.discovery.socket().getLocalPort(); }
+    public int udpPort() { return io.discoveryFailure == null ? io.discovery.socket().getLocalPort() : -1; }
+    public String discoveryFailure() { return io.discoveryFailure; }
     /** Local controller only. Never put this capability in discovery, diagnostics or lobby state. */
     public String hostJoinCommand() { return "HOST " + hostKey; }
     public State state() { checkOwner(); return state; }

@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.lan;
 
 import java.io.*;
 import java.net.*;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
@@ -54,7 +55,7 @@ public final class LanClient implements Closeable {
         try {
             ByteBuffer frame = ByteBuffer.allocate(4 + payload.length);
             frame.putInt(payload.length).put(payload);
-            frame.flip();
+            ((Buffer)frame).flip();
             channel.configureBlocking(false);
             long deadline = System.nanoTime() + TIMEOUT * 1000000L;
             while (frame.hasRemaining()) {

@@ -12,6 +12,23 @@ public class LanBoundaryTest {
     private final InetAddress loop = InetAddress.getLoopbackAddress();
 
     @Test(timeout=5000)
+    public void occupiedDiscoveryPortStillAllowsDirectTcp() throws Exception {
+        try (DatagramSocket busy = new DatagramSocket(0,loop);
+             LanRoom room = new LanRoom(loop,0,busy.getLocalPort(),402)) {
+            assertEquals("UDP_UNAVAILABLE",room.discoveryFailure());
+            assertEquals(-1,room.udpPort());
+            FutureTask<String> ping = new FutureTask<>(() -> {
+                try (LanClient client = new LanClient(new InetSocketAddress(loop,room.tcpPort()))) {
+                    return client.request("PING");
+                }
+            });
+            new Thread(ping).start();
+            while (!ping.isDone()) { room.pump(); Thread.sleep(1); }
+            assertEquals("PONG",ping.get());
+        }
+    }
+
+    @Test(timeout=5000)
     public void duplicateUdpAnnouncementsAreOneRoom() throws Exception {
         try (DatagramSocket responder = new DatagramSocket(0,loop)) {
             UUID id = UUID.randomUUID();
