@@ -290,7 +290,10 @@ public class Mimic extends Mob {
 		
 		if (items != null) {
 			for (Item item : items) {
-				Dungeon.level.drop( item, pos ).animateDrop();
+				Heap heap=Dungeon.level.drop(item,pos);
+				heap.animateDrop();
+				if (Dungeon.coop!=null && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.Honeypot.ShatteredPot)
+					((com.shatteredpixel.shatteredpixeldungeon.items.Honeypot.ShatteredPot)item).dropPot(this,heap.pos);
 			}
 			items = null;
 		}

@@ -13,6 +13,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SentryRoom;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Gnoll;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CrystalMimic;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
@@ -325,7 +326,7 @@ public final class CoopSession implements AutoCloseable {
     public static boolean basicMob(Actor actor) {
         Class<?> type = actor.getClass();
         return type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
-                || type == Mimic.class || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
+                || type == Mimic.class || type == CrystalMimic.class || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
                 || (Dungeon.depth==2 && (type==Ghost.class || type==FetidRat.class));
     }
 
@@ -590,10 +591,14 @@ public final class CoopSession implements AutoCloseable {
         if (residents.isEmpty()) return;
         for (Hero hero:heroes) for (Item item:hero.belongings) linkShell(residents,item,-1,hero);
         for (Heap heap:Dungeon.level.heaps.valueList()) for (Item item:heap.items) linkShell(residents,item,heap.pos,null);
+        for (Mob mob:Dungeon.level.mobs) {
+            if (mob instanceof Mimic && ((Mimic)mob).items!=null)
+                for (Item item:((Mimic)mob).items) linkShell(residents,item,-1,mob);
+        }
         for (Bee bee:residents.values()) bee.setPotInfo(-1,null);
     }
 
-    private static void linkShell(Map<Integer,Bee> residents,Item item,int pos,Hero holder) {
+    private static void linkShell(Map<Integer,Bee> residents,Item item,int pos,Char holder) {
         if (!(item instanceof Honeypot.ShatteredPot)) return;
         Bee bee=residents.remove(((Honeypot.ShatteredPot)item).beeId());
         if (bee!=null) bee.setPotInfo(pos,holder);

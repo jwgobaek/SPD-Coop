@@ -81,3 +81,5 @@ The floor row encodes branch,depth. A stair row is published only when both play
 ## SYNC7 상자
 
 두 좌석은 MODE SYNC7을 협상한다. 직접 보이는 상자는 h<cell>=CHEST 또는 CRYSTAL_CHEST로 전송한다. 위장한 미믹은 같은 행을 사용한다. OPEN은 인접 셀과 핸들 0을 사용하며, 마력탄은 상자에 조준할 수 있다. 위장이 해제된 다음 확정 경계에서만 몬스터 행을 공개한다.
+
+SYNC8은 수정 미믹을 추가한다. 위장 중에는 CRYSTAL_CHEST만, 노출 후 직접 시야에 있는 동안에만 CrystalMimic 몬스터 행을 보낸다. 보관품·소유자 및 보이지 않는 도주 경로는 전송하지 않는다.

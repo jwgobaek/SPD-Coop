@@ -114,7 +114,7 @@ public class CrystalMimic extends Mimic {
 		} else {
 			Buff.affect(this, Haste.class, 1f);
 		}
-		if (Actor.chars().contains(this) && Dungeon.level.heroFOV[pos]) {
+		if (Dungeon.coop == null && Actor.chars().contains(this) && Dungeon.level.heroFOV[pos]) {
 			enemy = Dungeon.hero;
 			target = Dungeon.hero.pos;
 			GLog.w(Messages.get(this, "reveal") );
@@ -125,8 +125,8 @@ public class CrystalMimic extends Mimic {
 
 	@Override
 	public int attackProc(Char enemy, int damage) {
-		if (alignment == Alignment.NEUTRAL && enemy == Dungeon.hero){
-			steal( Dungeon.hero );
+		if (alignment == Alignment.NEUTRAL && (Dungeon.coop == null ? enemy == Dungeon.hero : Dungeon.coop.playerOf(enemy) != 0)){
+			steal((Hero)enemy);
 
 		} else {
 			ArrayList<Integer> candidates = new ArrayList<>();
@@ -155,6 +155,17 @@ public class CrystalMimic extends Mimic {
 
 		if (item != null && !item.unique && item.level() < 1 ) {
 
+			if (Dungeon.coop != null) {
+				// Detach the single physical unit before shattering a pot. Shatter may return
+				// that same unit in a blocked room; the remainder of a stack stays in the bag.
+				Item unit=item.detach(hero.belongings.backpack);
+				if (unit == null) throw new IllegalStateException("Missing stolen item");
+				Item held=unit instanceof Honeypot ? ((Honeypot)unit).shatter(this,pos) : unit;
+				Dungeon.coop.ownership.claim(held,Dungeon.coop.playerOf(hero));
+				items.add(held);
+				if (held instanceof Honeypot.ShatteredPot) ((Honeypot.ShatteredPot)held).pickupPot(this);
+				return;
+			}
 			GLog.w( Messages.get(this, "ate", item.name()) );
 			if (!item.stackable) {
 				Dungeon.quickslot.convertToPlaceholder(item);
@@ -182,13 +193,25 @@ public class CrystalMimic extends Mimic {
 		}
 	}
 
+	private boolean canEscape() {
+		if (Dungeon.coop == null) return !Dungeon.level.heroFOV[pos] && Dungeon.level.distance(Dungeon.hero.pos,pos)>=6;
+		boolean[] sight=new boolean[Dungeon.level.length()];
+		for (int seat=0;seat<2;seat++) {
+			Hero observer=Dungeon.coop.hero(seat);
+			if (!observer.isAlive()) continue;
+			Dungeon.level.updateDirectSight(observer,sight);
+			if (sight[pos] || Dungeon.level.distance(observer.pos,pos)<6) return false;
+		}
+		return true;
+	}
+
 	private class Fleeing extends Mob.Fleeing {
 		@Override
 		protected void escaped() {
-			if (!Dungeon.level.heroFOV[pos] && Dungeon.level.distance(Dungeon.hero.pos, pos) >= 6) {
-				GLog.n(Messages.get(CrystalMimic.class, "escaped"));
+			if (canEscape()) {
+				if (Dungeon.coop == null) GLog.n(Messages.get(CrystalMimic.class, "escaped"));
 				destroy();
-				sprite.killAndErase();
+				if (Dungeon.coop == null) sprite.killAndErase();
 			} else {
 				state = WANDERING;
 			}

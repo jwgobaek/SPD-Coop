@@ -37,13 +37,16 @@ public final class RestartHost {
                 Runtime.getRuntime().halt(80);
             if (stage.equals("WRITING") && java.nio.file.Files.exists(path.resolve("fail-write")))
                 throw new IOException("Injected write failure");
+            if (stage.equals("AFTER_HEAD") && mode.equals("crystal-fight") && java.nio.file.Files.exists(path.resolve("strike"))
+                    && Actor.findById(Integer.parseInt(read(path,"crystal-id")))==null) Runtime.getRuntime().halt(78);
             if (stage.equals("AFTER_HEAD") && java.nio.file.Files.exists(path.resolve("kill-before-reply")))
                 Runtime.getRuntime().halt(78);
         });
         InetAddress loop=InetAddress.getLoopbackAddress();
-        boolean special = mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || mode.equals("mimic");
-        try(LanRoom room=(special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,mode.equals("mimic")?408:mode.equals("hive")?409:mode.equals("quest")?403:mode.equals("piranha")?406:mode.equals("walk")?415:402,saves)
+        boolean special = mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || mode.equals("mimic");
+        try(LanRoom room=(special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,mode.equals("crystal-new")?411:mode.equals("mimic")?408:mode.equals("hive")?409:mode.equals("quest")?403:mode.equals("piranha")?406:mode.equals("walk")?415:402,saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup"))) {
+            if (mode.startsWith("crystal-") && !mode.equals("crystal-new")) crystalResumeFixture(path,mode);
             Rat rat=null;
             if (mode.equals("revive") || mode.equals("soak")) {
                 CoopSession g=Dungeon.coop;
@@ -70,6 +73,11 @@ public final class RestartHost {
                     assertEquals(CoopSession.Life.DOWNED,g.life(1));
                     write(path,"injured","ok");
                 }
+                if (mode.equals("crystal-fight") && java.nio.file.Files.deleteIfExists(path.resolve("approach"))) {
+                    CrystalMimic thief=SewerSpecialActorTest.actor(CrystalMimic.class);
+                    SewerGhostTest.meet(Dungeon.coop,Dungeon.coop.activeSeat(),thief);
+                    write(path,"in-range","1");
+                }
                 room.pump();
                 if (room.failure()!=null && !(mode.equals("failure") && room.failure().equals("CHECKPOINT_FAILED")))
                     throw new IllegalStateException(room.failure());
@@ -90,7 +98,14 @@ public final class RestartHost {
                 if (special && room.state()==LanRoom.State.IN_GAME && arrangedDepth!=Dungeon.depth) {
                     arrangedDepth=Dungeon.depth;
                     if (arrangedDepth==1) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
-                    else if (mode.equals("mimic")) {
+                    else if (mode.equals("crystal-new")) {
+                        CrystalMimic thief=SewerSpecialActorTest.actor(CrystalMimic.class);
+                        Food food=SewerCrystalMimicTest.pack(Dungeon.coop,1,3);
+                        SewerGhostTest.meet(Dungeon.coop,1,thief);
+                        write(path,"encounter-cell",Integer.toString(thief.pos));
+                        write(path,"crystal-id",Integer.toString(thief.id()));
+                        write(path,"bag-id",Long.toString(Dungeon.coop.ownership.identity(food)));
+                    } else if (mode.equals("mimic")) {
                         com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic mimic=
                                 SewerSpecialActorTest.actor(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic.class);
                         SewerGhostTest.meet(Dungeon.coop,1,mimic);
@@ -158,6 +173,53 @@ public final class RestartHost {
                 assertEquals(LanRoom.State.PAUSED,room.state());
                 assertThrows(IOException.class,room::saveAndClose);
             } else room.saveAndClose();
+        }
+    }
+
+    private static void crystalResumeFixture(Path path,String mode) throws IOException {
+        CoopSession game=Dungeon.coop;
+        int id=Integer.parseInt(read(path,"crystal-id"));
+        CrystalMimic thief=(CrystalMimic)Actor.findById(id);
+        Food food=game.hero(1).belongings.getItem(Food.class);
+        assertEquals(Long.parseLong(read(path,"bag-id")),game.ownership.identity(food));
+        assertEquals(game.player(1),game.ownership.owner(food));
+        if (mode.equals("crystal-open")) {
+            assertEquals(3,food.quantity());
+            assertTrue(CoopSession.disguised(thief));
+        } else if (mode.equals("crystal-park") || mode.equals("crystal-fight")) {
+            assertEquals(2,food.quantity());
+            assertEquals(thief.FLEEING,thief.state);
+            Item held=thief.items.get(thief.items.size()-1);
+            assertEquals(Food.class,held.getClass());
+            assertEquals(1,held.quantity());
+            assertTrue(held.cursed && held.cursedKnown);
+            assertEquals(game.player(1),game.ownership.owner(held));
+            if (mode.equals("crystal-park")) {
+                write(path,"stolen-id",Long.toString(game.ownership.identity(held)));
+                SewerSpecialActorTest.atGate(game,Dungeon.level.entrance());
+            } else {
+                assertEquals(Long.parseLong(read(path,"stolen-id")),game.ownership.identity(held));
+                for (int seat=0;seat<2;seat++) SewerGhostTest.meet(game,seat,thief);
+            }
+        } else if (mode.equals("crystal-return")) {
+            assertEquals(1,Dungeon.depth);
+            assertNull(thief);
+            assertEquals(2,food.quantity());
+            SewerSpecialActorTest.atGate(game,Dungeon.level.exit());
+        } else if (mode.equals("crystal-loot")) {
+            assertNull(thief);
+            assertEquals(2,food.quantity());
+            int pos=Integer.parseInt(read(path,"strike").split(" ")[1]);
+            Item recovered=Dungeon.level.heaps.get(pos).peek();
+            assertEquals(Long.parseLong(read(path,"stolen-id")),game.ownership.identity(recovered));
+            assertEquals(game.player(1),game.ownership.owner(recovered));
+            assertTrue(recovered.cursed && recovered.cursedKnown);
+            game.hero(1).pos=pos;
+        } else {
+            assertNull(thief);
+            assertEquals(3,food.quantity());
+            long retired=Long.parseLong(read(path,"stolen-id"));
+            for(Heap h:Dungeon.level.heaps.valueList()) for(Item i:h.items) assertNotEquals(retired,game.ownership.identity(i));
         }
     }
 

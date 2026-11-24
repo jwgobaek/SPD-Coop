@@ -43,6 +43,11 @@ public class HostRestartTest {
         run(temp.getRoot().toPath(),new String[]{"mimic","mimicreceipt"});
     }
 
+    @Test(timeout=130000) public void crystalTheftAndKillingShotAreDurableAcrossSevenHostProcesses() throws Exception {
+        run(temp.getRoot().toPath(),new String[]{"crystal-new","crystal-open","crystal-park","crystal-return",
+                "crystal-fight","crystal-loot","crystal-final"});
+    }
+
     private void run(Path dir,String[] modes) throws Exception {
         for(String mode:modes) {
             Files.deleteIfExists(dir.resolve("fault-armed"));
@@ -71,7 +76,7 @@ public class HostRestartTest {
                 }
                 RestartHost.write(dir,"stop","1");
                 assertTrue(host.waitFor(10,TimeUnit.SECONDS));
-                assertEquals(RestartHost.read(dir,"RestartHost.log"),(mode.startsWith("kill_") || mode.equals("ascendfault"))?80:(mode.equals("revive") || mode.equals("walk") || mode.equals("quest") || mode.equals("mimic") || mode.startsWith("cast"))?78:mode.equals("soak")?79:0,host.exitValue());
+                assertEquals(RestartHost.read(dir,"RestartHost.log"),(mode.startsWith("kill_") || mode.equals("ascendfault"))?80:(mode.equals("revive") || mode.equals("walk") || mode.equals("quest") || mode.equals("mimic") || mode.equals("crystal-open") || mode.equals("crystal-fight") || mode.startsWith("cast"))?78:mode.equals("soak")?79:0,host.exitValue());
                 if(mode.equals("verifyfloor")) for(String metric:new String[]{"perf1","perf2","perf-travel"})
                     System.out.println(RestartHost.read(dir,metric));
             } finally {

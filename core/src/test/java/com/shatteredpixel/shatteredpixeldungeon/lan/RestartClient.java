@@ -113,7 +113,7 @@ public final class RestartClient {
     }
 
     private void run(String mode) throws Exception {
-        boolean special=mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || mode.equals("mimic");
+        boolean special=mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || mode.equals("mimic");
         if (special) {
             try (LanClient old = new LanClient(address)) {
                 assertEquals("ERROR VERSION", old.request("MODE SYNC3"));
@@ -127,7 +127,7 @@ public final class RestartClient {
                 epoch=UUID.fromString(keys[i].enroll(clients[i]).split(" ")[1]);
                 actions[i]=new SeatActions(session,i,i+1);
                 models[i]=new DisplayReplica(session,i);
-                String character=mode.equals("quest")?"MAGE":mode.startsWith("cast") && i==Integer.parseInt(mode.substring(4)) ? "MAGE" : mode.equals("walk") ? (i==0?"MAGE":"WARRIOR") : i==0?"WARRIOR":"HUNTRESS";
+                String character=(mode.equals("quest") || mode.equals("crystal-new"))?"MAGE":mode.startsWith("cast") && i==Integer.parseInt(mode.substring(4)) ? "MAGE" : mode.equals("walk") ? (i==0?"MAGE":"WARRIOR") : i==0?"WARRIOR":"HUNTRESS";
                 assertEquals("OK",clients[i].request("SELECT "+character)); clients[i].request("READY 1");
             }
             assertEquals("GAME_STARTED",clients[0].request("START"));
@@ -135,6 +135,15 @@ public final class RestartClient {
             refresh();
             if(mode.equals("walk")) { walk(); return; }
             act("WAIT",0,0);
+            if (mode.equals("crystal-new")) {
+                int seat=active();
+                assertTrue(consentAndCross().submit(clients[seat]).endsWith(" APPLIED")); applied++;
+                refresh();
+                act("WAIT",0,0);
+                offer(1);
+                assertTrue(new PublicDungeon(state(1)).chest(Integer.parseInt(RestartHost.read(path,"encounter-cell"))));
+                return;
+            }
             if (mode.equals("mimic")) { openChest(); return; }
             if (mode.equals("quest")) { ghostQuest(); return; }
             if (mode.equals("hive")) { hive(); return; }
@@ -196,6 +205,10 @@ public final class RestartClient {
         }
         for(int i=0;i<2;i++) bind(i);
         barrier();
+        if (mode.startsWith("crystal-")) {
+            crystalResume(mode);
+            return;
+        }
         if (mode.equals("mimicreceipt")) {
             String[] saved=RestartHost.read(path,"chest-request").split(" ",3);
             String receipt=clients[1].request("LOOKUP "+epoch+" "+saved[0]);
@@ -335,6 +348,63 @@ public final class RestartClient {
         refresh();
         assertTrue(new PublicDungeon(state(mover)).consent);
         return stairAction(mover,"TRAVEL",cell);
+    }
+
+    private void crystalResume(String mode) throws Exception {
+        if (mode.equals("crystal-open")) {
+            int cell=Integer.parseInt(RestartHost.read(path,"encounter-cell"));
+            assertEquals("CRYSTAL_CHEST",state(1).rows.get("h"+cell));
+            for(int s=0;s<2;s++) assertFalse(state(s).rows.toString().contains("Mimic"));
+            SeatActions.Pending p=actions[1].prepare(state(1),"OPEN",cell,0);
+            RestartHost.write(path,"steal-action",p.id+" "+p.command);
+            RestartHost.write(path,"kill-before-reply","1");
+            assertThrows(IOException.class,()->p.submit(clients[1]));
+        } else if (mode.equals("crystal-park") || mode.equals("crystal-return")) {
+            if (mode.equals("crystal-park")) {
+                String[] steal=RestartHost.read(path,"steal-action").split(" ",2);
+                String receipt=clients[1].request("LOOKUP "+epoch+" "+steal[0]);
+                assertTrue(receipt,receipt.endsWith(" APPLIED"));
+                assertEquals(receipt,clients[1].request(steal[1]));
+                assertEquals(2,new PublicDungeon(state(1)).belongings.stream().filter(i->i.kind.equals("FOOD")).findFirst().get().quantity);
+            }
+            int seat=active();
+            assertTrue(consentAndCross().submit(clients[seat]).endsWith(" APPLIED")); applied++;
+            refresh();
+            assertEquals(mode.equals("crystal-park")?1:2,new PublicDungeon(state(1)).depth);
+        } else if (mode.equals("crystal-fight")) {
+            for(int n=0;n<16;n++) {
+                Files.deleteIfExists(path.resolve("in-range"));
+                RestartHost.write(path,"approach","1");
+                long deadline=System.nanoTime()+3000000000L;
+                while (!Files.exists(path.resolve("in-range")) && System.nanoTime()<deadline) Thread.sleep(3);
+                assertTrue(Files.exists(path.resolve("in-range")));
+                reconnectPair();
+                int seat=active();
+                PublicDungeon view=new PublicDungeon(state(seat));
+                Optional<Integer> target=view.monsters.entrySet().stream().filter(e->e.getValue().equals("CrystalMimic"))
+                        .map(Map.Entry::getKey).findFirst();
+                assertTrue("Missing fleeing target",target.isPresent());
+                SeatActions.Pending shot=actions[seat].prepare(state(seat),"ZAP",target.get(),item(seat,"WEAPON","STAFF"));
+                RestartHost.write(path,"strike",seat+" "+target.get()+" "+shot.id+" "+shot.command);
+                String result;
+                try { result=shot.submit(clients[seat]); } catch(IOException lost) { return; }
+                assertTrue(result,result.endsWith(" APPLIED")); applied++; refresh();
+            }
+            fail("No committed killing shot");
+        } else if (mode.equals("crystal-loot")) {
+            String[] shot=RestartHost.read(path,"strike").split(" ",4);
+            int shooter=Integer.parseInt(shot[0]),cell=Integer.parseInt(shot[1]);
+            String receipt=clients[shooter].request("LOOKUP "+epoch+" "+shot[2]);
+            assertTrue(receipt,receipt.endsWith(" APPLIED"));
+            assertEquals(receipt,clients[shooter].request(shot[3]));
+            offer(1);
+            assertEquals(cell,pos(1));
+            assertFalse(new PublicDungeon(state(1)).monsters.containsValue("CrystalMimic"));
+            act("PICK_UP",cell,item(1,"F"+cell,"FOOD"));
+        } else {
+            assertEquals(3,new PublicDungeon(state(1)).belongings.stream().filter(i->i.kind.equals("FOOD")).findFirst().get().quantity);
+            act("WAIT",0,0);
+        }
     }
 
     private void openChest() throws Exception {

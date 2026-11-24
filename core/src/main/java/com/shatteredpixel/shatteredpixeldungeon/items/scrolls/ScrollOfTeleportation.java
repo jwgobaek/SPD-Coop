@@ -282,6 +282,12 @@ public class ScrollOfTeleportation extends Scroll {
 	}
 
 	public static void appear( Char ch, int pos ) {
+		if (Dungeon.coop != null) {
+			if (Dungeon.level.traps.get(pos)!=null || Dungeon.level.plants.get(pos)!=null || Dungeon.level.pit[pos])
+				throw new UnsupportedOperationException("Unsupported teleport landing effect");
+			ch.move(pos,false);
+			return;
+		}
 
 		ch.sprite.interruptMotion();
 

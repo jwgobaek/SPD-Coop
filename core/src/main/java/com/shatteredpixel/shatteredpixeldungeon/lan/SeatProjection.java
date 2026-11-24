@@ -104,7 +104,7 @@ final class SeatProjection {
             for (Mob mob : level.mobs) {
                 if (sight.visible(mob.pos) && mob.invisible <= 0 && mob.isAlive() && CoopSession.basicMob(mob)) {
                     if (CoopSession.disguised(mob)) {
-                        rows.put("h"+mob.pos,"CHEST");
+                        rows.put("h"+mob.pos,mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CrystalMimic ? "CRYSTAL_CHEST" : "CHEST");
                         continue;
                     }
                     rows.put("m"+mob.id(),mob.pos+","+mob.getClass().getSimpleName()+","+mob.HP+","+mob.HT);

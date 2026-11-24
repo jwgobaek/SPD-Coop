@@ -48,6 +48,7 @@ final class CoopBoard extends Group {
             if(monster!=null) {
                 Image sprite;
                 switch(monster) {
+                    case "CrystalMimic": sprite=new Image(Assets.Sprites.MIMIC,48,32,16,16);break;
                     case "Mimic": sprite=new Image(Assets.Sprites.MIMIC,48,0,16,16);break;
                     case "Bee": sprite=new Image(Assets.Sprites.BEE,0,0,16,16);break;
                     case "Ghost": sprite=new Image(Assets.Sprites.GHOST,0,0,14,15);break;
