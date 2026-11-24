@@ -209,7 +209,7 @@ public final class LanRoom implements AutoCloseable {
         if (verb.equals("MODE") && f.length == 5) {
             if (seat >= 0) return "ERROR LOCKED";
             if (!synchronizedRoom) return "ERROR MODE";
-            if (!f[4].equals("SYNC8")) return "ERROR VERSION";
+            if (!f[4].equals("SYNC9")) return "ERROR VERSION";
             peer.syncMode = true;
             peer.stairs=true;
             peer.extended=true;

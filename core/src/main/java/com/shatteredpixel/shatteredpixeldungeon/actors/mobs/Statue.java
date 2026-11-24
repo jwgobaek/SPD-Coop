@@ -139,7 +139,7 @@ public class Statue extends Mob {
 	public int attackProc( Char enemy, int damage ) {
 		damage = super.attackProc( enemy, damage );
 		damage = weapon.proc( this, enemy, damage );
-		if (!enemy.isAlive() && enemy == Dungeon.hero){
+		if (Dungeon.coop == null && !enemy.isAlive() && enemy == Dungeon.hero){
 			Dungeon.fail(this);
 			GLog.n( Messages.capitalize(Messages.get(Char.class, "kill", name())) );
 		}
@@ -158,7 +158,7 @@ public class Statue extends Mob {
 		//silently duplicated in this case, so don't drop original weapon
 		if (buff(Corrupting.CorruptingTracker.class) == null) {
 			weapon.identify(false);
-			Dungeon.level.drop(weapon, pos).sprite.drop();
+			Dungeon.level.drop(weapon, pos).animateDrop();
 		}
 		super.die( cause );
 	}

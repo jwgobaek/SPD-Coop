@@ -68,12 +68,13 @@ public class CoopFloorsTest extends HeadlessDungeon {
         assertTrue(game.stairs.consent(other,game.turn(),cell,true));
         assertFalse(step(game,CoopSession.Action.TRAVEL,cell,null));
         assertTrue(game.stairs.consent(other,game.turn(),cell,false));
-        assertTrue(step(game,CoopSession.Action.TRAVEL,cell,null));
+        boolean traveled=step(game,CoopSession.Action.TRAVEL,cell,null);
+        assertTrue("Travel stopped="+game.stopReason()+" blocker="+game.destinationBlocker,traveled);
     }
 
     @Test public void inaccessibleSpecialRoomRetainsLastPlayableFloor() {
-        // Seed 416 contains a statue with an unverified weapon effect.
-        try(CoopSession game=CoopSession.open(416,1,HeroClass.MAGE)) {
+        // Seed 427 contains an unverified GoldenMimic.
+        try(CoopSession game=CoopSession.open(427,1,HeroClass.MAGE)) {
             game.join(2,HeroClass.WARRIOR);
             Level l=Dungeon.level;
             int gate=l.exit(),seat=0;

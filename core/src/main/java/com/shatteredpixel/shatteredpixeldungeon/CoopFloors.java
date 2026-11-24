@@ -8,6 +8,9 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import java.util.HashSet;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 
 /** One active sewer and at most one parked sewer; only the active floor has registered actors. */
 public final class CoopFloors {
@@ -34,6 +37,20 @@ public final class CoopFloors {
 
     static final class UnsupportedDestination extends RuntimeException {
         UnsupportedDestination(String mob) { super("Unsupported destination actor: "+mob); }
+    }
+
+    static void requireSupportedResidents(Level next) {
+        for (Mob mob:next.mobs) {
+            if (!CoopSession.basicMob(mob)) {
+                String detail=mob.getClass().getSimpleName();
+                if (mob instanceof Statue) {
+                    Weapon weapon=((Statue)mob).weapon();
+                    detail+="/"+weapon.getClass().getSimpleName()+"/"+
+                            (weapon.enchantment==null ? "plain" : weapon.enchantment.getClass().getSimpleName());
+                }
+                throw new UnsupportedDestination(detail);
+            }
+        }
     }
 
     public boolean hasParkedFloor() { return parked!=null; }
@@ -83,9 +100,7 @@ public final class CoopFloors {
             if (Dungeon.levelHasBeenGenerated(Dungeon.depth,0)) throw new IllegalStateException("Missing parked floor");
             next=Dungeon.newLevel();
         }
-        for (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob mob:next.mobs) {
-            if (!CoopSession.basicMob(mob)) throw new UnsupportedDestination(mob.getClass().getSimpleName());
-        }
+        requireSupportedResidents(next);
         Dungeon.level=next;
         PathFinder.setMapSize(next.width(),next.height());
         if (parked!=null) {
@@ -172,6 +187,10 @@ public final class CoopFloors {
             }
         }
         for(Bundle mob:floor.getBundleArray("mobs")) {
+            if (mob.getString("__className").equals(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue.class.getName())) {
+                inspectItem(mob.getBundle("weapon"),entries.getBundle("w"+mob.getInt("id")));
+                count++;
+            }
             if (!mob.contains("items")) continue;
             int index=0;
             for(Bundle item:mob.getBundleArray("items")) {

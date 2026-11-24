@@ -13,6 +13,14 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SentryRoom;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Gnoll;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GnollExile;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.PhantomPiranha;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampiric;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sickle;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.BattleAxe;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CrystalMimic;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake;
@@ -173,6 +181,8 @@ public final class CoopSession implements AutoCloseable {
     private String stopReason;
 
     private boolean restoring, executing, restoredAfterTravel;
+    // Owner-thread diagnostics only. Destination contents must never appear in a public rejection.
+    String destinationBlocker;
     public boolean restoredAfterTravel() { return restoredAfterTravel; }
     public boolean restoring() { return restoring; }
 
@@ -204,7 +214,9 @@ public final class CoopSession implements AutoCloseable {
             session.players[0] = player;
             session.heroes[0] = Dungeon.hero;
             session.bindGear(0);
-            Dungeon.switchLevel(Dungeon.newLevel(), -1);
+            Level first=Dungeon.newLevel();
+            CoopFloors.requireSupportedResidents(first);
+            Dungeon.switchLevel(first, -1);
             return session;
         } catch (RuntimeException | Error failure) {
             session.close();
@@ -325,9 +337,16 @@ public final class CoopSession implements AutoCloseable {
 
     public static boolean basicMob(Actor actor) {
         Class<?> type = actor.getClass();
-        return type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
+        if (type==Statue.class) return statueWeapon(((Statue)actor).weapon());
+        return type == GnollExile.class || type == PhantomPiranha.class || type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
                 || type == Mimic.class || type == CrystalMimic.class || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
                 || (Dungeon.depth==2 && (type==Ghost.class || type==FetidRat.class));
+    }
+
+    // Admission is per native weapon and on-hit effect. Unstable can pick fourteen different effects.
+    public static boolean statueWeapon(Item item) {
+        return item instanceof Sickle && ((Weapon)item).enchantment instanceof Kinetic
+                || item instanceof BattleAxe && ((Weapon)item).enchantment instanceof Vampiric;
     }
 
     public static boolean disguised(Char actor) {
@@ -350,10 +369,14 @@ public final class CoopSession implements AutoCloseable {
         return item!=null && (item.getClass()==Food.class || item.getClass()==SmallRation.class);
     }
 
+    public static boolean basicWeaponType(Item item) {
+        return item!=null && ((item instanceof MagesStaff && ((MagesStaff)item).starterWand()!=null)
+                || item.getClass()==Gloves.class || item.getClass()==WornShortsword.class
+                || item.getClass()==Shortsword.class || item.getClass()==Dagger.class);
+    }
+
     private boolean basicWeapon(Item item) {
-        return (item != null && ((item instanceof MagesStaff && ((MagesStaff)item).starterWand()!=null) || item.getClass() == Gloves.class || item.getClass() == WornShortsword.class
-                || item.getClass() == Shortsword.class || item.getClass() == Dagger.class))
-                && ((MeleeWeapon)item).enchantment == null && !item.cursed;
+        return basicWeaponType(item) && ((MeleeWeapon)item).enchantment==null && !item.cursed;
     }
 
     /**
@@ -363,6 +386,7 @@ public final class CoopSession implements AutoCloseable {
     public boolean act(long player, long offeredTurn, Action action, int cell, Item item) {
         checkExecutor();
         restoredAfterTravel=false;
+        destinationBlocker=null;
         if (activeSeat < 0 || lives[activeSeat] != Life.ALIVE || players[activeSeat] != player || offeredTurn != turn || action == null) return false;
         if (action.requiresItem() && (item == null || !ownership.allowed(item, player))) return false;
         Hero hero = heroes[activeSeat];
@@ -454,7 +478,7 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (item.getClass()!=Gold.class && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (item.getClass()!=Gold.class && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
                             || (item.getClass()!=Gold.class && !hero.belongings.backpack.canHold(item))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
@@ -519,6 +543,7 @@ public final class CoopSession implements AutoCloseable {
                 load(before,before.getBundle("world"));
                 validateActorGraph();
                 restoredAfterTravel=true;
+                destinationBlocker=unsupported.getMessage();
                 return false;
             } catch (RuntimeException invalid) {
                 stop(invalid.toString());
@@ -638,6 +663,7 @@ public final class CoopSession implements AutoCloseable {
     static Map<String,Item> floorItems(Level level) {
         Map<String,Item> result=new TreeMap<>();
         for (Mob mob : level.mobs) {
+            if (mob instanceof Statue) result.put("w"+mob.id(),((Statue)mob).weapon());
             if (mob instanceof Mimic && ((Mimic)mob).items!=null) {
                 int index=0;
                 for (Item item:((Mimic)mob).items) result.put("m"+mob.id()+"_"+index++,item);

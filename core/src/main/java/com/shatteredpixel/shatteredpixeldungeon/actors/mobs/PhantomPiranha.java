@@ -50,7 +50,11 @@ public class PhantomPiranha extends Piranha {
 	public void damage(int dmg, Object src) {
 		Char dmgSource = null;
 		if (src instanceof Char) dmgSource = (Char)src;
-		if (src instanceof Wand || src instanceof ClericSpell) dmgSource = Dungeon.hero;
+		if (src instanceof Wand || src instanceof ClericSpell) {
+			if (Dungeon.coop == null) dmgSource=Dungeon.hero;
+			else if (src instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)
+				dmgSource=((com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)src).chargingHero();
+		}
 
 		if (dmgSource == null || !Dungeon.level.adjacent(pos, dmgSource.pos)){
 			dmg = Math.round(dmg/2f); //halve damage taken if we are going to teleport
@@ -99,9 +103,19 @@ public class PhantomPiranha extends Piranha {
 
 		ArrayList<Integer> inFOVCandidates = new ArrayList<>();
 		ArrayList<Integer> outFOVCandidates = new ArrayList<>();
+		boolean[] seen=Dungeon.level.heroFOV;
+		if (Dungeon.coop!=null) {
+			seen=new boolean[Dungeon.level.length()];
+			boolean[] direct=new boolean[seen.length];
+			for (int seat=0;seat<2;seat++) {
+				if (!Dungeon.coop.hero(seat).isAlive()) continue;
+				Dungeon.level.updateDirectSight(Dungeon.coop.hero(seat),direct);
+				for (int p=0;p<seen.length;p++) seen[p] |= direct[p];
+			}
+		}
 		for (int i = 0; i < Dungeon.level.length(); i++){
 			if (Dungeon.level.water[i] && Actor.findChar(i) == null){
-				if (Dungeon.level.heroFOV[i]){
+				if (seen[i]){
 					inFOVCandidates.add(i);
 				} else {
 					outFOVCandidates.add(i);

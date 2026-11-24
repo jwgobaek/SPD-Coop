@@ -43,8 +43,8 @@ public final class RestartHost {
                 Runtime.getRuntime().halt(78);
         });
         InetAddress loop=InetAddress.getLoopbackAddress();
-        boolean special = mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || mode.equals("mimic");
-        try(LanRoom room=(special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,mode.equals("crystal-new")?411:mode.equals("mimic")?408:mode.equals("hive")?409:mode.equals("quest")?403:mode.equals("piranha")?406:mode.equals("walk")?415:402,saves)
+        boolean special = mode.equals("statue") || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || mode.equals("mimic");
+        try(LanRoom room=(special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,mode.equals("statue")?416:mode.equals("crystal-new")?411:mode.equals("mimic")?408:mode.equals("hive")?409:mode.equals("quest")?403:mode.equals("piranha")?406:mode.equals("walk")?415:402,saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup"))) {
             if (mode.startsWith("crystal-") && !mode.equals("crystal-new")) crystalResumeFixture(path,mode);
             Rat rat=null;
@@ -98,7 +98,11 @@ public final class RestartHost {
                 if (special && room.state()==LanRoom.State.IN_GAME && arrangedDepth!=Dungeon.depth) {
                     arrangedDepth=Dungeon.depth;
                     if (arrangedDepth==1) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
-                    else if (mode.equals("crystal-new")) {
+                    else if (mode.equals("statue")) {
+                        Statue statue=SewerSpecialActorTest.actor(Statue.class);
+                        SewerGhostTest.meet(Dungeon.coop,1,statue);
+                        write(path,"statue-id",Integer.toString(statue.id()));
+                    } else if (mode.equals("crystal-new")) {
                         CrystalMimic thief=SewerSpecialActorTest.actor(CrystalMimic.class);
                         Food food=SewerCrystalMimicTest.pack(Dungeon.coop,1,3);
                         SewerGhostTest.meet(Dungeon.coop,1,thief);

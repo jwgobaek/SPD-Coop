@@ -99,7 +99,7 @@ public class GnollExile extends Gnoll {
 	public void rollToDropLoot() {
 		super.rollToDropLoot();
 
-		if (Dungeon.hero.lvl > maxLvl + 2) return;
+		if (lootOwner().lvl > maxLvl + 2) return;
 
 		//drops 2 or 3 random items
 		ArrayList<Item> items = new ArrayList<>();
@@ -112,7 +112,7 @@ public class GnollExile extends Gnoll {
 			do {
 				ofs = PathFinder.NEIGHBOURS9[Random.Int(9)];
 			} while (Dungeon.level.solid[pos + ofs] && !Dungeon.level.passable[pos + ofs]);
-			Dungeon.level.drop( item, pos + ofs ).sprite.drop( pos );
+			Dungeon.level.drop( item, pos + ofs ).animateDrop(pos);
 		}
 
 	}
@@ -156,7 +156,20 @@ public class GnollExile extends Gnoll {
 				}
 			}
 
-			if (fieldOfView[Dungeon.hero.pos] && Dungeon.level.heroFOV[pos]){
+			boolean seen;
+			if (Dungeon.coop == null) seen=fieldOfView[Dungeon.hero.pos] && Dungeon.level.heroFOV[pos];
+			else {
+				seen=false;
+				boolean[] direct=new boolean[Dungeon.level.length()];
+				for (int seat=0;seat<2 && !seen;seat++) {
+					com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero hero=Dungeon.coop.hero(seat);
+					if (hero.isAlive() && fieldOfView[hero.pos]) {
+						Dungeon.level.updateDirectSight(hero,direct);
+						seen=direct[pos];
+					}
+				}
+			}
+			if (seen){
 				if (seenNotifyCooldown <= 0){
 					GLog.p(Messages.get(GnollExile.class, "seen_passive"));
 				}

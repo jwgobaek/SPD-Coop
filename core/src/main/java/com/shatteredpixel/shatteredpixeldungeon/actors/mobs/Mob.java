@@ -949,17 +949,22 @@ public abstract class Mob extends Char {
 			if (state == SLEEPING) {
 				state = WANDERING;
 			}
+			Hero magicUser = null;
+			if (Dungeon.coop == null && (src instanceof Wand || src instanceof ClericSpell || src instanceof ArmorAbility))
+				magicUser = Dungeon.hero;
+			else if (Dungeon.coop != null && src instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)
+				magicUser = ((com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)src).chargingHero();
 			if (!(src instanceof Corruption) && state != FLEEING) {
 				if (state != HUNTING) {
 					alerted = true;
 					//assume the hero is hitting us in these common cases
-					if (src instanceof Wand || src instanceof ClericSpell || src instanceof ArmorAbility) {
-						aggro(Dungeon.hero);
-						target = Dungeon.hero.pos;
+					if (magicUser != null) {
+						aggro(magicUser);
+						target = magicUser.pos;
 					}
 				} else {
-					if (src instanceof Wand || src instanceof ClericSpell || src instanceof ArmorAbility) {
-						recentlyAttackedBy.add(Dungeon.hero);
+					if (magicUser != null) {
+						recentlyAttackedBy.add(magicUser);
 					}
 				}
 			}
@@ -1092,7 +1097,7 @@ public abstract class Mob extends Char {
 		}
 	}
 
-	private Hero lootOwner() {
+	protected final Hero lootOwner() {
 		return rewardOwner == null ? Dungeon.hero : rewardOwner;
 	}
 

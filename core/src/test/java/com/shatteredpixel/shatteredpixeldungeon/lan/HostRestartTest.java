@@ -48,6 +48,10 @@ public class HostRestartTest {
                 "crystal-fight","crystal-loot","crystal-final"});
     }
 
+    @Test(timeout=45000) public void guestFightsGeneratedStatueAndRecoversConfirmedAttack() throws Exception {
+        run(temp.getRoot().toPath(),new String[]{"statue"});
+    }
+
     private void run(Path dir,String[] modes) throws Exception {
         for(String mode:modes) {
             Files.deleteIfExists(dir.resolve("fault-armed"));

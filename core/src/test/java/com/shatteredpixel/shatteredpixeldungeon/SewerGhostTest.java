@@ -20,7 +20,7 @@ public class SewerGhostTest extends HeadlessDungeon {
         Hero hero=game.hero(seat);
         for (int offset:PathFinder.NEIGHBOURS8) {
             int cell=target.pos+offset;
-            if (floor.passable[cell] && !floor.pit[cell] && Actor.findChar(cell)==null && floor.traps.get(cell)==null) {
+            if (floor.passable[cell] && !floor.pit[cell] && (Actor.findChar(cell)==null || Actor.findChar(cell)==hero) && floor.traps.get(cell)==null) {
                 hero.pos=cell;
                 game.observe(seat);
                 floor.updateFieldOfView(hero,hero.fieldOfView);

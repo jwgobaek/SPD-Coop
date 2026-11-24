@@ -24,7 +24,7 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean mage,floors,sentry,ghost,mimic,crystal;
+    private static boolean mage,floors,sentry,ghost,mimic,crystal,statue;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
@@ -32,7 +32,8 @@ public final class CoopRenderSmoke {
         ghost=args.length>1 && args[1].equals("ghost");
         crystal=args.length>1 && args[1].equals("crystal");
         mimic=crystal || (args.length>1 && args[1].equals("mimic"));
-        floors=mimic || ghost || sentry || (args.length>1 && args[1].equals("floors"));
+        statue=args.length>1 && args[1].equals("statue");
+        floors=statue || mimic || ghost || sentry || (args.length>1 && args[1].equals("floors"));
         mage=floors || (args.length>1 && args[1].equals("mage"));
         shots=new File(args[0]); if(!shots.isDirectory() && !shots.mkdirs()) throw new AssertionError();
         // Test classes share the launcher's package but do not carry release-manifest attributes.
@@ -171,6 +172,15 @@ public final class CoopRenderSmoke {
         click("#"+Messages.get(CoopScene.class,"travel",2));
         await(()->frame().dungeon.depth==2 && frame().dungeon.offered);
         shot("sewer-2");
+        if (statue) {
+            int cell=RenderEncounter.beside(hostController(),com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue.class);
+            click("wait"); await(()->frame().dungeon.offered && "Statue".equals(frame().dungeon.monsters.get(cell)));
+            shot("statue-passive");
+            int before=staff(frame().dungeon).charges;
+            aimStaff(); press(mapPoint(frame().dungeon,cell));
+            await(()->frame().dungeon.offered && staff(frame().dungeon).charges==before-1);
+            shot("statue-combat");
+        }
         if (mimic) {
             int cell=RenderEncounter.beside(hostController(),crystal ? com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CrystalMimic.class
                     : com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic.class);
@@ -214,6 +224,12 @@ public final class CoopRenderSmoke {
         try {
             await(()->frame().dungeon!=null && frame().dungeon.depth==2 && frame().dungeon.offered);
             shot("sewer-2-reconnected");
+            if (statue) {
+                if (!frame().dungeon.monsters.containsValue("Statue")) throw new AssertionError("Missing restored statue");
+                shot("statue-reconnected");
+                click("menu");click("saveexit");await(()->button("host")!=null);
+                return;
+            }
             if (mimic) {
                 if (!frame().dungeon.monsters.containsValue(crystal?"CrystalMimic":"Mimic")) throw new AssertionError("Missing resumed mimic");
                 shot("mimic-reconnected");
@@ -252,7 +268,7 @@ public final class CoopRenderSmoke {
         render(()->{
             Field active=CoopScene.class.getDeclaredField("active"); active.setAccessible(true);
             active.set(null,new CoopController(CoopPlatform.root(),null,null,LanClient.TCP_PORT,LanClient.UDP_PORT,
-                    new java.util.Random(){@Override public long nextLong(){return crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
+                    new java.util.Random(){@Override public long nextLong(){return statue ? 416 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
             return null;
         });
         click("title"); await(()->button("host")!=null);
