@@ -101,7 +101,12 @@ public class EntranceRoom extends StandardRoom {
 
 	public static void placeEarlyGuidePages(Level level, Room r){
 		//use a separate generator here so meta progression doesn't affect levelgen
-		Random.pushGenerator();
+		if (Dungeon.coop != null) {
+            // Keep guide placement reproducible without consuming the native floor generator.
+            Random.pushGenerator(Dungeon.seedForDepth(Dungeon.depth,Dungeon.branch));
+        } else {
+            Random.pushGenerator();
+        }
 
 		//places the first guidebook page on floor 1
 		if (Dungeon.depth == 1 &&

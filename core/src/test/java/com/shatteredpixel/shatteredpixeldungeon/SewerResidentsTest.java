@@ -43,6 +43,33 @@ public class SewerResidentsTest extends HeadlessDungeon {
             }
         }
     }
+    @Test public void hermitCrabArmorUsesTheCreditedSeatLevelAndSurvivesRestore() {
+        for(int seat=0;seat<2;seat++) {
+            Bundle after;
+            int cell;
+            try(CoopSession game=CoopSession.open(402,1,HeroClass.MAGE)) {
+                game.join(2,HeroClass.MAGE);
+                SewerBeeTest.offer(game,seat);
+                cell=SewerHazardsTest.approach(game,seat,true);
+                HermitCrab crab=new HermitCrab(); crab.pos=cell;
+                com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.add(crab);
+                game.hero(1-seat).lvl=20; // the other seat must not suppress the killer's armor drop
+                assertEquals(25,crab.HP);
+                assertEquals(1f,crab.speed(),0f);
+                crab.damage(100,game.hero(seat));
+                assertFalse(crab.isAlive());
+                assertTrue(Dungeon.level.heaps.get(cell).items.stream().anyMatch(
+                        i->i instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor));
+                after=game.checkpoint();
+            }
+            try(CoopSession game=CoopSession.restore(after)) {
+                assertTrue(Dungeon.level.heaps.get(cell).items.stream().anyMatch(
+                        i->i instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor));
+                SewerSpecialActorTest.waitOne(game);
+            }
+        }
+    }
+
     @Test public void aSwarmSplitsItsRemainingHealthAndCausticOozeUsesTheActualVictim() {
         for(int seat=0;seat<2;seat++) try(CoopSession g=CoopSession.open(404,1,HeroClass.WARRIOR)) {
             g.join(2,HeroClass.WARRIOR);

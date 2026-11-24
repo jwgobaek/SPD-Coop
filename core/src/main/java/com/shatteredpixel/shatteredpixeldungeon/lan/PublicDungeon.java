@@ -57,7 +57,7 @@ public final class PublicDungeon {
                 break;
             case 'm':
                 String[] mob=value.split(",");
-                if(!mob[1].matches("Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Sheep|Statue|GnollExile|PhantomPiranha|Crab|Swarm|Slime|CausticSlime|Thief|GnollTrickster|GreatCrab|RatKing|Goo")) throw new IllegalArgumentException("Monster");
+                if(!mob[1].matches("Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Sheep|Statue|GnollExile|PhantomPiranha|Crab|HermitCrab|Swarm|Slime|CausticSlime|Thief|GnollTrickster|GreatCrab|RatKing|Goo")) throw new IllegalArgumentException("Monster");
                 enemies.put(number(mob[0],0,65535),mob[1]); break;
             case 'b': effects.add(number(value.split(",")[0],0,255)); break;
             case 't': number(value,0,63); break;

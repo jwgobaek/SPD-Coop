@@ -154,6 +154,9 @@ public class SewerDepthTest extends HeadlessDungeon {
                 assertTrue(goo.attack(down,1,1000,Float.POSITIVE_INFINITY));
                 assertEquals(CoopSession.Life.DOWNED,g.life(victim));
                 assertEquals(17,g.preDeathHP(victim));
+                // Separate the restore/revive checkpoint from a second, immediately lethal enemy turn.
+                com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff.prolong(goo,
+                        com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis.class,4f);
                 fallen=g.checkpoint();
             }
             try(CoopSession g=CoopSession.restore(fallen)) {

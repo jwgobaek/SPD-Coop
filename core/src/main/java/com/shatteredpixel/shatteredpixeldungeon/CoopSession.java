@@ -8,6 +8,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Albino;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Piranha;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Crab;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.HermitCrab;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Swarm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Slime;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CausticSlime;
@@ -393,7 +394,7 @@ public final class CoopSession implements AutoCloseable {
         if (type==Statue.class) return statueWeapon(((Statue)actor).weapon());
         return type == GnollExile.class || type == PhantomPiranha.class || type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
                 || type == Mimic.class || type == CrystalMimic.class || type == GoldenMimic.class || type == Sheep.class || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
-                || type==Crab.class || type==Swarm.class || type==Slime.class || type==CausticSlime.class || type==Thief.class
+                || type==Crab.class || type==HermitCrab.class || type==Swarm.class || type==Slime.class || type==CausticSlime.class || type==Thief.class
                 || (Dungeon.depth>=2 && Dungeon.depth<=4 && type==Ghost.class)
                 || (Dungeon.depth==2 && type==FetidRat.class) || (Dungeon.depth==3 && type==GnollTrickster.class)
                 || (Dungeon.depth==4 && type==GreatCrab.class) || (Dungeon.depth==5 && (type==Goo.class || type==RatKing.class));

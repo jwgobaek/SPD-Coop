@@ -67,6 +67,7 @@ final class CoopBoard extends Group {
                 Image sprite;
                 switch(monster) {
                     case "Crab": sprite=new CrabSprite();break;
+                    case "HermitCrab": sprite=new HermitCrabSprite();break;
                     case "Slime": sprite=new SlimeSprite();break;
                     case "Swarm": sprite=new SwarmSprite();break;
                     case "CausticSlime": sprite=new CausticSlimeSprite();break;

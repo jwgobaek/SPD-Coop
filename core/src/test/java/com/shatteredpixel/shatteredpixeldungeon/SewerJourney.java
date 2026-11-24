@@ -27,10 +27,16 @@ public class SewerJourney extends HeadlessDungeon {
             }
         }}
         finally {run.stopBackend();run.temporary.delete();}
+        if(System.getProperty("journey.trace")!=null)
+            java.nio.file.Files.write(java.nio.file.Paths.get(System.getProperty("journey.trace")),run.route);
     }
+    private final List<String> route=new ArrayList<>();
     private final Map<String,Integer> counts=new TreeMap<>();
     private boolean act(CoopSession game,CoopSession.Action verb,int cell,Item item) {
+        int seat=game.activeSeat(), depth=Dungeon.depth, from=game.hero(seat).pos;
         if (!CoopFloorsTest.step(game,verb,cell,item)) return false;
+        if(System.getProperty("journey.trace")!=null)
+            route.add(seat+" "+depth+" "+from+" "+verb+" "+cell+" "+Dungeon.depth+" "+game.hero(seat).pos+" "+game.hero(seat).HP);
         counts.merge(verb.name(),1,Integer::sum);
         return true;
     }
@@ -52,7 +58,7 @@ public class SewerJourney extends HeadlessDungeon {
         return best;
     }
 
-    private void travel(long seed) {
+    private void travel(long seed) throws java.io.IOException {
         counts.clear();
         String result="action budget"; int highest=1;
         HeroClass front=HeroClass.valueOf(System.getProperty("journey.front","WARRIOR"));

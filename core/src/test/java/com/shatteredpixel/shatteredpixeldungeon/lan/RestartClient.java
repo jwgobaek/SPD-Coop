@@ -141,7 +141,7 @@ public final class RestartClient {
                 assertEquals("ERROR VERSION", old.request("MODE SYNC12"));
             }
         }
-        if (special || RestartHost.kit(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
+        if (special || RestartHost.kit(mode) || mode.equals("campaign") || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
             for(int i=0;i<2;i++) {
                 assertTrue(clients[i].request(i==0 ? RestartHost.read(path,"endpoint").split("\n")[1] : "JOIN").startsWith("JOINED"));
                 keys[i]=SeatCredential.generate();
@@ -150,6 +150,7 @@ public final class RestartClient {
                 actions[i]=new SeatActions(session,i,i+1);
                 models[i]=new DisplayReplica(session,i);
                 String character=(mode.equals("quest") || RestartHost.guardian(mode) || mode.equals("crystal-new"))?"MAGE":mode.startsWith("cast") && i==Integer.parseInt(mode.substring(4)) ? "MAGE" : mode.equals("walk") ? (i==0?"MAGE":"WARRIOR") : i==0?"WARRIOR":"HUNTRESS";
+                if (mode.equals("campaign")) character=i==0?"MAGE":"HUNTRESS";
                 if (RestartHost.kit(mode)) character=i==mode.charAt(3)-'0'?"HUNTRESS":"WARRIOR";
                 assertEquals("OK",clients[i].request("SELECT "+character)); clients[i].request("READY 1");
             }
@@ -162,6 +163,7 @@ public final class RestartClient {
             assertEquals("GAME_STARTED",clients[0].request("START"));
             RestartHost.write(path,"epoch",epoch.toString());
             refresh();
+            if(mode.equals("campaign")) { campaign(); return; }
             if(mode.equals("walk")) { walk(); return; }
             act("WAIT",0,0);
             if (RestartHost.kit(mode)) {
@@ -501,6 +503,70 @@ public final class RestartClient {
         refresh();
         assertTrue(new PublicDungeon(state(mover)).consent);
         return stairAction(mover,"TRAVEL",cell);
+    }
+
+    private void campaign() throws Exception {
+        // A separate native-engine process prepares a map-aware list of ordinary player inputs.
+        // Each authenticated socket step below checks the independent host's resulting position and HP.
+        Path dir=path;
+        Process guide=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-Xmx256m",
+                "-Djourney.front=MAGE","-Djourney.trace="+dir.resolve("route"),"-cp",System.getProperty("java.class.path"),
+                "com.shatteredpixel.shatteredpixeldungeon.SewerJourney","581")
+                .redirectErrorStream(true).redirectOutput(dir.resolve("guide.log").toFile()).start();
+        try {
+            assertTrue(guide.waitFor(30,java.util.concurrent.TimeUnit.SECONDS));
+            assertEquals(0,guide.exitValue());
+            String outcome=RestartHost.read(dir,"guide.log");
+            assertTrue(outcome.substring(Math.max(0,outcome.length()-500)),outcome.contains("both alive, exit unlocked"));
+        } finally { guide.destroyForcibly(); }
+
+        int steps=0, crossings=0, exitsOpened=0, blobs=0;
+        List<Long> crossingMicros=new ArrayList<>(),bossMicros=new ArrayList<>();
+        for(String line:Files.readAllLines(path.resolve("route"))) {
+            String[] row=line.split(" ");
+            int seat=Integer.parseInt(row[0]), cell=Integer.parseInt(row[4]);
+            String verb=row[3], where="step "+steps+" "+line;
+            PublicDungeon before=new PublicDungeon(state(seat));
+            assertEquals(where,seat,active());
+            assertEquals(where,Integer.parseInt(row[1]),before.depth);
+            assertEquals(where,Integer.parseInt(row[2]),before.pos);
+            if(verb.equals("TRAVEL")) {
+                long crossingStart=System.nanoTime();
+                assertTrue(consentAndCross().submit(clients[seat]).endsWith(" APPLIED"));
+                refresh(); crossings++; crossingMicros.add((System.nanoTime()-crossingStart)/1000);
+            } else {
+                long handle=0;
+                switch(verb) {
+                    case "PICK_UP": handle=before.floor.get(cell).id; break;
+                    case "ZAP": handle=item(seat,"WEAPON","STAFF"); break;
+                    case "SHOOT": handle=item(seat,"BAG","BOW"); break;
+                    case "DRINK": handle=item(seat,"BAG","HEALING"); break;
+                    case "EAT": handle=item(seat,"BAG","FOOD"); break;
+                    default: break;
+                }
+                act(verb,cell,handle);
+                if(before.depth==5 && before.monsters.containsValue("Goo")) bossMicros.add(latency.get(latency.size()-1));
+            }
+            PublicDungeon after=new PublicDungeon(state(seat));
+            assertEquals(where,Integer.parseInt(row[5]),after.depth);
+            assertEquals(where,Integer.parseInt(row[6]),after.pos);
+            assertEquals(where,Integer.parseInt(row[7]),after.hp);
+            if(verb.equals("UNLOCK") && after.depth==5) exitsOpened++;
+            for(PublicDungeon.Loot loot:after.belongings)
+                if(loot.sprite==com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.BLOB) blobs=Math.max(blobs,loot.quantity);
+            steps++;
+            Thread.sleep(30);
+        }
+        assertEquals(4,crossings); assertEquals(1,exitsOpened); assertTrue(blobs>0);
+        for(int seat=0;seat<2;seat++) assertTrue(new PublicDungeon(state(seat)).hp>0);
+        for (List<Long> sample:Arrays.asList(latency,bossMicros,crossingMicros)) {
+            assertFalse(sample.isEmpty()); Collections.sort(sample);
+            System.out.println("native socket route campaign "+(sample==latency?"action_ack":sample==bossMicros?"visible_goo_ack":"consent_travel_sync")+
+                    " count="+sample.size()+" median_us="+sample.get(sample.size()/2)+
+                    " p95_us="+sample.get((int)Math.ceil(.95*sample.size())-1));
+        }
+        System.out.println("native socket route natural campaign seed=581 seat_actions="+steps+
+                " extra_consents="+crossings+" carried_GooBlob="+blobs+" hp="+new PublicDungeon(state(0)).hp+"/"+new PublicDungeon(state(1)).hp);
     }
 
     private void boss() throws Exception {
