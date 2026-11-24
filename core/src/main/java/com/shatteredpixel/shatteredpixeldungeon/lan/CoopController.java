@@ -209,7 +209,8 @@ public final class CoopController {
         if(!reply.startsWith("RESUMED ")) expect(reply,"RESUMED");
         String[] f=reply.split(" ");
         if(Integer.parseInt(f[1])!=ticket.seat || Long.parseLong(f[2])!=ticket.player) throw new IOException("AUTH");
-        actions=new SeatActions(ticket.session,ticket.seat,ticket.player,Long.parseLong(f[4]));
+        lastAction=Long.parseLong(f[4]); lastResult="";
+        actions=new SeatActions(ticket.session,ticket.seat,ticket.player,lastAction);
         if(!ticket.epoch.equals(epoch)) { lastResult="ROLLED_BACK"; ticket.pending=0; }
         ticket.epoch=epoch; tickets.write(ticket);
         replica=new DisplayReplica(ticket.session,ticket.seat);
@@ -274,10 +275,11 @@ public final class CoopController {
     }
 
     public void menu() { enqueue(()->{ closeRoom(false); ticket=null; list=Collections.emptyList(); show(Page.MENU); }); }
-    public void leave(boolean save) { enqueue(()->{ closeRoom(save); ticket=null; notice=save?"SAVED":"LEFT"; show(Page.MENU); }); }
-    private void closeRoom(boolean save) throws Exception {
-        if(host!=null) { host.close(save); host=null; }
-        dropClient(); roster=""; advertised="";
+    public void leave(boolean save) { enqueue(()->{ boolean saved=closeRoom(save); ticket=null; notice=saved?"SAVED":"LEFT"; show(Page.MENU); }); }
+    private boolean closeRoom(boolean save) throws Exception {
+        boolean saved=false;
+        if(host!=null) { saved=host.close(save); host=null; }
+        dropClient(); roster=""; advertised=""; return saved;
     }
 
     /** Lifecycle exit always releases resources and leaves the last durable generation available. */

@@ -32,6 +32,9 @@ public class CoopPlayClient {
             SeatActions host=new SeatActions(id,0,player);
             DisplayReplica view=new DisplayReplica(id,0);
             String[] script={"PICK_UP","DROP","PICK_UP","EAT","UNEQUIP","EQUIP","ATTACK","MOVE","REVIVE","WAIT"};
+            boolean small=Boolean.parseBoolean(args[2]);
+            int foodSprite=-1;
+            long previousGuestBytes=0;
             int index=0, waits=0; List<Long> delays=new ArrayList<>();
             while(index<script.length && waits<55) {
                 view.refresh(h);
@@ -48,6 +51,8 @@ public class CoopPlayClient {
                     assertTrue(guest.act(game.source,"WAIT",0,0)); waits++;
                     until(()->!guest.busy() && guest.frame().image.version>game.source.version); continue;
                 }
+                if(index==0) foodSprite=game.floor.get(game.pos).sprite;
+                final int chosenSprite=foodSprite;
                 switch(verb) {
                     case "PICK_UP": sent=game.tap(guest,game.pos);break;
                     case "ATTACK": sent=game.tap(guest,game.pos-1);break;
@@ -56,7 +61,7 @@ public class CoopPlayClient {
                     case "WAIT": sent=guest.act(game.source,"WAIT",0,0);break;
                     default:
                         PublicDungeon.Loot item=game.belongings.stream().filter(i->game.actions(i).contains(verb)
-                                && (!verb.equals("DROP") || i.kind.equals("FOOD"))).findFirst().orElseThrow(AssertionError::new);
+                                && (!(verb.equals("DROP") || verb.equals("EAT")) || (i.kind.equals("FOOD") && i.sprite==chosenSprite))).findFirst().orElseThrow(AssertionError::new);
                         sent=game.use(guest,item,verb);
                 }
                 assertTrue(verb,sent); assertFalse(guest.act(game.source,"WAIT",0,0));
@@ -65,9 +70,20 @@ public class CoopPlayClient {
                 if(verb.equals("MOVE")) assertEquals(game.pos+1,guest.frame().dungeon.pos);
                 if(verb.equals("REVIVE")) assertEquals("ALIVE",guest.frame().image.rows.get("allylife"));
                 delays.add((System.nanoTime()-then)/1000000); index++;
+                if(small && index==3) {
+                    int current=guest.frame().dungeon.pos;
+                    previousGuestBytes+=guest.frame().wireBytes;
+                    guest.leave(false); until(()->guest.frame().page==CoopController.Page.MENU && !guest.busy());
+                    until(()->{view.refresh(h);return "RECONNECTING".equals(view.image().rows.get("reason"));});
+                    guest.reconnect(id,"127.0.0.1:"+addr.getPort()); view.confirmReconnect(h);
+                    until(()->!guest.busy() && guest.frame().dungeon!=null && "IN_GAME".equals(guest.frame().image.rows.get("status")));
+                    assertEquals(current,guest.frame().dungeon.pos);
+                    assertTrue(guest.frame().dungeon.belongings.stream().anyMatch(i->i.sprite==chosenSprite && i.quantity==1));
+                }
             }
             assertEquals(script.length,index); Collections.sort(delays);
-            System.out.println("client TCP bytes="+(h.transferredBytes()+guest.frame().wireBytes)
+            System.out.println("client TCP bytes="+(previousGuestBytes+h.transferredBytes()+guest.frame().wireBytes)
+                    +" last full seat snapshot bytes="+guest.frame().image.snapshotBytes()
                     +" client used heap bytes="+(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory())
                     +" live JVM threads="+java.lang.management.ManagementFactory.getThreadMXBean().getThreadCount());
             System.out.println("confirmed inputs="+index+" supporting waits="+waits+" controller roundtrip ms median="+delays.get(4)+" p95="+delays.get(9));

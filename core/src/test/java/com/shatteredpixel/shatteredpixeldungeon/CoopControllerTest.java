@@ -24,6 +24,11 @@ public class CoopControllerTest extends HeadlessDungeon {
         for(int n=0;n<1500 && c.frame().page!=CoopController.Page.CLOSED;n++) Thread.sleep(5);
         assertEquals(CoopController.Page.CLOSED,c.frame().page);
     }
+    private static boolean uiWorkersAlive() {
+        return Thread.getAllStackTraces().keySet().stream().anyMatch(t->t.isAlive()
+                && (t.getName().equals("Coop client") || t.getName().equals("Coop engine") || t.getName().equals("spd-lan-io")));
+    }
+
     @Test(timeout=60000) public void realLobbySaveAndColdClientResume() throws Exception {
         File hr=temporary.newFolder(), gr=temporary.newFolder();
         InetAddress loop=InetAddress.getLoopbackAddress();
@@ -73,5 +78,8 @@ public class CoopControllerTest extends HeadlessDungeon {
             assertEquals("ROLLED_BACK",accepted.lastResult);
             assertNotEquals(guest.image.rows.get("epoch"),accepted.image.rows.get("epoch"));
         } finally {stop(g); stop(h);}
+        long deadline=System.nanoTime()+3000000000L;
+        while (uiWorkersAlive() && System.nanoTime()<deadline) Thread.sleep(10);
+        assertFalse("A closed room retained its UI, engine or socket worker",uiWorkersAlive());
     }
 }

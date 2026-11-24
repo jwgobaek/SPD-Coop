@@ -55,6 +55,9 @@ public final class StateImage {
         } catch (NoSuchAlgorithmException impossible) { throw new AssertionError(impossible); }
     }
 
+    /** Encoded ASCII bytes before the bounded transport splits a full snapshot into parts. */
+    public int snapshotBytes() { return encode(null, null).length(); }
+
     String encode(StateImage base, String witnessedDeath) {
         StringBuilder wire = new StringBuilder(base == null ? "S|" : "D|");
         wire.append(session).append('|').append(seat).append('|').append(base == null ? 0 : base.version)

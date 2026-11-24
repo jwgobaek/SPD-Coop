@@ -5,7 +5,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.*;
-import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.*;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
@@ -131,7 +130,7 @@ final class SeatProjection {
             ids.put(item,id);
         }
         visible.put(id,item);
-        String kind = item.getClass() == Food.class ? "FOOD" : item instanceof Ankh ? "ANKH" : item instanceof MeleeWeapon ? "MELEE" : "OTHER";
+        String kind = CoopSession.basicFood(item) ? "FOOD" : item instanceof Ankh ? "ANKH" : item instanceof MeleeWeapon ? "MELEE" : "OTHER";
         rows.put("i"+id,slot+","+kind+","+item.image()+","+item.quantity()+","+
                 (item.levelKnown ? item.visiblyUpgraded() : "NA"));
     }

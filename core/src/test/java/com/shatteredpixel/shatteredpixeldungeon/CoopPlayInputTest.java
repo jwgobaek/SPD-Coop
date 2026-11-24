@@ -36,11 +36,19 @@ public class CoopPlayInputTest extends HeadlessDungeon {
     }
 
     @Test(timeout=70000) public void seatInputsCombatInventoryAndRevival() throws Exception {
+        scenario(false);
+    }
+
+    @Test(timeout=70000) public void smallRationAndDoorOverSocketsIncludingSeatRecovery() throws Exception {
+        scenario(true);
+    }
+    private void scenario(boolean small) throws Exception {
         File log=temporary.newFile();
+        java.util.List<Long> saveMillis=new java.util.ArrayList<>();
         try(LanRoom room=LanRoom.persistentGame(InetAddress.getLoopbackAddress(),0,0,402,new CoopSaves(temporary.newFolder()))) {
             Process child=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-cp",
                     System.getProperty("coop.client.classpath"),CoopPlayClient.class.getName(),
-                    Integer.toString(room.tcpPort()),temporary.newFolder().toString())
+                    Integer.toString(room.tcpPort()),temporary.newFolder().toString(),Boolean.toString(small))
                     .redirectErrorStream(true).redirectOutput(log).start();
             Rat rat=new Rat(); Ankh ankh=new Ankh();
             int center=-1; boolean wounded=false,revived=false;
@@ -63,9 +71,11 @@ public class CoopPlayInputTest extends HeadlessDungeon {
                             }
                             guest.pos=center;host.pos=center+1+level.width();
                             host.belongings.backpack.items.add(ankh); game.ownership.claim(ankh,game.player(0));
-                            level.drop(new Food(),center);
+                            level.drop(small?new com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation():new Food(),center);
+                            if(small) Level.set(center+1,Terrain.DOOR);
                             rat.pos=center-1; rat.HT=rat.HP=100; GameScene.add(rat,1000);
                         } else if(!wounded && guest.pos==center+1) {
+                            if(small) assertEquals(Terrain.OPEN_DOOR,level.map[guest.pos]);
                             wounded=true;
                             Actor.add(new Actor(){ protected boolean act(){
                                 host.HP=17; rat.attack(host,1,10000,Float.POSITIVE_INFINITY);
@@ -73,6 +83,9 @@ public class CoopPlayInputTest extends HeadlessDungeon {
                             }});
                         } else if(wounded && game.preDeathHP(0)==17 && game.life(0)==CoopSession.Life.ALIVE && !revived) {
                             assertEquals(5,host.HP); assertFalse(host.belongings.backpack.contains(ankh)); revived=true;
+                            if(small) for(int n=0;n<20;n++) {
+                                long start=System.nanoTime(); room.save(); saveMillis.add((System.nanoTime()-start)/1000);
+                            }
                         }
                     }
                     if(room.failure()!=null) fail(room.failure());
@@ -82,6 +95,10 @@ public class CoopPlayInputTest extends HeadlessDungeon {
                 String trace=new String(Files.readAllBytes(log.toPath()));
                 assertEquals(trace,0,child.exitValue()); assertTrue(revived); assertTrue(trace,trace.contains("confirmed inputs=10"));
                 System.out.print(trace);
+                if(small) {
+                    assertEquals(20,saveMillis.size());java.util.Collections.sort(saveMillis);
+                    System.out.println("explicit durable checkpoints=20 micros median="+saveMillis.get(9)+" p95="+saveMillis.get(18));
+                }
             } finally {if(child.isAlive()) child.destroyForcibly(); assertTrue(child.waitFor(5,TimeUnit.SECONDS));}
         }
     }

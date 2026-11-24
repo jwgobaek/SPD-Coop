@@ -188,9 +188,10 @@ public class CoopScene extends PixelScene {
     private void alert(String body) {add(new WndOptions(msg("title"),body,msg("back")));}
     private void gameMenu() {
         boolean host=shown.seat==0;
+        boolean save=host && shown.page==CoopController.Page.GAME;
         add(new WndOptions(msg("menu"),shown.address+"\n"+status(shown.image==null?"LOBBY":shown.image.rows.get("status")),
-                msg("continue"),msg("diagnostics"),msg(host?"saveexit":"leave")){
-            protected void onSelect(int n) { if(n==1) diagnostics(); if(n==2) controller.leave(host); }
+                msg("continue"),msg("diagnostics"),msg(save?"saveexit":host?"closeroom":"leave")){
+            protected void onSelect(int n) { if(n==1) diagnostics(); if(n==2) controller.leave(save); }
         });
     }
     private void diagnostics() {

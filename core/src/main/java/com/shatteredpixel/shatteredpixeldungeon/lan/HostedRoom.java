@@ -40,13 +40,14 @@ final class HostedRoom {
         }
     }
 
-    void close(boolean save) throws Exception {
-        call(()->{
+    boolean close(boolean save) throws Exception {
+        boolean saved=call(()->{
             if (save && (room.state()==LanRoom.State.IN_GAME || room.state()==LanRoom.State.PAUSED ||
-                    room.state()==LanRoom.State.PARTY_DEFEATED)) room.saveAndClose();
-            else room.close();
-            return null;
+                    room.state()==LanRoom.State.PARTY_DEFEATED)) {
+                room.saveAndClose(); return true;
+            }
+            room.close(); return false;
         });
-        owner.shutdown();
+        owner.shutdown(); return saved;
     }
 }

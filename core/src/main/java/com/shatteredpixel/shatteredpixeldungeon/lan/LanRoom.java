@@ -388,7 +388,7 @@ public final class LanRoom implements AutoCloseable {
         if (offered.size() >= 32) return;
         // Reveal categories needed by supported commands only. No true names of unidentified items.
         String kind;
-        if (item.getClass() == com.shatteredpixel.shatteredpixeldungeon.items.food.Food.class) kind = "FOOD";
+        if (CoopSession.basicFood(item)) kind = "FOOD";
         else if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon) kind = "WEAPON";
         else return;
         offered.put(++itemSequence,item);

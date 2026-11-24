@@ -14,6 +14,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
+import com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gloves;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
@@ -206,7 +207,7 @@ public final class CoopSession implements AutoCloseable {
         int spawn = -1;
         for (int offset : PathFinder.NEIGHBOURS8) {
             int cell = heroes[0].pos + offset;
-            if (safeFloor(cell) && Actor.findChar(cell) == null && level.heaps.get(cell) == null) {
+            if (safeFloor(cell,false) && Actor.findChar(cell) == null && level.heaps.get(cell) == null) {
                 spawn = cell;
                 break;
             }
@@ -302,13 +303,19 @@ public final class CoopSession implements AutoCloseable {
         return type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class;
     }
 
-    private boolean safeFloor(int cell) {
+    private boolean safeFloor(int cell,boolean moving) {
         Level level = Dungeon.level;
         if (!level.insideMap(cell) || !level.passable[cell] || level.pit[cell] || level.getTransition(cell) != null
                 || level.traps.get(cell) != null || level.plants.get(cell) != null) return false;
         int terrain = level.map[cell];
-        return terrain == Terrain.EMPTY || terrain == Terrain.EMPTY_SP || terrain == Terrain.GRASS
+        return (moving && (terrain == Terrain.DOOR || terrain == Terrain.OPEN_DOOR))
+                || terrain == Terrain.EMPTY || terrain == Terrain.EMPTY_SP || terrain == Terrain.GRASS
                 || terrain == Terrain.WATER || terrain == Terrain.EMBERS || terrain == Terrain.EMPTY_DECO;
+    }
+
+    /** These two classes share Food.execute without any special effect callbacks. */
+    public static boolean basicFood(Item item) {
+        return item!=null && (item.getClass()==Food.class || item.getClass()==SmallRation.class);
     }
 
     private boolean basicWeapon(Item item) {
@@ -335,7 +342,7 @@ public final class CoopSession implements AutoCloseable {
                     break;
                 case MOVE:
                     if (cell < 0 || cell >= level.length() || !level.adjacent(hero.pos, cell)
-                            || !safeFloor(cell) || Actor.findChar(cell) != null || hero.rooted) return false;
+                            || !safeFloor(cell,true) || Actor.findChar(cell) != null || hero.rooted) return false;
                     Heap destination = level.heaps.get(cell);
                     if (destination != null && destination.type != Heap.Type.HEAP) return false;
                     hero.checkVisibleMobs();
@@ -360,14 +367,14 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (item.getClass() != Food.class && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (!basicFood(item) && item.getClass() != Ankh.class && !basicWeapon(item))
                             || !hero.belongings.backpack.canHold(item)) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
                     hero.act();
                     break;
                 case EAT:
-                    if (item == null || item.getClass() != Food.class || !hero.belongings.backpack.contains(item)) return false;
+                    if (!basicFood(item) || !hero.belongings.backpack.contains(item)) return false;
                     item.execute(hero, Food.AC_EAT);
                     break;
                 case EQUIP:
@@ -386,7 +393,7 @@ public final class CoopSession implements AutoCloseable {
                     Heap floor = level.heaps.get(hero.pos);
                     if (cell != hero.pos || (floor != null && floor.type != Heap.Type.HEAP)
                             || level.pit[cell] || !level.passable[cell] || !hero.belongings.backpack.contains(item)
-                            || !(item.getClass() == Food.class || basicWeapon(item))) return false;
+                            || !(basicFood(item) || basicWeapon(item))) return false;
                     item.dropCoopUnit(hero);
                     break;
                 default:
