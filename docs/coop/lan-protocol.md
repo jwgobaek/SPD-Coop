@@ -39,3 +39,7 @@ UDP 검색은 `SPD1 DISCOVER` 한 데이터그램을 전송한다. 열려 있는
 Android Manifest의 INTERNET과 ACCESS_NETWORK_STATE, minSdk 21, targetSdk 36을 유지한다. 방 검색은 UDP 데이터그램을 사용하며 주변 Wi-Fi AP 목록이나 SSID를 조회하지 않는다. AP 격리나 핫스팟 정책에 따라 브로드캐스트 또는 기기 간 TCP 자체가 차단될 수 있다. Android 16 로컬 네트워크 보호 opt-in 및 이후 target SDK의 권한 요구를 실기기 단계에서 확인한다. iPadOS 채택 시 로컬 네트워크 권한 설명과 브로드캐스트 사용 조건은 플랫폼 실행부에서 처리한다. [Android 로컬 네트워크 권한](https://developer.android.com/privacy-and-security/local-network-permission)
 
 Phase 5는 v1 호환 또는 명시적 버전 거부를 유지하면서 호스트가 확정한 state version, 연결과 분리된 action ID, 결과 캐시를 추가한다. 행동 적용 후 응답을 잃은 경우와 엔진 중단 전 일부 효과가 발생한 경우를 별도 결과로 표현한다. 각 좌석의 관측 범위로 만든 초기 스냅샷과 증분 변경을 독립 JVM에서 대조한다. 저장과 재접속 식별 정보는 Phase 7 범위다.
+
+## Phase 5 호환 모드
+
+기존 v1 방과 ACT는 Phase 4 회귀 경로로 유지한다. 호스트가 생성 시 선택하는 SYNC1 방은 동일 TCP 프레이밍과 로비를 사용하며, 참가 전 MODE 협상과 별도의 DO·SYNC·PAGE를 요구한다. 두 모드의 행동 명령은 섞어 쓸 수 없다. [SYNC1 명세](state-sync.md)

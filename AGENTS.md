@@ -7,3 +7,5 @@ Java/libGDX 및 Wrapper를 유지한다. 변경 전 기준 테스트를 확보�
 요구사항은 GOALS.md, 실행 경계는 ARCHITECTURE.md, 미정 규칙은 DECISIONS.md를 따른다. 작업 종료 시 진행 상황·실제 명령과 결과·알려진 문제를 갱신한다. PASS/FAIL/NOT RUN을 구별한다. APK·서명 비밀은 Git에 넣지 않는다. 외부 공개 릴리스에는 명시적 승인이 필요하다.
 
 LAN 변경은 docs/coop/lan-protocol.md와 실제 프레임을 함께 갱신한다. 수신 스레드에서 Dungeon/CoopSession을 호출하지 않는다. 독립 JVM 시나리오의 좌석별 적용 횟수와 실제 호스트 상태를 함께 검증한다.
+
+SYNC1에서 새 상태를 공개할 때는 SeatProjection의 좌석별 필터, 원본 직접 시야, StateImage 정규화와 DisplayReplica의 원자적 적용을 함께 검증한다. 행동 결과 조회 전에 연결·좌석을 인증한다. 상세 형식은 docs/coop/state-sync.md에 있다.

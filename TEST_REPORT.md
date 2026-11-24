@@ -119,3 +119,48 @@ gh api 'repos/jwgobaek/SPD-Coop/actions/runs?branch=coop%2Fphase4'
 LanRoom.pump/dispatch/action/view/close가 좌석·로비·실제 엔진 실행을, LanTransport.run/service/pollDiscovery가 소켓·프레임·제한 큐를, LanClient.discover/request/exchange가 검색·직접 접속·응답을 담당한다. core/build.gradle에는 자식 JVM용 테스트 클래스패스를 설정했다. 테스트 파일은 LanIntegrationTest.java, LanScenarioClient.java, LanBoundaryTest.java다.
 
 [검증 ZIP](docs/coop/phase4-cloud-evidence.zip)에는 최종 빌드 로그, 모든 JUnit XML, APK 검사 결과·체크섬·소스 커밋이 있다. ZIP SHA-256은 01abca1a3ddf6d0e277f7532b6f721b97a0f1ff61816887a58cad7f260eab020이다. sha256sum -c와 unzip -tq가 통과했다. APK는 /workspace/deliverables/phase4-verified/android-debug.apk에 있다.
+
+## Phase 5 — 확정 행동과 좌석별 공개 상태
+
+시작 시 로컬 HEAD와 원격 coop/phase4가 모두 757a4a7c38ff641417b2f7e95c265a4531c0a095였고 작업 트리는 깨끗했다. 기존 25건을 먼저 실행한 뒤 SYNC1을 별도 브랜치에 구현했다. 최종 검증 대상은 18700148a3770cc050087d72c14e39a06e342281이다.
+
+### 검증 방법
+
+- SyncIntegrationTest.normalSynchronizedGameAcrossSocket은 실제 Headless 호스트 JVM과 별도 클라이언트 JVM에 두 TCP 좌석을 둔다. 양쪽이 직접 만든 DisplayReplica를 읽어 현재 활성 좌석에서 SeatActions.Pending을 제출한다. 호스트는 원본 턴·시간을 별도로 검사한다. 중간에 실제 Actor.fixTime을 실행하고 누적 시간과 이후 상태 버전의 연속성을 검사한다.
+- committedViewsAcrossThreeIndependentClientRuns는 세 번 새 실제 방과 자식 JVM을 만든다. 생성된 첫 층에 실제 일반 식량·근접 무기·쥐를 배치하고 게스트에게 가속을 부여한다. 여섯 행동을 실제 CoopSession.act로 처리한다. 바닥 식량이 기존 스택에 병합되고 합쳐진 ID가 사라지는지, 수량 2에서 1로 줄어드는지, 무기의 귀속·장착과 쥐 처치가 실제로 일어났는지 확인한다.
+- 같은 논리 행동의 영수증을 응용 계층에서 버리고 지연 후 동일 좌석의 같은 TCP 연결에서 새 request ID로 재조회한다. 이미 지난 턴의 캐시 결과, 내용 충돌, 다른 좌석의 조회, 타인 소유·퇴역한 아이템 ID, 이전 세션과 오래된 상태·턴, 캐시 64개를 지난 과거 ID를 검사한다. 기존 ACT로 동기화 방의 검사를 우회할 수도 없다.
+- 실제 TCP로 받은 변경분 두 개를 표시 모델에 순서 반대로 전달하고, 정상 순서 및 중복도 적용한다. 누락 후 새 스냅샷으로 복구하며 최신 좌석·턴에서 다음 명령이 승인되는지 확인한다. 실제 스냅샷 조각의 마지막 바이트를 클라이언트에서 손상시켜 독립적인 SHA 검증과 전체 재요청을 확인한다. 응답 유실·중복·순서 변경·손상은 TCP 수신 후의 응용 계층 오류 주입이다.
+- 오류 사례에서는 지원 범위 밖의 실제 Crab을 스케줄러에 등록한다. WAIT가 원본 행동 시간을 이미 소모한 뒤 다음 Actor 처리 중 오류가 발생한다. 호스트의 실제 시간을 확인하고 HALTED_UNCERTAIN을 재조회한다. 양쪽의 PAUSED와 ENGINE_ERROR, 행동자 한 명에게만 제공되는 영수증을 검사한다. 이 중단 시도를 정상 확정 횟수에 포함하지 않는다.
+- directSightPrivacyAndLossOnGeneratedFloor는 원본 Level에 차폐 벽·비밀 문·숨은 함정과 몹을 배치한 뒤 두 실제 Hero의 공개 상태를 비교한다. 자기 쪽의 HP 변경·표시 버프, 반대편 가방·바닥 아이템·캐릭터·지형의 비공개, 시야에서 나간 몹의 관측 상실, 가려진 후 사라진 몹의 사망 미통지, 전체 재동기화 시 정보 제한을 확인한다.
+- DisplayReplicaTest는 다중 조각·불완전한 조립·순서·토큰·개수 상한, 같은 버전의 손상된 상태 본문, 다른 좌석과 과대 상태, 닫힌 모델을 검사한다. 손상된 상태는 기존 이미지 객체를 교체하지 않는다. 기존 LanBoundaryTest와 v1의 프레임 크기 제한 검증도 함께 실행한다.
+
+### 재현 및 변경 파일
+
+```bash
+git ls-remote --heads coop master coop/phase4 coop/phase5
+git switch -c coop/phase5 757a4a7
+source /tmp/spd-env
+./gradlew --offline :core:cleanTest :core:test
+./gradlew --offline :core:test --tests '*SyncIntegrationTest' --tests '*DisplayReplicaTest'
+scripts/verify-android-build.sh /workspace/deliverables/phase5-verified
+```
+
+- LanRoom.synchronizedGame/dispatch/pump, LanClient.synchronizedGame/exchange 및 LanTransport.service가 협상과 제한된 프레임을 처리한다.
+- RoomSync.action/apply/commit/sync/part, SeatActions.prepare/Pending.submit이 확정·결과 조회와 전송의 경계다.
+- SeatProjection.capture/resolve, StateImage.encode/hash, DisplayReplica.refresh/apply/Assembly가 서버 공개 범위와 클라이언트 모델을 구현한다.
+- Level.updateDirectSight/updateFieldOfView가 기본 시야 계산을 공유한다. CoopSession.basicMob과 Mob.wasDefeatedBy는 검증된 몹 종류와 실제 직접 처치를 식별한다.
+- 신규 테스트·러너는 SyncIntegrationTest, SyncScenarioClient, ProjectionChecks, DisplayReplicaTest다.
+
+### 최종 실행 결과
+
+|상태|검증|실제 결과|
+|---|---|---|
+|PASS|기존 25건|싱글플레이 9, 협동 엔진 10, LAN 6 통과. 기존 v1 행동 310회 및 로비 참가·종료 50회를 다시 수행했다.|
+|PASS|신규 4건|정상 독립 JVM 시나리오, 장애 포함 3개 세션, 원본 시야·관측 상실·프라이버시, 조각·모델 무결성 검증이 통과했다. 전체 JUnit 29건에서 실패·오류·스킵 0.|
+|PASS|정상 SYNC1|320회 확정, 요청 975건. 거부·캐시 재응답·재동기화·응답 유실·엔진 중단 각 0건.|
+|PASS|장애 SYNC1|세션당 341회 확정, 요청 1,131건, 거부 55건, 캐시 재응답 26건, 전체 재동기화 2회, 응용 계층 응답 유실 1회, 부분 적용 후 엔진 중단 1회. 3개 JVM 시나리오에서 같은 집계 확인.|
+|PASS|SYNC1 합계|정상 확정 1,343회, 요청 4,368건, 거부 165건, 캐시 재응답 78건, 전체 재동기화 6회, 응용 계층 응답 유실 3회, 실행 중단 3회. 요청 수에는 조회·조각·로비도 포함한다. 충돌·만료는 거부, 기존 영수증 재반환은 캐시로 센다. 정상 행동 집계에서 중복·중단과 v1 회귀는 제외했다.|
+|PASS|APK|4.0.2-INDEV(922), org.spdcoop.dungeon.indev, 36,818,193 bytes, minSdk 21, targetSdk 36. apksigner v1/v2 성공. SHA-256 554e06c844c3a37315c3039c6d428c5bd3860a47516f424f89a5dcdc65e342c0.|
+|NOT RUN|외부 검증|coop/phase5 일반 푸시 후 GitHub Actions의 브랜치 실행 기록 0건. 실제 Android 설치·화면·터치·무선 LAN과 재접속은 미검증이다.|
+
+빌드 스크립트 종료 코드 0. APK 파일에 sha256sum -c, 증거 ZIP에 unzip -tq를 실행해 통과했다. [최종 빌드 로그·JUnit XML·패키지와 서명 검사·소스 커밋](docs/coop/phase5-cloud-evidence.zip). ZIP SHA-256은 a82bb060ac2581b227074313f059bf46432f2205705d79f92775f7ab067911e7이다. APK는 Cloud 작업 공간의 /workspace/deliverables/phase5-verified/android-debug.apk에 있다.

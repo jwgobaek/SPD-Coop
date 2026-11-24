@@ -59,3 +59,11 @@
 `LanRoom`을 연 스레드가 요청 큐를 비우고 로비와 CoopSession을 소유한다. `LanTransport`의 I/O 스레드는 UDP 검색과 nonblocking TCP 연결·프레이밍·유량 제한을 처리한다. 검증된 프레임을 제한된 큐에 전달하며 게임 객체를 참조하지 않는다. `LanClient`는 IP 직접 연결, 방 검색과 직렬 요청/응답을 제공한다. 로컬 호스트 좌석도 loopback과 방장 전용 자격값을 통해 같은 ACT 검증을 받는다. 게임 상태 공유와 시간 계산은 기존 CoopSession과 Actor가 담당한다.
 
 호스트는 요청 연결·세션·player·seat·actor·turn을 대조하고, 해당 턴에 공개한 아이템 핸들을 원본 Item으로 해석한 뒤 행동을 실행한다. 클라이언트는 자신의 위치·HP·행동권과 현재 볼 수 있는 인접 셀, 허용된 아이템 선택 항목만 요청해 읽는다. 정확한 와이어 형식, 상태 전이, 오류 코드, 시간·크기 제한은 [LAN 프로토콜](docs/coop/lan-protocol.md)에 있다.
+
+## Phase 5 확정 경계와 공개 상태
+
+LanRoom.synchronizedGame이 만든 방은 START에서 RoomSync를 엔진 소유 스레드에 연결한다. 인증된 DO마다 RoomSync.action은 좌석별 최고 ID와 결과 기록을 확인하고 원본 CoopSession.act를 최대 한 번 호출한다. 원본 스케줄러가 다음 입력 경계에 도달하면 두 좌석의 SeatProjection을 갱신한 뒤 새 버전을 공개한다. 예외에는 부분 적용 가능성을 남긴 종결 영수증을 저장하고 세션을 일시정지한다.
+
+Level.updateDirectSight는 원본 시야 계산의 차폐·거리 부분이다. 기존 updateFieldOfView는 이 계산 뒤 원본의 특수 감지와 탐험 처리를 계속한다. 협동 전송은 매 확정 경계에서 각 영웅의 현재 위치로 직접 시야를 새로 계산한다. 전송 대상에는 자기 캐릭터·공개 장비/수량·버프, 현재 볼 수 있는 지형과 몹만 들어간다. Mob.wasDefeatedBy와 전후 관측을 확인한 직접 처치는 관측 상실과 구분한다.
+
+StateImage는 좌석별 불변 공개 행과 정규화 해시를 갖는다. 호스트는 현재·직전 이미지를 비교해 변화한 행만 만든다. 클라이언트 DisplayReplica는 후보 상태의 해시를 직접 검증한다. SeatActions는 표시 모델을 교체해도 유지하는 논리 행동 번호와 재전송용 Pending을 관리한다. [프로토콜·공개 필드·자원 상한](docs/coop/state-sync.md)
