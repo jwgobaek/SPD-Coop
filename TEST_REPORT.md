@@ -18,3 +18,11 @@
 원본·개발판 패키지와 인증서 및 파일 체크섬은 docs/coop/upstream-apk.txt, docs/coop/fork-apk.txt에 있다. 빌드 시도별 전체 Gradle 출력은 docs/coop/logs/에 보존했다.
 
 주요 추가 실행 명령은 git clone --depth 1 --single-branch --branch v4.0.2, git switch -c coop/baseline, java -version, sdkmanager --sdk_root=… 'platforms;android-36' 'build-tools;36.0.0', gh api user, git status --short, git diff --check다. 실제 사용한 JDK/SDK 설정과 재현 명령은 BUILD.md를 따른다.
+
+## Phase 2 후속 실행 — 2026-11-24
+
+- PASS — gh api user, gh api repos/jwgobaek/SPD-Coop, git fetch --no-tags coop master 및 merge-base --is-ancestor. 사용자 jwgobaek, master 57a4e06.
+- FAIL — git push -u coop coop/baseline. HTTP 403 Permission denied. Actions 실행 목록은 조회 가능했고 0건이었다.
+- FAIL → PASS — :core:test 첫 실행에서 Game.version 미설정으로 DeviceCompat.isDebug 초기화 실패. 테스트 부트스트랩에 실제 버전을 설정했다.
+- PASS — 별도 v4.0.2 worktree에 테스트 의존성과 러너만 적용하여 ./gradlew --offline :core:test 실행. 지형 배열의 Arrays.hashCode가 -585159512였다. 개발 checkout에서 ./gradlew --offline :core:cleanTest :core:test :android:assembleDebug 실행. 다른 JVM에서 같은 값과 실제 저장·복원 지형 배열을 확인했다. JUnit XML 1건, 실패/오류/스킵 0. 원본 Java 런타임 클래스 변경 없음.
+- NOT RUN — GitHub Actions, 실기기, 전투·턴·보스·협동 회귀. 이번 테스트가 검증한 복원 대상은 첫 층의 지형이다.
