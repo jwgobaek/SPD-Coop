@@ -68,7 +68,14 @@ public abstract class Plant implements Bundlable {
 			}
 		}
 
-		if (Dungeon.level.heroFOV[pos] && Dungeon.hero.hasTalent(Talent.NATURES_AID)){
+		if (Dungeon.coop != null) {
+            for (int seat=0;seat<2;seat++) {
+                Hero observer=Dungeon.coop.hero(seat);
+                if (observer!=null && observer.isAlive() && observer.hasTalent(Talent.NATURES_AID)
+                        && Dungeon.coop.knowledge(observer).visible(pos))
+                    Barkskin.conditionallyAppend(observer,2,1+2*observer.pointsInTalent(Talent.NATURES_AID));
+            }
+        } else if (Dungeon.level.heroFOV[pos] && Dungeon.hero.hasTalent(Talent.NATURES_AID)){
 			// 3/5 turns based on talent points spent
 			Barkskin.conditionallyAppend(Dungeon.hero, 2, 1 + 2*(Dungeon.hero.pointsInTalent(Talent.NATURES_AID)));
 		}

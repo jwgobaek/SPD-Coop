@@ -46,7 +46,10 @@ final class RenderEncounter {
         ((ExecutorService)executor.get(room)).submit(()->{
             Hero hero=Dungeon.coop.hero(0);
             hero.HP=5;
-            Dungeon.level.drop(new com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing(),hero.pos);
+            com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing draught =
+                    new com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing();
+            draught.identify();
+            Dungeon.level.drop(draught,hero.pos);
         }).get(5,TimeUnit.SECONDS);
     }
 

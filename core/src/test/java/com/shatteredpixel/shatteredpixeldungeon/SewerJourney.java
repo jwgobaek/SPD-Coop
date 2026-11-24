@@ -23,6 +23,7 @@ public class SewerJourney extends HeadlessDungeon {
             try { run.travel(Long.parseLong(seed)); }
             catch(RuntimeException stopped) {
                 System.out.println("JOURNEY seed="+seed+" engineFailure="+stopped+" actions="+run.counts);
+                if (!(stopped instanceof CoopFloors.UnsupportedDestination)) stopped.printStackTrace(System.err);
             }
         }}
         finally {run.stopBackend();run.temporary.delete();}
@@ -56,7 +57,8 @@ public class SewerJourney extends HeadlessDungeon {
         String result="action budget"; int highest=1;
         HeroClass front=HeroClass.valueOf(System.getProperty("journey.front","WARRIOR"));
         try(CoopSession g=CoopSession.open(seed,1,front)) {
-            g.join(2,HeroClass.HUNTRESS);
+            HeroClass back=HeroClass.valueOf(System.getProperty("journey.back","HUNTRESS"));
+            g.join(2,back);
             Map<Integer,Integer> visits=new HashMap<>();
             com.watabou.utils.Random.pushGenerator(seed); // fixed combat stream, never redrawn
             for(int n=0;n<2500;n++) {
@@ -65,7 +67,8 @@ public class SewerJourney extends HeadlessDungeon {
                 if(s<0 || g.stopped() || (Dungeon.depth<5 && (g.life(0)==CoopSession.Life.DEAD || g.life(1)==CoopSession.Life.DEAD))) {result="casualty/halt "+g.life(0)+"/"+g.life(1)+" stops="+g.stopReason();break;}
                 Hero h=g.hero(s); Level l=Dungeon.level;
                 int visitsHere=visits.merge(Dungeon.depth*200000+s*100000+h.pos,1,Integer::sum);
-                if(Dungeon.depth==5 && l.map[l.exit()]==Terrain.UNLOCKED_EXIT) {
+                if(Dungeon.depth==5 && l.map[l.exit()]==Terrain.UNLOCKED_EXIT &&
+                        (g.hero(0).belongings.getItem(GooBlob.class)!=null || g.hero(1).belongings.getItem(GooBlob.class)!=null)) {
                     result=g.hero(0).isAlive() && g.hero(1).isAlive() ? "both alive, exit unlocked" : "exit unlocked with a fallen seat"; break;
                 }
                 if(g.life(1-s)==CoopSession.Life.DOWNED) {
@@ -93,18 +96,32 @@ public class SewerJourney extends HeadlessDungeon {
                     Goo goo=(Goo)m;
                     int range=l.distance(h.pos,goo.pos);
                     boolean ooze=h.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Ooze.class)!=null;
-                    if(range<=1 || (s==0 && range<=3) || (range<=2 && goo.chargeStage()>0) || (l.water[goo.pos] && range<=2)
+                    if((range<=1 && goo.chargeStage()!=1 && h.HP<h.HT/2) || (range<=2 && goo.chargeStage()==2) || (l.water[goo.pos] && range<=2)
                             || (ooze && !l.water[h.pos] && range<=2)) {
                         int away=retreat(h,g.hero(1-s),goo,ooze);
                         if(away>=0 && act(g,CoopSession.Action.MOVE,away,null)) {acted=true;break;}
                     }
                 }
                 if(acted) continue;
+                Hero partnerHero=g.hero(1-s);
+                if(Dungeon.depth<5 && !enemies.isEmpty() && h.HP<h.HT/2 && partnerHero.isAlive()
+                        && l.adjacent(h.pos,enemies.get(0).pos)) {
+                    int best=-1,bestScore=0;
+                    for(int shift:PathFinder.NEIGHBOURS8) {
+                        int candidate=h.pos+shift;
+                        if(!l.passable[candidate] || Actor.findChar(candidate)!=null || l.pit[candidate]
+                                || l.getTransition(candidate)!=null || l.traps.get(candidate)!=null || l.plants.get(candidate)!=null) continue;
+                        int nearest=Integer.MAX_VALUE;
+                        for(Mob enemy:enemies) nearest=Math.min(nearest,l.distance(candidate,enemy.pos));
+                        int score=nearest*8-l.distance(candidate,partnerHero.pos);
+                        if(nearest>1 && score>bestScore){ best=candidate; bestScore=score; }
+                    }
+                    if(best>=0 && act(g,CoopSession.Action.MOVE,best,null)) continue;
+                }
                 for(Mob m:enemies) {
                     if(h.heroClass==HeroClass.MAGE && act(g,CoopSession.Action.ZAP,m.pos,h.belongings.weapon())) {acted=true;break;}
-                    if(s==0 && l.adjacent(h.pos,m.pos) && act(g,CoopSession.Action.ATTACK,m.pos,null)) {acted=true;break;}
-                    Item weapon=s==0 ? h.belongings.weapon() : h.belongings.getItem(SpiritBow.class);
-                    if(s==1 && act(g,CoopSession.Action.SHOOT,m.pos,weapon)) {acted=true;break;}
+                    if(h.heroClass==HeroClass.HUNTRESS && act(g,CoopSession.Action.SHOOT,m.pos,h.belongings.getItem(SpiritBow.class))) {acted=true;break;}
+                    if(l.adjacent(h.pos,m.pos) && act(g,CoopSession.Action.ATTACK,m.pos,null)) {acted=true;break;}
                 }
                 if(acted) continue;
                 if(Dungeon.depth==5 && s==0 && !enemies.isEmpty() && enemies.get(0) instanceof Goo
@@ -127,8 +144,13 @@ public class SewerJourney extends HeadlessDungeon {
                 if(hunger!=null && hunger.isStarving()) {
                     Food meal=h.belongings.getItem(Food.class);
                     if(meal!=null && act(g,CoopSession.Action.EAT,0,meal)) continue;
-                } else if(h.HP<h.HT-2 && enemies.isEmpty() && act(g,CoopSession.Action.WAIT,0,null)) continue;
+                } else if(h.HP<h.HT/2 && enemies.isEmpty() && act(g,CoopSession.Action.WAIT,0,null)) continue;
                 int goal=l.exit();
+                if(partnerHero.isAlive() && Dungeon.depth<5 && enemies.isEmpty() && l.distance(h.pos,partnerHero.pos)>4
+                        && !partnerHero.getVisibleEnemies().isEmpty()) {
+                    int escort=CoopFloorsTest.nextStep(g,partnerHero.pos,true,true);
+                    if(escort>=0 && act(g,CoopSession.Action.MOVE,escort,null)) continue;
+                }
                 int supply=-1;
                 for(Heap pile:l.heaps.valueList()) {
                     if(pile.hidden || pile.type!=Heap.Type.HEAP || !g.knowledge(h).visible(pile.pos)
@@ -144,6 +166,12 @@ public class SewerJourney extends HeadlessDungeon {
                 }
                 if(Dungeon.depth==5) {
                     for(Mob m:l.mobs) if(m instanceof Goo) goal=m.pos;
+                    Heap loot=null;
+                    for(Heap pile:l.heaps.valueList()) {
+                        if(pile.peek() instanceof GooBlob && (loot==null || l.distance(h.pos,pile.pos)<l.distance(h.pos,loot.pos))) loot=pile;
+                    }
+                    if(loot!=null && g.hero(0).belongings.getItem(GooBlob.class)==null && g.hero(1).belongings.getItem(GooBlob.class)==null)
+                        goal=loot.pos;
                     for(Heap pile:l.heaps.valueList()) if(pile.peek() instanceof WornKey) goal=pile.pos;
                     if(l.adjacent(h.pos,l.exit()) && act(g,CoopSession.Action.UNLOCK,l.exit(),null)) continue;
                     if(l.adjacent(h.pos,goal) && l.heaps.get(goal)!=null && act(g,CoopSession.Action.MOVE,goal,null)) continue;
@@ -168,7 +196,12 @@ public class SewerJourney extends HeadlessDungeon {
             }
             int bossHP=-1;
             for(Mob m:Dungeon.level.mobs) if(m instanceof Goo) bossHP=m.HP;
-            System.out.println("JOURNEY bossHP="+bossHP+" hp="+g.hero(0).HP+"/"+g.hero(1).HP+" front="+front+" seed="+seed+" highest="+highest+" result="+result+" actions="+counts);
+            int blobs=0;
+            for(int seat=0;seat<2;seat++) {
+                GooBlob loot=g.hero(seat).belongings.getItem(GooBlob.class);
+                if(loot!=null) blobs+=loot.quantity();
+            }
+            System.out.println("JOURNEY claimedBlobs="+blobs+" bossHP="+bossHP+" hp="+g.hero(0).HP+"/"+g.hero(1).HP+" front="+front+" back="+back+" seed="+seed+" highest="+highest+" result="+result+" actions="+counts);
         }
     }
 }

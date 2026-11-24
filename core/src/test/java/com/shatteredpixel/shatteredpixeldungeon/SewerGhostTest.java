@@ -70,10 +70,15 @@ public class SewerGhostTest extends HeadlessDungeon {
             try(CoopSession g=CoopSession.restore(started)) {
                 Mob rat=bossType.cast(Actor.findById(ratId));
                 assertEquals(nativeHP,rat.HP);
+                if (depth>2) {
+                    // Isolate quest completion from party defeat while other original floor residents remain active.
+                    for (int i=0;i<2;i++) g.hero(i).HP=g.hero(i).HT=150;
+                }
                 // Isolated fight with normal starting staff and rat HP; no changes to monster AI or drops.
                 int shots=0;
                 for(int n=0;n<45 && rat.isAlive();n++) {
                     int acting=g.activeSeat();
+                    assertTrue("Quest encounter stopped: "+g.stopReason(),acting>=0);
                     Hero hero=g.hero(acting);
                     meet(g,acting,rat);
                     Item staff=hero.belongings.weapon();

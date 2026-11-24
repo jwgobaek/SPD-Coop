@@ -63,13 +63,34 @@ public final class RestartClient {
         assertEquals(seat,active());
     }
 
-    private String disclosedWorld(int s) {
+    private String disclosedWorld(int seat) {
+        return disclosedWorld(seat, false);
+    }
+
+    private String disclosedWorld(int s, boolean schemaOneClient) {
         List<String> publicRows=new ArrayList<>();
         for(Map.Entry<String,String> e:state(s).rows.entrySet()) {
             String key=e.getKey();
             if (key.matches("t[0-9]+|r[0-9]+|m[0-9]+|z[0-9]+|b[0-9]+|self|ally|life|allylife|revivable|clock|turn"))
                 publicRows.add(key+"="+e.getValue());
-            if (key.matches("i[0-9]+")) publicRows.add("item="+e.getValue());
+            if (key.matches("i[0-9]+")) {
+                String row=e.getValue();
+                if (schemaOneClient) {
+                    // The old client displayed these same physical items with fewer action buttons.
+                    String[] parts=row.split(",");
+                    switch (parts[1]) {
+                        case "BOW": case "ARMOR": case "HEALING": case "HONEYPOT": case "SHELL":
+                            parts[1]="OTHER";
+                            break;
+                        case "STAFF":
+                            parts[1]="MELEE";
+                            break;
+                        default: break;
+                    }
+                    row=String.join(",",Arrays.copyOf(parts,5));
+                }
+                publicRows.add("item="+row);
+            }
         }
         Collections.sort(publicRows);
         return StateImage.hash(publicRows.toString());
@@ -373,7 +394,7 @@ public final class RestartClient {
         }
         if (mode.equals("migrate")) {
             assertEquals(RestartHost.read(path,"frozenclock"),state(0).rows.get("clock"));
-            for(int i=0;i<2;i++) assertEquals(RestartHost.read(path,"public"+i),disclosedWorld(i));
+            for(int i=0;i<2;i++) assertEquals(RestartHost.read(path,"public"+i),disclosedWorld(i,true));
             assertEquals("DOWNED",state(1).rows.get("life"));
             assertTrue(item(1,"BAG","ANKH")>0);
             assertTrue(clients[0].request("LOOKUP "+epoch+" "+RestartHost.read(path,"legacy-id")).endsWith(" APPLIED"));

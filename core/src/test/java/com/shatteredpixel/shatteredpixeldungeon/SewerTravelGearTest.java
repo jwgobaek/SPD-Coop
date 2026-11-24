@@ -112,6 +112,56 @@ public class SewerTravelGearTest extends HeadlessDungeon {
         }
     }
 
+    @Test public void sewerPlantsGrantTheirNativeBuffToTheOccupant() {
+        for(int seat=0;seat<2;seat++) for(boolean star:new boolean[]{false,true}) {
+            Bundle image;
+            Class<? extends com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff> effect=star ?
+                    com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless.class :
+                    com.shatteredpixel.shatteredpixeldungeon.plants.Earthroot.Armor.class;
+            try(CoopSession game=CoopSession.open(402,1,HeroClass.MAGE)) {
+                game.join(2,HeroClass.MAGE);
+                SewerBeeTest.offer(game,seat);
+                int cell=SewerHazardsTest.approach(game,seat,true);
+                Dungeon.level.plant(star ? new com.shatteredpixel.shatteredpixeldungeon.plants.Starflower.Seed() :
+                        new com.shatteredpixel.shatteredpixeldungeon.plants.Earthroot.Seed(),cell);
+                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.MOVE,cell,null));
+                assertNotNull(game.hero(seat).buff(effect));
+                assertNull(game.hero(1-seat).buff(effect));
+                image=game.checkpoint();
+            }
+            try(CoopSession game=CoopSession.restore(image)) {
+                assertNotNull(game.hero(seat).buff(effect));
+                SewerSpecialActorTest.waitOne(game);
+            }
+        }
+    }
+
+    @Test public void fadeleafTeleportsOnlyTheOccupantAndStaysWitheredAfterRestore() {
+        for(int seat=0;seat<2;seat++) {
+            Bundle image;
+            int cell, destination;
+            try(CoopSession game=CoopSession.open(402,1,HeroClass.MAGE)) {
+                game.join(2,HeroClass.MAGE);
+                SewerBeeTest.offer(game,seat);
+                cell=SewerHazardsTest.approach(game,seat,true);
+                int other=game.hero(1-seat).pos;
+                Dungeon.level.plant(new com.shatteredpixel.shatteredpixeldungeon.plants.Fadeleaf.Seed(),cell);
+                assertNotNull(Dungeon.level.plants.get(cell));
+                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.MOVE,cell,null));
+                destination=game.hero(seat).pos;
+                assertNotEquals(cell,destination);
+                assertEquals(other,game.hero(1-seat).pos);
+                assertNull(Dungeon.level.plants.get(cell));
+                image=game.checkpoint();
+            }
+            try(CoopSession game=CoopSession.restore(image)) {
+                assertNull(Dungeon.level.plants.get(cell));
+                assertEquals(destination,game.hero(seat).pos);
+                SewerSpecialActorTest.waitOne(game);
+            }
+        }
+    }
+
     @Test public void nativeRockfallGrippingAndPersistentGateway() {
         for(int seat=0;seat<2;seat++) for(Trap trap:new Trap[]{new GatewayTrap(),new GrippingTrap(),new RockfallTrap()}) {
             Bundle save;

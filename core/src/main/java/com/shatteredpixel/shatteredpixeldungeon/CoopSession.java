@@ -418,14 +418,17 @@ public final class CoopSession implements AutoCloseable {
     /** Landing effects shared by voluntary and forced movement on supported sewer floors. */
     public static boolean supportedLanding(int cell) {
         Level level = Dungeon.level;
-        if (!level.insideMap(cell) || level.pit[cell] || level.map[cell] == Terrain.WELL || level.plants.get(cell) != null) return false;
+        if (!level.insideMap(cell) || level.pit[cell] || level.map[cell] == Terrain.WELL ||
+                (level.plants.get(cell) != null && !(level.plants.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.plants.Fadeleaf)
+                    && !(level.plants.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.plants.Starflower)
+                    && !(level.plants.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.plants.Earthroot))) return false;
         Trap trap = level.traps.get(cell);
         return trap == null || !trap.active || trap.supportedInCoop();
     }
 
     private boolean safeFloor(int cell,boolean moving) {
         Level level = Dungeon.level;
-        if (!supportedLanding(cell) || level.getTransition(cell) != null) return false;
+        if (!supportedLanding(cell) || level.getTransition(cell) != null || (!moving && level.plants.get(cell)!=null)) return false;
         if (level.traps.get(cell) != null)
             return moving && (level.map[cell] == Terrain.TRAP || level.map[cell] == Terrain.SECRET_TRAP || level.map[cell] == Terrain.INACTIVE_TRAP);
         if (!level.passable[cell]) return false;
@@ -511,6 +514,7 @@ public final class CoopSession implements AutoCloseable {
                     boolean teleport = (level.traps.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.levels.traps.TeleportationTrap
                             || level.traps.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.levels.traps.GatewayTrap)
                             && level.traps.get(cell).active;
+                    teleport |= level.plants.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.plants.Fadeleaf;
                     hero.handle(cell);
                     if (hero.curAction instanceof HeroAction.PickUp) hero.curAction = new HeroAction.Move(cell);
                     if (!(hero.curAction instanceof HeroAction.Move)) throw new IllegalStateException("Unexpected move action");
