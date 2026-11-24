@@ -129,6 +129,11 @@ public class PointerEvent {
 		lastHoverPos.set(pos);
 	}
 	
+    /** Widgets can defer layout replacement until the current gesture is dispatched. */
+    public static synchronized boolean hasActivePress() {
+        return !activePointers.isEmpty();
+    }
+
 	public static synchronized void addPointerEvent( PointerEvent event ){
 		pointerEvents.add( event );
 	}

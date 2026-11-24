@@ -44,7 +44,9 @@ public class CoopScene extends PixelScene {
         CoopController.Frame next=controller.frame();
         if(shown!=next) {
             // A newly registered map PointerArea would otherwise take touches intended for an open Window.
-            for(Gizmo child:new java.util.ArrayList<>(members)) {
+            if(shown!=null && shown.page==next.page && com.watabou.input.PointerEvent.hasActivePress()) return;
+            for(int i=members.size()-1;i>=0;i--) {
+                Gizmo child=members.get(i);
                 if(child instanceof Window) {
                     if(shown!=null && shown.page==next.page) return;
                     ((Window)child).hide();
