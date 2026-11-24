@@ -195,8 +195,9 @@ final class RoomSync {
         if (usesItem ? item==null : handle!=0) return "REJECT_ITEM";
         if ((action==CoopSession.Action.MOVE || action==CoopSession.Action.ATTACK)
                 && !seats[seat].view.current.rows.containsKey("t"+cell)) return "REJECT_INVALID";
-        Char target=action==CoopSession.Action.ATTACK ? Actor.findChar(cell) : null;
-        if (action==CoopSession.Action.ATTACK && (target==null || !seats[seat].view.current.rows.containsKey("m"+target.id())))
+        boolean targeted=action==CoopSession.Action.ATTACK || action==CoopSession.Action.ZAP;
+        Char target=targeted ? Actor.findChar(cell) : null;
+        if (targeted && (target==null || !seats[seat].view.current.rows.containsKey("m"+target.id())))
             return "REJECT_INVALID";
         try {
             if (!game.act(game.player(seat),turn,action,cell,item)) return "REJECT_INVALID";
@@ -209,7 +210,8 @@ final class RoomSync {
                 return "APPLIED_STOPPED";
             }
             Mob defeated=target instanceof Mob && ((Mob)target).wasDefeatedBy(game.hero(seat)) ? (Mob)target : null;
-            commit(defeated,seat,id+","+verb+",APPLIED","IN_GAME");
+            String detail=action==CoopSession.Action.ZAP ? verb+","+cell : verb;
+            commit(defeated,seat,id+","+detail+",APPLIED","IN_GAME");
             return "APPLIED";
         } catch (RuntimeException failure) {
             pause("ENGINE_ERROR",failure.toString(),seat,id+","+verb+",HALTED_UNCERTAIN");

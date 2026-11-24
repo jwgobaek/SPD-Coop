@@ -41,7 +41,7 @@ public final class RestartHost {
                 Runtime.getRuntime().halt(78);
         });
         InetAddress loop=InetAddress.getLoopbackAddress();
-        try(LanRoom room=mode.equals("new") ? LanRoom.persistentGame(loop,0,0,402,saves)
+        try(LanRoom room=(mode.equals("new") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,402,saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup"))) {
             Rat rat=null;
             if (mode.equals("revive") || mode.equals("soak")) {
@@ -69,6 +69,11 @@ public final class RestartHost {
                 room.pump();
                 if (room.failure()!=null && !(mode.equals("failure") && room.failure().equals("CHECKPOINT_FAILED")))
                     throw new IllegalStateException(room.failure());
+                if (mode.startsWith("cast") && !started && room.state()==LanRoom.State.IN_GAME) {
+                    started=true;
+                    int seat=Integer.parseInt(mode.substring(4));
+                    com.shatteredpixel.shatteredpixeldungeon.CoopMageTest.encounter(Dungeon.coop,seat);
+                }
                 if (mode.equals("new") && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;
                     CoopSession g=Dungeon.coop;

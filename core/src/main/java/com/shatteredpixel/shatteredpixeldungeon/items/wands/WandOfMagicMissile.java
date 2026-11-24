@@ -24,6 +24,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.wands;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
@@ -54,20 +55,38 @@ public class WandOfMagicMissile extends DamageWand {
 	
 	@Override
 	public void onZap(Ballistica bolt) {
+		onZap(curUser, bolt);
+	}
+
+	public Hero chargingHero() {
+		return charger != null && charger.target instanceof Hero ? (Hero)charger.target : null;
+	}
+
+	public boolean cast(Hero caster, Ballistica bolt) {
+		if (caster != chargingHero() || !tryToZap(caster, bolt.collisionPos)) return false;
+		caster.busy();
+		applyBackupBarrier(caster);
+		onZap(caster, bolt);
+		wandUsed(caster);
+		cursedKnown = true;
+		return true;
+	}
+
+	private void onZap(Hero caster, Ballistica bolt) {
 				
 		Char ch = Actor.findChar( bolt.collisionPos );
 		if (ch != null) {
 
-			wandProc(ch, chargesPerCast());
-			ch.damage(damageRoll(), this);
+			wandProc(caster, ch, buffedLvl(), chargesPerCast());
+			ch.damage(damageRoll(caster, buffedLvl()), this);
 			Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, Random.Float(0.87f, 1.15f) );
 
-			ch.sprite.burst(0xFFFFFFFF, buffedLvl() / 2 + 2);
+			if (Dungeon.coop == null) ch.sprite.burst(0xFFFFFFFF, buffedLvl() / 2 + 2);
 
 			//apply the magic charge buff if we have another wand in inventory of a lower level, or already have the buff
-			for (Wand.Charger wandCharger : curUser.buffs(Wand.Charger.class)){
-				if (wandCharger.wand().buffedLvl() < buffedLvl() || curUser.buff(MagicCharge.class) != null){
-					Buff.prolong(curUser, MagicCharge.class, MagicCharge.DURATION).setup(this);
+			for (Wand.Charger wandCharger : caster.buffs(Wand.Charger.class)){
+				if (wandCharger.wand().buffedLvl() < buffedLvl() || caster.buff(MagicCharge.class) != null){
+					Buff.prolong(caster, MagicCharge.class, MagicCharge.DURATION).setup(this);
 					break;
 				}
 			}

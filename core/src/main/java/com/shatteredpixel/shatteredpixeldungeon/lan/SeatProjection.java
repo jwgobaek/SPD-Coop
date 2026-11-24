@@ -1,5 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.lan;
 
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.*;
@@ -131,8 +133,13 @@ final class SeatProjection {
         }
         visible.put(id,item);
         String kind = CoopSession.basicFood(item) ? "FOOD" : item instanceof Ankh ? "ANKH" : item instanceof MeleeWeapon ? "MELEE" : "OTHER";
+        String charges="";
+        if (!slot.startsWith("F") && item instanceof MagesStaff) {
+            WandOfMagicMissile wand=((MagesStaff)item).starterWand();
+            if (wand!=null) { kind="STAFF"; charges=","+wand.curCharges+","+wand.maxCharges; }
+        }
         rows.put("i"+id,slot+","+kind+","+item.image()+","+item.quantity()+","+
-                (item.levelKnown ? item.visiblyUpgraded() : "NA"));
+                (item.levelKnown ? item.visiblyUpgraded() : "NA")+charges);
     }
 
     private static String slot(Belongings b, Item item) {

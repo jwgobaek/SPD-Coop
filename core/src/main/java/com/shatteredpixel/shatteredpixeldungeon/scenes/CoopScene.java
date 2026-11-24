@@ -21,6 +21,19 @@ public class CoopScene extends PixelScene {
     private float left,top,width,bottom,center;
     private boolean exiting;
     private long effectsVersion;
+    private PublicDungeon targetView;
+    private PublicDungeon.Loot targetStaff;
+
+    public void aim(PublicDungeon view, PublicDungeon.Loot staff) {
+        if (controller.frame().image!=view.source || !view.actions(staff).contains("ZAP")) return;
+        targetView=view; targetStaff=staff; renderFrame();
+    }
+    private void cancelAim() { targetView=null; targetStaff=null; renderFrame(); }
+    private void touchCell(PublicDungeon view,int cell) {
+        if (targetView==null) { view.tap(controller,cell); return; }
+        if (targetView==view && view.monsters.containsKey(cell)
+                && controller.act(view.source,"ZAP",cell,targetStaff.id)) cancelAim();
+    }
     static String msg(String key,Object... args) { return Messages.get(CoopScene.class,key,args); }
 
     @Override public void create() {
@@ -58,6 +71,7 @@ public class CoopScene extends PixelScene {
     public static void stopSession() { if(active!=null) active.shutdown(); }
     @Override public void onPause() { if(controller!=null) controller.shutdown(); }
     @Override protected void onBackPressed() {
+        if(targetView!=null) { cancelAim(); return; }
         if(shown.page==CoopController.Page.MENU) { exiting=true; controller.shutdown(); }
         else if(shown.page==CoopController.Page.GAME || shown.page==CoopController.Page.LOBBY) gameMenu();
         else controller.menu();
@@ -68,6 +82,7 @@ public class CoopScene extends PixelScene {
         CoopController.Frame f=controller.frame();
         if(shown==null || shown.page!=f.page) first=0;
         shown=f;
+        if (f.dungeon!=targetView || f.pending!=0) { targetView=null; targetStaff=null; }
         com.watabou.utils.RectF inset=getCommonInsets();
         width=Math.min(212,Camera.main.width-inset.left-inset.right-8);
         center=(Camera.main.width+inset.left-inset.right)/2f;
@@ -112,8 +127,9 @@ public class CoopScene extends PixelScene {
                     String name=member.length==3 ? (member[1].equals("null")?msg("select"):HeroClass.valueOf(member[1]).title()) : msg("waiting");
                     label(msg(i==0?"hostseat":"guestseat")+"  "+name+(member.length==3 && member[2].equals("1")?" / "+msg("ready"):""),7,0xCCCCCC);
                 }
-                float half=(width-2)/2;
-                hero(HeroClass.WARRIOR,left,half); hero(HeroClass.HUNTRESS,left+half+2,half); top+=20;
+                float third=(width-4)/3;
+                hero(HeroClass.WARRIOR,left,third); hero(HeroClass.MAGE,left+third+2,third);
+                hero(HeroClass.HUNTRESS,left+2*third+4,third); top+=20;
                 boolean ready=roster.length>2+f.seat && f.seat>=0 && roster[2+f.seat].endsWith(":1");
                 button(msg(ready?"unready":"ready"),()->controller.ready(!ready));
                 if(f.seat==0) button(msg("start"),()->controller.start()).enable(roster.length>1 && roster[1].equals("READY"));
@@ -214,6 +230,7 @@ public class CoopScene extends PixelScene {
         switch(effect) {
             case "PICK_UP": sound=com.shatteredpixel.shatteredpixeldungeon.Assets.Sounds.ITEM;break;
             case "EAT": sound=com.shatteredpixel.shatteredpixeldungeon.Assets.Sounds.EAT;break;
+            case "ZAP": sound=com.shatteredpixel.shatteredpixeldungeon.Assets.Sounds.ZAP;break;
             case "HURT": sound=com.shatteredpixel.shatteredpixeldungeon.Assets.Sounds.HIT;break;
             case "KILL": sound=com.shatteredpixel.shatteredpixeldungeon.Assets.Sounds.DEATH;break;
             case "REVIVE": case "REVIVED": sound=com.shatteredpixel.shatteredpixeldungeon.Assets.Sounds.TELEPORT;break;
@@ -225,14 +242,18 @@ public class CoopScene extends PixelScene {
                 status(f.image.rows.get("life")) : msg(v.offered?"yourturn":"theirturn");
         if(v.ally>=0 && "DOWNED".equals(f.image.rows.get("allylife"))) line+=" / "+msg("reviveally");
         if(f.lastResult.startsWith("REJECT") || f.lastResult.equals("UNKNOWN")) line+=" · "+status(f.lastResult);
-        label(line,7,v.offered?0xB4DA80:0xCBC6BA);
+        label(targetView!=null ? msg("aim") : line,7,v.offered?0xB4DA80:0xCBC6BA);
         float bx=left;
         for(int buff:v.buffs) {
             BuffIcon icon=new BuffIcon(buff,false);icon.x=bx;icon.y=top;panel.add(icon);
             bx+=9;if(bx>left+width-7) break;
         }
         if(!v.buffs.isEmpty()) top+=9;
-        panel.add(new CoopBoard(v,controller,0,top,Camera.main.width,bottom-top-19,effect));
+        panel.add(new CoopBoard(v,this::touchCell,0,top,Camera.main.width,bottom-top-19,effect));
+        if (targetView!=null) {
+            make(msg("cancel"),this::cancelAim).setRect(left,bottom-17,width,17);
+            return;
+        }
         float part=(width-4)/3;
         StyledButton wait=make(msg("wait"),()->controller.act(f.image,"WAIT",0,0));
         wait.setRect(left,bottom-17,part,17); wait.enable(v.offered && f.pending==0);

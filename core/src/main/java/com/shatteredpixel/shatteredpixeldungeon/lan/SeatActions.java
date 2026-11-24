@@ -31,7 +31,7 @@ public final class SeatActions {
     public Pending prepare(StateImage image,String action,int cell,long item) {
         if (!session.equals(image.session) || seat!=image.seat || !"IN_GAME".equals(image.rows.get("status"))
                 || !Integer.toString(seat).equals(image.rows.get("active"))) throw new IllegalStateException("No input offer");
-        if (!action.matches("WAIT|MOVE|ATTACK|PICK_UP|EQUIP|EAT|DROP|UNEQUIP|REVIVE")) throw new IllegalArgumentException("Action");
+        if (!action.matches("WAIT|MOVE|ATTACK|PICK_UP|EQUIP|EAT|DROP|UNEQUIP|REVIVE|ZAP")) throw new IllegalArgumentException("Action");
         long id=allocate();
         String actor=image.rows.get("self").split(",",2)[0];
         String epoch=image.rows.get("epoch");

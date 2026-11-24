@@ -39,3 +39,5 @@ CoopController는 사용자 명령 하나만 진행시키고, 160 ms 간격의 �
 |회귀|CoopControllerTest, CoopPlayInputTest, CoopPlayClient, CoopContentPathTest, Desktop의 CoopRenderSmoke 및 RenderEncounter|
 
 세부 파일 경로는 검증 ZIP의 changed-files.txt에 있다. 함정·특수 문·보스 연출은 입력 동작과 수신자별 효과 규약을 함께 확장해야 한다. [지원표](CONTENT-COMPATIBILITY.md)
+
+마법 지팡이의 조준은 해당 좌석의 불변 PublicDungeon과 아이템 핸들에 묶인다. 취소와 화면 버전 변경은 입력을 폐기한다. CoopBoard는 자기 좌석에 확정되어 연속 버전으로 전달된 발사 이벤트에서만 공개 표적을 향해 원본 MagicMissile 이펙트를 재생한다.

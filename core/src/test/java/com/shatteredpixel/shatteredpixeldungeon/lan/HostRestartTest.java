@@ -18,9 +18,16 @@ public class HostRestartTest {
     }
 
     @Test(timeout=220000) public void resumeDownedReviveLoseReplyRecoverAndContinueOnDiskOnly() throws Exception {
-        Path dir=temp.getRoot().toPath();
-        for(String mode:new String[]{"new","revive","soak","after","failure","verifyfailure","kill_WRITING","kill_VERIFYING",
-                "kill_BEFORE_HEAD","kill_AFTER_HEAD","recover_last","backup"}) {
+        run(temp.getRoot().toPath(), new String[]{"new","revive","soak","after","failure","verifyfailure","kill_WRITING","kill_VERIFYING",
+                "kill_BEFORE_HEAD","kill_AFTER_HEAD","recover_last","backup"});
+    }
+
+    @Test(timeout=100000) public void confirmedMissileSurvivesLostReplyAndHostDeathOnBothSeats() throws Exception {
+        for(int seat=0;seat<2;seat++) run(temp.newFolder().toPath(),new String[]{"cast"+seat,"readcast"+seat});
+    }
+
+    private void run(Path dir,String[] modes) throws Exception {
+        for(String mode:modes) {
             Files.deleteIfExists(dir.resolve("fault-armed"));
             Files.deleteIfExists(dir.resolve("endpoint")); Files.deleteIfExists(dir.resolve("stop"));
             Files.deleteIfExists(dir.resolve("kill-before-reply")); Files.deleteIfExists(dir.resolve("fail-write"));
@@ -44,7 +51,7 @@ public class HostRestartTest {
                 System.out.println(trace.substring(trace.lastIndexOf("mode=")).trim());
                 RestartHost.write(dir,"stop","1");
                 assertTrue(host.waitFor(10,TimeUnit.SECONDS));
-                assertEquals(RestartHost.read(dir,"RestartHost.log"),mode.startsWith("kill_")?80:mode.equals("revive")?78:mode.equals("soak")?79:0,host.exitValue());
+                assertEquals(RestartHost.read(dir,"RestartHost.log"),mode.startsWith("kill_")?80:(mode.equals("revive") || mode.startsWith("cast"))?78:mode.equals("soak")?79:0,host.exitValue());
             } finally {
                 if(client!=null) { client.destroyForcibly(); client.waitFor(5,TimeUnit.SECONDS); }
                 host.destroyForcibly(); host.waitFor(5,TimeUnit.SECONDS);

@@ -13,6 +13,11 @@ PREFIXES = ("items/", "actors/mobs/", "actors/buffs/", "actors/blobs/", "actors/
             "actors/hero/spells/", "levels/", "plants/", "mechanics/")
 ENUMS = {"HeroClass", "HeroSubClass", "Talent"}
 VERIFIED = {
+    "actors/hero/HeroClass.MAGE": "starting staff, two seats, disk restart / CoopMageTest, HostRestartTest",
+    "items/weapon/melee/MagesStaff": "starting equipment, equip, unequip, charge, cast and restore / CoopMageTest",
+    "items/wands/WandOfMagicMissile": "non-cursed starting staff missile against a visible basic enemy / CoopMageTest, HostRestartTest",
+    "items/wands/Wand.Charger": "staff charge recovery, owner, actor ID and partial charge restore / CoopMageTest",
+    "actors/buffs/WandEmpower": "damage and charge effects belong to the caster / CoopMageTest",
     "actors/mobs/Rat": "adjacent attack, lethal hit and revival setup / CoopPlayInputTest",
     "items/food/Food": "pickup, split, drop, eat with two seats / CoopPlayInputTest, RuleIntegrationTest",
     "items/food/SmallRation": "two seats, hunger, quantity, ownership, restore and real TCP reconnect / CoopContentPathTest, CoopPlayInputTest",

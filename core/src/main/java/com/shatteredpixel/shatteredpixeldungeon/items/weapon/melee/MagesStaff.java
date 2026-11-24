@@ -37,6 +37,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.MagicalHolster;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorrosion;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorruption;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration;
@@ -171,8 +172,8 @@ public class MagesStaff extends MeleeWeapon {
 		}
 
 		Talent.EmpoweredStrikeTracker empoweredStrike = attacker.buff(Talent.EmpoweredStrikeTracker.class);
-		if (empoweredStrike != null){
-			damage = Math.round( damage * (1f + Dungeon.hero.pointsInTalent(Talent.EMPOWERED_STRIKE)/6f));
+		if (empoweredStrike != null && attacker instanceof Hero){
+			damage = Math.round( damage * (1f + ((Hero)attacker).pointsInTalent(Talent.EMPOWERED_STRIKE)/6f));
 		}
 
 		if (wand != null &&
@@ -293,6 +294,11 @@ public class MagesStaff extends MeleeWeapon {
 		if (wand != null){
 			wand.charge(owner, STAFF_SCALE_FACTOR);
 		}
+	}
+
+	public WandOfMagicMissile starterWand() {
+		return wand != null && wand.getClass() == WandOfMagicMissile.class
+				&& !cursed && enchantment == null && !wand.cursed ? (WandOfMagicMissile)wand : null;
 	}
 
 	public Class<?extends Wand> wandClass(){

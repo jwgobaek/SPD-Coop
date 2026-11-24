@@ -107,7 +107,7 @@ public final class RestartClient {
     }
 
     private void run(String mode) throws Exception {
-        if (mode.equals("new")) {
+        if (mode.equals("new") || mode.startsWith("cast")) {
             for(int i=0;i<2;i++) {
                 assertTrue(clients[i].request(i==0 ? RestartHost.read(path,"endpoint").split("\n")[1] : "JOIN").startsWith("JOINED"));
                 keys[i]=SeatCredential.generate();
@@ -115,11 +115,32 @@ public final class RestartClient {
                 epoch=UUID.fromString(keys[i].enroll(clients[i]).split(" ")[1]);
                 actions[i]=new SeatActions(session,i,i+1);
                 models[i]=new DisplayReplica(session,i);
-                clients[i].request("SELECT "+(i==0?"WARRIOR":"HUNTRESS")); clients[i].request("READY 1");
+                String character=mode.startsWith("cast") && i==Integer.parseInt(mode.substring(4)) ? "MAGE" : i==0?"WARRIOR":"HUNTRESS";
+                assertEquals("OK",clients[i].request("SELECT "+character)); clients[i].request("READY 1");
             }
             assertEquals("GAME_STARTED",clients[0].request("START"));
             RestartHost.write(path,"epoch",epoch.toString());
             refresh(); act("WAIT",0,0);
+            if(mode.startsWith("cast")) {
+                int seat=Integer.parseInt(mode.substring(4));
+                offer(seat);
+                PublicDungeon view=new PublicDungeon(state(seat));
+                long staff=item(seat,"WEAPON","STAFF");
+                assertTrue(staff>0);
+                assertEquals(0,item(1-seat,"WEAPON","STAFF"));
+                int cell=view.pos+3;
+                assertEquals("Rat",view.monsters.get(cell));
+                int charge=view.belongings.stream().filter(i->i.id==staff).findFirst().get().charges;
+                verifyAfterReconnect(act("ZAP",cell,staff),seat);
+                assertEquals(charge-1,charges(seat));
+                offer(seat);
+                long newStaff=item(seat,"WEAPON","STAFF");
+                SeatActions.Pending p=actions[seat].prepare(state(seat),"ZAP",cell,newStaff);
+                RestartHost.write(path,"cast-record",p.id+" "+cell+" "+(charge-2)+" "+monsterHP(seat,cell)+" "+p.command);
+                RestartHost.write(path,"kill-before-reply","1");
+                assertThrows(IOException.class,()->p.submit(clients[seat]));
+                return;
+            }
             exploreGuest();
             offer(0);
             SeatActions.Pending p=act("PICK_UP",pos(0),item(0,"F"+pos(0),"FOOD"));
@@ -154,6 +175,25 @@ public final class RestartClient {
         }
         for(int i=0;i<2;i++) bind(i);
         barrier();
+        if (mode.startsWith("readcast")) {
+            int seat=Integer.parseInt(mode.substring(8));
+            String[] saved=RestartHost.read(path,"cast-record").split(" ",5);
+            int cell=Integer.parseInt(saved[1]);
+            int charges=Integer.parseInt(saved[2]);
+            int oldHP=Integer.parseInt(saved[3]),hp=monsterHP(seat,cell);
+            assertTrue(oldHP-hp>=2 && oldHP-hp<=8);
+            assertEquals(charges,charges(seat));
+            String receipt=clients[seat].request("LOOKUP "+epoch+" "+saved[0]);
+            assertTrue(receipt,receipt.endsWith(" APPLIED"));
+            assertEquals(receipt,clients[seat].request(saved[4]));
+            refresh();
+            assertEquals(hp,monsterHP(seat,cell));
+            assertEquals(charges,charges(seat));
+            offer(seat);
+            act("ZAP",cell,item(seat,"WEAPON","STAFF"));
+            assertEquals(charges-1,charges(seat));
+            return;
+        }
         if (mode.startsWith("kill_") || mode.equals("recover_last")) {
             if(Files.exists(path.resolve("interrupted"))) {
                 String[] last=RestartHost.read(path,"interrupted").split(" ");
@@ -214,6 +254,17 @@ public final class RestartClient {
             } else assertEquals("ERROR EPOCH",clients[0].request("LOOKUP "+RestartHost.read(path,"epoch")+" "+last[1]));
             act("WAIT",0,0);
         }
+    }
+
+    private int charges(int seat) {
+        return new PublicDungeon(state(seat)).belongings.stream().filter(i->i.kind.equals("STAFF")).findFirst().get().charges;
+    }
+
+    private int monsterHP(int seat,int cell) {
+        for(Map.Entry<String,String> e:state(seat).rows.entrySet())
+            if(e.getKey().matches("m[0-9]+") && e.getValue().startsWith(cell+",Rat,"))
+                return Integer.parseInt(e.getValue().split(",")[2]);
+        throw new AssertionError("Missing visible target");
     }
 
     private void verifyAfterReconnect(SeatActions.Pending pending,int seat) throws Exception {

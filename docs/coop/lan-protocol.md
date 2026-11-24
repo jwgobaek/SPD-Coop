@@ -55,3 +55,7 @@ SYNC1의 DROP·UNEQUIP·REVIVE, 좌석별 기억 지형과 파티 전멸은 [상
 ## Phase 8 UI
 
 앱 UI의 로컬 호스트 좌석과 게스트 좌석은 모두 기존 MODE SYNC1 및 ENROLL을 사용한다. 로비 STATE와 게임 SYNC는 UI 작업자에서 주기적으로 조회한다. LAN 기본 포트는 UDP 47820과 TCP 47821이다.
+
+### SYNC2 starter staff
+
+The TCP envelope is still v1. MODE SYNC2 negotiates mage support before joining. A SYNC1 seat can play in a warrior/huntress room. A mage roster requires both seats to negotiate SYNC2, including resumed connections. The logical action is ZAP with the selected enemy cell and the seat's current equipped staff handle. Aiming and cancelling are local. The host checks the original Ballistica path, direct observation, caster, charge, and target before consuming time. Owned STAFF rows append current charges and capacity. A successful caster-only receipt row contains action ID, ZAP, target cell, APPLIED. LOOKUP returns the ordinary durable outcome. Refresh and replay do not spend another charge.

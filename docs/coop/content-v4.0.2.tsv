@@ -130,13 +130,13 @@ actors/buffs/TimeStasis	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatter
 actors/buffs/ToxicImbue	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/ToxicImbue.java
 actors/buffs/Vertigo	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Vertigo.java
 actors/buffs/Vulnerable	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Vulnerable.java
-actors/buffs/WandEmpower	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/WandEmpower.java
+actors/buffs/WandEmpower	actors/buffs	VERIFIED	damage and charge effects belong to the caster / CoopMageTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/WandEmpower.java
 actors/buffs/Weakness	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Weakness.java
 actors/buffs/WellFed	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/WellFed.java
 actors/hero/HeroClass.CLERIC	HeroClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
 actors/hero/HeroClass.DUELIST	HeroClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
 actors/hero/HeroClass.HUNTRESS	HeroClass	VERIFIED	first-floor basic actions / CoopControllerTest, CoopPlayInputTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
-actors/hero/HeroClass.MAGE	HeroClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
+actors/hero/HeroClass.MAGE	HeroClass	VERIFIED	starting staff, two seats, disk restart / CoopMageTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
 actors/hero/HeroClass.ROGUE	HeroClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
 actors/hero/HeroClass.WARRIOR	HeroClass	VERIFIED	first-floor basic actions / CoopControllerTest, CoopPlayInputTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
 actors/hero/HeroSubClass.ASSASSIN	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
@@ -1045,7 +1045,7 @@ items/wands/CursedWand.SummonSheep	items/wands	UNSUPPORTED		core/src/main/java/c
 items/wands/CursedWand.SuperNova	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/CursedWand.java
 items/wands/DamageWand	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/DamageWand.java
 items/wands/Wand	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/Wand.java
-items/wands/Wand.Charger	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/Wand.java
+items/wands/Wand.Charger	items/wands	VERIFIED	staff charge recovery, owner, actor ID and partial charge restore / CoopMageTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/Wand.java
 items/wands/Wand.PlaceHolder	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/Wand.java
 items/wands/WandOfBlastWave	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfBlastWave.java
 items/wands/WandOfBlastWave.BWaveOnHitTracker	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfBlastWave.java
@@ -1061,7 +1061,7 @@ items/wands/WandOfLivingEarth	items/wands	UNSUPPORTED		core/src/main/java/com/sh
 items/wands/WandOfLivingEarth.EarthGuardian	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLivingEarth.java
 items/wands/WandOfLivingEarth.RockArmor	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLivingEarth.java
 items/wands/WandOfLivingEarth.Wandering	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLivingEarth.java
-items/wands/WandOfMagicMissile	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfMagicMissile.java
+items/wands/WandOfMagicMissile	items/wands	VERIFIED	non-cursed starting staff missile against a visible basic enemy / CoopMageTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfMagicMissile.java
 items/wands/WandOfMagicMissile.MagicCharge	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfMagicMissile.java
 items/wands/WandOfPrismaticLight	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfPrismaticLight.java
 items/wands/WandOfRegrowth	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfRegrowth.java
@@ -1133,7 +1133,7 @@ items/weapon/melee/HandAxe	items/weapon/melee	UNSUPPORTED		core/src/main/java/co
 items/weapon/melee/Katana	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Katana.java
 items/weapon/melee/Longsword	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Longsword.java
 items/weapon/melee/Mace	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Mace.java
-items/weapon/melee/MagesStaff	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/MagesStaff.java
+items/weapon/melee/MagesStaff	items/weapon/melee	VERIFIED	starting equipment, equip, unequip, charge, cast and restore / CoopMageTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/MagesStaff.java
 items/weapon/melee/MagesStaff.StaffParticle	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/MagesStaff.java
 items/weapon/melee/MeleeWeapon	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/MeleeWeapon.java
 items/weapon/melee/MeleeWeapon.Charger	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/MeleeWeapon.java

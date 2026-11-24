@@ -46,6 +46,11 @@ public class ThirteenLeafClover extends Trinket {
 		}
 	}
 
+	public static float alterHeroDamageChance(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero owner){
+		ThirteenLeafClover clover = owner == null || owner.belongings == null ? null : owner.belongings.getItem(ThirteenLeafClover.class);
+		return alterHeroDamageChance(clover == null ? -1 : clover.buffedLvl());
+	}
+
 	public static float alterHeroDamageChance(){
 		return alterHeroDamageChance(trinketLevel(ThirteenLeafClover.class));
 	}

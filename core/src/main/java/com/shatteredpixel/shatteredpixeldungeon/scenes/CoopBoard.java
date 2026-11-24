@@ -15,7 +15,8 @@ final class CoopBoard extends Group {
     private static final int TILE=16;
     private final int columns,rows,ox,oy;
     private final float left,top;
-    CoopBoard(PublicDungeon view,CoopController controller,float x,float y,float w,float h,String effect) {
+    interface Input { void tap(PublicDungeon view,int cell); }
+    CoopBoard(PublicDungeon view,Input input,float x,float y,float w,float h,String effect) {
         columns=Math.max(1,((int)w/TILE-1)/2*2+1);
         rows=Math.max(1,((int)h/TILE-1)/2*2+1);
         left=Math.round(x+(w-columns*TILE)/2); top=Math.round(y+(h-rows*TILE)/2);
@@ -56,13 +57,28 @@ final class CoopBoard extends Group {
         // A downed observer has no direct sight but always knows their own position.
         place(hero(view.heroClass,view.source.rows.get("selftier"),view.source.rows.get("life"),effect),
                 left+columns/2*TILE,top+rows/2*TILE);
+        if ("ZAP".equals(effect)) {
+            String[] receipt=view.source.rows.get("receipt").split(",");
+            if (receipt.length==4) {
+                int to=Integer.parseInt(receipt[2]);
+                if (view.visible(to)) {
+                    com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile bolt=new com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile();
+                    add(bolt);
+                    bolt.reset(com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile.MAGIC_MISSILE,
+                        center(view,view.pos),center(view,to),null);
+                }
+            }
+        }
         add(new PointerArea(left,top,columns*TILE,rows*TILE){
             protected void onClick(PointerEvent e) {
                 PointF p=camera().screenToCamera((int)e.current.x,(int)e.current.y);
                 int cx=ox+(int)Math.floor((p.x-left)/TILE),cy=oy+(int)Math.floor((p.y-top)/TILE);
-                if(cx>=0 && cx<view.width && cy>=0) view.tap(controller,cx+cy*view.width);
+                if(cx>=0 && cx<view.width && cy>=0) input.tap(view,cx+cy*view.width);
             }
         });
+    }
+    private PointF center(PublicDungeon view,int cell) {
+        return new PointF(left+(cell%view.width-ox+0.5f)*TILE,top+(cell/view.width-oy+0.5f)*TILE);
     }
     private static int tile(int t) {
         Integer idx=DungeonTileSheet.directFlatVisuals.get(t);
@@ -84,7 +100,7 @@ final class CoopBoard extends Group {
         else {
             MovieClip.Animation move=null;
             if(action.equals("MOVE")) move=new MovieClip.Animation(20,false).frames(film,2,3,4,5,6,7);
-            if(action.equals("ATTACK")) move=new MovieClip.Animation(15,false).frames(film,13,14,15,0);
+            if(action.equals("ZAP") || action.equals("ATTACK")) move=new MovieClip.Animation(15,false).frames(film,13,14,15,0);
             if(action.equals("PICK_UP") || action.equals("REVIVE") || action.equals("EAT"))
                 move=new MovieClip.Animation(8,false).frames(film,16,17,16,17);
             sprite.play(move==null?idle:move);

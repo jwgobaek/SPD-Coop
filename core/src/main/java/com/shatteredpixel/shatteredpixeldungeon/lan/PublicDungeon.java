@@ -15,11 +15,13 @@ public final class PublicDungeon {
     public static final class Loot {
         public final long id;
         public final String slot,kind,upgrade;
-        public final int sprite,quantity;
+        public final int sprite,quantity,charges,capacity;
         Loot(String key,String value) {
             String[] f=value.split(",");
             id=Long.parseLong(key.substring(1)); slot=f[0]; kind=f[1];
             sprite=number(f[2],0,1023); quantity=number(f[3],1,Integer.MAX_VALUE); upgrade=f[4];
+            charges=kind.equals("STAFF") ? number(f[5],0,10) : 0;
+            capacity=kind.equals("STAFF") ? number(f[6],charges,10) : 0;
         }
     }
     public PublicDungeon(StateImage source) {
@@ -60,7 +62,7 @@ public final class PublicDungeon {
         belongings=Collections.unmodifiableList(bag); buffs=Collections.unmodifiableList(effects);
     }
     private static String profession(String s) {
-        if(!s.equals("WARRIOR") && !s.equals("HUNTRESS")) throw new IllegalArgumentException("Class");
+        if(!s.equals("WARRIOR") && !s.equals("HUNTRESS") && !s.equals("MAGE")) throw new IllegalArgumentException("Class");
         return s;
     }
     private static int number(String s,int low,int high) {
@@ -71,15 +73,17 @@ public final class PublicDungeon {
     public List<String> actions(Loot item) {
         List<String> verbs=new ArrayList<>();
         if(!offered || !belongings.contains(item)) return verbs;
+        boolean weapon=item.kind.equals("MELEE") || item.kind.equals("STAFF");
+        if(item.slot.equals("WEAPON") && item.charges>0) verbs.add("ZAP");
         if(item.slot.equals("BAG")) {
             if(item.kind.equals("FOOD")) verbs.add("EAT");
-            if(item.kind.equals("MELEE")) verbs.add("EQUIP");
-            if(item.kind.equals("FOOD") || item.kind.equals("MELEE")) verbs.add("DROP");
-        } else if(item.slot.equals("WEAPON") && item.kind.equals("MELEE")) verbs.add("UNEQUIP");
+            if(weapon) verbs.add("EQUIP");
+            if(item.kind.equals("FOOD") || weapon) verbs.add("DROP");
+        } else if(item.slot.equals("WEAPON") && weapon) verbs.add("UNEQUIP");
         return verbs;
     }
     public boolean use(CoopController c,Loot item,String verb) {
-        return actions(item).contains(verb) && c.act(source,verb,verb.equals("DROP")?pos:0,item.id);
+        return !verb.equals("ZAP") && actions(item).contains(verb) && c.act(source,verb,verb.equals("DROP")?pos:0,item.id);
     }
     public int terrain(int cell) {
         String t=source.rows.get("t"+cell);

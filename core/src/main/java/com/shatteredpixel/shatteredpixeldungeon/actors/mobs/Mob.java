@@ -1034,7 +1034,11 @@ public abstract class Mob extends Char {
 	
 	@Override
 	public void die( Object cause ) {
-		if (Dungeon.coop != null) rewardOwner = cause instanceof Hero ? (Hero)cause : null;
+		if (Dungeon.coop != null) {
+			rewardOwner = cause instanceof Hero ? (Hero)cause : null;
+			if (cause instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)
+				rewardOwner = ((com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)cause).chargingHero();
+		}
 
 		if (cause == Chasm.class){
 			//50% chance to round up, 50% to round down

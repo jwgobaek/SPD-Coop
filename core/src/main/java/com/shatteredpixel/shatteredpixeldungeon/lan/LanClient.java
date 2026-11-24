@@ -48,7 +48,7 @@ public final class LanClient implements Closeable {
     public static LanClient synchronizedGame(InetSocketAddress address) throws IOException {
         LanClient client = new LanClient(address);
         try {
-            if (!"MODE SYNC1".equals(client.request("MODE SYNC1"))) throw new IOException("SYNC1 unavailable");
+            if (!"MODE SYNC2".equals(client.request("MODE SYNC2"))) throw new IOException("VERSION");
             return client;
         } catch (IOException failure) {
             client.close();

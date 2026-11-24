@@ -20,7 +20,7 @@ final class LanTransport implements Closeable {
         long lastRequest, challengeDeadline;
         String nonce;
         int challengeSeat;
-        boolean greeted, syncMode;
+        boolean greeted, syncMode, extended;
         long lastFrame = System.nanoTime(), rateStart = lastFrame, lastWrite = lastFrame;
         int count;
         Peer(SocketChannel channel) {

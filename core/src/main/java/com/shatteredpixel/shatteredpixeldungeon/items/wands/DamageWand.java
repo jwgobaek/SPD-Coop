@@ -49,8 +49,12 @@ public abstract class DamageWand extends Wand{
 	}
 
 	public int damageRoll(int lvl){
-		int dmg = Hero.heroDamageIntRange(min(lvl), max(lvl));
-		WandEmpower emp = Dungeon.hero.buff(WandEmpower.class);
+		return damageRoll(Dungeon.hero, lvl);
+	}
+
+	protected int damageRoll(Hero caster, int lvl) {
+		int dmg = Hero.heroDamageIntRange(caster, min(lvl), max(lvl));
+		WandEmpower emp = caster.buff(WandEmpower.class);
 		if (emp != null){
 			dmg += emp.dmgBoost;
 			emp.left--;

@@ -27,6 +27,9 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.FileUtils;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
+import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
@@ -36,9 +39,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE;
+    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP;
         public boolean requiresItem() {
-            return this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP;
+            return this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP;
         }
     }
 
@@ -194,8 +197,8 @@ public final class CoopSession implements AutoCloseable {
 
     private static void validatePlayer(long player, HeroClass type) {
         if (player <= 0) throw new IllegalArgumentException("Player ID must be positive");
-        if (type != HeroClass.WARRIOR && type != HeroClass.HUNTRESS) {
-            throw new UnsupportedOperationException("Supported classes are warrior and huntress");
+        if (type != HeroClass.WARRIOR && type != HeroClass.HUNTRESS && type != HeroClass.MAGE) {
+            throw new UnsupportedOperationException("Unsupported co-op hero class");
         }
     }
 
@@ -319,7 +322,7 @@ public final class CoopSession implements AutoCloseable {
     }
 
     private boolean basicWeapon(Item item) {
-        return (item != null && (item.getClass() == Gloves.class || item.getClass() == WornShortsword.class
+        return (item != null && ((item instanceof MagesStaff && ((MagesStaff)item).starterWand()!=null) || item.getClass() == Gloves.class || item.getClass() == WornShortsword.class
                 || item.getClass() == Shortsword.class || item.getClass() == Dagger.class))
                 && ((MeleeWeapon)item).enchantment == null && !item.cursed;
     }
@@ -363,6 +366,19 @@ public final class CoopSession implements AutoCloseable {
                     lastOpponent[activeSeat] = (Mob)enemy;
                     attackTurn[activeSeat] = turn;
                     hero.act();
+                    break;
+                case ZAP:
+                    if (!(item instanceof MagesStaff) || hero.belongings.weapon()!=item
+                            || cell<0 || cell>=level.length() || !level.insideMap(cell) || !knowledge(activeSeat).visible(cell)) return false;
+                    WandOfMagicMissile wand=((MagesStaff)item).starterWand();
+                    Char victim=Actor.findChar(cell);
+                    if (wand==null || !(victim instanceof Mob) || !basicMob(victim) || !victim.isAlive()
+                            || victim.alignment!=Char.Alignment.ENEMY || victim.invisible>0 || hero.isCharmedBy(victim)
+                            || level.distance(hero.pos,cell)>hero.viewDistance) return false;
+                    Ballistica bolt=new Ballistica(hero.pos,cell,wand.collisionProperties(cell));
+                    if (bolt.collisionPos!=cell || !wand.cast(hero,bolt)) return false;
+                    lastOpponent[activeSeat]=(Mob)victim;
+                    attackTurn[activeSeat]=turn;
                     break;
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
@@ -529,6 +545,10 @@ public final class CoopSession implements AutoCloseable {
             knowledge(i).load(b.getBundle("sight"+i));
             h.viewDistance=b.getInt("range"+i);
             h.fieldOfView=i==0 ? level.heroFOV : new boolean[level.length()];
+        }
+        // Original bag restoration in co-op preserves object identity and skips collect().
+        for (Hero hero : heroes) for (Item item : hero.belongings.backpack) {
+            if (item instanceof MagesStaff) ((MagesStaff)item).applyWandChargeBuff(hero);
         }
         if (heroes[0].pos==heroes[1].pos) throw new IllegalArgumentException("Overlapping heroes");
         Actor.add(heroes[1]);

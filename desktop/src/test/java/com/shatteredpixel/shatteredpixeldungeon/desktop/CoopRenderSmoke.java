@@ -24,9 +24,11 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
+    private static boolean mage;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
+        mage=args.length>1 && args[1].equals("mage");
         shots=new File(args[0]); if(!shots.isDirectory() && !shots.mkdirs()) throw new AssertionError();
         // Test classes share the launcher's package but do not carry release-manifest attributes.
         java.util.jar.Manifest manifest=new java.util.jar.Manifest(DesktopLauncher.class.getResourceAsStream("/META-INF/MANIFEST.MF"));
@@ -80,6 +82,7 @@ public final class CoopRenderSmoke {
     }
     private static String label(String key) {
         if(key.equals("warriorClass")) return HeroClass.WARRIOR.title();
+        if(key.equals("mageClass")) return HeroClass.MAGE.title();
         return Messages.get(CoopScene.class,key);
     }
     private static Point button(String name) throws Exception {
@@ -130,6 +133,23 @@ public final class CoopRenderSmoke {
             return c==null?null:c.frame();
         });
     }
+    private static PublicDungeon.Loot staff(PublicDungeon view) {
+        return view.belongings.stream().filter(i->i.kind.equals("STAFF") && i.slot.equals("WEAPON")).findFirst().get();
+    }
+    private static void aimStaff() throws Exception {
+        click("bag");
+        await(()->render(()->find(Game.scene(),g->g instanceof WndCoopBag)!=null));
+        PublicDungeon view=frame().dungeon;
+        java.util.ArrayList<PublicDungeon.Loot> sorted=new java.util.ArrayList<>(view.belongings);
+        sorted.sort((a,b)->Boolean.compare(a.slot.equals("BAG"),b.slot.equals("BAG")));
+        int slot=sorted.indexOf(staff(view));
+        press(render(()->{
+            WndCoopBag wnd=(WndCoopBag)find(Game.scene(),g->g instanceof WndCoopBag);
+            return wnd.camera().cameraToScreen(13+24*(slot%5),28+22*(slot/5));
+        }));
+        click("zap");
+        await(()->button("cancel")!=null);
+    }
     private static void exercise() throws Exception {
         await(()->Gdx.app!=null && render(()->Game.scene()!=null));
         render(()->{ShatteredPixelDungeon.switchNoFade(TitleScene.class);return null;});
@@ -146,7 +166,8 @@ public final class CoopRenderSmoke {
         });
         click("title"); await(()->button("host")!=null);
         shot("multiplayer"); click("host"); await(()->button("warriorClass")!=null);
-        shot("lobby"); click("warriorClass");
+        shot("lobby"); click(mage?"mageClass":"warriorClass");
+        if(mage) shot("mage-selected");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
         Process child=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-cp",System.getProperty("java.class.path"),
                 CoopRenderSmoke.class.getName(),"guest",root.toString()).inheritIO().start();
@@ -187,7 +208,19 @@ public final class CoopRenderSmoke {
             shot("encounter-revive"); PublicDungeon rescue=frame().dungeon; press(mapPoint(rescue,rescue.ally));
             await(()->"ALIVE".equals(frame().image.rows.get("allylife")) && frame().lastResult.equals("APPLIED"));
             await(()->frame().dungeon.offered); PublicDungeon combat=frame().dungeon;
-            press(mapPoint(combat,combat.pos-1)); await(()->frame().lastAction>=6 && frame().lastResult.equals("APPLIED"));
+            if(mage) {
+                int charges=staff(combat).charges;
+                long version=combat.source.version;
+                aimStaff(); shot("staff-target"); click("cancel");
+                if(frame().image.version!=version || staff(frame().dungeon).charges!=charges)
+                    throw new AssertionError("Cancelling the target consumed a turn or charge");
+                aimStaff();
+                press(mapPoint(combat,combat.pos-1));
+                await(()->staff(frame().dungeon).charges==charges-1 && frame().lastResult.equals("APPLIED"));
+                shot("magic-attack-result");
+            } else {
+                press(mapPoint(combat,combat.pos-1)); await(()->frame().lastAction>=6 && frame().lastResult.equals("APPLIED"));
+            }
             click("menu"); click("diagnostics"); await(()->button("export")!=null); shot("diagnostics"); click("back");
             click("menu"); click("saveexit"); await(()->button("saves")!=null);
             click("saves"); await(()->frame().list.size()==1); shot("saves"); click("back");

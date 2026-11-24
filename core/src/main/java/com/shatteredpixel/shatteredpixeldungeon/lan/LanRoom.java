@@ -206,11 +206,12 @@ public final class LanRoom implements AutoCloseable {
         if (verb.equals("PING") && f.length == 4) return "PONG";
         int seat = -1;
         for (int i=0; i<seats.length; i++) if (seats[i] != null && seats[i].peer == peer) seat = i;
-        if (verb.equals("MODE") && f.length == 5 && f[4].equals("SYNC1")) {
+        if (verb.equals("MODE") && f.length == 5 && (f[4].equals("SYNC1") || f[4].equals("SYNC2"))) {
             if (seat >= 0) return "ERROR LOCKED";
             if (!synchronizedRoom) return "ERROR MODE";
             peer.syncMode = true;
-            return "MODE SYNC1";
+            peer.extended=f[4].equals("SYNC2");
+            return "MODE "+f[4];
         }
         if (verb.equals("JOIN") || verb.equals("HOST")) {
             if (locked) return "ERROR LOCKED";
@@ -220,6 +221,7 @@ public final class LanRoom implements AutoCloseable {
             if (!host && f.length != 4) return "ERROR FORMAT";
             seat = host ? 0 : 1;
             if (seats[seat] != null) return "ERROR FULL";
+            if (!peer.extended && mageRoster()) return "ERROR VERSION";
             if (peer.syncMode != synchronizedRoom) return "ERROR MODE";
             seats[seat] = new Seat(peer, ++playerSequence);
             lobby();
@@ -284,7 +286,8 @@ public final class LanRoom implements AutoCloseable {
         if (verb.equals("ACT")) return action(seat,f);
         if (locked) return "ERROR LOCKED";
         if (verb.equals("SELECT") && f.length == 5) {
-            if (!f[4].equals("WARRIOR") && !f[4].equals("HUNTRESS")) return "ERROR CLASS";
+            if (!f[4].equals("WARRIOR") && !f[4].equals("HUNTRESS") && !(peer.extended && f[4].equals("MAGE"))) return "ERROR CLASS";
+            if (f[4].equals("MAGE") && seats[1-seat]!=null && !seats[1-seat].peer.extended) return "ERROR VERSION";
             self.type = HeroClass.valueOf(f[4]);
             self.ready = false;
         } else if (verb.equals("READY") && f.length == 5) {
@@ -310,8 +313,13 @@ public final class LanRoom implements AutoCloseable {
         return "OK";
     }
 
+    private boolean mageRoster() {
+        for (Seat seat : seats) if (seat!=null && seat.type==HeroClass.MAGE) return true;
+        return false;
+    }
     private String authenticate(LanTransport.Peer peer,int attached,String[] f) {
         if (persistenceFailed || sync==null || sync.paused) return "ERROR PAUSED";
+        if (!peer.extended && mageRoster()) return "ERROR VERSION";
         if (attached>=0) return "ERROR DUPLICATE";
         if (f[3].equals("CHALLENGE")) {
             peer.nonce=null;
@@ -405,7 +413,7 @@ public final class LanRoom implements AutoCloseable {
         CoopSession.Action action;
         try { action = CoopSession.Action.valueOf(f[8]); } catch (IllegalArgumentException e) { return "ERROR ACTION"; }
         if (action == CoopSession.Action.REVIVE || action == CoopSession.Action.DROP
-                || action == CoopSession.Action.UNEQUIP) return "ERROR MODE";
+                || action == CoopSession.Action.UNEQUIP || action == CoopSession.Action.ZAP) return "ERROR MODE";
         int cell = Integer.parseInt(f[9]);
         long handle = Long.parseLong(f[10]);
         boolean needsItem = action.requiresItem();

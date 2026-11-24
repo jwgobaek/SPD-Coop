@@ -129,7 +129,7 @@ abstract public class KindOfWeapon extends EquipableItem {
 			hero.belongings.weapon = this;
 			activate( hero );
 			Talent.onItemEquipped(hero, this);
-			Badges.validateDuelistUnlock();
+			if (Dungeon.coop == null) Badges.validateDuelistUnlock();
 			updateQuickslot();
 
 			cursedKnown = true;
@@ -176,7 +176,7 @@ abstract public class KindOfWeapon extends EquipableItem {
 			hero.belongings.secondWep = this;
 			activate( hero );
 			Talent.onItemEquipped(hero, this);
-			Badges.validateDuelistUnlock();
+			if (Dungeon.coop == null) Badges.validateDuelistUnlock();
 			updateQuickslot();
 
 			cursedKnown = true;

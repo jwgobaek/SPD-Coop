@@ -170,7 +170,7 @@ public final class CoopController {
         actions=new SeatActions(id,ticket.seat,ticket.player);
         show(Page.LOBBY); poll();
     }
-    public void select(String type) { if(type.equals("WARRIOR") || type.equals("HUNTRESS")) lobby("SELECT "+type); }
+    public void select(String type) { if(type.equals("WARRIOR") || type.equals("HUNTRESS") || type.equals("MAGE")) lobby("SELECT "+type); }
     public void ready(boolean value) { lobby("READY "+(value?"1":"0")); }
     public void start() { lobby("START"); }
     private void lobby(String command) { enqueue(()->{
@@ -258,7 +258,7 @@ public final class CoopController {
                     "IN_GAME".equals(image.rows.get("status")) && "IN_GAME".equals(next.rows.get("status"))) {
                 String receipt=next.rows.get("receipt");
                 if(receipt!=null && receipt.endsWith(",APPLIED")) cue=receipt.split(",")[1];
-                if(!replica.witnessedDeaths().isEmpty()) cue="KILL";
+                if(!cue.equals("ZAP") && !replica.witnessedDeaths().isEmpty()) cue="KILL";
                 if("DOWNED".equals(image.rows.get("life")) && "ALIVE".equals(next.rows.get("life"))) cue="REVIVED";
                 if(Integer.parseInt(next.rows.get("self").split(",")[2])<dungeon.hp) cue="HURT";
             }
