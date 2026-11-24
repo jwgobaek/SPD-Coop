@@ -7,7 +7,10 @@ import java.util.concurrent.*;
 
 /** The room and every engine operation stay on this single owner thread. */
 final class HostedRoom {
-    private final ScheduledExecutorService owner=Executors.newSingleThreadScheduledExecutor(r->new Thread(r,"Coop engine"));
+    private final ScheduledExecutorService owner=Executors.newSingleThreadScheduledExecutor(r->new Thread(()->{
+        com.watabou.noosa.audio.Sample.INSTANCE.silenceCurrentThread(true);
+        try {r.run();} finally {com.watabou.noosa.audio.Sample.INSTANCE.silenceCurrentThread(false);}
+    },"Coop engine"));
     private LanRoom room;
     final int port;
     final String localJoin;

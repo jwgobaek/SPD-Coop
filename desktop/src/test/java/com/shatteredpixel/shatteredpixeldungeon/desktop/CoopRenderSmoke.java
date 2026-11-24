@@ -115,7 +115,7 @@ public final class CoopRenderSmoke {
             await(()->render(()->find(Game.scene(),g->g instanceof WndCoopBag)!=null)); shot("inventory");
             render(()->{((WndCoopBag)find(Game.scene(),g->g instanceof WndCoopBag)).hide();return null;});
             click("Wait"); await(()->"APPLIED".equals(frame().lastResult));
-            click("Game menu"); click("Diagnostics"); shot("diagnostics"); click("Back");
+            click("Game menu"); click("Diagnostics"); await(()->button("Share or copy report")!=null); shot("diagnostics"); click("Back");
             click("Game menu"); click("Save and close room"); await(()->button("Saved games")!=null);
             click("Saved games"); await(()->frame().list.size()==1); shot("saves"); click("Back");
             click("Reconnect"); await(()->frame().list.size()==1); shot("reconnect");

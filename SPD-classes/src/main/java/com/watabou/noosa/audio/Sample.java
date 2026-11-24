@@ -93,6 +93,12 @@ public enum Sample {
 		}
 	}
 
+    // The authoritative LAN executor has no local audience. Each seat plays only projected events.
+    private final ThreadLocal<Boolean> silentThread=new ThreadLocal<>();
+    public void silenceCurrentThread(boolean silent) {
+        if(silent) silentThread.set(Boolean.TRUE); else silentThread.remove();
+    }
+
 	public long play( Object id ) {
 		return play( id, 1 );
 	}
@@ -106,6 +112,7 @@ public enum Sample {
 	}
 	
 	public synchronized long play( Object id, float leftVolume, float rightVolume, float pitch ) {
+        if(Boolean.TRUE.equals(silentThread.get())) return -1;
 		float volume = Math.max(leftVolume, rightVolume);
 		float pan = rightVolume - leftVolume;
 		if (enabled && ids.containsKey( id )) {
@@ -139,6 +146,7 @@ public enum Sample {
 	}
 
 	public void playDelayed( Object id, float delay, float leftVolume, float rightVolume, float pitch ) {
+        if(Boolean.TRUE.equals(silentThread.get())) return;
 		if (delay <= 0) {
 			play(id, leftVolume, rightVolume, pitch);
 			return;

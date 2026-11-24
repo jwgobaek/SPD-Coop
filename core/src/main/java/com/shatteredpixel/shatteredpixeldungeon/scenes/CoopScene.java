@@ -41,7 +41,17 @@ public class CoopScene extends PixelScene {
             CoopDiagnostics.watch(CoopPlatform.root());
             if("CHECKPOINT_FAILED".equals(notice)) alert(msg("checkpoint_failed"));
         }
-        if(shown!=controller.frame()) renderFrame();
+        CoopController.Frame next=controller.frame();
+        if(shown!=next) {
+            // A newly registered map PointerArea would otherwise take touches intended for an open Window.
+            for(Gizmo child:new java.util.ArrayList<>(members)) {
+                if(child instanceof Window) {
+                    if(shown!=null && shown.page==next.page) return;
+                    ((Window)child).hide();
+                }
+            }
+            renderFrame();
+        }
     }
     public static void stopSession() { if(active!=null) active.shutdown(); }
     @Override public void onPause() { if(controller!=null) controller.shutdown(); }
@@ -210,6 +220,7 @@ public class CoopScene extends PixelScene {
         String line=f.pending!=0 ? msg("pending",f.pending) : f.image.rows.containsKey("reason") ?
                 status(f.image.rows.get("reason")) : !"ALIVE".equals(f.image.rows.get("life")) ?
                 status(f.image.rows.get("life")) : msg(v.offered?"yourturn":"theirturn");
+        if(v.ally>=0 && "DOWNED".equals(f.image.rows.get("allylife"))) line+=" / "+msg("reviveally");
         if(f.lastResult.startsWith("REJECT") || f.lastResult.equals("UNKNOWN")) line+=" · "+status(f.lastResult);
         label(line,7,v.offered?0xB4DA80:0xCBC6BA);
         float bx=left;
