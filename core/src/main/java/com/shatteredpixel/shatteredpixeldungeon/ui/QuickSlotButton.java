@@ -397,7 +397,7 @@ public class QuickSlotButton extends Button {
 				&& !Char.hasProp(target, Char.Property.OBJECT)) {
 			lastTarget = target;
 			
-			TargetHealthIndicator.instance.target( target );
+			if (TargetHealthIndicator.instance != null) TargetHealthIndicator.instance.target( target );
 			InventoryPane.lastTarget = target;
 		}
 	}

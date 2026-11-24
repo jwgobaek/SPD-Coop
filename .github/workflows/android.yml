@@ -13,23 +13,15 @@ jobs:
           distribution: temurin
           java-version: '21.0.13.1+2'
       - uses: gradle/actions/setup-gradle@v4
-      - run: mkdir -p reports && git rev-parse HEAD > reports/commit.txt
-      - run: scripts/setup-android.sh 2>&1 | tee reports/setup.log
+      - run: scripts/setup-android.sh 2>&1 | tee setup.log
         shell: bash
-      - run: ./gradlew --no-daemon :core:test :android:assembleDebug --console=plain 2>&1 | tee reports/build.log
-        shell: bash
-      - name: Verify APK
-        shell: bash
-        run: |
-          apk=android/build/outputs/apk/debug/android-debug.apk
-          scripts/inspect-apk.sh "$apk" org.spdcoop.dungeon.indev | tee reports/apk.txt
-          (cd "$(dirname "$apk")" && sha256sum android-debug.apk) > reports/SHA256SUMS
-          cp "$apk" reports/
+      - run: scripts/verify-android-build.sh reports
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: android-debug-${{ github.sha }}
           path: |
             reports/
-            core/build/test-results/
+            setup.log
+            core/build/test-results/test/TEST-*.xml
             core/build/reports/tests/

@@ -74,6 +74,14 @@ public class Heap implements Bundlable {
 	public int pos = 0;
 	
 	public ItemSprite sprite;
+
+	public void animateDrop() {
+		if (sprite != null) sprite.drop();
+	}
+
+	public void animateDrop(int from) {
+		if (sprite != null) sprite.drop(from);
+	}
 	public boolean seen = false;
 	public boolean haunted = false;
 	public boolean autoExplored = false; //used to determine if this heap should count for exploration bonus
