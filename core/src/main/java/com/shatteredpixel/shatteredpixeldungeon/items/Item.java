@@ -139,6 +139,7 @@ public class Item implements Bundlable {
     public final void dropCoopUnit(Hero hero) {
         Item unit = detach(hero.belongings.backpack);
         Dungeon.level.drop(unit, hero.pos);
+        if (unit instanceof Honeypot.ShatteredPot) ((Honeypot.ShatteredPot)unit).dropPot(hero,hero.pos);
         hero.spendAndNext(TIME_TO_DROP);
     }
 

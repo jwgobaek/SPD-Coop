@@ -16,6 +16,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
+import com.shatteredpixel.shatteredpixeldungeon.items.Honeypot;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bee;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation;
@@ -43,9 +45,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR;
+    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER;
         public boolean requiresItem() {
-            return this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP;
+            return this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER;
         }
     }
 
@@ -316,7 +318,7 @@ public final class CoopSession implements AutoCloseable {
     public static boolean basicMob(Actor actor) {
         Class<?> type = actor.getClass();
         return type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
-                || type == Piranha.class || type == SentryRoom.Sentry.class
+                || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
                 || (Dungeon.depth==2 && (type==Ghost.class || type==FetidRat.class));
     }
 
@@ -327,6 +329,7 @@ public final class CoopSession implements AutoCloseable {
         int terrain = level.map[cell];
         return (moving && (terrain == Terrain.DOOR || terrain == Terrain.OPEN_DOOR))
                 || terrain == Terrain.EMPTY || terrain == Terrain.EMPTY_SP || terrain == Terrain.GRASS
+                || terrain == Terrain.HIGH_GRASS || terrain == Terrain.FURROWED_GRASS
                 || terrain == Terrain.WATER || terrain == Terrain.EMBERS || terrain == Terrain.EMPTY_DECO;
     }
 
@@ -420,11 +423,28 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (!basicFood(item) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (!basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
                             || !hero.belongings.backpack.canHold(item)) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
                     hero.act();
+                    break;
+                case SHATTER:
+                    if (!(item instanceof Honeypot) || cell!=hero.pos || !hero.belongings.backpack.contains(item)) return false;
+                    // Original shatter needs one empty cardinal neighbour when the hero occupies the cell.
+                    boolean space=false;
+                    for (int off:PathFinder.NEIGHBOURS4)
+                        if (!level.solid[cell+off] && Actor.findChar(cell+off)==null) space=true;
+                    if (!space) return false;
+                    Item shell=((Honeypot)item).shatter(hero,cell);
+                    if (!(shell instanceof Honeypot.ShatteredPot)) throw new IllegalStateException("Bee spawn failed");
+                    item.detach(hero.belongings.backpack);
+                    ownership.claim(shell,player);
+                    if (!shell.collect(hero.belongings.backpack)) {
+                        level.drop(shell,cell);
+                        ((Honeypot.ShatteredPot)shell).dropPot(hero,cell);
+                    }
+                    hero.next();
                     break;
                 case EAT:
                     if (!basicFood(item) || !hero.belongings.backpack.contains(item)) return false;
@@ -446,7 +466,7 @@ public final class CoopSession implements AutoCloseable {
                     Heap floor = level.heaps.get(hero.pos);
                     if (cell != hero.pos || (floor != null && floor.type != Heap.Type.HEAP)
                             || level.pit[cell] || !level.passable[cell] || !hero.belongings.backpack.contains(item)
-                            || !(basicFood(item) || basicWeapon(item))) return false;
+                            || !(basicFood(item) || basicWeapon(item) || item instanceof Honeypot || item instanceof Honeypot.ShatteredPot)) return false;
                     item.dropCoopUnit(hero);
                     break;
                 default:
@@ -530,6 +550,23 @@ public final class CoopSession implements AutoCloseable {
         Actor spawner = Dungeon.level.respawner();
         if (spawner!=null) persistent.add(spawner);
         if (!persistent.equals(Actor.all())) throw new IllegalStateException("Transient actor at checkpoint");
+    }
+
+    /** Reconcile a bee with its individual shell when its native floor becomes active again. */
+    void restoreBeeHomes() {
+        Map<Integer,Bee> residents=new java.util.HashMap<>();
+        for (Mob m:Dungeon.level.mobs) if (m instanceof Bee && m.alignment==Char.Alignment.ENEMY)
+            residents.put(m.id(),(Bee)m);
+        if (residents.isEmpty()) return;
+        for (Hero hero:heroes) for (Item item:hero.belongings) linkShell(residents,item,-1,hero);
+        for (Heap heap:Dungeon.level.heaps.valueList()) for (Item item:heap.items) linkShell(residents,item,heap.pos,null);
+        for (Bee bee:residents.values()) bee.setPotInfo(-1,null);
+    }
+
+    private static void linkShell(Map<Integer,Bee> residents,Item item,int pos,Hero holder) {
+        if (!(item instanceof Honeypot.ShatteredPot)) return;
+        Bee bee=residents.remove(((Honeypot.ShatteredPot)item).beeId());
+        if (bee!=null) bee.setPotInfo(pos,holder);
     }
 
     void leaveFloor() {

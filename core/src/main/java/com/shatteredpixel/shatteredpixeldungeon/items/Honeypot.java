@@ -96,7 +96,7 @@ public class Honeypot extends Item {
 	
 	public Item shatter( Char owner, int pos ) {
 		
-		if (Dungeon.level.heroFOV[pos]) {
+		if (Dungeon.coop == null && Dungeon.level.heroFOV[pos]) {
 			Sample.INSTANCE.play( Assets.Sounds.SHATTER );
 			Splash.at( pos, 0xffd500, 5 );
 		}
@@ -123,6 +123,11 @@ public class Honeypot extends Item {
 			bee.pos = newPos;
 			
 			GameScene.add( bee );
+			if (Dungeon.coop != null) {
+				ShatteredPot shell = new ShatteredPot();
+				shell.bind(bee);
+				return shell;
+			}
 			if (newPos != pos) Actor.add( new Pushing( bee, pos, newPos ) );
 
 			bee.sprite.alpha( 0 );
@@ -152,6 +157,28 @@ public class Honeypot extends Item {
 
 	//The bee's broken 'home', all this item does is let its bee know where it is, and who owns it (if anyone).
 	public static class ShatteredPot extends Item {
+		private int beeId;
+
+		public void bind(Bee bee) { beeId = bee.id(); }
+		public int beeId() { return beeId; }
+
+		@Override
+		public boolean isSimilar(Item other) {
+			return super.isSimilar(other) && (Dungeon.coop == null || beeId == ((ShatteredPot)other).beeId);
+		}
+
+		@Override
+		public void storeInBundle(com.watabou.utils.Bundle b) {
+			super.storeInBundle(b);
+			if (beeId != 0) b.put("coopBee", beeId);
+		}
+
+		@Override
+		public void restoreFromBundle(com.watabou.utils.Bundle b) {
+			super.restoreFromBundle(b);
+			beeId = b.getInt("coopBee");
+		}
+
 
 		{
 			image = ItemSpriteSheet.SHATTPOT;
@@ -213,7 +240,7 @@ public class Honeypot extends Item {
 		private ArrayList<Bee> findBees( int potPos ){
 			ArrayList<Bee> bees = new ArrayList<>();
 			for (Char c : Actor.chars()){
-				if (c instanceof Bee && ((Bee) c).potPos() == potPos){
+				if (c instanceof Bee && ((Bee) c).potPos() == potPos && (beeId == 0 || c.id() == beeId)){
 					bees.add((Bee) c);
 					if (bees.size() >= quantity) {
 						break;
@@ -228,7 +255,7 @@ public class Honeypot extends Item {
 		private ArrayList<Bee> findBees( Char potHolder ){
 			ArrayList<Bee> bees = new ArrayList<>();
 			for (Char c : Actor.chars()){
-				if (c instanceof Bee && ((Bee) c).potHolderID() == potHolder.id()){
+				if (c instanceof Bee && ((Bee) c).potHolderID() == potHolder.id() && (beeId == 0 || c.id() == beeId)){
 					bees.add((Bee) c);
 					if (bees.size() >= quantity) {
 						break;

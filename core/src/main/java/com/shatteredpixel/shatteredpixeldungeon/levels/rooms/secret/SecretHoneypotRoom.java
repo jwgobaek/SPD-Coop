@@ -53,6 +53,7 @@ public class SecretHoneypotRoom extends SecretRoom {
 		level.mobs.add( bee );
 		
 		bee.setPotInfo(level.pointToCell(brokenPotPos), null);
+		if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop != null) pot.bind(bee);
 		
 		placeItem(new Honeypot(), level);
 		

@@ -422,7 +422,7 @@ actors/mobs/ArmoredBrute.ArmoredRage	actors/mobs	UNSUPPORTED		core/src/main/java
 actors/mobs/ArmoredStatue	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/ArmoredStatue.java
 actors/mobs/Bandit	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bandit.java
 actors/mobs/Bat	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bat.java
-actors/mobs/Bee	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bee.java
+actors/mobs/Bee	actors/mobs	VERIFIED	host and guest, guarding a pot or holder, parked and active targets / SewerBeeTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bee.java
 actors/mobs/Brute	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Brute.java
 actors/mobs/Brute.BruteRage	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Brute.java
 actors/mobs/CausticSlime	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CausticSlime.java
@@ -623,8 +623,8 @@ items/EquipableItem	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/sha
 items/Generator	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Generator.java
 items/Gold	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Gold.java
 items/Heap	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Heap.java
-items/Honeypot	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Honeypot.java
-items/Honeypot.ShatteredPot	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Honeypot.java
+items/Honeypot	items	VERIFIED	owned pickup and shatter on self, real summoned bee / SewerBeeTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Honeypot.java
+items/Honeypot.ShatteredPot	items	VERIFIED	bee ID, owner, drop and return from a parked floor / SewerBeeTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Honeypot.java
 items/Item	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Item.java
 items/ItemStatusHandler	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/ItemStatusHandler.java
 items/KindOfWeapon	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/KindOfWeapon.java
@@ -1374,7 +1374,7 @@ levels/rooms/secret/SecretArtilleryRoom	levels/rooms/secret	UNSUPPORTED		core/sr
 levels/rooms/secret/SecretChestChasmRoom	levels/rooms/secret	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/secret/SecretChestChasmRoom.java
 levels/rooms/secret/SecretGardenRoom	levels/rooms/secret	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/secret/SecretGardenRoom.java
 levels/rooms/secret/SecretHoardRoom	levels/rooms/secret	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/secret/SecretHoardRoom.java
-levels/rooms/secret/SecretHoneypotRoom	levels/rooms/secret	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/secret/SecretHoneypotRoom.java
+levels/rooms/secret/SecretHoneypotRoom	levels/rooms/secret	VERIFIED	original generated bee and broken pot (bomb use excluded) / SewerGenerationTest, SewerBeeTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/secret/SecretHoneypotRoom.java
 levels/rooms/secret/SecretLaboratoryRoom	levels/rooms/secret	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/secret/SecretLaboratoryRoom.java
 levels/rooms/secret/SecretLarderRoom	levels/rooms/secret	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/secret/SecretLarderRoom.java
 levels/rooms/secret/SecretLibraryRoom	levels/rooms/secret	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/secret/SecretLibraryRoom.java

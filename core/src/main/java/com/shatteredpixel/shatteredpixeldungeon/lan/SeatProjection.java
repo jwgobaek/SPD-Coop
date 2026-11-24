@@ -150,7 +150,9 @@ final class SeatProjection {
             ids.put(item,id);
         }
         visible.put(id,item);
-        String kind = CoopSession.basicFood(item) ? "FOOD" : item instanceof Ankh ? "ANKH" : item instanceof MeleeWeapon ? "MELEE" : "OTHER";
+        String kind = item instanceof com.shatteredpixel.shatteredpixeldungeon.items.Honeypot ? "HONEYPOT"
+                : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.Honeypot.ShatteredPot ? "SHELL"
+                : CoopSession.basicFood(item) ? "FOOD" : item instanceof Ankh ? "ANKH" : item instanceof MeleeWeapon ? "MELEE" : "OTHER";
         String charges="";
         if (!slot.startsWith("F") && item instanceof MagesStaff) {
             WandOfMagicMissile wand=((MagesStaff)item).starterWand();

@@ -73,3 +73,7 @@ The floor row encodes branch,depth. A stair row is published only when both play
 ### SYNC5 2층 유령
 
 양쪽 좌석은 MODE SYNC5를 협상한다. SYNC4 이하는 동기화 방에서 ERROR VERSION을 받는다. 새 공개 몬스터 값은 Ghost와 FetidRat이다. 보이고 인접한 유령 칸에만 quest<cell> 행으로 OFFER, HUNT 또는 REWARD를 제공한다. stench<cell>은 직접 시야 안에 있는 악취 가스다. ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR에는 유령 칸과 아이템 핸들 0을 지정한다. 호스트가 시야·행동권·좌석·월드 플래그·안전한 수령을 재검증한다. 이미 발행한 보상은 같은 Action ID로 조회할 수 있다.
+
+### SYNC6 꿀단지
+
+이 빌드의 동기화 방은 MODE SYNC6를 요구한다. 공개 종류 Bee, HONEYPOT, SHELL을 추가했다. 자기 좌석이 소유한 꿀단지에 SHATTER와 현재 위치, 공개 아이템 핸들을 보낸다. 원본 비투척 깨뜨리기와 같이 독립적인 한 턴을 더 소비하지 않는다. 원본 벌 소환·조각 귀속과 행동 영수증을 같은 세대에서 확정한다. 가방의 조각을 내려놓거나 전리품을 줍는 행동은 기존 DROP 및 PICK_UP 검증을 거친다. 비공개 벌-조각 식별자는 참관자에게 전송하지 않는다.

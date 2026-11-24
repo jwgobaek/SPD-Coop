@@ -31,7 +31,7 @@ public class HostRestartTest {
     }
 
     @Test(timeout=80000) public void nativeSpecialRoomsApplyDamageOnlyToExposedSeatOverTcp() throws Exception {
-        for(String mode:new String[]{"sentry","piranha"})
+        for(String mode:new String[]{"sentry","piranha","hive"})
             run(temp.newFolder().toPath(),new String[]{mode});
     }
 

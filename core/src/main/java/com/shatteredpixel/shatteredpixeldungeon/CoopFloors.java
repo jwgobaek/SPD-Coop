@@ -113,6 +113,7 @@ public final class CoopFloors {
         Actor.init();
         if (next.respawner()==null) next.addRespawner(); else Actor.add(next.respawner());
         for(Char ch:Actor.chars()) game.attachSprite(ch);
+        game.restoreBeeHomes();
         parked=leaving;
         cancel();
         return true;

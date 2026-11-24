@@ -110,7 +110,7 @@ public final class RestartClient {
     }
 
     private void run(String mode) throws Exception {
-        boolean special=mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest");
+        boolean special=mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive");
         if (special) {
             try (LanClient old = new LanClient(address)) {
                 assertEquals("ERROR VERSION", old.request("MODE SYNC3"));
@@ -133,6 +133,7 @@ public final class RestartClient {
             if(mode.equals("walk")) { walk(); return; }
             act("WAIT",0,0);
             if (mode.equals("quest")) { ghostQuest(); return; }
+            if (mode.equals("hive")) { hive(); return; }
             if (special) {
                 checkSpecialRoom(mode.equals("sentry")?"Sentry":"Piranha");
                 return;
@@ -320,6 +321,26 @@ public final class RestartClient {
         refresh();
         assertTrue(new PublicDungeon(state(mover)).consent);
         return stairAction(mover,"TRAVEL",cell);
+    }
+
+    private void hive() throws Exception {
+        int owner=active();
+        assertTrue(consentAndCross().submit(clients[owner]).endsWith(" APPLIED")); applied++;
+        refresh();
+        act("WAIT",0,0);
+        offer(1);
+        long pot=item(1,"F"+pos(1),"HONEYPOT");
+        assertTrue(pot>0);
+        act("PICK_UP",pos(1),pot);
+        offer(1);
+        SeatActions.Pending shatter=act("SHATTER",pos(1),item(1,"BAG","HONEYPOT"));
+        verifyAfterReconnect(shatter,1);
+        assertTrue(new PublicDungeon(state(1)).monsters.containsValue("Bee"));
+        assertTrue(item(1,"BAG","SHELL")>0);
+        assertEquals(0,item(0,"BAG","SHELL"));
+        offer(1);
+        verifyAfterReconnect(act("DROP",pos(1),item(1,"BAG","SHELL")),1);
+        assertTrue(item(1,"F"+pos(1),"SHELL")>0);
     }
 
     private void ghostQuest() throws Exception {

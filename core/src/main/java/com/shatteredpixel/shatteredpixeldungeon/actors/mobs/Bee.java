@@ -149,7 +149,8 @@ public class Bee extends Mob {
 		
 		//if something is holding the pot, target that
 		}else if (Actor.findById(potHolder) != null){
-			return (Char) Actor.findById(potHolder);
+			Char holder = (Char)Actor.findById(potHolder);
+			return Dungeon.coop == null || holder.isAlive() ? holder : null;
 			
 		//if the pot is on the ground
 		} else {
@@ -194,6 +195,16 @@ public class Bee extends Mob {
 				if (closest != null){
 					return closest;
 				} else {
+					if (Dungeon.coop != null && alignment != Alignment.ALLY) {
+						Char nearest = null;
+						for (int seat = 0; seat < 2; seat++) {
+							Char hero = Dungeon.coop.hero(seat);
+							if (hero.isAlive() && Dungeon.level.distance(hero.pos, potPos) <= 3
+									&& (nearest == null || Dungeon.level.distance(pos,hero.pos) < Dungeon.level.distance(pos,nearest.pos)))
+								nearest = hero;
+						}
+						return nearest;
+					}
 					if (alignment != Alignment.ALLY && Dungeon.level.distance(Dungeon.hero.pos, potPos) <= 3){
 						return Dungeon.hero;
 					} else {
