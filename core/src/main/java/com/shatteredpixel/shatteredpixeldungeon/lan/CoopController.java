@@ -39,6 +39,7 @@ public final class CoopController {
     private final SeatTickets.Keys keys;
     private final InetAddress bind;
     private final int tcp,udp;
+    private final Random dungeonSeeds;
     private final ScheduledExecutorService worker=Executors.newSingleThreadScheduledExecutor(r->new Thread(r,"Coop client"));
     private final AtomicBoolean busy=new AtomicBoolean();
     private volatile boolean closing;
@@ -61,6 +62,12 @@ public final class CoopController {
     private long confirmedVersion=-1;
 
     public CoopController(File root,SeatTickets.Keys keys,InetAddress bind,int tcp,int udp) {
+        this(root,keys,bind,tcp,udp,new java.security.SecureRandom());
+    }
+
+    /** Inject a known dungeon seed stream for repeatable desktop scenarios. Seat credentials use their own RNG. */
+    public CoopController(File root,SeatTickets.Keys keys,InetAddress bind,int tcp,int udp,Random dungeonSeeds) {
+        this.dungeonSeeds=dungeonSeeds;
         this.root=root; this.keys=keys; this.bind=bind; this.tcp=tcp; this.udp=udp;
         publish();
         worker.scheduleWithFixedDelay(this::tick,120,160,TimeUnit.MILLISECONDS);
@@ -139,7 +146,7 @@ public final class CoopController {
 
     public void host() { enqueue(()->{
         show(Page.CONNECTING); closeRoom(false); ticket=null; lastAction=0; lastResult="";
-        host=new HostedRoom(saves,bind,tcp,udp,new java.security.SecureRandom().nextLong(),null,false);
+        host=new HostedRoom(saves,bind,tcp,udp,dungeonSeeds.nextLong(),null,false);
         advertised=localAddress(host.port);
         join(new InetSocketAddress("127.0.0.1",host.port),host.localJoin,host.session);
     }); }

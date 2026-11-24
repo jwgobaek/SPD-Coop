@@ -109,6 +109,12 @@ public final class CoopRenderSmoke {
         await(()->render(()->Game.scene() instanceof HeroSelectScene || Game.scene() instanceof StartScene));
         shot("solo-entry");
         render(()->{ShatteredPixelDungeon.switchNoFade(TitleScene.class);return null;});
+        render(()->{
+            Field active=CoopScene.class.getDeclaredField("active"); active.setAccessible(true);
+            active.set(null,new CoopController(CoopPlatform.root(),null,null,LanClient.TCP_PORT,LanClient.UDP_PORT,
+                    new java.util.Random(){@Override public long nextLong(){return 402;}}));
+            return null;
+        });
         click("Multiplayer"); await(()->button("Create room")!=null);
         shot("multiplayer"); click("Create room"); await(()->button("Warrior")!=null);
         shot("lobby"); click("Warrior");
@@ -124,7 +130,7 @@ public final class CoopRenderSmoke {
             for(int dy=-1;dy<=1 && destination<0;dy++) for(int dx=-1;dx<=1;dx++) {
                 int cell=before.pos+dx+dy*before.width;
                 if(cell!=before.pos && cell!=before.ally && before.visible(cell) && !before.monsters.containsKey(cell)
-                        && !before.source.rows.containsKey("h"+cell) && before.terrain(cell)==1) { destination=cell; break; }
+                        && !before.source.rows.containsKey("h"+cell) && java.util.Arrays.asList(1,2,9,14,20,29).contains(before.terrain(cell))) { destination=cell; break; }
             }
             if(destination<0) throw new AssertionError("No directly visible adjacent floor");
             final int target=destination;
