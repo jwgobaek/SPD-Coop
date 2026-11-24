@@ -420,9 +420,7 @@ public final class CoopSession implements AutoCloseable {
     public static boolean supportedLanding(int cell) {
         Level level = Dungeon.level;
         if (!level.insideMap(cell) || level.pit[cell] || level.map[cell] == Terrain.WELL ||
-                (level.plants.get(cell) != null && !(level.plants.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.plants.Fadeleaf)
-                    && !(level.plants.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.plants.Starflower)
-                    && !(level.plants.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.plants.Earthroot))) return false;
+                (level.plants.get(cell) != null && !level.plants.get(cell).supportsCoopLanding())) return false;
         Trap trap = level.traps.get(cell);
         return trap == null || !trap.active || trap.supportedInCoop();
     }

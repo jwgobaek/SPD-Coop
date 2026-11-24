@@ -57,7 +57,14 @@ public abstract class Plant implements Bundlable {
 
 	protected Class<? extends Plant.Seed> seedClass;
 
+    public boolean supportsCoopLanding() {
+        return this instanceof Fadeleaf || this instanceof Earthroot
+                || this instanceof Starflower || this instanceof Sorrowmoss;
+    }
+
 	public void trigger(){
+        if (Dungeon.coop!=null && !supportsCoopLanding())
+            throw new UnsupportedOperationException("Unsupported plant: "+getClass().getSimpleName());
 
 		Char ch = Actor.findChar(pos);
 

@@ -205,6 +205,27 @@ public final class CoopRenderSmoke {
             click("saves"); await(()->frame().list.size()==1);
             if(frame().list.get(0).current.depth!=5) throw new AssertionError("Boss floor missing");
             shot("boss-save");
+            CoopController.Entry bossSlot=frame().list.get(0);
+            click("#"+bossSlot.id.toString().substring(0,8)+"  "+Messages.get(CoopScene.class,"floor",5,bossSlot.current.generation));
+            click("resume"); await(()->frame().image!=null);
+            if(!oldGuest.waitFor(6,TimeUnit.SECONDS)) throw new AssertionError("First guest did not close");
+            Process returning=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-cp",System.getProperty("java.class.path"),
+                    CoopRenderSmoke.class.getName(),"guest",root.toString(),"resume").inheritIO().start();
+            try {
+                await(()->frame().dungeon.offered && frame().dungeon.depth==5 && frame().dungeon.monsters.containsValue("Goo"));
+                shot("goo-reconnected");
+                for(int hits=0;hits<100 && frame().dungeon.monsters.containsValue("Goo");hits++) {
+                    PublicDungeon world=frame().dungeon;
+                    int enemy=world.monsters.entrySet().stream().filter(e->e.getValue().equals("Goo")).findFirst().get().getKey();
+                    press(mapPoint(world,enemy));
+                    await(()->frame().image.version>world.source.version && frame().dungeon.offered);
+                }
+                if(frame().dungeon.monsters.containsValue("Goo") || frame().dungeon.floor.values().stream().noneMatch(
+                        i->i.sprite==com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.BLOB))
+                    throw new AssertionError("Expected visible original boss reward");
+                shot("goo-rewards");
+                click("menu");click("saveexit");await(()->button("host")!=null);
+            } finally { returning.destroy(); if(!returning.waitFor(5,TimeUnit.SECONDS)) returning.destroyForcibly(); }
             return;
         }
         if (statue) {
