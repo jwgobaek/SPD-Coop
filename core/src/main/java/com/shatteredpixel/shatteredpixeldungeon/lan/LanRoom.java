@@ -14,7 +14,7 @@ import java.util.*;
 
 /** Construct, pump and close on the engine executor. Clients (including the host seat) use TCP. */
 public final class LanRoom implements AutoCloseable {
-    public enum State { LOBBY_OPEN, PLAYER_JOINED, READY, STARTING, ROSTER_LOCKED, IN_GAME, PAUSED, CLOSED }
+    public enum State { LOBBY_OPEN, PLAYER_JOINED, READY, STARTING, ROSTER_LOCKED, IN_GAME, PAUSED, PARTY_DEFEATED, CLOSED }
     private static final class Seat {
         final LanTransport.Peer peer;
         final long player;
@@ -72,6 +72,7 @@ public final class LanRoom implements AutoCloseable {
             if (seats[i] != null && seats[i].peer.dead) {
                 if (i == 0) { close(); return; }
                 if (locked) {
+                    if (state == State.PARTY_DEFEATED) continue;
                     state = State.PAUSED;
                     if (sync != null) sync.peerDisconnected();
                 }
@@ -146,7 +147,8 @@ public final class LanRoom implements AutoCloseable {
             if (verb.equals("DO")) {
                 for (Seat member : seats) if (member.peer.dead) sync.peerDisconnected();
                 String result = sync.action(seat,f);
-                if (sync.paused) { state = State.PAUSED; problem = sync.failure; }
+                if (game.defeated()) state = State.PARTY_DEFEATED;
+                else if (sync.paused) { state = State.PAUSED; problem = sync.failure; }
                 return result;
             }
             if (verb.equals("STATE")) return "USE_SYNC";
@@ -250,6 +252,7 @@ public final class LanRoom implements AutoCloseable {
         for (Seat s : seats) if (s.peer.dead) { state = State.PAUSED; return "ERROR STATE"; }
         try {
             if (!game.act(seats[seat].player,turn,action,cell,item)) return "ERROR INVALID";
+            if (game.defeated()) { state = State.PARTY_DEFEATED; return "PARTY_DEFEATED"; }
             if (game.stopped()) return pause(game.stopReason());
             return "APPLIED " + turn + " " + game.turn() + " " + game.hero(seat).pos;
         } catch (RuntimeException e) { return pause(e.toString()); }

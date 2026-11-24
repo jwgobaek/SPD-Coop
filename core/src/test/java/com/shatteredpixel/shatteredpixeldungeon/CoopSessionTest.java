@@ -326,6 +326,66 @@ public class CoopSessionTest extends HeadlessDungeon {
     }
 
     @Test(timeout = 30000)
+    public void partnerRevivesOnceAtTheReservedCellThenBothCanAct() {
+        int[] before = {100,17,10,9,3,2,1,Integer.MAX_VALUE};
+        int[] expected = {30,5,3,2,1,1,1,644245094};
+        for (int i=0;i<before.length;i++) assertEquals(expected[i],CoopSession.reviveHP(before[i],Integer.MAX_VALUE));
+        assertEquals(2, CoopSession.reviveHP(17,2));
+        try (CoopSession s=open(402)) {
+            Hero casualty=s.hero(0), rescuer=s.hero(1);
+            com.shatteredpixel.shatteredpixeldungeon.items.Ankh ankh = new com.shatteredpixel.shatteredpixeldungeon.items.Ankh();
+            ankh.bless();
+            assertTrue(ankh.collect(casualty.belongings.backpack));
+            casualty.HP=17;
+            Rat rat=new Rat();
+            rat.pos=neighbour(casualty);
+            GameScene.add(rat,100);
+            for (int i=0;i<8 && casualty.isAlive();i++) rat.attack(casualty,1f,10000f,Float.POSITIVE_INFINITY);
+            assertEquals(CoopSession.Life.DOWNED,s.life(0));
+            assertEquals(17,s.preDeathHP(0));
+            casualty.die(rat);
+            assertEquals(17,s.preDeathHP(0));
+            s.finishEffects();
+            assertEquals(1,s.activeSeat());
+            assertSame(casualty, Actor.findChar(casualty.pos));
+            assertFalse(s.act(s.player(0),s.turn(),WAIT,0,null));
+            assertFalse(send(s,REVIVE,rescuer.pos,null));
+            int position=rescuer.pos;
+            rescuer.pos=casualty.pos+3;
+            assertFalse(send(s,REVIVE,casualty.pos,null));
+            rescuer.pos=position;
+            float due=casualty.cooldown();
+            assertTrue(send(s,WAIT,0,null));
+            Actor.fixTime();
+            assertEquals(due,casualty.cooldown(),0f);
+            long offered=s.turn();
+            assertTrue(send(s,REVIVE,casualty.pos,null));
+            assertFalse(s.act(s.player(1),offered,REVIVE,casualty.pos,null));
+            assertEquals(CoopSession.Life.ALIVE,s.life(0));
+            assertEquals(5,casualty.HP);
+            assertFalse(casualty.belongings.backpack.contains(ankh));
+            assertSame(casualty,Actor.findById(casualty.id()));
+            assertEquals(0,s.activeSeat());
+            assertTrue(send(s,WAIT,0,null));
+            casualty.die(this);
+            s.finishEffects();
+            assertEquals(CoopSession.Life.DEAD,s.life(0));
+            assertFalse(send(s,REVIVE,casualty.pos,null));
+            rescuer.HP=1;
+            com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison dot =
+                    new com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison();
+            dot.target=rescuer;
+            dot.set(1);
+            dot.act();
+            assertTrue(s.defeated());
+            assertFalse(s.stopped());
+            assertEquals(1,s.preDeathHP(1));
+            assertEquals(-1,s.activeSeat());
+            assertFalse(s.act(s.player(1),s.turn(),WAIT,0,null));
+        }
+    }
+
+    @Test(timeout = 30000)
     public void seatsContendForOneHeapOnTheGeneratedFloor() {
         try (CoopSession s = open(402)) {
             Hero host = s.hero(0), guest = s.hero(1);
@@ -416,8 +476,12 @@ public class CoopSessionTest extends HeadlessDungeon {
             assertTrue(send(s, EAT, 0, s.hero(0).belongings.getItem(Food.class)));
             assertEquals(foodUses + 1, Catalog.useCount(Food.class));
             s.hero(1).damage(10000, this);
-            assertTrue(s.stopped());
-            assertTrue(s.stopReason().contains("Hero down"));
+            assertFalse(s.stopped());
+            assertEquals(CoopSession.Life.DEAD, s.life(1));
+            s.finishEffects();
+            assertEquals(0, s.activeSeat());
+            assertTrue(send(s, WAIT, 0, null));
+            assertFalse(s.act(94, s.turn(), WAIT, 0, null));
             assertFalse(s.act(71, offered, WAIT, 0, null));
         }
         assertFalse(Actor.processing());

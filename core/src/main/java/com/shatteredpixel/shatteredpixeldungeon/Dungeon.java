@@ -891,7 +891,7 @@ public class Dungeon {
 	
 	public static void fail( Object cause ) {
 		if (coop != null) {
-			coop.stop("Defeat");
+			// Co-op casualties and party defeat are resolved by the session at the damage boundary.
 			return;
 		}
 		if (WndResurrect.instance == null) {

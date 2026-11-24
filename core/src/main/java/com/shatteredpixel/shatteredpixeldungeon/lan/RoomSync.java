@@ -53,6 +53,7 @@ final class RoomSync {
     }
 
     void peerDisconnected() {
+        if (game.defeated()) return;
         pause("DISCONNECTED","Peer disconnected",-1,null);
     }
 
@@ -102,6 +103,7 @@ final class RoomSync {
     }
 
     private String apply(int seat,long id,long base,long turn,String verb,int cell,long handle) {
+        if (game.defeated()) return "REJECT_DEFEATED";
         if (paused) return "REJECT_PAUSED";
         if (base!=version) return "REJECT_VERSION";
         if (turn!=game.turn() || seat!=game.activeSeat()) return "REJECT_TURN";
@@ -118,6 +120,10 @@ final class RoomSync {
             return "REJECT_INVALID";
         try {
             if (!game.act(game.player(seat),turn,action,cell,item)) return "REJECT_INVALID";
+            if (game.defeated()) {
+                commit(null,seat,id+","+verb+",PARTY_DEFEATED","PARTY_DEFEATED");
+                return "PARTY_DEFEATED";
+            }
             if (game.stopped()) {
                 pause("ENGINE_STOPPED",game.stopReason(),seat,id+","+verb+",APPLIED_STOPPED");
                 return "APPLIED_STOPPED";

@@ -2173,7 +2173,7 @@ public class Hero extends Char {
 	@Override
 	public void die( Object cause ) {
 		if (Dungeon.coop != null) {
-			Dungeon.coop.stop("Hero down: " + id());
+			Dungeon.coop.fallen(this, HP);
 			return;
 		}
 		

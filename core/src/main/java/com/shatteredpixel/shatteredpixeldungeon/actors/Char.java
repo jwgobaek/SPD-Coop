@@ -515,12 +515,14 @@ public abstract class Char extends Actor {
 			if (buff(FrostImbue.class) != null) buff(FrostImbue.class).proc(enemy);
 
 			if (enemy.isAlive() && enemy.alignment != alignment && prep != null && prep.canKO(enemy)){
+				int beforeExecution = enemy.HP;
 				enemy.HP = 0;
 				for (Buff b : enemy.buffs(Brute.BruteRage.class)){
 					b.detach();
 				}
 				if (!enemy.isAlive()) {
-					enemy.die(this);
+					if (Dungeon.coop != null && enemy instanceof Hero) Dungeon.coop.fallen((Hero)enemy, beforeExecution);
+					else enemy.die(this);
 				} else {
 					//helps with triggering any on-damage effects that need to activate
 					enemy.damage(-1, this);
@@ -536,12 +538,14 @@ public abstract class Char extends Actor {
 				if ( enemy.isAlive() && enemy.alignment != alignment && !Char.hasProp(enemy, Property.BOSS)
 						&& !Char.hasProp(enemy, Property.MINIBOSS) &&
 						(enemy.HP/(float)enemy.HT) <= 0.4f*((Hero)this).pointsInTalent(Talent.COMBINED_LETHALITY)/3f) {
+					int beforeExecution = enemy.HP;
 					enemy.HP = 0;
 					for (Buff b : enemy.buffs(Brute.BruteRage.class)){
 						b.detach();
 					}
 					if (!enemy.isAlive()) {
-						enemy.die(this);
+						if (Dungeon.coop != null && enemy instanceof Hero) Dungeon.coop.fallen((Hero)enemy, beforeExecution);
+						else enemy.die(this);
 					} else {
 						//helps with triggering any on-damage effects that need to activate
 						enemy.damage(-1, this);
@@ -986,6 +990,7 @@ public abstract class Char extends Actor {
 		int shielded = dmg;
 		dmg = ShieldBuff.processDamage(this, dmg, src);
 		shielded -= dmg;
+		int beforeHit = HP;
 		HP -= dmg;
 
 		if (HP > 0 && src instanceof Char && ((Char) src).buff(Grim.GrimTracker.class) != null){
@@ -996,6 +1001,7 @@ public abstract class Char extends Actor {
 			if (Random.Float() < finalChance) {
 				int extraDmg = Math.round(HP*resist(Grim.class));
 				dmg += extraDmg;
+				beforeHit = HP;
 				HP -= extraDmg;
 
 				sprite.emitter().burst( ShadowParticle.UP, 5 );
@@ -1069,7 +1075,8 @@ public abstract class Char extends Actor {
 		if (HP < 0) HP = 0;
 
 		if (!isAlive()) {
-			die( src );
+            if (Dungeon.coop != null && this instanceof Hero) Dungeon.coop.fallen((Hero)this, beforeHit);
+            else die(src);
 		} else if (HP == 0 && buff(DeathMark.DeathMarkTracker.class) != null){
 			DeathMark.processFearTheReaper(this);
 		}
@@ -1219,6 +1226,7 @@ public abstract class Char extends Actor {
 	}
 
 	public synchronized boolean add( Buff buff ) {
+        if (Dungeon.coop != null && this instanceof Hero && !isAlive()) return false;
 
 		if (buff(PotionOfCleansing.Cleanse.class) != null) { //cleansing buff
 			if (buff.type == Buff.buffType.NEGATIVE

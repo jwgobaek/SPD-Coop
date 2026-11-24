@@ -87,8 +87,22 @@ public abstract class Actor implements Bundlable {
 		}
 	}
 	
+    private boolean coopFrozen;
+
+    /** Keep the body, actor ID and buff target links; store remaining time relative to suspension. */
+    public static void freezeCoop(Char ch, boolean freeze) {
+        ch.setCoopFrozen(freeze);
+        for (Buff buff : ch.buffs()) ((Actor)buff).setCoopFrozen(freeze);
+    }
+
+    final void setCoopFrozen(boolean freeze) {
+        if (coopFrozen == freeze) return;
+        time = freeze ? Math.max(0, time - now) : now + time;
+        coopFrozen = freeze;
+    }
+
 	public float cooldown() {
-		return time - now;
+		return coopFrozen ? time : time - now;
 	}
 
 	public void clearTime() {
@@ -179,16 +193,17 @@ public abstract class Actor implements Bundlable {
 		
 		float min = Float.MAX_VALUE;
 		for (Actor a : all) {
-			if (a.time < min) {
+			if (!a.coopFrozen && a.time < min) {
 				min = a.time;
 			}
 		}
 
+		if (min == Float.MAX_VALUE) return;
 		//Only pull everything back by whole numbers
 		//So that turns always align with a whole number
 		min = (int)min;
 		for (Actor a : all) {
-			a.fixTime(min);
+			if (!a.coopFrozen) a.fixTime(min);
 		}
 		TargetedCell.fixTime(min);
 
@@ -267,6 +282,7 @@ public abstract class Actor implements Bundlable {
 
 				synchronized (Actor.class) {
 					for (Actor actor : all) {
+						if (actor.coopFrozen) continue;
 
 						//some actors will always go before others if time is equal.
 						if (actor.time < earliest ||
@@ -308,7 +324,7 @@ public abstract class Actor implements Bundlable {
 					current = null;
 				} else {
 					doNext = acting.act();
-					if (doNext && (Dungeon.hero == null || !Dungeon.hero.isAlive())) {
+					if (Dungeon.coop == null && doNext && (Dungeon.hero == null || !Dungeon.hero.isAlive())) {
 						doNext = false;
 						current = null;
 					}
@@ -319,7 +335,7 @@ public abstract class Actor implements Bundlable {
 			}
 
 			if (Dungeon.coop != null) {
-				if (Dungeon.coop.stopped()) return;
+				if (Dungeon.coop.stopped() || Dungeon.coop.defeated()) { current = null; return; }
 				if (interrupted || (!doNext && current != null)) throw new IllegalStateException("Unexpected visual wait");
 				continue;
 			}

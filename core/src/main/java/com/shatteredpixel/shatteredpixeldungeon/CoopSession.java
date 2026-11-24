@@ -10,6 +10,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Gnoll;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake;
+import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
@@ -29,7 +30,7 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP;
+    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE;
         public boolean requiresItem() {
             return this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP;
         }
@@ -57,6 +58,72 @@ public final class CoopSession implements AutoCloseable {
         if (memories[seat] == null) memories[seat] = new FloorKnowledge(Dungeon.level.length());
         memories[seat].observe(Dungeon.level, heroes[seat]);
         return memories[seat];
+    }
+
+    public enum Life { ALIVE, DOWNED, DEAD, REVIVING }
+    private final Life[] lives = {Life.ALIVE, Life.ALIVE};
+    private final int[] preDeath = new int[2];
+    private boolean partyDefeated;
+
+    public Life life(int seat) { return lives[seat]; }
+    public boolean defeated() { return partyDefeated; }
+    public int preDeathHP(int seat) { return preDeath[seat]; }
+
+    public static int reviveHP(int before, int maximum) {
+        if (before <= 0 || maximum <= 0) throw new IllegalArgumentException("Invalid revival HP");
+        return (int)Math.min(maximum, Math.max(1L, 3L * before / 10));
+    }
+
+    private Ankh resource(int seat) {
+        for (Ankh ankh : heroes[seat].belongings.getAllItems(Ankh.class)) {
+            if (ownership.owner(ankh) == players[seat] && ankh.quantity() > 0
+                    && heroes[seat].belongings.backpack.contains(ankh)) return ankh;
+        }
+        return null;
+    }
+
+    public void fallen(Hero hero, int before) {
+        checkExecutor();
+        int seat = hero == heroes[0] ? 0 : 1;
+        if (hero != heroes[seat]) throw new IllegalStateException("Unregistered casualty");
+        if (lives[seat] != Life.ALIVE) return;
+        preDeath[seat] = Math.max(0, before);
+        lives[seat] = before > 0 && resource(seat) != null ? Life.DOWNED : Life.DEAD;
+        hero.HP = 0;
+        hero.ready = false;
+        hero.curAction = null;
+        hero.next();
+        Actor.freezeCoop(hero, true);
+        if (activeSeat == seat) activeSeat = -1;
+        if (lives[1-seat] != Life.ALIVE) {
+            lives[0] = lives[1] = Life.DEAD;
+            partyDefeated = true;
+            activeSeat = -1;
+        }
+    }
+
+    /** Settle an engine-owned environmental effect batch that invalidated an open offer. */
+    public void finishEffects() {
+        checkExecutor();
+        if (activeSeat < 0 && !stopped() && !partyDefeated) advance();
+    }
+
+    private boolean revive(Hero rescuer, int cell) {
+        int seat = 1 - activeSeat;
+        Hero ally = heroes[seat];
+        Level level = Dungeon.level;
+        if (lives[seat] != Life.DOWNED || cell != ally.pos || !level.adjacent(rescuer.pos, cell)
+                || !level.passable[cell] || level.pit[cell] || Actor.findChar(cell) != ally
+                || !observe(activeSeat).visible(cell)) return false;
+        Ankh ankh = resource(seat);
+        if (ankh == null) return false;
+        lives[seat] = Life.REVIVING;
+        ankh.detach(ally.belongings.backpack);
+        ally.HP = reviveHP(preDeath[seat], ally.HT);
+        Actor.freezeCoop(ally, false);
+        lives[seat] = Life.ALIVE;
+        rescuer.spendAndNext(1f);
+        return true;
     }
 
     private final Thread executor = Thread.currentThread();
@@ -165,7 +232,7 @@ public final class CoopSession implements AutoCloseable {
 
     public void checkCanAdvance() {
         checkExecutor();
-        if (stopped() || activeSeat >= 0 || heroes[1] == null) {
+        if (stopped() || partyDefeated || activeSeat >= 0 || heroes[1] == null) {
             throw new IllegalStateException("Session is not awaiting an actor step");
         }
     }
@@ -234,7 +301,7 @@ public final class CoopSession implements AutoCloseable {
      */
     public boolean act(long player, long offeredTurn, Action action, int cell, Item item) {
         checkExecutor();
-        if (activeSeat < 0 || players[activeSeat] != player || offeredTurn != turn || action == null) return false;
+        if (activeSeat < 0 || lives[activeSeat] != Life.ALIVE || players[activeSeat] != player || offeredTurn != turn || action == null) return false;
         if (action.requiresItem() && (item == null || !ownership.allowed(item, player))) return false;
         Hero hero = heroes[activeSeat];
         Level level = Dungeon.level;
@@ -270,7 +337,7 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (item.getClass() != Food.class && !basicWeapon(item))
+                            || (item.getClass() != Food.class && item.getClass() != Ankh.class && !basicWeapon(item))
                             || !hero.belongings.backpack.canHold(item)) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
@@ -284,6 +351,9 @@ public final class CoopSession implements AutoCloseable {
                     if (!basicWeapon(item) || !hero.belongings.backpack.contains(item)
                             || (hero.belongings.weapon != null && hero.belongings.weapon.cursed)) return false;
                     if (!((MeleeWeapon)item).doEquip(hero)) return false;
+                    break;
+                case REVIVE:
+                    if (!revive(hero, cell)) return false;
                     break;
                 case UNEQUIP:
                     if (item != hero.belongings.weapon || !basicWeapon(item) || !hero.belongings.backpack.canHold(item)) return false;
@@ -300,7 +370,7 @@ public final class CoopSession implements AutoCloseable {
                     return false;
             }
             hero.curAction = null;
-            if (!stopped()) advance();
+            if (!stopped() && !partyDefeated) advance();
             return true;
         } catch (RuntimeException failure) {
             stop(failure.toString());
@@ -312,7 +382,7 @@ public final class CoopSession implements AutoCloseable {
         activeSeat = -1;
         Actor.process();
         if (!stopped()) for (int seat = 0; seat < heroes.length; seat++) observe(seat);
-        if (!stopped() && activeSeat < 0) throw new IllegalStateException("Scheduler ended without an input turn");
+        if (!partyDefeated && !stopped() && activeSeat < 0) throw new IllegalStateException("Scheduler ended without an input turn");
     }
 
     @Override public void close() {

@@ -33,8 +33,11 @@ final class SeatProjection {
         Map<String,String> rows = new TreeMap<>();
         Map<Long,Item> visibleItems = new HashMap<>();
         boolean playing=status.equals("IN_GAME");
-        rows.put("status",playing ? status : "PAUSED");
-        if (!playing) rows.put("reason",status);
+        boolean defeated = status.equals("PARTY_DEFEATED");
+        rows.put("status",playing || defeated ? status : "PAUSED");
+        rows.put("life",game.life(seat).name());
+        rows.put("revivable",game.life(seat) == CoopSession.Life.DOWNED ? "1" : "0");
+        if (!playing && !defeated) rows.put("reason",status);
         if (receipt!=null) rows.put("receipt",receipt);
         rows.put("clock",Float.toString(Statistics.duration+com.shatteredpixel.shatteredpixeldungeon.actors.Actor.now()));
         rows.put("turn",Long.toString(game.turn()));
@@ -54,7 +57,10 @@ final class SeatProjection {
             rows.put("width",Integer.toString(level.width()));
             rows.put("self",hero.id()+","+hero.pos+","+hero.HP+","+hero.HT+","+hero.heroClass.name()+","+hero.lvl+","+hero.exp);
             Hero ally = game.hero(1-seat);
-            if (sight.visible(ally.pos) && ally.invisible <= 0) rows.put("ally",ally.id()+","+ally.pos+","+ally.heroClass.name());
+            if (sight.visible(ally.pos) && ally.invisible <= 0) {
+                rows.put("ally",ally.id()+","+ally.pos+","+ally.heroClass.name());
+                rows.put("allylife",game.life(1-seat).name());
+            }
             for (Buff buff : hero.buffs()) {
                 if (buff.icon() != BuffIndicator.NONE) rows.put("b"+buff.id(),buff.icon()+","+
                         (buff instanceof FlavourBuff ? Float.toString(buff.visualcooldown()) : "NA"));
@@ -111,7 +117,7 @@ final class SeatProjection {
             ids.put(item,id);
         }
         visible.put(id,item);
-        String kind = item.getClass() == Food.class ? "FOOD" : item instanceof MeleeWeapon ? "MELEE" : "OTHER";
+        String kind = item.getClass() == Food.class ? "FOOD" : item instanceof Ankh ? "ANKH" : item instanceof MeleeWeapon ? "MELEE" : "OTHER";
         rows.put("i"+id,slot+","+kind+","+item.image()+","+item.quantity()+","+
                 (item.levelKnown ? item.visiblyUpgraded() : "NA"));
     }
