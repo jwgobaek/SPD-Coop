@@ -7,6 +7,23 @@ import java.util.*;
 
 /** Immutable seat-specific display state. No game engine dependency. */
 public final class StateImage {
+    static final int TILE_GROUP = 32;
+    static final String TILES = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    /** Current terrain is in t rows. Returns -1 for unseen or currently visible cells. */
+    public int rememberedTerrain(int cell) {
+        if (cell < 0) return -1;
+        String group = rows.get("r" + cell / TILE_GROUP);
+        int offset = 2 * (cell % TILE_GROUP);
+        if (group == null || offset + 1 >= group.length()) return -1;
+        return TILES.indexOf(group.charAt(offset + 1));
+    }
+
+    public boolean mappedOnly(int cell) {
+        if (rememberedTerrain(cell) < 0) return false;
+        return rows.get("r" + cell / TILE_GROUP).charAt(2 * (cell % TILE_GROUP)) == 'p';
+    }
+
     static final int CHUNK = 1400, MAX_PARTS = 64, MAX_BYTES = CHUNK * MAX_PARTS, MAX_ROWS = 2048;
     public final UUID session;
     public final int seat;

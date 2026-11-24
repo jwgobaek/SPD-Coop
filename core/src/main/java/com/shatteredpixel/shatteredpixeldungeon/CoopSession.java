@@ -31,6 +31,21 @@ public final class CoopSession implements AutoCloseable {
 
     public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP }
 
+    private final java.util.Map<Long, FloorKnowledge[]> floors = new java.util.HashMap<>();
+
+    public FloorKnowledge observe(int seat) {
+        checkExecutor();
+        long floor = ((long)Dungeon.branch << 32) | (Dungeon.depth & 0xffffffffL);
+        FloorKnowledge[] memories = floors.get(floor);
+        if (memories == null) {
+            memories = new FloorKnowledge[heroes.length];
+            floors.put(floor, memories);
+        }
+        if (memories[seat] == null) memories[seat] = new FloorKnowledge(Dungeon.level.length());
+        memories[seat].observe(Dungeon.level, heroes[seat]);
+        return memories[seat];
+    }
+
     private final Thread executor = Thread.currentThread();
     private final Hero[] heroes = new Hero[2];
     private final long[] players = new long[2];
@@ -260,6 +275,7 @@ public final class CoopSession implements AutoCloseable {
     private void advance() {
         activeSeat = -1;
         Actor.process();
+        if (!stopped()) for (int seat = 0; seat < heroes.length; seat++) observe(seat);
         if (!stopped() && activeSeat < 0) throw new IllegalStateException("Scheduler ended without an input turn");
     }
 

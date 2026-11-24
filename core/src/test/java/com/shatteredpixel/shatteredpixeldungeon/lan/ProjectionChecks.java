@@ -75,5 +75,27 @@ public final class ProjectionChecks {
         display.apply(snapshot);
         assertFalse(display.image().rows.containsKey("b"+buff.id()));
         assertEquals(a.current.rows,display.image().rows);
+
+        // Cross the divider, then edit the vacated chamber while it is out of sight.
+        int home = host.pos, observed = home - 1;
+        int lastTile = level.map[observed];
+        host.pos = guest.pos;
+        a.capture(game,5,"IN_GAME",null,null);
+        display.apply(a.current.encode(a.previous,null));
+        assertFalse(display.image().rows.containsKey("t"+observed));
+        assertEquals(lastTile, display.image().rememberedTerrain(observed));
+        Level.set(observed, Terrain.GRASS);
+        a.capture(game,6,"IN_GAME",null,null);
+        assertEquals(lastTile, a.current.rememberedTerrain(observed));
+        DisplayReplica recovered = new DisplayReplica(session,0);
+        recovered.apply(a.current.encode(null,null));
+        assertEquals(lastTile, recovered.image().rememberedTerrain(observed));
+        host.pos = home;
+        a.capture(game,7,"IN_GAME",null,null);
+        recovered.apply(a.current.encode(a.previous,null));
+        assertEquals(-1, recovered.image().rememberedTerrain(observed));
+        assertEquals(Integer.toString(Terrain.GRASS), recovered.image().rows.get("t"+observed));
+        assertNotSame(game.observe(0), game.observe(1));
+        assertFalse(game.observe(1).visible(observed));
     }
 }

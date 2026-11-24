@@ -43,33 +43,29 @@ final class SeatProjection {
         if (playing) {
             Hero hero = game.hero(seat);
             Level level = Dungeon.level;
-            boolean[] sight = new boolean[level.length()];
-            level.updateDirectSight(hero,sight);
-            sight[hero.pos] = true;
+            FloorKnowledge sight = game.observe(seat);
+            writeMemory(rows, sight);
             rows.put("width",Integer.toString(level.width()));
             rows.put("self",hero.id()+","+hero.pos+","+hero.HP+","+hero.HT+","+hero.heroClass.name()+","+hero.lvl+","+hero.exp);
             Hero ally = game.hero(1-seat);
-            if (sight[ally.pos] && ally.invisible <= 0) rows.put("ally",ally.id()+","+ally.pos+","+ally.heroClass.name());
+            if (sight.visible(ally.pos) && ally.invisible <= 0) rows.put("ally",ally.id()+","+ally.pos+","+ally.heroClass.name());
             for (Buff buff : hero.buffs()) {
                 if (buff.icon() != BuffIndicator.NONE) rows.put("b"+buff.id(),buff.icon()+","+
                         (buff instanceof FlavourBuff ? Float.toString(buff.visualcooldown()) : "NA"));
             }
-            for (int cell=0;cell<sight.length;cell++) {
-                if (!sight[cell] || !level.discoverable[cell]) continue;
-                int tile = level.map[cell];
-                if (tile == Terrain.SECRET_DOOR) tile = Terrain.WALL;
-                if (tile == Terrain.SECRET_TRAP) tile = Terrain.EMPTY;
-                rows.put("t"+cell,Integer.toString(tile));
+            for (int cell=0;cell<sight.length();cell++) {
+                if (!sight.visible(cell)) continue;
+                rows.put("t"+cell,Integer.toString(sight.terrain(cell)));
                 Heap heap = level.heaps.get(cell);
                 if (heap != null && heap.type == Heap.Type.HEAP && heap.peek()!=null) {
                     putItem(rows,visibleItems,heap.peek(),"F"+cell);
                 } else if (heap != null) rows.put("h"+cell,"CONTAINER");
             }
             for (Mob mob : level.mobs) {
-                if (sight[mob.pos] && mob.invisible <= 0 && mob.isAlive() && CoopSession.basicMob(mob))
+                if (sight.visible(mob.pos) && mob.invisible <= 0 && mob.isAlive() && CoopSession.basicMob(mob))
                     rows.put("m"+mob.id(),mob.pos+","+mob.getClass().getSimpleName()+","+mob.HP+","+mob.HT);
             }
-            if (attacked != null && !attacked.isAlive() && sight[attacked.pos] && current != null) {
+            if (attacked != null && !attacked.isAlive() && sight.visible(attacked.pos) && current != null) {
                 String key = "m"+attacked.id();
                 String old = current.rows.get(key);
                 if (old != null && old.startsWith(attacked.pos+",")) witnessedDeath = key;
@@ -80,6 +76,24 @@ final class SeatProjection {
         items = visibleItems;
         previous = current;
         current = new StateImage(session,seat,version,rows);
+    }
+
+    private static void writeMemory(Map<String,String> rows, FloorKnowledge memory) {
+        // Each group fits a single bounded SYNC1 value even on a fully explored floor.
+        for (int start = 0; start < memory.length(); start += StateImage.TILE_GROUP) {
+            StringBuilder group = new StringBuilder();
+            boolean known = false;
+            for (int cell = start; cell < start + StateImage.TILE_GROUP; cell++) {
+                int tile = cell < memory.length() && !memory.visible(cell) ? memory.terrain(cell) : -1;
+                if (tile < 0) group.append("..");
+                else {
+                    known = true;
+                    group.append(memory.visited(cell) ? 'v' : 'p');
+                    group.append(StateImage.TILES.charAt(tile));
+                }
+            }
+            if (known) rows.put("r" + start / StateImage.TILE_GROUP, group.toString());
+        }
     }
 
     private void putItem(Map<String,String> rows, Map<Long,Item> visible, Item item,String slot) {
