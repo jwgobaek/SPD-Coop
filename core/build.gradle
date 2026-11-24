@@ -16,3 +16,8 @@ test {
     workingDir file('src/main/assets')
     forkEvery = 1
 }
+
+// The LAN integration client runs in a fresh JVM outside Gradle's test worker.
+test {
+    systemProperty 'coop.client.classpath', sourceSets.test.runtimeClasspath.asPath
+}
