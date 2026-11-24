@@ -241,6 +241,51 @@ public class CoopSessionTest extends HeadlessDungeon {
     }
 
     @Test(timeout = 30000)
+    public void combatGeometryTracksEngagementWithoutAdvancingActors() {
+        try (CoopSession game = open(402)) {
+            Level level = Dungeon.level;
+            int w = level.width(), center = level.length()/2/w*w + w/2;
+            Hero a = game.hero(0), b = game.hero(1);
+            for (int y=-3; y<=3; y++) for (int x=-5; x<=5; x++) {
+                int cell = center+y*w+x;
+                Level.set(cell, x==0 ? Terrain.WALL : Terrain.EMPTY);
+                level.discoverable[cell]=true;
+            }
+            for (Mob mob : level.mobs) mob.clearEnemy();
+            a.pos=center-3; b.pos=center+3;
+            Rat left=new Rat(), right=new Rat();
+            left.pos=a.pos+1; right.pos=b.pos-1;
+            GameScene.add(left); GameScene.add(right);
+            left.aggro(a); right.aggro(b);
+            HashSet<Actor> actors = Actor.all();
+            float now = Actor.now();
+            long turn = game.turn();
+            int hp = a.HP + b.HP + left.HP + right.HP;
+            for (int repeat=0; repeat<5; repeat++) {
+                assertEquals(2, CombatZones.calculate(game,null).size());
+                java.util.List<java.util.BitSet> publicView = CombatZones.calculate(game,game.observe(0));
+                assertEquals(1, publicView.size());
+                assertFalse(publicView.get(0).get(b.pos));
+                right.aggro(a);
+                assertEquals(1, CombatZones.calculate(game,null).size());
+                right.aggro(b);
+                Level.set(center,Terrain.EMPTY);
+                a.pos=center-1; b.pos=center+1;
+                assertEquals(1, CombatZones.calculate(game,null).size());
+                a.pos=center-3; b.pos=center+3;
+                Level.set(center,Terrain.WALL);
+            }
+            left.HP=0;
+            assertEquals(1,CombatZones.calculate(game,null).size());
+            assertTrue(CombatZones.calculate(game,game.observe(0)).isEmpty());
+            assertEquals(actors,Actor.all());
+            assertEquals(now,Actor.now(),0);
+            assertEquals(turn,game.turn());
+            assertEquals(hp-left.HT,a.HP+b.HP+right.HP);
+        }
+    }
+
+    @Test(timeout = 30000)
     public void seatsContendForOneHeapOnTheGeneratedFloor() {
         try (CoopSession s = open(402)) {
             Hero host = s.hero(0), guest = s.hero(1);

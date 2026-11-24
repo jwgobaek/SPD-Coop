@@ -51,6 +51,13 @@ public final class CoopSession implements AutoCloseable {
     private final long[] players = new long[2];
     private final String previousBase;
     private final Runnable restoreJournal, restoreBadges;
+    private final Mob[] lastOpponent = new Mob[2];
+    private final long[] attackTurn = new long[2];
+
+    boolean recentlyAttacked(int seat, Mob mob) {
+        return lastOpponent[seat] == mob && turn - attackTurn[seat] <= 2;
+    }
+
     private int activeSeat = -1;
     private long turn;
     private String stopReason;
@@ -240,6 +247,8 @@ public final class CoopSession implements AutoCloseable {
                             || hero.isCharmedBy(enemy)) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(cell) || !(hero.curAction instanceof HeroAction.Attack)) throw new IllegalStateException("Unexpected attack action");
+                    lastOpponent[activeSeat] = (Mob)enemy;
+                    attackTurn[activeSeat] = turn;
                     hero.act();
                     break;
                 case PICK_UP:

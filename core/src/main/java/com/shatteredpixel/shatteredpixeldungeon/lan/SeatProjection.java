@@ -45,6 +45,12 @@ final class SeatProjection {
             Level level = Dungeon.level;
             FloorKnowledge sight = game.observe(seat);
             writeMemory(rows, sight);
+            for (BitSet area : CombatZones.calculate(game, sight)) {
+                for (int cell = area.nextSetBit(0); cell >= 0; cell = area.nextSetBit(cell+1)) {
+                    int mask = CombatZones.edgeMask(area, cell, level.width());
+                    if (mask != 0) rows.put("z"+cell, Integer.toString(mask));
+                }
+            }
             rows.put("width",Integer.toString(level.width()));
             rows.put("self",hero.id()+","+hero.pos+","+hero.HP+","+hero.HT+","+hero.heroClass.name()+","+hero.lvl+","+hero.exp);
             Hero ally = game.hero(1-seat);
