@@ -18,6 +18,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GnollExile;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.PhantomPiranha;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Venomous;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampiric;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sickle;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.BattleAxe;
@@ -346,7 +347,9 @@ public final class CoopSession implements AutoCloseable {
     // Admission is per native weapon and on-hit effect. Unstable can pick fourteen different effects.
     public static boolean statueWeapon(Item item) {
         return item instanceof Sickle && ((Weapon)item).enchantment instanceof Kinetic
-                || item instanceof BattleAxe && ((Weapon)item).enchantment instanceof Vampiric;
+                || item instanceof BattleAxe && ((Weapon)item).enchantment instanceof Vampiric
+                || item instanceof Shortsword
+                    && ((Weapon)item).enchantment instanceof Venomous;
     }
 
     public static boolean disguised(Char actor) {

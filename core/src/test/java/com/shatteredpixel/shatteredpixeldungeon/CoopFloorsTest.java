@@ -31,7 +31,8 @@ public class CoopFloorsTest extends HeadlessDungeon {
             for(int off:PathFinder.NEIGHBOURS8) {
                 int c=p+off;
                 if(!l.insideMap(c) || first[c]>=0 || (!l.passable[c] && l.map[c]!=Terrain.SECRET_DOOR) || l.pit[c] || l.getTransition(c)!=null ||
-                        l.plants.get(c)!=null || l.traps.get(c)!=null || (p==start && Actor.findChar(c)!=null)) continue;
+                        l.plants.get(c)!=null || l.traps.get(c)!=null || (p==start && Actor.findChar(c)!=null)
+                        || (Actor.findChar(c) instanceof Hero && Actor.findChar(c)!=game.hero(game.activeSeat()))) continue;
                 Heap heap=l.heaps.get(c);
                 if(heap!=null && heap.type!=Heap.Type.HEAP) continue;
                 switch(l.map[c]) {
@@ -126,11 +127,18 @@ public class CoopFloorsTest extends HeadlessDungeon {
     }
 
     @Test public void walkBetweenGeneratedSewersPreserveDormantWorldAndResume() throws Exception {
+        walkAndRestore(Long.getLong("coop.stair.seed",415L));
+    }
+
+    @Test public void walkFromSpawnOnTheNaturalMimicAndStatueSeeds() throws Exception {
+        for(long seed:new long[]{408,411,416,420}) walkAndRestore(seed);
+    }
+
+    private void walkAndRestore(long seed) throws Exception {
         File disk=temporary.newFile();
         int[] playerIds=new int[2],map;
         Map<Integer,String> monsters=new TreeMap<>();
-        long owned; int drop,steps=0,attacks=0;
-        long seed=Long.getLong("coop.stair.seed",415L);
+        long owned; int drop,steps=0,attacks=0,searches=0,casts=0;
         try(CoopSession game=CoopSession.open(seed,1,HeroClass.MAGE)) {
             game.join(2,HeroClass.WARRIOR);
             com.watabou.utils.Random.pushGenerator(seed);
@@ -144,6 +152,21 @@ public class CoopFloorsTest extends HeadlessDungeon {
                 int seat=game.activeSeat();
                 assertTrue("Party defeated on seeded route "+seed,seat>=0);
                 Hero h=game.hero(seat);
+                // On the additional routes take a visible clear missile shot before advancing
+                // into melee. The baseline 415 input policy stays pinned.
+                if(seed!=415 && h.heroClass==HeroClass.MAGE) {
+                    Mob nearest=null;
+                    for(Mob enemy:l.mobs) {
+                        if(enemy.alignment!=Char.Alignment.ENEMY || !game.observe(seat).visible(enemy.pos)) continue;
+                        if(nearest==null || l.distance(h.pos,enemy.pos)<l.distance(h.pos,nearest.pos)
+                                || (l.distance(h.pos,enemy.pos)==l.distance(h.pos,nearest.pos) && enemy.id()<nearest.id()))
+                            nearest=enemy;
+                    }
+                    if(nearest!=null && step(game,CoopSession.Action.ZAP,nearest.pos,h.belongings.weapon())) {
+                        casts++;
+                        continue;
+                    }
+                }
                 int target=-1;
                 for(Mob m:l.mobs) if(l.adjacent(h.pos,m.pos) && game.observe(seat).visible(m.pos)) { target=m.pos;break; }
                 if(target!=-1) {
@@ -152,11 +175,14 @@ public class CoopFloorsTest extends HeadlessDungeon {
                 } else {
                     int next=nextStep(game,l.exit());
                     if(next<0 || next==h.pos) assertTrue(step(game,CoopSession.Action.WAIT,0,null));
-                    else if(l.map[next]==Terrain.SECRET_DOOR) assertTrue(step(game,CoopSession.Action.SEARCH,h.pos,null));
+                    else if(l.map[next]==Terrain.SECRET_DOOR) {
+                        assertTrue(step(game,CoopSession.Action.SEARCH,h.pos,null));
+                        searches++;
+                    }
                     else { assertTrue(step(game,CoopSession.Action.MOVE,next,null)); steps++; }
                 }
             }
-            assertTrue("No supported approach on seed "+seed+" walked "+steps+" attacked "+attacks,game.stairs.stair()>=0);
+            assertTrue("No supported approach on seed "+seed+" walked "+steps+" attacked "+attacks+" positions "+game.hero(0).pos+"/"+game.hero(1).pos+" exit "+l.exit()+" life "+game.life(0)+"/"+game.life(1)+" hp "+game.hero(0).HP+"/"+game.hero(1).HP,game.stairs.stair()>=0);
             assertTrue(steps>1);
             for(Mob m:l.mobs) monsters.put(m.id(),m.pos+","+m.HP);
             map=l.map.clone();
@@ -191,7 +217,7 @@ public class CoopFloorsTest extends HeadlessDungeon {
             assertTrue(game.knowledge(game.hero(0)).visited(drop));
             assertEquals(1,Dungeon.depth);
             assertTrue(step(game,CoopSession.Action.WAIT,0,null));
-            System.out.println("native sewer seed="+seed+" walk="+steps+" attacks="+attacks);
+            System.out.println("native sewer seed="+seed+" walk="+steps+" attacks="+attacks+" searches="+searches+" casts="+casts);
             Hero fallen=game.hero(1);
             fallen.damage(10000,new Object());
             assertTrue(game.life(1)!=CoopSession.Life.ALIVE);

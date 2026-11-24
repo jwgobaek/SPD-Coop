@@ -429,7 +429,7 @@ actors/mobs/CausticSlime	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatter
 actors/mobs/Crab	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Crab.java
 actors/mobs/CrystalGuardian	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalGuardian.java
 actors/mobs/CrystalGuardian.Sleeping	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalGuardian.java
-actors/mobs/CrystalMimic	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalMimic.java
+actors/mobs/CrystalMimic	actors/mobs	VERIFIED	seed 411 ambush, victim stack, escape or return on defeat, two process kills / SewerCrystalMimicTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalMimic.java
 actors/mobs/CrystalMimic.Fleeing	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalMimic.java
 actors/mobs/CrystalSpire	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalSpire.java
 actors/mobs/CrystalWisp	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalWisp.java
@@ -471,7 +471,7 @@ actors/mobs/Ghoul.GhoulLifeLink	actors/mobs	UNSUPPORTED		core/src/main/java/com/
 actors/mobs/Ghoul.Sleeping	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Ghoul.java
 actors/mobs/Ghoul.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Ghoul.java
 actors/mobs/Gnoll	actors/mobs	IMPLEMENTED	basicMob allowlist	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Gnoll.java
-actors/mobs/GnollExile	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollExile.java
+actors/mobs/GnollExile	actors/mobs	VERIFIED	seed 420 passive, attacked by both seats, native drops independent of Ghost quest / SewerGuardiansTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollExile.java
 actors/mobs/GnollExile.Passive	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollExile.java
 actors/mobs/GnollExile.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollExile.java
 actors/mobs/GnollGeomancer	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollGeomancer.java
@@ -497,7 +497,7 @@ actors/mobs/GreatCrab.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/
 actors/mobs/Guard	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Guard.java
 actors/mobs/Guard.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Guard.java
 actors/mobs/HermitCrab	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/HermitCrab.java
-actors/mobs/Mimic	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mimic.java
+actors/mobs/Mimic	actors/mobs	VERIFIED	seed 408 native disguise, opener, melee, missile, gold, parked floor, receipt / SewerMimicTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mimic.java
 actors/mobs/Mob	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob.java
 actors/mobs/Mob.Fleeing	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob.java
 actors/mobs/Mob.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob.java
@@ -515,7 +515,7 @@ actors/mobs/Necromancer	actors/mobs	UNSUPPORTED		core/src/main/java/com/shattere
 actors/mobs/Necromancer.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Necromancer.java
 actors/mobs/Necromancer.NecroSkeleton	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Necromancer.java
 actors/mobs/Necromancer.NecroSkeletonSprite	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Necromancer.java
-actors/mobs/PhantomPiranha	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/PhantomPiranha.java
+actors/mobs/PhantomPiranha	actors/mobs	VERIFIED	seed 479 distant missile from each seat, native water jump, return, melee defeat and meat drop / SewerGuardiansTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/PhantomPiranha.java
 actors/mobs/Piranha	actors/mobs	VERIFIED	native water AI, seat combat, loot, parked floor / SewerSpecialActorTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Piranha.java
 actors/mobs/Piranha.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Piranha.java
 actors/mobs/Piranha.Sleeping	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Piranha.java
@@ -540,7 +540,7 @@ actors/mobs/SpectralNecromancer	actors/mobs	UNSUPPORTED		core/src/main/java/com/
 actors/mobs/Spinner	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java
 actors/mobs/Spinner.Fleeing	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java
 actors/mobs/Spinner.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java
-actors/mobs/Statue	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Statue.java
+actors/mobs/Statue	actors/mobs	VERIFIED	seed 416 Kinetic Sickle and seed 420 Vampiric BattleAxe only; native procs, drop, physical weapon identity / SewerGuardiansTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Statue.java
 actors/mobs/Succubus	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Succubus.java
 actors/mobs/Swarm	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Swarm.java
 actors/mobs/Tengu	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
@@ -1093,7 +1093,7 @@ items/weapon/enchantments/Blazing	items/weapon/enchantments	UNSUPPORTED		core/sr
 items/weapon/enchantments/Blocking	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Blocking.java
 items/weapon/enchantments/Blocking.BlockBuff	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Blocking.java
 items/weapon/enchantments/Blooming	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Blooming.java
-items/weapon/enchantments/Chilling	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Chilling.java
+items/weapon/enchantments/Chilling	items/weapon/enchantments	VERIFIED	isolated statue proc applies chill to struck hero on either seat / SewerGuardiansTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Chilling.java
 items/weapon/enchantments/Corrupting	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Corrupting.java
 items/weapon/enchantments/Corrupting.CorruptingTracker	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Corrupting.java
 items/weapon/enchantments/Crystal	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Crystal.java
@@ -1102,16 +1102,16 @@ items/weapon/enchantments/Elastic	items/weapon/enchantments	UNSUPPORTED		core/sr
 items/weapon/enchantments/Eldritch	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Eldritch.java
 items/weapon/enchantments/Grim	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Grim.java
 items/weapon/enchantments/Grim.GrimTracker	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Grim.java
-items/weapon/enchantments/Kinetic	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Kinetic.java
+items/weapon/enchantments/Kinetic	items/weapon/enchantments	VERIFIED	seed 416 statue's own Sickle, tracker on wielder, original damage handling / SewerGuardiansTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Kinetic.java
 items/weapon/enchantments/Kinetic.ConservedDamage	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Kinetic.java
 items/weapon/enchantments/Kinetic.KineticTracker	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Kinetic.java
 items/weapon/enchantments/Lucky	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Lucky.java
 items/weapon/enchantments/Lucky.LuckProc	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Lucky.java
 items/weapon/enchantments/Projecting	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Projecting.java
-items/weapon/enchantments/Shocking	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Shocking.java
+items/weapon/enchantments/Shocking	items/weapon/enchantments	VERIFIED	isolated statue chain, nearby other seat takes damage once / SewerGuardiansTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Shocking.java
 items/weapon/enchantments/Unstable	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Unstable.java
-items/weapon/enchantments/Vampiric	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Vampiric.java
-items/weapon/enchantments/Venomous	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Venomous.java
+items/weapon/enchantments/Vampiric	items/weapon/enchantments	VERIFIED	seed 420 statue's own BattleAxe, native heal on hit / SewerGuardiansTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Vampiric.java
+items/weapon/enchantments/Venomous	items/weapon/enchantments	VERIFIED	natural seed 444 statue, both seats, poison ticks and identity after restore / SewerGuardiansTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Venomous.java
 items/weapon/enchantments/Vorpal	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Vorpal.java
 items/weapon/enchantments/Vorpal.VorpalTracker	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Vorpal.java
 items/weapon/melee/AssassinsBlade	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/AssassinsBlade.java

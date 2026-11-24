@@ -28,6 +28,11 @@ def main(directory):
     if not route or min(map(int, route.groups())) <= 0 or "mode=verifyfloor" not in wire:
         raise ValueError("Missing completed seed 415 socket route")
     gates = dict(re.findall(r"gate seed=(\d+) placed_at_stairs=true outcome=(ROUND_TRIP|REJECT_FLOOR) restored=true", report))
+    engine = output(directory, "CoopFloorsTest", {"walkFromSpawnOnTheNaturalMimicAndStatueSeeds",
+                    "walkBetweenGeneratedSewersPreserveDormantWorldAndResume"})
+    walks = set(re.findall(r"native sewer seed=(\d+) walk=\d+ attacks=\d+ searches=\d+", engine))
+    if not {"408", "411", "415", "416", "420"} <= walks:
+        raise ValueError("Missing walk from the native entrance")
     levels = re.findall(r"generation seed=(\d+) depth=(\d+) actors=\[(.*?)\] rooms=\[(.*?)\] traps=\[(.*?)\] "
                         r"mobs=(\d+) level_json_bytes=(\d+)", report)
     keys = {(seed, depth) for seed, depth, *_ in levels}
@@ -39,7 +44,7 @@ def main(directory):
                      "level_bundle_utf8_bytes", "placed_gate_result", "normal_route", "restored_at_this_depth"))
     for seed, depth, *values in levels:
         gate = {"1": "START", "2": gates[seed]}.get(depth, "NOT RUN")
-        route_verified = seed == "415" and depth in ("1", "2")
+        route_verified = seed in walks and depth in ("1", "2")
         restored_depth = "2" if gates[seed] == "ROUND_TRIP" else "1"
         writer.writerow((seed, depth, *values, gate, "PASS" if route_verified else "NOT RUN",
                          "PASS" if route_verified or depth == restored_depth else "NOT RUN"))

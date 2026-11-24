@@ -40,6 +40,7 @@ public final class CoopFloors {
     }
 
     static void requireSupportedResidents(Level next) {
+        java.util.SortedSet<String> blockers=new java.util.TreeSet<>();
         for (Mob mob:next.mobs) {
             if (!CoopSession.basicMob(mob)) {
                 String detail=mob.getClass().getSimpleName();
@@ -48,9 +49,10 @@ public final class CoopFloors {
                     detail+="/"+weapon.getClass().getSimpleName()+"/"+
                             (weapon.enchantment==null ? "plain" : weapon.enchantment.getClass().getSimpleName());
                 }
-                throw new UnsupportedDestination(detail);
+                blockers.add(detail);
             }
         }
+        if (!blockers.isEmpty()) throw new UnsupportedDestination(blockers.toString());
     }
 
     public boolean hasParkedFloor() { return parked!=null; }

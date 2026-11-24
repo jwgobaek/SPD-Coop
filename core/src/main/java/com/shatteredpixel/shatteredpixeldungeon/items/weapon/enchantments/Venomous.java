@@ -21,6 +21,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
@@ -54,7 +55,7 @@ public class Venomous extends Weapon.Enchantment {
 			if (poison != null){
 				poison.extend(powerMulti * ((level / 2f) + 3));
 			}
-			CellEmitter.center(defender.pos).burst(PoisonParticle.SPLASH, 5);
+			if (Dungeon.coop == null) CellEmitter.center(defender.pos).burst(PoisonParticle.SPLASH, 5);
 
 		}
 

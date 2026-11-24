@@ -13,6 +13,16 @@ PREFIXES = ("items/", "actors/mobs/", "actors/buffs/", "actors/blobs/", "actors/
             "actors/hero/spells/", "levels/", "plants/", "mechanics/")
 ENUMS = {"HeroClass", "HeroSubClass", "Talent"}
 VERIFIED = {
+    "actors/mobs/Mimic": "seed 408 native disguise, opener, melee, missile, gold, parked floor, receipt / SewerMimicTest, HostRestartTest",
+    "actors/mobs/CrystalMimic": "seed 411 ambush, victim stack, escape or return on defeat, two process kills / SewerCrystalMimicTest, HostRestartTest",
+    "actors/mobs/Statue": "seed 416 Kinetic Sickle and seed 420 Vampiric BattleAxe only; native procs, drop, physical weapon identity / SewerGuardiansTest, HostRestartTest",
+    "items/weapon/enchantments/Venomous": "natural seed 444 statue, both seats, poison ticks and identity after restore / SewerGuardiansTest",
+    "items/weapon/enchantments/Chilling": "isolated statue proc applies chill to struck hero on either seat / SewerGuardiansTest",
+    "items/weapon/enchantments/Shocking": "isolated statue chain, nearby other seat takes damage once / SewerGuardiansTest",
+    "actors/mobs/GnollExile": "seed 420 passive, attacked by both seats, native drops independent of Ghost quest / SewerGuardiansTest",
+    "actors/mobs/PhantomPiranha": "seed 479 distant missile from each seat, native water jump, return, melee defeat and meat drop / SewerGuardiansTest",
+    "items/weapon/enchantments/Kinetic": "seed 416 statue's own Sickle, tracker on wielder, original damage handling / SewerGuardiansTest",
+    "items/weapon/enchantments/Vampiric": "seed 420 statue's own BattleAxe, native heal on hit / SewerGuardiansTest",
     "actors/mobs/npcs/Ghost": "depth 2 shared quest, single owned reward, reboot and receipt / SewerGhostTest, HostRestartTest",
     "actors/mobs/FetidRat": "spawned quest, actual combat, credited completion / SewerGhostTest, HostRestartTest",
     "actors/mobs/Bee": "host and guest, guarding a pot or holder, parked and active targets / SewerBeeTest",

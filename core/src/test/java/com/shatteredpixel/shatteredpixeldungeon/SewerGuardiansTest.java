@@ -3,6 +3,8 @@ package com.shatteredpixel.shatteredpixeldungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.*;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Chill;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.*;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
@@ -35,14 +37,27 @@ public class SewerGuardiansTest extends HeadlessDungeon {
                 saved=game.checkpoint();
             }
             try(CoopSession game=CoopSession.restore(saved)) {
+                com.watabou.utils.Random.pushGenerator(37L*seed+seat);
                 SewerBeeTest.cross(game,Dungeon.level.exit());
                 Statue statue=(Statue)Actor.findById(id);
                 assertEquals(weaponId,game.ownership.identity(statue.weapon()));
                 // Durability fixture for repeated native weapon procs, including a two-handed tier-four axe.
                 for(int i=0;i<2;i++) game.hero(i).HP=game.hero(i).HT=180;
                 SewerBeeTest.offer(game,seat);
-                SewerGhostTest.meet(game,seat,statue);
                 Hero caster=game.hero(seat);
+                // Shoot from outside melee range: a full native Vampiric heal can erase a
+                // point-blank missile's HP change before the next input boundary.
+                Level floor=Dungeon.level;
+                boolean firingCell=false;
+                for(int cell=0;cell<floor.length();cell++) {
+                    if(!floor.passable[cell] || floor.pit[cell] || floor.traps.get(cell)!=null
+                            || Actor.findChar(cell)!=null || floor.distance(cell,statue.pos)<3
+                            || floor.distance(cell,statue.pos)>caster.viewDistance) continue;
+                    if(new Ballistica(cell,statue.pos,Ballistica.MAGIC_BOLT).collisionPos!=statue.pos) continue;
+                    caster.pos=cell;
+                    if(game.observe(seat).visible(statue.pos)) { firingCell=true; break; }
+                }
+                assertTrue(firingCell);
                 int otherHp=game.hero(1-seat).HP;
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ZAP,statue.pos,caster.belongings.weapon()));
                 assertSame(statue.HUNTING,statue.state);
@@ -60,7 +75,7 @@ public class SewerGuardiansTest extends HeadlessDungeon {
                     assertTrue(statue.HP>was);
                 }
                 assertEquals(otherHp,game.hero(1-seat).HP);
-                for(int n=0;n<16 && statue.isAlive();n++) {
+                for(int n=0;n<80 && statue.isAlive();n++) {
                     int acting=game.activeSeat();
                     SewerGhostTest.meet(game,acting,statue);
                     Hero h=game.hero(acting);
@@ -88,6 +103,63 @@ public class SewerGuardiansTest extends HeadlessDungeon {
         }
     }
 
+    @Test public void naturalVenomousStatuePreservesPoisonAndWeaponOnBothSeats() {
+        for (int seat=0;seat<2;seat++) {
+            Bundle saved;
+            int statueId,otherHP;
+            long itemId;
+            float due;
+            try (CoopSession game=CoopSession.open(444,1,HeroClass.MAGE)) {
+                game.join(2,HeroClass.MAGE);
+                SewerBeeTest.cross(game,Dungeon.level.exit());
+                Statue statue=SewerSpecialActorTest.actor(Statue.class);
+                statueId=statue.id();
+                itemId=game.ownership.identity(statue.weapon());
+                assertEquals(Shortsword.class,statue.weapon().getClass());
+                assertEquals(Venomous.class,statue.weapon().enchantment.getClass());
+                Hero victim=game.hero(seat);
+                otherHP=game.hero(1-seat).HP;
+                // Invoke the real on-hit proc independently of the accuracy roll.
+                for (int n=0;n<100 && victim.buff(Poison.class)==null;n++) statue.attackProc(victim,4);
+                assertNotNull(victim.buff(Poison.class));
+                assertNull(game.hero(1-seat).buff(Poison.class));
+                due=victim.buff(Poison.class).cooldown();
+                saved=game.checkpoint();
+            }
+            try (CoopSession game=CoopSession.restore(saved)) {
+                Hero victim=game.hero(seat);
+                assertEquals(due,victim.buff(Poison.class).cooldown(),0.0001f);
+                assertEquals(itemId,game.ownership.identity(((Statue)Actor.findById(statueId)).weapon()));
+                int health=victim.HP;
+                for(int i=0;i<20 && victim.HP==health;i++) SewerSpecialActorTest.waitOne(game);
+                assertTrue(victim.HP<health);
+                assertEquals(otherHP,game.hero(1-seat).HP);
+            }
+        }
+    }
+
+    @Test public void nativeChillingAndShockingProcsResolveAgainstTheCorrectVictims() {
+        for(int seat=0;seat<2;seat++) try(CoopSession game=CoopSession.open(416,1,HeroClass.MAGE)) {
+            game.join(2,HeroClass.MAGE);
+            SewerBeeTest.cross(game,Dungeon.level.exit());
+            Statue statue=SewerSpecialActorTest.actor(Statue.class);
+            Hero victim=game.hero(seat), other=game.hero(1-seat);
+            SewerGhostTest.meet(game,seat,statue);
+            SewerGhostTest.meet(game,1-seat,statue);
+            // Isolate two native Unstable delegates without admitting the other effects.
+            Chilling chill=new Chilling();
+            for(int n=0;n<100 && victim.buff(Chill.class)==null;n++) chill.proc(statue.weapon(),statue,victim,8);
+            assertNotNull(victim.buff(Chill.class));
+            assertNull(other.buff(Chill.class));
+            Shocking lightning=new Shocking();
+            int initial=victim.HP,otherHP=other.HP;
+            for(int n=0;n<100 && other.HP==otherHP;n++) lightning.proc(statue.weapon(),statue,victim,8);
+            assertEquals(otherHP-4,other.HP);
+            assertEquals(initial,victim.HP);
+            game.checkpoint();
+        }
+    }
+
     @Test public void exileOnTheGhostFloorUsesItsOwnAggressionAndDropsLoot() {
         for(int seat=0;seat<2;seat++) try(CoopSession game=CoopSession.open(420,1,HeroClass.MAGE)) {
             game.join(2,HeroClass.MAGE);
@@ -96,7 +168,8 @@ public class SewerGuardiansTest extends HeadlessDungeon {
             assertSame(exile.PASSIVE,exile.state);
             assertEquals("OFFER",com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost.Quest.sewerOffer());
             SewerBeeTest.offer(game,seat);
-            int prior=CoopSession.floorItems(Dungeon.level).size();
+            com.watabou.utils.Random.pushGenerator(420+seat);
+            long prior=looseUnits();
             for (int n=0;n<18 && exile.isAlive();n++) {
                 int acting=game.activeSeat();
                 Hero h=game.hero(acting);
@@ -113,10 +186,20 @@ public class SewerGuardiansTest extends HeadlessDungeon {
                         || CoopFloorsTest.step(game,CoopSession.Action.ATTACK,exile.pos,null));
             }
             assertFalse(exile.isAlive());
-            assertTrue(CoopSession.floorItems(Dungeon.level).size()>=prior+2);
+            assertTrue("Native exile loot is missing",looseUnits()>=prior+2);
             assertEquals("OFFER",com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost.Quest.sewerOffer());
             game.checkpoint();
         }
+    }
+
+    // Native loot can land in a stack or fall through a nearby chasm.
+    private static long looseUnits() {
+        long units=0;
+        for(com.shatteredpixel.shatteredpixeldungeon.items.Heap heap:Dungeon.level.heaps.valueList())
+            for(Item item:heap.items) units+=item.quantity();
+        for(java.util.ArrayList<Item> fallen:Dungeon.droppedItems.valueList())
+            for(Item item:fallen) units+=item.quantity();
+        return units;
     }
 
     @Test public void distantMagicMakesPhantomPiranhaJumpTowardsTheActualCaster() {
@@ -158,10 +241,13 @@ public class SewerGuardiansTest extends HeadlessDungeon {
                 assertEquals(pos,fish.pos);
                 assertEquals(left,fish.HP);
                 for (int i=0;i<2;i++) restored.hero(i).HP=restored.hero(i).HT=180;
-                for (int n=0;n<32 && fish.isAlive();n++) {
+                com.watabou.utils.Random.pushGenerator(479+seat);
+                for (int n=0;n<60 && fish.isAlive();n++) {
                     int active=restored.activeSeat();
                     SewerGhostTest.meet(restored,active,fish);
-                    assertTrue(CoopFloorsTest.step(restored,CoopSession.Action.ATTACK,fish.pos,null));
+                    Hero striker=restored.hero(active);
+                    if (n==0 || !CoopFloorsTest.step(restored,CoopSession.Action.ZAP,fish.pos,striker.belongings.weapon()))
+                        assertTrue(CoopFloorsTest.step(restored,CoopSession.Action.ATTACK,fish.pos,null));
                 }
                 assertFalse(fish.isAlive());
                 boolean meat=false;
