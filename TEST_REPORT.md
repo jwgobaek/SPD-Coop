@@ -217,3 +217,46 @@ gh workflow run android.yml --repo jwgobaek/SPD-Coop --ref coop/phase6
 ```
 
 최종 APK SHA-256은 `690e3c4070a5401c549cd31400708e6e011dd9c6932d985d984d2275b29a642a`이다. Cloud 경로는 `/workspace/deliverables/phase6-verified/android-debug.apk`다. 증거 ZIP은 최종 JUnit XML·빌드·서명 로그·소스 커밋·변경 파일과 중간 실패 및 재검증 기록을 포함한다. ZIP 무결성 검사와 APK의 sha256sum -c가 통과했다. ZIP SHA-256은 `d8c7330421bfd252c34b928415f7315ace96d380a116bf3817879fdd74cc2a27`이다. [Git에 보존한 검증 ZIP](docs/coop/phase6-cloud-evidence.zip)
+
+## Phase 7 클라우드 검증 결과
+
+빌드 대상은 `da173259ca546d1e289197d4336a4e5421c83c10`이다. 같은 커밋으로 원본 JUnit 회귀, 협동 저장·소켓 검사 및 Android APK 검사를 실행했다.
+
+| 검사 | 상태 | 실제 결과 |
+|---|---|---|
+| 변경 전 기준선 | PASS | 기존 34건, 실패·오류·스킵 0 |
+| 7A·7B·7C·7D 단계별 실행 | PASS | 7A 수정 후 16건, 7B 19건 및 보강 5건, 7C 6건, 7D 최종 집중 검사 10건. 각 실행의 XML을 ZIP에 보존 |
+| 최종 전체 JUnit | PASS | 기존 34건과 신규 10건. 총 44건, 실패·오류·스킵 0 |
+| 일반 체크포인트 | PASS | 두 시드·양쪽 직업 배치에서 파일로 저장하고 엔진을 닫은 후 20회 복원. 실제 다음 Actor와 시간 확인 후 20회 행동. 전투 불능·부활 후 상태와 파티 전멸 복원 별도 검사 |
+| 독립 JVM 재시작 | PASS | 호스트/클라이언트 JVM을 각각 12회 기동. 초기 게임 이후 디스크에서 11회 재개. 두 좌석의 확정된 공개 상태를 개인 표시 모델과 비교 |
+| 연결 재인증 | PASS | 주 시나리오에서 실제 새 TCP 연결 54건을 기존 좌석에 연결. 별도 인증 테스트에서 잘못된 서명·좌석·중복 연결·신규 참가·다른 좌석의 확인 해시 거부 |
+| 호스트 네트워크 행동 | PASS | 성공 응답을 받은 행동 1,019건. 응답 전 강제 종료 후 검증한 부활·대기 영수증 2건. 확정 합계 1,021건 중 최초 호스트 재시작 이후 1,006건. 조회·거부·롤백된 메모리 변경은 집계에서 제외 |
+| 행동 후 단절과 재조회 | PASS | 획득·공격·식량의 확정 뒤 소켓을 닫고 재접속. 동일 행동 재제출과 LOOKUP에서 기존 결과 반환. 부활은 실제 저장 직후 응답 전에 종료하여 HP 5와 앙크 소모 1회를 새 호스트에서 검증. 1,000회 추가 진행 후 오래된 영수증 EXPIRED |
+| 강제 종료 | PASS | 실제 호스트 JVM 6회. 부활 저장 직후 응답 전, 장시간 진행의 마지막 응답 후, 기록 중·검증 중·HEAD 교체 전·후. 별도 파일 계층 시험에서 독립 작성자 JVM 4회 강제 종료 |
+| 쓰기 실패·손상 | PASS | 실패를 주입한 행동에는 CHECKPOINT_FAILED를 반환했고 재시작 후 같은 턴과 UNKNOWN을 확인. 파일 누락·잘림·SHA 불일치·다른 세대·HEAD 소실·잘못된 스키마·중복 Actor/아이템·귀속·영수증 오류 거부. 이전 정상 세대 복구 시 새 epoch 강제 |
+| Android Cloud 디버그 APK | PASS | org.spdcoop.dungeon.indev, 4.0.2-INDEV (922), min SDK 21, target SDK 36, 36,842,183바이트. aapt 및 apksigner v1/v2 검증과 SHA-256 재검사 통과 |
+| GitHub 호스팅 CI / Artifact | NOT RUN | 개발 브랜치를 일반 푸시했으나 해당 브랜치 run 조회에서 0건 |
+| Android 실기기 | NOT RUN | 설치, 렌더링, 터치, 실제 Wi-Fi·핫스팟, 앱 생명주기와 전원 차단 내구성 |
+
+**발견한 오류와 재검증.** 첫 7A 검사 한 건은 FAIL이었다. 아이템을 내려놓는 행동에서 몬스터 AI가 표적을 다시 선택했는데 테스트가 이전 표적을 기대했다. 저장 직전의 실제 표적을 확정하고 같은 Actor를 복원하는 검증으로 수정했다. 최종 결과에 해당 실패 실행을 합산하지 않았다. 손상된 현재 세대가 정상 백업을 밀어낼 수 있는 경우도 검토해 백업 승격 전 무결성을 재확인하고 이를 회귀로 고정했다.
+
+**주요 변경 파일과 진입점.** 이 단계의 전체 경로는 ZIP의 `changed-files.txt`에서 확인할 수 있다.
+
+| 영역 | 클래스와 주요 메서드 |
+|---|---|
+| 원본 엔진 저장 | Dungeon.worldState/restoreWorld, CoopSession.checkpoint/restore/load, Actor.schedulerState/restoreSchedule, Random.worldState/restoreWorld |
+| 플레이어·객체 상태 | FloorKnowledge.save/load, ItemOwnership.restored, Bag.restoreFromBundle, Char.add, Heap·Foresight와 Level의 복원 경로 |
+| 디스크·인증 | CoopSaves.sessions/inspect, Slot.read/publish, SeatCredential.generate/enroll/reconnect, LanRoom.persistentGame/resume/saveAndClose |
+| 행동·표시 모델 | RoomSync.checkpoint/restore/lookup, SeatProjection.resetHandles, SeatActions의 복구된 발급 상한, DisplayReplica.confirmReconnect, LanTransport의 연결별 nonce |
+| 신규 검사 | CheckpointTest, GenerationTest, ReconnectTest, HostRestartTest, LedgerChecks, RestartHost, RestartClient |
+
+**실행 명령.** 단계별 Gradle 명령, 원격 조회, 변경 검사 및 푸시 명령은 ZIP의 `commands.txt`에 있다. 최종 실행에 사용한 명령은 다음과 같다.
+
+```bash
+scripts/verify-android-build.sh /workspace/deliverables/phase7-final
+git diff --check
+git push coop coop/phase7
+gh api 'repos/jwgobaek/SPD-Coop/actions/runs?branch=coop%2Fphase7&per_page=2'
+```
+
+APK SHA-256은 `c531bb4a0352dd7198d793b49fe1a8ce69505535519ddb5ee60b848ba95c802c`이다. Cloud에 생성한 APK는 `/workspace/deliverables/phase7-final/android-debug.apk`에 있다. Git에 보존한 검증 ZIP의 SHA-256은 `9185756fdbf5a0fd6487767b71131c4a800c3a8223d62139c76782b0e00a476d`이다. [검증 ZIP과 JUnit XML](docs/coop/phase7-cloud-evidence.zip)
