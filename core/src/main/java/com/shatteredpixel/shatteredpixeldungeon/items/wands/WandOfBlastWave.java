@@ -161,7 +161,7 @@ public class WandOfBlastWave extends DamageWand {
 			public void call() {
 				if (initialpos != ch.pos || Actor.findChar(newPos) != null) {
 					//something caused movement or added chars before pushing resolved, cancel to be safe.
-					ch.sprite.place(ch.pos);
+					if (ch.sprite != null) ch.sprite.place(ch.pos);
 					return;
 				}
 				if (Dungeon.coop != null && !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(newPos))

@@ -211,6 +211,61 @@ public class UnstableSewerTest extends HeadlessDungeon {
         }
     }
 
+    @Test public void nativePushResolvesOccupancyOnWallsWaterGrassAndLateArrivals() {
+        for(int terrain : new int[]{Terrain.WALL,Terrain.WATER,Terrain.HIGH_GRASS,Terrain.EMPTY}) {
+            try(CoopSession g=CoopSession.open(421,1,HeroClass.MAGE)) {
+                g.join(2,HeroClass.MAGE);
+                int pos=strip(g);
+                com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat rat=new com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat();
+                rat.pos=pos; rat.HT=rat.HP=50; GameScene.add(rat,100);
+                Hero pusher=g.hero(1);
+                Level.set(pos+1,terrain==Terrain.WALL ? Terrain.EMPTY : terrain);
+                Level.set(pos+2,terrain==Terrain.WALL ? Terrain.WALL : Terrain.EMPTY);
+                if(terrain==Terrain.HIGH_GRASS) g.hero(0).pos=pos+2;
+                com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica ray =
+                        new com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica(pos,pos+3,
+                                com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica.PROJECTILE);
+                int distance=terrain==Terrain.WATER || terrain==Terrain.EMPTY ? 1 : 2;
+                com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave.throwChar(rat,ray,distance,true,true,pusher);
+                assertTrue(Pushing.pushingExistsForChar(rat));
+                if(terrain==Terrain.EMPTY) g.hero(0).pos=pos+1;
+                SewerSpecialActorTest.waitOne(g);
+                assertEquals(terrain==Terrain.EMPTY ? pos : pos+1,rat.pos);
+                assertFalse(Pushing.pushingExistsForChar(rat));
+                assertSame(rat,Actor.findChar(rat.pos));
+                if(terrain==Terrain.WALL || terrain==Terrain.HIGH_GRASS) assertTrue(rat.HP<50);
+                else assertEquals(50,rat.HP);
+                g.checkpoint();
+            }
+        }
+    }
+
+    @Test public void oneUnchangedRandomStreamProducesSeveralDifferentOnHitResults() {
+        try(CoopSession g=CoopSession.open(421,1,HeroClass.MAGE)) {
+            g.join(2,HeroClass.MAGE);
+            SewerBeeTest.cross(g,Dungeon.level.exit());
+            Statue statue=SewerSpecialActorTest.actor(Statue.class);
+            Hero target=g.hero(1);
+            int strip=strip(g);
+            statue.pos=strip; target.pos=strip+1;
+            target.HP=target.HT=2000;
+            java.util.Set<String> markers=new java.util.HashSet<>();
+            Random.pushGenerator(421);
+            try {
+                for(int n=0;n<80 && markers.size()<4;n++) {
+                    if (!statue.attack(target)) continue;
+                    for(Buff buff:target.buffs())
+                        if(buff instanceof Burning || buff instanceof Poison || buff instanceof Vertigo || buff instanceof Bleeding
+                                || buff instanceof Chill || buff instanceof Lucky.LuckProc) markers.add(buff.getClass().getSimpleName());
+                    if (statue.shielding()>0) markers.add("Blocking");
+                    if (Pushing.pushingExistsForChar(target)) markers.add("Elastic");
+                }
+                assertTrue(markers.toString(),markers.size()>=4);
+                System.out.println("mixed native strike markers="+new java.util.TreeSet<>(markers));
+            } finally { Random.popGenerator(); }
+        }
+    }
+
     @Test public void spreadingFireTransformsOwnedStacksAndPausesOnParkedFloor() {
         Bundle saved;
         int cell;

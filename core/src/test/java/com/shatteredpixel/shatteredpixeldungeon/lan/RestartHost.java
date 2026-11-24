@@ -23,7 +23,7 @@ public final class RestartHost {
         return mode.equals("dart") || mode.equals("iron-door");
     }
     static boolean guardian(String mode) {
-        return mode.equals("statue") || mode.equals("phantom") || mode.equals("exile");
+        return mode.equals("statue") || mode.equals("unstable") || mode.equals("phantom") || mode.equals("exile");
     }
     private static long seedFor(String mode) {
         switch (mode) {
@@ -31,6 +31,7 @@ public final class RestartHost {
             case "phantom": return 479;
             case "exile": return 420;
             case "statue": return 416;
+            case "unstable": return 421;
             case "crystal-new": return 411;
             case "golden": return 427;
             case "mimic": return 408;
@@ -60,6 +61,13 @@ public final class RestartHost {
                 Runtime.getRuntime().halt(80);
             if (stage.equals("WRITING") && java.nio.file.Files.exists(path.resolve("fail-write")))
                 throw new IOException("Injected write failure");
+            if (stage.equals("AFTER_HEAD") && mode.equals("unstable") && java.nio.file.Files.exists(path.resolve("watch-hit"))) {
+                int before=Integer.parseInt(read(path,"watch-hit"));
+                if (Dungeon.coop.hero(1).HP < before) {
+                    write(path,"committed-hit",Dungeon.coop.hero(1).HP+" "+Dungeon.coop.turn());
+                    Runtime.getRuntime().halt(78);
+                }
+            }
             if (stage.equals("AFTER_HEAD") && mode.equals("crystal-fight") && java.nio.file.Files.exists(path.resolve("strike"))
                     && Actor.findById(Integer.parseInt(read(path,"crystal-id")))==null) Runtime.getRuntime().halt(78);
             if (stage.equals("AFTER_HEAD") && java.nio.file.Files.exists(path.resolve("kill-before-reply")))
@@ -133,9 +141,14 @@ public final class RestartHost {
                             SewerGuardiansTest.approachPool(Dungeon.coop,1,fish);
                             resident=fish;
                         } else {
-                            resident=mode.equals("statue") ? SewerSpecialActorTest.actor(Statue.class)
+                            resident=(mode.equals("statue") || mode.equals("unstable")) ? SewerSpecialActorTest.actor(Statue.class)
                                     : SewerSpecialActorTest.actor(GnollExile.class);
                             SewerGhostTest.meet(Dungeon.coop,1,resident);
+                            if (mode.equals("unstable")) {
+                                assertTrue(((Statue)resident).weapon().enchantment instanceof
+                                        com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Unstable);
+                                Dungeon.coop.hero(1).HP=Dungeon.coop.hero(1).HT=120;
+                            }
                         }
                         write(path,"resident-id",Integer.toString(resident.id()));
                     } else if (mode.equals("crystal-new")) {

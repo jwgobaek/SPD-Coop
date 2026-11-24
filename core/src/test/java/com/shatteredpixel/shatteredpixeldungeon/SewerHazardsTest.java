@@ -9,8 +9,9 @@ import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
-import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
-import com.shatteredpixel.shatteredpixeldungeon.levels.traps.WornDartTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.*;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.*;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Ooze;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
@@ -32,6 +33,104 @@ public class SewerHazardsTest extends HeadlessDungeon {
             }
         }
         throw new AssertionError("Missing native terrain, dart="+dart);
+    }
+
+    @Test public void nativeAreaTrapsPersistTheirEffectsForEitherTriggeringHero() {
+        for(int seat=0;seat<2;seat++) for(Trap trap:new Trap[]{
+                new BurningTrap(),new ChillingTrap(),new ShockingTrap(),new ToxicTrap(),
+                new ConfusionTrap(),new OozeTrap(),new AlarmTrap(),new FlockTrap(),
+                new SummoningTrap(),new TeleportationTrap()}) {
+            Bundle saved;
+            int cell;
+            java.util.Set<Integer> spawned=new java.util.HashSet<>();
+            int endPos;
+            try(CoopSession g=CoopSession.open(402,1,HeroClass.MAGE)) {
+                g.join(2,HeroClass.MAGE);
+                SewerBeeTest.offer(g,seat);
+                cell=approach(g,seat,true);
+                // An exact native trap in a generated room, with the two seats independently observable.
+                // This fixture does not claim that all trap classes occur on floor one.
+                Level l=Dungeon.level;
+                l.setTrap(trap,cell);
+                Level.set(cell,Terrain.TRAP);
+                trap.reveal();
+                Hero h=g.hero(seat);
+                h.HP=h.HT=300;
+                java.util.Set<Integer> existing=new java.util.HashSet<>();
+                for(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob mob:l.mobs) existing.add(mob.id());
+                assertTrue("Walk onto "+trap.getClass(),CoopFloorsTest.step(g,CoopSession.Action.MOVE,cell,null));
+                assertFalse(trap.active);
+                Class<? extends Blob> cloud=trap instanceof BurningTrap ? Fire.class : trap instanceof ChillingTrap ? Freezing.class
+                        : trap instanceof ShockingTrap ? Electricity.class : trap instanceof ToxicTrap ? ToxicGas.class
+                        : trap instanceof ConfusionTrap ? ConfusionGas.class : null;
+                if (cloud!=null) assertTrue("Missing cloud "+cloud,l.blobs.get(cloud).volume>0);
+                if (trap instanceof OozeTrap) assertNotNull(h.buff(Ooze.class));
+                if (trap instanceof TeleportationTrap) assertNotEquals(cell,h.pos);
+                if (trap instanceof AlarmTrap) {
+                    boolean called=false;
+                    for(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob mob:l.mobs) {
+                        Bundle b=new Bundle(); mob.storeInBundle(b);
+                        if(b.getInt("target")==cell) called=true;
+                    }
+                    assertTrue(called);
+                }
+                if (trap instanceof FlockTrap || trap instanceof SummoningTrap) {
+                    for(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob mob:l.mobs)
+                        if(!existing.contains(mob.id())) {
+                            assertSame(mob,Actor.findChar(mob.pos));
+                            assertEquals(trap instanceof FlockTrap,mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Sheep);
+                            spawned.add(mob.id());
+                        }
+                    assertFalse(spawned.isEmpty());
+                    if(trap instanceof SummoningTrap) assertTrue(spawned.size()<=3);
+                }
+                endPos=h.pos;
+                saved=g.checkpoint();
+            }
+            try(CoopSession g=CoopSession.restore(saved)) {
+                assertEquals(endPos,g.hero(seat).pos);
+                assertEquals(Terrain.INACTIVE_TRAP,Dungeon.level.map[cell]);
+                for(int id:spawned) assertNotNull(Actor.findById(id));
+                assertTrue(CoopFloorsTest.step(g,CoopSession.Action.WAIT,0,null));
+                if(trap instanceof FlockTrap) {
+                    for(int i=0;i<25;i++) SewerSpecialActorTest.waitOne(g);
+                    for(int id:spawned) assertNull(Actor.findById(id));
+                }
+                g.checkpoint();
+                System.out.println("sewer_trap="+trap.getClass().getSimpleName()+" seat="+seat+" spawned="+spawned.size());
+            }
+        }
+    }
+
+    @Test public void hiddenOozeIsFloorUntilSearchRevealsItAndPressAffectsBothOccupants() {
+        for(int seat=0;seat<2;seat++) try(CoopSession g=CoopSession.open(402,1,HeroClass.MAGE)) {
+            g.join(2,HeroClass.MAGE);
+            SewerBeeTest.offer(g,seat);
+            int cell=approach(g,seat,true);
+            OozeTrap trap=new OozeTrap();
+            Dungeon.level.setTrap(trap,cell);
+            Level.set(cell,Terrain.SECRET_TRAP);
+            trap.hide();
+            assertEquals(Terrain.EMPTY,g.observe(seat).terrain(cell));
+            assertFalse(trap.visible);
+            for(int n=0;n<15 && !trap.visible;n++) {
+                SewerBeeTest.offer(g,seat);
+                assertTrue(CoopFloorsTest.step(g,CoopSession.Action.SEARCH,g.hero(seat).pos,null));
+            }
+            assertTrue(trap.visible);
+            assertEquals(Terrain.TRAP,g.observe(seat).terrain(cell));
+            for(int off:PathFinder.NEIGHBOURS8) {
+                int p=cell+off;
+                if(Dungeon.level.passable[p] && Actor.findChar(p)==null && !Dungeon.level.water[p]) {
+                    g.hero(1-seat).pos=p;
+                    break;
+                }
+            }
+            SewerBeeTest.offer(g,seat);
+            assertTrue(CoopFloorsTest.step(g,CoopSession.Action.MOVE,cell,null));
+            assertNotNull(g.hero(seat).buff(Ooze.class));
+            assertNotNull(g.hero(1-seat).buff(Ooze.class));
+        }
     }
 
     @Test public void walkingAndForcedLandingUseNativeDartAndPersistTheSpentTrap() {

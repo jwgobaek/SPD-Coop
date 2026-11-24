@@ -72,14 +72,18 @@ public class Frost extends FlavourBuff {
 				}
 				
 				if (!freezable.isEmpty()){
-					Item toFreeze = Random.element(freezable).detach( hero.belongings.backpack );
+					Item selected = Random.element(freezable);
+					if (Dungeon.coop != null && selected instanceof Potion)
+						throw new IllegalStateException("Unsupported carried potion shatter");
+					Item toFreeze = selected.detach( hero.belongings.backpack );
 					GLog.w( Messages.capitalize(Messages.get(this, "freezes", toFreeze.title())) );
 					if (toFreeze instanceof Potion){
 						((Potion) toFreeze).shatter(hero.pos);
 					} else if (toFreeze instanceof MysteryMeat){
 						FrozenCarpaccio carpaccio = new FrozenCarpaccio();
+						if (Dungeon.coop != null) Dungeon.coop.ownership.split(toFreeze,carpaccio);
 						if (!carpaccio.collect( hero.belongings.backpack )) {
-							Dungeon.level.drop( carpaccio, target.pos ).sprite.drop();
+							Dungeon.level.drop( carpaccio, target.pos ).animateDrop();
 						}
 					}
 				}

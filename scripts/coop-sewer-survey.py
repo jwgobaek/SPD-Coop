@@ -48,7 +48,7 @@ def main(directory, gates_only=False):
     engine = output(directory, "CoopFloorsTest", {"walkFromSpawnOnTheNaturalMimicAndStatueSeeds",
                     "walkBetweenGeneratedSewersPreserveDormantWorldAndResume"})
     walks = set(re.findall(r"native sewer seed=(\d+) walk=\d+ attacks=\d+ searches=\d+", engine))
-    if not {"408", "411", "415", "416", "420"} <= walks:
+    if not {"408", "411", "415", "416", "420", "421", "427", "428", "434", "435", "437"} <= walks:
         raise ValueError("Missing walk from the native entrance")
     levels = re.findall(r"generation seed=(\d+) depth=(\d+) actors=\[(.*?)\] rooms=\[(.*?)\] traps=\[(.*?)\] "
                         r"mobs=(\d+) level_json_bytes=(\d+)", report)

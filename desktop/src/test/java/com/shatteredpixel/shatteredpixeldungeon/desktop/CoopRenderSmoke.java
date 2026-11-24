@@ -24,7 +24,7 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean mage,floors,sentry,ghost,mimic,crystal,golden,statue;
+    private static boolean mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
@@ -32,6 +32,7 @@ public final class CoopRenderSmoke {
         ghost=args.length>1 && args[1].equals("ghost");
         crystal=args.length>1 && args[1].equals("crystal");
         golden=args.length>1 && args[1].equals("golden");
+        hazards=args.length>1 && args[1].equals("hazards");
         mimic=crystal || golden || (args.length>1 && args[1].equals("mimic"));
         statue=args.length>1 && args[1].equals("statue");
         floors=statue || mimic || ghost || sentry || (args.length>1 && args[1].equals("floors"));
@@ -285,6 +286,26 @@ public final class CoopRenderSmoke {
             click("ready"); await(()->button("start")!=null); shot("ready"); click("start");
             await(()->frame().dungeon!=null); await(()->button("bag")!=null);
             shot("dungeon");
+            if(hazards) {
+                int trap=RenderEncounter.approachHazard(hostController(),true);
+                click("wait"); await(()->frame().dungeon.offered && frame().image.rows.containsKey("trap"+trap));
+                shot("dart-before");
+                int hp=frame().dungeon.hp;
+                press(mapPoint(frame().dungeon,trap));
+                await(()->frame().dungeon.offered && frame().dungeon.pos==trap && frame().dungeon.hp<hp);
+                shot("dart-spent");
+                int door=RenderEncounter.approachHazard(hostController(),false);
+                click("wait"); await(()->frame().dungeon.offered && frame().dungeon.floor.containsKey(frame().dungeon.pos));
+                shot("locked-door");
+                press(mapPoint(frame().dungeon,frame().dungeon.pos));
+                await(()->frame().dungeon.offered && "1".equals(frame().image.rows.get("keys")));
+                press(mapPoint(frame().dungeon,door));
+                await(()->frame().dungeon.terrain(door)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.DOOR
+                        && "0".equals(frame().image.rows.get("keys")));
+                shot("door-unlocked");
+                click("menu"); click("saveexit"); await(()->button("host")!=null);
+                return;
+            }
             if(floors) {
                 floorScreens(root,child);
                 return;

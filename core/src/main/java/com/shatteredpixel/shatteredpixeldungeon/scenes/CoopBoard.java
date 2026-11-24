@@ -13,6 +13,7 @@ import com.watabou.utils.PointF;
 /** A viewport over the verified seat map. No Char, Level or actor-linked sprite is constructed here. */
 final class CoopBoard extends Group {
     private static final int TILE=16;
+    private static final int[] CLOUD_COLORS = {0x77ED6525, 0x667EDFFF, 0x66E5E067, 0x664AA940, 0x669E60CD};
     private final int columns,rows,ox,oy;
     private final float left,top;
     interface Input { void tap(PublicDungeon view,int cell); }
@@ -44,9 +45,11 @@ final class CoopBoard extends Group {
                 int feature=Integer.parseInt(trap);
                 place(new Image(Assets.Environment.TERRAIN_FEATURES,(feature%16)*TILE,(feature/16)*TILE,TILE,TILE),px,py);
             }
-            if (view.source.rows.containsKey("fire"+cell)) {
-                com.watabou.noosa.ColorBlock fire = new com.watabou.noosa.ColorBlock(TILE,TILE,0x77ED6525);
-                fire.x=px; fire.y=py; add(fire);
+            String cloud=view.source.rows.get("cloud"+cell);
+            if (cloud!=null) {
+                int mask=Integer.parseInt(cloud);
+                for (int i=0; i<CLOUD_COLORS.length; i++)
+                    if ((mask & (1<<i))!=0) place(new ColorBlock(TILE,TILE,CLOUD_COLORS[i]),px,py);
             }
             String z=view.source.rows.get("z"+cell);
             if(z!=null) edges(px,py,Integer.parseInt(z));
@@ -66,6 +69,7 @@ final class CoopBoard extends Group {
                     case "Statue": sprite=new StatueSprite();break;
                     case "GnollExile": sprite=new GnollExileSprite();break;
                     case "PhantomPiranha": sprite=new PhantomPiranhaSprite();break;
+                    case "Sheep": sprite=new SheepSprite();break;
                     case "GoldenMimic": sprite=new MimicSprite.Golden();break;
                     case "CrystalMimic": sprite=new MimicSprite.Crystal();break;
                     case "Mimic": sprite=new MimicSprite();break;

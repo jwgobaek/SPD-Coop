@@ -164,9 +164,21 @@ public final class RestartClient {
                 refresh(); act("WAIT",0,0); offer(1);
                 String key="m"+RestartHost.read(path,"resident-id");
                 String[] mob=state(1).rows.get(key).split(",");
-                assertEquals(mode.equals("statue") ? "Statue" : mode.equals("exile") ? "GnollExile" : "PhantomPiranha",mob[1]);
+                assertEquals((mode.equals("statue") || mode.equals("unstable")) ? "Statue" : mode.equals("exile") ? "GnollExile" : "PhantomPiranha",mob[1]);
                 verifyAfterReconnect(act("ZAP",Integer.parseInt(mob[0]),item(1,"WEAPON","STAFF")),1);
                 assertTrue(Integer.parseInt(state(1).rows.get(key).split(",")[2])<Integer.parseInt(mob[2]));
+                if (mode.equals("unstable")) {
+                    for (int i=0;i<40;i++) {
+                        int owner=active();
+                        SeatActions.Pending wait=actions[owner].prepare(state(owner),"WAIT",0,0);
+                        RestartHost.write(path,"last-strike",owner+" "+wait.id+" "+wait.command);
+                        RestartHost.write(path,"watch-hit",Integer.toString(new PublicDungeon(state(1)).hp));
+                        try { assertTrue(wait.submit(clients[owner]).endsWith(" APPLIED")); applied++; }
+                        catch (IOException lost) { return; }
+                        refresh();
+                    }
+                    throw new AssertionError("No resolved hostile strike");
+                }
                 assertFalse(state(1).rows.toString().contains("Kinetic"));
                 return;
             }
@@ -242,6 +254,20 @@ public final class RestartClient {
         barrier();
         if (mode.startsWith("crystal-")) {
             crystalResume(mode);
+            return;
+        }
+        if (mode.equals("unstable-receipt")) {
+            String[] saved=RestartHost.read(path,"last-strike").split(" ",3);
+            String[] expected=RestartHost.read(path,"committed-hit").split(" ");
+            int owner=Integer.parseInt(saved[0]);
+            assertEquals(Integer.parseInt(expected[0]),new PublicDungeon(state(1)).hp);
+            assertEquals(expected[1],state(1).rows.get("turn"));
+            String reply=clients[owner].request("LOOKUP "+epoch+" "+saved[1]);
+            assertTrue(reply,reply.endsWith(" APPLIED"));
+            assertEquals(reply,clients[owner].request(saved[2]));
+            refresh();
+            assertEquals(Integer.parseInt(expected[0]),new PublicDungeon(state(1)).hp);
+            act("WAIT",0,0);
             return;
         }
         if (mode.equals("dart-receipt") || mode.equals("door-receipt")) {

@@ -332,7 +332,11 @@ public abstract class RegularLevel extends Level {
 			}
 
 			cell = pointToCell(room.random(1));
-			if (!heroFOV[cell]
+			boolean[] observer = heroFOV;
+			if (Dungeon.coop != null && Dungeon.level == this && ch instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero && ch.fieldOfView != null) {
+				observer = ch.fieldOfView;
+			}
+			if (!observer[cell]
 					&& Actor.findChar( cell ) == null
 					&& passable[cell]
 					&& !solid[cell]

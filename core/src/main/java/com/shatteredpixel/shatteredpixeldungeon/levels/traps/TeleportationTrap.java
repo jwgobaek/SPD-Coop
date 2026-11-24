@@ -68,7 +68,7 @@ public class TeleportationTrap extends Trap {
 						((Honeypot.ShatteredPot)item).movePot(pos, cell);
 					}
 					Sample.INSTANCE.play(Assets.Sounds.TELEPORT);
-					CellEmitter.get(pos).burst(Speck.factory(Speck.LIGHT), 4);
+					if (Dungeon.coop == null) CellEmitter.get(pos).burst(Speck.factory(Speck.LIGHT), 4);
 				}
 			}
 		}

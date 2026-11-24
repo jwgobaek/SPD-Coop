@@ -15,7 +15,7 @@ ENUMS = {"HeroClass", "HeroSubClass", "Talent"}
 VERIFIED = {
     "actors/mobs/Mimic": "seed 408 native disguise, opener, melee, missile, gold, parked floor, receipt / SewerMimicTest, HostRestartTest",
     "actors/mobs/CrystalMimic": "seed 411 ambush, victim stack, escape or return on defeat, two process kills / SewerCrystalMimicTest, HostRestartTest",
-    "actors/mobs/Statue": "seed 416 Kinetic Sickle and seed 420 Vampiric BattleAxe only; native procs, drop, physical weapon identity / SewerGuardiansTest, HostRestartTest",
+    "actors/mobs/Statue": "seeds 416/420/421/428/434/435/437/444; passive base statistics, native on-hit effect, held identity and drop / SewerGuardiansTest, HostRestartTest",
     "items/weapon/enchantments/Venomous": "natural seed 444 statue, both seats, poison ticks and identity after restore / SewerGuardiansTest",
     "items/weapon/enchantments/Chilling": "isolated statue proc applies chill to struck hero on either seat / SewerGuardiansTest",
     "items/weapon/enchantments/Shocking": "isolated statue chain, nearby other seat takes damage once / SewerGuardiansTest",
@@ -61,6 +61,20 @@ VERIFIED = {
     "actors/hero/HeroClass.WARRIOR": "first-floor basic actions / CoopControllerTest, CoopPlayInputTest",
     "actors/hero/HeroClass.HUNTRESS": "first-floor basic actions / CoopControllerTest, CoopPlayInputTest",
 }
+VERIFIED.update({
+    "actors/mobs/GoldenMimic": "427/428 disguised locked chest, native ambush and prize, durable receipt / SewerMimicTest, HostRestartTest",
+    "items/weapon/enchantments/Unstable": "421 native uniform draw of 14 delegates on a statue, both defending seats / UnstableSewerTest",
+    "items/weapon/enchantments/Projecting": "435 statue melee reach / SewerGuardiansTest",
+    "items/keys/IronKey": "native pickup, depth journal shared by both seats, durable door consumption / SewerHazardsTest, HostRestartTest",
+    "levels/Terrain.LOCKED_DOOR": "spend an iron key and enter the opened door, restore after host death / SewerHazardsTest, HostRestartTest",
+    "levels/traps/WornDartTrap": "402 original visible trap, voluntary and forced arrival, nearest target and deferred damage / SewerHazardsTest",
+    "actors/mobs/npcs/Sheep": "FlockTrap spawn, actor identity across restore and native expiry / SewerHazardsTest",
+})
+for effect in ("Blazing","Blocking","Blooming","Corrupting","Elastic","Grim","Lucky","Vorpal","Eldritch"):
+    VERIFIED["items/weapon/enchantments/"+effect] = "Unstable statue attacking a hero; see per-effect limitations in unstable-effects.md / UnstableSewerTest"
+for trap in ("BurningTrap","ChillingTrap","ShockingTrap","ToxicTrap","ConfusionTrap","OozeTrap",
+             "AlarmTrap","FlockTrap","SummoningTrap","TeleportationTrap"):
+    VERIFIED["levels/traps/"+trap] = "exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest"
 IMPLEMENTED = {
     **dict.fromkeys(("levels/Terrain.EMPTY_SP", "levels/Terrain.WATER", "levels/Terrain.EMBERS",
                      "levels/Terrain.EMPTY_DECO"), "safeFloor movement allowlist for unoccupied plain cells"),

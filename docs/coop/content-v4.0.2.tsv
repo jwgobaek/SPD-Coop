@@ -487,7 +487,7 @@ actors/mobs/GnollSapper.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/
 actors/mobs/GnollSapper.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollSapper.java
 actors/mobs/GnollTrickster	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollTrickster.java
 actors/mobs/GnollTrickster.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollTrickster.java
-actors/mobs/GoldenMimic	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GoldenMimic.java
+actors/mobs/GoldenMimic	actors/mobs	VERIFIED	427/428 disguised locked chest, native ambush and prize, durable receipt / SewerMimicTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GoldenMimic.java
 actors/mobs/Golem	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Golem.java
 actors/mobs/Golem.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Golem.java
 actors/mobs/Golem.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Golem.java
@@ -540,7 +540,7 @@ actors/mobs/SpectralNecromancer	actors/mobs	UNSUPPORTED		core/src/main/java/com/
 actors/mobs/Spinner	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java
 actors/mobs/Spinner.Fleeing	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java
 actors/mobs/Spinner.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java
-actors/mobs/Statue	actors/mobs	VERIFIED	seed 416 Kinetic Sickle and seed 420 Vampiric BattleAxe only; native procs, drop, physical weapon identity / SewerGuardiansTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Statue.java
+actors/mobs/Statue	actors/mobs	VERIFIED	seeds 416/420/421/428/434/435/437/444; passive base statistics, native on-hit effect, held identity and drop / SewerGuardiansTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Statue.java
 actors/mobs/Succubus	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Succubus.java
 actors/mobs/Swarm	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Swarm.java
 actors/mobs/Tengu	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
@@ -584,7 +584,7 @@ actors/mobs/npcs/NPC	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shat
 actors/mobs/npcs/PrismaticImage	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/PrismaticImage.java
 actors/mobs/npcs/PrismaticImage.Wandering	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/PrismaticImage.java
 actors/mobs/npcs/RatKing	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/RatKing.java
-actors/mobs/npcs/Sheep	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Sheep.java
+actors/mobs/npcs/Sheep	NPC	VERIFIED	FlockTrap spawn, actor identity across restore and native expiry / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Sheep.java
 actors/mobs/npcs/Shopkeeper	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Shopkeeper.java
 actors/mobs/npcs/VaultLaser	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultLaser.java
 actors/mobs/npcs/VaultMirror	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultMirror.java
@@ -778,7 +778,7 @@ items/journal/RegionLorePage.Prison	items/journal	UNSUPPORTED		core/src/main/jav
 items/journal/RegionLorePage.Sewers	items/journal	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/journal/RegionLorePage.java
 items/keys/CrystalKey	items/keys	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/keys/CrystalKey.java
 items/keys/GoldenKey	items/keys	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/keys/GoldenKey.java
-items/keys/IronKey	items/keys	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/keys/IronKey.java
+items/keys/IronKey	items/keys	VERIFIED	native pickup, depth journal shared by both seats, durable door consumption / SewerHazardsTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/keys/IronKey.java
 items/keys/Key	items/keys	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/keys/Key.java
 items/keys/WornKey	items/keys	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/keys/WornKey.java
 items/potions/Potion	items/potions	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/Potion.java
@@ -1089,30 +1089,30 @@ items/weapon/curses/Sacrificial	items/weapon/curses	UNSUPPORTED		core/src/main/j
 items/weapon/curses/Wayward	items/weapon/curses	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/curses/Wayward.java
 items/weapon/curses/Wayward.WaywardBuff	items/weapon/curses	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/curses/Wayward.java
 items/weapon/curses/Wondrous	items/weapon/curses	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/curses/Wondrous.java
-items/weapon/enchantments/Blazing	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Blazing.java
-items/weapon/enchantments/Blocking	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Blocking.java
+items/weapon/enchantments/Blazing	items/weapon/enchantments	VERIFIED	Unstable statue attacking a hero; see per-effect limitations in unstable-effects.md / UnstableSewerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Blazing.java
+items/weapon/enchantments/Blocking	items/weapon/enchantments	VERIFIED	Unstable statue attacking a hero; see per-effect limitations in unstable-effects.md / UnstableSewerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Blocking.java
 items/weapon/enchantments/Blocking.BlockBuff	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Blocking.java
-items/weapon/enchantments/Blooming	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Blooming.java
+items/weapon/enchantments/Blooming	items/weapon/enchantments	VERIFIED	Unstable statue attacking a hero; see per-effect limitations in unstable-effects.md / UnstableSewerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Blooming.java
 items/weapon/enchantments/Chilling	items/weapon/enchantments	VERIFIED	isolated statue proc applies chill to struck hero on either seat / SewerGuardiansTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Chilling.java
-items/weapon/enchantments/Corrupting	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Corrupting.java
+items/weapon/enchantments/Corrupting	items/weapon/enchantments	VERIFIED	Unstable statue attacking a hero; see per-effect limitations in unstable-effects.md / UnstableSewerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Corrupting.java
 items/weapon/enchantments/Corrupting.CorruptingTracker	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Corrupting.java
 items/weapon/enchantments/Crystal	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Crystal.java
 items/weapon/enchantments/Crystal.CrystalRepair	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Crystal.java
-items/weapon/enchantments/Elastic	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Elastic.java
-items/weapon/enchantments/Eldritch	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Eldritch.java
-items/weapon/enchantments/Grim	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Grim.java
+items/weapon/enchantments/Elastic	items/weapon/enchantments	VERIFIED	Unstable statue attacking a hero; see per-effect limitations in unstable-effects.md / UnstableSewerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Elastic.java
+items/weapon/enchantments/Eldritch	items/weapon/enchantments	VERIFIED	Unstable statue attacking a hero; see per-effect limitations in unstable-effects.md / UnstableSewerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Eldritch.java
+items/weapon/enchantments/Grim	items/weapon/enchantments	VERIFIED	Unstable statue attacking a hero; see per-effect limitations in unstable-effects.md / UnstableSewerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Grim.java
 items/weapon/enchantments/Grim.GrimTracker	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Grim.java
 items/weapon/enchantments/Kinetic	items/weapon/enchantments	VERIFIED	seed 416 statue's own Sickle, tracker on wielder, original damage handling / SewerGuardiansTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Kinetic.java
 items/weapon/enchantments/Kinetic.ConservedDamage	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Kinetic.java
 items/weapon/enchantments/Kinetic.KineticTracker	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Kinetic.java
-items/weapon/enchantments/Lucky	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Lucky.java
+items/weapon/enchantments/Lucky	items/weapon/enchantments	VERIFIED	Unstable statue attacking a hero; see per-effect limitations in unstable-effects.md / UnstableSewerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Lucky.java
 items/weapon/enchantments/Lucky.LuckProc	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Lucky.java
-items/weapon/enchantments/Projecting	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Projecting.java
+items/weapon/enchantments/Projecting	items/weapon/enchantments	VERIFIED	435 statue melee reach / SewerGuardiansTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Projecting.java
 items/weapon/enchantments/Shocking	items/weapon/enchantments	VERIFIED	isolated statue chain, nearby other seat takes damage once / SewerGuardiansTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Shocking.java
-items/weapon/enchantments/Unstable	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Unstable.java
+items/weapon/enchantments/Unstable	items/weapon/enchantments	VERIFIED	421 native uniform draw of 14 delegates on a statue, both defending seats / UnstableSewerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Unstable.java
 items/weapon/enchantments/Vampiric	items/weapon/enchantments	VERIFIED	seed 420 statue's own BattleAxe, native heal on hit / SewerGuardiansTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Vampiric.java
 items/weapon/enchantments/Venomous	items/weapon/enchantments	VERIFIED	natural seed 444 statue, both seats, poison ticks and identity after restore / SewerGuardiansTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Venomous.java
-items/weapon/enchantments/Vorpal	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Vorpal.java
+items/weapon/enchantments/Vorpal	items/weapon/enchantments	VERIFIED	Unstable statue attacking a hero; see per-effect limitations in unstable-effects.md / UnstableSewerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Vorpal.java
 items/weapon/enchantments/Vorpal.VorpalTracker	items/weapon/enchantments	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/enchantments/Vorpal.java
 items/weapon/melee/AssassinsBlade	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/AssassinsBlade.java
 items/weapon/melee/BattleAxe	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/BattleAxe.java
@@ -1261,7 +1261,7 @@ levels/Terrain.GRASS	terrain	VERIFIED	remember, hide an unseen change and reveal
 levels/Terrain.HERO_LKD_DR	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.HIGH_GRASS	terrain	VERIFIED	original huntress trample on both seats / SewerBeeTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.INACTIVE_TRAP	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
-levels/Terrain.LOCKED_DOOR	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
+levels/Terrain.LOCKED_DOOR	terrain	VERIFIED	spend an iron key and enter the opened door, restore after host death / SewerHazardsTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.LOCKED_EXIT	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.MINE_BOULDER	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.MINE_CRYSTAL	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
@@ -1506,11 +1506,11 @@ levels/rooms/standard/exit/RuinsExitRoom	levels/rooms/standard/exit	UNSUPPORTED	
 levels/rooms/standard/exit/StatueLineExitRoom	levels/rooms/standard/exit	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/standard/exit/StatueLineExitRoom.java
 levels/rooms/standard/exit/StatuesExitRoom	levels/rooms/standard/exit	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/standard/exit/StatuesExitRoom.java
 levels/rooms/standard/exit/WaterBridgeExitRoom	levels/rooms/standard/exit	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/standard/exit/WaterBridgeExitRoom.java
-levels/traps/AlarmTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/AlarmTrap.java
+levels/traps/AlarmTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/AlarmTrap.java
 levels/traps/BlazingTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/BlazingTrap.java
-levels/traps/BurningTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/BurningTrap.java
-levels/traps/ChillingTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ChillingTrap.java
-levels/traps/ConfusionTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ConfusionTrap.java
+levels/traps/BurningTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/BurningTrap.java
+levels/traps/ChillingTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ChillingTrap.java
+levels/traps/ConfusionTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ConfusionTrap.java
 levels/traps/CorrosionTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/CorrosionTrap.java
 levels/traps/CursingTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/CursingTrap.java
 levels/traps/DisarmingTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/DisarmingTrap.java
@@ -1518,7 +1518,7 @@ levels/traps/DisintegrationTrap	levels/traps	UNSUPPORTED		core/src/main/java/com
 levels/traps/DistortionTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/DistortionTrap.java
 levels/traps/ExplosiveTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ExplosiveTrap.java
 levels/traps/FlashingTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FlashingTrap.java
-levels/traps/FlockTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FlockTrap.java
+levels/traps/FlockTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FlockTrap.java
 levels/traps/FrostTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FrostTrap.java
 levels/traps/GatewayTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GatewayTrap.java
 levels/traps/GeyserTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GeyserTrap.java
@@ -1528,22 +1528,22 @@ levels/traps/GrippingTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatt
 levels/traps/GuardianTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GuardianTrap.java
 levels/traps/GuardianTrap.Guardian	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GuardianTrap.java
 levels/traps/GuardianTrap.GuardianSprite	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GuardianTrap.java
-levels/traps/OozeTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/OozeTrap.java
+levels/traps/OozeTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/OozeTrap.java
 levels/traps/PitfallTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PitfallTrap.java
 levels/traps/PitfallTrap.DelayedPit	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PitfallTrap.java
 levels/traps/PoisonDartTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PoisonDartTrap.java
 levels/traps/RockfallTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/RockfallTrap.java
-levels/traps/ShockingTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ShockingTrap.java
+levels/traps/ShockingTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ShockingTrap.java
 levels/traps/StormTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/StormTrap.java
-levels/traps/SummoningTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/SummoningTrap.java
-levels/traps/TeleportationTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/TeleportationTrap.java
+levels/traps/SummoningTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/SummoningTrap.java
+levels/traps/TeleportationTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/TeleportationTrap.java
 levels/traps/TenguDartTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/TenguDartTrap.java
-levels/traps/ToxicTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ToxicTrap.java
+levels/traps/ToxicTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ToxicTrap.java
 levels/traps/Trap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/Trap.java
 levels/traps/Trap.HazardAssistTracker	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/Trap.java
 levels/traps/WarpingTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/WarpingTrap.java
 levels/traps/WeakeningTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/WeakeningTrap.java
-levels/traps/WornDartTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/WornDartTrap.java
+levels/traps/WornDartTrap	levels/traps	VERIFIED	402 original visible trap, voluntary and forced arrival, nearest target and deferred damage / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/WornDartTrap.java
 mechanics/Ballistica	mechanics	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/mechanics/Ballistica.java
 mechanics/ConeAOE	mechanics	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/mechanics/ConeAOE.java
 mechanics/ShadowCaster	mechanics	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/mechanics/ShadowCaster.java

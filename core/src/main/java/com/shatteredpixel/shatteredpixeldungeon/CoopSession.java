@@ -37,7 +37,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
-import com.shatteredpixel.shatteredpixeldungeon.levels.traps.WornDartTrap;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Sheep;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.items.Honeypot;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bee;
@@ -68,7 +68,7 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK;
+    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET;
         public boolean requiresItem() {
             return this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER;
         }
@@ -351,7 +351,7 @@ public final class CoopSession implements AutoCloseable {
         Class<?> type = actor.getClass();
         if (type==Statue.class) return statueWeapon(((Statue)actor).weapon());
         return type == GnollExile.class || type == PhantomPiranha.class || type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
-                || type == Mimic.class || type == CrystalMimic.class || type == GoldenMimic.class || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
+                || type == Mimic.class || type == CrystalMimic.class || type == GoldenMimic.class || type == Sheep.class || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
                 || (Dungeon.depth==2 && (type==Ghost.class || type==FetidRat.class));
     }
 
@@ -374,16 +374,16 @@ public final class CoopSession implements AutoCloseable {
     /** Landing effects shared by voluntary and forced movement on supported sewer floors. */
     public static boolean supportedLanding(int cell) {
         Level level = Dungeon.level;
-        if (!level.insideMap(cell) || level.pit[cell] || level.plants.get(cell) != null) return false;
+        if (!level.insideMap(cell) || level.pit[cell] || level.map[cell] == Terrain.WELL || level.plants.get(cell) != null) return false;
         Trap trap = level.traps.get(cell);
-        return trap == null || !trap.active || trap.getClass() == WornDartTrap.class;
+        return trap == null || !trap.active || trap.supportedInCoop();
     }
 
     private boolean safeFloor(int cell,boolean moving) {
         Level level = Dungeon.level;
         if (!supportedLanding(cell) || level.getTransition(cell) != null) return false;
         if (level.traps.get(cell) != null)
-            return moving && (level.map[cell] == Terrain.TRAP || level.map[cell] == Terrain.INACTIVE_TRAP);
+            return moving && (level.map[cell] == Terrain.TRAP || level.map[cell] == Terrain.SECRET_TRAP || level.map[cell] == Terrain.INACTIVE_TRAP);
         if (!level.passable[cell]) return false;
         int terrain = level.map[cell];
         return (moving && (terrain == Terrain.DOOR || terrain == Terrain.OPEN_DOOR))
@@ -454,11 +454,18 @@ public final class CoopSession implements AutoCloseable {
                     if (destination != null && destination.type != Heap.Type.HEAP) return false;
                     hero.checkVisibleMobs();
                     boolean unsteady = hero.buff(Vertigo.class) != null;
+                    boolean teleport = level.traps.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.levels.traps.TeleportationTrap
+                            && level.traps.get(cell).active;
                     hero.handle(cell);
                     if (hero.curAction instanceof HeroAction.PickUp) hero.curAction = new HeroAction.Move(cell);
                     if (!(hero.curAction instanceof HeroAction.Move)) throw new IllegalStateException("Unexpected move action");
                     hero.act();
-                    if (!unsteady && hero.pos != cell) throw new IllegalStateException("Move was interrupted");
+                    if (!unsteady && !teleport && hero.pos != cell) throw new IllegalStateException("Move was interrupted");
+                    break;
+                case GREET:
+                    if (!level.insideMap(cell) || !level.adjacent(hero.pos,cell) || !knowledge(activeSeat).visible(cell)
+                            || !(Actor.findChar(cell) instanceof Sheep)) return false;
+                    Actor.findChar(cell).interact(hero);
                     break;
                 case UNLOCK:
                     if (!level.insideMap(cell) || !level.adjacent(hero.pos,cell) || !knowledge(activeSeat).visible(cell)

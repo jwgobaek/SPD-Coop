@@ -60,13 +60,16 @@ public class FlockTrap extends Trap {
 			if (Dungeon.level.insideMap(i)
 					&& Actor.findChar(i) == null
 					&& !(Dungeon.level.pit[i])) {
+				if (Dungeon.coop != null && !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(i))
+					throw new UnsupportedOperationException("Unsupported sheep landing");
 				Sheep sheep = new Sheep();
 				sheep.initialize(6);
 				sheep.pos = i;
 				GameScene.add(sheep);
-				CellEmitter.get(i).burst(Speck.factory(Speck.WOOL), 4);
+				if (Dungeon.coop == null) CellEmitter.get(i).burst(Speck.factory(Speck.WOOL), 4);
 				//before the tile is pressed, directly trigger traps to avoid sfx spam
 				if ((t = Dungeon.level.traps.get(i)) != null && t.active){
+					t.requireSupportedEffect();
 					if (t.disarmedByActivation) t.disarm();
 					t.reveal();
 					Bestiary.setSeen(t.getClass());

@@ -229,6 +229,9 @@ public class Heap implements Bundlable {
 			return;
 		}
 		
+		if (Dungeon.coop != null) for (Item item : items) {
+			if (item instanceof Bomb) throw new IllegalStateException("Unsupported burning bomb");
+		}
 		boolean burnt = false;
 		boolean evaporated = false;
 		
@@ -334,6 +337,10 @@ public class Heap implements Bundlable {
 			return;
 		}
 		
+		if (Dungeon.coop != null) for (Item item : items) {
+			if ((item instanceof Potion && !item.unique) || (item instanceof Bomb && ((Bomb)item).fuse != null))
+				throw new IllegalStateException("Unsupported frozen potion or fuse");
+		}
 		boolean frozen = false;
 		for (Item item : items.toArray( new Item[0] )) {
 			if (item instanceof MysteryMeat) {

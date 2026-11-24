@@ -39,6 +39,30 @@ final class RenderEncounter {
         }).get(5,TimeUnit.SECONDS);
     }
 
+    static int approachHazard(CoopController client, boolean dart) throws Exception {
+        Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
+        Object room=host.get(client);
+        Field field=room.getClass().getDeclaredField("owner"); field.setAccessible(true);
+        return ((ExecutorService)field.get(room)).submit(()->{
+            Level level=Dungeon.level;
+            for (int cell=0; cell<level.length(); cell++) {
+                if (dart ? !(level.traps.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.levels.traps.WornDartTrap)
+                        : level.map[cell]!=Terrain.LOCKED_DOOR) continue;
+                if (Actor.findChar(cell)!=null || level.heaps.get(cell)!=null) continue;
+                for (int offset:com.watabou.utils.PathFinder.NEIGHBOURS8) {
+                    int near=cell+offset;
+                    if (!level.passable[near] || Actor.findChar(near)!=null || level.heaps.get(near)!=null
+                            || !CoopSession.supportedLanding(near)) continue;
+                    Dungeon.coop.hero(0).pos=near;
+                    if (!Dungeon.coop.observe(0).visible(cell)) continue;
+                    if (!dart) level.drop(new com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey(Dungeon.depth),near);
+                    return cell;
+                }
+            }
+            throw new AssertionError("Missing generated trap or locked door");
+        }).get(5,TimeUnit.SECONDS);
+    }
+
     static int beside(CoopController client, Class<? extends Mob> type) throws Exception {
         Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
         Object room=host.get(client);

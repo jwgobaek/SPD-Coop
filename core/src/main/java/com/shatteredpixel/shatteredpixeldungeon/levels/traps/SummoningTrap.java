@@ -82,6 +82,9 @@ public class SummoningTrap extends Trap {
 				if (mob.state != mob.PASSIVE) {
 					mob.state = mob.WANDERING;
 				}
+				if (Dungeon.coop != null && (!com.shatteredpixel.shatteredpixeldungeon.CoopSession.basicMob(mob)
+						|| !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(point)))
+					throw new UnsupportedOperationException("Unsupported summoned resident or landing");
 				mob.pos = point;
 				GameScene.add(mob, DELAY);
 				mobs.add(mob);
@@ -93,6 +96,7 @@ public class SummoningTrap extends Trap {
 		for (Mob mob : mobs){
 			//manually trigger traps first to avoid sfx spam
 			if ((t = Dungeon.level.traps.get(mob.pos)) != null && t.active){
+				t.requireSupportedEffect();
 				if (t.disarmedByActivation) t.disarm();
 				t.reveal();
 				Bestiary.setSeen(t.getClass());
@@ -100,7 +104,7 @@ public class SummoningTrap extends Trap {
 				t.activate();
 			}
 			ScrollOfTeleportation.appear(mob, mob.pos);
-			Dungeon.level.occupyCell(mob);
+			if (Dungeon.coop == null) Dungeon.level.occupyCell(mob); // The authority's appear() already pressed it.
 		}
 
 	}

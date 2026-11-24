@@ -124,10 +124,12 @@ public class ScrollOfTeleportation extends Scroll {
 		} else {
 			
 			appear( ch, pos );
-			Dungeon.level.occupyCell( ch );
+			if (Dungeon.coop == null) Dungeon.level.occupyCell( ch );
 			Buff.detach(ch, Roots.class);
 			
-			if (ch == Dungeon.hero) {
+			if (Dungeon.coop != null && ch instanceof Hero) {
+				((Hero)ch).interrupt();
+			} else if (ch == Dungeon.hero) {
 				GLog.i( Messages.get(ScrollOfTeleportation.class, "tele") );
 				
 				Dungeon.observe();

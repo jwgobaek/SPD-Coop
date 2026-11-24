@@ -2,7 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.lan;
 
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SentryRoom.Sentry;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.StenchGas;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.*;
 
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
@@ -103,8 +103,12 @@ final class SeatProjection {
                     int color = trap.active ? trap.color : com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap.BLACK;
                     rows.put("trap"+cell,Integer.toString(color + 16*trap.shape));
                 }
-                if (com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob.volumeAt(cell,
-                        com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire.class)>0) rows.put("fire"+cell,"1");
+                int clouds = (Blob.volumeAt(cell, Fire.class)>0 ? 1 : 0)
+                        | (Blob.volumeAt(cell, Freezing.class)>0 ? 2 : 0)
+                        | (Blob.volumeAt(cell, Electricity.class)>0 ? 4 : 0)
+                        | (Blob.volumeAt(cell, ToxicGas.class)>0 ? 8 : 0)
+                        | (Blob.volumeAt(cell, ConfusionGas.class)>0 ? 16 : 0);
+                if (clouds != 0) rows.put("cloud"+cell,Integer.toString(clouds));
                 Heap heap = level.heaps.get(cell);
                 if (heap != null && heap.hidden) continue;
                 if (heap != null && heap.type == Heap.Type.HEAP && heap.peek()!=null) {

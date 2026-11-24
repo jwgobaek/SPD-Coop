@@ -42,7 +42,7 @@ public class CoopScene extends PixelScene {
             } else view.tap(controller,cell);
             return;
         }
-        if (targetView==view && (view.monsters.containsKey(cell) || view.chest(cell)) && !"Sentry".equals(view.monsters.get(cell)) && !"Ghost".equals(view.monsters.get(cell))
+        if (targetView==view && (view.monsters.containsKey(cell) || view.chest(cell)) && !"Sheep".equals(view.monsters.get(cell)) && !"Sentry".equals(view.monsters.get(cell)) && !"Ghost".equals(view.monsters.get(cell))
                 && controller.act(view.source,"ZAP",cell,targetStaff.id)) cancelAim();
     }
     private void talkToGhost(PublicDungeon view,int cell,String offer) {
