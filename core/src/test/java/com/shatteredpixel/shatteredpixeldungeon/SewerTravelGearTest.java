@@ -5,6 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.*;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
@@ -79,6 +80,34 @@ public class SewerTravelGearTest extends HeadlessDungeon {
                     assertTrue(CoopFloorsTest.step(g,CoopSession.Action.SHOOT,mark.pos,h.belongings.getItem(SpiritBow.class)));
                 }
                 assertTrue(mark.HP<hp);
+            }
+        }
+    }
+
+    @Test public void equipAndRemoveRealArmorWithAnOwnedWarriorSeal() {
+        for(int seat=0;seat<2;seat++) {
+            Bundle boundary;
+            try(CoopSession g=CoopSession.open(415,1,HeroClass.WARRIOR)) {
+                g.join(2,HeroClass.WARRIOR); SewerBeeTest.offer(g,seat);
+                Hero user=g.hero(seat);
+                Armor old=user.belongings.armor;
+                Armor replacement=new LeatherArmor();
+                Dungeon.level.drop(replacement,user.pos);
+                assertTrue(CoopFloorsTest.step(g,CoopSession.Action.PICK_UP,user.pos,replacement));
+                SewerBeeTest.offer(g,seat);
+                assertFalse(CoopFloorsTest.step(g,CoopSession.Action.EQUIP,0,replacement));
+                assertTrue(CoopFloorsTest.step(g,CoopSession.Action.UNEQUIP,0,old));
+                assertNotNull(old.checkSeal());
+                SewerBeeTest.offer(g,seat);
+                assertTrue(CoopFloorsTest.step(g,CoopSession.Action.EQUIP,0,replacement));
+                assertSame(replacement,user.belongings.armor);
+                assertEquals(g.player(seat),g.ownership.owner(replacement));
+                assertNotSame(old,g.hero(1-seat).belongings.armor);
+                boundary=g.checkpoint();
+            }
+            try(CoopSession g=CoopSession.restore(boundary)) {
+                assertTrue(g.hero(seat).belongings.armor instanceof LeatherArmor);
+                assertNotNull(g.hero(seat).belongings.getItem(ClothArmor.class).checkSeal());
             }
         }
     }

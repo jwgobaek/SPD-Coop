@@ -117,9 +117,10 @@ public final class RestartClient {
         if (special) {
             try (LanClient old = new LanClient(address)) {
                 assertEquals("ERROR VERSION", old.request("MODE SYNC3"));
+                assertEquals("ERROR VERSION", old.request("MODE SYNC12"));
             }
         }
-        if (special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
+        if (special || RestartHost.kit(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
             for(int i=0;i<2;i++) {
                 assertTrue(clients[i].request(i==0 ? RestartHost.read(path,"endpoint").split("\n")[1] : "JOIN").startsWith("JOINED"));
                 keys[i]=SeatCredential.generate();
@@ -128,6 +129,7 @@ public final class RestartClient {
                 actions[i]=new SeatActions(session,i,i+1);
                 models[i]=new DisplayReplica(session,i);
                 String character=(mode.equals("quest") || RestartHost.guardian(mode) || mode.equals("crystal-new"))?"MAGE":mode.startsWith("cast") && i==Integer.parseInt(mode.substring(4)) ? "MAGE" : mode.equals("walk") ? (i==0?"MAGE":"WARRIOR") : i==0?"WARRIOR":"HUNTRESS";
+                if (RestartHost.kit(mode)) character=i==mode.charAt(3)-'0'?"HUNTRESS":"WARRIOR";
                 assertEquals("OK",clients[i].request("SELECT "+character)); clients[i].request("READY 1");
             }
             if (mode.equals("blocked-start")) {
@@ -141,6 +143,20 @@ public final class RestartClient {
             refresh();
             if(mode.equals("walk")) { walk(); return; }
             act("WAIT",0,0);
+            if (RestartHost.kit(mode)) {
+                int seat=mode.charAt(3)-'0'; offer(seat);
+                act("PICK_UP",pos(seat),item(seat,"F"+pos(seat),"HEALING"));
+                offer(seat); int before=new PublicDungeon(state(seat)).hp;
+                verifyAfterReconnect(act("DRINK",0,item(seat,"BAG","HEALING")),seat);
+                assertTrue(new PublicDungeon(state(seat)).hp>=before);
+                offer(seat);
+                int target=pos(seat)+3;
+                SeatActions.Pending shot=actions[seat].prepare(state(seat),"SHOOT",target,item(seat,"BAG","BOW"));
+                RestartHost.write(path,"bow-action",seat+" "+shot.id+" "+shot.command);
+                RestartHost.write(path,"kill-before-reply","1");
+                assertThrows(IOException.class,()->shot.submit(clients[seat]));
+                return;
+            }
             if (mode.equals("goo")) { boss(); return; }
             if (RestartHost.hazard(mode)) {
                 offer(1);
@@ -253,6 +269,16 @@ public final class RestartClient {
         }
         for(int i=0;i<2;i++) bind(i);
         barrier();
+        if (mode.equals("kit-receipt")) {
+            String[] old=RestartHost.read(path,"bow-action").split(" ",3);
+            int seat=Integer.parseInt(old[0]); long version=state(seat).version;
+            long id=item(seat,"BAG","HEALING"); assertTrue(id>0);
+            assertEquals(1,new PublicDungeon(state(seat)).belongings.stream().filter(i->i.id==id).findFirst().get().quantity);
+            String receipt=clients[seat].request("LOOKUP "+epoch+" "+old[1]);
+            assertTrue(receipt,receipt.endsWith(" APPLIED")); assertEquals(receipt,clients[seat].request(old[2]));
+            refresh(); assertEquals(version,state(seat).version); act("WAIT",0,0);
+            return;
+        }
         if (mode.equals("schema2-to-three")) {
             assertEquals(2,new PublicDungeon(state(0)).depth);
             String[] descent=RestartHost.read(path,"descent").split(" ",3);

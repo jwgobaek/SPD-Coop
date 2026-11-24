@@ -43,6 +43,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.LeatherArmor;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.MailArmor;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.WornKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.GooBlob;
@@ -437,6 +441,16 @@ public final class CoopSession implements AutoCloseable {
         return item!=null && (item.getClass()==Food.class || item.getClass()==SmallRation.class);
     }
 
+    public static boolean basicArmorType(Item item) {
+        return item!=null && (item.getClass()==ClothArmor.class
+                || item.getClass()==LeatherArmor.class
+                || item.getClass()==MailArmor.class);
+    }
+
+    private boolean basicArmor(Item item) {
+        return basicArmorType(item) && ((Armor)item).glyph==null;
+    }
+
     public static boolean basicWeaponType(Item item) {
         return item!=null && ((item instanceof MagesStaff && ((MagesStaff)item).starterWand()!=null)
                 || item.getClass()==Gloves.class || item.getClass()==WornShortsword.class
@@ -565,7 +579,7 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && item.getClass()!=GooBlob.class && !(item instanceof Potion) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && item.getClass()!=GooBlob.class && !(item instanceof Potion) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
                             || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !hero.belongings.backpack.canHold(item))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
@@ -609,6 +623,13 @@ public final class CoopSession implements AutoCloseable {
                     item.execute(hero, Food.AC_EAT);
                     break;
                 case EQUIP:
+                    if (basicArmor(item)) {
+                        Armor old=hero.belongings.armor;
+                        // A seal transfer normally opens a selection dialog. Explicit unequip keeps it with its armor.
+                        if (!hero.belongings.backpack.contains(item) || (old!=null && (old.cursed || old.checkSeal()!=null))) return false;
+                        if (!((Armor)item).doEquip(hero)) return false;
+                        break;
+                    }
                     if (!basicWeapon(item) || !hero.belongings.backpack.contains(item)
                             || (hero.belongings.weapon != null && hero.belongings.weapon.cursed)) return false;
                     if (!((MeleeWeapon)item).doEquip(hero)) return false;
@@ -617,6 +638,11 @@ public final class CoopSession implements AutoCloseable {
                     if (!revive(hero, cell)) return false;
                     break;
                 case UNEQUIP:
+                    if (item!=null && item==hero.belongings.armor && basicArmor(item)) {
+                        if (item.cursed || !hero.belongings.backpack.canHold(item)
+                                || !hero.belongings.armor.doUnequip(hero,true)) return false;
+                        break;
+                    }
                     if (item != hero.belongings.weapon || !basicWeapon(item) || !hero.belongings.backpack.canHold(item)) return false;
                     if (!((MeleeWeapon)item).doUnequip(hero, true)) return false;
                     break;
@@ -624,7 +650,7 @@ public final class CoopSession implements AutoCloseable {
                     Heap floor = level.heaps.get(hero.pos);
                     if (cell != hero.pos || (floor != null && floor.type != Heap.Type.HEAP)
                             || level.pit[cell] || !level.passable[cell] || !hero.belongings.backpack.contains(item)
-                            || !(basicFood(item) || basicWeapon(item) || item instanceof Honeypot || item instanceof Honeypot.ShatteredPot)) return false;
+                            || !(basicFood(item) || basicArmorType(item) || basicWeapon(item) || item instanceof Honeypot || item instanceof Honeypot.ShatteredPot)) return false;
                     item.dropCoopUnit(hero);
                     break;
                 default:

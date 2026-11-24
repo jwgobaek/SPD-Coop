@@ -253,12 +253,12 @@ public class Armor extends EquipableItem {
 				GLog.n( Messages.get(Armor.class, "equip_cursed") );
 			}
 			
-			((HeroSprite)hero.sprite).updateArmor();
+			if (hero.sprite instanceof HeroSprite) ((HeroSprite)hero.sprite).updateArmor();
 			activate(hero);
 			Talent.onItemEquipped(hero, this);
 			hero.spend( timeToEquip( hero ) );
 
-			if (Dungeon.hero.heroClass == HeroClass.WARRIOR && checkSeal() == null){
+			if (hero.heroClass == HeroClass.WARRIOR && checkSeal() == null){
 				BrokenSeal seal = oldArmor != null ? oldArmor.checkSeal() : null;
 				if (seal != null && (!cursed || (seal.getGlyph() != null && seal.getGlyph().curse()))){
 
@@ -357,7 +357,7 @@ public class Armor extends EquipableItem {
 		if (super.doUnequip( hero, collect, single )) {
 
 			hero.belongings.armor = null;
-			((HeroSprite)hero.sprite).updateArmor();
+			if (hero.sprite instanceof HeroSprite) ((HeroSprite)hero.sprite).updateArmor();
 
 			BrokenSeal.WarriorShield sealBuff = hero.buff(BrokenSeal.WarriorShield.class);
 			if (sealBuff != null) sealBuff.setArmor(null);
@@ -543,8 +543,8 @@ public class Armor extends EquipableItem {
 			damage = Math.max(damage, 0);
 		}
 		
-		if (!levelKnown && defender == Dungeon.hero) {
-			float uses = Math.min( availableUsesToID, Talent.itemIDSpeedFactor(Dungeon.hero, this) );
+		if (!levelKnown && defender instanceof Hero && (Dungeon.coop!=null || defender==Dungeon.hero)) {
+			float uses = Math.min( availableUsesToID, Talent.itemIDSpeedFactor((Hero)defender, this) );
 			availableUsesToID -= uses;
 			usesLeftToID -= uses;
 			if (usesLeftToID <= 0) {

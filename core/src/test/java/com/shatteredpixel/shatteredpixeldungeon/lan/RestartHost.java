@@ -25,6 +25,7 @@ public final class RestartHost {
     static boolean guardian(String mode) {
         return mode.equals("statue") || mode.equals("unstable") || mode.equals("phantom") || mode.equals("exile");
     }
+    static boolean kit(String mode) { return mode.equals("kit0") || mode.equals("kit1"); }
     private static long seedFor(String mode) {
         switch (mode) {
             case "blocked-start": return 716; // ArmoredStatue with RoundShield and Chilling
@@ -62,7 +63,10 @@ public final class RestartHost {
             if (stage.equals("WRITING") && java.nio.file.Files.exists(path.resolve("fail-write")))
                 throw new IOException("Injected write failure");
             if (stage.equals("AFTER_HEAD") && mode.equals("goo") && java.nio.file.Files.exists(path.resolve("boss-action"))
-                    && Actor.findById(Integer.parseInt(read(path,"boss-id")))==null) Runtime.getRuntime().halt(78);
+                    && Actor.findById(Integer.parseInt(read(path,"boss-id")))==null) {
+                verifyBossLoot(path);
+                Runtime.getRuntime().halt(78);
+            }
             if (stage.equals("AFTER_HEAD") && mode.equals("unstable") && java.nio.file.Files.exists(path.resolve("watch-hit"))) {
                 int before=Integer.parseInt(read(path,"watch-hit"));
                 if (Dungeon.coop.hero(1).HP < before) {
@@ -77,7 +81,7 @@ public final class RestartHost {
         });
         InetAddress loop=InetAddress.getLoopbackAddress();
         boolean special = mode.equals("goo") || hazard(mode) || mode.equals("blocked-start") || guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
-        try(LanRoom room=(special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
+        try(LanRoom room=(special || kit(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup"))) {
             if (mode.equals("schema2-to-three")) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
             if (mode.equals("goo-receipt")) {
@@ -210,6 +214,15 @@ public final class RestartHost {
                         }
                     }
                 }
+                if (kit(mode) && !started && room.state()==LanRoom.State.IN_GAME) {
+                    started=true;
+                    CoopSession g=Dungeon.coop;
+                    int seat=mode.charAt(3)-'0';
+                    CoopMageTest.encounter(g,seat);
+                    Hero user=g.hero(seat);
+                    user.HP=3;
+                    Dungeon.level.drop(new com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing().quantity(2),user.pos);
+                }
                 if (mode.startsWith("cast") && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;
                     int seat=Integer.parseInt(mode.substring(4));
@@ -305,8 +318,9 @@ public final class RestartHost {
         }
         assertEquals(1,keys); assertTrue(blobs>=2 && blobs<=4);
         String before=java.nio.file.Files.exists(path.resolve("boss-loot")) ? read(path,"boss-loot") : "";
-        if(before.isEmpty()) write(path,"boss-loot",keys+" "+blobs);
-        else assertEquals(before,keys+" "+blobs);
+        String rewards=keys+" "+blobs+" "+Dungeon.coop.hero(0).exp+" "+Dungeon.coop.hero(1).exp+" "+Statistics.bossScores[0];
+        if(before.isEmpty()) write(path,"boss-loot",rewards);
+        else assertEquals(before,rewards);
     }
 
     private static void measureSaves(Path path,LanRoom room,int depth) throws IOException {

@@ -19,7 +19,12 @@ public class SewerJourney extends HeadlessDungeon {
     public static void main(String[] args) throws Exception {
         SewerJourney run=new SewerJourney(); run.temporary.create();
         run.startBackend();
-        try {for(String seed:args) run.travel(Long.parseLong(seed));}
+        try {for(String seed:args) {
+            try { run.travel(Long.parseLong(seed)); }
+            catch(RuntimeException stopped) {
+                System.out.println("JOURNEY seed="+seed+" engineFailure="+stopped+" actions="+run.counts);
+            }
+        }}
         finally {run.stopBackend();run.temporary.delete();}
     }
     private final Map<String,Integer> counts=new TreeMap<>();
@@ -28,43 +33,101 @@ public class SewerJourney extends HeadlessDungeon {
         counts.merge(verb.name(),1,Integer::sum);
         return true;
     }
+    private int retreat(Hero actor,Hero ally,Goo goo,boolean rinse) {
+        Level level=Dungeon.level;
+        int best=-1,score=Integer.MIN_VALUE;
+        for(int off:PathFinder.NEIGHBOURS8) {
+            int p=actor.pos+off;
+            if(!level.insideMap(p) || !level.passable[p] || Actor.findChar(p)!=null || level.getTransition(p)!=null
+                    || level.pit[p] || level.plants.get(p)!=null || level.traps.get(p)!=null) continue;
+            int distance=level.distance(p,goo.pos);
+            if(distance<=level.distance(actor.pos,goo.pos) && !(rinse && level.water[p] && distance>=2)) continue;
+            int exits=0;
+            for(int n:PathFinder.NEIGHBOURS8) if(level.passable[p+n] && !level.pit[p+n]) exits++;
+            int candidate=distance*10+exits - Math.abs(level.distance(p,ally.pos)-4)*2;
+            if(level.water[p]) candidate+=rinse?35:-12;
+            if(candidate>score) {score=candidate;best=p;}
+        }
+        return best;
+    }
+
     private void travel(long seed) {
         counts.clear();
         String result="action budget"; int highest=1;
-        try(CoopSession g=CoopSession.open(seed,1,HeroClass.WARRIOR)) {
+        HeroClass front=HeroClass.valueOf(System.getProperty("journey.front","WARRIOR"));
+        try(CoopSession g=CoopSession.open(seed,1,front)) {
             g.join(2,HeroClass.HUNTRESS);
+            Map<Integer,Integer> visits=new HashMap<>();
             com.watabou.utils.Random.pushGenerator(seed); // fixed combat stream, never redrawn
             for(int n=0;n<2500;n++) {
                 highest=Math.max(highest,Dungeon.depth);
                 int s=g.activeSeat();
-                if(s<0 || g.stopped() || !g.hero(0).isAlive() || !g.hero(1).isAlive()) {result="casualty/halt "+g.life(0)+"/"+g.life(1)+" stops="+g.stopReason();break;}
+                if(s<0 || g.stopped() || (Dungeon.depth<5 && (g.life(0)==CoopSession.Life.DEAD || g.life(1)==CoopSession.Life.DEAD))) {result="casualty/halt "+g.life(0)+"/"+g.life(1)+" stops="+g.stopReason();break;}
                 Hero h=g.hero(s); Level l=Dungeon.level;
-                if(Dungeon.depth==5 && l.map[l.exit()]==Terrain.UNLOCKED_EXIT) { result="unlocked sixth-floor gate"; break; }
+                int visitsHere=visits.merge(Dungeon.depth*200000+s*100000+h.pos,1,Integer::sum);
+                if(Dungeon.depth==5 && l.map[l.exit()]==Terrain.UNLOCKED_EXIT) {
+                    result=g.hero(0).isAlive() && g.hero(1).isAlive() ? "both alive, exit unlocked" : "exit unlocked with a fallen seat"; break;
+                }
+                if(g.life(1-s)==CoopSession.Life.DOWNED) {
+                    int ally=g.hero(1-s).pos;
+                    if(l.adjacent(h.pos,ally) && act(g,CoopSession.Action.REVIVE,ally,null)) continue;
+                    int toward=CoopFloorsTest.nextStep(g,ally,true,true);
+                    if(toward>=0 && act(g,CoopSession.Action.MOVE,toward,null)) continue;
+                }
                 if(Dungeon.depth<5 && g.stairs.stair()==l.exit()) {
+                    if(Dungeon.depth==4 && (g.hero(0).HP<g.hero(0).HT-1 || g.hero(1).HP<g.hero(1).HT-1)
+                            && !g.hero(0).buff(Hunger.class).isStarving() && !g.hero(1).buff(Hunger.class).isStarving() && h.getVisibleEnemies().isEmpty()
+                            && act(g,CoopSession.Action.WAIT,0,null)) continue;
                     if(!g.stairs.consent(1-s,g.turn(),l.exit(),false) || !act(g,CoopSession.Action.TRAVEL,l.exit(),null)) {
                         result="destination "+g.destinationBlocker; break;
                     }
                     continue;
                 }
                 PotionOfHealing heal=h.belongings.getItem(PotionOfHealing.class);
-                if(h.HP<h.HT/2 && heal!=null && act(g,CoopSession.Action.DRINK,0,heal)) continue;
+                if(h.HP<h.HT*2/3 && heal!=null && act(g,CoopSession.Action.DRINK,0,heal)) continue;
                 ArrayList<Mob> enemies=new ArrayList<>();
                 for(Mob m:l.mobs) if(m.alignment==Char.Alignment.ENEMY && m.invisible<=0 && g.observe(s).visible(m.pos)) enemies.add(m);
                 enemies.sort(Comparator.comparingInt((Mob m)->l.distance(h.pos,m.pos)).thenComparingInt(Actor::id));
                 boolean acted=false;
+                for(Mob m:enemies) if(m instanceof Goo) {
+                    Goo goo=(Goo)m;
+                    int range=l.distance(h.pos,goo.pos);
+                    boolean ooze=h.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Ooze.class)!=null;
+                    if(range<=1 || (s==0 && range<=3) || (range<=2 && goo.chargeStage()>0) || (l.water[goo.pos] && range<=2)
+                            || (ooze && !l.water[h.pos] && range<=2)) {
+                        int away=retreat(h,g.hero(1-s),goo,ooze);
+                        if(away>=0 && act(g,CoopSession.Action.MOVE,away,null)) {acted=true;break;}
+                    }
+                }
+                if(acted) continue;
                 for(Mob m:enemies) {
+                    if(h.heroClass==HeroClass.MAGE && act(g,CoopSession.Action.ZAP,m.pos,h.belongings.weapon())) {acted=true;break;}
                     if(s==0 && l.adjacent(h.pos,m.pos) && act(g,CoopSession.Action.ATTACK,m.pos,null)) {acted=true;break;}
                     Item weapon=s==0 ? h.belongings.weapon() : h.belongings.getItem(SpiritBow.class);
                     if(s==1 && act(g,CoopSession.Action.SHOOT,m.pos,weapon)) {acted=true;break;}
                 }
                 if(acted) continue;
+                if(Dungeon.depth==5 && s==0 && !enemies.isEmpty() && enemies.get(0) instanceof Goo
+                        && l.distance(h.pos,enemies.get(0).pos)>=2 && act(g,CoopSession.Action.WAIT,0,null)) continue;
+                if(h.heroClass==HeroClass.WARRIOR || h.heroClass==HeroClass.HUNTRESS) {
+                    com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor current=h.belongings.armor;
+                    boolean changed=false;
+                    for(Item bag:h.belongings.backpack.items.toArray(new Item[0])) {
+                        if(!CoopSession.basicArmorType(bag)) continue;
+                        com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor armor=(com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor)bag;
+                        if(armor.glyph!=null || armor.STRReq()>h.STR() || (current!=null && armor.tier<=current.tier)) continue;
+                        changed=current!=null && current.checkSeal()!=null ? act(g,CoopSession.Action.UNEQUIP,0,current) : act(g,CoopSession.Action.EQUIP,0,armor);
+                        if(changed) break;
+                    }
+                    if(changed) continue;
+                }
                 Heap heap=l.heaps.get(h.pos);
                 if(heap!=null && heap.type==Heap.Type.HEAP && !heap.hidden && act(g,CoopSession.Action.PICK_UP,h.pos,heap.peek())) continue;
                 Hunger hunger=h.buff(Hunger.class);
                 if(hunger!=null && hunger.isStarving()) {
                     Food meal=h.belongings.getItem(Food.class);
                     if(meal!=null && act(g,CoopSession.Action.EAT,0,meal)) continue;
-                } else if(h.HP*4<h.HT*3 && enemies.isEmpty() && act(g,CoopSession.Action.WAIT,0,null)) continue;
+                } else if(h.HP<h.HT-2 && enemies.isEmpty() && act(g,CoopSession.Action.WAIT,0,null)) continue;
                 int goal=l.exit();
                 int supply=-1;
                 for(Heap pile:l.heaps.valueList()) {
@@ -75,7 +138,7 @@ public class SewerJourney extends HeadlessDungeon {
                     if(!h.belongings.backpack.canHold(item)) continue;
                     if(l.distance(h.pos,pile.pos)<=6 && (supply<0 || l.distance(h.pos,pile.pos)<l.distance(h.pos,supply))) supply=pile.pos;
                 }
-                if(supply>=0 && (l.adjacent(h.pos,supply) || CoopFloorsTest.nextStep(g,supply,true,true)>=0)) {
+                if(visitsHere<3 && supply>=0 && (l.adjacent(h.pos,supply) || CoopFloorsTest.nextStep(g,supply,true,true)>=0)) {
                     if(l.adjacent(h.pos,supply) && act(g,CoopSession.Action.MOVE,supply,null)) continue;
                     goal=supply;
                 }
@@ -91,7 +154,7 @@ public class SewerJourney extends HeadlessDungeon {
                     for(int off:PathFinder.NEIGHBOURS8) {
                         int c=h.pos+off;
                         if(l.distance(c,goal)>1 || !l.passable[c] || Actor.findChar(c)!=null || l.getTransition(c)!=null) continue;
-                        if(l.distance(c,partner)>l.distance(h.pos,partner)) best=c;
+                        if(l.distance(c,partner)>l.distance(h.pos,partner) && visitsHere<4) best=c;
                     }
                     if(best>=0 && act(g,CoopSession.Action.MOVE,best,null)) continue;
                 }
@@ -103,7 +166,9 @@ public class SewerJourney extends HeadlessDungeon {
                 }
                 if(!act(g,CoopSession.Action.WAIT,0,null)) {result="rejected wait";break;}
             }
-            System.out.println("JOURNEY seed="+seed+" highest="+highest+" result="+result+" actions="+counts);
+            int bossHP=-1;
+            for(Mob m:Dungeon.level.mobs) if(m instanceof Goo) bossHP=m.HP;
+            System.out.println("JOURNEY bossHP="+bossHP+" hp="+g.hero(0).HP+"/"+g.hero(1).HP+" front="+front+" seed="+seed+" highest="+highest+" result="+result+" actions="+counts);
         }
     }
 }

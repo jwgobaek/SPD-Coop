@@ -42,13 +42,16 @@ public class CoopScene extends PixelScene {
             } else view.tap(controller,cell);
             return;
         }
-        if (targetView==view && (view.monsters.containsKey(cell) || view.chest(cell)) && !"Sheep".equals(view.monsters.get(cell)) && !"Sentry".equals(view.monsters.get(cell)) && !"Ghost".equals(view.monsters.get(cell))
-                && controller.act(view.source,targetStaff.kind.equals("BOW")?"SHOOT":"ZAP",cell,targetStaff.id)) cancelAim();
+        boolean bow=targetStaff.kind.equals("BOW");
+        String actor=view.monsters.get(cell);
+        boolean enemy=actor!=null && !"Sheep".equals(actor) && !"Sentry".equals(actor) && !"Ghost".equals(actor) && !"RatKing".equals(actor);
+        if (targetView==view && (enemy || (!bow && view.chest(cell)))
+                && controller.act(view.source,bow?"SHOOT":"ZAP",cell,targetStaff.id)) cancelAim();
     }
     private void talkToGhost(PublicDungeon view,int cell,String offer) {
         Class<?> ghost=com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost.class;
         String title=Messages.get(ghost,"name");
-        if (offer.equals("HUNT")) { alert(Messages.get(ghost,"rat_2")); return; }
+        if (offer.equals("HUNT")) { alert(Messages.get(ghost,view.depth==3 ? "gnoll_2" : view.depth==4 ? "crab_2" : "rat_2")); return; }
         if (!view.offered) return;
         boolean reward=offer.equals("REWARD");
         String body=reward?Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndSadGhost.class,"give_item")

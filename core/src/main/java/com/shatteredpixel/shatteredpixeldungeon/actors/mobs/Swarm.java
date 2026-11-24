@@ -104,6 +104,8 @@ public class Swarm extends Mob {
 				
 				Swarm clone = split();
 				clone.pos = Random.element( candidates );
+				if (!clone.flying && Dungeon.coop!=null && !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(clone.pos))
+					throw new UnsupportedOperationException("Unsupported swarm landing");
 				clone.state = clone.HUNTING;
 				GameScene.add( clone, SPLIT_DELAY ); //we add before assigning HP due to ascension
 

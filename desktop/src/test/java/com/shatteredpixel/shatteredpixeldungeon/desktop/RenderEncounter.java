@@ -39,6 +39,17 @@ final class RenderEncounter {
         }).get(5,TimeUnit.SECONDS);
     }
 
+    static void healing(CoopController client) throws Exception {
+        Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
+        Object room=host.get(client);
+        Field executor=room.getClass().getDeclaredField("owner"); executor.setAccessible(true);
+        ((ExecutorService)executor.get(room)).submit(()->{
+            Hero hero=Dungeon.coop.hero(0);
+            hero.HP=5;
+            Dungeon.level.drop(new com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing(),hero.pos);
+        }).get(5,TimeUnit.SECONDS);
+    }
+
     static int approachHazard(CoopController client, boolean dart) throws Exception {
         Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
         Object room=host.get(client);

@@ -89,13 +89,13 @@ public class SyncIntegrationTest extends HeadlessDungeon {
                             assertFalse(rat.isAlive());
                             assertSame(sword,game.hero(0).belongings.weapon);
                             assertEquals(1,game.hero(1).belongings.getItem(Food.class).quantity());
-                            Crab unsupported=new Crab();
+                            DM100 unsupported=new DM100();
                             unsupported.pos=neighbor(game.hero(0));
                             GameScene.add(unsupported);
                             forced=true;
                         }
                     } else if (room.state()==LanRoom.State.PAUSED && room.failure()!=null) {
-                        assertTrue(room.failure(),room.failure().contains("Crab"));
+                        assertTrue(room.failure(),room.failure().contains("DM100"));
                         if (!stopped) {
                             assertNotNull(acting);
                             assertTrue("Accepted WAIT already spent time before scheduler failure",Actor.now()+acting.cooldown()>due);

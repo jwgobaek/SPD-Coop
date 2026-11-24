@@ -81,6 +81,10 @@ public class HostRestartTest {
         for(int depth=1;depth<=5;depth++) System.out.println(RestartHost.read(temp.getRoot().toPath(),"perf"+depth));
     }
 
+    @Test(timeout=100000) public void eitherHuntressDrinksAndRecoversHerLostBowReceipt() throws Exception {
+        for(int seat=0;seat<2;seat++) run(temp.newFolder().toPath(),new String[]{"kit"+seat,"kit-receipt"});
+    }
+
     private void run(Path dir,String[] modes) throws Exception {
         for(String mode:modes) {
             Files.deleteIfExists(dir.resolve("fault-armed"));
@@ -109,7 +113,7 @@ public class HostRestartTest {
                 }
                 RestartHost.write(dir,"stop","1");
                 assertTrue(host.waitFor(10,TimeUnit.SECONDS));
-                assertEquals(RestartHost.read(dir,"RestartHost.log"),(mode.startsWith("kill_") || mode.equals("ascendfault"))?80:(mode.equals("goo") || RestartHost.hazard(mode) || mode.equals("unstable") || mode.equals("revive") || mode.equals("walk") || mode.equals("quest") || (mode.equals("mimic") || mode.equals("golden")) || mode.equals("crystal-open") || mode.equals("crystal-fight") || mode.startsWith("cast"))?78:mode.equals("soak")?79:0,host.exitValue());
+                assertEquals(RestartHost.read(dir,"RestartHost.log"),(mode.startsWith("kill_") || mode.equals("ascendfault"))?80:(RestartHost.kit(mode) || mode.equals("goo") || RestartHost.hazard(mode) || mode.equals("unstable") || mode.equals("revive") || mode.equals("walk") || mode.equals("quest") || (mode.equals("mimic") || mode.equals("golden")) || mode.equals("crystal-open") || mode.equals("crystal-fight") || mode.startsWith("cast"))?78:mode.equals("soak")?79:0,host.exitValue());
                 if(mode.equals("verifyfloor")) for(String metric:new String[]{"perf1","perf2","perf-travel"})
                     System.out.println(RestartHost.read(dir,metric));
             } finally {

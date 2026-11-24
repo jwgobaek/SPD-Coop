@@ -6,7 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Slow;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Crab;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM100;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -441,15 +441,15 @@ public class CoopSessionTest extends HeadlessDungeon {
     @Test(timeout = 30000)
     public void unsupportedActorStopsBeforeItsFirstAction() {
         try (CoopSession s = open(402)) {
-            Crab crab = new Crab();
-            crab.pos = neighbour(s.hero(1));
-            GameScene.add(crab);
-            int before = crab.pos;
+            DM100 guard = new DM100();
+            guard.pos = neighbour(s.hero(1));
+            GameScene.add(guard);
+            int before = guard.pos;
             assertTrue(send(s, WAIT, 0, null));
             assertThrows(UnsupportedOperationException.class, () -> send(s, WAIT, 0, null));
             assertTrue(s.stopped());
-            assertTrue(s.stopReason().contains("Crab"));
-            assertEquals(before, crab.pos);
+            assertTrue(s.stopReason().contains("DM100"));
+            assertEquals(before, guard.pos);
             assertFalse(s.act(71, s.turn(), WAIT, 0, null));
         }
     }

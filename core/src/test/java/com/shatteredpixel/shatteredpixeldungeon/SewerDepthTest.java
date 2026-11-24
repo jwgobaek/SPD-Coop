@@ -123,6 +123,56 @@ public class SewerDepthTest extends HeadlessDungeon {
         for(int seat=0;seat<2;seat++) game.hero(seat).HP=game.hero(seat).HT=150;
     }
 
+    @Test public void waterRegenerationAndAFallenCompanionSurviveASealedFloorCheckpoint() {
+        for(int victim=0;victim<2;victim++) {
+            Bundle fallen,revived;
+            int id;
+            try(CoopSession g=CoopSession.open(402,1,HeroClass.WARRIOR)) {
+                g.join(2,HeroClass.HUNTRESS);
+                for(int depth=2;depth<=5;depth++) gate(g,true);
+                Goo goo=SewerSpecialActorTest.actor(Goo.class); id=goo.id();
+                int water=-1;
+                for(int p=0;p<Dungeon.level.length();p++) if(Dungeon.level.water[p] && Dungeon.level.passable[p]
+                        && Actor.findChar(p)==null && (water<0 || Dungeon.level.distance(goo.pos,p)<Dungeon.level.distance(goo.pos,water))) water=p;
+                assertTrue(water>=0);
+                goo.pos=water;
+                goo.damage(5,g.hero(1-victim));
+                int injured=goo.HP;
+                for(int n=0;n<10 && goo.HP==injured;n++) SewerSpecialActorTest.waitOne(g);
+                assertTrue(goo.HP>injured && goo.HP<=goo.HT);
+                SewerBeeTest.offer(g,1-victim);
+                SewerGhostTest.meet(g,victim,goo);
+                Hero down=g.hero(victim);
+                for(int off:PathFinder.NEIGHBOURS8) {
+                    int p=down.pos+off;
+                    if(Dungeon.level.passable[p] && Actor.findChar(p)==null && !Dungeon.level.pit[p]
+                            && Dungeon.level.traps.get(p)==null) {g.hero(1-victim).pos=p;break;}
+                }
+                g.observe(0);g.observe(1);
+                down.HP=17;
+                Ankh token=new Ankh(); assertTrue(token.collect(down.belongings.backpack));
+                assertTrue(goo.attack(down,1,1000,Float.POSITIVE_INFINITY));
+                assertEquals(CoopSession.Life.DOWNED,g.life(victim));
+                assertEquals(17,g.preDeathHP(victim));
+                fallen=g.checkpoint();
+            }
+            try(CoopSession g=CoopSession.restore(fallen)) {
+                assertTrue(Dungeon.level.locked);
+                assertTrue(g.hero(victim).frozenInCoop());
+                assertEquals(id,SewerSpecialActorTest.actor(Goo.class).id());
+                assertTrue(CoopFloorsTest.step(g,CoopSession.Action.REVIVE,g.hero(victim).pos,null));
+                assertEquals(CoopSession.Life.ALIVE,g.life(victim));
+                assertTrue(g.hero(victim).HP>0 && g.hero(victim).HP<=5);
+                assertNull(g.hero(victim).belongings.getItem(Ankh.class));
+                revived=g.checkpoint();
+            }
+            try(CoopSession g=CoopSession.restore(revived)) {
+                assertTrue(Dungeon.level.locked); assertFalse(g.hero(victim).frozenInCoop());
+                assertNull(g.hero(victim).belongings.getItem(Ankh.class));
+            }
+        }
+    }
+
     @Test public void isolatedBossBattleSealsBothHeroesAndDropsOneNativeRewardSet() {
         Bundle save;
         int bossId;

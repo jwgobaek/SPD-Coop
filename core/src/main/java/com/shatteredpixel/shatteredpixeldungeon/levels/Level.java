@@ -1173,7 +1173,7 @@ public abstract class Level implements Bundlable {
 		}
 
 		if (Blob.volumeAt(ch.pos, SacrificialFire.class) > 0 && ch.buff( SacrificialFire.Marked.class ) == null){
-			if (Dungeon.level.heroFOV[ch.pos]) {
+			if (Dungeon.coop==null && Dungeon.level.heroFOV[ch.pos]) {
 				CellEmitter.get(ch.pos).burst( SacrificialParticle.FACTORY, 5 );
 			}
 			Buff.prolong( ch, SacrificialFire.Marked.class, SacrificialFire.Marked.DURATION );

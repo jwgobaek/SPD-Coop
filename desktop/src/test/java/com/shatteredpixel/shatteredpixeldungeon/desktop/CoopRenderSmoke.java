@@ -24,7 +24,7 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep;
+    private static boolean mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
@@ -36,6 +36,7 @@ public final class CoopRenderSmoke {
         mimic=crystal || golden || (args.length>1 && args[1].equals("mimic"));
         unstable=args.length>1 && args[1].equals("unstable");
         statue=unstable || (args.length>1 && args[1].equals("statue"));
+        kit=args.length>1 && args[1].equals("kit");
         deep=args.length>1 && args[1].equals("deep");
         floors=deep || statue || mimic || ghost || sentry || (args.length>1 && args[1].equals("floors"));
         mage=floors || (args.length>1 && args[1].equals("mage"));
@@ -59,7 +60,7 @@ public final class CoopRenderSmoke {
             } else {
             c.join("127.0.0.1:"+LanClient.TCP_PORT,null);
             await(()->!c.busy() && c.frame().page==CoopController.Page.LOBBY);
-            String character=new File(root,"stairs").isFile()?"WARRIOR":"HUNTRESS";
+            String character=(new File(root,"stairs").isFile() || new File(root,"kit").isFile())?"WARRIOR":"HUNTRESS";
             c.select(character); await(()->!c.busy() && c.frame().roster.contains(character));
             c.ready(true);
             }
@@ -97,6 +98,7 @@ public final class CoopRenderSmoke {
     }
     private static String label(String key) {
         if(key.equals("warriorClass")) return HeroClass.WARRIOR.title();
+        if(key.equals("huntressClass")) return HeroClass.HUNTRESS.title();
         if(key.equals("mageClass")) return HeroClass.MAGE.title();
         return Messages.get(CoopScene.class,key);
     }
@@ -151,18 +153,21 @@ public final class CoopRenderSmoke {
     private static PublicDungeon.Loot staff(PublicDungeon view) {
         return view.belongings.stream().filter(i->i.kind.equals("STAFF") && i.slot.equals("WEAPON")).findFirst().get();
     }
-    private static void aimStaff() throws Exception {
+    private static void bagAction(String kind,String verb) throws Exception {
         click("bag");
         await(()->render(()->find(Game.scene(),g->g instanceof WndCoopBag)!=null));
         PublicDungeon view=frame().dungeon;
         java.util.ArrayList<PublicDungeon.Loot> sorted=new java.util.ArrayList<>(view.belongings);
         sorted.sort((a,b)->Boolean.compare(a.slot.equals("BAG"),b.slot.equals("BAG")));
-        int slot=sorted.indexOf(staff(view));
+        int slot=sorted.indexOf(sorted.stream().filter(i->i.kind.equals(kind)).findFirst().get());
         press(render(()->{
             WndCoopBag wnd=(WndCoopBag)find(Game.scene(),g->g instanceof WndCoopBag);
             return wnd.camera().cameraToScreen(13+24*(slot%5),28+22*(slot/5));
         }));
-        click("zap");
+        click(verb);
+    }
+    private static void aimStaff() throws Exception {
+        bagAction("STAFF","zap");
         await(()->button("cancel")!=null);
     }
     private static void floorScreens(File root,Process oldGuest) throws Exception {
@@ -304,9 +309,10 @@ public final class CoopRenderSmoke {
         });
         click("title"); await(()->button("host")!=null);
         shot("multiplayer"); click("host"); await(()->button("warriorClass")!=null);
-        shot("lobby"); click(mage?"mageClass":"warriorClass");
+        shot("lobby"); click(kit?"huntressClass":mage?"mageClass":"warriorClass");
         if(mage) shot("mage-selected");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
+        if(kit) java.nio.file.Files.createFile(new File(root,"kit").toPath());
         if(floors) java.nio.file.Files.createFile(new File(root,"stairs").toPath());
         Process child=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-cp",System.getProperty("java.class.path"),
                 CoopRenderSmoke.class.getName(),"guest",root.toString()).inheritIO().start();
@@ -314,6 +320,24 @@ public final class CoopRenderSmoke {
             click("ready"); await(()->button("start")!=null); shot("ready"); click("start");
             await(()->frame().dungeon!=null); await(()->button("bag")!=null);
             shot("dungeon");
+            if(kit) {
+                RenderEncounter.healing(hostController());
+                click("wait"); await(()->frame().dungeon.offered && frame().dungeon.floor.containsKey(frame().dungeon.pos));
+                press(mapPoint(frame().dungeon,frame().dungeon.pos));
+                await(()->frame().dungeon.offered && frame().dungeon.belongings.stream().anyMatch(i->i.kind.equals("HEALING")));
+                int hp=frame().dungeon.hp;
+                bagAction("HEALING","drink"); await(()->frame().dungeon.offered && frame().dungeon.hp>hp);
+                shot("healing-draught");
+                RenderEncounter.beside(hostController(),com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat.class);
+                click("wait"); await(()->frame().dungeon.offered && frame().dungeon.monsters.containsValue("Rat"));
+                bagAction("BOW","shoot"); await(()->button("cancel")!=null); shot("bow-target");
+                PublicDungeon view=frame().dungeon;
+                int cell=view.monsters.entrySet().stream().filter(e->"Rat".equals(e.getValue())).findFirst().get().getKey();
+                press(mapPoint(view,cell));
+                await(()->button("cancel")==null && frame().image.version>view.source.version && frame().lastResult.equals("APPLIED"));
+                shot("bow-shot");
+                return;
+            }
             if(hazards) {
                 int trap=RenderEncounter.approachHazard(hostController(),true);
                 click("wait"); await(()->frame().dungeon.offered && frame().image.rows.containsKey("trap"+trap));

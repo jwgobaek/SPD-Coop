@@ -86,10 +86,10 @@ public final class PublicDungeon {
             if(item.kind.equals("HEALING")) verbs.add("DRINK");
             if(item.kind.equals("BOW")) verbs.add("SHOOT");
             if(item.kind.equals("FOOD")) verbs.add("EAT");
-            if(weapon) verbs.add("EQUIP");
+            if(weapon || item.kind.equals("ARMOR")) verbs.add("EQUIP");
             if(item.kind.equals("HONEYPOT")) verbs.add("SHATTER");
-            if(item.kind.equals("FOOD") || weapon || item.kind.equals("HONEYPOT") || item.kind.equals("SHELL")) verbs.add("DROP");
-        } else if(item.slot.equals("WEAPON") && weapon) verbs.add("UNEQUIP");
+            if(item.kind.equals("FOOD") || weapon || item.kind.equals("ARMOR") || item.kind.equals("HONEYPOT") || item.kind.equals("SHELL")) verbs.add("DROP");
+        } else if((item.slot.equals("WEAPON") && weapon) || (item.slot.equals("ARMOR") && item.kind.equals("ARMOR"))) verbs.add("UNEQUIP");
         return verbs;
     }
     public boolean use(CoopController c,Loot item,String verb) {
