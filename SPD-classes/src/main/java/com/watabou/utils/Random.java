@@ -39,17 +39,59 @@ public class Random {
 		resetGenerators();
 	}
 
+    // Co-op checkpoints preserve the java.util.Random 48-bit stream, including bounded nextInt and shuffle.
+    private static ArrayDeque<java.util.Random> outsideWorld;
+    private static final class WorldRandom extends java.util.Random {
+        private static final long MULT = 0x5deece66dL, MASK = (1L << 48)-1;
+        long state;
+        WorldRandom(long seed) { super(0L); state = (seed ^ MULT) & MASK; }
+        @Override protected int next(int bits) {
+            state = (state * MULT + 11) & MASK;
+            return (int)(state >>> (48-bits));
+        }
+    }
+    public static synchronized void enterWorld() {
+        if (outsideWorld != null) throw new IllegalStateException("World random stack active");
+        outsideWorld = generators;
+        resetGenerators();
+    }
+    public static synchronized void leaveWorld() {
+        generators = outsideWorld;
+        outsideWorld = null;
+    }
+    public static synchronized long[] worldState() {
+        long[] state = new long[generators.size()];
+        int index = 0;
+        for (java.util.Random generator : generators) state[index++] = ((WorldRandom)generator).state;
+        return state;
+    }
+    public static synchronized void restoreWorld(long[] states) {
+        if (outsideWorld == null || states == null || states.length < 1 || states.length > 64)
+            throw new IllegalArgumentException("Random stack");
+        generators.clear();
+        for (long state : states) {
+            if (state < 0 || state > WorldRandom.MASK) throw new IllegalArgumentException("Random state");
+            WorldRandom generator = new WorldRandom(0);
+            generator.state = state;
+            generators.addLast(generator);
+        }
+    }
+    private static java.util.Random fresh() {
+        java.util.Random source = new java.util.Random();
+        return outsideWorld == null ? source : new WorldRandom(source.nextLong());
+    }
+
 	public static synchronized void resetGenerators(){
 		generators = new ArrayDeque<>();
-		generators.push(new java.util.Random());
+		generators.push(fresh());
 	}
 
 	public static synchronized void pushGenerator(){
-		generators.push( new java.util.Random() );
+		generators.push(fresh());
 	}
 
 	public static synchronized void pushGenerator( long seed ){
-		generators.push( new java.util.Random( scrambleSeed(seed) ) );
+		generators.push(outsideWorld == null ? new java.util.Random(scrambleSeed(seed)) : new WorldRandom(scrambleSeed(seed)));
 	}
 
 	//scrambles a given seed, this helps eliminate patterns between the outputs of similar seeds

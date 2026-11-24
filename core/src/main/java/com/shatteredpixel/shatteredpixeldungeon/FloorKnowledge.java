@@ -36,6 +36,26 @@ public final class FloorKnowledge {
         }
     }
 
+    com.watabou.utils.Bundle save() {
+        com.watabou.utils.Bundle b = new com.watabou.utils.Bundle();
+        b.put("visited", visited.toLongArray());
+        b.put("mapped", mapped.toLongArray());
+        b.put("terrain", terrain);
+        return b;
+    }
+
+    void load(com.watabou.utils.Bundle b) {
+        int[] tiles = b.getIntArray("terrain");
+        if (tiles == null || tiles.length != length()) throw new IllegalArgumentException("Deformed memory");
+        visited.or(BitSet.valueOf(b.getLongArray("visited")));
+        mapped.or(BitSet.valueOf(b.getLongArray("mapped")));
+        if (mapped.length() > length() || visited.length() > length()) throw new IllegalArgumentException("Memory bounds");
+        for (int cell=0;cell<tiles.length;cell++) {
+            if (tiles[cell]<0 || tiles[cell]>Terrain.CUSTOM_DECO_WTR) throw new IllegalArgumentException("Memory terrain");
+        }
+        System.arraycopy(tiles,0,terrain,0,length());
+    }
+
     static int appearance(int tile) {
         if (tile == Terrain.SECRET_DOOR) return Terrain.WALL;
         if (tile == Terrain.SECRET_TRAP) return Terrain.EMPTY;

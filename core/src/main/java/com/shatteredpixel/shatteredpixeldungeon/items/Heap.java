@@ -447,6 +447,7 @@ public class Heap implements Bundlable {
 		
 		//remove any document pages that either don't exist anymore or that the player already has
 		for (Item item : items.toArray(new Item[0])){
+            if (Dungeon.coop != null && Dungeon.coop.restoring()) break;
 			if (item instanceof DocumentPage
 					&& ( !((DocumentPage) item).document().pageNames().contains(((DocumentPage) item).page())
 					||    ((DocumentPage) item).document().isPageFound(((DocumentPage) item).page()))){

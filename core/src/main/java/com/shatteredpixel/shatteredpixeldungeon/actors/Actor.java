@@ -172,6 +172,44 @@ public abstract class Actor implements Bundlable {
 
 	private static float now = 0;
 	
+    public static Bundle schedulerState() {
+        Bundle b = new Bundle();
+        b.put("now",now);
+        b.put("count",all.size());
+        for (Actor a : all) {
+            Bundle entry = new Bundle();
+            entry.put("type",a.getClass().getName());
+            entry.put("time",a.time);
+            entry.put("priority",a.actPriority);
+            entry.put("frozen",a.coopFrozen);
+            b.put("a"+a.id(),entry);
+        }
+        return b;
+    }
+
+    public static void restoreSchedule(Bundle b, Actor input) {
+        float clock=b.getFloat("now");
+        if (!(Math.abs(clock) <= Float.MAX_VALUE) || all.size()!=b.getInt("count") || all.size()>8192)
+            throw new IllegalArgumentException("Scheduler size or clock");
+        HashSet<Integer> unique = new HashSet<>();
+        for (Actor a : all) {
+            Bundle e=b.getBundle("a"+a.id());
+            if (!unique.add(a.id()) || a.id()>=nextID || e.isNull() || !e.getString("type").equals(a.getClass().getName()))
+                throw new IllegalArgumentException("Actor identity");
+            a.time=e.getFloat("time");
+            a.coopFrozen=e.getBoolean("frozen");
+            a.actPriority=e.getInt("priority");
+            if (!(Math.abs(a.time) <= Float.MAX_VALUE) || a.time < (a.coopFrozen ? 0 : clock))
+                throw new IllegalArgumentException("Actor time");
+        }
+        if (input!=null && (input.coopFrozen || input.time!=clock || !all.contains(input)))
+            throw new IllegalArgumentException("Invalid input offer");
+        now=clock;
+        current=input;
+    }
+
+    public boolean frozenInCoop() { return coopFrozen; }
+
 	public static float now(){
 		return now;
 	}

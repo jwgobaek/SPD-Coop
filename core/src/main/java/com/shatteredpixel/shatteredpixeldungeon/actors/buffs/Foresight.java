@@ -45,7 +45,8 @@ public class Foresight extends FlavourBuff {
 	public boolean attachTo(Char target) {
 		if (super.attachTo(target)){
 			//this way we get a nice VFX sweep on initial activation
-			if (Dungeon.coop != null && target instanceof Hero) {
+			if (Dungeon.coop != null && Dungeon.coop.restoring()) return true;
+            if (Dungeon.coop != null && target instanceof Hero) {
                 ((Hero)target).search(false);
             } else if (target == Dungeon.hero){
 				Dungeon.level.mapped[target.pos] = false;

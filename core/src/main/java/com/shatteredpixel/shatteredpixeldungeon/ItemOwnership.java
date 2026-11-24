@@ -23,6 +23,16 @@ public final class ItemOwnership {
         return entry;
     }
 
+    long sequence() { return sequence; }
+
+    void restored(Item item,long id,long owner,long limit) {
+        if (entries.containsKey(item) || id<=0 || id>limit) throw new IllegalArgumentException("Item identity");
+        Entry restored=new Entry(id);
+        restored.owner=owner;
+        entries.put(item,restored);
+        sequence=limit;
+    }
+
     public long identity(Item item) { return entry(item).id; }
     public long owner(Item item) {
         Entry entry = entries.get(item);

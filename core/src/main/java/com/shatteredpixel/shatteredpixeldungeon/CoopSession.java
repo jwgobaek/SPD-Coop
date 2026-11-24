@@ -23,7 +23,12 @@ import com.shatteredpixel.shatteredpixeldungeon.journal.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
+import com.watabou.utils.Bundle;
 import com.watabou.utils.FileUtils;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.TreeMap;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
@@ -153,7 +158,11 @@ public final class CoopSession implements AutoCloseable {
     private long turn;
     private String stopReason;
 
+    private boolean restoring, executing;
+    public boolean restoring() { return restoring; }
+
     private CoopSession() {
+        Random.enterWorld();
         restoreJournal = Journal.enterCoop();
         restoreBadges = Badges.enterCoop();
         previousBase = FileUtils.setBasePath(FileUtils.basePath() + "coop/");
@@ -256,7 +265,9 @@ public final class CoopSession implements AutoCloseable {
 
     /** Secondary ordering only for equal actor time and priority. */
     public boolean precedes(Actor candidate, Actor other) {
-        return candidate == heroes[0] && other == heroes[1];
+        if (candidate == heroes[0] && other == heroes[1]) return true;
+        if (candidate == heroes[1] && other == heroes[0]) return false;
+        return other != null && candidate.id() < other.id();
     }
 
     /** Called by Actor.process after it has selected the actual next actor. */
@@ -317,6 +328,7 @@ public final class CoopSession implements AutoCloseable {
         Hero hero = heroes[activeSeat];
         Level level = Dungeon.level;
         try {
+            executing = true;
             switch (action) {
                 case WAIT:
                     hero.rest(false);
@@ -386,6 +398,8 @@ public final class CoopSession implements AutoCloseable {
         } catch (RuntimeException failure) {
             stop(failure.toString());
             throw failure;
+        } finally {
+            executing = false;
         }
     }
 
@@ -396,6 +410,157 @@ public final class CoopSession implements AutoCloseable {
         if (!partyDefeated && !stopped() && activeSeat < 0) throw new IllegalStateException("Scheduler ended without an input turn");
     }
 
+    /** Only native actor graphs reachable from the two heroes and the current floor are checkpointable. */
+    public Bundle checkpoint() {
+        checkExecutor();
+        if (executing || restoring || stopped() || heroes[1]==null || (!partyDefeated && activeSeat<0))
+            throw new IllegalStateException("No committed engine boundary");
+        HashSet<Actor> persistent = new HashSet<>();
+        persistent.add(heroes[0]); persistent.add(heroes[1]);
+        persistent.addAll(Dungeon.level.mobs);
+        for (Actor ch : new HashSet<>(persistent)) persistent.addAll(((Char)ch).buffs());
+        persistent.addAll(Dungeon.level.blobs.values());
+        Actor spawner = Dungeon.level.respawner();
+        if (spawner!=null) persistent.add(spawner);
+        if (!persistent.equals(Actor.all())) throw new IllegalStateException("Transient actor at checkpoint");
+        Bundle b = new Bundle();
+        b.put("schema",1);
+        b.put("world",Dungeon.worldState());
+        b.put("guest",heroes[1]);
+        b.put("floor",Dungeon.level);
+        b.put("players",players);
+        b.put("turn",turn);
+        b.put("active",activeSeat);
+        b.put("defeat",partyDefeated);
+        b.put("schedule",Actor.schedulerState());
+        b.put("random",Random.worldState());
+        for (int i=0;i<2;i++) {
+            b.put("life"+i,lives[i].name());
+            b.put("before"+i,preDeath[i]);
+            b.put("sight"+i,knowledge(i).save());
+            b.put("range"+i,heroes[i].viewDistance);
+            if (lastOpponent[i]!=null && Dungeon.level.mobs.contains(lastOpponent[i])) {
+                b.put("enemy"+i,lastOpponent[i].id());
+                b.put("hit"+i,attackTurn[i]);
+            }
+        }
+        Bundle items=new Bundle();
+        for (Map.Entry<String,Item> e : physicalItems().entrySet()) {
+            Item item=e.getValue();
+            Bundle entry=new Bundle();
+            entry.put("id",ownership.identity(item));
+            entry.put("owner",ownership.owner(item));
+            entry.put("type",item.getClass().getName());
+            entry.put("quantity",item.quantity());
+            items.put(e.getKey(),entry);
+        }
+        b.put("items",items);
+        b.put("nextItem",ownership.sequence());
+        return b;
+    }
+
+    private Map<String,Item> physicalItems() {
+        Map<String,Item> result=new TreeMap<>();
+        for (int seat=0;seat<2;seat++) {
+            int index=0;
+            for (Item item : heroes[seat].belongings) result.put("s"+seat+"_"+index++,item);
+        }
+        for (Heap heap : Dungeon.level.heaps.valueList()) {
+            int index=0;
+            for (Item item : heap.items) result.put("f"+heap.pos+"_"+index++,item);
+        }
+        return result;
+    }
+
+    public static CoopSession restore(Bundle b) {
+        if (Dungeon.coop!=null || Dungeon.hero!=null || Dungeon.level!=null) throw new IllegalStateException("Dungeon in use");
+        Bundle world=b.getBundle("world"), floor=b.getBundle("floor");
+        if (b.getInt("schema")!=1 || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
+                world.getInt("depth")!=1 || world.getInt("branch")!=0 || world.getInt("challenges")!=0)
+            throw new IllegalArgumentException("Unsupported world");
+        int width=floor.getInt("width"), height=floor.getInt("height");
+        if (width<3 || height<3 || width>256 || height>256 || floor.getIntArray("map").length!=width*height)
+            throw new IllegalArgumentException("Invalid floor bounds");
+        CoopSession s=new CoopSession();
+        Dungeon.coop=s;
+        s.restoring=true;
+        try {
+            s.load(b,world);
+            s.restoring=false;
+            return s;
+        } catch (RuntimeException | Error invalid) {
+            Belongings.bundleRestoring=false;
+            s.close();
+            throw invalid;
+        }
+    }
+
+    private void load(Bundle b,Bundle world) {
+        long[] roster=b.getLongArray("players");
+        if (roster.length!=2 || roster[0]<=0 || roster[1]<=0 || roster[0]==roster[1])
+            throw new IllegalArgumentException("Invalid roster");
+        System.arraycopy(roster,0,players,0,2);
+        Dungeon.restoreWorld(world,true);
+        heroes[0]=Dungeon.hero;
+        heroes[1]=(Hero)b.get("guest");
+        Level level=Dungeon.level=(Level)b.get("floor");
+        PathFinder.setMapSize(level.width(),level.height());
+        activeSeat=b.getInt("active");
+        turn=b.getLong("turn");
+        partyDefeated=b.getBoolean("defeat");
+        if (turn<1 || (partyDefeated ? activeSeat!=-1 : activeSeat<0 || activeSeat>=2))
+            throw new IllegalArgumentException("Invalid turn");
+        for (int i=0;i<2;i++) {
+            Hero h=heroes[i];
+            validatePlayer(players[i],h.heroClass);
+            lives[i]=Life.valueOf(b.getString("life"+i));
+            preDeath[i]=b.getInt("before"+i);
+            if (!level.insideMap(h.pos) || h.HT<=0 || h.HP<0 || h.HP>h.HT || preDeath[i]<0 ||
+                    (lives[i]==Life.ALIVE)!=(h.HP>0) || lives[i]==Life.REVIVING ||
+                    (i==activeSeat && lives[i]!=Life.ALIVE) || (partyDefeated && lives[i]!=Life.DEAD))
+                throw new IllegalArgumentException("Invalid hero state");
+            knowledge(i).load(b.getBundle("sight"+i));
+            h.viewDistance=b.getInt("range"+i);
+            h.fieldOfView=i==0 ? level.heroFOV : new boolean[level.length()];
+        }
+        if (heroes[0].pos==heroes[1].pos) throw new IllegalArgumentException("Overlapping heroes");
+        Actor.add(heroes[1]);
+        Actor.init();
+        level.addRespawner();
+        Actor.restoreSchedule(b.getBundle("schedule"),partyDefeated ? null : heroes[activeSeat]);
+        for (Char ch : Actor.chars()) attachSprite(ch);
+        Map<String,Item> objects=physicalItems();
+        Bundle items=b.getBundle("items");
+        if (objects.size()>8192 || objects.size()!=items.getKeys().size()) throw new IllegalArgumentException("Item count");
+        HashSet<Long> ids=new HashSet<>();
+        for (Map.Entry<String,Item> e : objects.entrySet()) {
+            Bundle entry=items.getBundle(e.getKey());
+            Item item=e.getValue();
+            long id=entry.getLong("id"), owner=entry.getLong("owner");
+            if (!ids.add(id) || !entry.getString("type").equals(item.getClass().getName()) ||
+                    entry.getInt("quantity")!=item.quantity() || item.quantity()<=0 ||
+                    (owner!=0 && owner!=players[0] && owner!=players[1]) ||
+                    (e.getKey().startsWith("s") && owner!=players[e.getKey().charAt(1)-'0']))
+                throw new IllegalArgumentException("Item owner or object mismatch");
+            ownership.restored(item,id,owner,b.getLong("nextItem"));
+        }
+        for (int i=0;i<2;i++) {
+            Hero h=heroes[i];
+            if (h.frozenInCoop()!=(lives[i]!=Life.ALIVE) ||
+                    (lives[i]==Life.DOWNED && (resource(i)==null || preDeath[i]<=0)))
+                throw new IllegalArgumentException("Invalid casualty");
+            for (Actor buff : h.buffs()) if (buff.frozenInCoop()!=h.frozenInCoop()) throw new IllegalArgumentException("Buff clock");
+            if (b.contains("enemy"+i)) {
+                lastOpponent[i]=(Mob)Actor.findById(b.getInt("enemy"+i));
+                attackTurn[i]=b.getLong("hit"+i);
+            }
+            h.ready=i==activeSeat;
+            level.updateFieldOfView(h,h.fieldOfView);
+            observe(i);
+        }
+        Random.restoreWorld(b.getLongArray("random"));
+    }
+
     @Override public void close() {
         checkExecutor();
         stop("Session closed");
@@ -404,6 +569,7 @@ public final class CoopSession implements AutoCloseable {
         Dungeon.hero = null;
         restoreBadges.run();
         restoreJournal.run();
+        Random.leaveWorld();
         FileUtils.setBasePath(previousBase);
         Dungeon.coop = null;
     }

@@ -1226,7 +1226,7 @@ public abstract class Char extends Actor {
 	}
 
 	public synchronized boolean add( Buff buff ) {
-        if (Dungeon.coop != null && this instanceof Hero && !isAlive()) return false;
+        if (Dungeon.coop != null && this instanceof Hero && !isAlive() && !Dungeon.coop.restoring()) return false;
 
 		if (buff(PotionOfCleansing.Cleanse.class) != null) { //cleansing buff
 			if (buff.type == Buff.buffType.NEGATIVE

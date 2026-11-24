@@ -170,7 +170,10 @@ public class Bag extends Item implements Iterable<Item> {
 		loading = true;
 		for (Bundlable item : bundle.getCollection( ITEMS )) {
 			if (item != null){
-				if (!((Item)item).collect( this )){
+                if (Dungeon.coop != null && Dungeon.coop.restoring()) {
+                    items.add((Item)item);
+                    if (item instanceof Bag) ((Bag)item).owner = owner;
+                } else if (!((Item)item).collect( this )){
 					//force-add the item if necessary, such as if its item category changed after an update
 					items.add((Item) item);
 				}
