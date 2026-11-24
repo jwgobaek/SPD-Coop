@@ -119,8 +119,8 @@ public class Heap implements Bundlable {
 			items.addAll(0, bonus);
 			RingOfWealth.showFlareForBonusDrop(sprite);
 		}
-		sprite.link();
-		sprite.drop();
+		if (sprite != null) sprite.link();
+		animateDrop();
 	}
 	
 	public Heap setHauntedIfCursed(){

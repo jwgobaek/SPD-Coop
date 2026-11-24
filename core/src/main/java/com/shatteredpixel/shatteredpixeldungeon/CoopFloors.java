@@ -135,6 +135,12 @@ public final class CoopFloors {
             throw new IllegalArgumentException("Parked actor identity or clock");
     }
 
+    private static void inspectItem(Bundle item,Bundle entry) {
+        if(entry.isNull() || !item.getString("__className").equals(entry.getString("type")) ||
+                item.getInt("quantity")<=0 || item.getInt("quantity")!=entry.getInt("quantity"))
+            throw new IllegalArgumentException("Parked physical item mismatch");
+    }
+
     void save(Bundle state) { if(parked!=null) state.put("parked",parked); }
 
     void restore(Bundle state,HashSet<Long> itemIds) {
@@ -161,10 +167,15 @@ public final class CoopFloors {
             int pos=heap.getInt("pos"), index=0;
             if(pos<0 || pos>=floor.getInt("width")*floor.getInt("height")) throw new IllegalArgumentException("Parked heap cell");
             for(Bundle item:heap.getBundleArray("items")) {
-                Bundle entry=entries.getBundle("f"+pos+"_"+index++);
-                if(entry.isNull() || !item.getString("__className").equals(entry.getString("type")) ||
-                        item.getInt("quantity")<=0 || item.getInt("quantity")!=entry.getInt("quantity"))
-                    throw new IllegalArgumentException("Parked physical item mismatch");
+                inspectItem(item,entries.getBundle("f"+pos+"_"+index++));
+                count++;
+            }
+        }
+        for(Bundle mob:floor.getBundleArray("mobs")) {
+            if (!mob.contains("items")) continue;
+            int index=0;
+            for(Bundle item:mob.getBundleArray("items")) {
+                inspectItem(item,entries.getBundle("m"+mob.getInt("id")+"_"+index++));
                 count++;
             }
         }

@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
@@ -135,7 +136,7 @@ public class Mimic extends Mob {
 		if (alignment == Alignment.NEUTRAL && state != PASSIVE){
 			alignment = Alignment.ENEMY;
 			if (sprite != null) sprite.idle();
-			if (Dungeon.level.heroFOV[pos]) {
+			if (Dungeon.coop == null && Dungeon.level.heroFOV[pos]) {
 				GLog.w(Messages.get(this, "reveal") );
 				CellEmitter.get(pos).burst(Speck.factory(Speck.STAR), 10);
 				Sample.INSTANCE.play(Assets.Sounds.MIMIC);
@@ -153,6 +154,22 @@ public class Mimic extends Mob {
 
 	@Override
 	public boolean interact(Char c) {
+		if (Dungeon.coop != null && alignment == Alignment.NEUTRAL && Dungeon.coop.playerOf(c) != 0) {
+			Hero opener = (Hero)c;
+			stopHiding();
+			enemy = opener;
+			target = opener.pos;
+			opener.busy();
+			if (opener.invisible <= 0 && opener.buff(Swiftthistle.TimeBubble.class) == null
+					&& opener.buff(TimekeepersHourglass.timeFreeze.class) == null) {
+				// Authority sprites are invisible. Mob.doAttack resolves the native strike immediately.
+				doAttack(opener);
+				enemySeen = true;
+			}
+			alignment = Alignment.ENEMY;
+			if (opener.isAlive()) opener.spendAndNext(TICK);
+			return true;
+		}
 		if (alignment != Alignment.NEUTRAL || c != Dungeon.hero){
 			return super.interact(c);
 		}
@@ -212,7 +229,7 @@ public class Mimic extends Mob {
 	public void stopHiding(){
 		state = HUNTING;
 		if (sprite != null) sprite.idle();
-		if (Actor.chars().contains(this) && Dungeon.level.heroFOV[pos]) {
+		if (Dungeon.coop == null && Actor.chars().contains(this) && Dungeon.level.heroFOV[pos]) {
 			enemy = Dungeon.hero;
 			target = Dungeon.hero.pos;
 			GLog.w(Messages.get(this, "reveal") );
@@ -273,7 +290,7 @@ public class Mimic extends Mob {
 		
 		if (items != null) {
 			for (Item item : items) {
-				Dungeon.level.drop( item, pos ).sprite.drop();
+				Dungeon.level.drop( item, pos ).animateDrop();
 			}
 			items = null;
 		}

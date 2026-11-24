@@ -113,7 +113,7 @@ public final class RestartClient {
     }
 
     private void run(String mode) throws Exception {
-        boolean special=mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive");
+        boolean special=mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || mode.equals("mimic");
         if (special) {
             try (LanClient old = new LanClient(address)) {
                 assertEquals("ERROR VERSION", old.request("MODE SYNC3"));
@@ -135,6 +135,7 @@ public final class RestartClient {
             refresh();
             if(mode.equals("walk")) { walk(); return; }
             act("WAIT",0,0);
+            if (mode.equals("mimic")) { openChest(); return; }
             if (mode.equals("quest")) { ghostQuest(); return; }
             if (mode.equals("hive")) { hive(); return; }
             if (special) {
@@ -195,6 +196,16 @@ public final class RestartClient {
         }
         for(int i=0;i<2;i++) bind(i);
         barrier();
+        if (mode.equals("mimicreceipt")) {
+            String[] saved=RestartHost.read(path,"chest-request").split(" ",3);
+            String receipt=clients[1].request("LOOKUP "+epoch+" "+saved[0]);
+            assertTrue(receipt,receipt.endsWith(" APPLIED"));
+            assertEquals(receipt,clients[1].request(saved[2]));
+            assertTrue(new PublicDungeon(state(1)).monsters.containsValue("Mimic"));
+            assertTrue(new PublicDungeon(state(1)).hp<Integer.parseInt(saved[1]));
+            act("WAIT",0,0);
+            return;
+        }
         if (mode.equals("questreceipt")) {
             String[] saved=RestartHost.read(path,"ghost-reward").split(" ",5);
             int seat=Integer.parseInt(saved[0]),other=1-seat;
@@ -324,6 +335,25 @@ public final class RestartClient {
         refresh();
         assertTrue(new PublicDungeon(state(mover)).consent);
         return stairAction(mover,"TRAVEL",cell);
+    }
+
+    private void openChest() throws Exception {
+        int mover=active();
+        assertTrue(consentAndCross().submit(clients[mover]).endsWith(" APPLIED")); applied++;
+        refresh();
+        act("WAIT",0,0);
+        offer(1);
+        int cell=Integer.parseInt(RestartHost.read(path,"encounter-cell"));
+        PublicDungeon guest=new PublicDungeon(state(1));
+        assertTrue(guest.chest(cell));
+        for(int seat=0;seat<2;seat++) {
+            assertFalse(state(seat).rows.toString().contains("Mimic"));
+            assertFalse(new PublicDungeon(state(seat)).monsters.containsKey(cell));
+        }
+        SeatActions.Pending request=actions[1].prepare(state(1),"OPEN",cell,0);
+        RestartHost.write(path,"chest-request",request.id+" "+guest.hp+" "+request.command);
+        RestartHost.write(path,"kill-before-reply","1");
+        assertThrows(IOException.class,()->request.submit(clients[1]));
     }
 
     private void hive() throws Exception {

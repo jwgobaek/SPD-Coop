@@ -98,10 +98,15 @@ final class SeatProjection {
                 if (heap != null && heap.hidden) continue;
                 if (heap != null && heap.type == Heap.Type.HEAP && heap.peek()!=null) {
                     putItem(rows,visibleItems,heap.peek(),"F"+cell);
-                } else if (heap != null) rows.put("h"+cell,"CONTAINER");
+                } else if (heap != null) rows.put("h"+cell,
+                        heap.type==Heap.Type.CHEST || heap.type==Heap.Type.CRYSTAL_CHEST ? heap.type.name() : "CONTAINER");
             }
             for (Mob mob : level.mobs) {
                 if (sight.visible(mob.pos) && mob.invisible <= 0 && mob.isAlive() && CoopSession.basicMob(mob)) {
+                    if (CoopSession.disguised(mob)) {
+                        rows.put("h"+mob.pos,"CHEST");
+                        continue;
+                    }
                     rows.put("m"+mob.id(),mob.pos+","+mob.getClass().getSimpleName()+","+mob.HP+","+mob.HT);
                     if (mob instanceof Ghost && level.adjacent(hero.pos,mob.pos))
                         rows.put("quest"+mob.pos,Ghost.Quest.sewerOffer());

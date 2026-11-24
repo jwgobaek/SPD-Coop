@@ -77,3 +77,7 @@ The floor row encodes branch,depth. A stair row is published only when both play
 ### SYNC6 꿀단지
 
 이 빌드의 동기화 방은 MODE SYNC6를 요구한다. 공개 종류 Bee, HONEYPOT, SHELL을 추가했다. 자기 좌석이 소유한 꿀단지에 SHATTER와 현재 위치, 공개 아이템 핸들을 보낸다. 원본 비투척 깨뜨리기와 같이 독립적인 한 턴을 더 소비하지 않는다. 원본 벌 소환·조각 귀속과 행동 영수증을 같은 세대에서 확정한다. 가방의 조각을 내려놓거나 전리품을 줍는 행동은 기존 DROP 및 PICK_UP 검증을 거친다. 비공개 벌-조각 식별자는 참관자에게 전송하지 않는다.
+
+## SYNC7 상자
+
+두 좌석은 MODE SYNC7을 협상한다. 직접 보이는 상자는 h<cell>=CHEST 또는 CRYSTAL_CHEST로 전송한다. 위장한 미믹은 같은 행을 사용한다. OPEN은 인접 셀과 핸들 0을 사용하며, 마력탄은 상자에 조준할 수 있다. 위장이 해제된 다음 확정 경계에서만 몬스터 행을 공개한다.

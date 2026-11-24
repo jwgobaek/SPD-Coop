@@ -36,7 +36,7 @@ public class SewerSpecialActorTest extends HeadlessDungeon {
         game.observe(1);
     }
 
-    static <T extends Mob> T actor(Class<T> type) {
+    public static <T extends Mob> T actor(Class<T> type) {
         for (Mob m : Dungeon.level.mobs) if (m.getClass() == type) return type.cast(m);
         throw new AssertionError("Missing " + type.getSimpleName());
     }

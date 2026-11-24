@@ -204,7 +204,9 @@ final class RoomSync {
                 && !seats[seat].view.current.rows.containsKey("t"+cell)) return "REJECT_INVALID";
         boolean targeted=action==CoopSession.Action.ATTACK || action==CoopSession.Action.ZAP;
         Char target=targeted ? Actor.findChar(cell) : null;
-        if (targeted && (target==null || !seats[seat].view.current.rows.containsKey("m"+target.id())))
+        String container=seats[seat].view.current.rows.get("h"+cell);
+        boolean aimingAtChest=action==CoopSession.Action.ZAP && ("CHEST".equals(container) || "CRYSTAL_CHEST".equals(container));
+        if (targeted && !aimingAtChest && (target==null || !seats[seat].view.current.rows.containsKey("m"+target.id())))
             return "REJECT_INVALID";
         try {
             if (!game.act(game.player(seat),turn,action,cell,item)) {

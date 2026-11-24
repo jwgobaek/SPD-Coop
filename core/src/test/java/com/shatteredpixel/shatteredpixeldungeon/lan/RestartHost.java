@@ -41,8 +41,8 @@ public final class RestartHost {
                 Runtime.getRuntime().halt(78);
         });
         InetAddress loop=InetAddress.getLoopbackAddress();
-        boolean special = mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive");
-        try(LanRoom room=(special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,mode.equals("hive")?409:mode.equals("quest")?403:mode.equals("piranha")?406:mode.equals("walk")?415:402,saves)
+        boolean special = mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || mode.equals("mimic");
+        try(LanRoom room=(special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,mode.equals("mimic")?408:mode.equals("hive")?409:mode.equals("quest")?403:mode.equals("piranha")?406:mode.equals("walk")?415:402,saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup"))) {
             Rat rat=null;
             if (mode.equals("revive") || mode.equals("soak")) {
@@ -90,7 +90,12 @@ public final class RestartHost {
                 if (special && room.state()==LanRoom.State.IN_GAME && arrangedDepth!=Dungeon.depth) {
                     arrangedDepth=Dungeon.depth;
                     if (arrangedDepth==1) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
-                    else if (mode.equals("hive")) {
+                    else if (mode.equals("mimic")) {
+                        com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic mimic=
+                                SewerSpecialActorTest.actor(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic.class);
+                        SewerGhostTest.meet(Dungeon.coop,1,mimic);
+                        write(path,"encounter-cell",Integer.toString(mimic.pos));
+                    } else if (mode.equals("hive")) {
                         CoopSession g=Dungeon.coop;
                         boolean found=false;
                         for (Heap heap:Dungeon.level.heaps.valueList()) {

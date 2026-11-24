@@ -72,8 +72,8 @@ public class CoopFloorsTest extends HeadlessDungeon {
     }
 
     @Test public void inaccessibleSpecialRoomRetainsLastPlayableFloor() {
-        // Sentries and depth-two ghosts are admitted; seed 408 still contains an unsupported mimic.
-        try(CoopSession game=CoopSession.open(408,1,HeroClass.MAGE)) {
+        // Seed 416 contains a statue with an unverified weapon effect.
+        try(CoopSession game=CoopSession.open(416,1,HeroClass.MAGE)) {
             game.join(2,HeroClass.WARRIOR);
             Level l=Dungeon.level;
             int gate=l.exit(),seat=0;

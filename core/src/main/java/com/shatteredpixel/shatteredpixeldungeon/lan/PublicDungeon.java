@@ -57,7 +57,7 @@ public final class PublicDungeon {
                 break;
             case 'm':
                 String[] mob=value.split(",");
-                if(!mob[1].matches("Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee")) throw new IllegalArgumentException("Monster");
+                if(!mob[1].matches("Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic")) throw new IllegalArgumentException("Monster");
                 enemies.put(number(mob[0],0,65535),mob[1]); break;
             case 'b': effects.add(number(value.split(",")[0],0,255)); break;
             case 't': number(value,0,63); break;
@@ -98,11 +98,16 @@ public final class PublicDungeon {
         return t==null ? source.rememberedTerrain(cell) : Integer.parseInt(t);
     }
     public boolean visible(int cell) { return source.rows.containsKey("t"+cell); }
+    public boolean chest(int cell) {
+        String kind=source.rows.get("h"+cell);
+        return "CHEST".equals(kind) || "CRYSTAL_CHEST".equals(kind);
+    }
     public boolean tap(CoopController c,int cell) {
         if(!offered || cell<0 || !visible(cell) || Math.abs(cell%width-pos%width)>1 || Math.abs(cell/width-pos/width)>1) return false;
         if(cell==ally) return "DOWNED".equals(source.rows.get("allylife")) && c.act(source,"REVIVE",cell,0);
         if("Ghost".equals(monsters.get(cell)) || "Sentry".equals(monsters.get(cell))) return false;
         if(monsters.containsKey(cell)) return c.act(source,"ATTACK",cell,0);
+        if(chest(cell)) return c.act(source,"OPEN",cell,0);
         if(cell==pos) return floor.containsKey(cell) && c.act(source,"PICK_UP",cell,floor.get(cell).id);
         return c.act(source,"MOVE",cell,0);
     }

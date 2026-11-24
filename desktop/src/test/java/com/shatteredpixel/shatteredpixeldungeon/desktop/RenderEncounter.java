@@ -39,23 +39,23 @@ final class RenderEncounter {
         }).get(5,TimeUnit.SECONDS);
     }
 
-    static void atGhost(CoopController client) throws Exception {
+    static int beside(CoopController client, Class<? extends Mob> type) throws Exception {
         Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
         Object room=host.get(client);
         Field field=room.getClass().getDeclaredField("owner"); field.setAccessible(true);
-        ((ExecutorService)field.get(room)).submit(()->{
+        return ((ExecutorService)field.get(room)).submit(()->{
             Level level=Dungeon.level;
-            for (Mob mob:level.mobs) if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost) {
-                mob.state=mob.PASSIVE;
+            for (Mob mob:level.mobs) if (mob.getClass()==type) {
+                if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost) mob.state=mob.PASSIVE;
                 for (int offset:com.watabou.utils.PathFinder.NEIGHBOURS8) {
                     int p=mob.pos+offset;
                     if (level.passable[p] && Actor.findChar(p)==null && !level.pit[p] && level.traps.get(p)==null) {
                         Dungeon.coop.hero(0).pos=p;
-                        return;
+                        return mob.pos;
                     }
                 }
             }
-            throw new AssertionError("No reachable ghost");
+            throw new AssertionError("No reachable "+type.getSimpleName());
         }).get(5,TimeUnit.SECONDS);
     }
 

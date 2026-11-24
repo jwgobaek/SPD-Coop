@@ -43,11 +43,12 @@ final class CoopBoard extends Group {
             if(z!=null) edges(px,py,Integer.parseInt(z));
             PublicDungeon.Loot loot=view.floor.get(cell);
             if(loot!=null) place(new ItemSprite(loot.sprite),px,py);
-            else if(view.source.rows.containsKey("h"+cell)) place(new ItemSprite(ItemSpriteSheet.CHEST),px,py);
+            else if(view.source.rows.containsKey("h"+cell)) place(new ItemSprite("CRYSTAL_CHEST".equals(view.source.rows.get("h"+cell)) ? ItemSpriteSheet.CRYSTAL_CHEST : ItemSpriteSheet.CHEST),px,py);
             String monster=view.monsters.get(cell);
             if(monster!=null) {
                 Image sprite;
                 switch(monster) {
+                    case "Mimic": sprite=new Image(Assets.Sprites.MIMIC,48,0,16,16);break;
                     case "Bee": sprite=new Image(Assets.Sprites.BEE,0,0,16,16);break;
                     case "Ghost": sprite=new Image(Assets.Sprites.GHOST,0,0,14,15);break;
                     case "FetidRat": sprite=new Image(Assets.Sprites.RAT,0,30,16,15);break;
