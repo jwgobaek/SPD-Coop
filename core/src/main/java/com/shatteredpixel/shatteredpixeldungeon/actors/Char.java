@@ -1323,7 +1323,7 @@ public abstract class Char extends Actor {
 		}
 		pos = step;
 		
-		if (this != Dungeon.hero) {
+		if (this != Dungeon.hero && Dungeon.coop == null) {
 			sprite.visible = Dungeon.level.heroFOV[pos];
 		}
 		

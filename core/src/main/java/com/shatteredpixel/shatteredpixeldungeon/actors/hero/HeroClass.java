@@ -98,6 +98,10 @@ public enum HeroClass {
 	}
 
 	public void initHero( Hero hero ) {
+		initHero(hero, Dungeon.quickslot);
+	}
+
+	public void initHero(Hero hero, QuickSlot slots) {
 
 		hero.heroClass = this;
 		Talent.initClassTalents(hero);
@@ -106,46 +110,46 @@ public enum HeroClass {
 		if (!Challenges.isItemBlocked(i)) hero.belongings.armor = (ClothArmor)i;
 
 		i = new Food();
-		if (!Challenges.isItemBlocked(i)) i.collect();
+		if (!Challenges.isItemBlocked(i)) i.collect(hero.belongings.backpack);
 
-		new VelvetPouch().collect();
+		new VelvetPouch().collect(hero.belongings.backpack);
 		Dungeon.LimitedDrops.VELVET_POUCH.drop();
 
 		Waterskin waterskin = new Waterskin();
-		waterskin.collect();
+		waterskin.collect(hero.belongings.backpack);
 
 		new ScrollOfIdentify().identify();
 
 		switch (this) {
 			case WARRIOR:
-				initWarrior( hero );
+				initWarrior(hero, slots);
 				break;
 
 			case MAGE:
-				initMage( hero );
+				initMage(hero, slots);
 				break;
 
 			case ROGUE:
-				initRogue( hero );
+				initRogue(hero, slots);
 				break;
 
 			case HUNTRESS:
-				initHuntress( hero );
+				initHuntress(hero, slots);
 				break;
 
 			case DUELIST:
-				initDuelist( hero );
+				initDuelist(hero, slots);
 				break;
 
 			case CLERIC:
-				initCleric( hero );
+				initCleric(hero, slots);
 				break;
 		}
 
 		if (SPDSettings.quickslotWaterskin()) {
 			for (int s = 0; s < QuickSlot.SIZE; s++) {
-				if (Dungeon.quickslot.getItem(s) == null) {
-					Dungeon.quickslot.setSlot(s, waterskin);
+				if (slots.getItem(s) == null) {
+					slots.setSlot(s, waterskin);
 					break;
 				}
 			}
@@ -171,15 +175,15 @@ public enum HeroClass {
 		return null;
 	}
 
-	private static void initWarrior( Hero hero ) {
+	private static void initWarrior(Hero hero, QuickSlot slots) {
 		(hero.belongings.weapon = new WornShortsword()).identify();
 		ThrowingStone stones = new ThrowingStone();
-		stones.identify().collect();
+		stones.identify().collect(hero.belongings.backpack);
 
-		Dungeon.quickslot.setSlot(0, stones);
+		slots.setSlot(0, stones);
 
 		if (hero.belongings.armor != null){
-			hero.belongings.armor.affixSeal(new BrokenSeal());
+			hero.belongings.armor.affixSeal(new BrokenSeal(), hero);
 			Catalog.setSeen(BrokenSeal.class); //as it's not added to the inventory
 		}
 
@@ -187,7 +191,7 @@ public enum HeroClass {
 		new ScrollOfRage().identify();
 	}
 
-	private static void initMage( Hero hero ) {
+	private static void initMage(Hero hero, QuickSlot slots) {
 		MagesStaff staff;
 
 		staff = new MagesStaff(new WandOfMagicMissile());
@@ -195,13 +199,13 @@ public enum HeroClass {
 		(hero.belongings.weapon = staff).identify();
 		hero.belongings.weapon.activate(hero);
 
-		Dungeon.quickslot.setSlot(0, staff);
+		slots.setSlot(0, staff);
 
 		new ScrollOfUpgrade().identify();
 		new PotionOfLiquidFlame().identify();
 	}
 
-	private static void initRogue( Hero hero ) {
+	private static void initRogue(Hero hero, QuickSlot slots) {
 		(hero.belongings.weapon = new Dagger()).identify();
 
 		CloakOfShadows cloak = new CloakOfShadows();
@@ -209,43 +213,43 @@ public enum HeroClass {
 		hero.belongings.artifact.activate( hero );
 
 		ThrowingKnife knives = new ThrowingKnife();
-		knives.identify().collect();
+		knives.identify().collect(hero.belongings.backpack);
 
-		Dungeon.quickslot.setSlot(0, cloak);
-		Dungeon.quickslot.setSlot(1, knives);
+		slots.setSlot(0, cloak);
+		slots.setSlot(1, knives);
 
 		new ScrollOfMagicMapping().identify();
 		new PotionOfInvisibility().identify();
 	}
 
-	private static void initHuntress( Hero hero ) {
+	private static void initHuntress(Hero hero, QuickSlot slots) {
 
 		(hero.belongings.weapon = new Gloves()).identify();
 		SpiritBow bow = new SpiritBow();
-		bow.identify().collect();
+		bow.identify().collect(hero.belongings.backpack);
 
-		Dungeon.quickslot.setSlot(0, bow);
+		slots.setSlot(0, bow);
 
 		new PotionOfMindVision().identify();
 		new ScrollOfLullaby().identify();
 	}
 
-	private static void initDuelist( Hero hero ) {
+	private static void initDuelist(Hero hero, QuickSlot slots) {
 
 		(hero.belongings.weapon = new Rapier()).identify();
 		hero.belongings.weapon.activate(hero);
 
 		ThrowingSpike spikes = new ThrowingSpike();
-		spikes.quantity(2).identify().collect(); //set quantity is 3, but Duelist starts with 2
+		spikes.quantity(2).identify().collect(hero.belongings.backpack); //set quantity is 3, but Duelist starts with 2
 
-		Dungeon.quickslot.setSlot(0, hero.belongings.weapon);
-		Dungeon.quickslot.setSlot(1, spikes);
+		slots.setSlot(0, hero.belongings.weapon);
+		slots.setSlot(1, spikes);
 
 		new PotionOfStrength().identify();
 		new ScrollOfMirrorImage().identify();
 	}
 
-	private static void initCleric( Hero hero ) {
+	private static void initCleric(Hero hero, QuickSlot slots) {
 
 		(hero.belongings.weapon = new Cudgel()).identify();
 		hero.belongings.weapon.activate(hero);
@@ -254,7 +258,7 @@ public enum HeroClass {
 		(hero.belongings.artifact = tome).identify();
 		hero.belongings.artifact.activate( hero );
 
-		Dungeon.quickslot.setSlot(0, tome);
+		slots.setSlot(0, tome);
 
 		new PotionOfPurity().identify();
 		new ScrollOfRemoveCurse().identify();

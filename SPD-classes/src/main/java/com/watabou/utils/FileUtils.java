@@ -44,6 +44,14 @@ public class FileUtils {
 		defaultPath = path;
 	}
 	
+	public static String basePath() { return defaultPath; }
+
+	public static String setBasePath(String path) {
+		String previous = defaultPath;
+		defaultPath = path;
+		return previous;
+	}
+
 	public static FileHandle getFileHandle( String name ){
 		return getFileHandle( defaultFileType, defaultPath, name );
 	}

@@ -33,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MindVision;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.RevealedArea;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.PowerOfMany;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk;
@@ -183,6 +184,7 @@ public class Dungeon {
 	public static float mobsToChampion;
 
 	public static Hero hero;
+	public static CoopSession coop;
 	public static Level level;
 
 	public static QuickSlot quickslot = new QuickSlot();
@@ -231,6 +233,11 @@ public class Dungeon {
 	}
 	
 	public static void init() {
+		if (coop != null) throw new IllegalStateException("Co-op session is active");
+		init(GamesInProgress.selectedClass);
+	}
+
+	static void init(HeroClass firstClass) {
 
 		initialVersion = version = Game.versionCode;
 		challenges = SPDSettings.challenges();
@@ -283,7 +290,7 @@ public class Dungeon {
 		
 		Badges.reset();
 		
-		GamesInProgress.selectedClass.initHero( hero );
+		firstClass.initHero( hero );
 	}
 
 	public static boolean isChallenged( int mask ) {
@@ -295,6 +302,7 @@ public class Dungeon {
 	}
 	
 	public static Level newLevel() {
+		if (coop != null && Dungeon.level != null) throw new UnsupportedOperationException("Co-op floor transitions");
 		
 		Dungeon.level = null;
 		Actor.clear();
@@ -462,6 +470,7 @@ public class Dungeon {
 	}
 	
 	public static void switchLevel( final Level level, int pos ) {
+		if (coop != null && Dungeon.level != null) throw new UnsupportedOperationException("Co-op floor transitions");
 
 		//Position of -2 specifically means trying to place the hero the exit
 		if (pos == -2){
@@ -508,6 +517,7 @@ public class Dungeon {
 		hero.curAction = hero.lastAction = null;
 
 		observe();
+		if (coop != null) return;
 		try {
 			saveAll();
 		} catch (IOException e) {
@@ -621,7 +631,12 @@ public class Dungeon {
 	private static final String QUESTS		= "quests";
 	private static final String BADGES		= "badges";
 	
+	private static void requireSoloSave() {
+		if (coop != null) throw new UnsupportedOperationException("Co-op persistence is unavailable");
+	}
+
 	public static void saveGame( int save ) {
+		requireSoloSave();
 		try {
 			Bundle bundle = new Bundle();
 
@@ -697,6 +712,7 @@ public class Dungeon {
 	}
 	
 	public static void saveLevel( int save ) throws IOException {
+		requireSoloSave();
 		Bundle bundle = new Bundle();
 		bundle.put( LEVEL, level );
 		
@@ -704,6 +720,7 @@ public class Dungeon {
 	}
 	
 	public static void saveAll() throws IOException {
+		requireSoloSave();
 		if (hero != null && (hero.isAlive() || WndResurrect.instance != null)) {
 			
 			Actor.fixTime();
@@ -721,6 +738,7 @@ public class Dungeon {
 	}
 	
 	public static void loadGame( int save, boolean fullLoad ) throws IOException {
+		requireSoloSave();
 		
 		Bundle bundle = FileUtils.bundleFromFile( GamesInProgress.gameFile( save ) );
 
@@ -824,6 +842,7 @@ public class Dungeon {
 	}
 	
 	public static Level loadLevel( int save ) throws IOException {
+		requireSoloSave();
 		
 		Dungeon.level = null;
 		Actor.clear();
@@ -840,6 +859,7 @@ public class Dungeon {
 	}
 	
 	public static void deleteGame( int save, boolean deleteLevels ) {
+		requireSoloSave();
 
 		if (deleteLevels) {
 			String folder = GamesInProgress.gameFolder(save);
@@ -870,6 +890,10 @@ public class Dungeon {
 	}
 	
 	public static void fail( Object cause ) {
+		if (coop != null) {
+			coop.stop("Defeat");
+			return;
+		}
 		if (WndResurrect.instance == null) {
 			updateLevelExplored();
 			Statistics.gameWon = false;
@@ -878,6 +902,7 @@ public class Dungeon {
 	}
 	
 	public static void win( Object cause ) {
+		if (coop != null) throw new UnsupportedOperationException("Co-op victory");
 
 		updateLevelExplored();
 		Statistics.gameWon = true;

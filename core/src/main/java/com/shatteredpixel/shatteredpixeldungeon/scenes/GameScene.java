@@ -1195,8 +1195,9 @@ public class GameScene extends PixelScene {
 		Dungeon.level.mobs.add( mob );
 		//mobs added on partial turns wait until next full turn to act
 		delay = (float)Math.ceil(Actor.now() + delay) - Actor.now();
-		if (scene != null) {
-			scene.addMobSprite(mob);
+		if (scene != null || Dungeon.coop != null) {
+			if (Dungeon.coop != null) Dungeon.coop.attachSprite(mob);
+			else scene.addMobSprite(mob);
 			Actor.addDelayed(mob, delay);
 			mob.spendToWhole();
 		}

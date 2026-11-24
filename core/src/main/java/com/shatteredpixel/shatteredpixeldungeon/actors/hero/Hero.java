@@ -761,7 +761,7 @@ public class Hero extends Char {
 			return true;
 		}
 
-		KindOfWeapon wep = Dungeon.hero.belongings.attackingWeapon();
+		KindOfWeapon wep = belongings.attackingWeapon();
 
 		if (wep != null){
 			return wep.canReach(this, enemy.pos);
@@ -837,7 +837,7 @@ public class Hero extends Char {
 	public boolean act() {
 		
 		//calls to dungeon.observe will also update hero's local FOV.
-		fieldOfView = Dungeon.level.heroFOV;
+		if (Dungeon.coop == null || this == Dungeon.hero) fieldOfView = Dungeon.level.heroFOV;
 
 		if (buff(Endure.EndureTracker.class) != null){
 			buff(Endure.EndureTracker.class).endEnduring();
@@ -845,7 +845,7 @@ public class Hero extends Char {
 		
 		if (!ready) {
 			//do a full observe (including fog update) if not resting.
-			if (!resting || buff(MindVision.class) != null || buff(Awareness.class) != null) {
+			if ((Dungeon.coop == null || this == Dungeon.hero) && (!resting || buff(MindVision.class) != null || buff(Awareness.class) != null)) {
 				Dungeon.observe();
 			} else {
 				//otherwise just directly re-calculate FOV
@@ -1510,7 +1510,7 @@ public class Hero extends Char {
 			}
 		}
 		if (hasTalent(Talent.PATIENT_STRIKE)){
-			Buff.affect(Dungeon.hero, Talent.PatientStrikeTracker.class).pos = Dungeon.hero.pos;
+			Buff.affect(this, Talent.PatientStrikeTracker.class).pos = pos;
 		}
 		if (!fullRest) {
 			if (sprite != null) {
@@ -1728,6 +1728,9 @@ public class Hero extends Char {
 				if (!visibleEnemies.contains( m )) {
 					newMob = true;
 				}
+
+				// No local quickslot or targeting UI is attached to the co-op engine.
+				if (Dungeon.coop != null) continue;
 
 				//only do a simple check for mind visioned enemies, better performance
 				if ((!mindVisionEnemies.contains(m) && QuickSlotButton.autoAim(m) != -1)
@@ -2169,6 +2172,10 @@ public class Hero extends Char {
 
 	@Override
 	public void die( Object cause ) {
+		if (Dungeon.coop != null) {
+			Dungeon.coop.stop("Hero down: " + id());
+			return;
+		}
 		
 		curAction = null;
 
@@ -2365,7 +2372,7 @@ public class Hero extends Char {
 
 		boolean hit = attack(attackTarget);
 		
-		Invisibility.dispel();
+		Invisibility.dispel(this);
 		spend( attackDelay() );
 
 		if (hit && subClass == HeroSubClass.GLADIATOR && wasEnemy){

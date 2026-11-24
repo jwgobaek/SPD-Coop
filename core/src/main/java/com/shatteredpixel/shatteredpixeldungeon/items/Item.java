@@ -156,9 +156,11 @@ public class Item implements Bundlable {
 	
 	public void execute( Hero hero, String action ) {
 
-		GameScene.cancel();
-		curUser = hero;
-		curItem = this;
+		if (Dungeon.coop == null) {
+			GameScene.cancel();
+			curUser = hero;
+			curItem = this;
+		}
 		
 		if (action.equals( AC_DROP )) {
 			
@@ -209,6 +211,7 @@ public class Item implements Bundlable {
 			return true;
 		}
 
+		Hero owner = container.owner instanceof Hero ? (Hero)container.owner : Dungeon.hero;
 		ArrayList<Item> items = container.items;
 
 		if (items.contains( this )) {
@@ -234,7 +237,7 @@ public class Item implements Bundlable {
 					item.updateQuickslot();
 					if (Dungeon.hero != null && Dungeon.hero.isAlive()) {
 						Badges.validateItemLevelAquired( this );
-						Talent.onItemCollected(Dungeon.hero, item);
+						Talent.onItemCollected(owner, item);
 						if (isIdentified()) {
 							Catalog.setSeen(getClass());
 							Statistics.itemTypesDiscovered.add(getClass());
@@ -264,7 +267,7 @@ public class Item implements Bundlable {
 
 		if (Dungeon.hero != null && Dungeon.hero.isAlive()) {
 			Badges.validateItemLevelAquired( this );
-			Talent.onItemCollected( Dungeon.hero, this );
+			Talent.onItemCollected( owner, this );
 			if (isIdentified()){
 				Catalog.setSeen(getClass());
 				Statistics.itemTypesDiscovered.add(getClass());
@@ -272,7 +275,7 @@ public class Item implements Bundlable {
 		}
 
 		items.add( this );
-		Dungeon.quickslot.replacePlaceholder(this);
+		if (Dungeon.coop == null || owner == Dungeon.hero) Dungeon.quickslot.replacePlaceholder(this);
 		Collections.sort( items, itemComparator );
 		updateQuickslot();
 		return true;

@@ -30,3 +30,26 @@
 ## Headless 제약
 
 :core는 Java 라이브러리로 :SPD-classes와 :services에 의존한다. Noosa Game.create/render는 그래픽·입력·GL을 사용하고 FileUtils는 Gdx.files에 의존한다. Hero.ready는 sprite.looping()을 호출하며 공격과 이동 완료 콜백이 턴을 재개한다. HeadlessApplication만 띄워서는 이 경로가 실행되지 않는다. Phase 2에서 저장 루트와 프레젠테이션 완료 신호를 분리하고 동일한 게임 메서드를 구동한다. Random.resetGenerators는 시드 없는 기본 생성기를 만든다. Dungeon.seed 하나로 모든 전투 결과를 재현할 수 있다고 가정하지 않는다.
+
+## Phase 3의 오프라인 실행 경로
+
+`CoopSession.open(seed, playerId, type)`은 libGDX 파일 서비스가 준비되고 던전이 로드되지 않은 엔진에서 호출한다. 세션당 실제 Level은 하나다. `Dungeon.init(firstClass)`, `newLevel`, `switchLevel`은 호스트가 한 번 호출한다. `join`은 빈 입구 인접 셀을 찾아 별도 Hero, Belongings, 시작 장비와 버프를 만들고 `Actor.add`로 등록한다. 게스트 장비 생성 중에는 잠시 별도 RNG를 사용해 월드 RNG의 다음 추출값을 보존한다. 지원하는 두 직업은 어느 좌석에도 들어갈 수 있다. 같은 프로세스에 두 월드를 띄우는 API는 제공하지 않는다.
+
+|참조의 역할|협동 경로에서 상태를 얻는 방법|원본 코드에서 추적한 예|
+|---|---|---|
+|행동 주체|세션의 현재 좌석 → Hero. 행동 비용은 해당 Actor에 부과|`Hero.handle/act/rest/onAttackComplete`, 전투 후 `Invisibility.dispel(this)`|
+|아이템 소유자|행동자의 Belongings와 Backpack.owner를 검사한 뒤 실제 아이템을 전달|`HeroClass.initHero → Item.collect(Bag)`, `Food.execute/eatingTime`, `KindOfWeapon.doEquip`, `Armor.affixSeal`|
+|피해·효과 대상|실제 Char 인스턴스와 Buff.target을 전달|`Char.attack/damage`, `Mob.chooseEnemy/surprisedBy/die`, `Regeneration.act`, `WarriorShield.act`|
+|로컬 UI|협동 호스트는 화면이 없다. 원본 입력 준비와 애니메이션 완료 경계만 사용|`Hero.checkVisibleMobs`의 퀵슬롯 자동 조준, `Item.curUser/curItem`의 비동기 선택, `GameScene` 입력은 로컬 UI 경로|
+|관찰자|기본 시야는 실제 영웅과 그 영웅의 배열로 계산|`Level.updateFieldOfView(c, fieldOfView)`. 호스트의 기존 heroFOV는 게스트의 배열과 분리된다. 탐험·지도·특수 감지 공유 문제는 Phase 6에 남아 있다.|
+|월드|현재 던전이 소유한 단일 지도·몹·스케줄러·통계 사용|`Level.mobs`, `Actor.all/add/findById`, 전역 발견 통계·색상/라벨. 두 번째 좌석이 월드를 초기화하지 않는다.|
+|싱글플레이 전용|기존 진입점과 저장 형식 유지. 협동에서 기존 저장·복원·삭제 요청은 거부|`Dungeon.saveAll/loadGame/deleteGame`, `Rankings`, 부활·층 전환 화면|
+
+`docs/coop/hero-roles.tsv`는 v4.0.2의 직접 참조 2,159개(325개 파일)를 위 일곱 역할로 1차 분류한 원본 줄 번호표다. `python3 scripts/classify-hero-references.py`로 재생성한다. 같은 줄의 두 참조도 각각 센다. 표의 모든 행은 어휘 기반이며 물음표는 주변 구문만으로 판별하기 어려워 파일 영역에서 유추한 역할이다. 실제로 검토하고 실행한 경로는 위 표와 TEST_REPORT의 사례에 한정한다. 별칭인 curUser, 선택된 가방, buff.target, Mob.enemy, quickslot.lastTarget, heroFOV 및 스프라이트 콜백은 직접 참조 색인 밖에서도 추적했다.
+
+### 턴 처리와 출력
+
+1. 세션을 만든 스레드가 `Actor.process`를 실행한다. 최솟값 time, 원본 actPriority 순서를 보존하고 이 둘이 같은 영웅끼리만 좌석 순서로 결정한다. 입력이 필요하면 현재 Hero가 준비 처리를 하고 호출자에게 돌아온다. 몬스터·버프는 동일한 원본 스케줄러에서 실행된다.
+2. `act(playerId, offeredTurn, action, cell, item)`은 현재 좌석과 입력 차례를 검사한다. 이동은 한 칸의 점유·지형, 공격은 시야 안의 인접 적, 획득은 발밑 더미의 맨 위 객체, 장비·식량은 가방의 소유권을 확인한다. 거부된 오래된 요청은 시간과 좌석을 바꾸지 않는다. 승인된 입력 하나를 처리한 뒤 다음 입력 차례까지 진행한다.
+3. `EngineSprite`가 이동·공격·조작 완료 콜백을 같은 스레드에서 호출한다. 명중·피해, 장비·식량 소모, 이동 비용과 몬스터 AI는 원본 코드를 사용한다. 지원 범위를 벗어난 몬스터가 행동할 차례거나 엔진 실행에 실패하면 세션을 중단하고 사유를 노출한다. 이미 승인된 행동의 효과가 발생한 뒤 중단될 수 있어 같은 행동을 재시도하지 않는다.
+4. `turn()`은 입력 차례마다 증가한다. 원본 `Actor.now()/fixTime()`의 리베이스와 독립적이다. 세션의 Hero/Item 객체는 엔진 내부에서만 사용한다. Phase 4의 네트워크 스레드는 이 참조를 받지 않는다.

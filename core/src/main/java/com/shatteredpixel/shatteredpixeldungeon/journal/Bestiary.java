@@ -354,6 +354,10 @@ public enum Bestiary {
 	private static final String BESTIARY_ENCOUNTERS = "bestiary_encounters";
 
 	public static void store( Bundle bundle ){
+		store(bundle, false);
+	}
+
+	static void store(Bundle bundle, boolean includeDefaults) {
 
 		ArrayList<Class<?>> classes = new ArrayList<>();
 		ArrayList<Boolean> seen = new ArrayList<>();
@@ -361,7 +365,7 @@ public enum Bestiary {
 
 		for (Bestiary cat : values()) {
 			for (Class<?> entity : cat.entities()) {
-				if (cat.seen.get(entity) || cat.encounterCount.get(entity) > 0){
+				if (includeDefaults || cat.seen.get(entity) || cat.encounterCount.get(entity) > 0){
 					classes.add(entity);
 					seen.add(cat.seen.get(entity));
 					encounters.add(cat.encounterCount.get(entity));

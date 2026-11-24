@@ -241,6 +241,20 @@ public class Badges {
 	
 	private static boolean saveNeeded = false;
 
+	// Co-op runs use a separate global badge file and a fresh run-local set.
+	static Runnable enterCoop() {
+		HashSet<Badge> previousGlobal = global, previousLocal = local;
+		boolean dirty = saveNeeded;
+		global = null;
+		local = new HashSet<>();
+		saveNeeded = false;
+		return () -> {
+			global = previousGlobal;
+			local = previousLocal;
+			saveNeeded = dirty;
+		};
+	}
+
 	public static void reset() {
 		local.clear();
 		loadGlobal();

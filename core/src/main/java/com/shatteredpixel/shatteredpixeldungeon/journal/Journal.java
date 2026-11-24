@@ -33,6 +33,24 @@ public class Journal {
 	
 	private static boolean loaded = false;
 	
+	/** Preserve even unseen entries so co-op discoveries cannot escape into a solo profile. */
+	public static Runnable enterCoop() {
+		Bundle previous = new Bundle();
+		Catalog.store(previous, true);
+		Bestiary.store(previous, true);
+		Document.store(previous, true);
+		boolean wasLoaded = loaded, dirty = saveNeeded;
+		saveNeeded = false;
+		loaded = true;
+		return () -> {
+			Catalog.restore(previous);
+			Bestiary.restore(previous);
+			Document.restore(previous);
+			loaded = wasLoaded;
+			saveNeeded = dirty;
+		};
+	}
+
 	public static void loadGlobal(){
 		if (loaded){
 			return;

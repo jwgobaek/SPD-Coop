@@ -334,6 +334,10 @@ public enum Document {
 	private static final String DOCUMENTS = "documents";
 	
 	public static void store( Bundle bundle ){
+		store(bundle, false);
+	}
+
+	static void store(Bundle bundle, boolean includeDefaults) {
 		
 		Bundle docsBundle = new Bundle();
 		
@@ -341,7 +345,7 @@ public enum Document {
 			Bundle pagesBundle = new Bundle();
 			boolean empty = true;
 			for (String page : doc.pageNames()){
-				if (doc.pagesStates.get(page) != NOT_FOUND){
+				if (includeDefaults || doc.pagesStates.get(page) != NOT_FOUND){
 					pagesBundle.put(page, doc.pagesStates.get(page));
 					empty = false;
 				}

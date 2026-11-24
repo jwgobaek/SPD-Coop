@@ -1,0 +1,386 @@
+package com.shatteredpixel.shatteredpixeldungeon;
+
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Slow;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Crab;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
+import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Shortsword;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.watabou.utils.FileUtils;
+import com.watabou.utils.PathFinder;
+import com.watabou.utils.Random;
+import org.junit.Test;
+
+import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicReference;
+import static org.junit.Assert.*;
+import static com.shatteredpixel.shatteredpixeldungeon.CoopSession.Action.*;
+
+public class CoopSessionTest extends HeadlessDungeon {
+    private CoopSession open(long seed) {
+        CoopSession session = CoopSession.open(seed, 71, HeroClass.WARRIOR);
+        try {
+            session.join(94, HeroClass.HUNTRESS);
+            return session;
+        } catch (RuntimeException e) {
+            session.close();
+            throw e;
+        }
+    }
+
+    private boolean send(CoopSession s, CoopSession.Action action, int cell, Item item) {
+        return s.act(s.player(s.activeSeat()), s.turn(), action, cell, item);
+    }
+
+    private int neighbour(Hero hero) {
+        for (int offset : PathFinder.NEIGHBOURS8) {
+            int cell = hero.pos + offset;
+            if (Dungeon.level.map[cell] == Terrain.EMPTY && Dungeon.level.heaps.get(cell) == null
+                    && Dungeon.level.plants.get(cell) == null && Actor.findChar(cell) == null) return cell;
+        }
+        throw new AssertionError("No adjacent plain floor");
+    }
+
+    @Test(timeout = 30000)
+    public void joinPreservesGeneratedWorldAndRegistersEachOwnerOnce() {
+        try (CoopSession session = CoopSession.open(402, 71, HeroClass.HUNTRESS)) {
+            Hero host = Dungeon.hero;
+            Level level = Dungeon.level;
+            int[] terrain = level.map.clone();
+            HashSet<Mob> mobs = new HashSet<>(level.mobs);
+            HashSet<Actor> before = Actor.all();
+            int id = host.id(), hp = --host.HP;
+            int limitedDrops = Dungeon.LimitedDrops.VELVET_POUCH.count;
+            int floorCount = Dungeon.generatedLevels.size();
+            Item weapon = host.belongings.weapon;
+            int pos = host.pos;
+            Dungeon.gold = 37;
+            Statistics.foodEaten = 8;
+            Random.pushGenerator(512);
+            long expected = Random.Long();
+            Random.popGenerator();
+            Random.pushGenerator(512);
+            try {
+                session.join(94, HeroClass.WARRIOR);
+                assertEquals(expected, Random.Long());
+            } finally {
+                Random.popGenerator();
+            }
+            Hero guest = session.hero(1);
+            assertEquals(floorCount, Dungeon.generatedLevels.size());
+            assertEquals(limitedDrops, Dungeon.LimitedDrops.VELVET_POUCH.count);
+            assertEquals(71, session.player(0));
+            assertEquals(94, session.player(1));
+            assertSame(host, session.hero(0));
+            assertSame(host, Dungeon.hero);
+            assertSame(level, Dungeon.level);
+            assertArrayEquals(terrain, level.map);
+            assertEquals(mobs, level.mobs);
+            assertTrue(Actor.all().containsAll(before));
+            assertEquals(37, Dungeon.gold);
+            assertEquals(8, Statistics.foodEaten);
+            assertEquals(id, host.id());
+            assertEquals(hp, host.HP);
+            assertSame(weapon, host.belongings.weapon);
+            assertEquals(pos, host.pos);
+            assertEquals(HeroClass.WARRIOR, guest.heroClass);
+            assertEquals(HeroClass.HUNTRESS, host.heroClass);
+            assertNotEquals(host.id(), guest.id());
+            assertNotEquals(host.pos, guest.pos);
+            for (Hero h : new Hero[]{host, guest}) {
+                assertTrue(level.passable[h.pos]);
+                assertSame(h, Actor.findById(h.id()));
+                assertSame(h, Actor.findChar(h.pos));
+                assertSame(h, h.belongings.backpack.owner);
+                assertTrue(Actor.all().containsAll(h.buffs()));
+            }
+            assertNotSame(host.talents, guest.talents);
+            assertNotSame(host.belongings.backpack, guest.belongings.backpack);
+            assertEquals(0, session.activeSeat());
+            assertThrows(IllegalStateException.class, () -> session.join(95, HeroClass.HUNTRESS));
+        }
+    }
+
+    @Test(timeout = 30000)
+    public void movesCheckSeatTimeWallsAndOccupants() {
+        try (CoopSession s = open(402)) {
+            Hero first = s.hero(0), second = s.hero(1);
+            int p1 = first.pos, p2 = second.pos;
+            long offered = s.turn();
+            assertFalse(s.act(94, offered, WAIT, 0, null));
+            assertFalse(send(s, MOVE, p2, null));
+            assertFalse(send(s, MOVE, -1, null));
+            int cell = neighbour(first);
+            Level.set(cell, Terrain.WALL);
+            assertFalse(send(s, MOVE, cell, null));
+            assertEquals(offered, s.turn());
+            assertEquals(0, Actor.now(), 0);
+            Level.set(cell, Terrain.EMPTY);
+            Buff.prolong(first, Haste.class, 6f);
+            Buff.prolong(second, Slow.class, 6f);
+            assertNull(second.buff(Haste.class));
+            assertNull(first.buff(Slow.class));
+            assertTrue(send(s, MOVE, cell, null));
+            assertFalse(s.act(71, offered, MOVE, p1, null));
+            assertEquals(cell, first.pos);
+            assertEquals(p2, second.pos);
+            assertEquals(1, s.activeSeat());
+            float t1 = first.cooldown();
+            assertEquals(1 / first.speed(), t1, 0.0001f);
+            int destination = neighbour(second);
+            assertTrue(send(s, MOVE, destination, null));
+            assertEquals(cell, first.pos);
+            assertEquals(destination, second.pos);
+            assertEquals(0, s.activeSeat());
+            assertTrue(second.cooldown() > first.cooldown());
+        }
+    }
+
+    @Test(timeout = 30000)
+    public void pickupEquipAndEatRequireTheActingOwnersItem() {
+        try (CoopSession s = open(402)) {
+            Shortsword[] loot = {new Shortsword(), new Shortsword()};
+            loot[1].upgrade();
+            for (int seat = 0; seat < 2; seat++) {
+                Hero hero = s.hero(seat);
+                Dungeon.level.drop(loot[seat], hero.pos);
+                assertEquals(seat, s.activeSeat());
+                long offer = s.turn();
+                assertTrue(send(s, PICK_UP, hero.pos, loot[seat]));
+                assertSame(loot[seat], hero.belongings.getItem(Shortsword.class));
+                assertFalse(s.act(s.player(seat), offer, PICK_UP, hero.pos, loot[seat]));
+                assertFalse(send(s, PICK_UP, hero.pos, loot[seat]));
+                assertNull(Dungeon.level.heaps.get(hero.pos));
+            }
+            for (int seat = 0; seat < 2; seat++) {
+                assertEquals(seat, s.activeSeat());
+                assertFalse(send(s, EQUIP, 0, loot[1-seat]));
+                assertTrue(send(s, EQUIP, 0, loot[seat]));
+                assertSame(loot[seat], s.hero(seat).belongings.weapon);
+                assertEquals(seat, loot[seat].level());
+            }
+            for (int seat = 0; seat < 2; seat++) {
+                Hero hero = s.hero(seat);
+                Food food = hero.belongings.getItem(Food.class);
+                food.quantity(2);
+                assertFalse(send(s, EAT, 0, s.hero(1-seat).belongings.getItem(Food.class)));
+                assertTrue(send(s, EAT, 0, food));
+                assertEquals(1, food.quantity());
+            }
+            assertEquals(2, Statistics.foodEaten);
+        }
+    }
+
+    @Test(timeout = 30000)
+    public void basicMonsterChoosesGuestAndTakesSingleTurns() {
+        try (CoopSession s = open(402)) {
+            Hero host = s.hero(0), guest = s.hero(1);
+            Rat rat = new Rat();
+            for (int offset : PathFinder.NEIGHBOURS8) {
+                int cell = guest.pos + offset;
+                if (Dungeon.level.passable[cell] && !Dungeon.level.adjacent(host.pos, cell)
+                        && Actor.findChar(cell) == null) { rat.pos = cell; break; }
+            }
+            assertTrue(Dungeon.level.adjacent(guest.pos, rat.pos));
+            rat.state = rat.HUNTING;
+            GameScene.add(rat);
+            int hp = host.HP;
+            Random.pushGenerator(408);
+            try {
+                for (int i = 0; i < 8; i++) assertTrue(send(s, WAIT, 0, null));
+            } finally { Random.popGenerator(); }
+            assertTrue(rat.isTargeting(guest));
+            assertEquals(hp, host.HP);
+            assertTrue(guest.HP < guest.HT);
+            assertEquals(4, Actor.now() + rat.cooldown(), 0.001f);
+        }
+    }
+
+    @Test(timeout = 30000)
+    public void bothHeroesAttackOneActorAndCannotReplay() {
+        try (CoopSession s = open(402)) {
+            Rat rat = new Rat();
+            Hero first = s.hero(0), second = s.hero(1);
+            for (int delta : PathFinder.NEIGHBOURS8) {
+                int cell = first.pos + delta;
+                if (Dungeon.level.adjacent(cell, second.pos) && Dungeon.level.passable[cell]
+                        && Actor.findChar(cell) == null) { rat.pos = cell; break; }
+            }
+            assertTrue(Dungeon.level.adjacent(first.pos, rat.pos));
+            int hp = rat.HP = rat.HT = 20;
+            GameScene.add(rat);
+            Random.pushGenerator(402);
+            try {
+                for (int seat = 0; seat < 2; seat++) {
+                    long offer = s.turn();
+                    assertEquals(seat, s.activeSeat());
+                    Random.pushGenerator(402);
+                    try {
+                        float scheduled = Actor.now() + s.hero(seat).cooldown();
+                        float cost = s.hero(seat).attackDelay();
+                        assertTrue(send(s, ATTACK, rat.pos, null));
+                        assertEquals(scheduled + cost, Actor.now() + s.hero(seat).cooldown(), 0.001f);
+                    } finally { Random.popGenerator(); }
+                    assertTrue("seat=" + seat + " HP " + hp + " -> " + rat.HP, rat.HP < hp);
+                    hp = rat.HP;
+                    assertFalse(s.act(s.player(seat), offer, ATTACK, rat.pos, null));
+                    assertEquals(hp, rat.HP);
+                }
+            } finally { Random.popGenerator(); }
+        }
+    }
+
+    @Test(timeout = 30000)
+    public void seatsContendForOneHeapOnTheGeneratedFloor() {
+        try (CoopSession s = open(402)) {
+            Hero host = s.hero(0), guest = s.hero(1);
+            int cell = neighbour(host);
+            Shortsword loot = new Shortsword();
+            Dungeon.level.drop(loot, cell);
+            assertTrue(send(s, MOVE, cell, null));
+            assertFalse(send(s, MOVE, cell, null));
+            assertFalse(send(s, PICK_UP, cell, loot));
+            assertTrue(send(s, WAIT, 0, null));
+            assertTrue(send(s, PICK_UP, cell, loot));
+            assertNull(Dungeon.level.heaps.get(cell));
+            assertSame(loot, host.belongings.getItem(Shortsword.class));
+            assertNull(guest.belongings.getItem(Shortsword.class));
+            assertFalse(send(s, PICK_UP, cell, loot));
+        }
+    }
+
+    @Test(timeout = 30000)
+    public void unsupportedActorStopsBeforeItsFirstAction() {
+        try (CoopSession s = open(402)) {
+            Crab crab = new Crab();
+            crab.pos = neighbour(s.hero(1));
+            GameScene.add(crab);
+            int before = crab.pos;
+            assertTrue(send(s, WAIT, 0, null));
+            assertThrows(UnsupportedOperationException.class, () -> send(s, WAIT, 0, null));
+            assertTrue(s.stopped());
+            assertTrue(s.stopReason().contains("Crab"));
+            assertEquals(before, crab.pos);
+            assertFalse(s.act(71, s.turn(), WAIT, 0, null));
+        }
+    }
+
+    @Test(timeout = 30000)
+    public void guestKillsRatWithoutCreditingTheOtherSeat() {
+        try (CoopSession session = open(402)) {
+            Hero host = session.hero(0), guest = session.hero(1);
+            assertTrue(send(session, WAIT, 0, null));
+            Rat rat = new Rat();
+            rat.pos = neighbour(guest);
+            rat.HP = 1;
+            GameScene.add(rat);
+            int hostXP = host.exp, guestXP = guest.exp;
+            long offered = session.turn();
+            Random.pushGenerator(402);
+            try {
+                assertTrue(send(session, ATTACK, rat.pos, null));
+            } finally {
+                Random.popGenerator();
+            }
+            assertFalse(rat.isAlive());
+            assertFalse(Dungeon.level.mobs.contains(rat));
+            assertFalse(Actor.all().contains(rat));
+            assertEquals(hostXP, host.exp);
+            assertEquals(guestXP + rat.EXP, guest.exp);
+            assertFalse(session.act(94, offered, ATTACK, rat.pos, null));
+            assertEquals(guestXP + rat.EXP, guest.exp);
+        }
+    }
+
+    @Test(timeout = 30000)
+    public void sessionRejectsForeignExecutionAndPreservesSinglePlayerStorage() throws Exception {
+        String solo = FileUtils.basePath();
+        Badges.loadGlobal();
+        int badges = Badges.totalUnlocked(true), foodUses = Catalog.useCount(Food.class);
+        String slot = GamesInProgress.gameFile(1);
+        FileUtils.getFileHandle(slot).writeString("existing single player slot", false);
+        try (CoopSession s = open(402)) {
+            Level level = Dungeon.level;
+            long offered = s.turn();
+            AtomicReference<Throwable> problem = new AtomicReference<>();
+            Thread foreign = new Thread(() -> {
+                try {
+                    s.act(71, offered, WAIT, 0, null);
+                } catch (Throwable e) { problem.set(e); }
+            });
+            foreign.start();
+            foreign.join(3000);
+            assertFalse(foreign.isAlive());
+            assertTrue(problem.get() instanceof IllegalStateException);
+            assertThrows(IllegalStateException.class, Actor::process);
+            assertThrows(UnsupportedOperationException.class, Dungeon::newLevel);
+            assertThrows(UnsupportedOperationException.class, Dungeon::saveAll);
+            assertThrows(UnsupportedOperationException.class, () -> Dungeon.deleteGame(1, true));
+            assertSame(level, Dungeon.level);
+            assertEquals(offered, s.turn());
+            assertTrue(send(s, EAT, 0, s.hero(0).belongings.getItem(Food.class)));
+            assertEquals(foodUses + 1, Catalog.useCount(Food.class));
+            s.hero(1).damage(10000, this);
+            assertTrue(s.stopped());
+            assertTrue(s.stopReason().contains("Hero down"));
+            assertFalse(s.act(71, offered, WAIT, 0, null));
+        }
+        assertFalse(Actor.processing());
+        assertEquals(solo, FileUtils.basePath());
+        assertEquals(badges, Badges.totalUnlocked(true));
+        assertEquals(foodUses, Catalog.useCount(Food.class));
+        assertEquals("existing single player slot", FileUtils.getFileHandle(slot).readString());
+    }
+
+    @Test(timeout = 30000)
+    public void twoSeatsCompleteOneHundredTwentyActionsOnOneEngineThread() throws Exception {
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+        Thread engine = new Thread(() -> {
+            try {
+                for (long seed : new long[]{402, 2402, 3402}) {
+                    try (CoopSession s = open(seed)) {
+                        long previous = 0;
+                        float clock = 0;
+                        int[] guestRoute = {s.hero(1).pos, neighbour(s.hero(1))};
+                        for (int i = 0; i < 120; i++) {
+                            assertEquals(i % 2, s.activeSeat());
+                            assertEquals(previous + 1, s.turn());
+                            previous = s.turn();
+                            assertTrue(Actor.now() >= clock);
+                            clock = Actor.now();
+                            if (s.activeSeat() == 1) {
+                                Hero guest = s.hero(1);
+                                int dst = guest.pos == guestRoute[0] ? guestRoute[1] : guestRoute[0];
+                                assertTrue(send(s, MOVE, dst, null));
+                                assertEquals(dst, guest.pos);
+                            } else {
+                                assertTrue(send(s, WAIT, 0, null));
+                            }
+                            for (int seat = 0; seat < 2; seat++) {
+                                Hero h = s.hero(seat);
+                                assertSame(h, Actor.findChar(h.pos));
+                                assertEquals(1, h.belongings.getItem(Food.class).quantity());
+                            }
+                        }
+                        assertEquals(60, Actor.now(), 0.001f);
+                    }
+                }
+            } catch (Throwable t) { failure.set(t); }
+        }, "coop-engine-integration");
+        engine.setDaemon(true);
+        engine.start();
+        engine.join(20000);
+        assertFalse("Authoritative scheduler did not finish", engine.isAlive());
+        if (failure.get() != null) throw new AssertionError(failure.get());
+    }
+}

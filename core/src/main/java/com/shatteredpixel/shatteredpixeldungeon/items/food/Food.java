@@ -84,7 +84,7 @@ public class Food extends Item {
 			SpellSprite.show( hero, SpellSprite.FOOD );
 			eatSFX();
 			
-			hero.spend( eatingTime() );
+			hero.spend( eatingTime(hero) );
 
 			Talent.onFoodEaten(hero, energy, this);
 			
@@ -98,13 +98,13 @@ public class Food extends Item {
 		Sample.INSTANCE.play( Assets.Sounds.EAT );
 	}
 
-	protected float eatingTime(){
-		if (Dungeon.hero.hasTalent(Talent.IRON_STOMACH)
-			|| Dungeon.hero.hasTalent(Talent.ENERGIZING_MEAL)
-			|| Dungeon.hero.hasTalent(Talent.MYSTICAL_MEAL)
-			|| Dungeon.hero.hasTalent(Talent.INVIGORATING_MEAL)
-			|| Dungeon.hero.hasTalent(Talent.FOCUSED_MEAL)
-			|| Dungeon.hero.hasTalent(Talent.ENLIGHTENING_MEAL)){
+	protected float eatingTime(Hero hero){
+		if (hero.hasTalent(Talent.IRON_STOMACH)
+			|| hero.hasTalent(Talent.ENERGIZING_MEAL)
+			|| hero.hasTalent(Talent.MYSTICAL_MEAL)
+			|| hero.hasTalent(Talent.INVIGORATING_MEAL)
+			|| hero.hasTalent(Talent.FOCUSED_MEAL)
+			|| hero.hasTalent(Talent.ENLIGHTENING_MEAL)){
 			return TIME_TO_EAT - 2;
 		} else {
 			return TIME_TO_EAT;

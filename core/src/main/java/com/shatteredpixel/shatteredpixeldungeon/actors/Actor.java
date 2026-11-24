@@ -165,6 +165,7 @@ public abstract class Actor implements Bundlable {
 	public static synchronized void clear() {
 		
 		now = 0;
+		if (Dungeon.coop != null) current = null;
 
 		all.clear();
 		chars.clear();
@@ -251,11 +252,17 @@ public abstract class Actor implements Bundlable {
 		
 		boolean doNext;
 		boolean interrupted = false;
+		int steps = 0;
+		if (Dungeon.coop != null) Dungeon.coop.checkCanAdvance();
 
 		do {
 			
+			if (Dungeon.coop != null) {
+				if (Thread.currentThread().isInterrupted()) throw new IllegalStateException("Engine interrupted");
+				if (++steps > 10000) throw new IllegalStateException("No player turn within 10000 actor steps");
+			}
 			current = null;
-			if (!interrupted && !Game.switchingScene()) {
+			if (!interrupted && (Dungeon.coop != null || !Game.switchingScene())) {
 				float earliest = Float.MAX_VALUE;
 
 				synchronized (Actor.class) {
@@ -263,7 +270,9 @@ public abstract class Actor implements Bundlable {
 
 						//some actors will always go before others if time is equal.
 						if (actor.time < earliest ||
-								actor.time == earliest && (current == null || actor.actPriority > current.actPriority)) {
+								actor.time == earliest && (current == null || actor.actPriority > current.actPriority
+									|| (Dungeon.coop != null && actor.actPriority == current.actPriority
+									&& Dungeon.coop.precedes(actor, current)))) {
 							earliest = actor.time;
 							current = actor;
 						}
@@ -276,8 +285,9 @@ public abstract class Actor implements Bundlable {
 
 				now = current.time;
 				Actor acting = current;
+				if (Dungeon.coop != null && Dungeon.coop.offerTurn(acting)) return;
 
-				if (acting instanceof Char && ((Char) acting).sprite != null) {
+				if (Dungeon.coop == null && acting instanceof Char && ((Char) acting).sprite != null) {
 					// If it's character's turn to act, but its sprite
 					// is moving, wait till the movement is over
 					try {
@@ -304,9 +314,15 @@ public abstract class Actor implements Bundlable {
 					}
 				}
 			} else {
+				if (Dungeon.coop != null) throw new IllegalStateException("Empty co-op scheduler");
 				doNext = false;
 			}
 
+			if (Dungeon.coop != null) {
+				if (Dungeon.coop.stopped()) return;
+				if (interrupted || (!doNext && current != null)) throw new IllegalStateException("Unexpected visual wait");
+				continue;
+			}
 			if (!doNext){
 				synchronized (Thread.currentThread()) {
 					
@@ -328,7 +344,7 @@ public abstract class Actor implements Bundlable {
 				}
 			}
 
-		} while (keepActorThreadAlive);
+		} while (Dungeon.coop != null || keepActorThreadAlive);
 	}
 	
 	public static void add( Actor actor ) {

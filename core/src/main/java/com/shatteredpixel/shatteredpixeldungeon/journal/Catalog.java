@@ -345,6 +345,10 @@ public enum Catalog {
 	private static final String CATALOG_USES    = "catalog_uses";
 	
 	public static void store( Bundle bundle ){
+		store(bundle, false);
+	}
+
+	static void store(Bundle bundle, boolean includeDefaults) {
 
 		ArrayList<Class<?>> classes = new ArrayList<>();
 		ArrayList<Boolean> seen = new ArrayList<>();
@@ -352,7 +356,7 @@ public enum Catalog {
 		
 		for (Catalog cat : values()) {
 			for (Class<?> item : cat.items()) {
-				if (cat.seen.get(item) || cat.useCount.get(item) > 0){
+				if (includeDefaults || cat.seen.get(item) || cat.useCount.get(item) > 0){
 					classes.add(item);
 					seen.add(cat.seen.get(item));
 					uses.add(cat.useCount.get(item));

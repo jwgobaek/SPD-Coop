@@ -304,6 +304,10 @@ public class Armor extends EquipableItem {
 	}
 
 	public void affixSeal(BrokenSeal seal){
+		affixSeal(seal, Dungeon.hero);
+	}
+
+	public void affixSeal(BrokenSeal seal, Hero owner){
 		this.seal = seal;
 		if (seal.level() > 0){
 			//doesn't trigger upgrading logic such as affecting curses/glyphs
@@ -314,8 +318,8 @@ public class Armor extends EquipableItem {
 		if (seal.getGlyph() != null){
 			inscribe(seal.getGlyph());
 		}
-		if (isEquipped(Dungeon.hero)){
-			Buff.affect(Dungeon.hero, BrokenSeal.WarriorShield.class).setArmor(this);
+		if (isEquipped(owner)){
+			Buff.affect(owner, BrokenSeal.WarriorShield.class).setArmor(this);
 		}
 	}
 

@@ -93,8 +93,11 @@ public class BrokenSeal extends Item {
 	}
 
 	public int maxShield( int armTier, int armLvl ){
-		// 5-15, based on equip tier and iron will
-		return 3 + 2*armTier + Dungeon.hero.pointsInTalent(Talent.IRON_WILL);
+		return maxShield(armTier, Dungeon.hero);
+	}
+
+	private int maxShield(int armTier, Hero owner) {
+		return 3 + 2*armTier + owner.pointsInTalent(Talent.IRON_WILL);
 	}
 
 	@Override
@@ -316,12 +319,12 @@ public class BrokenSeal extends Item {
 
 		@Override
 		public synchronized boolean act() {
-			if (cooldown > 0 && Regeneration.regenOn()){
+			if (cooldown > 0 && Regeneration.regenOn((Hero)target)){
 				cooldown--;
 			}
 
 			if (shielding() > 0){
-				if (Dungeon.hero.visibleEnemies() == 0 && Dungeon.hero.buff(Combo.class) == null){
+				if (((Hero)target).visibleEnemies() == 0 && target.buff(Combo.class) == null){
 					turnsSinceEnemies += HoldFast.buffDecayFactor(target);
 					if (turnsSinceEnemies >= 5){
 						if (cooldown > 0) {
@@ -371,7 +374,7 @@ public class BrokenSeal extends Item {
 			}
 
 			if (armor != null && armor.isEquipped((Hero)target) && armor.checkSeal() != null) {
-				return armor.checkSeal().maxShield(armor.tier, armor.level());
+				return armor.checkSeal().maxShield(armor.tier, (Hero)target);
 			} else {
 				return 0;
 			}
