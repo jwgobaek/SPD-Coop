@@ -84,3 +84,38 @@ gh api 'repos/jwgobaek/SPD-Coop/actions/runs?branch=coop%2Fphase3&per_page=5'
 ```
 
 `docs/coop/phase3-cloud-evidence.zip`에는 빌드 로그, APK 패키지·서명 출력, APK SHA256SUMS, 빌드 커밋, JUnit XML 및 추가 3회의 로그/XML이 들어 있다. ZIP 검사와 APK 체크섬 재검증 모두 통과했다. ZIP의 SHA-256은 `bb454bdca97b76d6436782b3e3c3b3b33b3176f7db0e04eaf354f4d3a6b87c1d`이다. APK는 Cloud 작업 공간의 `/workspace/deliverables/phase3-engine/android-debug.apk`에 있다. 영구 Git 보존 범위는 소스, 보고서와 증거 ZIP이다.
+
+## Phase 4 LAN — 2026-11-24
+
+시작 시 로컬/원격 coop/phase3는 95b42adef88ac2ea3abcc94aa4f7e8d8f908f5cd였다. 트리는 깨끗했고 원격 coop/phase4는 없었다. 분기 후 기존 19건을 먼저 재실행했다. 최종 검증 커밋은 5aac3b91de33e5c92be24cc02ba14a4154988c46이다.
+
+|상태|실행 경로|관측 결과|
+|---|---|---|
+|PASS|기존 :core:test|최종 빌드에서 싱글 9건 + 협동 엔진 10건 통과. 기존 테스트와 Actor/CoopSession 소스를 보존했다.|
+|PASS|LanIntegrationTest → LanScenarioClient|JUnit 호스트 JVM에서 실제 HeadlessApplication·CoopSession과 I/O 워커를 실행했다. 별도 java 프로세스에서 loopback 호스트 컨트롤러와 게스트 클라이언트를 각각 TCP로 연결했다. 테스트용 로컬 방장 권한은 자식의 stdin으로 전달했다. 클라이언트 JVM에서 게임을 초기화하지 않았다.|
+|PASS|UDP·TCP·로비|loopback UDP 검색, TCP 직접 접속, 동일 방의 게스트 참가/종료 50회, 좌석 발급, 정원·중복 참가·게스트 시작·준비 전 시작 거부, 직업·준비 토글, 실제 두 영웅 생성, 시작 후 잠금과 검색 중단을 확인했다.|
+|PASS|원본 게임 행동|한 세션에서 APPLIED 310회(방장 155, 게스트 155). 실제 이동·대기·근접 공격·바닥 무기 획득·장착·식량 섭취를 포함한다. 호스트 테스트가 생성된 층에 실제 Shortsword와 HP 1 Rat를 배치했다. 매 승인 시 actor 점유와 게임 시간, 턴 증가를 확인하고 실제 장비·식량·몬스터 사망을 검사했다.|
+|PASS|권한·재전송|타 좌석 요청, 잘못된 Actor ID, 올바른 신원을 가진 비활성 좌석, 타인의 아이템 핸들, 범위 밖 이동, 미지원 행동, 과거 턴·동일 요청 ID·이전 세션·버전 불일치를 거부했다. WAITING에는 다른 좌석의 아이템 목록이 없었다.|
+|PASS|경계·오류|분할 프레임, 연속 프레임, 잘린 프레임과 과대 길이, 미완성 헤더의 유휴 만료 및 다른 정상 클라이언트의 PONG을 확인했다. LanBoundaryTest 5건에서 UDP 중복 제거, UDP 포트 점유 중 TCP 성공, 응답 없는 서버의 타임아웃과 접속 거절 코드, 64개 입력 큐 경계, 실제 읽지 않는 TCP 피어의 출력 정체 종료를 확인했다.|
+|PASS|단절·정리|게스트 소켓 종료 후 PAUSED, 방장 BYE 후 CLOSED. 자식 JVM 종료 코드 0, LAN 워커 종료, Actor.processing() 해제, Dungeon.coop 정리를 확인했다.|
+|PASS|최종 APK와 증거|JUnit 25건(기존 19 + 신규 6), 실패·오류·스킵 0. 4.0.2-INDEV(922), org.spdcoop.dungeon.indev, 36,807,237 bytes. aapt 패키지/minSdk 21/targetSdk 36 확인, apksigner v1·v2 검증 성공. APK SHA-256 ad6c59f77a7fff1592eb6093680400848a784d56b73b801841739d70b53de0c6.|
+|NOT RUN|외부 환경|GitHub 호스팅 Actions 실행 0건. Android 기기 설치·화면·Wi-Fi 브로드캐스트·핫스팟·OS별 로컬 권한은 실기기 검증 대상이다. 패킷이 전혀 도달하지 않는 실제 무선망의 TCP 연결 타임아웃도 재현하지 않았다.|
+
+첫 고속 통합 시도에서는 기대한 310회 중 86회만 관측되어 FAIL이었다. 테스트 클라이언트의 STATE·재전송 검사가 정상 요청 예산 안에서 실행되도록 속도를 조절하고, 자식 프로세스의 최종 종료 코드와 오류 출력을 검사했다. 운영 측의 요청 제한과 310회 통과 조건은 유지했다. UDP 바인딩 실패가 TCP까지 닫던 경로도 수정하고 점유된 UDP 포트에서 실제 TCP 왕복을 확인했다.
+
+주요 실행 명령은 다음과 같다. Java 및 SDK 설정은 BUILD.md를 따른다.
+
+```bash
+git ls-remote --heads coop coop/phase3 coop/phase4
+git switch -c coop/phase4 95b42ad
+source /tmp/spd-env
+./gradlew --offline :core:cleanTest :core:test
+./gradlew --offline :core:test --tests '*LanIntegrationTest'
+scripts/verify-android-build.sh /workspace/deliverables/phase4-verified
+git push -u coop coop/phase4
+gh api 'repos/jwgobaek/SPD-Coop/actions/runs?branch=coop%2Fphase4'
+```
+
+LanRoom.pump/dispatch/action/view/close가 좌석·로비·실제 엔진 실행을, LanTransport.run/service/pollDiscovery가 소켓·프레임·제한 큐를, LanClient.discover/request/exchange가 검색·직접 접속·응답을 담당한다. core/build.gradle에는 자식 JVM용 테스트 클래스패스를 설정했다. 테스트 파일은 LanIntegrationTest.java, LanScenarioClient.java, LanBoundaryTest.java다.
+
+[검증 ZIP](docs/coop/phase4-cloud-evidence.zip)에는 최종 빌드 로그, 모든 JUnit XML, APK 검사 결과·체크섬·소스 커밋이 있다. ZIP SHA-256은 01abca1a3ddf6d0e277f7532b6f721b97a0f1ff61816887a58cad7f260eab020이다. sha256sum -c와 unzip -tq가 통과했다. APK는 /workspace/deliverables/phase4-verified/android-debug.apk에 있다.
