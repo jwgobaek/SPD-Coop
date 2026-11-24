@@ -24,7 +24,7 @@ public final class CoopRenderSmoke {
     private static File shots;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
-        if(args[0].equals("guest")) { guest(new File(args[1])); return; }
+        if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
         shots=new File(args[0]); if(!shots.isDirectory() && !shots.mkdirs()) throw new AssertionError();
         // Test classes share the launcher's package but do not carry release-manifest attributes.
         java.util.jar.Manifest manifest=new java.util.jar.Manifest(DesktopLauncher.class.getResourceAsStream("/META-INF/MANIFEST.MF"));
@@ -36,13 +36,19 @@ public final class CoopRenderSmoke {
         },"Desktop UI test");
         driver.setDaemon(true); driver.start(); DesktopLauncher.main(new String[0]);
     }
-    private static void guest(File root) throws Exception {
+    private static void guest(File root,boolean resume) throws Exception {
         CoopController c=new CoopController(root,null,InetAddress.getLoopbackAddress(),0,0);
         try {
+            if(resume) {
+                c.saved(true); await(()->c.frame().page==CoopController.Page.TICKETS && !c.busy());
+                c.reconnect(c.frame().list.get(0).id,"127.0.0.1:"+LanClient.TCP_PORT);
+            } else {
             c.join("127.0.0.1:"+LanClient.TCP_PORT,null);
             await(()->!c.busy() && c.frame().page==CoopController.Page.LOBBY);
             c.select("HUNTRESS"); await(()->!c.busy() && c.frame().roster.contains("HUNTRESS"));
-            c.ready(true); await(()->c.frame().dungeon!=null);
+            c.ready(true);
+            }
+            await(()->c.frame().dungeon!=null);
             long end=System.nanoTime()+LIMIT*3;
             while(System.nanoTime()<end && c.frame().page==CoopController.Page.GAME) {
                 CoopController.Frame f=c.frame();
@@ -95,10 +101,27 @@ public final class CoopRenderSmoke {
         });
         ImageIO.write(new Robot().createScreenCapture(area),"png",new File(shots,name+".png"));
     }
+    private static Point mapPoint(PublicDungeon view,int cell) throws Exception {
+        return render(()->{
+            Group board=(Group)find(Game.scene(),g->g.getClass().getSimpleName().equals("CoopBoard"));
+            PointerArea area=(PointerArea)find(board,g->g instanceof PointerArea);
+            return area.camera().cameraToScreen(area.x+area.width()/2+16*(cell%view.width-view.pos%view.width),
+                    area.y+area.height()/2+16*(cell/view.width-view.pos/view.width));
+        });
+    }
+    private static CoopController hostController() throws Exception {
+        return render(()->{
+            Field f=CoopScene.class.getDeclaredField("active"); f.setAccessible(true);
+            return (CoopController)f.get(null);
+        });
+    }
     private static CoopController.Frame frame() throws Exception {
         return render(()->{
             Field f=CoopScene.class.getDeclaredField("active"); f.setAccessible(true);
-            CoopController c=(CoopController)f.get(null); return c==null?null:c.frame();
+            CoopController c=(CoopController)f.get(null);
+            if(c!=null && c.frame().page==CoopController.Page.DISCONNECTED)
+                throw new AssertionError("Connection failed: "+c.frame().issue);
+            return c==null?null:c.frame();
         });
     }
     private static void exercise() throws Exception {
@@ -134,13 +157,7 @@ public final class CoopRenderSmoke {
             }
             if(destination<0) throw new AssertionError("No directly visible adjacent floor");
             final int target=destination;
-            Point tile=render(()->{
-                Group board=(Group)find(Game.scene(),g->g.getClass().getSimpleName().equals("CoopBoard"));
-                com.watabou.noosa.PointerArea area=(com.watabou.noosa.PointerArea)find(board,g->g instanceof com.watabou.noosa.PointerArea);
-                return area.camera().cameraToScreen(area.x+area.width()/2+16*(target%before.width-before.pos%before.width),
-                        area.y+area.height()/2+16*(target/before.width-before.pos/before.width));
-            });
-            press(tile); await(()->frame().dungeon.pos==target); await(()->frame().dungeon.offered);
+            press(mapPoint(before,target)); await(()->frame().dungeon.pos==target); await(()->frame().dungeon.offered);
             click("Inventory");
             await(()->render(()->find(Game.scene(),g->g instanceof WndCoopBag)!=null)); shot("inventory");
             PublicDungeon bag=frame().dungeon;
@@ -157,10 +174,30 @@ public final class CoopRenderSmoke {
             press(item); click("Eat"); await(()->frame().lastAction>=2 && "APPLIED".equals(frame().lastResult));
             await(()->frame().dungeon.offered);
             click("Wait"); await(()->frame().lastAction>=3 && "APPLIED".equals(frame().lastResult));
+            await(()->frame().dungeon.offered);
+            RenderEncounter.arrange(hostController());
+            click("Wait"); await(()->"DOWNED".equals(frame().image.rows.get("allylife")) && frame().dungeon.offered);
+            if(frame().image.rows.keySet().stream().noneMatch(k->k.startsWith("z"))) throw new AssertionError("No visible battle edges");
+            shot("encounter-revive"); PublicDungeon rescue=frame().dungeon; press(mapPoint(rescue,rescue.ally));
+            await(()->"ALIVE".equals(frame().image.rows.get("allylife")) && frame().lastResult.equals("APPLIED"));
+            await(()->frame().dungeon.offered); PublicDungeon combat=frame().dungeon;
+            press(mapPoint(combat,combat.pos-1)); await(()->frame().lastAction>=6 && frame().lastResult.equals("APPLIED"));
             click("Game menu"); click("Diagnostics"); await(()->button("Share or copy report")!=null); shot("diagnostics"); click("Back");
             click("Game menu"); click("Save and close room"); await(()->button("Saved games")!=null);
             click("Saved games"); await(()->frame().list.size()==1); shot("saves"); click("Back");
-            click("Reconnect"); await(()->frame().list.size()==1); shot("reconnect");
+            click("Reconnect"); await(()->frame().list.size()==1 && frame().page==CoopController.Page.TICKETS);
+            shot("reconnect"); click("Back"); click("Saved games");
+            await(()->frame().page==CoopController.Page.SAVES && frame().list.size()==1);
+            CoopController.Entry saved=frame().list.get(0);
+            String label=saved.id.toString().substring(0,8)+"  Floor "+saved.current.depth+" · generation "+saved.current.generation;
+            click(label); click("Continue game"); await(()->frame().image!=null);
+            if(!child.waitFor(5,TimeUnit.SECONDS)) throw new AssertionError("Old guest did not exit");
+            child=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-cp",System.getProperty("java.class.path"),
+                    CoopRenderSmoke.class.getName(),"guest",root.toString(),"resume").inheritIO().start();
+            await(()->frame().dungeon!=null && frame().dungeon.offered);
+            shot("resumed"); long resumedVersion=frame().image.version;
+            click("Wait"); await(()->frame().image.version>resumedVersion && "APPLIED".equals(frame().lastResult));
+            click("Game menu"); click("Save and close room"); await(()->button("Create room")!=null);
         } finally {
             if(child.isAlive()) child.destroy(); if(!child.waitFor(5,TimeUnit.SECONDS)) child.destroyForcibly();
         }
