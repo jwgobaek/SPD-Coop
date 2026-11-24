@@ -85,7 +85,28 @@ final class RenderEncounter {
             Level level=Dungeon.level;
             for (Mob mob:level.mobs) if (mob.getClass()==type) {
                 // A screenshot fixture needs a living observer after the real counterattack.
-                if (mob instanceof Goo) Dungeon.coop.hero(0).HP=Dungeon.coop.hero(0).HT=150;
+                if (mob instanceof Goo) {
+                    int best=-1;
+                    for(int cell=0;cell<level.length();cell++) {
+                        if(!level.insideMap(cell) || !level.passable[cell] || level.water[cell] || level.pit[cell]
+                                || Actor.findChar(cell)!=null || level.getTransition(cell)!=null) continue;
+                        int neighbours=0;
+                        for(int offset:com.watabou.utils.PathFinder.NEIGHBOURS8)
+                            if(level.passable[cell+offset] && !level.pit[cell+offset] && Actor.findChar(cell+offset)==null) neighbours++;
+                        if(neighbours>=3 && (best<0 || level.distance(mob.pos,cell)<level.distance(mob.pos,best))) best=cell;
+                    }
+                    if(best<0) throw new AssertionError("Missing dry encounter cell");
+                    mob.pos=best;
+                    for(int seat=0;seat<2;seat++) {
+                        Hero hero=Dungeon.coop.hero(seat); hero.HP=hero.HT=350;
+                        for(int offset:com.watabou.utils.PathFinder.NEIGHBOURS8) {
+                            int p=best+offset;
+                            if(level.passable[p] && !level.pit[p] && Actor.findChar(p)==null) { hero.pos=p; break; }
+                        }
+                        Dungeon.coop.observe(seat);
+                    }
+                    return best;
+                }
                 if (mob instanceof Statue && ((Statue)mob).weapon().enchantment instanceof
                         com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Unstable)
                     Dungeon.coop.hero(0).HP=Dungeon.coop.hero(0).HT=120;

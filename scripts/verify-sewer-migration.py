@@ -34,4 +34,17 @@ with TemporaryDirectory() as tmp:
     assert a["engine"]["guest"]["id"] == b["engine"]["guest"]["id"]
     assert a["engine"]["world"]["hero"]["id"] == b["engine"]["world"]["hero"]["id"]
     assert lib["generation"](original) == before
+    # Damage only an isolated copy after the two authenticated clients have closed.
+    damaged = tmp / "damaged"
+    shutil.copytree(resumed, damaged)
+    head = damaged / "coop-saves-v1" / after["session"] / ("g" + str(after["generation"]))
+    image = bytearray(head.read_bytes())
+    image[-1] ^= 1
+    head.write_bytes(image)
+    lib["run"](new, lib["classpath"](new, tmp), damaged, "schema3-backup")
+    repaired = lib["generation"](damaged)
+    assert repaired["schema"] == 3 and repaired["session"] == after["session"]
+    assert repaired["state"]["epoch"] != after["state"]["epoch"]
+    assert lib["generation"](resumed) == after
+    print("PASS damaged schema 3 HEAD rejected, backup confirmed, new epoch, old request rejected and both seats resumed")
     print("PASS schema 2 to 3, authenticated seats, confirmed receipt, two native dormant floors and intact original")

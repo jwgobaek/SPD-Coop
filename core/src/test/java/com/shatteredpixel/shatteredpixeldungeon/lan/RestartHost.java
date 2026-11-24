@@ -80,10 +80,15 @@ public final class RestartHost {
             if (stage.equals("AFTER_HEAD") && java.nio.file.Files.exists(path.resolve("kill-before-reply")))
                 Runtime.getRuntime().halt(78);
         });
+        if (mode.equals("schema3-backup")) {
+            UUID id=saves.sessions().get(0);
+            assertThrows(IOException.class,()->saves.inspect(id,false));
+            assertEquals(3,saves.inspect(id,true).depth);
+        }
         InetAddress loop=InetAddress.getLoopbackAddress();
         boolean special = mode.equals("goo") || hazard(mode) || mode.equals("blocked-start") || guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
         try(LanRoom room=(special || kit(mode) || mode.equals("campaign") || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
-                : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup"))) {
+                : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup") || mode.equals("schema3-backup"))) {
             if (mode.equals("schema2-to-three")) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
             if (mode.equals("goo-receipt")) {
                 assertEquals(5,Dungeon.depth);

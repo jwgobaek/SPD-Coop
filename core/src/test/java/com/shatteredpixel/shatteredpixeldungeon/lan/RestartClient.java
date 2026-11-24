@@ -285,13 +285,21 @@ public final class RestartClient {
         for(int i=0;i<2;i++) {
             try(InputStream in=Files.newInputStream(path.resolve("private"+i))) { keys[i]=SeatCredential.readPrivate(in); }
         }
-        if (mode.equals("backup") || mode.equals("floorbackup")) {
+        if (mode.equals("backup") || mode.equals("floorbackup") || mode.equals("schema3-backup")) {
             String warning=keys[0].reconnect(clients[0],epoch,0,1);
             assertTrue(warning,warning.startsWith("RECOVERY_EPOCH "));
             epoch=UUID.fromString(warning.split(" ")[1]);
         }
         for(int i=0;i<2;i++) bind(i);
         barrier();
+        if (mode.equals("schema3-backup")) {
+            assertEquals(3,new PublicDungeon(state(0)).depth);
+            assertEquals(3,new PublicDungeon(state(1)).depth);
+            assertNotEquals(RestartHost.read(path,"epoch"),epoch.toString());
+            assertEquals("ERROR EPOCH",clients[0].request("LOOKUP "+RestartHost.read(path,"epoch")+" 1"));
+            act("WAIT",0,0);
+            return;
+        }
         if (mode.equals("kit-receipt")) {
             String[] old=RestartHost.read(path,"bow-action").split(" ",3);
             int seat=Integer.parseInt(old[0]); long version=state(seat).version;

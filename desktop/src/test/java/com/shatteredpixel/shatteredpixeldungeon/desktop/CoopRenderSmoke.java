@@ -69,7 +69,14 @@ public final class CoopRenderSmoke {
             while(System.nanoTime()<end && c.frame().page==CoopController.Page.GAME) {
                 CoopController.Frame f=c.frame();
                 if(!c.busy() && f.dungeon!=null) {
-                    if(f.dungeon.offered) c.act(f.image,"WAIT",0,0);
+                    if(f.dungeon.offered) {
+                        Integer target=null;
+                        if(resume && f.dungeon.depth==5)
+                            for(java.util.Map.Entry<Integer,String> enemy:f.dungeon.monsters.entrySet())
+                                if(enemy.getValue().equals("Goo") && Math.abs(enemy.getKey()%f.dungeon.width-f.dungeon.pos%f.dungeon.width)<=1
+                                        && Math.abs(enemy.getKey()/f.dungeon.width-f.dungeon.pos/f.dungeon.width)<=1) target=enemy.getKey();
+                        c.act(f.image,target==null?"WAIT":"ATTACK",target==null?0:target,0);
+                    }
                     else if(f.dungeon.stair>=0 && !f.dungeon.consent && new File(root,"allow"+f.dungeon.depth).exists())
                         c.act(f.image,"CONSENT",f.dungeon.stair,0);
                 }
@@ -218,7 +225,7 @@ public final class CoopRenderSmoke {
                     PublicDungeon world=frame().dungeon;
                     int enemy=world.monsters.entrySet().stream().filter(e->e.getValue().equals("Goo")).findFirst().get().getKey();
                     press(mapPoint(world,enemy));
-                    await(()->frame().image.version>world.source.version && frame().dungeon.offered);
+                    await(()->frame().dungeon!=null && frame().image.version>world.source.version && frame().dungeon.offered);
                 }
                 if(frame().dungeon.monsters.containsValue("Goo") || frame().dungeon.floor.values().stream().noneMatch(
                         i->i.sprite==com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.BLOB))
