@@ -17,6 +17,52 @@ import static org.junit.Assert.*;
 
 /** Generation inventory only. It never authorizes a transition or certifies a playable route. */
 public class SewerGenerationTest extends HeadlessDungeon {
+    @Test public void roundTripOrRestoreTheEntryBoundaryOnEachSampledSeed() {
+        int admitted=0, rejected=0;
+        for (int seed=402; seed<=423; seed++) {
+            Bundle boundary;
+            int expectedDepth;
+            try (CoopSession game=CoopSession.open(seed,1,HeroClass.MAGE)) {
+                game.join(2,HeroClass.WARRIOR);
+                int exit=Dungeon.level.exit();
+                SewerSpecialActorTest.atGate(game,exit);
+                assertEquals(exit,game.stairs.stair());
+                assertTrue(game.stairs.consent(1-game.activeSeat(),game.turn(),exit,false));
+                Bundle before=game.checkpoint();
+                boolean entered=CoopFloorsTest.step(game,CoopSession.Action.TRAVEL,exit,null);
+                expectedDepth=entered ? 2 : 1;
+                assertEquals(expectedDepth,Dungeon.depth);
+                assertFalse(game.stopped());
+                boundary=game.checkpoint();
+                if (entered) {
+                    admitted++;
+                    assertNotNull(Dungeon.level.getTransition(Dungeon.level.entrance()));
+                } else {
+                    rejected++;
+                    assertTrue(game.restoredAfterTravel());
+                    assertEquals(before.getLong("turn"),boundary.getLong("turn"));
+                    assertArrayEquals(before.getLongArray("random"),boundary.getLongArray("random"));
+                    assertArrayEquals(before.getBundle("floor").getIntArray("map"),Dungeon.level.map);
+                }
+            }
+            try (CoopSession game=CoopSession.restore(boundary)) {
+                assertEquals(expectedDepth,Dungeon.depth);
+                SewerSpecialActorTest.waitOne(game);
+                if (expectedDepth==2) {
+                    SewerSpecialActorTest.atGate(game,Dungeon.level.entrance());
+                    CoopFloorsTest.cross(game);
+                    assertEquals(1,Dungeon.depth);
+                    SewerSpecialActorTest.waitOne(game);
+                }
+                System.out.println("gate seed="+seed+" placed_at_stairs=true outcome="+
+                        (expectedDepth==2 ? "ROUND_TRIP" : "REJECT_FLOOR")+" restored=true");
+            }
+        }
+        // Keep the admitted native combinations as a floor when more actors gain support.
+        assertTrue("Previously playable return routes regressed",admitted>=15);
+        assertEquals(22,admitted+rejected);
+    }
+
     @Test public void sampleNativeSewerRegion() {
         Set<String> all = new TreeSet<>();
         for (int seed = 402; seed <= 423; seed++) {
