@@ -722,11 +722,11 @@ public class Hero extends Char {
 		}
 		
 		Momentum momentum = buff(Momentum.class);
+		if (sprite instanceof HeroSprite) {
+			((HeroSprite)sprite).sprint( momentum != null && momentum.freerunning() ? 1.5f : 1f );
+		}
 		if (momentum != null){
-			((HeroSprite)sprite).sprint( momentum.freerunning() ? 1.5f : 1f );
 			speed *= momentum.speedMultiplier();
-		} else {
-			((HeroSprite)sprite).sprint( 1f );
 		}
 
 		NaturesPower.naturesPowerTracker natStrength = buff(NaturesPower.naturesPowerTracker.class);
@@ -2283,7 +2283,7 @@ public class Hero extends Char {
 			}
 
 			Item item = Random.element( items );
-			Dungeon.level.drop( item, cell ).sprite.drop( pos );
+			Dungeon.level.drop( item, cell ).animateDrop( pos );
 			items.remove( item );
 		}
 

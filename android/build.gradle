@@ -13,8 +13,8 @@ android {
     }
 
     defaultConfig {
-        manifestPlaceholders = [appName:appName]
-        applicationId appPackageName
+        manifestPlaceholders = [appName:"Dungeon Co-op"]
+        applicationId "org.spdcoop.dungeon"
 
         versionCode appVersionCode
         versionName appVersionName

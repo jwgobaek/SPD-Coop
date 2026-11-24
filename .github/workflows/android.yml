@@ -1,0 +1,27 @@
+name: Android debug
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21.0.13.1+2'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: scripts/setup-android.sh 2>&1 | tee setup.log
+        shell: bash
+      - run: scripts/verify-android-build.sh reports
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-debug-${{ github.sha }}
+          path: |
+            reports/
+            setup.log
+            core/build/test-results/test/TEST-*.xml
+            core/build/reports/tests/
