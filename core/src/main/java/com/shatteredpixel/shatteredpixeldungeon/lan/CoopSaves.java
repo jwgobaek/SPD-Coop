@@ -1,0 +1,195 @@
+package com.shatteredpixel.shatteredpixeldungeon.lan;
+
+import com.watabou.utils.Bundle;
+import java.io.*;
+import java.nio.channels.*;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.util.*;
+
+/** Host-private generations. Only the small HEAD rename publishes an image. */
+public final class CoopSaves {
+    static final int SCHEMA = 1, LIMIT = 4 * 1024 * 1024;
+    private final File root;
+    interface Barrier { void reached(String stage) throws IOException; }
+    final Barrier barrier;
+
+    public CoopSaves(File privateDirectory) throws IOException { this(privateDirectory, stage -> {}); }
+
+    CoopSaves(File base, Barrier barrier) throws IOException {
+        this.barrier = barrier;
+        root = child(base.getCanonicalFile(), "coop-saves-v1");
+        directory(root);
+    }
+
+    private static File child(File parent,String name) throws IOException {
+        File file = new File(parent,name);
+        if (!file.equals(file.getCanonicalFile())) throw new IOException("Invalid save path");
+        return file;
+    }
+
+    private static void directory(File dir) throws IOException {
+        if (!dir.isDirectory()) {
+            if (!dir.mkdir()) throw new IOException("Cannot create private save directory");
+            syncDirectory(dir.getParentFile());
+        }
+    }
+
+    public List<UUID> sessions() throws IOException {
+        String[] names = root.list();
+        if (names == null) throw new IOException("Cannot list saves");
+        List<UUID> ids = new ArrayList<>();
+        for (String name : names) {
+            try {
+                UUID id = UUID.fromString(name);
+                if (id.toString().equals(name) && child(child(root,name),"HEAD").isFile()) ids.add(id);
+            } catch (IllegalArgumentException ignored) {}
+        }
+        Collections.sort(ids);
+        return Collections.unmodifiableList(ids);
+    }
+
+    public Slot open(UUID session) throws IOException { return new Slot(session); }
+
+    public final class Slot implements Closeable {
+        public final UUID session;
+        private final File dir;
+        private final RandomAccessFile lock;
+        private long current, previous;
+        private boolean closed;
+
+        private Slot(UUID session) throws IOException {
+            this.session = session;
+            dir = child(root,session.toString());
+            directory(dir);
+            lock = new RandomAccessFile(child(dir,"LOCK"),"rw");
+            try {
+                if (lock.getChannel().tryLock() == null) throw new IOException("Session busy");
+                File head = child(dir,"HEAD");
+                if (head.exists()) {
+                    try (DataInputStream in = new DataInputStream(new FileInputStream(head))) {
+                        current = in.readLong(); previous = in.readLong();
+                        if (current <= 0 || previous < 0 || previous >= current || in.readLong() != ~current ||
+                                in.readLong() != ~previous || in.read() != -1) throw new IOException("Damaged generation pointer");
+                    }
+                }
+            } catch (IOException | RuntimeException failure) {
+                lock.close();
+                throw new IOException("Cannot open session", failure);
+            }
+        }
+
+        public long currentGeneration() { return current; }
+        public long backupGeneration() { return previous; }
+        public Bundle read(boolean backup) throws IOException {
+            checkOpen();
+            long generation = backup ? previous : current;
+            if (generation == 0) throw new IOException("Generation unavailable");
+            return verify(child(dir,"g"+generation),generation);
+        }
+
+        private Bundle verify(File file,long generation) throws IOException {
+            long bytes = file.length();
+            if (bytes < 38 || bytes > LIMIT+36) throw new IOException("Invalid generation length");
+            try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
+                int size = in.readInt();
+                if (size != bytes-36) throw new IOException("Incomplete generation");
+                byte[] expected = new byte[32], image = new byte[size];
+                in.readFully(expected); in.readFully(image);
+                if (image[0]!='{' || !MessageDigest.isEqual(expected, digest(image))) throw new IOException("Generation checksum");
+                checkDepth(image);
+                Bundle envelope = Bundle.read(new ByteArrayInputStream(image));
+                if (envelope.getInt("schema") != SCHEMA || envelope.getLong("generation") != generation ||
+                        !session.toString().equals(envelope.getString("session")) || !envelope.contains("state"))
+                    throw new IOException("Incompatible or mixed generation");
+                return envelope.getBundle("state");
+            }
+        }
+
+        /** Recovery publishes a new generation derived from the explicitly selected backup. */
+        long publish(Bundle state,boolean recover) throws IOException {
+            checkOpen();
+            if (recover && previous == 0) throw new IOException("Backup unavailable");
+            if (current == Long.MAX_VALUE) throw new IOException("Generation exhausted");
+            long generation = current+1, keep = recover ? previous : current;
+            Bundle envelope = new Bundle();
+            envelope.put("schema",SCHEMA); envelope.put("session",session.toString());
+            envelope.put("generation",generation); envelope.put("state",state);
+            byte[] image = envelope.toString().getBytes(StandardCharsets.UTF_8);
+            if (image.length == 0 || image.length > LIMIT) throw new IOException("Checkpoint too large");
+            File stage = child(dir,"generation.tmp");
+            try (FileOutputStream stream = new FileOutputStream(stage);
+                 DataOutputStream out = new DataOutputStream(new BufferedOutputStream(stream))) {
+                out.writeInt(image.length); out.write(digest(image));
+                int midpoint = image.length/2;
+                out.write(image,0,midpoint); out.flush();
+                barrier.reached("WRITING");
+                out.write(image,midpoint,image.length-midpoint); out.flush(); stream.getFD().sync();
+            }
+            barrier.reached("VERIFYING");
+            verify(stage,generation);
+            replace(stage,child(dir,"g"+generation)); syncDirectory(dir);
+            File pointer = child(dir,"head.tmp");
+            try (FileOutputStream stream = new FileOutputStream(pointer);
+                 DataOutputStream out = new DataOutputStream(stream)) {
+                out.writeLong(generation); out.writeLong(keep); out.writeLong(~generation); out.writeLong(~keep);
+                out.flush(); stream.getFD().sync();
+            }
+            barrier.reached("BEFORE_HEAD");
+            replace(pointer,child(dir,"HEAD")); syncDirectory(dir);
+            long obsolete = recover ? current : previous;
+            current = generation; previous = keep;
+            barrier.reached("AFTER_HEAD");
+            if (obsolete > 0 && obsolete != keep) child(dir,"g"+obsolete).delete();
+            return generation;
+        }
+
+        private void checkOpen() throws IOException { if (closed) throw new IOException("Closed session"); }
+        public void close() throws IOException { closed = true; lock.close(); }
+    }
+
+    // Bound parser recursion even when the checksum was recalculated over a malformed private file.
+    private static void checkDepth(byte[] image) throws IOException {
+        int depth = 0;
+        boolean string = false, escaped = false;
+        for (byte c : image) {
+            if (string) {
+                if (escaped) escaped = false;
+                else if (c == 92) escaped = true;
+                else if (c == 34) string = false;
+            } else if (c == 34) string = true;
+            else if (c == '{' || c == '[') {
+                if (++depth > 64) throw new IOException("Excessive checkpoint nesting");
+            } else if ((c == '}' || c == ']') && --depth < 0) throw new IOException("Invalid nesting");
+        }
+        if (string || depth != 0) throw new IOException("Incomplete checkpoint");
+    }
+
+    private static void replace(File source,File target) throws IOException {
+        if (!source.renameTo(target)) throw new IOException("Cannot publish generation");
+    }
+
+    private static byte[] digest(byte[] data) {
+        try { return MessageDigest.getInstance("SHA-256").digest(data); }
+        catch (NoSuchAlgorithmException impossible) { throw new AssertionError(impossible); }
+    }
+
+    private static void syncDirectory(File dir) throws IOException {
+        if (!"Dalvik".equals(System.getProperty("java.vm.name"))) { JvmDirectory.sync(dir); return; }
+        try {
+            Class<?> os = Class.forName("android.system.Os");
+            FileDescriptor fd = (FileDescriptor)os.getMethod("open",String.class,int.class,int.class)
+                    .invoke(null,dir.getPath(),0,0);
+            try { os.getMethod("fsync",FileDescriptor.class).invoke(null,fd); }
+            finally { os.getMethod("close",FileDescriptor.class).invoke(null,fd); }
+        } catch (ReflectiveOperationException failure) { throw new IOException("Directory sync unavailable",failure); }
+    }
+
+    private static final class JvmDirectory {
+        static void sync(File dir) throws IOException {
+            try (FileChannel channel = FileChannel.open(dir.toPath(),java.nio.file.StandardOpenOption.READ)) {
+                channel.force(true);
+            }
+        }
+    }
+}

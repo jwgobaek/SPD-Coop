@@ -11,6 +11,32 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class CheckpointTest extends HeadlessDungeon {
+    @Test public void rejectsInconsistentWorldWithoutInstallingIt() {
+        Bundle b;
+        try (CoopSession session=CoopSession.open(402,1,HeroClass.WARRIOR)) {
+            session.join(2,HeroClass.HUNTRESS);
+            b=session.checkpoint();
+        }
+        Bundle items=b.getBundle("items");
+        Bundle first=items.getBundle("s0_0"), second=items.getBundle("s0_1");
+        long id=first.getLong("id");
+        first.put("id",second.getLong("id"));
+        assertThrows(IllegalArgumentException.class,()->CoopSession.restore(b));
+        assertNull(Dungeon.coop);
+        first.put("id",id);
+        first.put("owner",3);
+        assertThrows(IllegalArgumentException.class,()->CoopSession.restore(b));
+        first.put("owner",1);
+        Bundle guest=b.getBundle("guest");
+        int actor=guest.getInt("id");
+        guest.put("id",b.getBundle("world").getBundle("hero").getInt("id"));
+        assertThrows(IllegalArgumentException.class,()->CoopSession.restore(b));
+        guest.put("id",actor);
+        b.put("schema",99);
+        assertThrows(IllegalArgumentException.class,()->CoopSession.restore(b));
+        assertNull(Dungeon.coop);
+    }
+
     @Test public void casualtiesAndCompleteSchedulerRoundTrip() {
         Bundle checkpoint;
         long turn, ownerId, expectedRoll;
