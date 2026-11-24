@@ -31,3 +31,7 @@ TCP Request ID는 연결마다 새로 시작한다. 재접속 클라이언트는
 ## Phase 8 컨트롤러
 
 저장 목록은 CoopSaves.sessions, 메타데이터와 정상·백업 세대 점검은 inspect, 이어하기는 LanRoom.resume, 저장 후 종료는 saveAndClose를 사용한다. 방 검색은 LanClient.discover를 사용하고, 접속 후 사용자 작업은 LanClient와 SeatActions로 제출한다. SeatCredential.reconnect로 인증하고 DisplayReplica.confirmReconnect로 모델을 확인한 뒤 refresh로 최신 입력권을 읽는다. 현 세션이 다른 epoch로 돌아갔을 때는 새 DisplayReplica를 생성한다. LanClient.isOpen은 로컬 소켓의 열림 상태를 반환하며 상대 방의 응답 여부는 PING으로 확인한다. 엔진 실행 스레드에서는 LanRoom.state와 failure를 읽는다. 오류, 연결 상태, 확정 영수증과 공개 모델만 UI로 넘긴다. 실제 파일 I/O와 서명·소켓 호출을 렌더링 스레드에서 수행하지 않는다.
+
+## Phase 8 UI
+
+SeatTickets가 세션·좌석·플레이어·최근 주소·epoch·마지막 미확정 ID를 보관한다. 네이티브 키 저장을 지원하면 파일에는 키 참조만 보관한다. 앱 재실행 후 LOOKUP 및 CONFIRM을 마치고 입력을 연다.

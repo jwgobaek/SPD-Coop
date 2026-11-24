@@ -65,7 +65,7 @@ actors/buffs/Drowsy	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpi
 actors/buffs/EnhancedRings	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/EnhancedRings.java
 actors/buffs/FireImbue	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/FireImbue.java
 actors/buffs/FlavourBuff	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/FlavourBuff.java
-actors/buffs/Foresight	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Foresight.java
+actors/buffs/Foresight	actors/buffs	VERIFIED	one seat maps terrain without changing the other seat / ProjectionChecks	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Foresight.java
 actors/buffs/Frost	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Frost.java
 actors/buffs/FrostImbue	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/FrostImbue.java
 actors/buffs/Fury	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Fury.java
@@ -76,7 +76,7 @@ actors/buffs/Healing	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredp
 actors/buffs/HeroDisguise	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/HeroDisguise.java
 actors/buffs/Hex	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Hex.java
 actors/buffs/HoldFast	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/HoldFast.java
-actors/buffs/Hunger	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Hunger.java
+actors/buffs/Hunger	actors/buffs	VERIFIED	ordinary and small rations; seat-specific satiety and cost / CoopContentPathTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Hunger.java
 actors/buffs/Invisibility	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Invisibility.java
 actors/buffs/Invulnerability	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Invulnerability.java
 actors/buffs/Levitation	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Levitation.java
@@ -105,7 +105,7 @@ actors/buffs/Paralysis	actors/buffs	UNSUPPORTED		core/src/main/java/com/shattere
 actors/buffs/Paralysis.ParalysisResist	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Paralysis.java
 actors/buffs/PhysicalEmpower	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/PhysicalEmpower.java
 actors/buffs/PinCushion	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/PinCushion.java
-actors/buffs/Poison	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Poison.java
+actors/buffs/Poison	actors/buffs	VERIFIED	lethal damage and pre-death HP from a damage tick / CoopSessionTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Poison.java
 actors/buffs/Preparation	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Preparation.java
 actors/buffs/PrismaticGuard	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/PrismaticGuard.java
 actors/buffs/Recharging	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Recharging.java
@@ -1235,7 +1235,7 @@ levels/PrisonLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/sha
 levels/PrisonLevel.Torch	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonLevel.java
 levels/RegularLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/RegularLevel.java
 levels/SewerBossLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerBossLevel.java
-levels/SewerLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerLevel.java
+levels/SewerLevel	levels	VERIFIED	generate first floor, register both seats and recover from disk / CoopSessionTest, CheckpointTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerLevel.java
 levels/SewerLevel.Sink	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerLevel.java
 levels/SewerLevel.WaterParticle	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerLevel.java
 levels/Terrain	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
@@ -1248,16 +1248,16 @@ levels/Terrain.CUSTOM_DECO	terrain	UNSUPPORTED		core/src/main/java/com/shattered
 levels/Terrain.CUSTOM_DECO_EMPTY	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.CUSTOM_DECO_WTR	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.DOOR	terrain	VERIFIED	ordinary door: enter, occupancy, save, restore and reconnect / CoopContentPathTest, CoopPlayInputTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
-levels/Terrain.EMBERS	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
-levels/Terrain.EMPTY	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
-levels/Terrain.EMPTY_DECO	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
-levels/Terrain.EMPTY_SP	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
+levels/Terrain.EMBERS	terrain	IMPLEMENTED	safeFloor movement allowlist for unoccupied plain cells	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
+levels/Terrain.EMPTY	terrain	VERIFIED	ordinary adjacent movement, seat occupancy / CoopSessionTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
+levels/Terrain.EMPTY_DECO	terrain	IMPLEMENTED	safeFloor movement allowlist for unoccupied plain cells	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
+levels/Terrain.EMPTY_SP	terrain	IMPLEMENTED	safeFloor movement allowlist for unoccupied plain cells	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.EMPTY_WELL	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.ENTRANCE	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.ENTRANCE_SP	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.EXIT	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.FURROWED_GRASS	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
-levels/Terrain.GRASS	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
+levels/Terrain.GRASS	terrain	VERIFIED	remember, hide an unseen change and reveal it when observed / ProjectionChecks	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.HERO_LKD_DR	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.HIGH_GRASS	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.INACTIVE_TRAP	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
@@ -1269,15 +1269,15 @@ levels/Terrain.OPEN_DOOR	terrain	VERIFIED	ordinary door: leave and close with or
 levels/Terrain.PEDESTAL	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.REGION_DECO	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.REGION_DECO_ALT	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
-levels/Terrain.SECRET_DOOR	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
-levels/Terrain.SECRET_TRAP	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
+levels/Terrain.SECRET_DOOR	terrain	VERIFIED	hide undiscovered terrain identity from recipient / ProjectionChecks	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
+levels/Terrain.SECRET_TRAP	terrain	VERIFIED	hide undiscovered terrain identity from recipient / ProjectionChecks	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.STATUE	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.STATUE_SP	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.TRAP	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.UNLOCKED_EXIT	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
-levels/Terrain.WALL	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
+levels/Terrain.WALL	terrain	VERIFIED	blocked movement, independent visibility and zone separation / CoopSessionTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.WALL_DECO	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
-levels/Terrain.WATER	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
+levels/Terrain.WATER	terrain	IMPLEMENTED	safeFloor movement allowlist for unoccupied plain cells	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.WELL	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/VaultLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/VaultLevel.java
 levels/VaultLevel.VaultFlameTrap	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/VaultLevel.java

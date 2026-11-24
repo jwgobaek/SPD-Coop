@@ -260,3 +260,53 @@ gh api 'repos/jwgobaek/SPD-Coop/actions/runs?branch=coop%2Fphase7&per_page=2'
 ```
 
 APK SHA-256은 `c531bb4a0352dd7198d793b49fe1a8ce69505535519ddb5ee60b848ba95c802c`이다. Cloud에 생성한 APK는 `/workspace/deliverables/phase7-final/android-debug.apk`에 있다. Git에 보존한 검증 ZIP의 SHA-256은 `9185756fdbf5a0fd6487767b71131c4a800c3a8223d62139c76782b0e00a476d`이다. [검증 ZIP과 JUnit XML](docs/coop/phase7-cloud-evidence.zip)
+
+## Phase 8 첫 층 협동 알파 검증
+
+| 판정 | 실행 및 범위 | 결과 |
+|---|---|---|
+| PASS | 작업 전 원격 coop/phase7과 원본 회귀 | 917128396fd394eed536f1947072b4effbeb6b62, JUnit 44/44 |
+| PASS | 8A 원본 타이틀·로비·저장 컨트롤러 | 8c3f2ab, JUnit 45/45 |
+| PASS | 8B 보존 APK의 전체 회귀 | 4c4dc1c, JUnit 47/47. 렌더링 시험을 확장한 4522c95에서 실제 지도 포인터 공격·부활 및 디스크 재개까지 확인 |
+| PASS | 8C 일반 문·소형 식량·공개 상태 전송 | 7c2ff38, JUnit 49/49. 원본 이동·음식 소비·행동 비용, 두 좌석과 디스크 복원, 게스트 재접속 검증 |
+| PASS | 최종 첫 층 알파 | 6649af1dd625385009bb1aee3bc8f1dff06d422f, JUnit 50/50. 기준 44개 testcase ID 모두 포함, 실패·건너뜀 0 |
+| PASS | 추가된 6개 사례 | 로비·양 좌석 및 손상 백업·epoch 복귀, UDP 검색·빈 결과·직접 연결 오류·시작 전 종료, 디스플레이 RNG 격리, 기본 지도·가방 명령, 일반 문·소형 식량·재접속, 두 좌석 행동 비용과 디스크 복원 |
+| PASS | 독립 JVM + 실제 TCP + 가상 X11에서 LWJGL3 | 영어·한국어 각 12장. 원본 싱글 진입, 협동 방 생성, 직업·준비, 이동, 가방 식사, 쥐 공격, 앙크 부활, 전투 경계, 저장 목록, 다른 게스트 JVM의 좌석 인증·다음 행동 |
+| FAIL | 개발 중간 실행 | 동시 Gradle 작업이 공유한 클래스 파일로 첫 전체 빌드에서 RuleIntegrationTest 클래스 로딩 실패. 6e3abd8 전체 실행에서는 자동 클라이언트의 다음 좌석 대기 및 싱글 스케줄러 대기 각 1건 실패 |
+| NOT RUN | GitHub Actions·Android 실기기·전체 협동 완주 | 이 브랜치의 호스팅 실행 0건. 기기 설치·터치·렌더링·무선 LAN·생명주기·실제 저장소 지연, 미지원 층·퀘스트·상점·보스·승리 미검증 |
+
+검증 빌드를 각각 독립된 체크아웃으로 옮겼다. Headless 싱글 스케줄러 시험은 GameScene의 유휴 Actor 깨우기를 재현하고 Hero.ready와 스레드 대기 상태를 함께 확인한다. 기존 시간·버프·종료 단언은 유지했다. 독립 클라이언트의 입력을 실제 시간 간격으로 보내고 타임아웃 진단에 양쪽의 버전을 남겼다. UI는 페이지 전송이 연속된 턴 변경과 겹치면 검증한 마지막 모델을 보존하고 제한된 횟수만 다시 요청한다. 첫 클라이언트 타임아웃에서는 정확히 어느 프레임에서 지연됐는지 확인할 기록이 없었다. 조사용 개별 실행 8회 및 수정 뒤 두 번의 전체 검증을 통과했다.
+
+### 행동과 비용
+
+별도 클라이언트 JVM의 지도 및 가방 명령은 시나리오당 PICK_UP, DROP, PICK_UP, EAT, UNEQUIP, EQUIP, ATTACK, MOVE, REVIVE, WAIT 각 순서로 총 10건이었다. 그 밖의 턴 진행용 대기는 따로 집계했다. 각 부활은 앙크 1개를 소비하고 HP 17에서 5로 회복했다. 단계 5~7의 소켓 회귀도 같은 검증에 포함했다. 상세 수치는 SyncIntegrationTest, RuleIntegrationTest 및 HostRestartTest의 XML에 있다.
+
+| 첫 층 시나리오 | 확정 입력 + 보조 대기 | 입력→영수증·모델 갱신 중앙값 / p95 (ms) | 두 좌석 누적 TCP 바이트 | 마지막 게스트 전체 스냅샷 (바이트) | 자식 JVM 사용 힙 (바이트) / live threads |
+|---|---:|---:|---:|---:|---:|
+|일반 식량|10 + 대기 11|46 / 86|30907|1715|9488472 / 7|
+|소형 식량·문·재접속|10 + 대기 11|25 / 272|39319|1718|10497264 / 7|
+
+같은 첫 층에 대해 내구성 있는 명시적 저장 20회의 중앙값은 7.494 ms, p95는 30.030 ms였다. 입력 지연은 각 10개 관측치, p95는 nearest rank를 사용했다. TCP 계수에는 성공적으로 완료한 프레임과 길이 헤더가 포함된다. 스냅샷 크기는 페이지로 나누기 전 해당 좌석에 허용된 ASCII 데이터다. 장시간 테스트 JVM의 1초 간격 관측값은 RestartHost 42회, 스레드 23~24개, RSS 80,380~313,644 KiB / RestartClient 41회, 스레드 18~21개, RSS 72,280~116,568 KiB다. JVM 내부 작업 스레드를 포함한다. 화면 닫기 후 해당 클라이언트·엔진·LAN 작업자 종료를 확인했다. 클라우드 측정 위치와 시나리오 밖의 지연·메모리 누수 상한은 미검증이다.
+
+### 실행과 산출물
+
+```bash
+git ls-remote coop refs/heads/coop/phase7 refs/heads/coop/phase8 refs/heads/master
+./gradlew --offline :core:cleanTest :core:test
+./gradlew --offline :desktop:compileTestJava :desktop:release
+scripts/verify-android-build.sh /workspace/deliverables/phase8-ui
+scripts/verify-android-build.sh /workspace/deliverables/phase8-verified
+scripts/verify-android-build.sh /workspace/deliverables/phase8-final
+python3 scripts/coop-content-inventory.py
+git diff --check
+git push coop coop/phase8
+```
+
+Desktop 실행 명령과 X11 전제는 BUILD.md에 있다. 시험은 실제 생성한 시드 402의 층에서 시작한다. 부활·경계 검증 구간에서는 호스트 테스트가 쥐·앙크·치명상을 배치했고 판정과 자원 소비, 후속 공격·저장·재접속은 실제 코드로 실행했다. 정상 플레이의 임의 시점에서 앙크와 부활 기회가 항상 제공된다는 검증은 아니다.
+
+| APK | 빌드 커밋 | 크기 (바이트) | SHA-256 |
+|---|---|---:|---|
+| 4.0.2-INDEV-p8 UI 체크포인트 | 4c4dc1cf377815015833d3e151875f02fc1a3120 | 35,224,012 | 19c1f07936cd1316b415a8affbee3712478b3a2ce83cd0f9376eeae29c6271e2 |
+| 4.0.2-INDEV-p8c1 최종 첫 층 알파 | 6649af1dd625385009bb1aee3bc8f1dff06d422f | 35,224,379 | 7f7c85982bf0cadbd524edcd776b9d48b22a251a64b1f5d2f652974a382e3b03 |
+
+두 APK 모두 org.spdcoop.dungeon.indev, versionCode 922, minSdk 21, targetSdk 36이다. aapt 패키지 검사와 apksigner의 v1·v2 검증에 통과했다. 서명 인증서 SHA-256은 0dd9070b5f17192a8b07e5ddb6735161b0d2bb6e49013e4d61ca5ee6216ddb53이며 기존 Cloud 디버그 키와 일치했다. 빌드 환경이 바뀌면 같은 키가 있는지 확인해야 한다. iPad에서 볼 수 있는 GitHub 검증 ZIP에는 빌드 로그·JUnit XML·화면·파일 목록이 있다. APK는 Cloud의 /workspace/deliverables/phase8-final/android-debug.apk 및 /workspace/deliverables/phase8-ui/android-debug.apk에 있다. [검증 ZIP](docs/coop/phase8-cloud-evidence.zip)

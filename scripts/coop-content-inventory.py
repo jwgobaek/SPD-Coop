@@ -18,6 +18,15 @@ VERIFIED = {
     "items/food/SmallRation": "two seats, hunger, quantity, ownership, restore and real TCP reconnect / CoopContentPathTest, CoopPlayInputTest",
     "levels/Terrain.DOOR": "ordinary door: enter, occupancy, save, restore and reconnect / CoopContentPathTest, CoopPlayInputTest",
     "levels/Terrain.OPEN_DOOR": "ordinary door: leave and close with original action cost / CoopContentPathTest",
+    "actors/buffs/Hunger": "ordinary and small rations; seat-specific satiety and cost / CoopContentPathTest",
+    "actors/buffs/Foresight": "one seat maps terrain without changing the other seat / ProjectionChecks",
+    "actors/buffs/Poison": "lethal damage and pre-death HP from a damage tick / CoopSessionTest",
+    "levels/SewerLevel": "generate first floor, register both seats and recover from disk / CoopSessionTest, CheckpointTest",
+    "levels/Terrain.EMPTY": "ordinary adjacent movement, seat occupancy / CoopSessionTest",
+    "levels/Terrain.WALL": "blocked movement, independent visibility and zone separation / CoopSessionTest",
+    "levels/Terrain.GRASS": "remember, hide an unseen change and reveal it when observed / ProjectionChecks",
+    "levels/Terrain.SECRET_DOOR": "hide undiscovered terrain identity from recipient / ProjectionChecks",
+    "levels/Terrain.SECRET_TRAP": "hide undiscovered terrain identity from recipient / ProjectionChecks",
     "items/Ankh": "owned revival resource, save, consume once / CheckpointTest, ReconnectTest",
     "items/weapon/melee/Gloves": "starter equip and unequip / CoopPlayInputTest",
     "items/weapon/melee/Shortsword": "pickup and equip / SyncIntegrationTest",
@@ -26,6 +35,8 @@ VERIFIED = {
     "actors/hero/HeroClass.HUNTRESS": "first-floor basic actions / CoopControllerTest, CoopPlayInputTest",
 }
 IMPLEMENTED = {
+    **dict.fromkeys(("levels/Terrain.EMPTY_SP", "levels/Terrain.WATER", "levels/Terrain.EMBERS",
+                     "levels/Terrain.EMPTY_DECO"), "safeFloor movement allowlist for unoccupied plain cells"),
     **dict.fromkeys(("actors/mobs/Albino", "actors/mobs/Gnoll", "actors/mobs/Snake"), "basicMob allowlist"),
     **dict.fromkeys(("items/weapon/melee/Dagger", "items/weapon/melee/WornShortsword"), "basicWeapon allowlist"),
 }

@@ -51,3 +51,7 @@ SYNC1의 DROP·UNEQUIP·REVIVE, 좌석별 기억 지형과 파티 전멸은 [상
 ## 영구 저장 SYNC1 방
 
 호스트가 persistentGame을 선택하면 최초 좌석 등록에 ENROLL이 추가된다. 게임 명령에는 epoch가 붙고 단절 후 CHALLENGE, PROVE, SYNC, LOOKUP, CONFIRM을 사용한다. 기존 프레이밍·요청 빈도·페이지 크기 제한을 유지한다. [메시지 및 상태 전이 명세](reconnect.md)
+
+## Phase 8 UI
+
+앱 UI의 로컬 호스트 좌석과 게스트 좌석은 모두 기존 MODE SYNC1 및 ENROLL을 사용한다. 로비 STATE와 게임 SYNC는 UI 작업자에서 주기적으로 조회한다. LAN 기본 포트는 UDP 47820과 TCP 47821이다.

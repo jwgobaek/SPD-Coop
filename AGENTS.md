@@ -13,3 +13,7 @@ SYNC1에서 새 상태를 공개할 때는 SeatProjection의 좌석별 필터, �
 협동 규칙을 수정할 때는 두 좌석의 직접 시야·기억·소유권과 사망 상태를 함께 검사한다. 구역 계산은 Actor나 RNG를 변경하지 않는다. 부활은 앙크 소유자와 원래 Actor ID를 보존하고 확정된 행동의 재전송을 검증한다. 현재 지원 범위와 Phase 7 저장 경계는 ARCHITECTURE.md 및 docs/coop/state-sync.md를 참조한다.
 
 협동 저장 변경은 docs/coop/save-format.md와 docs/coop/reconnect.md를 함께 확인한다. 영수증과 엔진 이미지를 같은 세대에 발행한 뒤 성공을 반환한다. 복원 시험은 기존 호스트와 클라이언트를 종료하고 새 프로세스에서 수행한다. 개인 키, 세션 파일, 키가 들어가는 프로세스 입력은 검증 ZIP에 넣지 않는다.
+
+## Phase 8 협동 알파
+
+협동 화면은 UI-ARCHITECTURE.md의 Frame과 PublicDungeon만 읽는다. 원본 단일 엔진과 렌더 스레드의 RNG 및 음향을 격리한다. 행동·좌석 키·저장 세대의 내구성을 유지하고, Desktop 화면 검증과 Android 실기기 검증을 따로 기록한다.

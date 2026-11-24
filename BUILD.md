@@ -55,3 +55,20 @@ scripts/verify-android-build.sh /tmp/spd-build-report-001
 ```
 
 JUnit이 임시 앱 저장 경로와 독립된 호스트 및 클라이언트 JVM을 관리한다. Runtime.halt는 테스트 자식 프로세스에만 적용한다. 증거에는 JUnit XML·빌드 로그·APK 검사 및 체크섬만 수집한다. 임시 게임 디렉터리와 양쪽 좌석의 개인 키 파일은 업로드 대상에서 제외한다.
+
+## Phase 8 협동 알파
+
+보존한 UI 알파는 4.0.2-INDEV-p8, 일반 문·소형 식량 확장판은 4.0.2-INDEV-p8c1이다. 두 APK의 versionCode는 922이며, 패키지는 org.spdcoop.dungeon.indev다. scripts/verify-android-build.sh에 새 출력 디렉터리를 전달한다. 빌드 시 Git 리비전 12자리가 진단 화면에 포함된다. 다른 Gradle 작업이 같은 checkout에서 클래스 파일을 재생성하면 장시간 실행 중인 테스트 JVM이 클래스를 잃을 수 있으므로 이 검증은 독립 checkout에서 진행한다. 디버그 업데이트 설치에는 동일한 서명자가 필요하다.
+
+Desktop 렌더링 시험은 X11 가상 화면에서 실제 LWJGL 창과 별도 게스트 JVM을 사용한다. 테스트 전용 임시 XDG_DATA_HOME과 스크린샷 출력 위치를 사용한다.
+
+```bash
+./gradlew :desktop:compileTestJava :desktop:release
+XDG_DATA_HOME="$(mktemp -d)" LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null \
+  java -Duser.language=en -cp 'desktop/build/classes/java/test:desktop/build/libs/desktop-4.0.2.jar' \
+  com.shatteredpixel.shatteredpixeldungeon.desktop.CoopRenderSmoke /tmp/spd-screens
+```
+
+DISPLAY와 XAUTHORITY는 실행 환경에서 제공하는 가상 X 화면을 가리켜야 한다. 초기 지도는 시드 402다. 전투 경계·부활 장면은 정상 이동과 식사 이후 테스트가 엔진 소유 스레드에서 배치한 쥐·앙크·치명상을 사용한다. 부활과 공격 입력은 실제 렌더링된 지도와 TCP를 통과한다.
+
+같은 Desktop 경로를 한국어로 검증하려면 JVM 언어를 -Duser.language=ko -Duser.country=KR로 지정한다. 테스트는 화면에 표시된 해당 언어의 버튼을 찾아 누른다.

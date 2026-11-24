@@ -89,3 +89,7 @@ LanRoom.persistentGame은 하나의 엔진 실행 스레드에서 두 Hero의 �
 호스트 재시작은 LanRoom.resume가 담당한다. 두 좌석의 공개 키를 복원하고 네트워크 연결과 공개 모델을 새로 만든다. 각 좌석이 자신의 전체 모델을 검증할 때까지 입력을 잠근다. 기존 v1과 메모리 전용 SYNC1 진입점은 이전 동작을 유지한다.
 
 [저장 형식](docs/coop/save-format.md) · [재접속과 Phase 8 API](docs/coop/reconnect.md)
+
+## Phase 8 협동 알파
+
+TitleScene 및 WelcomeScene에서 CoopScene으로 진입한다. HostedRoom의 단일 실행자가 저장과 Actor를 소유한다. 메뉴와 지도는 TCP 좌석 클라이언트가 게시하는 불변 Frame을 쓴다. 렌더링·입력·자격 보관 및 진단 경계는 [UI 아키텍처](UI-ARCHITECTURE.md)에 있다.
