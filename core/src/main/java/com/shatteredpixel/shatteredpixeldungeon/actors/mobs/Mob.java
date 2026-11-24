@@ -971,6 +971,10 @@ public abstract class Mob extends Char {
 	
 	private Hero rewardOwner;
 
+	public boolean wasDefeatedBy(Hero attacker) {
+		return rewardOwner == attacker && !isAlive();
+	}
+
 	@Override
 	public void destroy() {
 		

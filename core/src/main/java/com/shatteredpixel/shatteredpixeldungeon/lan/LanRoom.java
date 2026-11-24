@@ -34,12 +34,23 @@ public final class LanRoom implements AutoCloseable {
     private State state = State.LOBBY_OPEN;
     private CoopSession game;
     private boolean locked;
+    private RoomSync sync;
+    private final boolean synchronizedRoom;
 
     public LanRoom(long seed) throws IOException {
         this(null, LanClient.TCP_PORT, LanClient.UDP_PORT, seed);
     }
 
     public LanRoom(InetAddress bind, int tcp, int udp, long seed) throws IOException {
+        this(bind,tcp,udp,seed,false);
+    }
+
+    public static LanRoom synchronizedGame(InetAddress bind,int tcp,int udp,long seed) throws IOException {
+        return new LanRoom(bind,tcp,udp,seed,true);
+    }
+
+    private LanRoom(InetAddress bind,int tcp,int udp,long seed,boolean synchronizedRoom) throws IOException {
+        this.synchronizedRoom=synchronizedRoom;
         this.seed = seed;
         io = new LanTransport(bind,tcp,udp,session);
     }
@@ -60,7 +71,10 @@ public final class LanRoom implements AutoCloseable {
         for (int i=0; i<seats.length; i++) {
             if (seats[i] != null && seats[i].peer.dead) {
                 if (i == 0) { close(); return; }
-                if (locked) state = State.PAUSED;
+                if (locked) {
+                    state = State.PAUSED;
+                    if (sync != null) sync.pause("Guest disconnected");
+                }
                 else { seats[i] = null; lobby(); }
             }
         }
@@ -105,6 +119,12 @@ public final class LanRoom implements AutoCloseable {
         if (verb.equals("PING") && f.length == 4) return "PONG";
         int seat = -1;
         for (int i=0; i<seats.length; i++) if (seats[i] != null && seats[i].peer == peer) seat = i;
+        if (verb.equals("MODE") && f.length == 5 && f[4].equals("SYNC1")) {
+            if (seat >= 0) return "ERROR LOCKED";
+            if (!synchronizedRoom) return "ERROR MODE";
+            peer.syncMode = true;
+            return "MODE SYNC1";
+        }
         if (verb.equals("JOIN") || verb.equals("HOST")) {
             if (locked) return "ERROR LOCKED";
             if (seat >= 0) return "ERROR DUPLICATE";
@@ -113,12 +133,25 @@ public final class LanRoom implements AutoCloseable {
             if (!host && f.length != 4) return "ERROR FORMAT";
             seat = host ? 0 : 1;
             if (seats[seat] != null) return "ERROR FULL";
+            if (peer.syncMode != synchronizedRoom) return "ERROR MODE";
             seats[seat] = new Seat(peer, ++playerSequence);
             lobby();
             return "JOINED " + seat + " " + seats[seat].player;
         }
         if (seat < 0) return "ERROR JOIN_FIRST";
         Seat self = seats[seat];
+        if (peer.syncMode && sync != null) {
+            if (verb.equals("SYNC") && f.length == 6) return sync.sync(seat,Long.parseLong(f[4]),f[5]);
+            if (verb.equals("PAGE") && f.length == 6) return sync.part(seat,Long.parseLong(f[4]),Integer.parseInt(f[5]));
+            if (verb.equals("DO")) {
+                for (Seat member : seats) if (member.peer.dead) sync.pause("Peer disconnected");
+                String result = sync.action(seat,f);
+                if (sync.paused) { state = State.PAUSED; problem = sync.failure; }
+                return result;
+            }
+            if (verb.equals("STATE")) return "USE_SYNC";
+        }
+        if (peer.syncMode && verb.equals("ACT")) return "ERROR MODE";
         if (verb.equals("STATE") && f.length == 4) return view(seat);
         if (verb.equals("ACT")) return action(seat,f);
         if (locked) return "ERROR LOCKED";
@@ -139,6 +172,7 @@ public final class LanRoom implements AutoCloseable {
             try {
                 game = CoopSession.open(seed,self.player,self.type);
                 game.join(seats[1].player,seats[1].type);
+                if (peer.syncMode) sync = new RoomSync(session,game);
             } catch (RuntimeException e) { return pause(e.toString()); }
             state = State.IN_GAME;
             return "GAME_STARTED";

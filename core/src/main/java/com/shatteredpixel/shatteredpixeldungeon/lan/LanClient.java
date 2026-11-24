@@ -44,11 +44,25 @@ public final class LanClient implements Closeable {
         } catch (IOException failure) { close(); throw failure; }
     }
 
+    /** Negotiate the synchronized protocol before joining a seat. */
+    public static LanClient synchronizedGame(InetSocketAddress address) throws IOException {
+        LanClient client = new LanClient(address);
+        try {
+            if (!"MODE SYNC1".equals(client.request("MODE SYNC1"))) throw new IOException("SYNC1 unavailable");
+            return client;
+        } catch (IOException failure) {
+            client.close();
+            throw failure;
+        }
+    }
+
+    public synchronized long requestCount() { return sequence; }
+
     public synchronized String request(String command) throws IOException {
         return exchange(session, command);
     }
 
-    private String exchange(String room, String command) throws IOException {
+    synchronized String exchange(String room, String command) throws IOException {
         String prefix = "1 " + (++sequence) + " ";
         byte[] payload = (prefix + room + " " + command).getBytes(StandardCharsets.US_ASCII);
         if (payload.length > MAX_FRAME) throw new NetworkException(Failure.PROTOCOL,new IOException("FRAME_SIZE"));

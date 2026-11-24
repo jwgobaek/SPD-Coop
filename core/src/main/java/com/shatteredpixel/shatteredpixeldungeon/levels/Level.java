@@ -1312,7 +1312,8 @@ public abstract class Level implements Bundlable {
 
 	private static boolean[] modifiableBlocking;
 
-	public void updateFieldOfView( Char c, boolean[] fieldOfView ) {
+	/** Direct line of sight only, without discovery, shared senses or UI bookkeeping. */
+	public boolean updateDirectSight(Char c, boolean[] fieldOfView) {
 
 		int cx = c.pos % width();
 		int cy = c.pos / width();
@@ -1373,6 +1374,13 @@ public abstract class Level implements Bundlable {
 			BArray.setFalse(fieldOfView);
 		}
 		
+		return sighted;
+	}
+
+	public void updateFieldOfView( Char c, boolean[] fieldOfView ) {
+		boolean sighted = updateDirectSight(c, fieldOfView);
+		int cx = c.pos % width();
+		int cy = c.pos / width();
 		int sense = 1;
 		//Currently only the hero can get mind vision
 		if (c.isAlive() && c == Dungeon.hero) {

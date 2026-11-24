@@ -171,7 +171,7 @@ public final class CoopSession implements AutoCloseable {
         if (ch.sprite == null) new EngineSprite(ch);
     }
 
-    private static boolean basicMob(Actor actor) {
+    public static boolean basicMob(Actor actor) {
         Class<?> type = actor.getClass();
         return type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class;
     }
