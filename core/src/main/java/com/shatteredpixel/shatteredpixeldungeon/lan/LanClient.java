@@ -15,7 +15,7 @@ public final class LanClient implements Closeable {
     private final SocketChannel channel;
     private final Socket socket;
     private final DataInputStream reader;
-    private long sequence;
+    private long sequence,transferredBytes;
     public final String session;
 
     public enum Failure { CONNECT_TIMEOUT, CONNECT_FAILED, WRITE_TIMEOUT, READ_TIMEOUT, CONNECTION_LOST, PROTOCOL }
@@ -59,6 +59,8 @@ public final class LanClient implements Closeable {
     /** Local endpoint status; PING checks whether the remote room is still reachable. */
     public boolean isOpen() { return channel.isOpen() && !socket.isClosed(); }
 
+    /** Completed TCP exchanges, including the length headers in both directions. */
+    public synchronized long transferredBytes() { return transferredBytes; }
     public synchronized long requestCount() { return sequence; }
 
     public synchronized String request(String command) throws IOException {
@@ -88,6 +90,7 @@ public final class LanClient implements Closeable {
             if (length < 1 || length > MAX_FRAME) throw new NetworkException(Failure.PROTOCOL,new IOException("FRAME_SIZE"));
             byte[] bytes = new byte[length];
             reader.readFully(bytes);
+            transferredBytes+=8L+payload.length+length;
             String reply = new String(bytes, StandardCharsets.US_ASCII);
             if (!reply.startsWith(prefix)) throw new NetworkException(Failure.PROTOCOL,new IOException("RESPONSE_ID"));
             return reply.substring(prefix.length());

@@ -190,7 +190,13 @@ public class WelcomeScene extends PixelScene {
 			add(changes);
 		} else {
 			okay.text(Messages.get(TitleScene.class, "enter"));
-			okay.setRect(btnAreaLeft, buttonY, buttonAreaWidth, 20);
+			float half = (buttonAreaWidth-2)/2;
+			okay.setRect(btnAreaLeft, buttonY, half, 20);
+			StyledButton multiplayer = new StyledButton(Chrome.Type.GREY_BUTTON_TR, Messages.get(CoopScene.class,"title")) {
+				@Override protected void onClick() { ShatteredPixelDungeon.switchNoFade(CoopScene.class); }
+			};
+			multiplayer.setRect(okay.right()+2, buttonY, half, 20);
+			add(multiplayer);
 			okay.icon(Icons.get(Icons.ENTER));
 			add(okay);
 		}

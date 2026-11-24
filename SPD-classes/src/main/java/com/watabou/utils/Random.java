@@ -40,7 +40,12 @@ public class Random {
 	}
 
     // Co-op checkpoints preserve the java.util.Random 48-bit stream, including bounded nextInt and shuffle.
-    private static ArrayDeque<java.util.Random> outsideWorld;
+    private static Thread worldOwner;
+    private static ArrayDeque<java.util.Random> worldStack;
+
+    private static ArrayDeque<java.util.Random> stack() {
+        return Thread.currentThread()==worldOwner ? worldStack : generators;
+    }
     private static final class WorldRandom extends java.util.Random {
         private static final long MULT = 0x5deece66dL, MASK = (1L << 48)-1;
         long state;
@@ -51,47 +56,49 @@ public class Random {
         }
     }
     public static synchronized void enterWorld() {
-        if (outsideWorld != null) throw new IllegalStateException("World random stack active");
-        outsideWorld = generators;
+        if (worldOwner != null) throw new IllegalStateException("World random stack active");
+        worldOwner = Thread.currentThread();
         resetGenerators();
     }
     public static synchronized void leaveWorld() {
-        generators = outsideWorld;
-        outsideWorld = null;
+        if (Thread.currentThread()!=worldOwner) throw new IllegalStateException("World executor required");
+        worldOwner=null; worldStack=null;
     }
     public static synchronized long[] worldState() {
-        long[] state = new long[generators.size()];
+        if (Thread.currentThread()!=worldOwner) throw new IllegalStateException("World executor required");
+        long[] state = new long[worldStack.size()];
         int index = 0;
-        for (java.util.Random generator : generators) state[index++] = ((WorldRandom)generator).state;
+        for (java.util.Random generator : worldStack) state[index++] = ((WorldRandom)generator).state;
         return state;
     }
     public static synchronized void restoreWorld(long[] states) {
-        if (outsideWorld == null || states == null || states.length < 1 || states.length > 64)
+        if (Thread.currentThread()!=worldOwner || states == null || states.length < 1 || states.length > 64)
             throw new IllegalArgumentException("Random stack");
-        generators.clear();
+        worldStack.clear();
         for (long state : states) {
             if (state < 0 || state > WorldRandom.MASK) throw new IllegalArgumentException("Random state");
             WorldRandom generator = new WorldRandom(0);
             generator.state = state;
-            generators.addLast(generator);
+            worldStack.addLast(generator);
         }
     }
     private static java.util.Random fresh() {
         java.util.Random source = new java.util.Random();
-        return outsideWorld == null ? source : new WorldRandom(source.nextLong());
+        return Thread.currentThread()!=worldOwner ? source : new WorldRandom(source.nextLong());
     }
 
 	public static synchronized void resetGenerators(){
-		generators = new ArrayDeque<>();
-		generators.push(fresh());
+		if (Thread.currentThread()==worldOwner) worldStack=new ArrayDeque<>();
+		else generators=new ArrayDeque<>();
+		stack().push(fresh());
 	}
 
 	public static synchronized void pushGenerator(){
-		generators.push(fresh());
+		stack().push(fresh());
 	}
 
 	public static synchronized void pushGenerator( long seed ){
-		generators.push(outsideWorld == null ? new java.util.Random(scrambleSeed(seed)) : new WorldRandom(scrambleSeed(seed)));
+		stack().push(Thread.currentThread()!=worldOwner ? new java.util.Random(scrambleSeed(seed)) : new WorldRandom(scrambleSeed(seed)));
 	}
 
 	//scrambles a given seed, this helps eliminate patterns between the outputs of similar seeds
@@ -108,10 +115,10 @@ public class Random {
 	}
 
 	public static synchronized void popGenerator(){
-		if (generators.size() == 1){
+		if (stack().size() == 1){
 			Game.reportException( new RuntimeException("tried to pop the last random number generator!"));
 		} else {
-			generators.pop();
+			stack().pop();
 		}
 	}
 
@@ -121,8 +128,8 @@ public class Random {
 	}
 
 	public static synchronized float Float( boolean useGeneratorStack ) {
-		if (useGeneratorStack)  return generators.peekFirst().nextFloat();
-		else                    return generators.peekLast().nextFloat();
+		if (useGeneratorStack)  return stack().peekFirst().nextFloat();
+		else                    return stack().peekLast().nextFloat();
 	}
 
 	//returns a uniformly distributed float in the range [0, max)
@@ -148,8 +155,8 @@ public class Random {
 	//returns a uniformly distributed int in the range [-2^31, 2^31)
 	//can either use the current generator in the stack, or force the first generator (pure random)
 	public static synchronized int Int( boolean useGeneratorStack ) {
-		if (useGeneratorStack)  return generators.peekFirst().nextInt();
-		else                    return generators.peekLast().nextInt();
+		if (useGeneratorStack)  return stack().peekFirst().nextInt();
+		else                    return stack().peekLast().nextInt();
 	}
 
 	//returns a uniformly distributed int in the range [0, max)
@@ -161,8 +168,8 @@ public class Random {
 	//can either use the current generator in the stack, or force the first generator (pure random)
 	public static synchronized int Int( int max, boolean useGeneratorStack ) {
 		if (max <= 0)                   return 0;
-		else if (useGeneratorStack)     return generators.peekFirst().nextInt(max);
-		else                            return generators.peekLast().nextInt(max);
+		else if (useGeneratorStack)     return stack().peekFirst().nextInt(max);
+		else                            return stack().peekLast().nextInt(max);
 	}
 
 	//returns a uniformly distributed int in the range [min, max)
@@ -200,8 +207,8 @@ public class Random {
 	//returns a uniformly distributed long in the range [-2^63, 2^63)
 	//can either use the current generator in the stack, or force the first generator (pure random)
 	public static synchronized long Long( boolean useGeneratorStack ) {
-		if (useGeneratorStack)  return generators.peekFirst().nextLong();
-		else                    return generators.peekLast().nextLong();
+		if (useGeneratorStack)  return stack().peekFirst().nextLong();
+		else                    return stack().peekLast().nextLong();
 	}
 
 	//returns a mostly uniformly distributed long in the range [0, max)
@@ -296,7 +303,7 @@ public class Random {
 	}
 
 	public synchronized static<T> void shuffle( List<?extends T> list){
-		Collections.shuffle(list, generators.peek());
+		Collections.shuffle(list, stack().peek());
 	}
 
 	public static void shuffle( int[] array ) {

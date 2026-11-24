@@ -170,6 +170,12 @@ public class AndroidLauncher extends AndroidApplication {
         com.shatteredpixel.shatteredpixeldungeon.lan.CoopPlatform.configure(
                 new java.io.File(getNoBackupFilesDir(),"multiplayer"),
                 Build.VERSION.SDK_INT >= 23 ? new AndroidSeatKeys() : null);
+        com.shatteredpixel.shatteredpixeldungeon.lan.CoopPlatform.diagnosticExport(report -> runOnUiThread(() -> {
+            android.content.Intent send=new android.content.Intent(android.content.Intent.ACTION_SEND);
+            send.setType("text/plain");
+            send.putExtra(android.content.Intent.EXTRA_TEXT,report);
+            startActivity(android.content.Intent.createChooser(send,null));
+        }));
 		initialize(new ShatteredPixelDungeon(support), config);
 		
 	}

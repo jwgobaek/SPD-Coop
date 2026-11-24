@@ -56,6 +56,22 @@ public class CoopControllerTest extends HeadlessDungeon {
             CoopController.Frame guest=until(g,f->f.image!=null && "IN_GAME".equals(f.image.rows.get("status")));
             assertEquals(turn,guest.image.rows.get("turn"));
             assertEquals(1,guest.seat); assertEquals("HUNTRESS",guest.image.rows.get("self").split(",")[4]);
+            h.leave(true); until(h,f->f.page==CoopController.Page.MENU && f.notice.equals("SAVED"));
+            stop(g); g=new CoopController(gr,null,loop,0,0);
+            CoopSaves disk=new CoopSaves(hr);
+            long generation=disk.inspect(id,false).generation;
+            File current=new File(new File(new File(hr,"coop-saves-v1"),id.toString()),"g"+generation);
+            try(java.io.RandomAccessFile fault=new java.io.RandomAccessFile(current,"rw")) {fault.setLength(35);}
+            h.saved(false); CoopController.Entry corrupt=until(h,f->f.page==CoopController.Page.SAVES).list.get(0);
+            assertNull(corrupt.current); assertNotNull(corrupt.backup);
+            h.resume(id,true); until(h,f->f.page==CoopController.Page.EPOCH);
+            assertNull(h.frame().image); h.acceptEpoch();
+            CoopController.Frame recovered=until(h,f->f.image!=null);
+            g.reconnect(id,"127.0.0.1:"+recovered.address.split(":")[1]); until(g,f->f.page==CoopController.Page.EPOCH);
+            assertNull(g.frame().dungeon); g.acceptEpoch();
+            CoopController.Frame accepted=until(g,f->f.dungeon!=null && "IN_GAME".equals(f.image.rows.get("status")));
+            assertEquals("ROLLED_BACK",accepted.lastResult);
+            assertNotEquals(guest.image.rows.get("epoch"),accepted.image.rows.get("epoch"));
         } finally {stop(g); stop(h);}
     }
 }

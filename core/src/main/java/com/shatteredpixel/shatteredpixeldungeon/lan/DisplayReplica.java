@@ -23,6 +23,8 @@ public final class DisplayReplica {
         this.seat=seat;
     }
 
+    public boolean appliedDelta() { return lastDelta!=null; }
+
     public StateImage image() { return image; }
     public Set<String> witnessedDeaths() { return deaths; }
     public Set<String> lostMonsters() { return lost; }

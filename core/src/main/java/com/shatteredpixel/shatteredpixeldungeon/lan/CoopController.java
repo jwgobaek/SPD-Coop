@@ -20,14 +20,15 @@ public final class CoopController {
     }
     public static final class Frame {
         public final Page page;
-        public final String notice,roster,address,lastResult;
+        public final String notice,roster,address,lastResult,cue,issue,crash;
         public final List<Entry> list;
         public final StateImage image;
+        public final PublicDungeon dungeon;
         public final UUID session;
         public final int seat;
-        public final long pending,lastAction;
+        public final long pending,lastAction,wireBytes;
         Frame(CoopController c) {
-            page=c.page; notice=c.notice; roster=c.roster; list=c.list; image=c.image;
+            page=c.page; wireBytes=c.client==null ? 0 : c.client.transferredBytes(); issue=c.issue; crash=c.crash; cue=c.cue; notice=c.notice; roster=c.roster; list=c.list; image=c.image; dungeon=c.dungeon;
             seat=c.ticket==null ? -1 : c.ticket.seat; session=c.ticket==null ? null : c.ticket.session;
             address=c.advertised; pending=c.ticket==null ? 0 : c.ticket.pending;
             lastResult=c.lastResult; lastAction=c.lastAction;
@@ -45,8 +46,10 @@ public final class CoopController {
     private Page page=Page.MENU;
     private String notice="", roster="", advertised="",lastResult="";
     private long lastAction;
+    private String cue="",issue="",crash="-";
     private List<Entry> list=Collections.emptyList();
     private StateImage image;
+    private PublicDungeon dungeon;
     private HostedRoom host;
     private SeatTickets tickets;
     private CoopSaves saves;
@@ -69,7 +72,7 @@ public final class CoopController {
     private void show(Page next) { page=next; publish(); }
     private void storage() throws IOException {
         if (!root.isDirectory() && !root.mkdirs()) throw new IOException("STORAGE");
-        if(saves==null) saves=new CoopSaves(root);
+        if(saves==null) { saves=new CoopSaves(root); crash=CoopDiagnostics.previousCrash(root); }
         if(tickets==null) tickets=new SeatTickets(root,keys);
     }
     private interface Job { void run() throws Exception; }
@@ -88,7 +91,8 @@ public final class CoopController {
         String msg=e.getMessage();
         if(e instanceof LanClient.NetworkException) notice=((LanClient.NetworkException)e).code.name();
         else notice=msg!=null && msg.matches("[A-Z_]{1,48}") ? msg : "FAILED";
-        if (page==Page.CONNECTING || page==Page.AUTH || page==Page.SNAPSHOT || page==Page.RECEIPT ||
+        issue=notice+" ("+e.getClass().getSimpleName()+")";
+        if (page==Page.EPOCH || page==Page.CONNECTING || page==Page.AUTH || page==Page.SNAPSHOT || page==Page.RECEIPT ||
                 page==Page.GAME || page==Page.LOBBY) {
             dropClient(); show(Page.DISCONNECTED);
         }
@@ -101,7 +105,7 @@ public final class CoopController {
         if(client!=null) try {client.close();} catch(IOException ignored) {}
         client=null;
         if(replica!=null) replica.close();
-        replica=null; image=null; confirmedVersion=-1;
+        replica=null; image=null; dungeon=null; confirmedVersion=-1;
     }
 
     public void discover() { discover(null); }
@@ -115,6 +119,7 @@ public final class CoopController {
     }); }
 
     public void saved(boolean reconnect) { enqueue(()->{
+        if(page==Page.DISCONNECTED) closeRoom(false);
         List<Entry> entries=new ArrayList<>();
         for(UUID id:reconnect ? tickets.sessions() : saves.sessions()) {
             if (reconnect) {
@@ -133,16 +138,16 @@ public final class CoopController {
     }); }
 
     public void host() { enqueue(()->{
-        show(Page.CONNECTING); closeRoom(false);
+        show(Page.CONNECTING); closeRoom(false); ticket=null; lastAction=0; lastResult="";
         host=new HostedRoom(saves,bind,tcp,udp,new java.security.SecureRandom().nextLong(),null,false);
         advertised=localAddress(host.port);
         join(new InetSocketAddress("127.0.0.1",host.port),host.localJoin,host.session);
     }); }
 
     public void join(String address,UUID expected) { enqueue(()->{
-        show(Page.CONNECTING); closeRoom(false);
+        show(Page.CONNECTING); closeRoom(false); ticket=null;
         InetSocketAddress target=parse(address);
-        advertised=format(target);
+        advertised=format(target); lastAction=0; lastResult="";
         join(target,"JOIN",expected);
     }); }
 
@@ -216,6 +221,7 @@ public final class CoopController {
         try { poll(); } catch(Exception e) { error(e); }
     }
     private void poll() throws Exception {
+        if(page==Page.EPOCH) { expect(client.request("PING"),"PONG"); return; }
         if(page==Page.LOBBY) {
             String value=client.request("STATE");
             if(value.startsWith("LOBBY ")) {
@@ -229,7 +235,19 @@ public final class CoopController {
         if("RECONNECTING".equals(next.rows.get("reason")) && next.version!=confirmedVersion) {
             replica.confirmReconnect(client); next=replica.image(); confirmedVersion=next.version;
         }
-        if(image!=next) { image=next; publish(); }
+        if(image!=next) {
+            cue="";
+            if(image!=null && replica.appliedDelta() && next.version==image.version+1 &&
+                    "IN_GAME".equals(image.rows.get("status")) && "IN_GAME".equals(next.rows.get("status"))) {
+                String receipt=next.rows.get("receipt");
+                if(receipt!=null && receipt.endsWith(",APPLIED")) cue=receipt.split(",")[1];
+                if(!replica.witnessedDeaths().isEmpty()) cue="KILL";
+                if("DOWNED".equals(image.rows.get("life")) && "ALIVE".equals(next.rows.get("life"))) cue="REVIVED";
+                if(Integer.parseInt(next.rows.get("self").split(",")[2])<dungeon.hp) cue="HURT";
+            }
+            dungeon=next.rows.containsKey("self") ? new PublicDungeon(next) : null;
+            image=next; publish();
+        }
     }
     public boolean act(StateImage offered,String verb,int cell,long item) {
         if(offered==null || frame.image!=offered || !Integer.toString(frame.seat).equals(offered.rows.get("active"))) return false;

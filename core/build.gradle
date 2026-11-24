@@ -21,3 +21,20 @@ test {
 test {
     systemProperty 'coop.client.classpath', sourceSets.test.runtimeClasspath.asPath
 }
+
+// Embed the source revision in both desktop and Android diagnostics.
+def revision = rootProject.file('.git').exists()
+        ? providers.exec { workingDir rootProject.projectDir; commandLine 'git', 'rev-parse', '--short=12', 'HEAD' }.standardOutput.asText.get().trim()
+        : 'unknown'
+def revisionDir = layout.buildDirectory.dir('generated/sources/revision')
+def generateRevision = tasks.register('generateRevision') {
+    inputs.property('revision', revision)
+    outputs.dir(revisionDir)
+    doLast {
+        def output = revisionDir.get().file('com/shatteredpixel/shatteredpixeldungeon/lan/BuildRevision.java').asFile
+        output.parentFile.mkdirs()
+        output.text = "package com.shatteredpixel.shatteredpixeldungeon.lan; public final class BuildRevision { public static final String ID = \"${revision}\"; }\n"
+    }
+}
+sourceSets.main.java.srcDir(revisionDir)
+compileJava.dependsOn(generateRevision)

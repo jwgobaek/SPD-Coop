@@ -67,9 +67,11 @@ final class SeatProjection {
             }
             rows.put("width",Integer.toString(level.width()));
             rows.put("self",hero.id()+","+hero.pos+","+hero.HP+","+hero.HT+","+hero.heroClass.name()+","+hero.lvl+","+hero.exp);
+            rows.put("selftier",Integer.toString(hero.tier()));
             Hero ally = game.hero(1-seat);
             if (sight.visible(ally.pos) && ally.invisible <= 0) {
                 rows.put("ally",ally.id()+","+ally.pos+","+ally.heroClass.name());
+                rows.put("allytier",Integer.toString(ally.tier()));
                 rows.put("allylife",game.life(1-seat).name());
             }
             for (Buff buff : hero.buffs()) {

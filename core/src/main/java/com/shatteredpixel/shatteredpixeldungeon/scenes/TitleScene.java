@@ -249,10 +249,11 @@ public class TitleScene extends PixelScene {
 		}
 
         if (landscape()) {
-            float third = btnRankings.width();
-            btnPlay.setSize(third,BTN_HEIGHT);
-            btnCoop.setRect(btnJournal.left(),btnPlay.top(),third,BTN_HEIGHT);
-            btnSupport.setRect(btnNews.left(),btnPlay.top(),third,BTN_HEIGHT);
+            float supportWidth = Math.max(btnRankings.width(), btnSupport.reqWidth()+3);
+            float soloWidth = Math.max(btnPlay.reqWidth()+2, (buttonAreaWidth-supportWidth-4)/2);
+            btnPlay.setSize(soloWidth,BTN_HEIGHT);
+            btnCoop.setRect(btnPlay.right()+2,btnPlay.top(),buttonAreaWidth-soloWidth-supportWidth-4,BTN_HEIGHT);
+            btnSupport.setRect(btnCoop.right()+2,btnPlay.top(),supportWidth,BTN_HEIGHT);
         } else {
             btnPlay.setSize(btnRankings.width(),BTN_HEIGHT);
             btnCoop.setRect(btnJournal.left(),btnPlay.top(),btnJournal.width(),BTN_HEIGHT);

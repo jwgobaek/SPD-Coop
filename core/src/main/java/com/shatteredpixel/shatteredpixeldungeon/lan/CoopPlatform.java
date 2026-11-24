@@ -8,6 +8,13 @@ public final class CoopPlatform {
     private static File privateRoot;
     private static SeatTickets.Keys keys;
     public static void configure(File root,SeatTickets.Keys provider) { privateRoot=root; keys=provider; }
+    public interface DiagnosticExport { void send(String report); }
+    private static DiagnosticExport exporter;
+    public static void diagnosticExport(DiagnosticExport export) { exporter=export; }
+    public static void export(String report) {
+        if(exporter!=null) exporter.send(report);
+        else com.badlogic.gdx.Gdx.app.getClipboard().setContents(report);
+    }
     public static File root() {
         return privateRoot==null ? FileUtils.getFileHandle("multiplayer").file().getAbsoluteFile() : privateRoot;
     }
