@@ -70,6 +70,10 @@ final class RenderEncounter {
         return ((ExecutorService)field.get(room)).submit(()->{
             Level level=Dungeon.level;
             for (Mob mob:level.mobs) if (mob.getClass()==type) {
+                // A screenshot fixture needs a living observer after the real counterattack.
+                if (mob instanceof Statue && ((Statue)mob).weapon().enchantment instanceof
+                        com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Unstable)
+                    Dungeon.coop.hero(0).HP=Dungeon.coop.hero(0).HT=120;
                 if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost) mob.state=mob.PASSIVE;
                 for (int offset:com.watabou.utils.PathFinder.NEIGHBOURS8) {
                     int p=mob.pos+offset;
