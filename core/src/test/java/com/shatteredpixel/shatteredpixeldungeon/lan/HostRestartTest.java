@@ -61,8 +61,10 @@ public class HostRestartTest {
                 assertTrue("client deadline "+mode,client.waitFor(130,TimeUnit.SECONDS));
                 String trace=RestartHost.read(dir,"RestartClient.log");
                 assertEquals(mode+" "+trace+" "+RestartHost.read(dir,"RestartHost.log"),0,client.exitValue());
-                int route=trace.indexOf("native socket route");
-                System.out.println(trace.substring(route>=0?route:trace.lastIndexOf("mode=")).trim());
+                for (String line : trace.split("\\r?\\n")) {
+                    if (line.startsWith("native socket route ") || line.startsWith("mode=")
+                            || line.startsWith("public_snapshot ")) System.out.println(line);
+                }
                 RestartHost.write(dir,"stop","1");
                 assertTrue(host.waitFor(10,TimeUnit.SECONDS));
                 assertEquals(RestartHost.read(dir,"RestartHost.log"),(mode.startsWith("kill_") || mode.equals("ascendfault"))?80:(mode.equals("revive") || mode.equals("walk") || mode.equals("quest") || mode.startsWith("cast"))?78:mode.equals("soak")?79:0,host.exitValue());
