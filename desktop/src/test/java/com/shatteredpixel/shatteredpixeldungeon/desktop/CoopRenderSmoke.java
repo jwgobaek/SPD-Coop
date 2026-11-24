@@ -60,7 +60,7 @@ public final class CoopRenderSmoke {
         throw new AssertionError("Desktop condition timed out");
     }
     private static Gizmo find(Gizmo node,Predicate<Gizmo> match) throws Exception {
-        if(node==null || !node.visible || !node.exists) return null;
+        if(node==null || !node.exists || (!node.visible && !(node instanceof PointerArea))) return null;
         if(match.test(node)) return node;
         if(node instanceof Group) {
             Field field=Group.class.getDeclaredField("members"); field.setAccessible(true);
@@ -79,6 +79,9 @@ public final class CoopRenderSmoke {
     }
     private static void click(String name) throws Exception {
         System.out.println("Input "+name); await(()->button(name)!=null); Point p=button(name);
+        press(p);
+    }
+    private static void press(Point p) throws Exception {
         for(PointerEvent.Type type:new PointerEvent.Type[]{PointerEvent.Type.DOWN,PointerEvent.Type.UP}) {
             render(()->{PointerEvent.addPointerEvent(new PointerEvent(p.x,p.y,1,type,PointerEvent.LEFT)); return null;});
             Thread.sleep(100);
@@ -102,7 +105,11 @@ public final class CoopRenderSmoke {
         await(()->Gdx.app!=null && render(()->Game.scene()!=null));
         render(()->{ShatteredPixelDungeon.switchNoFade(TitleScene.class);return null;});
         await(()->button("Single player")!=null);
-        shot("title"); click("Multiplayer"); await(()->button("Create room")!=null);
+        shot("title"); click("Single player");
+        await(()->render(()->Game.scene() instanceof HeroSelectScene || Game.scene() instanceof StartScene));
+        shot("solo-entry");
+        render(()->{ShatteredPixelDungeon.switchNoFade(TitleScene.class);return null;});
+        click("Multiplayer"); await(()->button("Create room")!=null);
         shot("multiplayer"); click("Create room"); await(()->button("Warrior")!=null);
         shot("lobby"); click("Warrior");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
@@ -111,10 +118,39 @@ public final class CoopRenderSmoke {
         try {
             click("Ready"); await(()->button("Start game")!=null); shot("ready"); click("Start game");
             await(()->frame().dungeon!=null); await(()->button("Inventory")!=null);
-            shot("dungeon"); click("Inventory");
+            shot("dungeon");
+            PublicDungeon before=frame().dungeon;
+            int destination=-1;
+            for(int dy=-1;dy<=1 && destination<0;dy++) for(int dx=-1;dx<=1;dx++) {
+                int cell=before.pos+dx+dy*before.width;
+                if(cell!=before.pos && cell!=before.ally && before.visible(cell) && !before.monsters.containsKey(cell)
+                        && !before.source.rows.containsKey("h"+cell) && before.terrain(cell)==1) { destination=cell; break; }
+            }
+            if(destination<0) throw new AssertionError("No directly visible adjacent floor");
+            final int target=destination;
+            Point tile=render(()->{
+                Group board=(Group)find(Game.scene(),g->g.getClass().getSimpleName().equals("CoopBoard"));
+                com.watabou.noosa.PointerArea area=(com.watabou.noosa.PointerArea)find(board,g->g instanceof com.watabou.noosa.PointerArea);
+                return area.camera().cameraToScreen(area.x+area.width()/2+16*(target%before.width-before.pos%before.width),
+                        area.y+area.height()/2+16*(target/before.width-before.pos/before.width));
+            });
+            press(tile); await(()->frame().dungeon.pos==target); await(()->frame().dungeon.offered);
+            click("Inventory");
             await(()->render(()->find(Game.scene(),g->g instanceof WndCoopBag)!=null)); shot("inventory");
-            render(()->{((WndCoopBag)find(Game.scene(),g->g instanceof WndCoopBag)).hide();return null;});
-            click("Wait"); await(()->"APPLIED".equals(frame().lastResult));
+            PublicDungeon bag=frame().dungeon;
+            java.util.ArrayList<PublicDungeon.Loot> sorted=new java.util.ArrayList<>(bag.belongings);
+            sorted.sort((a,b)->Boolean.compare(a.slot.equals("BAG"),b.slot.equals("BAG")));
+            int food=-1;
+            for(int i=0;i<sorted.size();i++) if(bag.actions(sorted.get(i)).contains("EAT")) {food=i;break;}
+            if(food<0) throw new AssertionError("Missing starter food");
+            final int slot=food;
+            Point item=render(()->{
+                WndCoopBag wnd=(WndCoopBag)find(Game.scene(),g->g instanceof WndCoopBag);
+                return wnd.camera().cameraToScreen(13+24*(slot%5),28+22*(slot/5));
+            });
+            press(item); click("Eat"); await(()->frame().lastAction>=2 && "APPLIED".equals(frame().lastResult));
+            await(()->frame().dungeon.offered);
+            click("Wait"); await(()->frame().lastAction>=3 && "APPLIED".equals(frame().lastResult));
             click("Game menu"); click("Diagnostics"); await(()->button("Share or copy report")!=null); shot("diagnostics"); click("Back");
             click("Game menu"); click("Save and close room"); await(()->button("Saved games")!=null);
             click("Saved games"); await(()->frame().list.size()==1); shot("saves"); click("Back");
