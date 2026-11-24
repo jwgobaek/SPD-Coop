@@ -1,5 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.lan;
 
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SentryRoom.Sentry;
+
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.*;
@@ -95,8 +97,12 @@ final class SeatProjection {
                 } else if (heap != null) rows.put("h"+cell,"CONTAINER");
             }
             for (Mob mob : level.mobs) {
-                if (sight.visible(mob.pos) && mob.invisible <= 0 && mob.isAlive() && CoopSession.basicMob(mob))
+                if (sight.visible(mob.pos) && mob.invisible <= 0 && mob.isAlive() && CoopSession.basicMob(mob)) {
                     rows.put("m"+mob.id(),mob.pos+","+mob.getClass().getSimpleName()+","+mob.HP+","+mob.HT);
+                    if (mob instanceof Sentry
+                            && ((Sentry)mob).charging())
+                        rows.put("charge"+mob.pos,"1");
+                }
             }
             if (attacked != null && !attacked.isAlive() && sight.visible(attacked.pos) && current != null) {
                 String key = "m"+attacked.id();

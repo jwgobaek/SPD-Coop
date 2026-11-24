@@ -42,3 +42,5 @@ Linux JVM 테스트는 파일 기록, 검증, HEAD 교체 전후에서 자식 �
 ## Phase 8 UI
 
 앱은 CoopSaves.sessions/inspect로 정상·손상·백업 상태를 표시하고 선택한 세대를 확인한 뒤 resume을 호출한다. 스키마 1의 데이터 배치는 동일하다.
+
+감시탑의 원본 room, initial_delay, cur_delay와 함께 협동 충전 중인 표적 Actor ID를 coopTarget에 기록한다. 필드가 없으면 미조준으로 읽는다. 같은 세대의 스케줄러가 발사 시간을 결정한다. 피라냐는 원본 Mob의 위치·HP·상태·표적 저장 경로를 사용한다.

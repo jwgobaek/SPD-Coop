@@ -44,6 +44,10 @@ final class CoopBoard extends Group {
             if(monster!=null) {
                 Image sprite;
                 switch(monster) {
+                    case "Piranha": sprite=new Image(Assets.Sprites.PIRANHA,0,0,12,16);break;
+                    case "Sentry": sprite=new Image(Assets.Sprites.SENTRY,0,0,8,15);
+                        if(view.source.rows.containsKey("charge"+cell)) sprite.tint(1f,0.2f,0.2f,0.55f);
+                        break;
                     case "Gnoll": sprite=new Image(Assets.Sprites.GNOLL,0,0,12,15);break;
                     case "Snake": sprite=new Image(Assets.Sprites.SNAKE,0,0,12,11);break;
                     case "Albino": sprite=new Image(Assets.Sprites.RAT,0,15,16,15);break;

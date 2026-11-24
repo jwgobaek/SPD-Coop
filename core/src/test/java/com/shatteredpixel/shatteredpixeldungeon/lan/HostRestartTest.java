@@ -30,6 +30,11 @@ public class HostRestartTest {
         run(temp.newFolder().toPath(),new String[]{"walk","ascendfault","backatstairs","verifyfloor","floorbackup"});
     }
 
+    @Test(timeout=80000) public void nativeSpecialRoomsApplyDamageOnlyToExposedSeatOverTcp() throws Exception {
+        for(String mode:new String[]{"sentry","piranha"})
+            run(temp.newFolder().toPath(),new String[]{mode});
+    }
+
     private void run(Path dir,String[] modes) throws Exception {
         for(String mode:modes) {
             Files.deleteIfExists(dir.resolve("fault-armed"));

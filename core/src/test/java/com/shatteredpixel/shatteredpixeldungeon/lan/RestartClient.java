@@ -110,7 +110,13 @@ public final class RestartClient {
     }
 
     private void run(String mode) throws Exception {
-        if (mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
+        boolean special=mode.equals("sentry") || mode.equals("piranha");
+        if (special) {
+            try (LanClient old = new LanClient(address)) {
+                assertEquals("ERROR VERSION", old.request("MODE SYNC3"));
+            }
+        }
+        if (special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
             for(int i=0;i<2;i++) {
                 assertTrue(clients[i].request(i==0 ? RestartHost.read(path,"endpoint").split("\n")[1] : "JOIN").startsWith("JOINED"));
                 keys[i]=SeatCredential.generate();
@@ -126,6 +132,10 @@ public final class RestartClient {
             refresh();
             if(mode.equals("walk")) { walk(); return; }
             act("WAIT",0,0);
+            if (special) {
+                checkSpecialRoom(mode.equals("sentry")?"Sentry":"Piranha");
+                return;
+            }
             if(mode.startsWith("cast")) {
                 int seat=Integer.parseInt(mode.substring(4));
                 offer(seat);
@@ -295,6 +305,39 @@ public final class RestartClient {
         refresh();
         assertTrue(new PublicDungeon(state(mover)).consent);
         return stairAction(mover,"TRAVEL",cell);
+    }
+
+    private void checkSpecialRoom(String type) throws Exception {
+        int seat=active();
+        assertTrue(consentAndCross().submit(clients[seat]).endsWith(" APPLIED"));
+        applied++;
+        refresh();
+        assertEquals(2,new PublicDungeon(state(1)).depth);
+        int initialHp=new PublicDungeon(state(1)).hp;
+        int hostHp=new PublicDungeon(state(0)).hp;
+        boolean charged=false;
+        for (int n=0; n<30 && new PublicDungeon(state(1)).hp==initialHp; n++) {
+            int actor=active();
+            SeatActions.Pending wait=act("WAIT",0,0);
+            PublicDungeon observer=new PublicDungeon(state(1));
+            assertTrue(observer.monsters.containsValue(type));
+            int cell=observer.monsters.entrySet().stream().filter(e->e.getValue().equals(type)).findFirst().get().getKey();
+            assertTrue(observer.visible(cell));
+            PublicDungeon far=new PublicDungeon(state(0));
+            assertFalse(far.visible(cell));
+            assertFalse(far.monsters.containsKey(cell));
+            assertFalse(far.source.rows.containsKey("charge"+cell));
+            if (!charged && observer.source.rows.containsKey("charge"+cell)) {
+                verifyAfterReconnect(wait,actor);
+                assertEquals("1",state(1).rows.get("charge"+cell));
+                charged=true;
+            }
+        }
+        assertEquals(type.equals("Sentry"),charged);
+        assertTrue(new PublicDungeon(state(1)).hp<initialHp);
+        assertEquals(hostHp,new PublicDungeon(state(0)).hp);
+        reconnectPair();
+        assertEquals(2,new PublicDungeon(state(1)).depth);
     }
 
     private void walk() throws Exception {

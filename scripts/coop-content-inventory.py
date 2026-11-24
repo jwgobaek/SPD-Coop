@@ -13,6 +13,8 @@ PREFIXES = ("items/", "actors/mobs/", "actors/buffs/", "actors/blobs/", "actors/
             "actors/hero/spells/", "levels/", "plants/", "mechanics/")
 ENUMS = {"HeroClass", "HeroSubClass", "Talent"}
 VERIFIED = {
+    "actors/mobs/Piranha": "native water AI, seat combat, loot, parked floor / SewerSpecialActorTest",
+    "levels/rooms/special/SentryRoom.Sentry": "native charge, one eligible seat, damage and save boundary / SewerSpecialActorTest",
     "actors/hero/HeroClass.MAGE": "starting staff, two seats, disk restart / CoopMageTest, HostRestartTest",
     "items/weapon/melee/MagesStaff": "starting equipment, equip, unequip, charge, cast and restore / CoopMageTest",
     "items/wands/WandOfMagicMissile": "non-cursed starting staff missile against a visible basic enemy / CoopMageTest, HostRestartTest",

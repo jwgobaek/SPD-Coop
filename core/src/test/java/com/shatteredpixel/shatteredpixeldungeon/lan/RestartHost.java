@@ -41,7 +41,8 @@ public final class RestartHost {
                 Runtime.getRuntime().halt(78);
         });
         InetAddress loop=InetAddress.getLoopbackAddress();
-        try(LanRoom room=(mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,mode.equals("walk")?415:402,saves)
+        boolean special = mode.equals("sentry") || mode.equals("piranha");
+        try(LanRoom room=(special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,mode.equals("piranha")?406:mode.equals("walk")?415:402,saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup"))) {
             Rat rat=null;
             if (mode.equals("revive") || mode.equals("soak")) {
@@ -57,6 +58,7 @@ public final class RestartHost {
             java.nio.file.Files.move(path.resolve("endpoint.tmp"),path.resolve("endpoint"));
             boolean started=false, profiled=false;
             String lastGuide="";
+            int arrangedDepth=0;
             while(!java.nio.file.Files.exists(path.resolve("stop"))) {
                 if (java.nio.file.Files.deleteIfExists(path.resolve("inflict"))) {
                     CoopSession g=Dungeon.coop;
@@ -83,6 +85,11 @@ public final class RestartHost {
                         java.nio.file.Files.move(path.resolve("guide.tmp"),path.resolve("guide"),StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);
                         lastGuide=suggestion;
                     }
+                }
+                if (special && room.state()==LanRoom.State.IN_GAME && arrangedDepth!=Dungeon.depth) {
+                    arrangedDepth=Dungeon.depth;
+                    if (arrangedDepth==1) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
+                    else SewerSpecialActorTest.exposeOneSeat(Dungeon.coop,1,mode.equals("sentry"));
                 }
                 if (mode.startsWith("cast") && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;

@@ -24,6 +24,7 @@ package com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Eye;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC;
@@ -233,6 +234,46 @@ public class SentryRoom extends SpecialRoom {
 		private float curChargeDelay;
 
 		private EmptyRoom room;
+		private int targetId;
+
+		private boolean exposed(Hero hero) {
+			return fieldOfView[hero.pos] && Dungeon.level.map[hero.pos] == Terrain.EMPTY_SP
+					&& room.inside(Dungeon.level.cellToPoint(hero.pos)) && !hero.belongings.lostInventory();
+		}
+
+		/** Retain one target while exposed. On a switch, require a full new charge. */
+		private boolean actCoop() {
+			Hero selected = null;
+			float interval = Float.POSITIVE_INFINITY;
+			for (int seat = 0; seat < 2; seat++) {
+				Hero hero = Dungeon.coop.hero(seat);
+				if (hero == null || !hero.isAlive()) continue;
+				// Heroes have higher scheduler priority. Sample again at the next living hero's turn.
+				float cooldown = hero.cooldown();
+				if (cooldown > 0) interval = Math.min(interval, cooldown);
+				if (!exposed(hero)) continue;
+				if (selected == null || hero.id() == targetId || (selected.id() != targetId
+						&& Dungeon.level.distance(pos, hero.pos) < Dungeon.level.distance(pos, selected.pos))) {
+					selected = hero;
+				}
+			}
+			if (interval == Float.POSITIVE_INFINITY) interval = TICK;
+			int nextId = selected == null ? 0 : selected.id();
+			if (nextId != targetId) curChargeDelay = initialChargeDelay;
+			targetId = nextId;
+			if (selected != null) {
+				curChargeDelay -= interval;
+				if (selected.cooldown() >= 0.34f) selected.interrupt();
+				if (curChargeDelay <= 0.001f) {
+					curChargeDelay = 1f;
+					zapTarget(selected);
+				}
+			}
+			spend(interval);
+			return true;
+		}
+
+		public boolean charging() { return targetId != 0; }
 
 		@Override
 		protected boolean act() {
@@ -249,11 +290,10 @@ public class SentryRoom extends SpecialRoom {
 				throwItems();
 			}
 
+			if (Dungeon.coop != null) return actCoop();
+
 			if (Dungeon.hero != null){
-				if (fieldOfView[Dungeon.hero.pos]
-						&& Dungeon.level.map[Dungeon.hero.pos] == Terrain.EMPTY_SP
-						&& room.inside(Dungeon.level.cellToPoint(Dungeon.hero.pos))
-						&& !Dungeon.hero.belongings.lostInventory()){
+				if (exposed(Dungeon.hero)){
 
 					if (curChargeDelay > 0.001f){ //helps prevent rounding errors
 						if (curChargeDelay == initialChargeDelay) {
@@ -288,15 +328,19 @@ public class SentryRoom extends SpecialRoom {
 		}
 
 		public void onZapComplete(){
-			if (hit(this, Dungeon.hero, true)) {
-				Dungeon.hero.damage(Random.NormalIntRange(2 + Dungeon.depth / 2, 4 + Dungeon.depth), new Eye.DeathGaze());
-				if (!Dungeon.hero.isAlive()) {
+			zapTarget(Dungeon.hero);
+		}
+
+		private void zapTarget(Hero victim) {
+			if (hit(this, victim, true)) {
+				victim.damage(Random.NormalIntRange(2 + Dungeon.depth / 2, 4 + Dungeon.depth), new Eye.DeathGaze());
+				if (Dungeon.coop == null && !victim.isAlive()) {
 					Badges.validateDeathFromEnemyMagic();
 					Dungeon.fail(this);
 					GLog.n(Messages.capitalize(Messages.get(Char.class, "kill", name())));
 				}
 			} else {
-				Dungeon.hero.sprite.showStatus( CharSprite.NEUTRAL,  Dungeon.hero.defenseVerb() );
+				victim.sprite.showStatus( CharSprite.NEUTRAL, victim.defenseVerb() );
 			}
 		}
 
@@ -349,6 +393,7 @@ public class SentryRoom extends SpecialRoom {
 			bundle.put(INITIAL_DELAY, initialChargeDelay);
 			bundle.put(CUR_DELAY, curChargeDelay);
 			bundle.put(ROOM, room);
+			if (targetId != 0) bundle.put("coopTarget", targetId);
 		}
 
 		@Override
@@ -357,6 +402,7 @@ public class SentryRoom extends SpecialRoom {
 			initialChargeDelay = bundle.getFloat(INITIAL_DELAY);
 			curChargeDelay = bundle.getFloat(CUR_DELAY);
 			room = (EmptyRoom) bundle.get(ROOM);
+			targetId = bundle.getInt("coopTarget");
 		}
 	}
 

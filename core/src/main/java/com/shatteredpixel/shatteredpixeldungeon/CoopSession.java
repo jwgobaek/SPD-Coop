@@ -6,6 +6,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroAction;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Albino;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Piranha;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SentryRoom;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Gnoll;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat;
@@ -311,7 +313,8 @@ public final class CoopSession implements AutoCloseable {
 
     public static boolean basicMob(Actor actor) {
         Class<?> type = actor.getClass();
-        return type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class;
+        return type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
+                || type == Piranha.class || type == SentryRoom.Sentry.class;
     }
 
     private boolean safeFloor(int cell,boolean moving) {

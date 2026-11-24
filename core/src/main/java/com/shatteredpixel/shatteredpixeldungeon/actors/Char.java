@@ -220,7 +220,7 @@ public abstract class Char extends Actor {
 				}
 			}
 			if (!candidates.isEmpty()){
-				Dungeon.level.drop( heap.pickUp(), Random.element(candidates) ).sprite.drop( pos );
+				Dungeon.level.drop( heap.pickUp(), Random.element(candidates) ).animateDrop( pos );
 			}
 		}
 	}

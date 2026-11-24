@@ -206,12 +206,13 @@ public final class LanRoom implements AutoCloseable {
         if (verb.equals("PING") && f.length == 4) return "PONG";
         int seat = -1;
         for (int i=0; i<seats.length; i++) if (seats[i] != null && seats[i].peer == peer) seat = i;
-        if (verb.equals("MODE") && f.length == 5 && (f[4].equals("SYNC1") || f[4].equals("SYNC2") || f[4].equals("SYNC3"))) {
+        if (verb.equals("MODE") && f.length == 5) {
             if (seat >= 0) return "ERROR LOCKED";
             if (!synchronizedRoom) return "ERROR MODE";
+            if (!f[4].equals("SYNC4")) return "ERROR VERSION";
             peer.syncMode = true;
-            peer.stairs=f[4].equals("SYNC3");
-            peer.extended=peer.stairs || f[4].equals("SYNC2");
+            peer.stairs=true;
+            peer.extended=true;
             return "MODE "+f[4];
         }
         if (verb.equals("JOIN") || verb.equals("HOST")) {

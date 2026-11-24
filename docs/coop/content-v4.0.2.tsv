@@ -516,7 +516,7 @@ actors/mobs/Necromancer.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/
 actors/mobs/Necromancer.NecroSkeleton	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Necromancer.java
 actors/mobs/Necromancer.NecroSkeletonSprite	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Necromancer.java
 actors/mobs/PhantomPiranha	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/PhantomPiranha.java
-actors/mobs/Piranha	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Piranha.java
+actors/mobs/Piranha	actors/mobs	VERIFIED	native water AI, seat combat, loot, parked floor / SewerSpecialActorTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Piranha.java
 actors/mobs/Piranha.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Piranha.java
 actors/mobs/Piranha.Sleeping	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Piranha.java
 actors/mobs/Piranha.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Piranha.java
@@ -1411,7 +1411,7 @@ levels/rooms/special/PoolRoom	levels/rooms/special	UNSUPPORTED		core/src/main/ja
 levels/rooms/special/RunestoneRoom	levels/rooms/special	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/RunestoneRoom.java
 levels/rooms/special/SacrificeRoom	levels/rooms/special	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/SacrificeRoom.java
 levels/rooms/special/SentryRoom	levels/rooms/special	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/SentryRoom.java
-levels/rooms/special/SentryRoom.Sentry	levels/rooms/special	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/SentryRoom.java
+levels/rooms/special/SentryRoom.Sentry	levels/rooms/special	VERIFIED	native charge, one eligible seat, damage and save boundary / SewerSpecialActorTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/SentryRoom.java
 levels/rooms/special/ShopRoom	levels/rooms/special	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/ShopRoom.java
 levels/rooms/special/SpecialRoom	levels/rooms/special	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/SpecialRoom.java
 levels/rooms/special/StatueRoom	levels/rooms/special	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/StatueRoom.java

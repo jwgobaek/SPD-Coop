@@ -65,3 +65,7 @@ The TCP envelope is still v1. MODE SYNC2 negotiates mage support before joining.
 Negotiate MODE SYNC3 before joining. Both seats must support this mode for SEARCH, CONSENT, CANCEL_TRAVEL or TRAVEL. A multi-floor save requires SYNC3 for reconnect. The same DO epoch, authenticated seat, actor, Action ID, version, turn and durable receipt checks apply. SEARCH uses the actor's current cell and original intentional search cost. Approval and withdrawal are available only to the waiting seat. They commit public state without advancing actor time. The active seat can commit TRAVEL for the same staircase on the same turn. All ordinary actions and reconnect boundaries invalidate prior consent.
 
 The floor row encodes branch,depth. A stair row is published only when both players can see and use that regular staircase. It encodes cell,agreement. The host resets public handles, pending transfers and delta bases on floor changes. The replica rejects a delta that changes floor and installs a complete validated snapshot. A generated destination with unsupported actors is declined as REJECT_FLOOR. The host rebuilds the original boundary, issues fresh handles and publishes the refusal with its receipt. Ordinary engine or disk faults continue to pause the session.
+
+### SYNC4 하수도 방
+
+표시 모델의 몬스터 종류에 Piranha와 Sentry를 추가했다. 이전 표시 모델은 새 종류를 해석할 수 없어 동기화 방은 MODE SYNC4를 요구하고 이전 MODE에 ERROR VERSION을 응답한다. 원본 v1 비동기화 시험용 방과 저장 형식 2는 유지한다. 직접 관측하는 감시탑이 충전 중이면 charge<cell>=1을 해당 좌석에만 보낸다. 표적 좌석과 준비 타이머는 전송하지 않는다.

@@ -39,6 +39,25 @@ final class RenderEncounter {
         }).get(5,TimeUnit.SECONDS);
     }
 
+    static void atSentry(CoopController client) throws Exception {
+        Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
+        Object room=host.get(client);
+        Field field=room.getClass().getDeclaredField("owner"); field.setAccessible(true);
+        ((ExecutorService)field.get(room)).submit(()->{
+            CoopSession game=Dungeon.coop;
+            Level level=Dungeon.level;
+            for (com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room r: ((RegularLevel)level).rooms()) {
+                if (!(r instanceof com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SentryRoom)) continue;
+                for (int p=0;p<level.length();p++) if (r.inside(level.cellToPoint(p)) &&
+                        level.map[p]==Terrain.EMPTY_SP && Actor.findChar(p)==null) {
+                    game.hero(0).pos=p;
+                    return;
+                }
+            }
+            throw new AssertionError("Expected the native sentry room");
+        }).get(5,TimeUnit.SECONDS);
+    }
+
     private static void setup() {
         CoopSession game=Dungeon.coop; game.checkExecutor(); Level level=Dungeon.level;
         if(game.activeSeat()!=0) throw new AssertionError("Host turn required");

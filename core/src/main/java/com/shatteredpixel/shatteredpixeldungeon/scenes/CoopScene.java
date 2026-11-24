@@ -39,7 +39,7 @@ public class CoopScene extends PixelScene {
             } else view.tap(controller,cell);
             return;
         }
-        if (targetView==view && view.monsters.containsKey(cell)
+        if (targetView==view && view.monsters.containsKey(cell) && !"Sentry".equals(view.monsters.get(cell))
                 && controller.act(view.source,"ZAP",cell,targetStaff.id)) cancelAim();
     }
     static String msg(String key,Object... args) { return Messages.get(CoopScene.class,key,args); }
