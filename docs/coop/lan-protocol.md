@@ -1,5 +1,9 @@
 # LAN 프로토콜 v1 및 로비
 
+## 현재 모드 SYNC11
+
+두 클라이언트는 HELLO 다음 MODE SYNC11을 요청한다. 이전 모드는 ERROR VERSION으로 거부한다. UNLOCK은 현재 차례의 인접 잠긴 문·현재 층 철 열쇠를 다시 확인한다. GREET는 인접한 원본 Sheep 상호작용이다. 공개 속성은 state-sync.md를 따른다. 같은 epoch·좌석·Action ID 요청의 영수증은 HEAD 발행 후 조회할 수 있다.
+
 ## 실행과 접속
 
 libGDX 파일 서비스와 게임 버전이 초기화된 새 엔진의 소유 스레드에서 `LanRoom(seed)`를 만들고, 정기적으로 `pump()`를 호출한다. 방장이 종료하면 같은 스레드에서 `close()`한다. 기본 수신은 wildcard TCP 47821, UDP 47820이다. 주소와 포트를 지정하는 생성자에서 0을 사용하면 OS가 빈 포트를 고른다.

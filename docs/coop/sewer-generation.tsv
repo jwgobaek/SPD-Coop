@@ -1,111 +1,111 @@
 seed	depth	actor_classes	special_rooms	trap_classes	initial_mob_count	level_bundle_utf8_bytes	placed_gate_result	normal_route	restored_at_this_depth
-402	1	Rat, Snake	RunestoneRoom, WeakFloorRoom	WornDartTrap	8	32726	START	NOT RUN	NOT RUN
+402	1	Rat, Snake	RunestoneRoom, WeakFloorRoom	WornDartTrap	8	32727	START	NOT RUN	NOT RUN
 402	2	Gnoll, Rat, Sentry, Snake	LibraryRoom, PitRoom, SentryRoom	ShockingTrap, WornDartTrap	8	27247	ROUND_TRIP	NOT RUN	PASS
-402	3	Crab, Ghost, Gnoll, Rat, Snake, Swarm	CrystalPathRoom, LaboratoryRoom, SecretLibraryRoom	AlarmTrap, ChillingTrap, FlockTrap, OozeTrap, ShockingTrap, SummoningTrap, TeleportationTrap, ToxicTrap, WornDartTrap	8	38216	NOT RUN	NOT RUN	NOT RUN
+402	3	Crab, Ghost, Gnoll, Rat, Snake, Swarm	CrystalPathRoom, LaboratoryRoom, SecretLibraryRoom	AlarmTrap, ChillingTrap, FlockTrap, OozeTrap, ShockingTrap, SummoningTrap, TeleportationTrap, ToxicTrap, WornDartTrap	8	38219	NOT RUN	NOT RUN	NOT RUN
 402	4	Crab, Gnoll, Slime, Swarm	SacrificeRoom, SecretHoardRoom, SecretRunestoneRoom, TrapsRoom	ChillingTrap, PoisonDartTrap, SummoningTrap	9	38780	NOT RUN	NOT RUN	NOT RUN
 402	5	Goo, RatKing	RatKingRoom		2	28360	NOT RUN	NOT RUN	NOT RUN
 403	1	Rat, Snake	CrystalPathRoom, WeakFloorRoom	WornDartTrap	8	29807	START	NOT RUN	NOT RUN
 403	2	Ghost, Gnoll, Rat, Sentry, Snake	CryptRoom, PitRoom, SentryRoom	ConfusionTrap, OozeTrap	9	31909	ROUND_TRIP	NOT RUN	PASS
 403	3	Crab, Gnoll, Rat, Snake, Swarm	LaboratoryRoom, RunestoneRoom, SecretGardenRoom	ConfusionTrap, ToxicTrap, WornDartTrap	6	30480	NOT RUN	NOT RUN	NOT RUN
-403	4	Crab, Gnoll, GnollExile, Slime, Statue, Swarm	SecretArtilleryRoom, StatueRoom	ToxicTrap, WornDartTrap	10	32865	NOT RUN	NOT RUN	NOT RUN
+403	4	Crab, Gnoll, GnollExile, Slime, Statue, Swarm	SecretArtilleryRoom, StatueRoom	ToxicTrap, WornDartTrap	10	32866	NOT RUN	NOT RUN	NOT RUN
 403	5	Goo, RatKing	RatKingRoom		2	29880	NOT RUN	NOT RUN	NOT RUN
 404	1	Rat, Snake	CrystalVaultRoom, GardenRoom	WornDartTrap	8	26522	START	NOT RUN	NOT RUN
 404	2	Ghost, Gnoll, Rat, Snake	CryptRoom, MagicWellRoom	AlarmTrap, ChillingTrap, ShockingTrap, SummoningTrap, TeleportationTrap, ToxicTrap, WornDartTrap	7	29091	ROUND_TRIP	NOT RUN	PASS
-404	3	Crab, Gnoll, Piranha, Rat, Snake, Swarm	CrystalChoiceRoom, SecretLibraryRoom	TeleportationTrap, ToxicTrap, WornDartTrap	9	35502	NOT RUN	NOT RUN	NOT RUN
+404	3	Crab, Gnoll, Piranha, Rat, Snake, Swarm	CrystalChoiceRoom, SecretLibraryRoom	TeleportationTrap, ToxicTrap, WornDartTrap	9	35495	NOT RUN	NOT RUN	NOT RUN
 404	4	CausticSlime, Crab, Gnoll, Mimic, Slime, Swarm	LaboratoryRoom, SecretSummoningRoom, TrapsRoom	GatewayTrap, SummoningTrap, TeleportationTrap, ToxicTrap	10	37303	NOT RUN	NOT RUN	NOT RUN
 404	5	Goo, RatKing	RatKingRoom		2	28563	NOT RUN	NOT RUN	NOT RUN
-405	1	Rat, Snake	CrystalPathRoom, ToxicGasRoom	ToxicVent, WornDartTrap	8	34496	START	NOT RUN	NOT RUN
+405	1	Rat, Snake	CrystalPathRoom, ToxicGasRoom	ToxicVent, WornDartTrap	8	34495	START	NOT RUN	NOT RUN
 405	2	Gnoll, Mimic, Rat, Snake	CrystalVaultRoom, LibraryRoom, SecretChestChasmRoom	AlarmTrap, OozeTrap	8	32999	ROUND_TRIP	NOT RUN	PASS
 405	3	Crab, Gnoll, Rat, Snake, Statue, Swarm	SacrificeRoom, SecretGardenRoom, StatueRoom	AlarmTrap, ChillingTrap, WornDartTrap	8	32738	NOT RUN	NOT RUN	NOT RUN
-405	4	Crab, Ghost, Gnoll, Mimic, Slime, Swarm	ArmoryRoom, LaboratoryRoom	AlarmTrap, ToxicTrap	10	41517	NOT RUN	NOT RUN	NOT RUN
+405	4	Crab, Ghost, Gnoll, Mimic, Slime, Swarm	ArmoryRoom, LaboratoryRoom	AlarmTrap, ToxicTrap	10	41516	NOT RUN	NOT RUN	NOT RUN
 405	5	Goo, RatKing	RatKingRoom		2	25955	NOT RUN	NOT RUN	NOT RUN
-406	1	Rat, Snake	CrystalChoiceRoom, MagicWellRoom	WornDartTrap	8	33913	START	NOT RUN	NOT RUN
+406	1	Rat, Snake	CrystalChoiceRoom, MagicWellRoom	WornDartTrap	8	33926	START	NOT RUN	NOT RUN
 406	2	Gnoll, Piranha, Rat, Snake	ArmoryRoom, CrystalPathRoom, SecretGardenRoom	ChillingTrap, FlockTrap, ToxicTrap	7	33320	ROUND_TRIP	NOT RUN	PASS
 406	3	Crab, Ghost, Gnoll, Piranha, Rat, Snake, Swarm	LaboratoryRoom, SecretRunestoneRoom, TreasuryRoom	ChillingTrap, OozeTrap, WornDartTrap	11	32869	NOT RUN	NOT RUN	NOT RUN
-406	4	Crab, Gnoll, Sentry, Slime, Swarm	SacrificeRoom, SentryRoom	ChillingTrap, GatewayTrap	8	26740	NOT RUN	NOT RUN	NOT RUN
+406	4	Crab, Gnoll, Sentry, Slime, Swarm	SacrificeRoom, SentryRoom	ChillingTrap, GatewayTrap	8	26741	NOT RUN	NOT RUN	NOT RUN
 406	5	Goo, RatKing	RatKingRoom		2	26529	NOT RUN	NOT RUN	NOT RUN
 407	1	Rat, Snake	SacrificeRoom, ToxicGasRoom	ToxicVent, WornDartTrap	8	27595	START	NOT RUN	NOT RUN
-407	2	Gnoll, Rat, Snake	CrystalVaultRoom, SecretArtilleryRoom, TrapsRoom	ChillingTrap, ShockingTrap	7	40851	ROUND_TRIP	NOT RUN	PASS
-407	3	Crab, Ghost, Gnoll, Rat, Snake, Swarm	MagicalFireRoom	AlarmTrap, ToxicTrap, WornDartTrap	8	26396	NOT RUN	NOT RUN	NOT RUN
+407	2	Gnoll, Rat, Snake	CrystalVaultRoom, SecretArtilleryRoom, TrapsRoom	ChillingTrap, ShockingTrap	7	40850	ROUND_TRIP	NOT RUN	PASS
+407	3	Crab, Ghost, Gnoll, Rat, Snake, Swarm	MagicalFireRoom	AlarmTrap, ToxicTrap, WornDartTrap	8	26395	NOT RUN	NOT RUN	NOT RUN
 407	4	Crab, Gnoll, Slime, Swarm	LaboratoryRoom, SecretMazeRoom	AlarmTrap, BurningTrap, ToxicTrap	8	42492	NOT RUN	NOT RUN	NOT RUN
 407	5	Goo, RatKing	RatKingRoom		2	29375	NOT RUN	NOT RUN	NOT RUN
-408	1	Albino, Rat, Snake	ArmoryRoom, GardenRoom	WornDartTrap	8	25120	START	PASS	PASS
-408	2	Gnoll, Mimic, Piranha, Rat, Snake	LibraryRoom, RunestoneRoom, SecretLaboratoryRoom, TreasuryRoom	AlarmTrap, FlockTrap	10	47562	ROUND_TRIP	PASS	PASS
+408	1	Albino, Rat, Snake	ArmoryRoom, GardenRoom	WornDartTrap	8	25121	START	PASS	PASS
+408	2	Gnoll, Mimic, Piranha, Rat, Snake	LibraryRoom, RunestoneRoom, SecretLaboratoryRoom, TreasuryRoom	AlarmTrap, FlockTrap	10	47567	ROUND_TRIP	PASS	PASS
 408	3	Crab, Ghost, Gnoll, GnollExile, Rat, Snake, Swarm	CrystalPathRoom, WeakFloorRoom	ChillingTrap, ExplosiveTrap, ShockingTrap	8	34006	NOT RUN	NOT RUN	NOT RUN
-408	4	Crab, Gnoll, Sentry, Slime, Swarm	LaboratoryRoom, PitRoom, SecretArtilleryRoom, SentryRoom	ChillingTrap, ToxicTrap	8	34366	NOT RUN	NOT RUN	NOT RUN
+408	4	Crab, Gnoll, Sentry, Slime, Swarm	LaboratoryRoom, PitRoom, SecretArtilleryRoom, SentryRoom	ChillingTrap, ToxicTrap	8	34369	NOT RUN	NOT RUN	NOT RUN
 408	5	Goo, RatKing	RatKingRoom		2	29685	NOT RUN	NOT RUN	NOT RUN
-409	1	Rat, Snake	SacrificeRoom, StorageRoom	WornDartTrap	8	31576	START	NOT RUN	NOT RUN
-409	2	Bee, Ghost, Gnoll, Rat, Snake	CrystalPathRoom, MagicWellRoom, SecretHoneypotRoom	BurningTrap, ChillingTrap, WornDartTrap	7	37533	ROUND_TRIP	NOT RUN	PASS
+409	1	Rat, Snake	SacrificeRoom, StorageRoom	WornDartTrap	8	31585	START	NOT RUN	NOT RUN
+409	2	Bee, Ghost, Gnoll, Rat, Snake	CrystalPathRoom, MagicWellRoom, SecretHoneypotRoom	BurningTrap, ChillingTrap, WornDartTrap	7	37534	ROUND_TRIP	NOT RUN	PASS
 409	3	Crab, Gnoll, Piranha, Snake, Swarm	CrystalChoiceRoom, PoolRoom	ChillingTrap, ShockingTrap, ToxicTrap	12	29232	NOT RUN	NOT RUN	NOT RUN
 409	4	Crab, Gnoll, Slime, Swarm	LaboratoryRoom, SecretRunestoneRoom, ToxicGasRoom	ConfusionTrap, ToxicVent, WornDartTrap	8	35814	NOT RUN	NOT RUN	NOT RUN
 409	5	Goo, RatKing	RatKingRoom		2	29916	NOT RUN	NOT RUN	NOT RUN
 410	1	Albino, Rat, Snake	CryptRoom, ToxicGasRoom	ToxicVent, WornDartTrap	8	32530	START	NOT RUN	NOT RUN
 410	2	Ghost, Gnoll, Rat, Snake	SecretRunestoneRoom, TrapsRoom	ChillingTrap, GatewayTrap, SummoningTrap, TeleportationTrap	8	33251	ROUND_TRIP	NOT RUN	PASS
-410	3	Crab, Gnoll, Rat, Sentry, Snake, Swarm	LaboratoryRoom, SecretMazeRoom, SentryRoom	AlarmTrap, BurningTrap, ChillingTrap, ToxicTrap	8	50074	NOT RUN	NOT RUN	NOT RUN
+410	3	Crab, Gnoll, Rat, Sentry, Snake, Swarm	LaboratoryRoom, SecretMazeRoom, SentryRoom	AlarmTrap, BurningTrap, ChillingTrap, ToxicTrap	8	50075	NOT RUN	NOT RUN	NOT RUN
 410	4	Crab, Gnoll, Slime, Swarm	GardenRoom, TreasuryRoom	GatewayTrap, WornDartTrap	9	36833	NOT RUN	NOT RUN	NOT RUN
 410	5	Goo, RatKing	RatKingRoom		2	28064	NOT RUN	NOT RUN	NOT RUN
 411	1	Rat, Snake	SacrificeRoom, TreasuryRoom	WornDartTrap	8	34673	START	PASS	PASS
 411	2	CrystalMimic, Gnoll, Rat, Snake	CrystalVaultRoom, SecretChestChasmRoom, TrapsRoom	ChillingTrap, ConfusionTrap, GrippingTrap, ToxicTrap	8	42059	ROUND_TRIP	PASS	PASS
-411	3	Crab, Ghost, Gnoll, Mimic, Rat, Sentry, Snake, Swarm	SentryRoom	ShockingTrap, WornDartTrap	11	33568	NOT RUN	NOT RUN	NOT RUN
+411	3	Crab, Ghost, Gnoll, Mimic, Rat, Sentry, Snake, Swarm	SentryRoom	ShockingTrap, WornDartTrap	11	33570	NOT RUN	NOT RUN	NOT RUN
 411	4	Crab, Gnoll, Mimic, Slime, Swarm	LaboratoryRoom, MagicalFireRoom, SecretArtilleryRoom	TeleportationTrap, ToxicTrap, WornDartTrap	8	37371	NOT RUN	NOT RUN	NOT RUN
 411	5	Goo, RatKing	RatKingRoom		2	28632	NOT RUN	NOT RUN	NOT RUN
-412	1	Rat, Snake	ToxicGasRoom, TreasuryRoom	ToxicVent, WornDartTrap	8	34149	START	NOT RUN	NOT RUN
+412	1	Rat, Snake	ToxicGasRoom, TreasuryRoom	ToxicVent, WornDartTrap	8	34151	START	NOT RUN	NOT RUN
 412	2	Ghost, Gnoll, Piranha, Rat, Snake	CrystalVaultRoom, PoolRoom	ChillingTrap, ToxicTrap	11	27035	ROUND_TRIP	NOT RUN	PASS
-412	3	Crab, Gnoll, Rat, Snake	LaboratoryRoom, SecretSummoningRoom, TrapsRoom	AlarmTrap, ShockingTrap, SummoningTrap, TeleportationTrap	6	35566	NOT RUN	NOT RUN	NOT RUN
+412	3	Crab, Gnoll, Rat, Snake	LaboratoryRoom, SecretSummoningRoom, TrapsRoom	AlarmTrap, ShockingTrap, SummoningTrap, TeleportationTrap	6	35565	NOT RUN	NOT RUN	NOT RUN
 412	4	Crab, Gnoll, Slime, Swarm, Thief	RunestoneRoom, SacrificeRoom, SecretWellRoom	ChillingTrap, ShockingTrap, ToxicTrap	8	26394	NOT RUN	NOT RUN	NOT RUN
 412	5	Goo, RatKing	RatKingRoom		2	23971	NOT RUN	NOT RUN	NOT RUN
 413	1	Rat, Snake	LibraryRoom, WeakFloorRoom	WornDartTrap	8	26869	START	NOT RUN	NOT RUN
-413	2	Bee, Gnoll, Mimic, Rat, Snake	PitRoom, SecretHoneypotRoom, TrapsRoom, TreasuryRoom	ChillingTrap, ConfusionTrap, FlockTrap	9	52129	ROUND_TRIP	NOT RUN	PASS
+413	2	Bee, Gnoll, Mimic, Rat, Snake	PitRoom, SecretHoneypotRoom, TrapsRoom, TreasuryRoom	ChillingTrap, ConfusionTrap, FlockTrap	9	52130	ROUND_TRIP	NOT RUN	PASS
 413	3	Crab, Ghost, Gnoll, Piranha, Snake, Swarm	PoolRoom, RunestoneRoom	ChillingTrap, OozeTrap	10	31958	NOT RUN	NOT RUN	NOT RUN
 413	4	Crab, Gnoll, Slime, Swarm	CrystalChoiceRoom, LaboratoryRoom, SecretHoardRoom	BurningTrap, ChillingTrap, RockfallTrap, TeleportationTrap	7	32466	NOT RUN	NOT RUN	NOT RUN
 413	5	Goo, RatKing	RatKingRoom		2	25192	NOT RUN	NOT RUN	NOT RUN
 414	1	Rat, Snake	TreasuryRoom	WornDartTrap	8	25178	START	NOT RUN	NOT RUN
-414	2	Ghost, Gnoll, Rat, Sentry, Snake	CryptRoom, SecretLaboratoryRoom, SentryRoom	ConfusionTrap, GatewayTrap, ToxicTrap	8	26917	ROUND_TRIP	NOT RUN	PASS
-414	3	Crab, Gnoll, Mimic, Rat, Snake	CrystalPathRoom, LaboratoryRoom, SecretSummoningRoom	SummoningTrap, ToxicTrap, WornDartTrap	7	27357	NOT RUN	NOT RUN	NOT RUN
+414	2	Ghost, Gnoll, Rat, Sentry, Snake	CryptRoom, SecretLaboratoryRoom, SentryRoom	ConfusionTrap, GatewayTrap, ToxicTrap	8	26923	ROUND_TRIP	NOT RUN	PASS
+414	3	Crab, Gnoll, Mimic, Rat, Snake	CrystalPathRoom, LaboratoryRoom, SecretSummoningRoom	SummoningTrap, ToxicTrap, WornDartTrap	7	27359	NOT RUN	NOT RUN	NOT RUN
 414	4	Crab, Gnoll, Slime, Statue, Swarm	MagicWellRoom, StatueRoom	ChillingTrap, OozeTrap	9	26369	NOT RUN	NOT RUN	NOT RUN
 414	5	Goo, RatKing	RatKingRoom		2	25685	NOT RUN	NOT RUN	NOT RUN
-415	1	Rat, Snake	RunestoneRoom, StorageRoom	WornDartTrap	8	30016	START	PASS	PASS
-415	2	Gnoll, Rat, Snake	CryptRoom, CrystalPathRoom, SecretArtilleryRoom, SecretRunestoneRoom	OozeTrap, WornDartTrap	7	37789	ROUND_TRIP	PASS	PASS
+415	1	Rat, Snake	RunestoneRoom, StorageRoom	WornDartTrap	8	30027	START	PASS	PASS
+415	2	Gnoll, Rat, Snake	CryptRoom, CrystalPathRoom, SecretArtilleryRoom, SecretRunestoneRoom	OozeTrap, WornDartTrap	7	37792	ROUND_TRIP	PASS	PASS
 415	3	Crab, Ghost, Gnoll, Rat, Snake, Swarm	ArmoryRoom, LaboratoryRoom	ChillingTrap, ConfusionTrap, ShockingTrap, SummoningTrap, TeleportationTrap, ToxicTrap, WornDartTrap	8	29352	NOT RUN	NOT RUN	NOT RUN
 415	4	Crab, Gnoll, GnollExile, Mimic, PhantomPiranha, Piranha, Slime, Swarm	CrystalChoiceRoom, SecretSummoningRoom	ChillingTrap, SummoningTrap, WornDartTrap	13	39968	NOT RUN	NOT RUN	NOT RUN
 415	5	Goo, RatKing	RatKingRoom		2	28069	NOT RUN	NOT RUN	NOT RUN
 416	1	Rat, Snake	CrystalVaultRoom, GardenRoom	WornDartTrap	8	28062	START	PASS	PASS
 416	2	Gnoll, Piranha, Rat, Snake, Statue	PoolRoom, SecretHoardRoom, StatueRoom	RockfallTrap, ShockingTrap, TeleportationTrap	10	38609	ROUND_TRIP	PASS	PASS
 416	3	Crab, Ghost, Gnoll, Rat, Snake, Swarm	LaboratoryRoom, StorageRoom	AlarmTrap, ChillingTrap, OozeTrap	7	33099	NOT RUN	NOT RUN	NOT RUN
-416	4	Crab, Gnoll, Slime, Swarm	SacrificeRoom, SecretLarderRoom, SecretLibraryRoom, ToxicGasRoom	AlarmTrap, GatewayTrap, ToxicVent, WornDartTrap	8	43998	NOT RUN	NOT RUN	NOT RUN
+416	4	Crab, Gnoll, Slime, Swarm	SacrificeRoom, SecretLarderRoom, SecretLibraryRoom, ToxicGasRoom	AlarmTrap, GatewayTrap, ToxicVent, WornDartTrap	8	43992	NOT RUN	NOT RUN	NOT RUN
 416	5	Goo, RatKing	RatKingRoom		2	26216	NOT RUN	NOT RUN	NOT RUN
 417	1	Rat, Snake	CrystalPathRoom, SacrificeRoom	WornDartTrap	8	28436	START	NOT RUN	NOT RUN
 417	2	Ghost, Gnoll, Rat, Snake	MagicalFireRoom, SecretMazeRoom	ConfusionTrap, ToxicTrap	8	36065	ROUND_TRIP	NOT RUN	PASS
 417	3	Crab, Gnoll, Rat, Sentry, Snake, Swarm	SentryRoom, WeakFloorRoom	AlarmTrap, ChillingTrap, ConfusionTrap, ShockingTrap, TeleportationTrap, ToxicTrap, WornDartTrap	9	36083	NOT RUN	NOT RUN	NOT RUN
-417	4	Crab, Gnoll, Mimic, Slime, Swarm	LaboratoryRoom, LibraryRoom, PitRoom, SecretLaboratoryRoom	AlarmTrap, OozeTrap, ToxicTrap	9	31700	NOT RUN	NOT RUN	NOT RUN
+417	4	Crab, Gnoll, Mimic, Slime, Swarm	LaboratoryRoom, LibraryRoom, PitRoom, SecretLaboratoryRoom	AlarmTrap, OozeTrap, ToxicTrap	9	31695	NOT RUN	NOT RUN	NOT RUN
 417	5	Goo, RatKing	RatKingRoom		2	26446	NOT RUN	NOT RUN	NOT RUN
 418	1	Rat, Snake	StorageRoom	WornDartTrap	8	30884	START	NOT RUN	NOT RUN
 418	2	Gnoll, Rat, Snake	CrystalChoiceRoom, SecretGardenRoom, TreasuryRoom	ChillingTrap, ExplosiveTrap, OozeTrap	6	36596	ROUND_TRIP	NOT RUN	PASS
-418	3	Ghost, Gnoll, Rat, Snake, Swarm	CrystalVaultRoom, SecretLibraryRoom	AlarmTrap, ChillingTrap, ConfusionTrap, OozeTrap, ShockingTrap, ToxicTrap, WornDartTrap	7	33240	NOT RUN	NOT RUN	NOT RUN
+418	3	Ghost, Gnoll, Rat, Snake, Swarm	CrystalVaultRoom, SecretLibraryRoom	AlarmTrap, ChillingTrap, ConfusionTrap, OozeTrap, ShockingTrap, ToxicTrap, WornDartTrap	7	33238	NOT RUN	NOT RUN	NOT RUN
 418	4	Crab, Gnoll, Piranha, Slime, Swarm	LaboratoryRoom, PoolRoom	ChillingTrap	10	38455	NOT RUN	NOT RUN	NOT RUN
 418	5	Goo, RatKing	RatKingRoom		2	30162	NOT RUN	NOT RUN	NOT RUN
 419	1	Rat, Snake	CryptRoom, RunestoneRoom	WornDartTrap	8	27315	START	NOT RUN	NOT RUN
-419	2	Gnoll, Rat, Snake	ArmoryRoom, SecretGardenRoom	AlarmTrap, ChillingTrap, FlockTrap, ShockingTrap, SummoningTrap, ToxicTrap, WornDartTrap	6	32433	ROUND_TRIP	NOT RUN	PASS
+419	2	Gnoll, Rat, Snake	ArmoryRoom, SecretGardenRoom	AlarmTrap, ChillingTrap, FlockTrap, ShockingTrap, SummoningTrap, ToxicTrap, WornDartTrap	6	32434	ROUND_TRIP	NOT RUN	PASS
 419	3	Crab, Ghost, Gnoll, Rat, Snake, Swarm	LaboratoryRoom, TreasuryRoom	ChillingTrap, ExplosiveTrap, OozeTrap	9	28341	NOT RUN	NOT RUN	NOT RUN
-419	4	CausticSlime, Crab, Gnoll, Slime, Swarm	MagicalFireRoom, SecretLibraryRoom	ChillingTrap, TeleportationTrap	9	35391	NOT RUN	NOT RUN	NOT RUN
+419	4	CausticSlime, Crab, Gnoll, Slime, Swarm	MagicalFireRoom, SecretLibraryRoom	ChillingTrap, TeleportationTrap	9	35384	NOT RUN	NOT RUN	NOT RUN
 419	5	Goo, RatKing	RatKingRoom		2	27586	NOT RUN	NOT RUN	NOT RUN
 420	1	Albino, Rat, Snake	CrystalPathRoom, WeakFloorRoom	WornDartTrap	8	30792	START	PASS	PASS
 420	2	Albino, Bee, Ghost, Gnoll, GnollExile, Rat, Snake, Statue	GardenRoom, PitRoom, SecretGardenRoom, SecretHoneypotRoom, StatueRoom	ChillingTrap, OozeTrap	8	32588	ROUND_TRIP	PASS	PASS
 420	3	Crab, Gnoll, Rat, Snake, Swarm	CrystalChoiceRoom, MagicalFireRoom, SecretMazeRoom	ShockingTrap, ToxicTrap	6	32106	NOT RUN	NOT RUN	NOT RUN
 420	4	Crab, Gnoll, Slime, Swarm	CryptRoom, LaboratoryRoom, SecretWellRoom	ExplosiveTrap, OozeTrap, SummoningTrap	7	31031	NOT RUN	NOT RUN	NOT RUN
 420	5	Goo, RatKing	RatKingRoom		2	25100	NOT RUN	NOT RUN	NOT RUN
-421	1	Rat, Snake	CrystalVaultRoom, GardenRoom	WornDartTrap	8	28789	START	NOT RUN	PASS
-421	2	Bee, Gnoll, Rat, Snake, Statue	LibraryRoom, SecretHoneypotRoom, StatueRoom	ChillingTrap, ShockingTrap	8	29614	REJECT_FLOOR	NOT RUN	NOT RUN
+421	1	Rat, Snake	CrystalVaultRoom, GardenRoom	WornDartTrap	8	28789	START	PASS	PASS
+421	2	Bee, Gnoll, Rat, Snake, Statue	LibraryRoom, SecretHoneypotRoom, StatueRoom	ChillingTrap, ShockingTrap	8	29614	ROUND_TRIP	PASS	PASS
 421	3	Crab, Gnoll, Rat, Snake, Swarm	RunestoneRoom, SecretRunestoneRoom, TreasuryRoom	ShockingTrap, ToxicTrap	8	33855	NOT RUN	NOT RUN	NOT RUN
 421	4	Crab, Ghost, Gnoll, Slime, Swarm	LaboratoryRoom	ChillingTrap, ShockingTrap	8	26881	NOT RUN	NOT RUN	NOT RUN
 421	5	Goo, RatKing	RatKingRoom		2	30150	NOT RUN	NOT RUN	NOT RUN
 422	1	Rat, Snake	ArmoryRoom, MagicalFireRoom	WornDartTrap	8	32966	START	NOT RUN	NOT RUN
-422	2	Gnoll, Rat, Sentry, Snake	SentryRoom, TreasuryRoom	ToxicTrap, WornDartTrap	8	28588	ROUND_TRIP	NOT RUN	PASS
+422	2	Gnoll, Rat, Sentry, Snake	SentryRoom, TreasuryRoom	ToxicTrap, WornDartTrap	8	28589	ROUND_TRIP	NOT RUN	PASS
 422	3	Crab, Gnoll, Rat, Snake, Swarm	CrystalPathRoom, SecretLarderRoom	ChillingTrap, FlockTrap, ToxicTrap	7	34379	NOT RUN	NOT RUN	NOT RUN
 422	4	Crab, Ghost, Gnoll, Slime, Swarm, Thief	CrystalChoiceRoom, LaboratoryRoom, SecretSummoningRoom	ChillingTrap, ConfusionTrap, SummoningTrap	10	43047	NOT RUN	NOT RUN	NOT RUN
 422	5	Goo, RatKing	RatKingRoom		2	24670	NOT RUN	NOT RUN	NOT RUN
 423	1	Albino, Rat, Snake	MagicalFireRoom, WeakFloorRoom	WornDartTrap	8	30042	START	NOT RUN	NOT RUN
 423	2	Gnoll, Rat, Snake	PitRoom, ToxicGasRoom	OozeTrap, ShockingTrap, SummoningTrap, ToxicVent	5	36510	ROUND_TRIP	NOT RUN	PASS
-423	3	Crab, Ghost, Gnoll, Rat, Snake, Swarm	LaboratoryRoom, SecretLibraryRoom, TreasuryRoom	ExplosiveTrap, SummoningTrap, ToxicTrap	8	36359	NOT RUN	NOT RUN	NOT RUN
+423	3	Crab, Ghost, Gnoll, Rat, Snake, Swarm	LaboratoryRoom, SecretLibraryRoom, TreasuryRoom	ExplosiveTrap, SummoningTrap, ToxicTrap	8	36361	NOT RUN	NOT RUN	NOT RUN
 423	4	Crab, Gnoll, Slime, Swarm	SacrificeRoom, SecretGardenRoom	OozeTrap, ToxicTrap	9	25055	NOT RUN	NOT RUN	NOT RUN
 423	5	Goo, RatKing	RatKingRoom		2	25439	NOT RUN	NOT RUN	NOT RUN

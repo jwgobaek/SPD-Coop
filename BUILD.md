@@ -1,5 +1,9 @@
 # Cloud에서 빌드하기
 
+## 하수도 공통 마법 부여·함정·철 열쇠
+
+기준 회귀에는 `./gradlew --offline :core:cleanTest :core:test`, Android 검증에는 `scripts/verify-android-build.sh /workspace/deliverables/sewer-effects-5015b18`을 사용했다. APK는 해당 디렉터리의 android-debug.apk이며 SHA-256은 `68ebaca303406837f17dbac41f729f114fd6e620ec771e15a3b94ea3beb793f0`이다. JUnit 100건, 패키지·기존 개발 서명 인증서·v1/v2 검사를 통과했다. 시드표는 scripts/coop-sewer-survey.py로 JUnit XML에서 생성한다. Desktop은 :desktop:compileTestJava와 :desktop:release 후 LWJGL CoopRenderSmoke의 golden, hazards, unstable 모드를 격리한 X11 프로필에서 실행했다. 호스팅 Actions 및 실기기 검증은 NOT RUN이다.
+
 기준은 공식 v4.0.2의 build.gradle, android/build.gradle, gradle-wrapper.properties다. 공식 docs/getting-started-android.md는 Studio 중심이며 docs/getting-started-desktop.md는 JDK 21을 권장한다. 이 프로젝트의 빌드는 Gradle CLI로 수행한다.
 
 |항목|기준|

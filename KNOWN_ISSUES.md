@@ -1,5 +1,9 @@
 # 미해결 문제
 
+## 현재 하수도 범위
+
+45개 계단 시드의 알려진 진입 차단이 해소됐다. 다른 원본 생성에서 ArmoredStatue·미검증 장비가 나오면 여전히 안전하게 거부한다. 땅에 떨어진 폭탄의 화염 연쇄, 빙결에 의한 물약 파괴, 식물·우물·추락, GatewayTrap, GrippingTrap, RockfallTrap, 검증되지 않은 특수 소환은 다음 범위다. 이 효과 조합이 이미 시작된 턴에서 나타나면 일시정지하고 이전 정상 세대로 돌아갈 수 있다. 철 열쇠만 지원하며 황금·수정 열쇠가 필요한 실제 상자 열기는 남아 있다. 3–5층, 상점, 보스와 실기기 검증은 진행 전이다.
+
 - GitHub 일반 push와 초안 PR 성공. Android debug의 run 및 Artifact는 0건이다. 사용자 포크의 Actions 관리 설정 읽기는 403. 기본 브랜치에 워크플로가 없어 수동 dispatch는 404. 자동 실행 점검 경로는 BUILD.md에 기록했다.
 - 단일플레이 Headless 사례 9건 통과. 협동 첫 층의 클라우드 네트워크와 Desktop 화면 결과는 아래 Phase 8 및 TEST_REPORT.md에 있다. Android 실기기·전체 콘텐츠 완주 검증은 남아 있다. 원본의 가이드 페이지 위치는 던전 시드만으로 재현되지 않는다.
 - 원본 Gradle은 deprecated API를 사용한다. 일부 .so의 디버그 심볼 제거 경고, apksigner의 META-INF 항목 관련 경고가 있다. 검사 원문은 docs/coop/*apk.txt에 있다.

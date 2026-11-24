@@ -12,13 +12,13 @@
 | 408·2 | 일반 미믹의 상자 위장, 양 좌석의 열기·원본 기습, 마력탄 선공, 금화 수집, 층 보관 및 재개 | 원본 Actor를 사용하고 교전 위치를 준비했다. 소켓 시나리오는 기습 확정 후 응답 전에 호스트를 종료한다. |
 | 411·2 | 수정 미믹의 기습, 피해자 가방에서 한 단위 탈취, 도주 또는 처치 후 드롭, 귀속·재획득 | 두 좌석 검증. 독립 호스트 7개에서 게스트 식량의 위치 및 두 번의 응답 유실을 추적했다. |
 | 416·2 / 420·2 | 원래 생성된 관성 낫·흡혈 전투 도끼 석상, 장비 ID, 전투·드롭·줍기. 420의 창을 든 GnollExile은 독립 몹 | 준비된 교전 위치를 사용했다. Hp를 늘린 장기 근접 시험과 기본 HP를 사용한 소켓 시험이 있다. |
-| 421·2 | Unstable 시미터를 든 석상 | 2층 진입 거부, 1층 원복 후 재행동. 14개 추첨 효과 중 전부를 조합한 전투는 미지원이다. |
+| 421·2 | Unstable 시미터 석상, 두 좌석 각각 원본 추첨 14개, 원본 연속 전투·전투 불능·부활 | 추첨별 통제 RNG, 자연 추첨 전투, 실제 소켓 영수증 복원을 따로 실행 |
+| 427·2 / 428·2 | GoldenMimic의 잠긴 상자 위장, 기습·전리품·복원 | 위치를 준비한 양 좌석 시험과 427 응답 유실 후 재인증 |
+| 428 / 434 / 435 / 437 | Dirk/Venomous, RoundShield/Kinetic, Shortsword/Projecting, Shortsword/Vampiric | 생성된 무기의 원본 타격 규칙 및 드롭 ID. 영웅 전용 기술은 미검증 |
 | 444·2 / 479·2 | 독성 쇼트소드 석상의 두 좌석 중독 및 지속시간 복원 / 유령 피라냐의 피격 방향·물속 순간이동·실제 고기 드롭 | 479는 희귀 변종을 확인하기 위한 지정 시드다. |
 | 모든 시드 3–5 | 원본 구역 생성, 5층 SewerBossLevel | 협동 저장·진입·Goo 처치·보상·6층 진입은 NOT RUN |
 
-402–423의 계단 배치 시험에서는 21개가 왕복했다. 421에서 목적지를 거부한 뒤 지도, RNG, 턴을 대조하고 다음 행동을 실행했다. 408·411·415·416·420에는 계단에 배치하지 않고 원본 시작 지점에서 이동·탐색·전투하여 2층 진입, 저장, 1층 복귀, 식량 귀속 확인 및 다음 행동을 수행하는 별도 경로가 있다. 이 경로의 2층 출발점은 계단이며, 모든 방을 방문했다는 뜻은 아니다. 특수 Actor별 전투는 별도 시험이다. [계단 시험 원자료](sewer-gates.tsv) · [생성 및 정상 경로](sewer-generation.tsv)
-
-추가 연속 표본 424–445에는 초기에 미지원 석상 장비를 가진 1층과 황금 미믹이 있는 2층이 발견됐다. 시작 거부 시 엔진 초기화를 정리하고 양 좌석의 로비로 돌아간다. 공개 응답에는 원인이 된 미발견 Actor나 장비명을 넣지 않는다. 이들 조합과 421이 남아 있어 **하수도 S1은 진행 중**이다.
+45개 시드의 계단 배치 결과는 402–423에서 22/22, 424–445에서 22/22, 지정 희귀 시드 479에서 1/1이다. 각 경우 실제 2층 진입·복원, 1층 복귀와 다음 행동을 검사했다. 408·411·415·416·420·421·427·428·434·435·437의 별도 11개 시험은 원본 1층 시작 지점부터 실제 입력으로 진행했다. 위치 안내기는 전체 원본 지도를 읽으며 계단·교전 시험에 사용한 강제 배치는 이 집계에서 제외했다. 3–5층 조사 및 ArmoredStatue 등 다른 조합은 별개다. [시드별 결과](sewer-gates.tsv) · [원본 생성 조사](sewer-generation.tsv) · [마법 부여와 함정 검증표](unstable-effects.md)
 
 ## 원본 경로와 다음 의존성
 
@@ -27,11 +27,11 @@
 - PoolRoom.paint에서 Piranha.random을 호출해 희귀 변종도 생성할 수 있다. 479에서 PhantomPiranha를 별도로 검증했다. 원거리 마력탄을 받은 변종은 실제 시전자 주변의 물로 이동한다. CrystalVaultRoom·StatueRoom·SecretHoneypotRoom 등 원본 방별로 초기 Actor를 별도 조사했다.
 - 미믹 위장은 좌석별 공개 모델에서 열리지 않은 상자와 같은 h셀로 보인다. 발견 전 몬스터 행, 전투 경계 및 전리품을 보내지 않는다. 수정 미믹은 원본 FLEEING을 실행하며 모든 생존자 시야 밖에서 거리가 각각 6칸 이상일 때 탈출할 수 있다. 도주에 성공하면 보관품도 함께 사라진다. 처치하면 원본 더미에 떨어지고 탈취물의 기존 귀속이 유지된다.
 - GnollExile은 Ghost.Quest가 생성하는 GnollTrickster와 다른 몬스터다. 420에서 전투와 전리품을 시험하고 유령의 의뢰 제안 상태가 유지됨을 확인했다. 3층·4층의 유령 의뢰 및 석상이 드롭한 마법 무기를 영웅이 장착해 사용하는 경로는 별도로 남아 있다.
-- 421의 Unstable은 원본 Enchantment 14종을 추첨한다. 관성·흡혈·독성과 차가움·전격의 일부 원본 경로를 검증했다. 화염 확산과 아이템 변환, 탄성 밀치기 후 착지, 섬뜩함의 관찰자와 현기증 이동, 복수 효과가 섞인 상태에서의 저장·복원 및 피해 소유자는 다음 검증 대상이다. 미지원 효과를 제거하거나 다시 추첨하지 않는다.
-- SewerLevel.trapClasses는 1층의 WornDartTrap, 이후 Chilling·Shocking·Toxic·WornDart·Alarm·Ooze·Confusion·Flock·Summoning·Teleportation·GatewayTrap을 선택한다. 방 생성기도 함정을 배치해 표본에는 BurningTrap, GrippingTrap, RockfallTrap 등이 추가로 나타났다. 함정 발동·잠긴 문·열쇠 소비는 별도 S2 범위다.
+- 421의 원본 Unstable 추첨 목록과 각 분기의 조건·효과·검증 경계는 [효과표](unstable-effects.md)에 있다. 추가 미지원 조합을 생성하는 시드 446·716은 안전 거부 회귀에 남겨 두었다.
+- SewerLevel.trapClasses는 1층의 WornDartTrap, 이후 Chilling·Shocking·Toxic·WornDart·Alarm·Ooze·Confusion·Flock·Summoning·Teleportation·GatewayTrap을 선택한다. 방 생성기도 함정을 배치해 표본에는 BurningTrap, GrippingTrap, RockfallTrap 등이 추가로 나타났다. 현재 GatewayTrap, GrippingTrap, RockfallTrap 등은 미지원이다. 원래 WornDart와 10종 효과의 검증은 [효과표](unstable-effects.md)를 따른다.
 - 생성 표본에서 3층에는 Crab·Swarm, 4층에는 Slime·CausticSlime·Thief·PhantomPiranha가 추가로 나타났다. GnollExile은 2층에서도 발견됐다. 단순히 층 번호 한도를 올리면 이들의 AI·상태 효과·인벤토리 처리와 저장 경로를 거치게 된다.
-- 원본 1층의 WornDartTrap은 처음부터 보인다. activate가 VFX_PRIO Actor를 등록하고, 발동 칸에 있는 Char 또는 원본 Ballistica 경로의 가까운 Char를 선택한다. 원본 피해는 4–8 주사위에서 대상 방어 굴림을 뺀다. 협동에서는 렌더링 콜백 없이 해당 Actor 단계에서 한 번만 피해를 적용하고 확정 전 콜백 잔류 여부를 검사해야 한다.
-- 원본 Key.doPickUp은 열쇠를 Notes에 추가하고, Hero는 잠긴 문의 층별 IronKey 수량을 확인한 뒤 키를 제거한다. 공용 열쇠 기록을 유지하는 방법과 좌석별 소지로 바꾸는 방법이 후보이며 최종 규칙은 미정이다.
+- 원본 1층의 WornDartTrap은 처음부터 보인다. activate가 VFX_PRIO Actor를 등록하고, 발동 칸에 있는 Char 또는 원본 Ballistica 경로의 가까운 Char를 선택한다. 원본 피해는 4–8 주사위에서 대상 방어 굴림을 뺀다. 협동에서는 렌더링 콜백 없이 해당 Actor 단계에서 한 번만 피해를 적용하고 확정 전 콜백 잔류 여부를 검사했다.
+- 원본 Key.doPickUp·Notes와 HeroAction.Unlock를 사용한다. 층별 파티 공용 철 열쇠를 임시 정책으로 적용하며, 문·잔량·영수증을 같은 세대에 발행한다.
 - SewerBossLevel.createMobs는 비어 있고, DiamondGooRoom 등의 paint에서 Goo를 직접 배치한다. RatKingRoom.paint가 쥐 대왕을 추가한다. SewerBossLevel.seal/unseal과 Goo.doAttack/damage/die/storeInBundle을 조사했다. 전투에서 원본이 사용하는 충전 단계 pumpedUp, 물 회복과 저체력 공격, 봉쇄 전환, WornKey 한 개와 GooBlob 추첨을 각각 확인할 필요가 있다. Goo.die의 원본 보상은 주사위 결과에 따라 2–4개 점액이다. 협동 보상 분배와 경험치 정책은 미정이다. 기존 싱글플레이 BossRegressionTest는 직접 피해를 주어 봉쇄·해제와 WornKey 드롭을 시험한다. 이 시험은 협동 보스전 완주 집계에서 제외한다.
 
 각 시나리오의 실제 처리 횟수와 Android·Desktop 검증은 [테스트 보고서](../../TEST_REPORT.md), 층 이미지·백업·내구성 한도는 [저장 명세](save-format.md)에 있다.

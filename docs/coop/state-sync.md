@@ -1,5 +1,9 @@
 # Phase 5 동기화 프로토콜 SYNC1
 
+## SYNC11 공개 상태
+
+keys는 현재 층의 파티 철 열쇠 수량이다. h셀의 LOCKED_CHEST는 실제 잠긴 상자와 위장 중인 황금 미믹이 공유한다. 해당 셀은 발견 전 m·z·보상 행을 생성하지 않는다. 직접 관측하는 셀에서만 공개하는 trap셀 값은 원본 색+16×shape, cloud셀은 Fire=1, Freezing=2, Electricity=4, ToxicGas=8, ConfusionGas=16의 비트 합이다. 관측을 잃으면 동적 행을 지운다. Sheep과 모습을 드러낸 GoldenMimic은 직접 보이는 경우에만 표시한다.
+
 ## 방과 연결
 
 호스트의 엔진 스레드는 `LanRoom.synchronizedGame(bind,tcp,udp,seed)`로 방을 만들고 pump한다. 각 클라이언트는 `LanClient.synchronizedGame(address)`로 연결한다. 기존 v1 길이 헤더와 HELLO 뒤에 MODE SYNC1을 보내고 같은 응답을 확인한 뒤 HOST 또는 JOIN을 보낸다. 일반 v1 방과 동기화 방은 서로의 참가 방식을 거부한다. 동기화 방에서는 기존 ACT를 쓸 수 없다. UDP 광고와 로비의 SELECT·READY·START는 Phase 4와 같다.

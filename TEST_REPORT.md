@@ -1,5 +1,51 @@
 # 2026-11-24 클라우드 실행 보고
 
+## 하수도 공통 마법 부여·함정·철 열쇠
+
+기준 c2d057d의 기존 82건 중 81 PASS, 1 FAIL이었다. 411의 자동 탐험에서 한 영웅이 출구 전에 사망했다. 협동 층 초기 Actor ID의 배정 순서와 안내기의 동률 표적 선택을 안정화했다. 최종 빌드 5015b18의 기존 82건과 신규 18건이 모두 PASS였다. 오류·실패·건너뜀은 0건이다.
+
+| 검증 | 결과 | 시험 경계 |
+|---|---|---|
+| 기존 82건 최초 재실행 | FAIL | 411의 정상 시작 경로 1건. 최초 JUnit XML과 로그를 보존 |
+| 원본 14종·양쪽 좌석 | PASS | seed 421의 실제 생성 석상과 무기. 선택별 통제 RNG로 28회, 자연 전투·연속 효과·부활 및 이동 충돌은 별도 시험 |
+| 황금 미믹과 석상 네 조합 | PASS | 427·428의 실제 위장·기습·보상, 생성 장비 네 조합과 이전 조합·드롭·귀속. 영웅 전용 무기 기술은 미검증 |
+| 1↔2층 계단 배치 | PASS | 402–423은 22/22, 424–445는 22/22, 지정 479는 1/1. 45개 모두 2층과 RNG 복원·귀환·다음 행동 |
+| 원본 시작 지점부터 걷기 | PASS | 별도 11개 시드. 이동·실제 전투·숨은 문 탐색·계단 동의. 2층 모든 방을 탐험하는 경로는 미검증 |
+| 함정 | PASS | 자연 1층 WornDart 양 좌석의 보행·밀치기와 피격. 같은 원본 생성 방에 배치한 추가 10종 × 2좌석의 효과·월드 번들 복원·후속 행동 |
+| 철 열쇠 | PASS | 양쪽 좌석 수집·상대 좌석 소비, 재시작, 중복 요청, 층별 수량과 이전 층 문 보존 |
+| 독립 TCP JVM과 파일 복구 | PASS | 황금 기습, 421 석상 타격, 다트 피해, 철문 열기 각 1회 HEAD 발행 직후 호스트 프로세스를 종료. 양쪽 좌석 인증, LOOKUP 및 같은 명령 재전송 |
+| Desktop 한국어·영어 | PASS | LWJGL과 가상 X11에서 원본 지도와 실제 입력·TCP를 사용. 황금 상자 공개와 재접속, 421 석상 교전, 다트 발동과 잠긴 문. 최초 한국어 석상 촬영에서 다음 행동권 대기가 만료되어 촬영용 관측자 HP를 120으로 준비한 뒤 두 언어로 재실행 |
+| 최종 전체 JUnit 및 Android APK | PASS | 100건, 35,244,798 B, v1·v2 서명 |
+| Android 설치·터치·화면·Wi-Fi·핫스팟 / 호스팅 Actions | NOT RUN | Cloud JDK·SDK로 빌드하고 패키지와 서명 검사 |
+
+중간 체크포인트 5f2075b에서도 당시 전체 95건과 APK 검사가 통과했다. 최종 APK는 4.0.2-INDEV-sewer-effects, versionCode 922, org.spdcoop.dungeon.indev이다. 빌드 커밋은 `5015b183052c3b406e0e39d5237fba7879e40d63`, APK SHA-256은 `68ebaca303406837f17dbac41f729f114fd6e620ec771e15a3b94ea3beb793f0`, 개발 서명 인증서 SHA-256은 `0dd9070b5f17192a8b07e5ddb6735161b0d2bb6e49013e4d61ca5ee6216ddb53`이다.
+
+| 독립 JVM 시험 모드 | 실제 성공 응답 행동 | 재인증 |
+|---|---:|---:|
+| unstable | 6 | 2 |
+| unstable-receipt | 1 | 2 |
+| golden | 4 | 0 |
+| goldenreceipt | 1 | 2 |
+| dart | 1 | 0 |
+| dart-receipt | 1 | 2 |
+| iron-door | 3 | 2 |
+| door-receipt | 1 | 2 |
+
+이 8개 모드에서 성공 응답 행동은 18건이고 기존 좌석 재인증은 12회다. 강제 종료로 유실된 4개 응답과 영수증 조회는 행동 횟수에서 제외한다. 전체 회귀 소켓 모드는 JUnit 원문에 있다.
+
+```text
+mixed native strike markers=[Bleeding, Chill, Elastic, Poison]
+natural unstable seat=0 native_hits=3
+natural unstable seat=1 native_hits=4
+native socket route action_ack_count=149 median_us=14132 p95_us=26650
+native socket route moves=121 melee=18 searches=1 casts=1
+floor=1 explicit_disk_saves=21 median_us=13300 p95_us=27527 generation_bytes=55805 slot_bytes=111674 active_actors=17 parked_utf8_bytes=0 host_used_heap_bytes=92217888
+floor=2 explicit_disk_saves=21 median_us=21766 p95_us=35416 generation_bytes=114368 slot_bytes=228800 active_actors=17 parked_utf8_bytes=37299 host_used_heap_bytes=10087400
+ascent_ack_us=84882
+```
+
+원본 1층 시작 위치에서의 이동·공격·탐색·마법은 [시드별 집계](docs/coop/sewer-routes.tsv)에, 계단 배치 시험은 [45개 행](docs/coop/sewer-gates.tsv)에 기록했다. 검증 ZIP에는 APK 검사 결과·빌드 커밋·모든 JUnit XML·로그·스크린샷이 들어 있다. APK 파일은 Cloud 결과물에 별도로 보존한다.
+
 |상태|실행한 검사|관측 결과|
 |---|---|---|
 |PASS|git ls-remote --exit-code --tags 및 git rev-parse HEAD 'v4.0.2^{commit}'|공식 태그와 로컬 커밋 일치. 전체 SHA는 PROGRESS.md에 있다.|

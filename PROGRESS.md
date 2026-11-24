@@ -1,5 +1,9 @@
 # 2026-11-24 — Phase 0 / Phase 1
 
+## 하수도 공통 마법 부여·함정·철 열쇠
+
+기준 c2d057d의 기존 82건 중 81 PASS, 1 FAIL이었다. 411의 자동 탐험에서 한 영웅이 출구 전에 사망했다. 협동 층 초기 Actor ID의 배정 순서와 안내기의 동률 표적 선택을 안정화했다. 최종 빌드 5015b18의 기존 82건과 신규 18건이 모두 PASS였다. 오류·실패·건너뜀은 0건이다. 알려진 여섯 시드의 진입 차단을 해결했다. 45개 계단 표본과 11개 시작 위치 경로를 통과했다. 일반 마법 무기의 영웅 전용 기술·복합 함정과 다른 지역은 미검증이다. 다음 작업은 PLANS.md에 기록했다. [현재 증거](docs/coop/sewer-effects-evidence.zip)
+
 시작 시 /workspace에는 연결된 Git checkout, 프로젝트 문서, Android SDK, javac, 시스템 Gradle이 없었다. Java 21 실행기와 gh는 있었다. 기존 디렉터리를 보존하고 spd-coop에 공식 태그를 shallow clone했다. 공식 ls-remote 결과와 로컬 tag^{commit}, HEAD가 모두 57a4e06a4caf162446d1c28caa7983f0493fecf0이다. 개발 브랜치는 coop/baseline이다.
 
 - Phase 0 클라우드 기준 충족. 소스 변경 전 원본 APK와 독립 ID의 개발 기준 APK를 각각 생성하고 검사했다. CI 정의와 빌드 절차 작성 완료. GitHub 저장과 실제 Actions 실행은 권한 연결 대기.
