@@ -244,7 +244,7 @@ public final class LanRoom implements AutoCloseable {
         try { action = CoopSession.Action.valueOf(f[8]); } catch (IllegalArgumentException e) { return "ERROR ACTION"; }
         int cell = Integer.parseInt(f[9]);
         long handle = Long.parseLong(f[10]);
-        boolean needsItem = action == CoopSession.Action.EAT || action == CoopSession.Action.EQUIP || action == CoopSession.Action.PICK_UP;
+        boolean needsItem = action.requiresItem();
         Item item = handle == 0 || turn != itemTurn ? null : offered.get(handle);
         if (needsItem ? item == null : handle != 0) return "ERROR ITEM";
         for (Seat s : seats) if (s.peer.dead) { state = State.PAUSED; return "ERROR STATE"; }

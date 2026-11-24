@@ -108,7 +108,7 @@ final class RoomSync {
         CoopSession.Action action;
         try { action=CoopSession.Action.valueOf(verb); }
         catch (IllegalArgumentException e) { return "REJECT_ACTION"; }
-        boolean usesItem=action==CoopSession.Action.PICK_UP || action==CoopSession.Action.EQUIP || action==CoopSession.Action.EAT;
+        boolean usesItem=action.requiresItem();
         Item item=seats[seat].view.resolve(handle);
         if (usesItem ? item==null : handle!=0) return "REJECT_ITEM";
         if ((action==CoopSession.Action.MOVE || action==CoopSession.Action.ATTACK)

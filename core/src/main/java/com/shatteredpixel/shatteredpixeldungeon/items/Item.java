@@ -135,6 +135,13 @@ public class Item implements Bundlable {
 		}
 	}
 	
+    /** Owner and safe destination were checked by the session before spending a turn. */
+    public final void dropCoopUnit(Hero hero) {
+        Item unit = detach(hero.belongings.backpack);
+        Dungeon.level.drop(unit, hero.pos);
+        hero.spendAndNext(TIME_TO_DROP);
+    }
+
 	public void doDrop( Hero hero ) {
 		hero.spendAndNext(TIME_TO_DROP);
 		int pos = hero.pos;
@@ -198,7 +205,7 @@ public class Item implements Bundlable {
 	
 	//takes two items and merges them (if possible)
 	public Item merge( Item other ){
-		if (isSimilar( other )){
+		if (canStackWith(other)){
 			quantity += other.quantity;
 			other.quantity = 0;
 		}
@@ -212,6 +219,8 @@ public class Item implements Bundlable {
 		}
 
 		Hero owner = container.owner instanceof Hero ? (Hero)container.owner : Dungeon.hero;
+        long player = Dungeon.coop == null ? 0 : Dungeon.coop.playerOf(container.owner);
+        if (Dungeon.coop != null && !Dungeon.coop.ownership.allowed(this, player)) return false;
 		ArrayList<Item> items = container.items;
 
 		if (items.contains( this )) {
@@ -230,9 +239,10 @@ public class Item implements Bundlable {
 			return false;
 		}
 		
+        if (Dungeon.coop != null && player != 0) Dungeon.coop.ownership.claim(this, player);
 		if (stackable) {
 			for (Item item:items) {
-				if (isSimilar( item )) {
+				if (canStackWith(item)) {
 					item.merge( this );
 					item.updateQuickslot();
 					if (Dungeon.hero != null && Dungeon.hero.isAlive()) {
@@ -304,6 +314,7 @@ public class Item implements Bundlable {
 			split.quantity(amount);
 			quantity -= amount;
 			
+            if (Dungeon.coop != null) Dungeon.coop.ownership.split(this, split);
 			return split;
 		}
 	}
@@ -367,6 +378,11 @@ public class Item implements Bundlable {
 		return this;
 	}
 	
+    public final boolean canStackWith(Item item) {
+        return (Dungeon.coop == null || Dungeon.coop.ownership.owner(this) == Dungeon.coop.ownership.owner(item))
+                && isSimilar(item);
+    }
+
 	public boolean isSimilar( Item item ) {
 		return getClass() == item.getClass();
 	}

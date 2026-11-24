@@ -286,6 +286,46 @@ public class CoopSessionTest extends HeadlessDungeon {
     }
 
     @Test(timeout = 30000)
+    public void droppedUnitsKeepTheOwnerThroughSplitMergeAndPickup() {
+        try (CoopSession game = open(402)) {
+            Hero a = game.hero(0), b = game.hero(1);
+            int cell = neighbour(a);
+            Food loot = new Food();
+            loot.quantity(2);
+            Dungeon.level.drop(loot, cell);
+            assertEquals(0,game.ownership.owner(loot));
+            assertTrue(send(game,MOVE,cell,null));
+            assertTrue(send(game,WAIT,0,null));
+            assertTrue(send(game,PICK_UP,cell,loot));
+            Food stack = a.belongings.getItem(Food.class);
+            assertEquals(3,stack.quantity());
+            assertEquals(0,loot.quantity());
+            assertEquals(game.player(0),game.ownership.owner(stack));
+            assertTrue(send(game,WAIT,0,null));
+            assertTrue(send(game,DROP,cell,stack));
+            Item first = Dungeon.level.heaps.get(cell).peek();
+            assertNotEquals(game.ownership.identity(stack),game.ownership.identity(first));
+            assertEquals(game.player(0),game.ownership.owner(first));
+            assertFalse(first.collect(b.belongings.backpack));
+            Food other = b.belongings.getItem(Food.class);
+            assertFalse(first.canStackWith(other));
+            Dungeon.level.drop(other.detach(b.belongings.backpack),cell);
+            assertEquals(2,Dungeon.level.heaps.get(cell).items.size());
+            assertEquals(2,stack.quantity());
+            assertFalse(send(game,EAT,0,stack));
+            assertFalse(send(game,PICK_UP,cell,first));
+            assertTrue(send(game,WAIT,0,null));
+            Item equipped = a.belongings.weapon;
+            assertTrue(send(game,UNEQUIP,0,equipped));
+            assertTrue(a.belongings.backpack.contains(equipped));
+            assertEquals(game.player(0),game.ownership.owner(equipped));
+            assertTrue(send(game,WAIT,0,null));
+            assertTrue(send(game,EQUIP,0,equipped));
+            assertSame(equipped,a.belongings.weapon);
+        }
+    }
+
+    @Test(timeout = 30000)
     public void seatsContendForOneHeapOnTheGeneratedFloor() {
         try (CoopSession s = open(402)) {
             Hero host = s.hero(0), guest = s.hero(1);

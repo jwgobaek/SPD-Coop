@@ -29,7 +29,20 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP }
+    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP;
+        public boolean requiresItem() {
+            return this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP;
+        }
+    }
+
+    public final ItemOwnership ownership = new ItemOwnership();
+    public long playerOf(Char owner) {
+        for (int seat = 0; seat < heroes.length; seat++) if (owner != null && owner == heroes[seat]) return players[seat];
+        return 0;
+    }
+    private void bindGear(int seat) {
+        for (Item item : heroes[seat].belongings) ownership.claim(item, players[seat]);
+    }
 
     private final java.util.Map<Long, FloorKnowledge[]> floors = new java.util.HashMap<>();
 
@@ -82,6 +95,7 @@ public final class CoopSession implements AutoCloseable {
             Dungeon.init(type);
             session.players[0] = player;
             session.heroes[0] = Dungeon.hero;
+            session.bindGear(0);
             Dungeon.switchLevel(Dungeon.newLevel(), -1);
             return session;
         } catch (RuntimeException | Error failure) {
@@ -123,6 +137,7 @@ public final class CoopSession implements AutoCloseable {
             }
             heroes[1] = guest;
             players[1] = player;
+            bindGear(1);
             guest.pos = spawn;
             guest.viewDistance = level.viewDistance;
             guest.fieldOfView = new boolean[level.length()];
@@ -220,6 +235,7 @@ public final class CoopSession implements AutoCloseable {
     public boolean act(long player, long offeredTurn, Action action, int cell, Item item) {
         checkExecutor();
         if (activeSeat < 0 || players[activeSeat] != player || offeredTurn != turn || action == null) return false;
+        if (action.requiresItem() && (item == null || !ownership.allowed(item, player))) return false;
         Hero hero = heroes[activeSeat];
         Level level = Dungeon.level;
         try {
@@ -268,6 +284,17 @@ public final class CoopSession implements AutoCloseable {
                     if (!basicWeapon(item) || !hero.belongings.backpack.contains(item)
                             || (hero.belongings.weapon != null && hero.belongings.weapon.cursed)) return false;
                     if (!((MeleeWeapon)item).doEquip(hero)) return false;
+                    break;
+                case UNEQUIP:
+                    if (item != hero.belongings.weapon || !basicWeapon(item) || !hero.belongings.backpack.canHold(item)) return false;
+                    if (!((MeleeWeapon)item).doUnequip(hero, true)) return false;
+                    break;
+                case DROP:
+                    Heap floor = level.heaps.get(hero.pos);
+                    if (cell != hero.pos || (floor != null && floor.type != Heap.Type.HEAP)
+                            || level.pit[cell] || !level.passable[cell] || !hero.belongings.backpack.contains(item)
+                            || !(item.getClass() == Food.class || basicWeapon(item))) return false;
+                    item.dropCoopUnit(hero);
                     break;
                 default:
                     return false;

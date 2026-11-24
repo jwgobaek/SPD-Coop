@@ -164,7 +164,7 @@ public class Heap implements Bundlable {
 		if (item.stackable && type != Type.FOR_SALE) {
 			
 			for (Item i : items) {
-				if (i.isSimilar( item )) {
+				if (i.canStackWith( item )) {
 					item = i.merge( item );
 					break;
 				}
@@ -201,7 +201,7 @@ public class Heap implements Bundlable {
 		if (index != -1) {
 			items.remove( index );
 			for (Item i : items) {
-				if (i.isSimilar( b )) {
+				if (i.canStackWith( b )) {
 					i.merge( b );
 					return;
 				}
