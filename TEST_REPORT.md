@@ -44,3 +44,43 @@
 |NOT RUN|GitHub REST 실행/Artifact 목록 모두 0건. GitHub 호스팅 빌드 및 실기기 검증 미실행. 승리 화면 버튼·전체 던전 완주, 협동 및 스트레스 테스트는 이 단계에 포함되지 않았다.|
 
 Headless 기준은 실제 엔진 생성·행동·저장·종료에 적용한다. 화면 효과의 표시, 실제 터치, 몬스터 전체 종의 행동은 별도 검증 대상이다. 시드 지문 테스트는 JVM을 클래스별로 분리했고 기존 난수 구현을 유지했다.
+
+## Phase 3 오프라인 두 영웅 — 2026-11-24
+
+기준 브랜치 `coop/phase2`의 원격 HEAD는 `61deb846c4668b16272baec91c32ba21cd4d1c7b`였다. 변경 전 9건을 재실행했다. 아래 최종 빌드 대상은 `8207671d628240d2310f230503ca8ec52d865d53`이다. 테스트 엔진은 libGDX Headless, 실제 Dungeon/Level/Hero/Actor이며 클래스 단위로 JVM을 분리한다.
+
+|상태|검증 대상|실제 결과|
+|---|---|---|
+|PASS|변경 전/후 단일플레이|기존 JUnit 9건을 보존했다. 시드 지형·장비·몹 지문, 이동·버프·공격·저장/복원, 원본 Actor 스레드, 보스·사망·승리 회귀 모두 통과했다.|
+|PASS|두 좌석의 생성 및 초기화|같은 Level 인스턴스와 지형, 같은 몹 집합, 서로 다른 통행 가능한 위치·Actor ID, player ID/좌석 매핑, 반대 직업, 첫 영웅의 HP·위치·무기·버프 등록, 전역 골드·통계·제한 아이템 기록 및 다음 RNG 값 보존.|
+|PASS|이동·시간·권한|두 영웅의 독립적인 한 칸 이동, 벽·점유 위치 거절, 잘못된 좌석/오래된 턴 거절. 가속 이동 비용을 원본 speed와 비교했고 게스트의 감속이 다음 행동 시각에만 반영됨을 확인했다.|
+|PASS|인벤토리·장비·식량|원본 더미에서 획득·소멸, 두 영웅이 같은 더미에 접근하는 경쟁, 타인 소유 아이템 거부, 서로 다른 강화 수치가 있는 무기 장착, 양쪽의 식량 수량·섭취 횟수 검증.|
+|PASS|기본 전투·경험치|동일한 쥐를 두 영웅이 공격. 실제 명중·피해·attackDelay와 중복 요청 거절 확인. 쥐가 게스트를 선택해 공격한 동안 호스트 HP 보존. 쥐의 4회 행동 시간과 게스트 처치 1회의 XP·등록 해제 검증.|
+|PASS|중단 및 저장 격리|외부 스레드 요청·중복 스케줄러 진입·싱글 저장/삭제·층 전환 거절. 게스트 치명상과 미지원 Crab의 행동 시도에서 세션 종료. 기존 싱글 슬롯의 테스트 내용과 도감 식량 사용 횟수, 배지 상태, 기본 파일 경로 복원 확인.|
+|PASS|반복 행동·종료|시드 402/2402/3402 각각 두 좌석 총 120회(호스트 대기 60, 게스트 왕복 이동 60). 시간 역행·차례 누락·점유 불일치·식량 복제 없이 시드당 원본 게임 시간 60 경과. 전용 엔진 스레드 종료 확인.|
+|PASS|전체 및 반복|최종 빌드 시 JUnit 19/19 통과(기존 9 + 신규 10). 이어 새 JVM에서 협동 10건을 3회 재실행해 30/30 통과. 이 네 번의 실행에서 반복 시나리오의 유효 행동은 총 1,440회였다. XML별 오류·실패·스킵 모두 0.|
+|PASS|Android 디버그 APK|36,795,935 bytes, SHA-256 `8bafb66c7056cc48dccd7e36b2714ed7852c60175ddbb745f23de5633964ae61`. aapt로 `org.spdcoop.dungeon.indev`, 4.0.2-INDEV(922), minSdk 21, targetSdk 36 확인. apksigner v1/v2 서명 검증 성공.|
+|PASS|참조 색인 재현|원본 커밋을 대상으로 역할 표를 다시 생성해 바이트 단위로 비교. 직접 참조 2,159개·325개 파일 일치. 의미 분류는 수동 검토와 구분되는 1차 분류다.|
+|NOT RUN|GitHub 호스팅·실기기·LAN·콘텐츠 완주|코드 커밋의 일반 푸시 후 Actions API 브랜치 실행 0건. Cloud APK를 검사했다. Android 기기 설치·화면·터치, LAN, 협동 전체 던전 완주는 실행하지 않았다.|
+
+개발 중 실제 공격 테스트에서 새 몹을 감지한 `Hero.checkVisibleMobs`가 입력 직후 요청을 취소하는 경로를 확인했다. 새 적의 가시성을 명시적 입력 **전에** 갱신했다. 사냥꾼의 장갑 공격은 명중해도 피해가 0일 수 있어 피해 검증에서는 실제 RNG에 고정 시드를 주고 원본 방어·피해·시간 계산을 그대로 실행했다. 버프, 음식, 초기 장비, 배지와 도감 캐시의 주체를 점검해 게스트 사용이나 세션 종료가 다른 소유자의 상태에 적용되지 않도록 했다. apksigner의 META-INF 경고와 v3/v4 미적용은 원문에 포함했다.
+
+### 재현 명령과 결과물
+
+아래는 이 Cloud 작업에서 사용한 주요 명령이다. `/tmp/spd-env`는 이 인스턴스의 JDK/SDK/Gradle 경로 설정이며 새 환경은 BUILD.md 절차를 따른다.
+
+```bash
+git ls-remote --heads coop master coop/phase2 coop/phase3
+git switch -c coop/phase3 61deb84
+source /tmp/spd-env
+./gradlew --offline :core:cleanTest :core:test
+./gradlew --offline :core:test
+python3 scripts/classify-hero-references.py > docs/coop/hero-roles.tsv
+git diff --check
+scripts/verify-android-build.sh /workspace/deliverables/phase3-engine
+./gradlew --offline :core:cleanTest :core:test --tests '*CoopSessionTest'
+git push -u coop coop/phase3
+gh api 'repos/jwgobaek/SPD-Coop/actions/runs?branch=coop%2Fphase3&per_page=5'
+```
+
+`docs/coop/phase3-cloud-evidence.zip`에는 빌드 로그, APK 패키지·서명 출력, APK SHA256SUMS, 빌드 커밋, JUnit XML 및 추가 3회의 로그/XML이 들어 있다. ZIP 검사와 APK 체크섬 재검증 모두 통과했다. ZIP의 SHA-256은 `bb454bdca97b76d6436782b3e3c3b3b33b3176f7db0e04eaf354f4d3a6b87c1d`이다. APK는 Cloud 작업 공간의 `/workspace/deliverables/phase3-engine/android-debug.apk`에 있다. 영구 Git 보존 범위는 소스, 보고서와 증거 ZIP이다.
