@@ -138,6 +138,71 @@ public class SewerGuardiansTest extends HeadlessDungeon {
         }
     }
 
+    @Test public void generatedStatueModifiersUseTheWielderAndSurviveParking() {
+        int[] seeds = {428,434,435,437};
+        Class<?>[] bases = {Dirk.class,RoundShield.class,Shortsword.class,Shortsword.class};
+        Class<?>[] effects = {Venomous.class,Kinetic.class,Projecting.class,Vampiric.class};
+        for (int i=0;i<seeds.length;i++) for (int seat=0;seat<2;seat++) {
+            boolean firstFloor = seeds[i] == 434;
+            Bundle parked;
+            int actor;
+            long weapon;
+            try (CoopSession game=CoopSession.open(seeds[i],1,HeroClass.MAGE)) {
+                game.join(2,HeroClass.MAGE);
+                if (!firstFloor) SewerBeeTest.cross(game,Dungeon.level.exit());
+                Statue statue=SewerSpecialActorTest.actor(Statue.class);
+                Weapon w=statue.weapon();
+                assertEquals(bases[i],w.getClass());
+                assertEquals(effects[i],w.enchantment.getClass());
+                actor=statue.id();
+                weapon=game.ownership.identity(w);
+                Hero target=game.hero(seat);
+                int otherHP=game.hero(1-seat).HP;
+                assertEquals(w.delayFactor(statue),statue.attackDelay(),0.0001f);
+                if (w instanceof RoundShield) assertTrue(w.defenseFactor(statue)>0);
+                if (i==0) {
+                    for(int n=0;n<150 && target.buff(Poison.class)==null;n++) statue.attackProc(target,4);
+                    assertNotNull(target.buff(Poison.class));
+                } else if (i==1) {
+                    statue.attackProc(target,4);
+                    assertNotNull(statue.buff(Kinetic.KineticTracker.class));
+                    target.damage(4,statue);
+                } else if (i==2) {
+                    assertTrue(w.reachFactor(statue)>1);
+                    boolean reachable=false;
+                    for (int p=0;p<Dungeon.level.length();p++)
+                        if (Dungeon.level.passable[p] && Dungeon.level.distance(statue.pos,p)==2
+                                && Actor.findChar(p)==null && w.canReach(statue,p)) {
+                            target.pos=p;
+                            reachable=true;
+                            break;
+                        }
+                    assertTrue(reachable);
+                    assertEquals(4,statue.attackProc(target,4));
+                } else {
+                    statue.HP=1;
+                    for(int n=0;n<150 && statue.HP==1;n++) statue.attackProc(target,6);
+                    assertTrue(statue.HP>1);
+                }
+                assertEquals(otherHP,game.hero(1-seat).HP);
+                SewerBeeTest.cross(game,firstFloor ? Dungeon.level.exit() : Dungeon.level.entrance());
+                assertNull(Actor.findById(actor));
+                parked=game.checkpoint();
+            }
+            try (CoopSession game=CoopSession.restore(parked)) {
+                SewerBeeTest.cross(game,firstFloor ? Dungeon.level.entrance() : Dungeon.level.exit());
+                Statue statue=(Statue)Actor.findById(actor);
+                assertEquals(weapon,game.ownership.identity(statue.weapon()));
+                assertEquals(effects[i],statue.weapon().enchantment.getClass());
+                statue.damage(statue.HP+500,game.hero(seat));
+                assertFalse(statue.isAlive());
+                assertTrue(CoopSession.floorItems(Dungeon.level).containsValue(statue.weapon()));
+                assertEquals(weapon,game.ownership.identity(statue.weapon()));
+                game.checkpoint();
+            }
+        }
+    }
+
     @Test public void nativeChillingAndShockingProcsResolveAgainstTheCorrectVictims() {
         for(int seat=0;seat<2;seat++) try(CoopSession game=CoopSession.open(416,1,HeroClass.MAGE)) {
             game.join(2,HeroClass.MAGE);

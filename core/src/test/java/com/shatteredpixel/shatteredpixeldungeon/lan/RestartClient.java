@@ -113,7 +113,7 @@ public final class RestartClient {
     }
 
     private void run(String mode) throws Exception {
-        boolean special=mode.equals("blocked-start") || RestartHost.guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || mode.equals("mimic");
+        boolean special=mode.equals("blocked-start") || RestartHost.guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
         if (special) {
             try (LanClient old = new LanClient(address)) {
                 assertEquals("ERROR VERSION", old.request("MODE SYNC3"));
@@ -162,7 +162,7 @@ public final class RestartClient {
                 assertTrue(new PublicDungeon(state(1)).chest(Integer.parseInt(RestartHost.read(path,"encounter-cell"))));
                 return;
             }
-            if (mode.equals("mimic")) { openChest(); return; }
+            if ((mode.equals("mimic") || mode.equals("golden"))) { openChest(mode.equals("golden")); return; }
             if (mode.equals("quest")) { ghostQuest(); return; }
             if (mode.equals("hive")) { hive(); return; }
             if (special) {
@@ -227,12 +227,12 @@ public final class RestartClient {
             crystalResume(mode);
             return;
         }
-        if (mode.equals("mimicreceipt")) {
+        if (mode.equals("mimicreceipt") || mode.equals("goldenreceipt")) {
             String[] saved=RestartHost.read(path,"chest-request").split(" ",3);
             String receipt=clients[1].request("LOOKUP "+epoch+" "+saved[0]);
             assertTrue(receipt,receipt.endsWith(" APPLIED"));
             assertEquals(receipt,clients[1].request(saved[2]));
-            assertTrue(new PublicDungeon(state(1)).monsters.containsValue("Mimic"));
+            assertTrue(new PublicDungeon(state(1)).monsters.containsValue(mode.equals("goldenreceipt") ? "GoldenMimic" : "Mimic"));
             assertTrue(new PublicDungeon(state(1)).hp<Integer.parseInt(saved[1]));
             act("WAIT",0,0);
             return;
@@ -425,7 +425,7 @@ public final class RestartClient {
         }
     }
 
-    private void openChest() throws Exception {
+    private void openChest(boolean golden) throws Exception {
         int mover=active();
         assertTrue(consentAndCross().submit(clients[mover]).endsWith(" APPLIED")); applied++;
         refresh();
@@ -434,6 +434,7 @@ public final class RestartClient {
         int cell=Integer.parseInt(RestartHost.read(path,"encounter-cell"));
         PublicDungeon guest=new PublicDungeon(state(1));
         assertTrue(guest.chest(cell));
+        assertEquals(golden ? "LOCKED_CHEST" : "CHEST",guest.source.rows.get("h"+cell));
         for(int seat=0;seat<2;seat++) {
             assertFalse(state(seat).rows.toString().contains("Mimic"));
             assertFalse(new PublicDungeon(state(seat)).monsters.containsKey(cell));

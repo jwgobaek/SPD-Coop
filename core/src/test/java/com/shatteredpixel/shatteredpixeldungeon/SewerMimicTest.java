@@ -29,6 +29,48 @@ public class SewerMimicTest extends HeadlessDungeon {
         }
     }
 
+    @Test public void goldenMimicRetainsNativeAmbushStatsAndTreasure() {
+        for (int seed : new int[]{427,428}) for (int seat=0;seat<2;seat++) {
+            Bundle parked;
+            int id;
+            long prize;
+            try (CoopSession game=CoopSession.open(seed,1,HeroClass.MAGE)) {
+                game.join(2,HeroClass.MAGE);
+                SewerBeeTest.cross(game,Dungeon.level.exit());
+                Mimic gold=SewerSpecialActorTest.actor(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GoldenMimic.class);
+                assertTrue(CoopSession.disguised(gold));
+                assertFalse(gold.items.isEmpty());
+                for(Item item:gold.items) if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem
+                        || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand) {
+                    assertFalse(item.cursed);
+                    assertTrue(item.cursedKnown);
+                }
+                id=gold.id();
+                prize=game.ownership.identity(gold.items.get(0));
+                SewerBeeTest.cross(game,Dungeon.level.entrance());
+                parked=game.checkpoint();
+            }
+            try(CoopSession game=CoopSession.restore(parked)) {
+                SewerBeeTest.cross(game,Dungeon.level.exit());
+                Mimic gold=(Mimic)Actor.findById(id);
+                SewerBeeTest.offer(game,seat);
+                SewerGhostTest.meet(game,seat,gold);
+                Hero h=game.hero(seat);
+                int initial=h.HP, other=game.hero(1-seat).HP;
+                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.OPEN,gold.pos,null));
+                assertTrue(gold.isTargeting(h));
+                assertTrue(h.HP<initial);
+                assertEquals(other,game.hero(1-seat).HP);
+                Item loot=gold.items.get(0);
+                gold.damage(gold.HP+100,h);
+                assertFalse(gold.isAlive());
+                assertTrue(CoopSession.floorItems(Dungeon.level).containsValue(loot));
+                assertEquals(prize,game.ownership.identity(loot));
+                game.checkpoint();
+            }
+        }
+    }
+
     @Test public void generatedMimicAmbushesEitherOpenerAndRetainsItsPrizeOnReturn() {
         for (int seat=0;seat<2;seat++) {
             Bundle saved;

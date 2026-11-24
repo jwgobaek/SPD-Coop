@@ -57,7 +57,7 @@ public final class PublicDungeon {
                 break;
             case 'm':
                 String[] mob=value.split(",");
-                if(!mob[1].matches("Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|Statue|GnollExile|PhantomPiranha")) throw new IllegalArgumentException("Monster");
+                if(!mob[1].matches("Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Statue|GnollExile|PhantomPiranha")) throw new IllegalArgumentException("Monster");
                 enemies.put(number(mob[0],0,65535),mob[1]); break;
             case 'b': effects.add(number(value.split(",")[0],0,255)); break;
             case 't': number(value,0,63); break;
@@ -100,7 +100,7 @@ public final class PublicDungeon {
     public boolean visible(int cell) { return source.rows.containsKey("t"+cell); }
     public boolean chest(int cell) {
         String kind=source.rows.get("h"+cell);
-        return "CHEST".equals(kind) || "CRYSTAL_CHEST".equals(kind);
+        return "CHEST".equals(kind) || "CRYSTAL_CHEST".equals(kind) || "LOCKED_CHEST".equals(kind);
     }
     public boolean tap(CoopController c,int cell) {
         if(!offered || cell<0 || !visible(cell) || Math.abs(cell%width-pos%width)>1 || Math.abs(cell/width-pos/width)>1) return false;

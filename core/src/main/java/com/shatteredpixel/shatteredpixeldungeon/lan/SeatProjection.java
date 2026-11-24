@@ -10,6 +10,8 @@ import com.shatteredpixel.shatteredpixeldungeon.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CrystalMimic;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GoldenMimic;
 import com.shatteredpixel.shatteredpixeldungeon.items.*;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.*;
@@ -99,12 +101,15 @@ final class SeatProjection {
                 if (heap != null && heap.type == Heap.Type.HEAP && heap.peek()!=null) {
                     putItem(rows,visibleItems,heap.peek(),"F"+cell);
                 } else if (heap != null) rows.put("h"+cell,
-                        heap.type==Heap.Type.CHEST || heap.type==Heap.Type.CRYSTAL_CHEST ? heap.type.name() : "CONTAINER");
+                        heap.type==Heap.Type.CHEST || heap.type==Heap.Type.CRYSTAL_CHEST || heap.type==Heap.Type.LOCKED_CHEST ? heap.type.name() : "CONTAINER");
             }
             for (Mob mob : level.mobs) {
                 if (sight.visible(mob.pos) && mob.invisible <= 0 && mob.isAlive() && CoopSession.basicMob(mob)) {
                     if (CoopSession.disguised(mob)) {
-                        rows.put("h"+mob.pos,mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CrystalMimic ? "CRYSTAL_CHEST" : "CHEST");
+                        Heap.Type chest = Heap.Type.CHEST;
+                        if (mob instanceof CrystalMimic) chest = Heap.Type.CRYSTAL_CHEST;
+                        if (mob instanceof GoldenMimic) chest = Heap.Type.LOCKED_CHEST;
+                        rows.put("h"+mob.pos, chest.name());
                         continue;
                     }
                     rows.put("m"+mob.id(),mob.pos+","+mob.getClass().getSimpleName()+","+mob.HP+","+mob.HT);

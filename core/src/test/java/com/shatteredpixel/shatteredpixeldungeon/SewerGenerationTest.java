@@ -29,7 +29,7 @@ public class SewerGenerationTest extends HeadlessDungeon {
     }
 
     @Test public void consecutiveAdditionalDestinationsPreserveTheirPlayableBoundaries() {
-        for(int seed=424;seed<=445;seed++) checkGate(seed,"additional");
+        for(int seed=424;seed<=445;seed++) assertTrue("Native round trip "+seed,checkGate(seed,"additional"));
         assertTrue(checkGate(479,"rare"));
     }
 

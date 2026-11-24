@@ -78,8 +78,8 @@ public class CoopFloorsTest extends HeadlessDungeon {
     }
 
     @Test public void inaccessibleSpecialRoomRetainsLastPlayableFloor() {
-        // Seed 427 contains an unverified GoldenMimic.
-        try(CoopSession game=CoopSession.open(427,1,HeroClass.MAGE)) {
+        // Seed 446 contains an unverified ArmoredStatue.
+        try(CoopSession game=CoopSession.open(446,1,HeroClass.MAGE)) {
             game.join(2,HeroClass.WARRIOR);
             Level l=Dungeon.level;
             int gate=l.exit(),seat=0;

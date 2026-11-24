@@ -23,6 +23,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampir
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sickle;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.BattleAxe;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CrystalMimic;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GoldenMimic;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Projecting;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dirk;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.RoundShield;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
@@ -340,16 +344,20 @@ public final class CoopSession implements AutoCloseable {
         Class<?> type = actor.getClass();
         if (type==Statue.class) return statueWeapon(((Statue)actor).weapon());
         return type == GnollExile.class || type == PhantomPiranha.class || type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
-                || type == Mimic.class || type == CrystalMimic.class || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
+                || type == Mimic.class || type == CrystalMimic.class || type == GoldenMimic.class || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
                 || (Dungeon.depth==2 && (type==Ghost.class || type==FetidRat.class));
     }
 
-    // Admission is per native weapon and on-hit effect. Unstable can pick fourteen different effects.
+    /** Only passive weapon statistics and on-hit effects run for a statue. Hero abilities have their own gate. */
     public static boolean statueWeapon(Item item) {
-        return item instanceof Sickle && ((Weapon)item).enchantment instanceof Kinetic
-                || item instanceof BattleAxe && ((Weapon)item).enchantment instanceof Vampiric
-                || item instanceof Shortsword
-                    && ((Weapon)item).enchantment instanceof Venomous;
+        if (!(item instanceof MeleeWeapon)) return false;
+        Class<?> base = item.getClass();
+        if (base != Sickle.class && base != BattleAxe.class && base != Shortsword.class
+                && base != Dirk.class && base != RoundShield.class) return false;
+        Weapon.Enchantment effect = ((Weapon)item).enchantment;
+        if (effect == null) return false;
+        Class<?> type = effect.getClass();
+        return type == Kinetic.class || type == Venomous.class || type == Vampiric.class || type == Projecting.class;
     }
 
     public static boolean disguised(Char actor) {
@@ -467,7 +475,7 @@ public final class CoopSession implements AutoCloseable {
                     Char victim=Actor.findChar(cell);
                     Heap targetHeap=level.heaps.get(cell);
                     boolean chestTarget=victim==null && targetHeap!=null && !targetHeap.hidden
-                            && (targetHeap.type==Heap.Type.CHEST || targetHeap.type==Heap.Type.CRYSTAL_CHEST)
+                            && (targetHeap.type==Heap.Type.CHEST || targetHeap.type==Heap.Type.CRYSTAL_CHEST || targetHeap.type==Heap.Type.LOCKED_CHEST)
                             && level.traps.get(cell)==null && level.plants.get(cell)==null && !level.pit[cell];
                     if (wand==null || level.distance(hero.pos,cell)>hero.viewDistance) return false;
                     if (!chestTarget && (!(victim instanceof Mob) || !basicMob(victim) || !victim.isAlive()

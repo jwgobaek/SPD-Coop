@@ -47,7 +47,7 @@ public final class CoopDiagnostics {
     public static String report(CoopController.Frame f) {
         StateImage image=f.image;
         return "SPD Co-op " + com.watabou.noosa.Game.version + " / " + BuildRevision.ID
-                + "\nLAN v1 / SYNC9 / save " + CoopSaves.SCHEMA
+                + "\nLAN v1 / SYNC10 / save " + CoopSaves.SCHEMA
                 + "\nSession " + (f.session==null ? "—" : f.session) + " / seat " + f.seat
                 + "\nConnection " + f.page + " / " + (image==null?"—":image.rows.get("status"))
                 + "\nTurn " + (image==null?"—":image.rows.get("turn")) + " / version " + (image==null?"—":image.version)

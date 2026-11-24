@@ -24,11 +24,12 @@ public final class RestartHost {
     }
     private static long seedFor(String mode) {
         switch (mode) {
-            case "blocked-start": return 434;
+            case "blocked-start": return 716; // ArmoredStatue with RoundShield and Chilling
             case "phantom": return 479;
             case "exile": return 420;
             case "statue": return 416;
             case "crystal-new": return 411;
+            case "golden": return 427;
             case "mimic": return 408;
             case "hive": return 409;
             case "quest": return 403;
@@ -62,7 +63,7 @@ public final class RestartHost {
                 Runtime.getRuntime().halt(78);
         });
         InetAddress loop=InetAddress.getLoopbackAddress();
-        boolean special = mode.equals("blocked-start") || guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || mode.equals("mimic");
+        boolean special = mode.equals("blocked-start") || guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
         try(LanRoom room=(special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup"))) {
             if (mode.startsWith("crystal-") && !mode.equals("crystal-new")) crystalResumeFixture(path,mode);
@@ -136,9 +137,9 @@ public final class RestartHost {
                         write(path,"encounter-cell",Integer.toString(thief.pos));
                         write(path,"crystal-id",Integer.toString(thief.id()));
                         write(path,"bag-id",Long.toString(Dungeon.coop.ownership.identity(food)));
-                    } else if (mode.equals("mimic")) {
+                    } else if ((mode.equals("mimic") || mode.equals("golden"))) {
                         com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic mimic=
-                                SewerSpecialActorTest.actor(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic.class);
+                                mode.equals("golden") ? SewerSpecialActorTest.actor(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GoldenMimic.class) : SewerSpecialActorTest.actor(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic.class);
                         SewerGhostTest.meet(Dungeon.coop,1,mimic);
                         write(path,"encounter-cell",Integer.toString(mimic.pos));
                     } else if (mode.equals("hive")) {
