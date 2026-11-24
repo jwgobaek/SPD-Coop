@@ -9,3 +9,9 @@
 ## Phase 2 첫 Headless 회귀
 
 사용자 저장소 jwgobaek/SPD-Coop를 remote coop으로 연결했다. master가 공식 기준 커밋과 일치하며 gh api user로 jwgobaek 인증에 성공했다. coop/baseline push는 403으로 거부되어 로컬 coop/phase2에서 계속했다. 기준 태그의 별도 checkout과 작업 checkout의 JVM에서 전사 시드 402의 첫 하수도 층을 실제 생성했다. 원본 지형 해시 비교, 층 진입, 저장된 층 지형 복원 테스트를 통과했다. 다음은 몹·아이템/장비와 전체 영웅 상태 비교 및 행동 완료 신호의 회귀 테스트다.
+
+## Phase 2 엔진 기반 검증 완료 — 2026-11-24
+
+coop/baseline과 coop/phase2를 사용자 GitHub 저장소에 push했다. 초안 PR #1에서 검토할 수 있다. 엔진/테스트 코드 커밋 f96289c. 9건의 Headless 회귀 및 독립 Android APK 검사를 통과했다. 실제 actor 스레드의 진행과 종료를 직접 검증할 수 있어 스케줄러 메서드 추출이 필요하지 않았다. 테스트에서 스프라이트의 시각적 완료만 제어한다. 상세 범위는 TEST_REPORT.md 참조.
+
+GitHub 쪽 실행은 0건이다. 공식 문서상 push는 기본 브랜치 병합 전에 가능하다. 포크 활성 상태는 관리 API 접근 제한으로 미확인이다. 동일 검증 스크립트로 Codex Cloud 빌드를 제공했다. Phase 3은 별도 작업에서 이 회귀 기준 위에 오프라인 2인 세션 도입으로 시작한다.

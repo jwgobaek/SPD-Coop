@@ -9,3 +9,7 @@
 3. Hero.ready의 sprite, onMotionComplete/onAttackComplete와 Actor.process의 wait/notify를 실제 호출 순서로 추적한다. 원본과 공유하는 단일 actor 선택/실행 단계를 추출하고 렌더링 완료 신호만 대체한다. 이동→공격→아이템→버프 만료를 기록해 actor ID, 행동 비용, 우선순위, HP·가방 변화를 태그 기준과 비교한다. 스케줄러 재작성과 랜덤 결과 하드코딩은 금지한다.
 4. Dungeon.saveAll/loadGame/loadLevel로 한 층 왕복과 복원 후 후속 행동을 비교한다. Actor.fixTime 전후 절대 경과와 상대 순서를 비교하고 통계 시간까지 검사한다. 별도 시드의 Goo 층, 사망·앙크와 최종 패배, 승리 경로를 추가한다.
 5. CI에서 생성된 JUnit XML의 실제 testcase 수와 실패 수를 확인한다. 핵심 생성·행동·저장 회귀가 통과한 후에만 Phase 3에 진입한다. Phase 4 이후 별도 호스트/클라이언트 프로세스 결과, 시야별 스냅샷, 지연·단절 및 자원 제한을 테스트 리포트에 추가한다.
+
+## 검증 결과에 따른 다음 단계
+
+Phase 2의 원본 엔진 실행 기반은 확보했다. Hero의 비용과 실제 Actor.process를 직접 실행하여 스케줄러를 분리할 필요가 없었다. 포크의 Actions에서 동일 스크립트의 9건과 실제 APK가 확인될 때 원격 CI 항목을 닫는다. Phase 3 첫 변경은 네트워크 없는 세션에서 두 영웅을 만들고 각각의 Belongings 및 위치가 독립적인지 검사하는 것이다. 이때 기존 싱글 회귀를 함께 실행한다.
