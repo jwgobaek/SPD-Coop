@@ -184,7 +184,7 @@ public class Dungeon {
 	public static float mobsToChampion;
 
 	public static Hero hero;
-	public static CoopSession coop;
+	public static volatile CoopSession coop;
 	public static Level level;
 
 	public static QuickSlot quickslot = new QuickSlot();

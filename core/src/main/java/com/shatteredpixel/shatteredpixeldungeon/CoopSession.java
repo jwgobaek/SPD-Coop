@@ -472,7 +472,7 @@ public final class CoopSession implements AutoCloseable {
         return result;
     }
 
-    public static CoopSession restore(Bundle b) {
+    public static synchronized CoopSession restore(Bundle b) {
         if (Dungeon.coop!=null || Dungeon.hero!=null || Dungeon.level!=null) throw new IllegalStateException("Dungeon in use");
         Bundle world=b.getBundle("world"), floor=b.getBundle("floor");
         if (b.getInt("schema")!=1 || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||

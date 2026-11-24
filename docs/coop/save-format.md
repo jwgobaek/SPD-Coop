@@ -1,19 +1,23 @@
-# Cooperative checkpoint format 1
+# 협동 저장 형식 1
 
-The host's private application directory contains `coop-saves-v1/<session UUID>/`. The engine executor takes a checkpoint only between completed actions, at an input offer or a terminal party defeat. A halted engine or an actor graph containing an unsupported transient actor cannot be published. The supported world is branch 0, depth 1, without challenges. A checkpoint has a native game version as well as a cooperative schema number. There is no migration from unknown schemas.
+호스트의 앱 전용 저장 경로는 `coop-saves-v1/<세션 UUID>/`이다. 엔진 실행 스레드가 다음 입력권 확정 직후 또는 파티 전멸 경계에서 저장한다. 행동 처리 중이거나 엔진이 비정상 정지한 상태, 직렬화할 수 없는 임시 Actor가 등록된 상태는 저장을 거부한다. 지원 범위는 도전 옵션이 없는 branch 0, depth 1이다. 저장 스키마와 원본 게임 버전을 함께 검사한다.
 
-## Engine image
+## 엔진 이미지
 
-The original Dungeon world bundle includes the primary hero, generation state, statistics and the next actor ID. The guest and the actual Level are separate native Bundlables in the same image. Restoration loads both heroes and the level without entering the new-game or starting-equipment paths. The cooperative schedule maps every actor ID to its concrete class, priority, clock and frozen flag. The selected input actor and rebased world time are restored after level registration. Frozen clocks retain the remaining delay until revival. The game verifies the roster, identity uniqueness, supported floor dimensions, life states and input offer before opening the room.
+원본 Dungeon Bundle은 첫 영웅, 생성 상태, 통계와 다음 Actor ID를 담는다. 두 번째 영웅과 실제 Level도 같은 이미지에 각자의 원본 Bundle로 저장한다. 복원할 때 두 영웅에게 시작 장비를 다시 지급하지 않는다. Actor ID를 기준으로 원본 클래스, 우선순위, 시간, 동결 상태를 검증한다. Level에 몬스터와 버프를 등록한 다음 게임 시계와 현재 입력 Actor를 복구한다. 전투 불능 Actor는 부활까지 남은 상대 시간을 보존한다.
 
-Each seat has its mapped and visited bitsets and last observed terrain. Visible cells, combat zones and seat projections are recomputed. Native heap order and each hero's native belongings traversal identify the physical objects in this schema. The companion table validates object class and quantity and reattaches private item identity and owner. The item-generation ceiling survives stack consumption. The native save and the companion table belong to the same generation.
+좌석마다 visited·mapped 비트셋과 마지막 관측 지형을 저장한다. 복원된 맵에서 직접 시야와 전투 구역을 다시 계산한다. 아이템 표에서 가방·장비의 순회 위치 또는 바닥 더미의 셀과 순서, 클래스, 수량을 검사하고 원래 내부 ID와 귀속자를 연결한다. 소비·병합으로 사라진 객체는 생성하지 않으며 다음 ID 발급 상한을 유지한다. 같은 저장 세대에 있는 영수증 및 공개 핸들 처리 규칙은 [재접속 명세](reconnect.md)에 있다.
 
-The cooperative random stack stores the 48-bit state of each Java-compatible generator in deque order. This restores the next draw from the captured streams. Future unseeded generator creation, unordered gameplay collection iteration and unsupported content have no cross-runtime deterministic replay guarantee.
+Java Random과 같은 선형 합동 생성기의 48비트 내부 상태를 스택 순서대로 저장한다. 복원 직후 스택 상단의 다음 추출과 pop 이후 바깥 생성기의 다음 추출을 비교하는 테스트가 있다. 이후 새로 만드는 비시드 생성기, 순서가 지정되지 않은 컬렉션 및 플랫폼 차이를 포함한 장기 결정적 리플레이에는 별도의 검증이 필요하다.
 
-## Disk commit
+## 파일 발행과 롤백
 
-One generation file contains a four-byte big-endian length, a SHA-256 digest and an uncompressed UTF-8 Bundle envelope binding schema, session UUID, generation and payload. The payload limit is 4 MiB and JSON nesting is bounded. Checksums detect file corruption. The directory is private application storage and is not a network import interface.
+각 세대 파일은 4바이트 big-endian 길이, SHA-256 32바이트, 비압축 UTF-8 JSON Bundle로 구성된다. 봉투에는 스키마·세션 UUID·세대 번호·상태 본문이 들어간다. 본문을 포함한 JSON 한도는 4 MiB이며 중첩 깊이는 최대 64다. 이 파일은 호스트 앱의 전용 로컬 저장 데이터다. LAN에는 좌석별 공개 모델만 보낸다.
 
-A single writer holds an OS file lock. It writes and syncs a temporary generation, verifies the image, renames it in the session directory, syncs that directory, then writes and syncs the replacement HEAD. HEAD is published by same-directory rename followed by directory sync. HEAD contains the current and backup numbers and their bitwise complements. Interrupted staging files and unpublished generations never select a game. The next writer overwrites its staging files. Generation commits retain the previous published generation. A second, synced BACKUP record names the last known published fallback. If HEAD is missing or damaged, normal resume fails and only an explicit previous-generation restore can use that record. Losing both records requires manual investigation. A damaged current generation requires explicit selection of a validated backup. Rollback is surfaced to the controller.
+1. 한 호스트가 세션 디렉터리의 OS 파일 잠금을 획득한다. 다음 백업이 될 기존 세대의 길이·체크섬·식별자를 검사한다.
+2. 임시 파일에 새 세대를 쓰고 파일 디스크립터를 동기화한다. 다시 읽어 검증한 뒤 같은 디렉터리에서 세대 파일로 이름을 바꾸고 디렉터리를 동기화한다.
+3. BACKUP에는 이미 발행한 이전 세대를 복구 후보로 기록한다. HEAD에는 새 현재 세대와 이전 정상 세대를 기록한다. 두 포인터 모두 번호와 비트 반전값을 함께 저장하며 임시 포인터를 동기화한 후 rename과 디렉터리 동기화를 거친다.
+4. HEAD 발행이 끝나야 정상 확정 영수증을 전송한다. 발행 전 끊긴 임시 세대는 진행 기록으로 선택하지 않는다. 다음 저장에서 임시 파일을 덮어쓰고, 다시 열 때 관리 대상 파일 중 두 참조 세대 밖에 있는 파일을 정리한다.
+5. 현재 세대가 잘리거나 잘못된 경우 정상 재개를 거부한다. HEAD가 누락되거나 손상된 경우 독립 BACKUP 포인터로 이전 세대만 선택할 수 있다. 호스트가 명시적으로 복구를 선택하면 검증된 이전 상태를 새 세대와 새 epoch로 발행한다. 두 포인터나 두 후보 세대가 모두 손상되면 복구를 중단한다.
 
-JVM tests exercise process death on Linux. On Android the directory sync path uses android.system.Os. Device storage durability under power loss requires device testing.
+Linux JVM 테스트는 파일 기록, 검증, HEAD 교체 전후에서 자식 프로세스를 강제 종료한다. Android 경로는 android.system.Os로 디렉터리를 동기화한다. 실제 Android 저장소의 정전 내구성과 모바일 저장 지연은 실기기 검증 항목이다.

@@ -1,6 +1,8 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.*;
@@ -11,6 +13,42 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class CheckpointTest extends HeadlessDungeon {
+    @Test public void progressionEquipmentBuffClocksAndNestedRandomStreamsRoundTrip() {
+        Bundle saved;
+        Talent[] talents=new Talent[2];
+        int[] buffs=new int[2];
+        float[] delays=new float[2];
+        long inner, outer;
+        try(CoopSession game=CoopSession.open(402,11,HeroClass.WARRIOR)) {
+            game.join(18,HeroClass.HUNTRESS);
+            for(int seat=0;seat<2;seat++) {
+                Hero h=game.hero(seat);
+                h.lvl=3+seat; h.exp=5+seat; h.STR=12+seat; h.HT=29+seat; h.HP=18+seat;
+                h.belongings.weapon.level(2+seat);
+                talents[seat]=h.talents.get(0).keySet().iterator().next();
+                h.talents.get(0).put(talents[seat],seat+1);
+                Haste buff=Buff.prolong(h,Haste.class,4+seat);
+                buffs[seat]=buff.id(); delays[seat]=buff.cooldown();
+            }
+            Random.pushGenerator(901);
+            Random.Long();
+            saved=game.checkpoint();
+            inner=Random.Long(); Random.popGenerator(); outer=Random.Long();
+        }
+        try(CoopSession game=CoopSession.restore(saved)) {
+            assertEquals(inner,Random.Long()); Random.popGenerator(); assertEquals(outer,Random.Long());
+            for(int seat=0;seat<2;seat++) {
+                Hero h=game.hero(seat);
+                assertEquals(3+seat,h.lvl); assertEquals(5+seat,h.exp); assertEquals(12+seat,h.STR);
+                assertEquals(29+seat,h.HT); assertEquals(18+seat,h.HP);
+                assertEquals(2+seat,h.belongings.weapon.level());
+                assertEquals(seat+1,h.pointsInTalent(talents[seat]));
+                assertSame(h.buff(Haste.class),Actor.findById(buffs[seat]));
+                assertEquals(delays[seat],Actor.findById(buffs[seat]).cooldown(),0);
+            }
+        }
+    }
+
     @Test public void inconsistentReceiptDoesNotRestoreASeatLedger() {
         try(CoopSession game=CoopSession.open(402,1,HeroClass.WARRIOR)) {
             game.join(2,HeroClass.HUNTRESS);
@@ -75,7 +113,7 @@ public class CheckpointTest extends HeadlessDungeon {
         assertNull(Dungeon.coop);
     }
 
-    @Test public void casualtiesAndCompleteSchedulerRoundTrip() {
+    @Test public void casualtiesAndCompleteSchedulerRoundTrip() throws Exception {
         Bundle checkpoint;
         long turn, ownerId, expectedRoll;
         int actor, gear, rat, pos, tile;
@@ -121,7 +159,10 @@ public class CheckpointTest extends HeadlessDungeon {
             for(int seat=0;seat<2;seat++) game.hero(seat).damage(10000,this);
             checkpoint=game.checkpoint();
         }
-        try(CoopSession game=CoopSession.restore(checkpoint)) {
+        java.io.File terminal=temporary.newFile();
+        assertTrue(Bundle.write(checkpoint,new java.io.FileOutputStream(terminal),false));
+        try(java.io.InputStream in=new java.io.FileInputStream(terminal);
+            CoopSession game=CoopSession.restore(Bundle.read(in))) {
             assertTrue(game.defeated()); assertEquals(-1,game.activeSeat());
         }
     }

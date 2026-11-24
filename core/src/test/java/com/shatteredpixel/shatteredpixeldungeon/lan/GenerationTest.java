@@ -84,6 +84,8 @@ public class GenerationTest {
             good[good.length-2] ^= 1;
             Files.write(head.toPath(),good);
             assertThrows(IOException.class,()->slot.read(false));
+            assertThrows(IOException.class,()->slot.publish(value(21),false));
+            assertEquals(19,slot.read(true).getInt("action"));
             slot.publish(slot.read(true),true);
             assertEquals(21,slot.currentGeneration()); assertEquals(19,slot.backupGeneration());
             assertEquals(19,slot.read(false).getInt("action"));

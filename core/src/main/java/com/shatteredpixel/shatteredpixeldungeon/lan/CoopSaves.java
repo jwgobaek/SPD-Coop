@@ -165,6 +165,8 @@ public final class CoopSaves {
             if (recover && previous == 0) throw new IOException("Backup unavailable");
             if (current == Long.MAX_VALUE) throw new IOException("Generation exhausted");
             long generation = current+1, keep = recover ? previous : current;
+            // A damaged former HEAD must never displace the last usable backup.
+            if (keep!=0) verify(child(dir,"g"+keep),keep);
             Bundle envelope = new Bundle();
             envelope.put("schema",SCHEMA); envelope.put("session",session.toString());
             envelope.put("generation",generation); envelope.put("state",state);
