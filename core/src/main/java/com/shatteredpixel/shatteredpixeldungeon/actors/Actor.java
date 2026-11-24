@@ -198,7 +198,7 @@ public abstract class Actor implements Bundlable {
 			}
 		}
 
-		if (min == Float.MAX_VALUE) return;
+		if (Dungeon.coop != null && min == Float.MAX_VALUE) return;
 		//Only pull everything back by whole numbers
 		//So that turns always align with a whole number
 		min = (int)min;

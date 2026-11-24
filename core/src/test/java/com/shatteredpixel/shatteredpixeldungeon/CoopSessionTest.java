@@ -386,6 +386,40 @@ public class CoopSessionTest extends HeadlessDungeon {
     }
 
     @Test(timeout = 30000)
+    public void sameOpponentLinksBothAttackersUntilEngagementExpires() {
+        try (CoopSession game=open(402)) {
+            Hero host=game.hero(0), guest=game.hero(1);
+            Level level=Dungeon.level;
+            int w=level.width(), center=level.length()/2/w*w+w/2;
+            for (int dy=-2;dy<=2;dy++) for (int dx=-2;dx<=2;dx++) {
+                Level.set(center+dy*w+dx,Terrain.EMPTY);
+                level.discoverable[center+dy*w+dx]=true;
+            }
+            // Isolate the contested target. Other generated mobs may independently engage while heroes wait.
+            for (Mob mob : new HashSet<>(level.mobs)) {
+                Actor.remove(mob);
+                level.mobs.remove(mob);
+            }
+            host.pos=center-1; guest.pos=center+1;
+            Rat opponent=new Rat();
+            opponent.pos=center;
+            opponent.HP=opponent.HT=100;
+            GameScene.add(opponent,100);
+            level.updateFieldOfView(host,host.fieldOfView);
+            assertTrue(send(game,ATTACK,center,null));
+            assertTrue(send(game,ATTACK,center,null));
+            assertTrue(game.recentlyAttacked(0,opponent) && game.recentlyAttacked(1,opponent));
+            java.util.List<java.util.BitSet> zones=CombatZones.calculate(game,null);
+            assertEquals(1,zones.size());
+            assertTrue(zones.get(0).get(host.pos) && zones.get(0).get(guest.pos));
+            opponent.clearEnemy();
+            for (int i=0;i<3;i++) assertTrue(send(game,WAIT,0,null));
+            assertFalse(game.recentlyAttacked(0,opponent) || game.recentlyAttacked(1,opponent));
+            for (java.util.BitSet zone : CombatZones.calculate(game,null)) assertFalse(zone.get(center));
+        }
+    }
+
+    @Test(timeout = 30000)
     public void seatsContendForOneHeapOnTheGeneratedFloor() {
         try (CoopSession s = open(402)) {
             Hero host = s.hero(0), guest = s.hero(1);

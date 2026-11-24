@@ -47,7 +47,13 @@ public final class CoopSession implements AutoCloseable {
 
     private final java.util.Map<Long, FloorKnowledge[]> floors = new java.util.HashMap<>();
 
-    public FloorKnowledge observe(int seat) {
+    public FloorKnowledge knowledge(Hero hero) {
+        if (hero == heroes[0]) return knowledge(0);
+        if (hero == heroes[1]) return knowledge(1);
+        throw new IllegalArgumentException("Unknown observer");
+    }
+
+    private FloorKnowledge knowledge(int seat) {
         checkExecutor();
         long floor = ((long)Dungeon.branch << 32) | (Dungeon.depth & 0xffffffffL);
         FloorKnowledge[] memories = floors.get(floor);
@@ -56,8 +62,13 @@ public final class CoopSession implements AutoCloseable {
             floors.put(floor, memories);
         }
         if (memories[seat] == null) memories[seat] = new FloorKnowledge(Dungeon.level.length());
-        memories[seat].observe(Dungeon.level, heroes[seat]);
         return memories[seat];
+    }
+
+    public FloorKnowledge observe(int seat) {
+        FloorKnowledge memory = knowledge(seat);
+        memory.observe(Dungeon.level, heroes[seat]);
+        return memory;
     }
 
     public enum Life { ALIVE, DOWNED, DEAD, REVIVING }
@@ -114,7 +125,7 @@ public final class CoopSession implements AutoCloseable {
         Level level = Dungeon.level;
         if (lives[seat] != Life.DOWNED || cell != ally.pos || !level.adjacent(rescuer.pos, cell)
                 || !level.passable[cell] || level.pit[cell] || Actor.findChar(cell) != ally
-                || !observe(activeSeat).visible(cell)) return false;
+                || !knowledge(activeSeat).visible(cell)) return false;
         Ankh ankh = resource(seat);
         if (ankh == null) return false;
         lives[seat] = Life.REVIVING;
@@ -336,7 +347,7 @@ public final class CoopSession implements AutoCloseable {
                     break;
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
-                    if (cell != hero.pos || heap == null || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
+                    if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
                             || (item.getClass() != Food.class && item.getClass() != Ankh.class && !basicWeapon(item))
                             || !hero.belongings.backpack.canHold(item)) return false;
                     hero.checkVisibleMobs();

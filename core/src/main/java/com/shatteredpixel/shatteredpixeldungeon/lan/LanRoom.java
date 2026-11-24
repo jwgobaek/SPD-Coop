@@ -207,7 +207,7 @@ public final class LanRoom implements AutoCloseable {
             offered.clear();
             StringBuilder list = new StringBuilder();
             Heap heap = Dungeon.level.heaps.get(hero.pos);
-            if (heap != null && heap.type == Heap.Type.HEAP && heap.peek() != null) appendItem(list,"F",heap.peek());
+            if (heap != null && !heap.hidden && heap.type == Heap.Type.HEAP && heap.peek() != null) appendItem(list,"F",heap.peek());
             for (Item item : hero.belongings.backpack.items) appendItem(list,"I",item);
             for (int offset : PathFinder.NEIGHBOURS8) {
                 int cell = hero.pos + offset;
@@ -244,6 +244,8 @@ public final class LanRoom implements AutoCloseable {
         if (turn != game.turn() || seat != game.activeSeat()) return "ERROR TURN";
         CoopSession.Action action;
         try { action = CoopSession.Action.valueOf(f[8]); } catch (IllegalArgumentException e) { return "ERROR ACTION"; }
+        if (action == CoopSession.Action.REVIVE || action == CoopSession.Action.DROP
+                || action == CoopSession.Action.UNEQUIP) return "ERROR MODE";
         int cell = Integer.parseInt(f[9]);
         long handle = Long.parseLong(f[10]);
         boolean needsItem = action.requiresItem();

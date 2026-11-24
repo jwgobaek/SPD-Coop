@@ -97,5 +97,22 @@ public final class ProjectionChecks {
         assertEquals(Integer.toString(Terrain.GRASS), recovered.image().rows.get("t"+observed));
         assertNotSame(game.observe(0), game.observe(1));
         assertFalse(game.observe(1).visible(observed));
+        boolean[] singleMap = level.mapped.clone();
+        assertFalse(game.observe(0).mapped(observed));
+        Buff.prolong(guest,Foresight.class,5);
+        assertTrue(game.observe(1).mapped(observed));
+        assertFalse(game.observe(0).mapped(observed));
+        assertArrayEquals(singleMap,level.mapped);
+        b.capture(game,8,"IN_GAME",null,null);
+        DisplayReplica mappedView = new DisplayReplica(session,1);
+        mappedView.apply(b.current.encode(null,null));
+        assertFalse(mappedView.image().rows.containsKey("t"+observed));
+        assertEquals(Terrain.GRASS,mappedView.image().rememberedTerrain(observed));
+        assertEquals(!game.observe(1).visited(observed),mappedView.image().mappedOnly(observed));
+        assertFalse(mappedView.image().rows.containsKey("ally"));
+        level.drop(new Food(),guest.pos).hidden = true;
+        b.capture(game,9,"IN_GAME",null,null);
+        for (String row : b.current.rows.values()) assertFalse(row.startsWith("F"+guest.pos+","));
+        assertFalse(b.current.rows.containsKey("h"+guest.pos));
     }
 }

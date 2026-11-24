@@ -122,6 +122,8 @@ public class LanScenarioClient {
                         assertEquals("ERROR TURN",client.request("ACT "+ids+"0 WAIT 0 0"));
                         assertEquals("ERROR INVALID",client.request(prefix+"MOVE -1 0"));
                         assertEquals("ERROR ACTION",client.request(prefix+"CAST 0 0"));
+                        assertEquals("ERROR MODE",client.request(prefix+"DROP 0 0"));
+                        assertEquals("ERROR MODE",client.request(prefix+"REVIVE 0 0"));
                     }
                     String command = "WAIT 0 0";
                     if (seat == 0 && counts[0] == 0) {

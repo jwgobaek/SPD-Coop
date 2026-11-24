@@ -4,6 +4,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.mechanics.ShadowCaster;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
@@ -16,15 +18,25 @@ public final class CombatZones {
     public static List<BitSet> calculate(CoopSession game, FloorKnowledge observer) {
         Level level = Dungeon.level;
         List<BitSet> zones = new ArrayList<>();
+        boolean[] publicBlocking = null;
+        if (observer != null) {
+            publicBlocking = new boolean[level.length()];
+            for (int cell = 0; cell < publicBlocking.length; cell++) {
+                publicBlocking[cell] = !observer.visible(cell) ||
+                        (Terrain.flags[observer.terrain(cell)] & Terrain.LOS_BLOCKING) != 0;
+            }
+        }
         for (int seat = 0; seat < 2; seat++) {
             Hero hero = game.hero(seat);
             if (!hero.isAlive() || (observer != null && (!observer.visible(hero.pos) || hero.invisible > 0))) continue;
             for (Mob mob : level.mobs) {
                 if (!mob.isAlive() || mob.invisible > 0 || mob.alignment != Char.Alignment.ENEMY
                         || !CoopSession.basicMob(mob) || (observer != null && !observer.visible(mob.pos))) continue;
-                if (!mob.isTargeting(hero) && !game.recentlyAttacked(seat, mob)) continue;
+                if (!(mob.state == mob.HUNTING && mob.isTargeting(hero)) && !game.recentlyAttacked(seat, mob)) continue;
                 boolean[] direct = new boolean[level.length()];
-                level.updateDirectSight(hero, direct);
+                if (publicBlocking == null) level.updateDirectSight(hero, direct);
+                else ShadowCaster.castShadow(hero.pos % level.width(), hero.pos / level.width(),
+                        level.width(), direct, publicBlocking, Math.min(RANGE, level.viewDistance));
                 if (!direct[mob.pos]) continue;
                 BitSet area = corridor(level, observer, hero.pos, mob.pos);
                 if (area.isEmpty()) continue;

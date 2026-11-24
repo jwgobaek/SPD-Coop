@@ -25,6 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Bones;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.FloorKnowledge;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
@@ -1855,9 +1856,10 @@ public class Hero extends Char {
 				boolean[] p = Dungeon.level.passable;
 				boolean[] v = Dungeon.level.visited;
 				boolean[] m = Dungeon.level.mapped;
+				FloorKnowledge memory = Dungeon.coop == null ? null : Dungeon.coop.knowledge(this);
 				boolean[] passable = new boolean[len];
 				for (int i = 0; i < len; i++) {
-					passable[i] = p[i] && (v[i] || m[i]);
+					passable[i] = p[i] && (memory == null ? v[i] || m[i] : memory.terrain(i) >= 0);
 				}
 
 				PathFinder.Path newpath = Dungeon.findPath(this, target, passable, fieldOfView, true);
@@ -1931,8 +1933,9 @@ public class Hero extends Char {
 			Dungeon.level.updateFieldOfView( this, fieldOfView );
 		}
 
-		if (!Dungeon.level.visited[cell] && !Dungeon.level.mapped[cell]
-				&& Dungeon.level.traps.get(cell) != null
+		FloorKnowledge memory = Dungeon.coop == null ? null : Dungeon.coop.knowledge(this);
+		boolean unknown = memory == null ? !Dungeon.level.visited[cell] && !Dungeon.level.mapped[cell] : memory.terrain(cell) < 0;
+		if (unknown && Dungeon.level.traps.get(cell) != null
 				&& Dungeon.level.traps.get(cell).visible
 				&& Dungeon.level.traps.get(cell).active) {
 			walkingToVisibleTrapInFog = true;
@@ -2505,10 +2508,12 @@ public class Hero extends Char {
 		if (hasTalent(Talent.WIDE_SEARCH)) distance++;
 		
 		boolean foresight = buff(Foresight.class) != null;
-		boolean foresightScan = foresight && !Dungeon.level.mapped[pos];
+		FloorKnowledge survey = foresight && Dungeon.coop != null ? Dungeon.coop.knowledge(this) : null;
+        boolean foresightScan = foresight && !(survey == null ? Dungeon.level.mapped[pos] : survey.mapped(pos));
 
 		if (foresightScan){
-			Dungeon.level.mapped[pos] = true;
+			if (survey == null) Dungeon.level.mapped[pos] = true;
+            else survey.reveal(Dungeon.level,pos);
 		}
 
 		if (foresight) {
@@ -2543,14 +2548,15 @@ public class Hero extends Char {
 
 				if ((foresight || fieldOfView[curr]) && curr != pos) {
 
-					if ((foresight && (!Dungeon.level.mapped[curr] || foresightScan))){
+					if ((foresight && (foresightScan || !(survey == null ? Dungeon.level.mapped[curr] : survey.mapped(curr))))){
 						GameScene.checkedCell(curr, foresightScan ? pos : curr);
 					} else if (intentional) {
 						GameScene.checkedCell(curr, pos);
 					}
 
 					if (foresight){
-						Dungeon.level.mapped[curr] = true;
+						if (survey == null) Dungeon.level.mapped[curr] = true;
+                        else survey.reveal(Dungeon.level,curr);
 					}
 					
 					if (Dungeon.level.secret[curr]){
@@ -2595,6 +2601,7 @@ public class Hero extends Char {
 							GameScene.discoverTile( curr, oldValue );
 							
 							Dungeon.level.discover( curr );
+                            if (survey != null) survey.reveal(Dungeon.level,curr);
 							
 							ScrollOfMagicMapping.discover( curr );
 							

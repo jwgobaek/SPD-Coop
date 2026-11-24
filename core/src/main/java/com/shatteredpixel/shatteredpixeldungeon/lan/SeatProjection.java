@@ -69,6 +69,7 @@ final class SeatProjection {
                 if (!sight.visible(cell)) continue;
                 rows.put("t"+cell,Integer.toString(sight.terrain(cell)));
                 Heap heap = level.heaps.get(cell);
+                if (heap != null && heap.hidden) continue;
                 if (heap != null && heap.type == Heap.Type.HEAP && heap.peek()!=null) {
                     putItem(rows,visibleItems,heap.peek(),"F"+cell);
                 } else if (heap != null) rows.put("h"+cell,"CONTAINER");

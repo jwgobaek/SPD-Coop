@@ -29,7 +29,7 @@ public final class FloorKnowledge {
     }
 
     /** A host-authorized terrain reveal has no effect on direct sight or entities. */
-    void reveal(Level level, int cell) {
+    public void reveal(Level level, int cell) {
         if (level.discoverable[cell]) {
             mapped.set(cell);
             terrain[cell] = appearance(level.map[cell]);

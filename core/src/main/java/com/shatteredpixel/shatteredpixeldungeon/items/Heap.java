@@ -159,6 +159,7 @@ public class Heap implements Bundlable {
 	}
 	
 	public void drop( Item item ) {
+        if (Dungeon.coop != null) Dungeon.coop.ownership.identity(item);
 		hidden = false;
 		
 		if (item.stackable && type != Type.FOR_SALE) {
