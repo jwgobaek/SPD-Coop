@@ -110,7 +110,7 @@ public final class RestartClient {
     }
 
     private void run(String mode) throws Exception {
-        boolean special=mode.equals("sentry") || mode.equals("piranha");
+        boolean special=mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest");
         if (special) {
             try (LanClient old = new LanClient(address)) {
                 assertEquals("ERROR VERSION", old.request("MODE SYNC3"));
@@ -124,7 +124,7 @@ public final class RestartClient {
                 epoch=UUID.fromString(keys[i].enroll(clients[i]).split(" ")[1]);
                 actions[i]=new SeatActions(session,i,i+1);
                 models[i]=new DisplayReplica(session,i);
-                String character=mode.startsWith("cast") && i==Integer.parseInt(mode.substring(4)) ? "MAGE" : mode.equals("walk") ? (i==0?"MAGE":"WARRIOR") : i==0?"WARRIOR":"HUNTRESS";
+                String character=mode.equals("quest")?"MAGE":mode.startsWith("cast") && i==Integer.parseInt(mode.substring(4)) ? "MAGE" : mode.equals("walk") ? (i==0?"MAGE":"WARRIOR") : i==0?"WARRIOR":"HUNTRESS";
                 assertEquals("OK",clients[i].request("SELECT "+character)); clients[i].request("READY 1");
             }
             assertEquals("GAME_STARTED",clients[0].request("START"));
@@ -132,6 +132,7 @@ public final class RestartClient {
             refresh();
             if(mode.equals("walk")) { walk(); return; }
             act("WAIT",0,0);
+            if (mode.equals("quest")) { ghostQuest(); return; }
             if (special) {
                 checkSpecialRoom(mode.equals("sentry")?"Sentry":"Piranha");
                 return;
@@ -190,6 +191,20 @@ public final class RestartClient {
         }
         for(int i=0;i<2;i++) bind(i);
         barrier();
+        if (mode.equals("questreceipt")) {
+            String[] saved=RestartHost.read(path,"ghost-reward").split(" ",5);
+            int seat=Integer.parseInt(saved[0]),other=1-seat;
+            int ownSize=Integer.parseInt(saved[1]),otherSize=Integer.parseInt(saved[2]);
+            String receipt=clients[seat].request("LOOKUP "+epoch+" "+saved[3]);
+            assertTrue(receipt,receipt.endsWith(" APPLIED"));
+            assertEquals(receipt,clients[seat].request(saved[4]));
+            refresh();
+            assertEquals(ownSize+1,new PublicDungeon(state(seat)).belongings.size());
+            assertEquals(otherSize,new PublicDungeon(state(other)).belongings.size());
+            for(int i=0;i<2;i++) assertFalse(new PublicDungeon(state(i)).monsters.containsValue("Ghost"));
+            act("WAIT",0,0);
+            return;
+        }
         if(mode.equals("floorbackup")) {
             assertEquals(1,new PublicDungeon(state(0)).depth);
             assertEquals("ERROR EPOCH",clients[0].request("LOOKUP "+RestartHost.read(path,"epoch")+" 1"));
@@ -305,6 +320,49 @@ public final class RestartClient {
         refresh();
         assertTrue(new PublicDungeon(state(mover)).consent);
         return stairAction(mover,"TRAVEL",cell);
+    }
+
+    private void ghostQuest() throws Exception {
+        int owner=active();
+        assertTrue(consentAndCross().submit(clients[owner]).endsWith(" APPLIED"));
+        applied++;
+        refresh();
+        act("WAIT",0,0);
+        for (int n=0;n<12;n++) {
+            Thread.sleep(45);
+            int seat=active();
+            Optional<Map.Entry<String,String>> ghost=state(seat).rows.entrySet().stream()
+                    .filter(e->e.getKey().matches("quest[0-9]+") && e.getValue().equals("OFFER")).findFirst();
+            if (ghost.isPresent()) {
+                act("ACCEPT_GHOST",Integer.parseInt(ghost.get().getKey().substring(5)),0);
+                break;
+            }
+            act("WAIT",0,0);
+        }
+        int casts=0;
+        for (int n=0;n<35;n++) {
+            Thread.sleep(45);
+            int seat=active();
+            PublicDungeon view=new PublicDungeon(state(seat));
+            Optional<Map.Entry<String,String>> reward=state(seat).rows.entrySet().stream()
+                    .filter(e->e.getKey().matches("quest[0-9]+") && e.getValue().equals("REWARD")).findFirst();
+            if (reward.isPresent()) {
+                assertTrue(casts>0);
+                SeatActions.Pending request=actions[seat].prepare(state(seat),"GHOST_ARMOR",
+                        Integer.parseInt(reward.get().getKey().substring(5)),0);
+                RestartHost.write(path,"ghost-reward",seat+" "+view.belongings.size()+" "+
+                        new PublicDungeon(state(1-seat)).belongings.size()+" "+request.id+" "+request.command);
+                RestartHost.write(path,"kill-before-reply","1");
+                assertThrows(IOException.class,()->request.submit(clients[seat]));
+                return;
+            }
+            Optional<Integer> rat=view.monsters.entrySet().stream().filter(e->e.getValue().equals("FetidRat"))
+                    .map(Map.Entry::getKey).findFirst();
+            if (rat.isPresent() && charges(seat)>0) {
+                act("ZAP",rat.get(),item(seat,"WEAPON","STAFF")); casts++;
+            } else act("WAIT",0,0);
+        }
+        fail("No quest reward offer after combat");
     }
 
     private void checkSpecialRoom(String type) throws Exception {

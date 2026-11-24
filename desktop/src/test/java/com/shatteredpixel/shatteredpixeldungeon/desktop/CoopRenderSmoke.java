@@ -24,12 +24,13 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean mage,floors,sentry;
+    private static boolean mage,floors,sentry,ghost;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
         sentry=args.length>1 && args[1].equals("sentry");
-        floors=sentry || (args.length>1 && args[1].equals("floors"));
+        ghost=args.length>1 && args[1].equals("ghost");
+        floors=ghost || sentry || (args.length>1 && args[1].equals("floors"));
         mage=floors || (args.length>1 && args[1].equals("mage"));
         shots=new File(args[0]); if(!shots.isDirectory() && !shots.mkdirs()) throw new AssertionError();
         // Test classes share the launcher's package but do not carry release-manifest attributes.
@@ -168,6 +169,16 @@ public final class CoopRenderSmoke {
         click("#"+Messages.get(CoopScene.class,"travel",2));
         await(()->frame().dungeon.depth==2 && frame().dungeon.offered);
         shot("sewer-2");
+        if (ghost) {
+            RenderEncounter.atGhost(hostController());
+            click("wait"); await(()->frame().dungeon.offered && frame().image.rows.containsValue("OFFER"));
+            PublicDungeon v=frame().dungeon;
+            int cell=v.monsters.entrySet().stream().filter(e->e.getValue().equals("Ghost")).findFirst().get().getKey();
+            press(mapPoint(v,cell));
+            await(()->button("accept")!=null); shot("ghost-offer");
+            click("accept"); await(()->frame().image.rows.containsValue("HUNT"));
+            shot("ghost-quest-started");
+        }
         if (sentry) {
             RenderEncounter.atSentry(hostController());
             click("wait");
@@ -188,6 +199,12 @@ public final class CoopRenderSmoke {
         try {
             await(()->frame().dungeon!=null && frame().dungeon.depth==2 && frame().dungeon.offered);
             shot("sewer-2-reconnected");
+            if (ghost) {
+                if (!frame().image.rows.containsValue("HUNT")) throw new AssertionError("Missing resumed quest");
+                shot("ghost-quest-reconnected");
+                click("menu");click("saveexit");await(()->button("host")!=null);
+                return;
+            }
             if (sentry) {
                 if (!frame().dungeon.monsters.containsValue("Sentry")) throw new AssertionError("Missing resumed sentry");
                 shot("red-sentry-reconnected");
@@ -214,7 +231,7 @@ public final class CoopRenderSmoke {
         render(()->{
             Field active=CoopScene.class.getDeclaredField("active"); active.setAccessible(true);
             active.set(null,new CoopController(CoopPlatform.root(),null,null,LanClient.TCP_PORT,LanClient.UDP_PORT,
-                    new java.util.Random(){@Override public long nextLong(){return floors && !sentry ? 415 : 402;}}));
+                    new java.util.Random(){@Override public long nextLong(){return ghost ? 403 : floors && !sentry ? 415 : 402;}}));
             return null;
         });
         click("title"); await(()->button("host")!=null);

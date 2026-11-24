@@ -35,6 +35,10 @@ final class CoopBoard extends Group {
             }
             ground.x=px;ground.y=py;add(ground);
             if(!view.visible(cell)) continue;
+            if(view.source.rows.containsKey("stench"+cell)) {
+                com.watabou.noosa.ColorBlock gas=new com.watabou.noosa.ColorBlock(TILE,TILE,0x447DA63A);
+                gas.x=px;gas.y=py;add(gas);
+            }
             String z=view.source.rows.get("z"+cell);
             if(z!=null) edges(px,py,Integer.parseInt(z));
             PublicDungeon.Loot loot=view.floor.get(cell);
@@ -44,6 +48,8 @@ final class CoopBoard extends Group {
             if(monster!=null) {
                 Image sprite;
                 switch(monster) {
+                    case "Ghost": sprite=new Image(Assets.Sprites.GHOST,0,0,14,15);break;
+                    case "FetidRat": sprite=new Image(Assets.Sprites.RAT,0,30,16,15);break;
                     case "Piranha": sprite=new Image(Assets.Sprites.PIRANHA,0,0,12,16);break;
                     case "Sentry": sprite=new Image(Assets.Sprites.SENTRY,0,0,8,15);
                         if(view.source.rows.containsKey("charge"+cell)) sprite.tint(1f,0.2f,0.2f,0.55f);

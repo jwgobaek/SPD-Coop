@@ -69,3 +69,7 @@ The floor row encodes branch,depth. A stair row is published only when both play
 ### SYNC4 하수도 방
 
 표시 모델의 몬스터 종류에 Piranha와 Sentry를 추가했다. 이전 표시 모델은 새 종류를 해석할 수 없어 동기화 방은 MODE SYNC4를 요구하고 이전 MODE에 ERROR VERSION을 응답한다. 원본 v1 비동기화 시험용 방과 저장 형식 2는 유지한다. 직접 관측하는 감시탑이 충전 중이면 charge<cell>=1을 해당 좌석에만 보낸다. 표적 좌석과 준비 타이머는 전송하지 않는다.
+
+### SYNC5 2층 유령
+
+양쪽 좌석은 MODE SYNC5를 협상한다. SYNC4 이하는 동기화 방에서 ERROR VERSION을 받는다. 새 공개 몬스터 값은 Ghost와 FetidRat이다. 보이고 인접한 유령 칸에만 quest<cell> 행으로 OFFER, HUNT 또는 REWARD를 제공한다. stench<cell>은 직접 시야 안에 있는 악취 가스다. ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR에는 유령 칸과 아이템 핸들 0을 지정한다. 호스트가 시야·행동권·좌석·월드 플래그·안전한 수령을 재검증한다. 이미 발행한 보상은 같은 Action ID로 조회할 수 있다.

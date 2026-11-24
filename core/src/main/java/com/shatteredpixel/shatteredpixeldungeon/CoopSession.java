@@ -7,6 +7,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroAction;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Albino;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Piranha;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.FetidRat;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SentryRoom;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Gnoll;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
@@ -41,7 +43,7 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL;
+    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR;
         public boolean requiresItem() {
             return this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP;
         }
@@ -314,7 +316,8 @@ public final class CoopSession implements AutoCloseable {
     public static boolean basicMob(Actor actor) {
         Class<?> type = actor.getClass();
         return type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
-                || type == Piranha.class || type == SentryRoom.Sentry.class;
+                || type == Piranha.class || type == SentryRoom.Sentry.class
+                || (Dungeon.depth==2 && (type==Ghost.class || type==FetidRat.class));
     }
 
     private boolean safeFloor(int cell,boolean moving) {
@@ -363,6 +366,16 @@ public final class CoopSession implements AutoCloseable {
                     break;
                 case TRAVEL:
                     if (!stairs.travel(activeSeat,cell)) return false;
+                    break;
+                case ACCEPT_GHOST:
+                case GHOST_WEAPON:
+                case GHOST_ARMOR:
+                    if (Dungeon.depth != 2 || !level.insideMap(cell) || !level.adjacent(hero.pos,cell)
+                            || !knowledge(activeSeat).visible(cell) || !(Actor.findChar(cell) instanceof Ghost)) return false;
+                    Ghost ghost = (Ghost)Actor.findChar(cell);
+                    if (action == Action.ACCEPT_GHOST) {
+                        if (!Ghost.Quest.accept(ghost)) return false;
+                    } else if (!Ghost.Quest.claim(ghost,hero,action == Action.GHOST_ARMOR)) return false;
                     break;
                 case WAIT:
                     hero.rest(false);

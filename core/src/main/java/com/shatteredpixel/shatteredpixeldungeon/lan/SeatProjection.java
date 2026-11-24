@@ -1,6 +1,8 @@
 package com.shatteredpixel.shatteredpixeldungeon.lan;
 
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SentryRoom.Sentry;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.StenchGas;
 
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
@@ -87,9 +89,11 @@ final class SeatProjection {
                 if (buff.icon() != BuffIndicator.NONE) rows.put("b"+buff.id(),buff.icon()+","+
                         (buff instanceof FlavourBuff ? Float.toString(buff.visualcooldown()) : "NA"));
             }
+            StenchGas stench = (StenchGas)level.blobs.get(StenchGas.class);
             for (int cell=0;cell<sight.length();cell++) {
                 if (!sight.visible(cell)) continue;
                 rows.put("t"+cell,Integer.toString(sight.terrain(cell)));
+                if (stench != null && stench.volume>0 && stench.cur[cell]>0) rows.put("stench"+cell,"1");
                 Heap heap = level.heaps.get(cell);
                 if (heap != null && heap.hidden) continue;
                 if (heap != null && heap.type == Heap.Type.HEAP && heap.peek()!=null) {
@@ -99,6 +103,8 @@ final class SeatProjection {
             for (Mob mob : level.mobs) {
                 if (sight.visible(mob.pos) && mob.invisible <= 0 && mob.isAlive() && CoopSession.basicMob(mob)) {
                     rows.put("m"+mob.id(),mob.pos+","+mob.getClass().getSimpleName()+","+mob.HP+","+mob.HT);
+                    if (mob instanceof Ghost && level.adjacent(hero.pos,mob.pos))
+                        rows.put("quest"+mob.pos,Ghost.Quest.sewerOffer());
                     if (mob instanceof Sentry
                             && ((Sentry)mob).charging())
                         rows.put("charge"+mob.pos,"1");

@@ -13,6 +13,8 @@ PREFIXES = ("items/", "actors/mobs/", "actors/buffs/", "actors/blobs/", "actors/
             "actors/hero/spells/", "levels/", "plants/", "mechanics/")
 ENUMS = {"HeroClass", "HeroSubClass", "Talent"}
 VERIFIED = {
+    "actors/mobs/npcs/Ghost": "depth 2 shared quest, single owned reward, reboot and receipt / SewerGhostTest, HostRestartTest",
+    "actors/mobs/FetidRat": "spawned quest, actual combat, credited completion / SewerGhostTest, HostRestartTest",
     "actors/mobs/Piranha": "native water AI, seat combat, loot, parked floor / SewerSpecialActorTest",
     "levels/rooms/special/SentryRoom.Sentry": "native charge, one eligible seat, damage and save boundary / SewerSpecialActorTest",
     "actors/hero/HeroClass.MAGE": "starting staff, two seats, disk restart / CoopMageTest, HostRestartTest",

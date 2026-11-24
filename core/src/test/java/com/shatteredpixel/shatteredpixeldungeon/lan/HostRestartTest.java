@@ -35,6 +35,10 @@ public class HostRestartTest {
             run(temp.newFolder().toPath(),new String[]{mode});
     }
 
+    @Test(timeout=70000) public void questRewardAndLostResponseSurviveFreshHost() throws Exception {
+        run(temp.getRoot().toPath(),new String[]{"quest","questreceipt"});
+    }
+
     private void run(Path dir,String[] modes) throws Exception {
         for(String mode:modes) {
             Files.deleteIfExists(dir.resolve("fault-armed"));
@@ -61,7 +65,7 @@ public class HostRestartTest {
                 System.out.println(trace.substring(route>=0?route:trace.lastIndexOf("mode=")).trim());
                 RestartHost.write(dir,"stop","1");
                 assertTrue(host.waitFor(10,TimeUnit.SECONDS));
-                assertEquals(RestartHost.read(dir,"RestartHost.log"),(mode.startsWith("kill_") || mode.equals("ascendfault"))?80:(mode.equals("revive") || mode.equals("walk") || mode.startsWith("cast"))?78:mode.equals("soak")?79:0,host.exitValue());
+                assertEquals(RestartHost.read(dir,"RestartHost.log"),(mode.startsWith("kill_") || mode.equals("ascendfault"))?80:(mode.equals("revive") || mode.equals("walk") || mode.equals("quest") || mode.startsWith("cast"))?78:mode.equals("soak")?79:0,host.exitValue());
                 if(mode.equals("verifyfloor")) for(String metric:new String[]{"perf1","perf2","perf-travel"})
                     System.out.println(RestartHost.read(dir,metric));
             } finally {

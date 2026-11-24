@@ -36,12 +36,33 @@ public class CoopScene extends PixelScene {
                 if(view.stair!=cell) alert(msg("stairconditions"));
                 else if(view.offered && !view.consent) alert(msg("awaitvote"));
                 else controller.act(view.source,view.offered?"TRAVEL":view.consent?"CANCEL_TRAVEL":"CONSENT",cell,0);
+            } else if ("Ghost".equals(view.monsters.get(cell))) {
+                String offer=view.source.rows.get("quest"+cell);
+                if (offer!=null) talkToGhost(view,cell,offer);
             } else view.tap(controller,cell);
             return;
         }
-        if (targetView==view && view.monsters.containsKey(cell) && !"Sentry".equals(view.monsters.get(cell))
+        if (targetView==view && view.monsters.containsKey(cell) && !"Sentry".equals(view.monsters.get(cell)) && !"Ghost".equals(view.monsters.get(cell))
                 && controller.act(view.source,"ZAP",cell,targetStaff.id)) cancelAim();
     }
+    private void talkToGhost(PublicDungeon view,int cell,String offer) {
+        Class<?> ghost=com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost.class;
+        String title=Messages.get(ghost,"name");
+        if (offer.equals("HUNT")) { alert(Messages.get(ghost,"rat_2")); return; }
+        if (!view.offered) return;
+        boolean reward=offer.equals("REWARD");
+        String body=reward?Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndSadGhost.class,"give_item")
+                :Messages.get(ghost,"rat_1",com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass.valueOf(view.heroClass).title());
+        String[] options=reward?new String[]{msg("ghost_weapon"),msg("ghost_armor"),msg("cancel")}
+                :new String[]{msg("accept"),msg("cancel")};
+        add(new WndOptions(title,body,options) {
+            protected void onSelect(int choice) {
+                if (choice>=0 && choice<options.length-1)
+                    controller.act(view.source,reward?(choice==0?"GHOST_WEAPON":"GHOST_ARMOR"):"ACCEPT_GHOST",cell,0);
+            }
+        });
+    }
+
     static String msg(String key,Object... args) { return Messages.get(CoopScene.class,key,args); }
 
     @Override public void create() {

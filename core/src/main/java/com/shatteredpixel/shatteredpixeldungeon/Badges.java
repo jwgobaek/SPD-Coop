@@ -245,7 +245,8 @@ public class Badges {
 	static Runnable enterCoop() {
 		HashSet<Badge> previousGlobal = global, previousLocal = local;
 		boolean dirty = saveNeeded;
-		global = null;
+		// A co-op world has no access to a solo profile's account unlocks.
+		global = new HashSet<>();
 		local = new HashSet<>();
 		saveNeeded = false;
 		return () -> {

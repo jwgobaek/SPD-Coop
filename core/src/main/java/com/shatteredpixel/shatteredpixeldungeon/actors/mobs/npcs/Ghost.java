@@ -34,6 +34,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.LeatherArmor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.MailArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.PlateArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ScaleArmor;
@@ -167,26 +169,18 @@ public class Ghost extends NPC {
 				}
 			}
 		} else {
-			Mob questBoss;
 			String txt_quest;
 
 			switch (Quest.type){
 				case 1: default:
-					questBoss = new FetidRat();
 					txt_quest = Messages.get(this, "rat_1", Messages.titleCase(Dungeon.hero.name())); break;
 				case 2:
-					questBoss = new GnollTrickster();
 					txt_quest = Messages.get(this, "gnoll_1", Messages.titleCase(Dungeon.hero.name())); break;
 				case 3:
-					questBoss = new GreatCrab();
 					txt_quest = Messages.get(this, "crab_1", Messages.titleCase(Dungeon.hero.name())); break;
 			}
 
-			questBoss.pos = Dungeon.level.randomRespawnCell( this );
-
-			if (questBoss.pos != -1) {
-				GameScene.add(questBoss);
-				Quest.given = true;
+			if (Quest.start(this)) {
 				Game.runOnRenderThread(new Callback() {
 					@Override
 					public void call() {
@@ -229,6 +223,58 @@ public class Ghost extends NPC {
 		public static Weapon.Enchantment enchant;
 		public static Armor.Glyph glyph;
 		
+		private static boolean start(Ghost ghost) {
+			if (!spawned || given || depth != Dungeon.depth) return false;
+			if (Dungeon.coop != null && type != 1) return false;
+			long[] before = Dungeon.coop == null ? null : Random.worldState();
+			Mob boss;
+			switch (type) {
+				case 2: boss = new GnollTrickster(); break;
+				case 3: boss = new GreatCrab(); break;
+				default: boss = new FetidRat();
+			}
+			boss.pos = Dungeon.level.randomRespawnCell(ghost);
+			if (Dungeon.coop != null) {
+				for (int tries = 0; boss.pos >= 0 && tries < 30; tries++) {
+					if (!Dungeon.coop.knowledge(Dungeon.coop.hero(0)).visible(boss.pos)
+							&& !Dungeon.coop.knowledge(Dungeon.coop.hero(1)).visible(boss.pos)) break;
+					boss.pos = tries == 29 ? -1 : Dungeon.level.randomRespawnCell(ghost);
+				}
+			}
+			if (boss.pos == -1) {
+				if (before != null) Random.restoreWorld(before);
+				return false;
+			}
+			GameScene.add(boss);
+			given = true;
+			return true;
+		}
+
+		public static String sewerOffer() {
+			if (!spawned || depth != Dungeon.depth || type != 1 || weapon == null) return "";
+			return !given ? "OFFER" : processed ? "REWARD" : "HUNT";
+		}
+
+		public static boolean accept(Ghost ghost) { return start(ghost); }
+
+		public static boolean claim(Ghost ghost, Hero recipient, boolean chooseArmor) {
+			if (!"REWARD".equals(sewerOffer())) return false;
+			Item reward = chooseArmor ? armor : weapon;
+			// Leave the reward with the ghost if the pack cannot hold it.
+			if (reward == null || !recipient.belongings.backpack.canHold(reward)) return false;
+			identifyReward(reward);
+			if (!reward.doPickUp(recipient)) throw new IllegalStateException("Reserved ghost reward did not fit");
+			ghost.die(null);
+			complete();
+			return true;
+		}
+
+		public static void identifyReward(Item reward) {
+			if (reward instanceof Weapon && enchant != null) ((Weapon) reward).enchant(enchant);
+			else if (reward instanceof Armor && glyph != null) ((Armor) reward).inscribe(glyph);
+			reward.identify(false);
+		}
+
 		public static void reset() {
 			spawned = false;
 			
@@ -370,6 +416,7 @@ public class Ghost extends NPC {
 				Sample.INSTANCE.play( Assets.Sounds.GHOST );
 				processed = true;
 				Statistics.questScores[0] += 1000;
+				if (Dungeon.coop != null) return;
 
 				Game.runOnRenderThread(new Callback() {
 					@Override

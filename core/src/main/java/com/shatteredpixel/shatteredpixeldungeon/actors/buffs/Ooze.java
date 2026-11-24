@@ -103,7 +103,7 @@ public class Ooze extends Buff implements Buff.DOTbuff {
 				target.damage(1, this); //0.5 dmg per turn in sewers
 			}
 
-			if (!target.isAlive() && target == Dungeon.hero) {
+			if (!target.isAlive() && Dungeon.coop == null && target == Dungeon.hero) {
 				Dungeon.fail( this );
 				GLog.n( Messages.get(this, "ondeath") );
 			}

@@ -460,7 +460,7 @@ actors/mobs/Elemental.NewbornFireElemental	actors/mobs	UNSUPPORTED		core/src/mai
 actors/mobs/Elemental.ShockElemental	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
 actors/mobs/Eye	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Eye.java
 actors/mobs/Eye.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Eye.java
-actors/mobs/FetidRat	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/FetidRat.java
+actors/mobs/FetidRat	actors/mobs	VERIFIED	spawned quest, actual combat, credited completion / SewerGhostTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/FetidRat.java
 actors/mobs/FetidRat.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/FetidRat.java
 actors/mobs/FungalCore	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/FungalCore.java
 actors/mobs/FungalSentry	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/FungalSentry.java
@@ -574,7 +574,7 @@ actors/mobs/npcs/Blacksmith	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpix
 actors/mobs/npcs/DirectableAlly	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/DirectableAlly.java
 actors/mobs/npcs/DirectableAlly.Hunting	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/DirectableAlly.java
 actors/mobs/npcs/DirectableAlly.Wandering	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/DirectableAlly.java
-actors/mobs/npcs/Ghost	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Ghost.java
+actors/mobs/npcs/Ghost	NPC	VERIFIED	depth 2 shared quest, single owned reward, reboot and receipt / SewerGhostTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Ghost.java
 actors/mobs/npcs/Ghost.Wandering	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Ghost.java
 actors/mobs/npcs/Imp	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Imp.java
 actors/mobs/npcs/ImpShopkeeper	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/ImpShopkeeper.java

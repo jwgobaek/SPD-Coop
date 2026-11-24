@@ -41,8 +41,8 @@ public final class RestartHost {
                 Runtime.getRuntime().halt(78);
         });
         InetAddress loop=InetAddress.getLoopbackAddress();
-        boolean special = mode.equals("sentry") || mode.equals("piranha");
-        try(LanRoom room=(special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,mode.equals("piranha")?406:mode.equals("walk")?415:402,saves)
+        boolean special = mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest");
+        try(LanRoom room=(special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,mode.equals("quest")?403:mode.equals("piranha")?406:mode.equals("walk")?415:402,saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup"))) {
             Rat rat=null;
             if (mode.equals("revive") || mode.equals("soak")) {
@@ -59,6 +59,7 @@ public final class RestartHost {
             boolean started=false, profiled=false;
             String lastGuide="";
             int arrangedDepth=0;
+            String arrangedQuest="";
             while(!java.nio.file.Files.exists(path.resolve("stop"))) {
                 if (java.nio.file.Files.deleteIfExists(path.resolve("inflict"))) {
                     CoopSession g=Dungeon.coop;
@@ -89,7 +90,23 @@ public final class RestartHost {
                 if (special && room.state()==LanRoom.State.IN_GAME && arrangedDepth!=Dungeon.depth) {
                     arrangedDepth=Dungeon.depth;
                     if (arrangedDepth==1) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
-                    else SewerSpecialActorTest.exposeOneSeat(Dungeon.coop,1,mode.equals("sentry"));
+                    else if (!mode.equals("quest")) SewerSpecialActorTest.exposeOneSeat(Dungeon.coop,1,mode.equals("sentry"));
+                }
+                if (mode.equals("quest") && arrangedDepth==2) {
+                    String offer=com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost.Quest.sewerOffer();
+                    if (!offer.equals(arrangedQuest) && !offer.isEmpty()) {
+                        arrangedQuest=offer;
+                        for (Mob mob:Dungeon.level.mobs) {
+                            boolean opponent=offer.equals("HUNT");
+                            if (opponent ? mob instanceof FetidRat : mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost) {
+                                // Keep dialogue available between the two socket requests in this placement fixture.
+                                if (!opponent) mob.state=mob.PASSIVE;
+                                SewerGhostTest.meet(Dungeon.coop,0,mob);
+                                SewerGhostTest.meet(Dungeon.coop,1,mob);
+                                break;
+                            }
+                        }
+                    }
                 }
                 if (mode.startsWith("cast") && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;

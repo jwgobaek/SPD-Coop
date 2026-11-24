@@ -110,13 +110,7 @@ public class WndSadGhost extends Window {
 		
 		if (reward == null) return;
 
-		if (reward instanceof Weapon && Ghost.Quest.enchant != null){
-			((Weapon) reward).enchant(Ghost.Quest.enchant);
-		} else if (reward instanceof Armor && Ghost.Quest.glyph != null){
-			((Armor) reward).inscribe(Ghost.Quest.glyph);
-		}
-		
-		reward.identify(false);
+		Ghost.Quest.identifyReward(reward);
 		if (reward.doPickUp( Dungeon.hero )) {
 			GLog.i( Messages.capitalize(Messages.get(Dungeon.hero, "you_now_have", reward.name())) );
 		} else {
