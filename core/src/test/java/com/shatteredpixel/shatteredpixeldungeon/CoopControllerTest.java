@@ -57,7 +57,9 @@ public class CoopControllerTest extends HeadlessDungeon {
     @Test(timeout=60000) public void realLobbySaveAndColdClientResume() throws Exception {
         File hr=temporary.newFolder(), gr=temporary.newFolder();
         InetAddress loop=InetAddress.getLoopbackAddress();
-        CoopController h=new CoopController(hr,null,loop,0,0), g=new CoopController(gr,null,loop,0,0);
+        CoopController h=new CoopController(hr,null,loop,0,0,new java.util.Random() {
+            @Override public long nextLong() { return 415L; }
+        }), g=new CoopController(gr,null,loop,0,0);
         try {
             h.host();
             CoopController.Frame lobby=until(h,f->f.page==CoopController.Page.LOBBY);

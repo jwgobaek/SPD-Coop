@@ -59,6 +59,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
@@ -68,9 +71,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET;
+    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
         public boolean requiresItem() {
-            return this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER;
+            return this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -454,7 +457,8 @@ public final class CoopSession implements AutoCloseable {
                     if (destination != null && destination.type != Heap.Type.HEAP) return false;
                     hero.checkVisibleMobs();
                     boolean unsteady = hero.buff(Vertigo.class) != null;
-                    boolean teleport = level.traps.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.levels.traps.TeleportationTrap
+                    boolean teleport = (level.traps.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.levels.traps.TeleportationTrap
+                            || level.traps.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.levels.traps.GatewayTrap)
                             && level.traps.get(cell).active;
                     hero.handle(cell);
                     if (hero.curAction instanceof HeroAction.PickUp) hero.curAction = new HeroAction.Move(cell);
@@ -522,11 +526,27 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && !(item instanceof Potion) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
                             || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && !hero.belongings.backpack.canHold(item))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
                     hero.act();
+                    break;
+                case DRINK:
+                    if (!(item instanceof PotionOfHealing) || !((Potion)item).isKnown()
+                            || !hero.belongings.backpack.contains(item)) return false;
+                    item.execute(hero, Potion.AC_DRINK);
+                    break;
+                case SHOOT:
+                    if (!(item instanceof SpiritBow) || hero.heroClass!=HeroClass.HUNTRESS
+                            || !hero.belongings.backpack.contains(item) || !level.insideMap(cell)
+                            || !knowledge(activeSeat).visible(cell)) return false;
+                    Char mark=Actor.findChar(cell);
+                    if (!(mark instanceof Mob) || !basicMob(mark) || !mark.isAlive() || mark.invisible>0
+                            || mark.alignment!=Char.Alignment.ENEMY || hero.isCharmedBy(mark)
+                            || !((SpiritBow)item).shootInCoop(hero,mark)) return false;
+                    lastOpponent[activeSeat]=(Mob)mark;
+                    attackTurn[activeSeat]=turn;
                     break;
                 case SHATTER:
                     if (!(item instanceof Honeypot) || cell!=hero.pos || !hero.belongings.backpack.contains(item)) return false;

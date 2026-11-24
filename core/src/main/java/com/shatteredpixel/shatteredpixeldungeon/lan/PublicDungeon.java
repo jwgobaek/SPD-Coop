@@ -83,6 +83,8 @@ public final class PublicDungeon {
         boolean weapon=item.kind.equals("MELEE") || item.kind.equals("STAFF");
         if(item.slot.equals("WEAPON") && item.charges>0) verbs.add("ZAP");
         if(item.slot.equals("BAG")) {
+            if(item.kind.equals("HEALING")) verbs.add("DRINK");
+            if(item.kind.equals("BOW")) verbs.add("SHOOT");
             if(item.kind.equals("FOOD")) verbs.add("EAT");
             if(weapon) verbs.add("EQUIP");
             if(item.kind.equals("HONEYPOT")) verbs.add("SHATTER");
@@ -91,7 +93,7 @@ public final class PublicDungeon {
         return verbs;
     }
     public boolean use(CoopController c,Loot item,String verb) {
-        return !verb.equals("ZAP") && actions(item).contains(verb) && c.act(source,verb,verb.equals("DROP") || verb.equals("SHATTER")?pos:0,item.id);
+        return !verb.equals("ZAP") && !verb.equals("SHOOT") && actions(item).contains(verb) && c.act(source,verb,verb.equals("DROP") || verb.equals("SHATTER")?pos:0,item.id);
     }
     public int terrain(int cell) {
         String t=source.rows.get("t"+cell);

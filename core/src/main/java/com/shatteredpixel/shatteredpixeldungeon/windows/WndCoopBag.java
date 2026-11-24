@@ -51,7 +51,7 @@ public final class WndCoopBag extends Window {
                 if(i>=verbs.size()) return;
                 WndCoopBag.this.hide();
                 String verb=verbs.get(i);
-                if (verb.equals("ZAP")) ((CoopScene)Game.scene()).aim(view,item);
+                if (verb.equals("ZAP") || verb.equals("SHOOT")) ((CoopScene)Game.scene()).aim(view,item);
                 else view.use(client,item,verb);
             }
         });

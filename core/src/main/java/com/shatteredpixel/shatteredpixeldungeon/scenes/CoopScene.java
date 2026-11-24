@@ -25,7 +25,7 @@ public class CoopScene extends PixelScene {
     private PublicDungeon.Loot targetStaff;
 
     public void aim(PublicDungeon view, PublicDungeon.Loot staff) {
-        if (controller.frame().image!=view.source || !view.actions(staff).contains("ZAP")) return;
+        if (controller.frame().image!=view.source || (!view.actions(staff).contains("ZAP") && !view.actions(staff).contains("SHOOT"))) return;
         targetView=view; targetStaff=staff; renderFrame();
     }
     private void cancelAim() { targetView=null; targetStaff=null; renderFrame(); }
@@ -43,7 +43,7 @@ public class CoopScene extends PixelScene {
             return;
         }
         if (targetView==view && (view.monsters.containsKey(cell) || view.chest(cell)) && !"Sheep".equals(view.monsters.get(cell)) && !"Sentry".equals(view.monsters.get(cell)) && !"Ghost".equals(view.monsters.get(cell))
-                && controller.act(view.source,"ZAP",cell,targetStaff.id)) cancelAim();
+                && controller.act(view.source,targetStaff.kind.equals("BOW")?"SHOOT":"ZAP",cell,targetStaff.id)) cancelAim();
     }
     private void talkToGhost(PublicDungeon view,int cell,String offer) {
         Class<?> ghost=com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost.class;

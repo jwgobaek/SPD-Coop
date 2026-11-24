@@ -88,7 +88,7 @@ public class RockfallTrap extends Trap {
 		boolean seen = false;
 		for (int cell : rockCells){
 
-			if (Dungeon.level.heroFOV[ cell ]){
+			if (Dungeon.coop == null && Dungeon.level.heroFOV[ cell ]){
 				CellEmitter.get( cell - Dungeon.level.width() ).start(Speck.factory(Speck.ROCK), 0.07f, 10);
 				seen = true;
 			}
@@ -105,7 +105,7 @@ public class RockfallTrap extends Trap {
 
 				if (ch.isActive()) {
 					Buff.prolong(ch, Paralysis.class, Paralysis.DURATION);
-				} else if (!ch.isAlive() && ch == Dungeon.hero){
+				} else if (Dungeon.coop == null && !ch.isAlive() && ch == Dungeon.hero){
 					Dungeon.fail( this );
 					GLog.n( Messages.get(this, "ondeath") );
 					if (reclaimed) Badges.validateDeathFromFriendlyMagic();

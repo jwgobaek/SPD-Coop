@@ -97,7 +97,8 @@ public abstract class Trap implements Bundlable {
 		return type == WornDartTrap.class || type == BurningTrap.class || type == ChillingTrap.class
 				|| type == ShockingTrap.class || type == ToxicTrap.class || type == ConfusionTrap.class
 				|| type == OozeTrap.class || type == AlarmTrap.class || type == FlockTrap.class
-				|| type == SummoningTrap.class || type == TeleportationTrap.class;
+				|| type == SummoningTrap.class || type == TeleportationTrap.class
+				|| type == GatewayTrap.class || type == GrippingTrap.class || type == RockfallTrap.class;
 	}
 
 	public final void requireSupportedEffect() {

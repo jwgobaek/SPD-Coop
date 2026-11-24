@@ -81,9 +81,9 @@ public class ScrollOfTeleportation extends Scroll {
 		}
 		
 		appear( ch, pos );
-		Dungeon.level.occupyCell( ch );
+		if (Dungeon.coop == null) Dungeon.level.occupyCell( ch );
 		Buff.detach(ch, Roots.class);
-		if (ch == Dungeon.hero) {
+		if (Dungeon.coop == null && ch == Dungeon.hero) {
 			Dungeon.observe();
 			GameScene.updateFog();
 		}

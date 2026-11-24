@@ -185,19 +185,44 @@ public class SpiritBow extends Weapon {
 		return STRReq(1, lvl); //tier 1
 	}
 	
+    private Hero wielder() {
+        if (Dungeon.coop != null) for (int i=0;i<2;i++) {
+            Hero hero=Dungeon.coop.hero(i);
+            if (hero!=null && hero.belongings.backpack.contains(this)) return hero;
+        }
+        return Dungeon.hero;
+    }
+
+    /** Normal spirit arrow. The authority resolves the original missile hit and cost at the input boundary. */
+    public boolean shootInCoop(Hero user, Char enemy) {
+        if (sniperSpecial || enchantment!=null || cursed || user.buff(NaturesPower.naturesPowerTracker.class)!=null)
+            return false;
+        SpiritArrow arrow=knockArrow();
+        if (arrow.throwPos(user, enemy.pos)!=enemy.pos) return false;
+        targetPos=enemy.pos;
+        float delay=arrow.castDelay(user,targetPos);
+        user.shoot(enemy,arrow);
+        Talent.LethalMomentumTracker free=user.buff(Talent.LethalMomentumTracker.class);
+        if (free!=null) { free.detach(); user.next(); }
+        else user.spendAndNext(delay);
+        return true;
+    }
+
 	@Override
 	public int min(int lvl) {
-		int dmg = 1 + Dungeon.hero.lvl/5
-				+ RingOfSharpshooting.levelDamageBonus(Dungeon.hero)
-				+ (curseInfusionBonus ? 1 + Dungeon.hero.lvl/30 : 0);
+		Hero user=wielder();
+		int dmg = 1 + user.lvl/5
+				+ RingOfSharpshooting.levelDamageBonus(user)
+				+ (curseInfusionBonus ? 1 + user.lvl/30 : 0);
 		return Math.max(0, dmg);
 	}
 	
 	@Override
 	public int max(int lvl) {
-		int dmg = 6 + (int)(Dungeon.hero.lvl/2.5f)
-				+ 2*RingOfSharpshooting.levelDamageBonus(Dungeon.hero)
-				+ (curseInfusionBonus ? 2 + Dungeon.hero.lvl/15 : 0);
+		Hero user=wielder();
+		int dmg = 6 + (int)(user.lvl/2.5f)
+				+ 2*RingOfSharpshooting.levelDamageBonus(user)
+				+ (curseInfusionBonus ? 2 + user.lvl/15 : 0);
 		return Math.max(0, dmg);
 	}
 
@@ -215,7 +240,7 @@ public class SpiritBow extends Weapon {
 		if (owner instanceof Hero) {
 			int exStr = ((Hero)owner).STR() - STRReq();
 			if (exStr > 0) {
-				damage += Hero.heroDamageIntRange( 0, exStr );
+				damage += Hero.heroDamageIntRange((Hero)owner, 0, exStr);
 			}
 		}
 
@@ -270,7 +295,8 @@ public class SpiritBow extends Weapon {
 
 	@Override
 	public int level() {
-		int level = Dungeon.hero == null ? 0 : Dungeon.hero.lvl/5;
+		Hero hero=wielder();
+		int level = hero == null ? 0 : hero.lvl/5;
 		if (curseInfusionBonus) level += 1 + level/6;
 		return level;
 	}
