@@ -45,6 +45,10 @@ final class SeatProjection {
         Map<Long,Item> visibleItems = new HashMap<>();
         boolean playing=status.equals("IN_GAME");
         boolean defeated = status.equals("PARTY_DEFEATED");
+        String floorId=Dungeon.branch+","+Dungeon.depth;
+        boolean changed=current!=null && !floorId.equals(current.rows.get("floor"));
+        if(changed) resetHandles(nextItem);
+        rows.put("floor",floorId);
         rows.put("status",playing || defeated ? status : "PAUSED");
         if (epoch!=null) rows.put("epoch",epoch.toString());
         rows.put("life",game.life(seat).name());
@@ -60,6 +64,8 @@ final class SeatProjection {
             Level level = Dungeon.level;
             FloorKnowledge sight = game.observe(seat);
             writeMemory(rows, sight);
+            int stair=game.stairs.stair();
+            if(stair>=0) rows.put("stair",stair+","+(game.stairs.agreed()?1:0));
             for (BitSet area : CombatZones.calculate(game, sight)) {
                 for (int cell = area.nextSetBit(0); cell >= 0; cell = area.nextSetBit(cell+1)) {
                     int mask = CombatZones.edgeMask(area, cell, level.width());

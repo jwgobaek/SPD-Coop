@@ -2594,7 +2594,7 @@ public class Hero extends Char {
 						}
 
 						//don't want to let the player search though hidden doors in tutorial
-						if (SPDSettings.intro()){
+						if (SPDSettings.intro() && !(intentional && Dungeon.coop!=null)){
 							chance = 0;
 						}
 						
@@ -2607,7 +2607,7 @@ public class Hero extends Char {
 							Dungeon.level.discover( curr );
                             if (survey != null) survey.reveal(Dungeon.level,curr);
 							
-							ScrollOfMagicMapping.discover( curr );
+							if (Dungeon.coop==null) ScrollOfMagicMapping.discover( curr );
 							
 							if (fieldOfView[curr]) smthFound = true;
 	

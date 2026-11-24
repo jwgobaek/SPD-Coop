@@ -609,34 +609,36 @@ public abstract class Level implements Bundlable {
 	}
 
 	//some buff effects have special logic or are cancelled from the hero before transitioning levels
-	public static void beforeTransition(){
+	public static void beforeTransition(){ beforeTransition(Dungeon.hero); }
+
+	public static void beforeTransition(Hero traveller){
 
 		//time freeze effects need to resolve their pressed cells before transitioning
-		TimekeepersHourglass.timeFreeze timeFreeze = Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class);
+		TimekeepersHourglass.timeFreeze timeFreeze = traveller.buff(TimekeepersHourglass.timeFreeze.class);
 		if (timeFreeze != null) timeFreeze.disarmPresses();
-		Swiftthistle.TimeBubble timeBubble = Dungeon.hero.buff(Swiftthistle.TimeBubble.class);
+		Swiftthistle.TimeBubble timeBubble = traveller.buff(Swiftthistle.TimeBubble.class);
 		if (timeBubble != null) timeBubble.disarmPresses();
 
 		//iron stomach and challenge arena do not persist between floors
-		Talent.WarriorFoodImmunity foodImmune = Dungeon.hero.buff(Talent.WarriorFoodImmunity.class);
+		Talent.WarriorFoodImmunity foodImmune = traveller.buff(Talent.WarriorFoodImmunity.class);
 		if (foodImmune != null) foodImmune.detach();
-		ScrollOfChallenge.ChallengeArena arena = Dungeon.hero.buff(ScrollOfChallenge.ChallengeArena.class);
+		ScrollOfChallenge.ChallengeArena arena = traveller.buff(ScrollOfChallenge.ChallengeArena.class);
 		if (arena != null) arena.detach();
 		//awareness also doesn't, honestly it's weird that it's a buff
-		Awareness awareness = Dungeon.hero.buff(Awareness.class);
+		Awareness awareness = traveller.buff(Awareness.class);
 		if (awareness != null) awareness.detach();
 
-		Char ally = Stasis.getStasisAlly();
+		Char ally = Dungeon.coop==null ? Stasis.getStasisAlly() : null;
 		if (Char.hasProp(ally, Char.Property.IMMOVABLE)){
-			Dungeon.hero.buff(Stasis.StasisBuff.class).act();
+			traveller.buff(Stasis.StasisBuff.class).act();
 			GLog.w(Messages.get(Stasis.StasisBuff.class, "left_behind"));
 		}
 
 		//spend the hero's partial turns,  so the hero cannot take partial turns between floors
-		Dungeon.hero.spendToWhole();
+		traveller.spendToWhole();
 		for (Actor a : Actor.all()){
 			//also adjust any other actors that are now ahead of the hero due to this
-			if (a.cooldown() < Dungeon.hero.cooldown()){
+			if (a.cooldown() < traveller.cooldown()){
 				a.spendToWhole();
 			}
 		}

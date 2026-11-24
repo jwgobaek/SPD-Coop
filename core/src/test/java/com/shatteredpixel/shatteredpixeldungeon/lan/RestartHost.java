@@ -33,7 +33,7 @@ public final class RestartHost {
 
     private static void host(Path path,String mode) throws Exception {
         CoopSaves saves=new CoopSaves(path.toFile(),stage->{
-            if (mode.equals("kill_"+stage) && java.nio.file.Files.exists(path.resolve("fault-armed")))
+            if ((mode.equals("kill_"+stage) || (mode.equals("ascendfault") && stage.equals("BEFORE_HEAD"))) && java.nio.file.Files.exists(path.resolve("fault-armed")))
                 Runtime.getRuntime().halt(80);
             if (stage.equals("WRITING") && java.nio.file.Files.exists(path.resolve("fail-write")))
                 throw new IOException("Injected write failure");
@@ -41,8 +41,8 @@ public final class RestartHost {
                 Runtime.getRuntime().halt(78);
         });
         InetAddress loop=InetAddress.getLoopbackAddress();
-        try(LanRoom room=(mode.equals("new") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,402,saves)
-                : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup"))) {
+        try(LanRoom room=(mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,mode.equals("walk")?415:402,saves)
+                : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup"))) {
             Rat rat=null;
             if (mode.equals("revive") || mode.equals("soak")) {
                 CoopSession g=Dungeon.coop;
@@ -55,7 +55,8 @@ public final class RestartHost {
             }
             write(path,"endpoint.tmp",room.tcpPort()+"\n"+room.hostJoinCommand());
             java.nio.file.Files.move(path.resolve("endpoint.tmp"),path.resolve("endpoint"));
-            boolean started=false;
+            boolean started=false, profiled=false;
+            String lastGuide="";
             while(!java.nio.file.Files.exists(path.resolve("stop"))) {
                 if (java.nio.file.Files.deleteIfExists(path.resolve("inflict"))) {
                     CoopSession g=Dungeon.coop;
@@ -69,6 +70,20 @@ public final class RestartHost {
                 room.pump();
                 if (room.failure()!=null && !(mode.equals("failure") && room.failure().equals("CHECKPOINT_FAILED")))
                     throw new IllegalStateException(room.failure());
+                if (!profiled && (mode.equals("walk") || mode.equals("backatstairs")) && room.state()==LanRoom.State.IN_GAME) {
+                    profiled=true;
+                    measureSaves(path,room,Dungeon.depth);
+                }
+                if (mode.equals("walk") && room.state()==LanRoom.State.IN_GAME) {
+                    CoopSession g=Dungeon.coop;
+                    if (!started) { started=true; com.watabou.utils.Random.pushGenerator(415); }
+                    String suggestion=g.turn()+" "+g.activeSeat()+" "+CoopFloorsTest.guide(g);
+                    if(!suggestion.equals(lastGuide)) {
+                        write(path,"guide.tmp",suggestion);
+                        java.nio.file.Files.move(path.resolve("guide.tmp"),path.resolve("guide"),StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);
+                        lastGuide=suggestion;
+                    }
+                }
                 if (mode.startsWith("cast") && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;
                     int seat=Integer.parseInt(mode.substring(4));
@@ -104,6 +119,30 @@ public final class RestartHost {
                 assertThrows(IOException.class,room::saveAndClose);
             } else room.saveAndClose();
         }
+    }
+
+    private static void measureSaves(Path path,LanRoom room,int depth) throws IOException {
+        long[] samples=new long[21];
+        for(int i=0;i<samples.length;i++) {
+            long start=System.nanoTime();
+            room.save();
+            samples[i]=System.nanoTime()-start;
+        }
+        long disk=0,size=0;
+        try(java.util.stream.Stream<Path> paths=java.nio.file.Files.walk(path.resolve("coop-saves-v1"))) {
+            for(Iterator<Path> it=paths.iterator();it.hasNext();) {
+                Path entry=it.next();
+                if(!java.nio.file.Files.isRegularFile(entry)) continue;
+                long n=java.nio.file.Files.size(entry);
+                disk+=n;
+                if(entry.getFileName().toString().matches("g[0-9]+")) size=Math.max(size,n);
+            }
+        }
+        Arrays.sort(samples);
+        Runtime vm=Runtime.getRuntime();
+        write(path,"perf"+depth,"floor="+depth+" explicit_disk_saves=21 median_us="+samples[10]/1000+
+                " p95_us="+samples[19]/1000+" generation_bytes="+size+" slot_bytes="+disk+
+                " host_used_heap_bytes="+(vm.totalMemory()-vm.freeMemory()));
     }
 
     static void write(Path dir,String name,String value) throws IOException {

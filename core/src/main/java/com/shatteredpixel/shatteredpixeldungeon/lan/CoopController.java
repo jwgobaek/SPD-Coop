@@ -20,7 +20,7 @@ public final class CoopController {
     }
     public static final class Frame {
         public final Page page;
-        public final String notice,roster,address,lastResult,cue,issue,crash;
+        public final String notice,roster,address,lastResult,cue,issue,crash,pendingVerb;
         public final List<Entry> list;
         public final StateImage image;
         public final PublicDungeon dungeon;
@@ -31,7 +31,7 @@ public final class CoopController {
             page=c.page; wireBytes=c.client==null ? 0 : c.client.transferredBytes(); issue=c.issue; crash=c.crash; cue=c.cue; notice=c.notice; roster=c.roster; list=c.list; image=c.image; dungeon=c.dungeon;
             seat=c.ticket==null ? -1 : c.ticket.seat; session=c.ticket==null ? null : c.ticket.session;
             address=c.advertised; pending=c.ticket==null ? 0 : c.ticket.pending;
-            lastResult=c.lastResult; lastAction=c.lastAction;
+            lastResult=c.lastResult; lastAction=c.lastAction; pendingVerb=c.pendingVerb;
         }
     }
 
@@ -59,6 +59,7 @@ public final class CoopController {
     private SeatActions actions;
     private DisplayReplica replica;
     private UUID proposedEpoch;
+    private String pendingVerb="";
     private long confirmedVersion=-1;
     private int interruptedTransfers;
 
@@ -267,11 +268,11 @@ public final class CoopController {
         }
     }
     public boolean act(StateImage offered,String verb,int cell,long item) {
-        if(offered==null || frame.image!=offered || !Integer.toString(frame.seat).equals(offered.rows.get("active"))) return false;
+        if(offered==null || frame.image!=offered || (!verb.equals("CONSENT") && !verb.equals("CANCEL_TRAVEL") && !Integer.toString(frame.seat).equals(offered.rows.get("active")))) return false;
         return enqueue(()->{
             if(image!=offered || page!=Page.GAME || ticket.pending!=0) return;
             SeatActions.Pending p=actions.prepare(image,verb,cell,item);
-            ticket.pending=p.id; tickets.write(ticket); publish();
+            pendingVerb=verb; ticket.pending=p.id; tickets.write(ticket); publish();
             String result=p.submit(client);
             lastAction=p.id; lastResult=outcome(result);
             if(!result.startsWith("RESULT ")) throw new IOException(lastResult);

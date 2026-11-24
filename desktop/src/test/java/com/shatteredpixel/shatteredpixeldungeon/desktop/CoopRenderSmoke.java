@@ -24,11 +24,12 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean mage;
+    private static boolean mage,floors;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        mage=args.length>1 && args[1].equals("mage");
+        floors=args.length>1 && args[1].equals("floors");
+        mage=floors || (args.length>1 && args[1].equals("mage"));
         shots=new File(args[0]); if(!shots.isDirectory() && !shots.mkdirs()) throw new AssertionError();
         // Test classes share the launcher's package but do not carry release-manifest attributes.
         java.util.jar.Manifest manifest=new java.util.jar.Manifest(DesktopLauncher.class.getResourceAsStream("/META-INF/MANIFEST.MF"));
@@ -49,14 +50,19 @@ public final class CoopRenderSmoke {
             } else {
             c.join("127.0.0.1:"+LanClient.TCP_PORT,null);
             await(()->!c.busy() && c.frame().page==CoopController.Page.LOBBY);
-            c.select("HUNTRESS"); await(()->!c.busy() && c.frame().roster.contains("HUNTRESS"));
+            String character=new File(root,"stairs").isFile()?"WARRIOR":"HUNTRESS";
+            c.select(character); await(()->!c.busy() && c.frame().roster.contains(character));
             c.ready(true);
             }
             await(()->c.frame().dungeon!=null);
             long end=System.nanoTime()+LIMIT*3;
             while(System.nanoTime()<end && c.frame().page==CoopController.Page.GAME) {
                 CoopController.Frame f=c.frame();
-                if(!c.busy() && f.dungeon!=null && f.dungeon.offered) c.act(f.image,"WAIT",0,0);
+                if(!c.busy() && f.dungeon!=null) {
+                    if(f.dungeon.offered) c.act(f.image,"WAIT",0,0);
+                    else if(f.dungeon.stair>=0 && !f.dungeon.consent && new File(root,"allow"+f.dungeon.depth).exists())
+                        c.act(f.image,"CONSENT",f.dungeon.stair,0);
+                }
                 Thread.sleep(25);
             }
         } finally {c.shutdown();}
@@ -150,6 +156,38 @@ public final class CoopRenderSmoke {
         click("zap");
         await(()->button("cancel")!=null);
     }
+    private static void floorScreens(File root,Process oldGuest) throws Exception {
+        await(()->frame().dungeon.offered);
+        RenderEncounter.atExit(hostController());
+        click("wait");
+        await(()->frame().dungeon.offered && frame().dungeon.stair>=0);
+        shot("stairs-await-consent");
+        java.nio.file.Files.createFile(new File(root,"allow1").toPath());
+        await(()->frame().dungeon.consent); shot("stairs-agreed");
+        click("#"+Messages.get(CoopScene.class,"travel",2));
+        await(()->frame().dungeon.depth==2 && frame().dungeon.offered);
+        shot("sewer-2");
+        click("menu");click("saveexit"); await(()->button("saves")!=null);
+        click("saves"); await(()->frame().list.size()==1);
+        CoopController.Entry entry=frame().list.get(0);
+        if(entry.current.depth!=2) throw new AssertionError("Wrong saved floor");
+        click("#"+entry.id.toString().substring(0,8)+"  "+Messages.get(CoopScene.class,"floor",2,entry.current.generation));
+        click("resume"); await(()->frame().image!=null);
+        if(!oldGuest.waitFor(6,TimeUnit.SECONDS)) throw new AssertionError("Guest not closed");
+        Process guest=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-cp",System.getProperty("java.class.path"),
+                CoopRenderSmoke.class.getName(),"guest",root.toString(),"resume").inheritIO().start();
+        try {
+            await(()->frame().dungeon!=null && frame().dungeon.depth==2 && frame().dungeon.offered);
+            shot("sewer-2-reconnected");
+            java.nio.file.Files.createFile(new File(root,"allow2").toPath());
+            await(()->frame().dungeon.consent);
+            click("#"+Messages.get(CoopScene.class,"travel",1));
+            await(()->frame().dungeon.depth==1 && frame().dungeon.offered);
+            shot("sewer-1-return");
+            click("wait"); await(()->frame().lastResult.equals("APPLIED"));
+            click("menu");click("saveexit");await(()->button("host")!=null);
+        } finally { guest.destroy(); if(!guest.waitFor(5,TimeUnit.SECONDS)) guest.destroyForcibly(); }
+    }
     private static void exercise() throws Exception {
         await(()->Gdx.app!=null && render(()->Game.scene()!=null));
         render(()->{ShatteredPixelDungeon.switchNoFade(TitleScene.class);return null;});
@@ -161,7 +199,7 @@ public final class CoopRenderSmoke {
         render(()->{
             Field active=CoopScene.class.getDeclaredField("active"); active.setAccessible(true);
             active.set(null,new CoopController(CoopPlatform.root(),null,null,LanClient.TCP_PORT,LanClient.UDP_PORT,
-                    new java.util.Random(){@Override public long nextLong(){return 402;}}));
+                    new java.util.Random(){@Override public long nextLong(){return floors?415:402;}}));
             return null;
         });
         click("title"); await(()->button("host")!=null);
@@ -169,12 +207,17 @@ public final class CoopRenderSmoke {
         shot("lobby"); click(mage?"mageClass":"warriorClass");
         if(mage) shot("mage-selected");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
+        if(floors) java.nio.file.Files.createFile(new File(root,"stairs").toPath());
         Process child=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-cp",System.getProperty("java.class.path"),
                 CoopRenderSmoke.class.getName(),"guest",root.toString()).inheritIO().start();
         try {
             click("ready"); await(()->button("start")!=null); shot("ready"); click("start");
             await(()->frame().dungeon!=null); await(()->button("bag")!=null);
             shot("dungeon");
+            if(floors) {
+                floorScreens(root,child);
+                return;
+            }
             PublicDungeon before=frame().dungeon;
             int destination=-1;
             for(int dy=-1;dy<=1 && destination<0;dy++) for(int dx=-1;dx<=1;dx++) {

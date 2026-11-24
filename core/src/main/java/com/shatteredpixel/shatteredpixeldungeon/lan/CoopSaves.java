@@ -9,7 +9,7 @@ import java.util.*;
 
 /** Host-private generations. Only the small HEAD rename publishes an image. */
 public final class CoopSaves {
-    static final int SCHEMA = 1, LIMIT = 4 * 1024 * 1024;
+    static final int SCHEMA = 2, LIMIT = 4 * 1024 * 1024;
     private final File root;
     interface Barrier { void reached(String stage) throws IOException; }
     final Barrier barrier;
@@ -156,10 +156,14 @@ public final class CoopSaves {
                 if (image[0]!='{' || !MessageDigest.isEqual(expected, digest(image))) throw new IOException("Generation checksum");
                 checkDepth(image);
                 Bundle envelope = Bundle.read(new ByteArrayInputStream(image));
-                if (envelope.getInt("schema") != SCHEMA || envelope.getLong("generation") != generation ||
+                int schema=envelope.getInt("schema");
+                if ((schema!=1 && schema!=SCHEMA) || envelope.getLong("generation") != generation ||
                         !session.toString().equals(envelope.getString("session")) || !envelope.contains("state"))
                     throw new IOException("Incompatible or mixed generation");
-                return envelope.getBundle("state");
+                Bundle state=envelope.getBundle("state");
+                if (state.contains("engine") && state.getBundle("engine").getInt("schema")!=schema)
+                    throw new IOException("Mixed generation schemas");
+                return state;
             }
         }
 

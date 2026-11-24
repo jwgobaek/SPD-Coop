@@ -30,7 +30,15 @@ public class CoopScene extends PixelScene {
     }
     private void cancelAim() { targetView=null; targetStaff=null; renderFrame(); }
     private void touchCell(PublicDungeon view,int cell) {
-        if (targetView==null) { view.tap(controller,cell); return; }
+        if (targetView==null) {
+            if(view.visible(cell) && ((view.depth==1 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EXIT)
+                    || (view.depth==2 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.ENTRANCE))) {
+                if(view.stair!=cell) alert(msg("stairconditions"));
+                else if(view.offered && !view.consent) alert(msg("awaitvote"));
+                else controller.act(view.source,view.offered?"TRAVEL":view.consent?"CANCEL_TRAVEL":"CONSENT",cell,0);
+            } else view.tap(controller,cell);
+            return;
+        }
         if (targetView==view && view.monsters.containsKey(cell)
                 && controller.act(view.source,"ZAP",cell,targetStaff.id)) cancelAim();
     }
@@ -236,13 +244,19 @@ public class CoopScene extends PixelScene {
             case "REVIVE": case "REVIVED": sound=com.shatteredpixel.shatteredpixeldungeon.Assets.Sounds.TELEPORT;break;
         }
         if(sound!=null) com.watabou.noosa.audio.Sample.INSTANCE.play(sound);
-        label(HeroClass.valueOf(v.heroClass).title()+"    HP "+v.hp+"/"+v.maxHp+"    "+msg("level",v.level,v.experience),8,Window.TITLE_COLOR);
-        String line=f.pending!=0 ? msg("pending",f.pending) : f.image.rows.containsKey("reason") ?
+        label(msg("depth",v.depth)+"   "+HeroClass.valueOf(v.heroClass).title()+"    HP "+v.hp+"/"+v.maxHp+"    "+msg("level",v.level,v.experience),8,Window.TITLE_COLOR);
+        String line=f.pending!=0 ? ("TRAVEL".equals(f.pendingVerb)?msg("travelling"):msg("pending",f.pending)) : f.image.rows.containsKey("reason") ?
                 status(f.image.rows.get("reason")) : !"ALIVE".equals(f.image.rows.get("life")) ?
                 status(f.image.rows.get("life")) : msg(v.offered?"yourturn":"theirturn");
         if(v.ally>=0 && "DOWNED".equals(f.image.rows.get("allylife"))) line+=" / "+msg("reviveally");
         if(f.lastResult.startsWith("REJECT") || f.lastResult.equals("UNKNOWN")) line+=" · "+status(f.lastResult);
         label(targetView!=null ? msg("aim") : line,7,v.offered?0xB4DA80:0xCBC6BA);
+        if (targetView==null && v.stair>=0) {
+            String verb=v.offered ? "TRAVEL" : v.consent ? "CANCEL_TRAVEL" : "CONSENT";
+            String key=v.offered ? (v.consent ? "travel" : "awaitvote") : (v.consent ? "canceltravel" : "vote");
+            StyledButton stairs=make(msg(key,3-v.depth),()->controller.act(f.image,verb,v.stair,0));
+            stairs.setRect(left,top,width,16); stairs.enable(f.pending==0 && (!v.offered || v.consent)); top+=17;
+        }
         float bx=left;
         for(int buff:v.buffs) {
             BuffIcon icon=new BuffIcon(buff,false);icon.x=bx;icon.y=top;panel.add(icon);
@@ -254,11 +268,13 @@ public class CoopScene extends PixelScene {
             make(msg("cancel"),this::cancelAim).setRect(left,bottom-17,width,17);
             return;
         }
-        float part=(width-4)/3;
+        float part=(width-6)/4;
         StyledButton wait=make(msg("wait"),()->controller.act(f.image,"WAIT",0,0));
         wait.setRect(left,bottom-17,part,17); wait.enable(v.offered && f.pending==0);
         make(msg("bag"),()->add(new com.shatteredpixel.shatteredpixeldungeon.windows.WndCoopBag(v,controller)))
                 .setRect(left+part+2,bottom-17,part,17);
-        make(msg("menu"),this::gameMenu).setRect(left+2*part+4,bottom-17,part,17);
+        StyledButton search=make(msg("search"),()->controller.act(f.image,"SEARCH",v.pos,0));
+        search.setRect(left+2*part+4,bottom-17,part,17); search.enable(v.offered && f.pending==0);
+        make(msg("menu"),this::gameMenu).setRect(left+3*part+6,bottom-17,part,17);
     }
 }

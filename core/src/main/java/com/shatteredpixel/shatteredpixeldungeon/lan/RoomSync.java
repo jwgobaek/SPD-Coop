@@ -67,6 +67,7 @@ final class RoomSync {
     }
 
     void connectionBoundary(UUID epoch,boolean waiting) {
+        game.stairs.cancel();
         for (Seat s:seats) {
             s.view.epoch=epoch;
             if (waiting) s.view.resetHandles(s.view.cursor());
@@ -115,7 +116,7 @@ final class RoomSync {
                 if (id<=last || id>high || f.length!=8 || args.length!=5 || !f[0].equals("RESULT") ||
                         Long.parseLong(f[1])!=id || Integer.parseInt(f[2])!=i || Integer.parseInt(f[3])!=game.hero(i).id() ||
                         !f[4].equals(args[1]) || !f[5].equals(args[0]) || Long.parseLong(f[6])>version ||
-                        Long.parseLong(f[6])<1 || !f[7].matches("APPLIED|PARTY_DEFEATED|REJECT_(DEFEATED|VERSION|TURN|ACTION|ITEM|INVALID)"))
+                        Long.parseLong(f[6])<1 || !f[7].matches("APPLIED|PARTY_DEFEATED|REJECT_(DEFEATED|VERSION|TURN|ACTION|ITEM|INVALID|FLOOR)"))
                     throw new IllegalArgumentException("Invalid action receipt");
                 long base=Long.parseLong(args[0]), turn=Long.parseLong(args[1]), after=Long.parseLong(f[6]);
                 Integer.parseInt(args[3]); Long.parseLong(args[4]);
@@ -186,7 +187,13 @@ final class RoomSync {
         if (game.defeated()) return "REJECT_DEFEATED";
         if (paused) return "REJECT_PAUSED";
         if (base!=version) return "REJECT_VERSION";
-        if (turn!=game.turn() || seat!=game.activeSeat()) return "REJECT_TURN";
+        if (turn!=game.turn()) return "REJECT_TURN";
+        if (verb.equals("CONSENT") || verb.equals("CANCEL_TRAVEL")) {
+            if(handle!=0 || !game.stairs.consent(seat,turn,cell,verb.equals("CANCEL_TRAVEL"))) return "REJECT_INVALID";
+            commit(null,seat,id+","+verb+",APPLIED","IN_GAME");
+            return "APPLIED";
+        }
+        if (seat!=game.activeSeat()) return "REJECT_TURN";
         CoopSession.Action action;
         try { action=CoopSession.Action.valueOf(verb); }
         catch (IllegalArgumentException e) { return "REJECT_ACTION"; }
@@ -200,7 +207,14 @@ final class RoomSync {
         if (targeted && (target==null || !seats[seat].view.current.rows.containsKey("m"+target.id())))
             return "REJECT_INVALID";
         try {
-            if (!game.act(game.player(seat),turn,action,cell,item)) return "REJECT_INVALID";
+            if (!game.act(game.player(seat),turn,action,cell,item)) {
+                if (action==CoopSession.Action.TRAVEL && game.restoredAfterTravel()) {
+                    for(Seat member:seats) member.view.resetHandles(member.view.cursor());
+                    commit(null,seat,id+",TRAVEL,REJECT_FLOOR","IN_GAME");
+                    return "REJECT_FLOOR";
+                }
+                return "REJECT_INVALID";
+            }
             if (game.defeated()) {
                 commit(null,seat,id+","+verb+",PARTY_DEFEATED","PARTY_DEFEATED");
                 return "PARTY_DEFEATED";

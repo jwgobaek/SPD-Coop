@@ -20,6 +20,25 @@ final class RenderEncounter {
         Field executor=room.getClass().getDeclaredField("owner"); executor.setAccessible(true);
         ((ExecutorService)executor.get(room)).submit(RenderEncounter::setup).get(5,TimeUnit.SECONDS);
     }
+    // Rendering-only fixture. The independent-JVM route test walks to these same native stairs.
+    static void atExit(CoopController client) throws Exception {
+        Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
+        Object room=host.get(client);
+        Field f=room.getClass().getDeclaredField("owner"); f.setAccessible(true);
+        ((ExecutorService)f.get(room)).submit(()->{
+            CoopSession game=Dungeon.coop;
+            Level l=Dungeon.level;
+            int gate=l.exit(),i=0;
+            for(int off:com.watabou.utils.PathFinder.NEIGHBOURS8) {
+                int pos=gate+off;
+                if(!l.passable[pos] || l.pit[pos] || l.findMob(pos)!=null || l.traps.get(pos)!=null || l.plants.get(pos)!=null) continue;
+                game.hero(i++).pos=pos;
+                if(i==2) break;
+            }
+            if(i!=2) throw new AssertionError("Missing stair approach");
+        }).get(5,TimeUnit.SECONDS);
+    }
+
     private static void setup() {
         CoopSession game=Dungeon.coop; game.checkExecutor(); Level level=Dungeon.level;
         if(game.activeSeat()!=0) throw new AssertionError("Host turn required");

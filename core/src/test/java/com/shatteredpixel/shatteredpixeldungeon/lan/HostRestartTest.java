@@ -26,12 +26,16 @@ public class HostRestartTest {
         for(int seat=0;seat<2;seat++) run(temp.newFolder().toPath(),new String[]{"cast"+seat,"readcast"+seat});
     }
 
+    @Test(timeout=120000) public void generatedSewersRoundTripAcrossProcessDeath() throws Exception {
+        run(temp.newFolder().toPath(),new String[]{"walk","ascendfault","backatstairs","verifyfloor","floorbackup"});
+    }
+
     private void run(Path dir,String[] modes) throws Exception {
         for(String mode:modes) {
             Files.deleteIfExists(dir.resolve("fault-armed"));
             Files.deleteIfExists(dir.resolve("endpoint")); Files.deleteIfExists(dir.resolve("stop"));
             Files.deleteIfExists(dir.resolve("kill-before-reply")); Files.deleteIfExists(dir.resolve("fail-write"));
-            if(mode.equals("backup")) {
+            if(mode.equals("backup") || mode.equals("floorbackup")) {
                 CoopSaves saves=new CoopSaves(dir.toFile());
                 UUID session=saves.sessions().get(0);
                 long current=saves.inspect(session,false).generation;
@@ -48,10 +52,13 @@ public class HostRestartTest {
                 assertTrue("client deadline "+mode,client.waitFor(130,TimeUnit.SECONDS));
                 String trace=RestartHost.read(dir,"RestartClient.log");
                 assertEquals(mode+" "+trace+" "+RestartHost.read(dir,"RestartHost.log"),0,client.exitValue());
-                System.out.println(trace.substring(trace.lastIndexOf("mode=")).trim());
+                int route=trace.indexOf("native socket route");
+                System.out.println(trace.substring(route>=0?route:trace.lastIndexOf("mode=")).trim());
                 RestartHost.write(dir,"stop","1");
                 assertTrue(host.waitFor(10,TimeUnit.SECONDS));
-                assertEquals(RestartHost.read(dir,"RestartHost.log"),mode.startsWith("kill_")?80:(mode.equals("revive") || mode.startsWith("cast"))?78:mode.equals("soak")?79:0,host.exitValue());
+                assertEquals(RestartHost.read(dir,"RestartHost.log"),(mode.startsWith("kill_") || mode.equals("ascendfault"))?80:(mode.equals("revive") || mode.equals("walk") || mode.startsWith("cast"))?78:mode.equals("soak")?79:0,host.exitValue());
+                if(mode.equals("verifyfloor")) for(String metric:new String[]{"perf1","perf2","perf-travel"})
+                    System.out.println(RestartHost.read(dir,metric));
             } finally {
                 if(client!=null) { client.destroyForcibly(); client.waitFor(5,TimeUnit.SECONDS); }
                 host.destroyForcibly(); host.waitFor(5,TimeUnit.SECONDS);

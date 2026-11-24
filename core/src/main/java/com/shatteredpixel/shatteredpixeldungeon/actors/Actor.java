@@ -225,6 +225,16 @@ public abstract class Actor implements Bundlable {
 		ids.clear();
 	}
 
+    /** Freeze the old floor at this input boundary. The arriving registry starts at zero. */
+    public static synchronized void leaveCoopFloor() {
+        Dungeon.coop.checkExecutor();
+        float elapsed=now;
+        for (Actor actor:all) if (!actor.coopFrozen) actor.fixTime(elapsed);
+        TargetedCell.fixTime(elapsed);
+        Statistics.duration+=elapsed;
+        clear();
+    }
+
 	public static synchronized void fixTime() {
 		
 		if (all.isEmpty()) return;

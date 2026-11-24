@@ -206,11 +206,12 @@ public final class LanRoom implements AutoCloseable {
         if (verb.equals("PING") && f.length == 4) return "PONG";
         int seat = -1;
         for (int i=0; i<seats.length; i++) if (seats[i] != null && seats[i].peer == peer) seat = i;
-        if (verb.equals("MODE") && f.length == 5 && (f[4].equals("SYNC1") || f[4].equals("SYNC2"))) {
+        if (verb.equals("MODE") && f.length == 5 && (f[4].equals("SYNC1") || f[4].equals("SYNC2") || f[4].equals("SYNC3"))) {
             if (seat >= 0) return "ERROR LOCKED";
             if (!synchronizedRoom) return "ERROR MODE";
             peer.syncMode = true;
-            peer.extended=f[4].equals("SYNC2");
+            peer.stairs=f[4].equals("SYNC3");
+            peer.extended=peer.stairs || f[4].equals("SYNC2");
             return "MODE "+f[4];
         }
         if (verb.equals("JOIN") || verb.equals("HOST")) {
@@ -244,6 +245,10 @@ public final class LanRoom implements AutoCloseable {
         }
         if (persistenceFailed) return "ERROR CHECKPOINT_FAILED";
         if (peer.syncMode && sync != null) {
+            if (f.length==13 && (verb.equals("DO") || verb.startsWith("DO_")) &&
+                    (f[10].equals("SEARCH") || f[10].equals("CONSENT") || f[10].equals("CANCEL_TRAVEL") || f[10].equals("TRAVEL"))) {
+                for(Seat member:seats) if(member.peer==null || !member.peer.stairs) return "ERROR VERSION";
+            }
             if (slot!=null) {
                 for(int i=0;i<seats.length;i++) if(seats[i].peer!=null && seats[i].peer.dead) disconnected(i);
                 if (verb.equals("CONFIRM") && f.length==6) {
@@ -319,7 +324,7 @@ public final class LanRoom implements AutoCloseable {
     }
     private String authenticate(LanTransport.Peer peer,int attached,String[] f) {
         if (persistenceFailed || sync==null || sync.paused) return "ERROR PAUSED";
-        if (!peer.extended && mageRoster()) return "ERROR VERSION";
+        if ((!peer.extended && mageRoster()) || (!peer.stairs && game.stairs.hasParkedFloor())) return "ERROR VERSION";
         if (attached>=0) return "ERROR DUPLICATE";
         if (f[3].equals("CHALLENGE")) {
             peer.nonce=null;

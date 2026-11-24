@@ -39,12 +39,13 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP;
+    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL;
         public boolean requiresItem() {
             return this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP;
         }
     }
 
+    public final CoopFloors stairs = new CoopFloors(this);
     public final ItemOwnership ownership = new ItemOwnership();
     public long playerOf(Char owner) {
         for (int seat = 0; seat < heroes.length; seat++) if (owner != null && owner == heroes[seat]) return players[seat];
@@ -162,8 +163,15 @@ public final class CoopSession implements AutoCloseable {
     private long turn;
     private String stopReason;
 
-    private boolean restoring, executing;
+    private boolean restoring, executing, restoredAfterTravel;
+    public boolean restoredAfterTravel() { return restoredAfterTravel; }
     public boolean restoring() { return restoring; }
+
+    Level unpackFloor(Bundle parked) {
+        restoring=true;
+        try { return (Level)parked.get("level"); }
+        finally { restoring=false; }
+    }
 
     private CoopSession() {
         Random.enterWorld();
@@ -333,13 +341,26 @@ public final class CoopSession implements AutoCloseable {
      */
     public boolean act(long player, long offeredTurn, Action action, int cell, Item item) {
         checkExecutor();
+        restoredAfterTravel=false;
         if (activeSeat < 0 || lives[activeSeat] != Life.ALIVE || players[activeSeat] != player || offeredTurn != turn || action == null) return false;
         if (action.requiresItem() && (item == null || !ownership.allowed(item, player))) return false;
         Hero hero = heroes[activeSeat];
         Level level = Dungeon.level;
+        Bundle before=null;
+        if(action==Action.TRAVEL) {
+            if(cell<0 || cell!=stairs.stair() || !stairs.agreed()) return false;
+            before=checkpoint();
+        }
         try {
             executing = true;
             switch (action) {
+                case SEARCH:
+                    if(cell!=hero.pos) return false;
+                    hero.search(true);
+                    break;
+                case TRAVEL:
+                    if (!stairs.travel(activeSeat,cell)) return false;
+                    break;
                 case WAIT:
                     hero.rest(false);
                     break;
@@ -415,9 +436,27 @@ public final class CoopSession implements AutoCloseable {
                 default:
                     return false;
             }
+            stairs.cancel();
             hero.curAction = null;
             if (!stopped() && !partyDefeated) advance();
             return true;
+        } catch (CoopFloors.UnsupportedDestination unsupported) {
+            // Only a known destination admission failure can use this pre-action checkpoint.
+            // Any failure rebuilding the original graph remains a terminal engine fault.
+            restoring=true;
+            try {
+                Actor.clear();
+                Dungeon.level=null;
+                Dungeon.hero=null;
+                ownership.clear(); floors.clear(); leaveFloor();
+                load(before,before.getBundle("world"));
+                validateActorGraph();
+                restoredAfterTravel=true;
+                return false;
+            } catch (RuntimeException invalid) {
+                stop(invalid.toString());
+                throw invalid;
+            } finally { restoring=false; }
         } catch (RuntimeException failure) {
             stop(failure.toString());
             throw failure;
@@ -438,16 +477,10 @@ public final class CoopSession implements AutoCloseable {
         checkExecutor();
         if (executing || restoring || stopped() || heroes[1]==null || (!partyDefeated && activeSeat<0))
             throw new IllegalStateException("No committed engine boundary");
-        HashSet<Actor> persistent = new HashSet<>();
-        persistent.add(heroes[0]); persistent.add(heroes[1]);
-        persistent.addAll(Dungeon.level.mobs);
-        for (Actor ch : new HashSet<>(persistent)) persistent.addAll(((Char)ch).buffs());
-        persistent.addAll(Dungeon.level.blobs.values());
-        Actor spawner = Dungeon.level.respawner();
-        if (spawner!=null) persistent.add(spawner);
-        if (!persistent.equals(Actor.all())) throw new IllegalStateException("Transient actor at checkpoint");
+        validateActorGraph();
         Bundle b = new Bundle();
-        b.put("schema",1);
+        b.put("schema",2);
+        stairs.save(b);
         b.put("world",Dungeon.worldState());
         b.put("guest",heroes[1]);
         b.put("floor",Dungeon.level);
@@ -467,8 +500,30 @@ public final class CoopSession implements AutoCloseable {
                 b.put("hit"+i,attackTurn[i]);
             }
         }
+        b.put("items",itemState(physicalItems()));
+        b.put("nextItem",ownership.sequence());
+        return b;
+    }
+
+    void validateActorGraph() {
+        HashSet<Actor> persistent = new HashSet<>();
+        persistent.add(heroes[0]); persistent.add(heroes[1]);
+        persistent.addAll(Dungeon.level.mobs);
+        for (Actor ch : new HashSet<>(persistent)) persistent.addAll(((Char)ch).buffs());
+        persistent.addAll(Dungeon.level.blobs.values());
+        Actor spawner = Dungeon.level.respawner();
+        if (spawner!=null) persistent.add(spawner);
+        if (!persistent.equals(Actor.all())) throw new IllegalStateException("Transient actor at checkpoint");
+    }
+
+    void leaveFloor() {
+        java.util.Arrays.fill(lastOpponent,null);
+        java.util.Arrays.fill(attackTurn,0);
+    }
+
+    Bundle itemState(Map<String,Item> objects) {
         Bundle items=new Bundle();
-        for (Map.Entry<String,Item> e : physicalItems().entrySet()) {
+        for (Map.Entry<String,Item> e : objects.entrySet()) {
             Item item=e.getValue();
             Bundle entry=new Bundle();
             entry.put("id",ownership.identity(item));
@@ -477,9 +532,7 @@ public final class CoopSession implements AutoCloseable {
             entry.put("quantity",item.quantity());
             items.put(e.getKey(),entry);
         }
-        b.put("items",items);
-        b.put("nextItem",ownership.sequence());
-        return b;
+        return items;
     }
 
     private Map<String,Item> physicalItems() {
@@ -488,7 +541,13 @@ public final class CoopSession implements AutoCloseable {
             int index=0;
             for (Item item : heroes[seat].belongings) result.put("s"+seat+"_"+index++,item);
         }
-        for (Heap heap : Dungeon.level.heaps.valueList()) {
+        result.putAll(floorItems(Dungeon.level));
+        return result;
+    }
+
+    static Map<String,Item> floorItems(Level level) {
+        Map<String,Item> result=new TreeMap<>();
+        for (Heap heap : level.heaps.valueList()) {
             int index=0;
             for (Item item : heap.items) result.put("f"+heap.pos+"_"+index++,item);
         }
@@ -498,8 +557,9 @@ public final class CoopSession implements AutoCloseable {
     public static synchronized CoopSession restore(Bundle b) {
         if (Dungeon.coop!=null || Dungeon.hero!=null || Dungeon.level!=null) throw new IllegalStateException("Dungeon in use");
         Bundle world=b.getBundle("world"), floor=b.getBundle("floor");
-        if (b.getInt("schema")!=1 || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
-                world.getInt("depth")!=1 || world.getInt("branch")!=0 || world.getInt("challenges")!=0)
+        int schema=b.getInt("schema"),depth=world.getInt("depth");
+        if ((schema!=1 && schema!=2) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
+                (depth!=1 && (schema!=2 || depth!=2)) || world.getInt("branch")!=0 || world.getInt("challenges")!=0)
             throw new IllegalArgumentException("Unsupported world");
         int width=floor.getInt("width"), height=floor.getInt("height");
         if (width<3 || height<3 || width>256 || height>256 || floor.getIntArray("map").length!=width*height)
@@ -556,21 +616,9 @@ public final class CoopSession implements AutoCloseable {
         level.addRespawner();
         Actor.restoreSchedule(b.getBundle("schedule"),partyDefeated ? null : heroes[activeSeat]);
         for (Char ch : Actor.chars()) attachSprite(ch);
-        Map<String,Item> objects=physicalItems();
-        Bundle items=b.getBundle("items");
-        if (objects.size()>8192 || objects.size()!=items.getKeys().size()) throw new IllegalArgumentException("Item count");
         HashSet<Long> ids=new HashSet<>();
-        for (Map.Entry<String,Item> e : objects.entrySet()) {
-            Bundle entry=items.getBundle(e.getKey());
-            Item item=e.getValue();
-            long id=entry.getLong("id"), owner=entry.getLong("owner");
-            if (!ids.add(id) || !entry.getString("type").equals(item.getClass().getName()) ||
-                    entry.getInt("quantity")!=item.quantity() || item.quantity()<=0 ||
-                    (owner!=0 && owner!=players[0] && owner!=players[1]) ||
-                    (e.getKey().startsWith("s") && owner!=players[e.getKey().charAt(1)-'0']))
-                throw new IllegalArgumentException("Item owner or object mismatch");
-            ownership.restored(item,id,owner,b.getLong("nextItem"));
-        }
+        restoreItems(physicalItems(),b.getBundle("items"),b.getLong("nextItem"),ids);
+        stairs.restore(b,ids);
         for (int i=0;i<2;i++) {
             Hero h=heroes[i];
             if (h.frozenInCoop()!=(lives[i]!=Life.ALIVE) ||
@@ -586,6 +634,21 @@ public final class CoopSession implements AutoCloseable {
             observe(i);
         }
         Random.restoreWorld(b.getLongArray("random"));
+    }
+
+    void restoreItems(Map<String,Item> objects, Bundle items,long ceiling,HashSet<Long> ids) {
+        if (objects.size()>8192 || objects.size()!=items.getKeys().size()) throw new IllegalArgumentException("Item count");
+        for (Map.Entry<String,Item> e : objects.entrySet()) {
+            Bundle entry=items.getBundle(e.getKey());
+            Item item=e.getValue();
+            long id=entry.getLong("id"), owner=entry.getLong("owner");
+            if (!ids.add(id) || !entry.getString("type").equals(item.getClass().getName()) ||
+                    entry.getInt("quantity")!=item.quantity() || item.quantity()<=0 ||
+                    (owner!=0 && owner!=players[0] && owner!=players[1]) ||
+                    (e.getKey().startsWith("s") && owner!=players[e.getKey().charAt(1)-'0']))
+                throw new IllegalArgumentException("Item owner or object mismatch");
+            ownership.restored(item,id,owner,ceiling);
+        }
     }
 
     @Override public void close() {

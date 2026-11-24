@@ -1235,7 +1235,7 @@ levels/PrisonLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/sha
 levels/PrisonLevel.Torch	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonLevel.java
 levels/RegularLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/RegularLevel.java
 levels/SewerBossLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerBossLevel.java
-levels/SewerLevel	levels	VERIFIED	generate first floor, register both seats and recover from disk / CoopSessionTest, CheckpointTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerLevel.java
+levels/SewerLevel	levels	VERIFIED	native floors 1 and 2, walk, carry two heroes, park and revisit / CoopFloorsTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerLevel.java
 levels/SewerLevel.Sink	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerLevel.java
 levels/SewerLevel.WaterParticle	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerLevel.java
 levels/Terrain	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
@@ -1253,9 +1253,9 @@ levels/Terrain.EMPTY	terrain	VERIFIED	ordinary adjacent movement, seat occupancy
 levels/Terrain.EMPTY_DECO	terrain	IMPLEMENTED	safeFloor movement allowlist for unoccupied plain cells	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.EMPTY_SP	terrain	IMPLEMENTED	safeFloor movement allowlist for unoccupied plain cells	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.EMPTY_WELL	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
-levels/Terrain.ENTRANCE	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
+levels/Terrain.ENTRANCE	terrain	VERIFIED	sewer 2 to 1, two-seat consent, fresh-JVM resume / HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.ENTRANCE_SP	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
-levels/Terrain.EXIT	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
+levels/Terrain.EXIT	terrain	VERIFIED	sewer 1 to 2, native walking route, duplicate receipt / CoopFloorsTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.FURROWED_GRASS	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.GRASS	terrain	VERIFIED	remember, hide an unseen change and reveal it when observed / ProjectionChecks	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.HERO_LKD_DR	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
@@ -1269,7 +1269,7 @@ levels/Terrain.OPEN_DOOR	terrain	VERIFIED	ordinary door: leave and close with or
 levels/Terrain.PEDESTAL	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.REGION_DECO	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.REGION_DECO_ALT	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
-levels/Terrain.SECRET_DOOR	terrain	VERIFIED	hide undiscovered terrain identity from recipient / ProjectionChecks	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
+levels/Terrain.SECRET_DOOR	terrain	VERIFIED	hidden appearance, adjacent intentional host search, native route / ProjectionChecks, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.SECRET_TRAP	terrain	VERIFIED	hide undiscovered terrain identity from recipient / ProjectionChecks	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.STATUE	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.STATUE_SP	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java

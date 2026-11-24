@@ -17,6 +17,7 @@ public final class RestartClient {
     private final UUID session;
     private UUID epoch;
     private int applied,reconnections;
+    private final List<Long> latency=new ArrayList<>();
     private RestartClient(Path path) throws Exception {
         this.path=path;
         String[] endpoint=RestartHost.read(path,"endpoint").split("\n");
@@ -46,7 +47,9 @@ public final class RestartClient {
     private SeatActions.Pending act(String name,int cell,long item) throws Exception {
         int seat=active();
         SeatActions.Pending p=actions[seat].prepare(state(seat),name,cell,item);
+        long started=System.nanoTime();
         String reply=p.submit(clients[seat]);
+        latency.add((System.nanoTime()-started)/1000);
         assertTrue(name+" "+reply,reply.endsWith(" APPLIED"));
         applied++;
         refresh();
@@ -107,7 +110,7 @@ public final class RestartClient {
     }
 
     private void run(String mode) throws Exception {
-        if (mode.equals("new") || mode.startsWith("cast")) {
+        if (mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
             for(int i=0;i<2;i++) {
                 assertTrue(clients[i].request(i==0 ? RestartHost.read(path,"endpoint").split("\n")[1] : "JOIN").startsWith("JOINED"));
                 keys[i]=SeatCredential.generate();
@@ -115,12 +118,14 @@ public final class RestartClient {
                 epoch=UUID.fromString(keys[i].enroll(clients[i]).split(" ")[1]);
                 actions[i]=new SeatActions(session,i,i+1);
                 models[i]=new DisplayReplica(session,i);
-                String character=mode.startsWith("cast") && i==Integer.parseInt(mode.substring(4)) ? "MAGE" : i==0?"WARRIOR":"HUNTRESS";
+                String character=mode.startsWith("cast") && i==Integer.parseInt(mode.substring(4)) ? "MAGE" : mode.equals("walk") ? (i==0?"MAGE":"WARRIOR") : i==0?"WARRIOR":"HUNTRESS";
                 assertEquals("OK",clients[i].request("SELECT "+character)); clients[i].request("READY 1");
             }
             assertEquals("GAME_STARTED",clients[0].request("START"));
             RestartHost.write(path,"epoch",epoch.toString());
-            refresh(); act("WAIT",0,0);
+            refresh();
+            if(mode.equals("walk")) { walk(); return; }
+            act("WAIT",0,0);
             if(mode.startsWith("cast")) {
                 int seat=Integer.parseInt(mode.substring(4));
                 offer(seat);
@@ -168,13 +173,33 @@ public final class RestartClient {
         for(int i=0;i<2;i++) {
             try(InputStream in=Files.newInputStream(path.resolve("private"+i))) { keys[i]=SeatCredential.readPrivate(in); }
         }
-        if (mode.equals("backup")) {
+        if (mode.equals("backup") || mode.equals("floorbackup")) {
             String warning=keys[0].reconnect(clients[0],epoch,0,1);
             assertTrue(warning,warning.startsWith("RECOVERY_EPOCH "));
             epoch=UUID.fromString(warning.split(" ")[1]);
         }
         for(int i=0;i<2;i++) bind(i);
         barrier();
+        if(mode.equals("floorbackup")) {
+            assertEquals(1,new PublicDungeon(state(0)).depth);
+            assertEquals("ERROR EPOCH",clients[0].request("LOOKUP "+RestartHost.read(path,"epoch")+" 1"));
+            act("WAIT",0,0);
+            return;
+        }
+        if (mode.equals("migrate")) {
+            assertEquals(RestartHost.read(path,"frozenclock"),state(0).rows.get("clock"));
+            for(int i=0;i<2;i++) assertEquals(RestartHost.read(path,"public"+i),disclosedWorld(i));
+            assertEquals("DOWNED",state(1).rows.get("life"));
+            assertTrue(item(1,"BAG","ANKH")>0);
+            assertTrue(clients[0].request("LOOKUP "+epoch+" "+RestartHost.read(path,"legacy-id")).endsWith(" APPLIED"));
+            act("REVIVE",pos(1),0);
+            assertEquals("ALIVE",state(1).rows.get("life"));
+            return;
+        }
+        if (mode.equals("ascendfault") || mode.equals("backatstairs") || mode.equals("verifyfloor")) {
+            afterStairs(mode);
+            return;
+        }
         if (mode.startsWith("readcast")) {
             int seat=Integer.parseInt(mode.substring(8));
             String[] saved=RestartHost.read(path,"cast-record").split(" ",5);
@@ -252,6 +277,105 @@ public final class RestartClient {
                 String reply=clients[Integer.parseInt(last[0])].request("LOOKUP "+epoch+" "+last[1]);
                 assertTrue(reply,reply.endsWith(" APPLIED"));
             } else assertEquals("ERROR EPOCH",clients[0].request("LOOKUP "+RestartHost.read(path,"epoch")+" "+last[1]));
+            act("WAIT",0,0);
+        }
+    }
+
+    private SeatActions.Pending stairAction(int seat,String verb,int cell) throws Exception {
+        return actions[seat].prepare(state(seat),verb,cell,0);
+    }
+
+    private SeatActions.Pending consentAndCross() throws Exception {
+        refresh();
+        int mover=active(),other=1-mover;
+        int cell=new PublicDungeon(state(mover)).stair;
+        assertTrue(cell>=0);
+        String reply=stairAction(other,"CONSENT",cell).submit(clients[other]);
+        assertTrue(reply,reply.endsWith(" APPLIED"));
+        refresh();
+        assertTrue(new PublicDungeon(state(mover)).consent);
+        return stairAction(mover,"TRAVEL",cell);
+    }
+
+    private void walk() throws Exception {
+        int moves=0,hits=0,zaps=0,searches=0;
+        int start=pos(0);
+        act("DROP",start,item(0,"BAG","FOOD"));
+        offer(0);
+        act("PICK_UP",start,item(0,"F"+start,"FOOD"));
+        offer(0);
+        act("DROP",start,item(0,"BAG","FOOD"));
+        for(int n=0;n<220;n++) {
+            String prefix=state(0).rows.get("turn")+" "+active()+" ";
+            String guide="";
+            long end=System.nanoTime()+3000000000L;
+            do {
+                if(Files.exists(path.resolve("guide"))) guide=RestartHost.read(path,"guide");
+                if(guide.startsWith(prefix)) break;
+                Thread.sleep(5);
+            } while(System.nanoTime()<end);
+            assertTrue("Guide turn",guide.startsWith(prefix));
+            String[] f=guide.split(" ");
+            int seat=active(),cell=Integer.parseInt(f[3]);
+            if(f[2].equals("STAIR")) break;
+            if (seat==0 && zaps==0 && !new PublicDungeon(state(0)).monsters.isEmpty()) {
+                for(int target:new PublicDungeon(state(0)).monsters.keySet()) {
+                    SeatActions.Pending cast=actions[0].prepare(state(0),"ZAP",target,item(0,"WEAPON","STAFF"));
+                    if(cast.submit(clients[0]).endsWith(" APPLIED")) {applied++; zaps++; refresh();break;}
+                }
+                if(!prefix.equals(state(0).rows.get("turn")+" "+active()+" ")) continue;
+            }
+            act(f[2],cell,0);
+            if (f[2].equals("MOVE")) moves++;
+            if (f[2].equals("ATTACK")) hits++;
+            if (f[2].equals("SEARCH")) searches++;
+            Thread.sleep(25);
+        }
+        assertTrue("Walked generated dungeon",moves>1 && zaps==1 && hits>0);
+        Collections.sort(latency);
+        System.out.println("native socket route action_ack_count="+latency.size()+" median_us="+latency.get(latency.size()/2)
+                +" p95_us="+latency.get((95*latency.size()+99)/100-1));
+        int seat=active();
+        SeatActions.Pending pending=consentAndCross();
+        RestartHost.write(path,"descent",seat+" "+pending.id+" "+pending.command);
+        RestartHost.write(path,"kill-before-reply","1");
+        assertThrows(IOException.class,()->pending.submit(clients[seat]));
+        System.out.println("native socket route moves="+moves+" melee="+hits+" searches="+searches+" casts="+zaps);
+    }
+
+    private void afterStairs(String mode) throws Exception {
+        int depth=mode.equals("verifyfloor")?1:2;
+        for(int seat=0;seat<2;seat++) assertEquals(depth,new PublicDungeon(state(seat)).depth);
+        String[] old=RestartHost.read(path,"descent").split(" ",3);
+        int owner=Integer.parseInt(old[0]);
+        String result=clients[owner].request("LOOKUP "+epoch+" "+old[1]);
+        assertTrue(result,result.endsWith(" APPLIED"));
+        assertEquals(result,clients[owner].request(old[2]));
+        if(mode.equals("verifyfloor")) {
+            String[] asc=RestartHost.read(path,"ascent").split(" ",2);
+            assertTrue(clients[Integer.parseInt(asc[0])].request("LOOKUP "+epoch+" "+asc[1]).endsWith(" APPLIED"));
+            act("WAIT",0,0);return;
+        }
+        if(mode.equals("backatstairs")) {
+            String[] unknown=RestartHost.read(path,"incomplete").split(" ",2);
+            assertEquals("UNKNOWN",clients[Integer.parseInt(unknown[0])].request("LOOKUP "+epoch+" "+unknown[1]));
+        }
+        int seat=active();
+        SeatActions.Pending gate=consentAndCross();
+        if(mode.equals("ascendfault")) {
+            RestartHost.write(path,"incomplete",seat+" "+gate.id);
+            RestartHost.write(path,"fault-armed","1");
+            assertThrows(IOException.class,()->gate.submit(clients[seat]));
+        } else {
+            long start=System.nanoTime();
+            assertTrue(gate.submit(clients[seat]).endsWith(" APPLIED"));applied++;
+            RestartHost.write(path,"perf-travel","ascent_ack_us="+(System.nanoTime()-start)/1000);
+            refresh();
+            for(int s=0;s<2;s++) {
+                assertEquals(1,new PublicDungeon(state(s)).depth);
+                assertFalse("Full floor replacement",models[s].appliedDelta());
+            }
+            RestartHost.write(path,"ascent",seat+" "+gate.id);
             act("WAIT",0,0);
         }
     }

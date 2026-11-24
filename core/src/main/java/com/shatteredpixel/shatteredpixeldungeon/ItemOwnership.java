@@ -23,6 +23,8 @@ public final class ItemOwnership {
         return entry;
     }
 
+    void clear() { entries.clear(); sequence=0; }
+
     long sequence() { return sequence; }
 
     void restored(Item item,long id,long owner,long limit) {

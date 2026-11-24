@@ -72,3 +72,9 @@ XDG_DATA_HOME="$(mktemp -d)" LIBGL_ALWAYS_SOFTWARE=1 ALSOFT_DRIVERS=null \
 DISPLAY와 XAUTHORITY는 실행 환경에서 제공하는 가상 X 화면을 가리켜야 한다. 초기 지도는 시드 402다. 전투 경계·부활 장면은 정상 이동과 식사 이후 테스트가 엔진 소유 스레드에서 배치한 쥐·앙크·치명상을 사용한다. 부활과 공격 입력은 실제 렌더링된 지도와 TCP를 통과한다.
 
 같은 Desktop 경로를 한국어로 검증하려면 JVM 언어를 -Duser.language=ko -Duser.country=KR로 지정한다. 테스트는 화면에 표시된 해당 언어의 버튼을 찾아 누른다.
+
+## 마법사 및 다층 검증
+
+기존 환경에서 `scripts/verify-android-build.sh <새 결과 디렉터리>`를 실행한다. JUnit은 실제 하수도 왕복과 두 번의 호스트 강제 종료를 포함한다. Desktop 시험에는 CoopRenderSmoke 출력 디렉터리 뒤에 `mage` 또는 `floors`를 지정한다. 별도 프로필을 사용한다. 다층 Desktop 장면은 원본 계단 옆에 두 영웅을 배치한 렌더링 시험이다. 독립 JVM의 HostRestartTest는 실제 이동과 전투로 계단에 도달한다.
+
+기존 알파 커밋 92ebf94를 별도 worktree에 체크아웃한 뒤 `python3 scripts/verify-alpha-migration.py /path/to/that/worktree`로 두 버전을 실행할 수 있다. 개인 테스트 프로필과 키는 임시 디렉터리에서 만들고 종료 시 정리한다. JUnit의 schema1-engine.gz에는 같은 알파가 생성한 테스트 던전의 엔진 부분만 들어 있다. 검증 ZIP에는 개인 프로필과 키 파일을 넣지 않는다.

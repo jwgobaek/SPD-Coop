@@ -144,6 +144,7 @@ public final class DisplayReplica {
             if (rows.size()>StateImage.MAX_ROWS) throw new InvalidState();
         }
         if (!rows.containsKey("turn") || !rows.containsKey("active") || !rows.containsKey("status")) throw new InvalidState();
+        if(!full && !Objects.equals(image.rows.get("floor"),rows.get("floor"))) throw new InvalidState();
         StateImage candidate;
         try { candidate=new StateImage(session,seat,version,rows); }
         catch (IllegalArgumentException e) { throw new InvalidState(); }

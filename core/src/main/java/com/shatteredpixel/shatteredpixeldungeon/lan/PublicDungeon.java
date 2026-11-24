@@ -7,6 +7,8 @@ public final class PublicDungeon {
     public final StateImage source;
     public final int width,pos,hp,maxHp,level,experience,ally;
     public final String heroClass,allyClass;
+    public final int depth,stair;
+    public final boolean consent;
     public final boolean offered;
     public final Map<Integer,String> monsters;
     public final List<Loot> belongings;
@@ -26,6 +28,11 @@ public final class PublicDungeon {
     }
     public PublicDungeon(StateImage source) {
         this.source=source;
+        String[] location=(source.rows.containsKey("floor")?source.rows.get("floor"):"0,1").split(",");
+        if(location.length!=2 || !location[0].equals("0")) throw new IllegalArgumentException("Floor");
+        depth=number(location[1],1,2);
+        String[] gate=(source.rows.containsKey("stair")?source.rows.get("stair"):"-1,0").split(",");
+        stair=number(gate[0],-1,65535); consent=number(gate[1],0,1)==1;
         width=number(source.rows.get("width"),3,256);
         String[] hero=source.rows.get("self").split(",");
         pos=number(hero[1],0,65535); hp=number(hero[2],0,Integer.MAX_VALUE);
