@@ -1,0 +1,46 @@
+cohort	seed	start	placed_at_stairs	descend	restored_depth	ascend	next_action	random_state_equal	unsupported_residents
+gate	402	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	403	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	404	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	405	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	406	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	407	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	408	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	409	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	410	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	411	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	412	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	413	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	414	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	415	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	416	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	417	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	418	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	419	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	420	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	421	PASS	true	REJECT	1	NOT RUN	PASS	PASS	Unsupported destination actor: [Statue/Scimitar/Unstable]
+gate	422	PASS	true	PASS	2	PASS	PASS	PASS	none
+gate	423	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	424	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	425	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	426	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	427	PASS	true	REJECT	1	NOT RUN	PASS	PASS	Unsupported destination actor: [GoldenMimic]
+additional	428	PASS	true	REJECT	1	NOT RUN	PASS	PASS	Unsupported destination actor: [GoldenMimic, Statue/Dirk/Venomous]
+additional	429	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	430	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	431	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	432	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	433	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	434	REJECT	false	NOT RUN	NOT RUN	NOT RUN	NOT RUN	NOT RUN	Unsupported destination actor: [Statue/RoundShield/Kinetic]
+additional	435	PASS	true	REJECT	1	NOT RUN	PASS	PASS	Unsupported destination actor: [Statue/Shortsword/Projecting]
+additional	436	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	437	PASS	true	REJECT	1	NOT RUN	PASS	PASS	Unsupported destination actor: [Statue/Shortsword/Vampiric]
+additional	438	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	439	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	440	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	441	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	442	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	443	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	444	PASS	true	PASS	2	PASS	PASS	PASS	none
+additional	445	PASS	true	PASS	2	PASS	PASS	PASS	none
+rare	479	PASS	true	PASS	2	PASS	PASS	PASS	none

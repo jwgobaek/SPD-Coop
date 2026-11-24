@@ -47,3 +47,7 @@ SYNC3의 공개 floor, stair 행으로 CoopScene이 현재 층, 조건 안내, �
 ## 하수도 방과 대화 입력
 
 CoopBoard는 좌석의 PublicDungeon에서 직접 관측한 감시탑과 충전, 일반 피라냐, 벌, 악취나는 쥐와 악취 가스를 그린다. 유령을 직접 관측하고 인접한 좌석에만 대화 상태가 있다. CoopScene은 이 상태에 따라 기존 WndOptions에 원본 유령 대사와 무기·방어구 선택을 표시한다. 확인을 누르면 해당 공개 셀에 대해 SeatActions가 논리 행동을 만든다. 꿀단지 깨기는 자기 가방의 공개 핸들을 전달한다. 방을 재개하면 새 좌석 모델에서 몬스터와 대화 상태를 다시 그린다. [공개 상태](docs/coop/state-sync.md)
+
+## 미믹 및 석상의 공개 상태 렌더링
+
+CoopBoard는 중립 미믹과 재료가 같은 상자를 동일한 ItemSprite로 표시한다. 공개 몬스터 행이 도착하면 MimicSprite, MimicSprite.Crystal, StatueSprite, GnollExileSprite, PhantomPiranhaSprite의 원본 대기 애니메이션을 사용한다. 이 객체들은 Char에 연결되지 않고 원격 엔진이나 지도를 참조하여 좌표를 결정하지 않는다. 렌더링 위치는 검증된 PublicDungeon에 따른다. 탈취물 자체의 다른 좌석 인벤토리 정보와 보이지 않는 이동에는 화면 효과가 없다.

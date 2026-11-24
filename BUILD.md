@@ -82,3 +82,9 @@ DISPLAY와 XAUTHORITY는 실행 환경에서 제공하는 가상 X 화면을 가
 ## 하수도 특수 방 체크포인트
 
 기준 회귀는 `./gradlew --offline :core:test`, APK와 서명 검사는 `scripts/verify-android-build.sh <새 출력 디렉터리>`로 실행한다. 실제 Desktop 시험은 위 CoopRenderSmoke에 `sentry` 또는 `ghost`를 마지막 인수로 전달한다. 언어별로 새 XDG_DATA_HOME을 사용한다. 이 시험은 원본 생성 방에 두 영웅을 시험 배치한 뒤 실제 Noosa 입력을 사용한다. 전체 하수도 생성·계단 왕복 조사표는 성공한 결과 디렉터리에 `python3 scripts/coop-sewer-survey.py <결과 디렉터리>/junit`을 실행해 재생성한다.
+
+## 하수도 S1 미믹·석상 빌드
+
+APK의 versionName은 4.0.2-INDEV-sewer-guardians, versionCode는 922, 패키지는 org.spdcoop.dungeon.indev다. scripts/verify-android-build.sh는 실행한 소스 커밋·전체 JUnit XML·서명·크기·체크섬을 같은 출력 디렉터리에 기록한다. 독립 JVM 시험에는 실제 loopback 소켓 접근이 필요하다. Desktop 회귀는 :desktop:compileTestJava 및 :desktop:release 후 별도의 X11 디스플레이에서 CoopRenderSmoke <출력> mimic, crystal, statue를 각각 en·ko로 실행한다. 실행 중인 프로세스가 사용 중인 Desktop JAR은 다시 만들지 않는다.
+
+시드 자료는 최종 XML 디렉터리를 scripts/coop-sewer-survey.py에 전달해 다시 생성한다. --gates 옵션은 원본 22개, 추가 연속 22개와 희귀 지정 시드 1개를 구분한다. 디버그 인증서가 달라지면 기존 앱에 업데이트 설치할 수 없다. APK와 서명 키는 Git 추적에서 제외한다.

@@ -393,3 +393,65 @@ Desktop 실행 명령과 X11 전제는 BUILD.md에 있다. 시험은 실제 생�
 **발견 및 수정**. 9ce097c 전체 검사에서 퀘스트 몬스터가 높은 풀 전리품의 빈 스프라이트에 접근해 FAIL했다. 원본 아이템 드롭을 유지하고 Heap.animateDrop으로 시각 완료를 분리한 ee9e609에서 63건이 통과했다. 94facc5 전체 검사에서는 주소 오류 후 메뉴 복귀를 검사하는 도우미가 비동기 작업 도중 직전 DISCONNECTED 화면을 읽어 64건 중 한 건이 FAIL했다. 작업 완료 후 게시된 Frame을 읽도록 순서를 고쳐 주소 오류와 메뉴 복귀 양쪽 검증을 유지했다. 3765d34에서 65건, 계단 다중 시드 시험을 추가한 90410ac에서 최종 66건 모두 PASS다.
 
 실행한 주요 명령은 `git ls-remote coop`, `./gradlew --offline :core:test`, `scripts/verify-android-build.sh <결과 디렉터리>`, `python3 scripts/coop-content-inventory.py`, `./gradlew --offline :desktop:compileTestJava :desktop:release`, `CoopRenderSmoke <출력> sentry|ghost`, `gh api repos/jwgobaek/SPD-Coop/actions/runs`, `git diff --check`와 일반 `git push coop HEAD:refs/heads/coop/phase8`이다. 키·개인 저장 데이터를 제외한 로그, JUnit XML, 성능 원자료와 실제 화면은 [검증 ZIP](docs/coop/sewer-specials-evidence.zip)에 있다.
+
+## 하수도 S1 미믹·석상 클라우드 검증
+
+기준 8bc710b의 66개 JUnit 케이스를 작업 전에 다시 실행하여 PASS를 확인했다. 최종 소스 c67af0f의 82개가 모두 PASS이며, 기존 케이스 66개의 이름을 XML에서 대조했다. 실패·오류·건너뜀은 모두 0건이다. 일반 미믹 3bfbc2d는 69건, 수정 미믹 1169837은 72건, 석상 2d48744는 77건과 각 Android APK 검사를 통과했다.
+
+| 시험 | 결과 | 실제 범위 |
+|---|---|---|
+| 일반 미믹 | PASS | 양 좌석 열기와 원본 기습·마력탄 선공·피해·금화, 노출 전 h셀, 주차된 층 및 재연결 영수증 |
+| 수정 미믹 | PASS | 양 좌석 탈취, 훔칠 수 없는 경우, 원소유권을 유지한 스택 분리·반환·병합, 영구 도주 및 새 JVM 복원 |
+| 수정 미믹 장애 복구 | PASS | 다른 호스트 JVM 7개. 탈취와 처치의 HEAD 직후 응답 전에 강제 종료 2회. 두 좌석이 다시 인증해 기존 영수증을 조회했다. 도주 중·층 이탈·귀환·처치·재획득을 구분했다. |
+| 석상·GnollExile·유령 피라냐 | PASS | 특정 원본 장비와 피해·귀속, 실제 420의 독립 몹, 479의 물속 순간이동과 원래 고기. TCP에서 게스트의 마력탄과 재인증 후 확정 영수증 대조 |
+| 원본 22개 계단 배치 | PASS | 21/22 왕복. 421은 REJECT_FLOOR 뒤 지도·턴·RNG 원복 및 다음 행동 성공 |
+| 추가 연속 표본 및 희귀 지정 표본 | PASS | 424–445는 17/22 왕복. 479는 1/1. 거부된 목적지와 처음부터 미지원인 1층을 구분했다. |
+| 시드 421의 실제 2층 진입 | FAIL | 원본 Statue/Scimitar/Unstable이 미지원이며 S1 완료 조건이 남아 있다. |
+| Desktop UI | PASS | X11·LWJGL 실제 KO·EN 화면. 일반 미믹 공개, 수정 미믹 탈취 후 화면, 석상 전투와 재인증. 교전 위치는 시험용으로 준비했으며 공격·도주 프레임 및 소리 전체의 정확성은 미검증이다. |
+| S2 다트 함정 및 열쇠 소비 | NOT RUN | S1 완료 후 착수 조건이 남아 있다. |
+| Android APK 빌드·검사 | PASS | 4.0.2-INDEV-sewer-guardians, versionCode 922, org.spdcoop.dungeon.indev, 35,241,857 B, v1·v2 서명 |
+| Android 설치·터치·화면·Wi-Fi·핫스팟 / GitHub Actions | NOT RUN | 실기기 미사용. 호스팅 브랜치 실행 조회 0건 |
+
+APK의 SHA-256은 `a42c377d3cccec96e36a581c65cf263cbc158a10907334793672db224ffd1537`, 기존 개발 서명 인증서 SHA-256은 `0dd9070b5f17192a8b07e5ddb6735161b0d2bb6e49013e4d61ca5ee6216ddb53`이다. 빌드 커밋은 `c67af0fdd620bb7a96a4e1c7e49a157ee1e3efc6`이다.
+
+**좌석·영수증 검증.** 독립 클라이언트 JVM에서 실제 성공 응답을 받은 게임 행동을 집계했다. 재조회와 응답 유실 시점의 확정 행동은 성공 응답 수에서 제외한다. 수정 미믹 시나리오의 성공 응답은 10건, 기존 좌석 재인증은 18회다. CPU·메모리를 공유하는 모의 호스트는 사용하지 않았다.
+
+| 실제 TCP 모드 | 성공 응답 행동 | 재인증 |
+|---|---:|---:|
+| mimic | 4 | 0 |
+| mimicreceipt | 1 | 2 |
+| crystal-fight | 2 | 8 |
+| crystal-final | 1 | 2 |
+| crystal-loot | 1 | 2 |
+| crystal-new | 4 | 0 |
+| crystal-open | 0 | 2 |
+| crystal-park | 1 | 2 |
+| crystal-return | 1 | 2 |
+| statue | 5 | 2 |
+| exile | 5 | 2 |
+| phantom | 5 | 2 |
+| blocked-start | 0 | 0 |
+
+**시작 위치부터의 경로.** 원본 1층에서 출발해 실제 동의·층 이동, 디스크 엔진 복원·1층 복귀 후 다음 행동을 수행했다. 안내기는 원본 지도를 읽는다. 교전 위치에 배치하여 특수 Actor를 시험한 횟수와 구분한다.
+
+| 시드 | 이동 | 근접 | 탐색 | 마력탄 |
+|---:|---:|---:|---:|---:|
+| 408 | 58 | 4 | 2 | 5 |
+| 411 | 92 | 10 | 1 | 5 |
+| 415 | 74 | 7 | 1 | 0 |
+| 416 | 42 | 6 | 2 | 1 |
+| 420 | 58 | 6 | 1 | 4 |
+
+특수 Actor와 두 좌석별 공개 전체 스냅샷 크기는 744–2026 ASCII 바이트였다. 다음은 클라우드의 시드 415 독립 소켓 시험에서 기록한 원자료다. 명시적 저장과 행동 확정 응답은 별도 측정이다.
+
+```text
+native socket route action_ack_count=100 median_us=14662 p95_us=25718
+native socket route moves=76 melee=15 searches=1 casts=1
+floor=1 explicit_disk_saves=21 median_us=23913 p95_us=90286 generation_bytes=55754 slot_bytes=111572 active_actors=17 parked_utf8_bytes=0 host_used_heap_bytes=91797480
+floor=2 explicit_disk_saves=21 median_us=15942 p95_us=23552 generation_bytes=112230 slot_bytes=224524 active_actors=17 parked_utf8_bytes=37287 host_used_heap_bytes=11495328
+ascent_ack_us=31371
+```
+
+**발견 및 수정.** 기습 경로가 입력 준비 상태에 의해 중단될 수 있어 CoopSession.act가 원본 Mimic.interact에 실제 영웅을 넘기도록 수정했다. 미믹 내부 물건과 석상 보유 무기를 휴면 층의 물리적 ID 검증에 추가했다. 추가 표본에서 1층이 미지원 석상을 생성하는 경우가 확인돼 시작 전에 검사하고 로비로 돌려보낸다. 시험에서는 흡혈 회복이 같은 입력 경계에서 피해량을 가릴 수 있어 석상 첫 마력탄을 원거리에서 검사한다. 전리품은 쌓임·낙하 후에도 수량을 비교한다. 중간 b29bc85에서는 시드 415 TCP 안내 경로의 변화로 80건 중 1건이 FAIL했다. 기준 시드 안내 정책을 원복하고 새 시드용 경로 선택만 분리했다. 미시작 로비를 저장하려던 시험 종료 루틴은 정상적인 저장 거부까지 검사하도록 고쳤다. Desktop JAR을 읽는 중 재빌드하면 Ogg 리소스 읽기 오류가 발생해 최종 JAR을 고정하고 다시 검증했다.
+
+주요 명령은 `git ls-remote coop refs/heads/coop/phase8`, `./gradlew --offline :core:test`, `scripts/verify-android-build.sh <output>`, `./gradlew --offline :desktop:compileTestJava :desktop:release`, `CoopRenderSmoke <dir> mimic|crystal|statue`, `python3 scripts/coop-sewer-survey.py <junit> [--gates]`, `python3 scripts/coop-content-inventory.py`, `git diff --check` 및 일반 Git push다. [검증 자료 ZIP](docs/coop/sewer-guardians-evidence.zip) · [원본 생성 110개](docs/coop/sewer-generation.tsv) · [45개 시드의 계단 결과](docs/coop/sewer-gates.tsv)

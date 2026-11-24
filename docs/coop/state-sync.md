@@ -86,3 +86,7 @@ selftier는 자신의 원본 방어구 외형 단계다. allytier는 ally가 공
 ## 하수도 특수 방 체크포인트
 
 SYNC6은 시야 안의 Sentry·Piranha·Ghost·FetidRat·Bee와 허용된 아이템 종류를 표시한다. charge<cell>은 충전 중인 감시탑을 직접 볼 때만, quest<cell>은 유령을 직접 보고 인접할 때만, stench<cell>은 현재 시야 안에 가스가 있을 때만 보낸다. 일반 객체와 같은 관측 상실·해시·재접속 전체 스냅샷 검사를 거친다. [메시지 및 동사](lan-protocol.md)
+
+## 상자 위장과 몬스터 보관품
+
+SeatProjection은 중립 미믹을 CHEST 또는 CRYSTAL_CHEST로 표시한다. 위장 상태에서는 해당 Actor의 m행·HP·전리품·공격 상태가 없다. PublicDungeon과 CoopBoard는 두 좌석에서 같은 h셀 입력을 사용한다. 공개 후 직접 볼 수 있는 동안 기존 m행의 위치·HP와 원본 텍스처를 사용한다. 몬스터 보관품의 내부 ID 및 소유자 필드는 디스크 저장에만 존재한다. 귀속품이 바닥으로 돌아오면 공개 item ID와 별개로 호스트가 실제 소유자를 검증한다.

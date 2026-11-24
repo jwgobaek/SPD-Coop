@@ -103,3 +103,7 @@ CoopFloors는 원본 Level 하나를 활성화하고 반대쪽 하수도 층 하
 ## 하수도 특수 방 체크포인트
 
 CoopSession.basicMob은 원본 Mob 클래스를 기준으로 지원을 확인한다. Sentry.actCoop은 하나의 Actor 시계에서 노출된 표적 하나를 유지한다. Piranha.surprisedBy, Bee의 방어 AI, FetidRat의 경로 선택은 해당 Hero를 사용한다. Ghost.Quest.accept/claim은 엔진 소유 스레드에서 퀘스트 플래그와 실제 Item을 변경한다. RoomSync가 기존 영수증과 함께 저장한다. 벌과 조각은 ShatteredPot의 coopBee로 연결되며 휴면 층 재활성화 시 실제 바닥과 가방을 대조한다. SeatProjection이 관측된 충전·악취·인접 NPC 대화만 공개하고, CoopBoard와 CoopScene이 SYNC6로 입력을 전송한다. [세부 경로](docs/coop/sewer-region.md)
+
+## 하수도 특수 Actor와 원본 아이템
+
+CoopFloors.requireSupportedResidents는 최초 층과 이동 목적지에서 같은 허용 조건을 검사한다. CoopSession.floorItems는 미믹 보관품 및 석상 무기까지 물리적 위치를 열거한다. 스택을 분리하면 새 ID가 원소유자를 계승하고, 다시 합쳐지면 합쳐진 단위의 ID가 끝난다. RoomSync의 내구성 경계에서 원본 피해·아이템·영수증이 함께 저장된다. [저장 명세](docs/coop/save-format.md) · [공개 모델](docs/coop/state-sync.md)

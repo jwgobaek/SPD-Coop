@@ -83,3 +83,7 @@ The floor row encodes branch,depth. A stair row is published only when both play
 두 좌석은 MODE SYNC7을 협상한다. 직접 보이는 상자는 h<cell>=CHEST 또는 CRYSTAL_CHEST로 전송한다. 위장한 미믹은 같은 행을 사용한다. OPEN은 인접 셀과 핸들 0을 사용하며, 마력탄은 상자에 조준할 수 있다. 위장이 해제된 다음 확정 경계에서만 몬스터 행을 공개한다.
 
 SYNC8은 수정 미믹을 추가한다. 위장 중에는 CRYSTAL_CHEST만, 노출 후 직접 시야에 있는 동안에만 CrystalMimic 몬스터 행을 보낸다. 보관품·소유자 및 보이지 않는 도주 경로는 전송하지 않는다.
+
+## SYNC9 하수도 거주자
+
+SYNC9 호스트와 클라이언트는 같은 공개 몬스터 목록을 사용한다. 열린 상태에서만 Mimic·CrystalMimic을 m행으로 보낸다. 새 공개 종류는 Statue, GnollExile 및 PhantomPiranha다. 상자를 건드리는 OPEN은 인접 셀과 행동자의 직접 시야를 검사한다. 일반 상자의 내용물은 열기 전에 공개하지 않는다. 열쇠가 필요한 원본 수정 상자의 내용물 획득은 미지원이다. 시작 층 검증 실패 응답은 ERROR UNSUPPORTED_FLOOR이며 방장은 다른 방을 만들 수 있다. 진행 중 층 이동 실패는 기존 REJECT_FLOOR 및 원복 경로를 따른다.
