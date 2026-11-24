@@ -72,7 +72,7 @@ actors/buffs/Fury	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixe
 actors/buffs/GravityChaosTracker	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/GravityChaosTracker.java
 actors/buffs/GreaterHaste	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/GreaterHaste.java
 actors/buffs/Haste	actors/buffs	VERIFIED	seat and scheduler round trip / CheckpointTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Haste.java
-actors/buffs/Healing	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Healing.java
+actors/buffs/Healing	actors/buffs	VERIFIED	native healing ticks, remaining buff and HP cap / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Healing.java
 actors/buffs/HeroDisguise	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/HeroDisguise.java
 actors/buffs/Hex	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Hex.java
 actors/buffs/HoldFast	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/HoldFast.java
@@ -425,8 +425,8 @@ actors/mobs/Bat	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/s
 actors/mobs/Bee	actors/mobs	VERIFIED	host and guest, guarding a pot or holder, parked and active targets / SewerBeeTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bee.java
 actors/mobs/Brute	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Brute.java
 actors/mobs/Brute.BruteRage	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Brute.java
-actors/mobs/CausticSlime	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CausticSlime.java
-actors/mobs/Crab	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Crab.java
+actors/mobs/CausticSlime	actors/mobs	VERIFIED	native ooze applied to the struck seat / SewerResidentsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CausticSlime.java
+actors/mobs/Crab	actors/mobs	IMPLEMENTED	native basic AI in generated upper sewers, isolated per-seat case pending	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Crab.java
 actors/mobs/CrystalGuardian	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalGuardian.java
 actors/mobs/CrystalGuardian.Sleeping	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalGuardian.java
 actors/mobs/CrystalMimic	actors/mobs	VERIFIED	seed 411 ambush, victim stack, escape or return on defeat, two process kills / SewerCrystalMimicTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalMimic.java
@@ -485,18 +485,18 @@ actors/mobs/GnollGuard.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com
 actors/mobs/GnollSapper	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollSapper.java
 actors/mobs/GnollSapper.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollSapper.java
 actors/mobs/GnollSapper.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollSapper.java
-actors/mobs/GnollTrickster	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollTrickster.java
+actors/mobs/GnollTrickster	actors/mobs	VERIFIED	naturally offered depth 3 quest, native combat, defeat, restore and reward / SewerGhostTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollTrickster.java
 actors/mobs/GnollTrickster.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollTrickster.java
 actors/mobs/GoldenMimic	actors/mobs	VERIFIED	427/428 disguised locked chest, native ambush and prize, durable receipt / SewerMimicTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GoldenMimic.java
 actors/mobs/Golem	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Golem.java
 actors/mobs/Golem.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Golem.java
 actors/mobs/Golem.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Golem.java
-actors/mobs/Goo	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Goo.java
-actors/mobs/GreatCrab	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GreatCrab.java
+actors/mobs/Goo	actors/mobs	VERIFIED	original charged selected-target attack, water heal, seal, defeat, original drops and durable lost response / SewerDepthTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Goo.java
+actors/mobs/GreatCrab	actors/mobs	VERIFIED	naturally offered depth 4 quest, original block, combat, restore and reward / SewerGhostTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GreatCrab.java
 actors/mobs/GreatCrab.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GreatCrab.java
 actors/mobs/Guard	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Guard.java
 actors/mobs/Guard.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Guard.java
-actors/mobs/HermitCrab	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/HermitCrab.java
+actors/mobs/HermitCrab	actors/mobs	VERIFIED	original armor drop uses credited seat level, survives checkpoint / SewerResidentsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/HermitCrab.java
 actors/mobs/Mimic	actors/mobs	VERIFIED	seed 408 native disguise, opener, melee, missile, gold, parked floor, receipt / SewerMimicTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mimic.java
 actors/mobs/Mob	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob.java
 actors/mobs/Mob.Fleeing	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob.java
@@ -534,7 +534,7 @@ actors/mobs/Shaman.BlueShaman	actors/mobs	UNSUPPORTED		core/src/main/java/com/sh
 actors/mobs/Shaman.PurpleShaman	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Shaman.java
 actors/mobs/Shaman.RedShaman	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Shaman.java
 actors/mobs/Skeleton	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Skeleton.java
-actors/mobs/Slime	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Slime.java
+actors/mobs/Slime	actors/mobs	IMPLEMENTED	native basic AI in generated upper sewers, isolated per-seat case pending	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Slime.java
 actors/mobs/Snake	actors/mobs	IMPLEMENTED	basicMob allowlist	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Snake.java
 actors/mobs/SpectralNecromancer	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/SpectralNecromancer.java
 actors/mobs/Spinner	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java
@@ -542,7 +542,7 @@ actors/mobs/Spinner.Fleeing	actors/mobs	UNSUPPORTED		core/src/main/java/com/shat
 actors/mobs/Spinner.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java
 actors/mobs/Statue	actors/mobs	VERIFIED	seeds 416/420/421/428/434/435/437/444; passive base statistics, native on-hit effect, held identity and drop / SewerGuardiansTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Statue.java
 actors/mobs/Succubus	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Succubus.java
-actors/mobs/Swarm	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Swarm.java
+actors/mobs/Swarm	actors/mobs	VERIFIED	native split, health division and distinct scheduled actor ID / SewerResidentsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Swarm.java
 actors/mobs/Tengu	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
 actors/mobs/Tengu.BombAbility	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
 actors/mobs/Tengu.BombItem	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
@@ -552,7 +552,7 @@ actors/mobs/Tengu.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatte
 actors/mobs/Tengu.ShockerAbility	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
 actors/mobs/Tengu.ShockerBlob	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
 actors/mobs/Tengu.ShockerItem	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
-actors/mobs/Thief	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Thief.java
+actors/mobs/Thief	actors/mobs	VERIFIED	steal one unit from either victim, flee, preserve physical identity and owner on parked floor / SewerResidentsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Thief.java
 actors/mobs/Thief.Fleeing	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Thief.java
 actors/mobs/Thief.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Thief.java
 actors/mobs/TormentedSpirit	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/TormentedSpirit.java
@@ -574,7 +574,7 @@ actors/mobs/npcs/Blacksmith	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpix
 actors/mobs/npcs/DirectableAlly	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/DirectableAlly.java
 actors/mobs/npcs/DirectableAlly.Hunting	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/DirectableAlly.java
 actors/mobs/npcs/DirectableAlly.Wandering	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/DirectableAlly.java
-actors/mobs/npcs/Ghost	NPC	VERIFIED	depth 2 shared quest, single owned reward, reboot and receipt / SewerGhostTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Ghost.java
+actors/mobs/npcs/Ghost	NPC	VERIFIED	depths 2–4 original shared quest, separate native opponents, one owned selection / SewerGhostTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Ghost.java
 actors/mobs/npcs/Ghost.Wandering	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Ghost.java
 actors/mobs/npcs/Imp	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Imp.java
 actors/mobs/npcs/ImpShopkeeper	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/ImpShopkeeper.java
@@ -583,7 +583,7 @@ actors/mobs/npcs/MirrorImage.MirrorInvis	NPC	UNSUPPORTED		core/src/main/java/com
 actors/mobs/npcs/NPC	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/NPC.java
 actors/mobs/npcs/PrismaticImage	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/PrismaticImage.java
 actors/mobs/npcs/PrismaticImage.Wandering	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/PrismaticImage.java
-actors/mobs/npcs/RatKing	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/RatKing.java
+actors/mobs/npcs/RatKing	NPC	IMPLEMENTED	resident on the fifth floor, audience and crown quest unavailable	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/RatKing.java
 actors/mobs/npcs/Sheep	NPC	VERIFIED	FlockTrap spawn, actor identity across restore and native expiry / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Sheep.java
 actors/mobs/npcs/Shopkeeper	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Shopkeeper.java
 actors/mobs/npcs/VaultLaser	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultLaser.java
@@ -644,12 +644,12 @@ items/armor/Armor.Glyph	items/armor	UNSUPPORTED		core/src/main/java/com/shattere
 items/armor/ClassArmor	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/ClassArmor.java
 items/armor/ClassArmor.Charger	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/ClassArmor.java
 items/armor/ClericArmor	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/ClericArmor.java
-items/armor/ClothArmor	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/ClothArmor.java
+items/armor/ClothArmor	items/armor	VERIFIED	explicitly remove sealed warrior armor, owner and seal preserved after restore / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/ClothArmor.java
 items/armor/DuelistArmor	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/DuelistArmor.java
 items/armor/HuntressArmor	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/HuntressArmor.java
-items/armor/LeatherArmor	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/LeatherArmor.java
+items/armor/LeatherArmor	items/armor	VERIFIED	equip plain armor on both seats, retain equipment on restore / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/LeatherArmor.java
 items/armor/MageArmor	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/MageArmor.java
-items/armor/MailArmor	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/MailArmor.java
+items/armor/MailArmor	items/armor	IMPLEMENTED	plain unglyphed armor ownership and equipment path, separate item-specific trial pending	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/MailArmor.java
 items/armor/PlateArmor	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/PlateArmor.java
 items/armor/RogueArmor	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/RogueArmor.java
 items/armor/ScaleArmor	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/ScaleArmor.java
@@ -780,14 +780,14 @@ items/keys/CrystalKey	items/keys	UNSUPPORTED		core/src/main/java/com/shatteredpi
 items/keys/GoldenKey	items/keys	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/keys/GoldenKey.java
 items/keys/IronKey	items/keys	VERIFIED	native pickup, depth journal shared by both seats, durable door consumption / SewerHazardsTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/keys/IronKey.java
 items/keys/Key	items/keys	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/keys/Key.java
-items/keys/WornKey	items/keys	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/keys/WornKey.java
+items/keys/WornKey	items/keys	VERIFIED	Goo drops one, locked exit consumes one shared depth key / SewerDepthTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/keys/WornKey.java
 items/potions/Potion	items/potions	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/Potion.java
 items/potions/Potion.PlaceHolder	items/potions	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/Potion.java
 items/potions/Potion.SeedToPotion	items/potions	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/Potion.java
 items/potions/PotionOfExperience	items/potions	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfExperience.java
 items/potions/PotionOfFrost	items/potions	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfFrost.java
 items/potions/PotionOfHaste	items/potions	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfHaste.java
-items/potions/PotionOfHealing	items/potions	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfHealing.java
+items/potions/PotionOfHealing	items/potions	VERIFIED	identified owned draught on each living seat, cure, native healing, receipt / SewerTravelGearTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfHealing.java
 items/potions/PotionOfInvisibility	items/potions	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfInvisibility.java
 items/potions/PotionOfLevitation	items/potions	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfLevitation.java
 items/potions/PotionOfLiquidFlame	items/potions	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/PotionOfLiquidFlame.java
@@ -853,7 +853,7 @@ items/quest/DarkGold	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpi
 items/quest/DwarfToken	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/DwarfToken.java
 items/quest/Embers	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/Embers.java
 items/quest/EscapeCrystal	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/EscapeCrystal.java
-items/quest/GooBlob	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/GooBlob.java
+items/quest/GooBlob	items/quest	VERIFIED	original 2–4 quantity across host termination after HEAD / SewerDepthTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/GooBlob.java
 items/quest/ImpStatue	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/ImpStatue.java
 items/quest/MetalShard	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/MetalShard.java
 items/quest/Pickaxe	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/Pickaxe.java
@@ -1073,8 +1073,8 @@ items/wands/WandOfTransfusion	items/wands	UNSUPPORTED		core/src/main/java/com/sh
 items/wands/WandOfWarding	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfWarding.java
 items/wands/WandOfWarding.Ward	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfWarding.java
 items/wands/WandOfWarding.WardSentry	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfWarding.java
-items/weapon/SpiritBow	items/weapon	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/SpiritBow.java
-items/weapon/SpiritBow.SpiritArrow	items/weapon	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/SpiritBow.java
+items/weapon/SpiritBow	items/weapon	VERIFIED	unenhanced huntress bow, visible ordinary enemy, native shot for both seats, reconnect / SewerTravelGearTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/SpiritBow.java
+items/weapon/SpiritBow.SpiritArrow	items/weapon	VERIFIED	native targeting, owner-scaled damage, attack time and return to melee equipment / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/SpiritBow.java
 items/weapon/Weapon	items/weapon	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/Weapon.java
 items/weapon/Weapon.Enchantment	items/weapon	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/Weapon.java
 items/weapon/curses/Annoying	items/weapon/curses	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/curses/Annoying.java
@@ -1234,8 +1234,8 @@ levels/PrisonBossLevel.FadingTraps	levels	UNSUPPORTED		core/src/main/java/com/sh
 levels/PrisonLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonLevel.java
 levels/PrisonLevel.Torch	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonLevel.java
 levels/RegularLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/RegularLevel.java
-levels/SewerBossLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerBossLevel.java
-levels/SewerLevel	levels	VERIFIED	native floors 1 and 2, walk, carry two heroes, park and revisit / CoopFloorsTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerLevel.java
+levels/SewerBossLevel	levels	VERIFIED	original fifth floor, both seat locks, dry combat fixture and reopened exit / SewerDepthTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerBossLevel.java
+levels/SewerLevel	levels	VERIFIED	branch zero generated depths 1–4, parked actors and items, gate survey / SewerDepthTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerLevel.java
 levels/SewerLevel.Sink	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerLevel.java
 levels/SewerLevel.WaterParticle	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerLevel.java
 levels/Terrain	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
@@ -1262,7 +1262,7 @@ levels/Terrain.HERO_LKD_DR	terrain	UNSUPPORTED		core/src/main/java/com/shattered
 levels/Terrain.HIGH_GRASS	terrain	VERIFIED	original huntress trample on both seats / SewerBeeTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.INACTIVE_TRAP	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.LOCKED_DOOR	terrain	VERIFIED	spend an iron key and enter the opened door, restore after host death / SewerHazardsTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
-levels/Terrain.LOCKED_EXIT	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
+levels/Terrain.LOCKED_EXIT	terrain	VERIFIED	original boss exit, depth key consumption / SewerDepthTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.MINE_BOULDER	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.MINE_CRYSTAL	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.OPEN_DOOR	terrain	VERIFIED	ordinary door: leave and close with original action cost / CoopContentPathTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
@@ -1274,7 +1274,7 @@ levels/Terrain.SECRET_TRAP	terrain	VERIFIED	hide undiscovered terrain identity f
 levels/Terrain.STATUE	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.STATUE_SP	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.TRAP	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
-levels/Terrain.UNLOCKED_EXIT	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
+levels/Terrain.UNLOCKED_EXIT	terrain	VERIFIED	unlocked exit persists across checkpoint, depth 6 excluded / SewerDepthTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.WALL	terrain	VERIFIED	blocked movement, independent visibility and zone separation / CoopSessionTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.WALL_DECO	terrain	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
 levels/Terrain.WATER	terrain	IMPLEMENTED	safeFloor movement allowlist for unoccupied plain cells	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Terrain.java
@@ -1520,11 +1520,11 @@ levels/traps/ExplosiveTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shat
 levels/traps/FlashingTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FlashingTrap.java
 levels/traps/FlockTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FlockTrap.java
 levels/traps/FrostTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FrostTrap.java
-levels/traps/GatewayTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GatewayTrap.java
+levels/traps/GatewayTrap	levels/traps	VERIFIED	native effect on either seat, same-floor checkpoint, original gateway destination / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GatewayTrap.java
 levels/traps/GeyserTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GeyserTrap.java
 levels/traps/GnollRockfallTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GnollRockfallTrap.java
 levels/traps/GrimTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GrimTrap.java
-levels/traps/GrippingTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GrippingTrap.java
+levels/traps/GrippingTrap	levels/traps	VERIFIED	native effect on either seat, same-floor checkpoint, original gateway destination / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GrippingTrap.java
 levels/traps/GuardianTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GuardianTrap.java
 levels/traps/GuardianTrap.Guardian	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GuardianTrap.java
 levels/traps/GuardianTrap.GuardianSprite	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GuardianTrap.java
@@ -1532,7 +1532,7 @@ levels/traps/OozeTrap	levels/traps	VERIFIED	exact native trap, either seat, acti
 levels/traps/PitfallTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PitfallTrap.java
 levels/traps/PitfallTrap.DelayedPit	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PitfallTrap.java
 levels/traps/PoisonDartTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PoisonDartTrap.java
-levels/traps/RockfallTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/RockfallTrap.java
+levels/traps/RockfallTrap	levels/traps	VERIFIED	native effect on either seat, same-floor checkpoint, original gateway destination / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/RockfallTrap.java
 levels/traps/ShockingTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ShockingTrap.java
 levels/traps/StormTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/StormTrap.java
 levels/traps/SummoningTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/SummoningTrap.java
@@ -1551,10 +1551,10 @@ plants/BlandfruitBush	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/
 plants/BlandfruitBush.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/BlandfruitBush.java
 plants/Blindweed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Blindweed.java
 plants/Blindweed.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Blindweed.java
-plants/Earthroot	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Earthroot.java
+plants/Earthroot	plants	VERIFIED	native Armor buff on the occupant of either seat, persists on restore / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Earthroot.java
 plants/Earthroot.Armor	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Earthroot.java
 plants/Earthroot.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Earthroot.java
-plants/Fadeleaf	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Fadeleaf.java
+plants/Fadeleaf	plants	VERIFIED	original same-floor teleport, both basic hero seats, withering persists / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Fadeleaf.java
 plants/Fadeleaf.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Fadeleaf.java
 plants/Firebloom	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Firebloom.java
 plants/Firebloom.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Firebloom.java
@@ -1567,9 +1567,9 @@ plants/Plant.PlaceHolder	plants	UNSUPPORTED		core/src/main/java/com/shatteredpix
 plants/Plant.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Plant.java
 plants/Rotberry	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Rotberry.java
 plants/Rotberry.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Rotberry.java
-plants/Sorrowmoss	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Sorrowmoss.java
+plants/Sorrowmoss	plants	VERIFIED	native Poison on either occupant, restored with remaining effect / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Sorrowmoss.java
 plants/Sorrowmoss.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Sorrowmoss.java
-plants/Starflower	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Starflower.java
+plants/Starflower	plants	VERIFIED	native Bless buff on the occupant of either seat, persists on restore / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Starflower.java
 plants/Starflower.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Starflower.java
 plants/Stormvine	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Stormvine.java
 plants/Stormvine.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Stormvine.java

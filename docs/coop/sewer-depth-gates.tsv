@@ -1,0 +1,32 @@
+seed	highest_floor	returned_to_floor	admission_blocker
+402	5	1	none
+403	3	1	Unsupported destination actor: [Statue/Shortsword/Grim]
+404	5	1	none
+405	2	1	Unsupported destination actor: [Statue/HandAxe/Vorpal]
+406	5	1	none
+407	5	1	none
+408	5	1	none
+409	5	1	none
+410	5	1	none
+411	5	1	none
+412	5	1	none
+413	5	1	none
+414	3	1	Unsupported destination actor: [Statue/Dirk/Shocking]
+415	5	1	none
+416	5	1	none
+417	5	1	none
+418	5	1	none
+419	5	1	none
+420	5	1	none
+421	5	1	none
+422	5	1	none
+423	5	1	none
+446	1	1	Unsupported destination actor: [ArmoredStatue/RoundShield/Projecting]
+447	5	1	none
+448	5	1	none
+449	5	1	none
+450	5	1	none
+451	5	1	none
+452	0	NA	Unsupported destination actor: [Statue/Spear/Projecting]
+453	5	1	none
+716	0	NA	Unsupported destination actor: [ArmoredStatue/RoundShield/Chilling]

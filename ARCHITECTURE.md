@@ -1,5 +1,9 @@
 # 엔진 분석 — v4.0.2
 
+## 하수도 층과 보스전
+
+CoopFloors가 branch 0의 현재 층과 최대 네 개 휴면 층을 관리한다. CoopSession은 같은 두 Hero를 이동시키고 실제 Actor 스케줄러는 활성 층만 실행한다. CoopSaves는 이동·몬스터 전리품·상태 버전·영수증을 같은 세대로 발행한다. 수신 좌석의 SeatProjection에서 볼 수 있는 Goo 충전 단계만 표시한다. [현재 저장 구조](docs/coop/save-format.md) · [검증 경계](docs/coop/sewer-depths.md)
+
 ## 원본 효과와 협동 실행 경계
 
 석상은 기본 무기의 통계·사정거리와 실제 Enchantment.proc를 조합한다. 기존 확정 경계에서 단일 Actor 스케줄러가 Pushing 및 다트의 지연 피해를 소진한다. 원본 Char.move·Level.occupyCell·Trap.trigger가 착지를 처리하고, 각 좌석의 직접 시야만 공개 지형·블롭 행으로 투영된다. 철 열쇠의 Notes 변경과 잠금 해제는 다음 행동 영수증을 포함한 단일 세대로 저장한다. [구현 및 시험표](docs/coop/unstable-effects.md)

@@ -75,7 +75,39 @@ for effect in ("Blazing","Blocking","Blooming","Corrupting","Elastic","Grim","Lu
 for trap in ("BurningTrap","ChillingTrap","ShockingTrap","ToxicTrap","ConfusionTrap","OozeTrap",
              "AlarmTrap","FlockTrap","SummoningTrap","TeleportationTrap"):
     VERIFIED["levels/traps/"+trap] = "exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest"
+VERIFIED.update({
+    "actors/mobs/npcs/Ghost": "depths 2–4 original shared quest, separate native opponents, one owned selection / SewerGhostTest",
+    "actors/mobs/GnollTrickster": "naturally offered depth 3 quest, native combat, defeat, restore and reward / SewerGhostTest",
+    "actors/mobs/GreatCrab": "naturally offered depth 4 quest, original block, combat, restore and reward / SewerGhostTest",
+    "actors/mobs/Goo": "original charged selected-target attack, water heal, seal, defeat, original drops and durable lost response / SewerDepthTest, HostRestartTest",
+    "actors/mobs/Thief": "steal one unit from either victim, flee, preserve physical identity and owner on parked floor / SewerResidentsTest",
+    "actors/mobs/Swarm": "native split, health division and distinct scheduled actor ID / SewerResidentsTest",
+    "actors/mobs/CausticSlime": "native ooze applied to the struck seat / SewerResidentsTest",
+    "actors/buffs/Healing": "native healing ticks, remaining buff and HP cap / SewerTravelGearTest",
+    "items/potions/PotionOfHealing": "identified owned draught on each living seat, cure, native healing, receipt / SewerTravelGearTest, HostRestartTest",
+    "items/weapon/SpiritBow": "unenhanced huntress bow, visible ordinary enemy, native shot for both seats, reconnect / SewerTravelGearTest, HostRestartTest",
+    "items/weapon/SpiritBow.SpiritArrow": "native targeting, owner-scaled damage, attack time and return to melee equipment / SewerTravelGearTest",
+    "items/armor/ClothArmor": "explicitly remove sealed warrior armor, owner and seal preserved after restore / SewerTravelGearTest",
+    "items/armor/LeatherArmor": "equip plain armor on both seats, retain equipment on restore / SewerTravelGearTest",
+    "items/keys/WornKey": "Goo drops one, locked exit consumes one shared depth key / SewerDepthTest, HostRestartTest",
+    "items/quest/GooBlob": "original 2–4 quantity across host termination after HEAD / SewerDepthTest, HostRestartTest",
+    "levels/SewerLevel": "branch zero generated depths 1–4, parked actors and items, gate survey / SewerDepthTest",
+    "levels/SewerBossLevel": "original fifth floor, both seat locks, dry combat fixture and reopened exit / SewerDepthTest",
+    "levels/Terrain.LOCKED_EXIT": "original boss exit, depth key consumption / SewerDepthTest",
+    "levels/Terrain.UNLOCKED_EXIT": "unlocked exit persists across checkpoint, depth 6 excluded / SewerDepthTest",
+    "actors/mobs/HermitCrab": "original armor drop uses credited seat level, survives checkpoint / SewerResidentsTest",
+    "plants/Earthroot": "native Armor buff on the occupant of either seat, persists on restore / SewerTravelGearTest",
+    "plants/Sorrowmoss": "native Poison on either occupant, restored with remaining effect / SewerTravelGearTest",
+    "plants/Starflower": "native Bless buff on the occupant of either seat, persists on restore / SewerTravelGearTest",
+    "plants/Fadeleaf": "original same-floor teleport, both basic hero seats, withering persists / SewerTravelGearTest",
+})
+for trap in ("GrippingTrap","RockfallTrap","GatewayTrap"):
+    VERIFIED["levels/traps/"+trap]="native effect on either seat, same-floor checkpoint, original gateway destination / SewerTravelGearTest"
 IMPLEMENTED = {
+    "items/armor/MailArmor": "plain unglyphed armor ownership and equipment path, separate item-specific trial pending",
+    "actors/mobs/Crab": "native basic AI in generated upper sewers, isolated per-seat case pending",
+    "actors/mobs/Slime": "native basic AI in generated upper sewers, isolated per-seat case pending",
+    "actors/mobs/npcs/RatKing": "resident on the fifth floor, audience and crown quest unavailable",
     **dict.fromkeys(("levels/Terrain.EMPTY_SP", "levels/Terrain.WATER", "levels/Terrain.EMBERS",
                      "levels/Terrain.EMPTY_DECO"), "safeFloor movement allowlist for unoccupied plain cells"),
     **dict.fromkeys(("actors/mobs/Albino", "actors/mobs/Gnoll", "actors/mobs/Snake"), "basicMob allowlist"),

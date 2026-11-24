@@ -1,5 +1,9 @@
 # Cloud에서 빌드하기
 
+## 하수도 1–5층 빌드
+
+독립 checkout에서 scripts/verify-android-build.sh를 실행하면 현재 커밋의 기존·신규 JUnit, APK, 패키지·서명·SHA-256 검사를 함께 기록한다. 이전 스키마 호환성은 각각 92ebf94와 9b6f58a checkout을 대상으로 scripts/verify-alpha-migration.py와 scripts/verify-sewer-migration.py로 검증한다. Desktop 검증기는 CoopRenderSmoke의 deep, kit 모드를 분리된 앱 프로필에서 실행한다. 셸에서 여러 빌드를 동시에 돌릴 때에는 각 빌드에 별도 Git worktree와 출력을 사용한다. [실행 결과](docs/coop/sewer-depths.md)
+
 ## 하수도 공통 마법 부여·함정·철 열쇠
 
 기준 회귀에는 `./gradlew --offline :core:cleanTest :core:test`, Android 검증에는 `scripts/verify-android-build.sh /workspace/deliverables/sewer-effects-5015b18`을 사용했다. APK는 해당 디렉터리의 android-debug.apk이며 SHA-256은 `68ebaca303406837f17dbac41f729f114fd6e620ec771e15a3b94ea3beb793f0`이다. JUnit 100건, 패키지·기존 개발 서명 인증서·v1/v2 검사를 통과했다. 시드표는 scripts/coop-sewer-survey.py로 JUnit XML에서 생성한다. Desktop은 :desktop:compileTestJava와 :desktop:release 후 LWJGL CoopRenderSmoke의 golden, hazards, unstable 모드를 격리한 X11 프로필에서 실행했다. 호스팅 Actions 및 실기기 검증은 NOT RUN이다.

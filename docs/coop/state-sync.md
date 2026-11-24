@@ -1,5 +1,11 @@
 # Phase 5 동기화 프로토콜 SYNC1
 
+## 현재 SYNC13
+
+호스트와 클라이언트는 MODE SYNC13을 협상한다. 상대 모드가 다르면 VERSION 오류로 끝난다. 영혼의 활 SHOOT와 식별된 회복 물약 DRINK는 좌석별 item ID, 소유권, Action ID 및 현재 턴을 검사한다. 갑옷 UI는 기존 EQUIP/UNEQUIP을 사용한다. 현재 보이는 Goo에 대해서만 charge셀에 원본 준비 단계를 싣는다. 5층까지 층 전환 때 새 floor 행과 수신자별 전체 스냅샷을 검증한다. 재접속 자격과 비공개 보관 아이템은 공개 상태에 포함하지 않는다.
+
+### 이전 협상 규약 이력
+
 ## SYNC11 공개 상태
 
 keys는 현재 층의 파티 철 열쇠 수량이다. h셀의 LOCKED_CHEST는 실제 잠긴 상자와 위장 중인 황금 미믹이 공유한다. 해당 셀은 발견 전 m·z·보상 행을 생성하지 않는다. 직접 관측하는 셀에서만 공개하는 trap셀 값은 원본 색+16×shape, cloud셀은 Fire=1, Freezing=2, Electricity=4, ToxicGas=8, ConfusionGas=16의 비트 합이다. 관측을 잃으면 동적 행을 지운다. Sheep과 모습을 드러낸 GoldenMimic은 직접 보이는 경우에만 표시한다.

@@ -1,0 +1,14 @@
+native socket route campaign action_ack count=1117 median_us=20879 p95_us=52152
+native socket route campaign visible_goo_ack count=106 median_us=27685 p95_us=60390
+native socket route campaign consent_travel_sync count=4 median_us=104902 p95_us=116731
+native socket route natural campaign seed=581 seat_actions=1121 extra_consents=4 carried_GooBlob=1 hp=5/30
+public_snapshot mode=campaign seat0_bytes=2702 seat1_bytes=2946
+campaign floor=1 explicit_disk_saves=21 median_us=19121 p95_us=22377 generation_bytes=49045 slot_bytes=98154 active_actors=19 parked_utf8_bytes=0 host_used_heap_bytes=42518616
+campaign floor=2 explicit_disk_saves=21 median_us=11324 p95_us=21978 generation_bytes=86123 slot_bytes=172310 active_actors=14 parked_utf8_bytes=27793 host_used_heap_bytes=124750936
+campaign floor=3 explicit_disk_saves=21 median_us=15966 p95_us=19944 generation_bytes=128193 slot_bytes=256450 active_actors=18 parked_utf8_bytes=56984 host_used_heap_bytes=43433320
+campaign floor=4 explicit_disk_saves=21 median_us=15521 p95_us=22827 generation_bytes=178116 slot_bytes=356296 active_actors=21 parked_utf8_bytes=98303 host_used_heap_bytes=142518696
+campaign floor=5 explicit_disk_saves=21 median_us=17719 p95_us=25647 generation_bytes=210536 slot_bytes=421136 active_actors=12 parked_utf8_bytes=146566 host_used_heap_bytes=77206880
+native socket route isolated boss attacks-before-lost-response=65 ack_median_us=24189 ack_p95_us=59092
+public_snapshot mode=goo seat0_bytes=1767 seat1_bytes=1394
+public_snapshot mode=goo-receipt seat0_bytes=1773 seat1_bytes=1357
+floor=5 explicit_disk_saves=21 median_us=18766 p95_us=22540 generation_bytes=226440 slot_bytes=452944 active_actors=10 parked_utf8_bytes=171148 host_used_heap_bytes=74134112
