@@ -113,7 +113,7 @@ public final class RestartClient {
     }
 
     private void run(String mode) throws Exception {
-        boolean special=RestartHost.hazard(mode) || mode.equals("blocked-start") || RestartHost.guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
+        boolean special=mode.equals("goo") || RestartHost.hazard(mode) || mode.equals("blocked-start") || RestartHost.guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
         if (special) {
             try (LanClient old = new LanClient(address)) {
                 assertEquals("ERROR VERSION", old.request("MODE SYNC3"));
@@ -141,6 +141,7 @@ public final class RestartClient {
             refresh();
             if(mode.equals("walk")) { walk(); return; }
             act("WAIT",0,0);
+            if (mode.equals("goo")) { boss(); return; }
             if (RestartHost.hazard(mode)) {
                 offer(1);
                 int cell=Integer.parseInt(RestartHost.read(path,"hazard-cell"));
@@ -252,6 +253,32 @@ public final class RestartClient {
         }
         for(int i=0;i<2;i++) bind(i);
         barrier();
+        if (mode.equals("schema2-to-three")) {
+            assertEquals(2,new PublicDungeon(state(0)).depth);
+            String[] descent=RestartHost.read(path,"descent").split(" ",3);
+            int mover=Integer.parseInt(descent[0]);
+            String prior=clients[mover].request("LOOKUP "+epoch+" "+descent[1]);
+            assertTrue(prior,prior.endsWith(" APPLIED"));
+            assertEquals(prior,clients[mover].request(descent[2]));
+            act("WAIT",0,0);
+            int seat=active();
+            assertTrue(consentAndCross().submit(clients[seat]).endsWith(" APPLIED"));
+            refresh(); assertEquals(3,new PublicDungeon(state(0)).depth);
+            act("WAIT",0,0);
+            return;
+        }
+        if (mode.equals("goo-receipt")) {
+            String[] saved=RestartHost.read(path,"boss-action").split(" ",3);
+            int seat=Integer.parseInt(saved[0]);
+            assertEquals(5,new PublicDungeon(state(seat)).depth);
+            long version=state(seat).version;
+            String receipt=clients[seat].request("LOOKUP "+epoch+" "+saved[1]);
+            assertTrue(receipt,receipt.endsWith(" APPLIED"));
+            assertEquals(receipt,clients[seat].request(saved[2]));
+            refresh(); assertEquals(version,state(seat).version);
+            act("WAIT",0,0);
+            return;
+        }
         if (mode.startsWith("crystal-")) {
             crystalResume(mode);
             return;
@@ -427,6 +454,38 @@ public final class RestartClient {
         refresh();
         assertTrue(new PublicDungeon(state(mover)).consent);
         return stairAction(mover,"TRAVEL",cell);
+    }
+
+    private void boss() throws Exception {
+        for(int depth=2;depth<=5;depth++) {
+            int seat=active();
+            assertTrue(consentAndCross().submit(clients[seat]).endsWith(" APPLIED"));
+            applied++; refresh(); assertEquals(depth,new PublicDungeon(state(seat)).depth);
+            act("WAIT",0,0); // publish the test placement through the next real actor boundary
+        }
+        for(int n=0;n<250;n++) {
+            int seat=active();
+            PublicDungeon view=new PublicDungeon(state(seat));
+            int cell=view.monsters.entrySet().stream().filter(e->e.getValue().equals("Goo"))
+                    .map(Map.Entry::getKey).findFirst().orElseThrow(AssertionError::new);
+            boolean bow=seat==1;
+            SeatActions.Pending request=actions[seat].prepare(state(seat),bow?"SHOOT":"ATTACK",cell,
+                    bow?item(seat,"BAG","BOW"):0);
+            RestartHost.write(path,"boss-action",seat+" "+request.id+" "+request.command);
+            long begin=System.nanoTime();
+            try {
+                String reply=request.submit(clients[seat]);
+                assertTrue(reply,reply.endsWith(" APPLIED")); applied++;
+                latency.add((System.nanoTime()-begin)/1000);
+                refresh();
+            } catch(IOException lost) {
+                Collections.sort(latency);
+                System.out.println("native socket route isolated boss attacks-before-lost-response="+n+
+                        " ack_median_us="+latency.get(latency.size()/2)+" ack_p95_us="+latency.get((latency.size()-1)*95/100));
+                return;
+            }
+        }
+        fail("Boss encounter did not end");
     }
 
     private void crystalResume(String mode) throws Exception {

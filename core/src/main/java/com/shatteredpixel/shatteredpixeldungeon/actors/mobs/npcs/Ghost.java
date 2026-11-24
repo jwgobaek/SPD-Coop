@@ -225,7 +225,7 @@ public class Ghost extends NPC {
 		
 		private static boolean start(Ghost ghost) {
 			if (!spawned || given || depth != Dungeon.depth) return false;
-			if (Dungeon.coop != null && type != 1) return false;
+			if (Dungeon.coop != null && (type < 1 || type > 3)) return false;
 			long[] before = Dungeon.coop == null ? null : Random.worldState();
 			Mob boss;
 			switch (type) {
@@ -251,7 +251,7 @@ public class Ghost extends NPC {
 		}
 
 		public static String sewerOffer() {
-			if (!spawned || depth != Dungeon.depth || type != 1 || weapon == null) return "";
+			if (!spawned || depth != Dungeon.depth || type < 1 || type > 3 || weapon == null) return "";
 			return !given ? "OFFER" : processed ? "REWARD" : "HUNT";
 		}
 

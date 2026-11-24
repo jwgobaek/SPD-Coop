@@ -31,8 +31,8 @@ public class CoopScene extends PixelScene {
     private void cancelAim() { targetView=null; targetStaff=null; renderFrame(); }
     private void touchCell(PublicDungeon view,int cell) {
         if (targetView==null) {
-            if(view.visible(cell) && ((view.depth==1 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EXIT)
-                    || (view.depth==2 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.ENTRANCE))) {
+            if(view.visible(cell) && ((view.depth<5 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EXIT)
+                    || (view.depth>1 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.ENTRANCE))) {
                 if(view.stair!=cell) alert(msg("stairconditions"));
                 else if(view.offered && !view.consent) alert(msg("awaitvote"));
                 else controller.act(view.source,view.offered?"TRAVEL":view.consent?"CANCEL_TRAVEL":"CONSENT",cell,0);
@@ -52,7 +52,7 @@ public class CoopScene extends PixelScene {
         if (!view.offered) return;
         boolean reward=offer.equals("REWARD");
         String body=reward?Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndSadGhost.class,"give_item")
-                :Messages.get(ghost,"rat_1",com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass.valueOf(view.heroClass).title());
+                :Messages.get(ghost,view.depth==3 ? "gnoll_1" : view.depth==4 ? "crab_1" : "rat_1",com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass.valueOf(view.heroClass).title());
         String[] options=reward?new String[]{msg("ghost_weapon"),msg("ghost_armor"),msg("cancel")}
                 :new String[]{msg("accept"),msg("cancel")};
         add(new WndOptions(title,body,options) {
@@ -277,7 +277,7 @@ public class CoopScene extends PixelScene {
         if (targetView==null && v.stair>=0) {
             String verb=v.offered ? "TRAVEL" : v.consent ? "CANCEL_TRAVEL" : "CONSENT";
             String key=v.offered ? (v.consent ? "travel" : "awaitvote") : (v.consent ? "canceltravel" : "vote");
-            StyledButton stairs=make(msg(key,3-v.depth),()->controller.act(f.image,verb,v.stair,0));
+            StyledButton stairs=make(msg(key,v.depth+(v.terrain(v.stair)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.ENTRANCE ? -1 : 1)),()->controller.act(f.image,verb,v.stair,0));
             stairs.setRect(left,top,width,16); stairs.enable(f.pending==0 && (!v.offered || v.consent)); top+=17;
         }
         float bx=left;

@@ -126,6 +126,8 @@ final class SeatProjection {
                         continue;
                     }
                     rows.put("m"+mob.id(),mob.pos+","+mob.getClass().getSimpleName()+","+mob.HP+","+mob.HT);
+                    if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo && ((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo)mob).chargeStage()>0)
+                        rows.put("charge"+mob.pos,Integer.toString(((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo)mob).chargeStage()));
                     if (mob instanceof Ghost && level.adjacent(hero.pos,mob.pos))
                         rows.put("quest"+mob.pos,Ghost.Quest.sewerOffer());
                     if (mob instanceof Sentry

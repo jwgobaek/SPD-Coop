@@ -150,6 +150,7 @@ public class GnollTrickster extends Gnoll {
 			//of two potential wander positions, picks the one closest to the hero
 			int pos1 = super.randomDestination();
 			int pos2 = super.randomDestination();
+			if (Dungeon.coop != null) return Dungeon.coop.nearerToParty(pos1,pos2);
 			PathFinder.buildDistanceMap(Dungeon.hero.pos, Dungeon.level.passable);
 			if (PathFinder.distance[pos2] < PathFinder.distance[pos1]){
 				return pos2;

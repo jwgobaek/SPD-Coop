@@ -22,6 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.levels;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Bones;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
@@ -183,9 +184,9 @@ public class SewerBossLevel extends SewerLevel {
 
 			set( entrance(), Terrain.WATER );
 			GameScene.updateMap( entrance() );
-			GameScene.ripple( entrance() );
+			if (Dungeon.coop==null) GameScene.ripple( entrance() );
 
-			Game.runOnRenderThread(new Callback() {
+			if (Dungeon.coop==null) Game.runOnRenderThread(new Callback() {
 				@Override
 				public void call() {
 					Music.INSTANCE.play(Assets.Music.SEWERS_BOSS, true);
@@ -202,7 +203,7 @@ public class SewerBossLevel extends SewerLevel {
 			set( entrance(), Terrain.ENTRANCE );
 			GameScene.updateMap( entrance() );
 
-			Game.runOnRenderThread(new Callback() {
+			if (Dungeon.coop==null) Game.runOnRenderThread(new Callback() {
 				@Override
 				public void call() {
 					Music.INSTANCE.fadeOut(5f, new Callback() {

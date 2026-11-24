@@ -70,7 +70,7 @@ public class Goo extends Mob {
 		int max = (HP*2 <= HT) ? 12 : 8;
 		if (pumpedUp > 0) {
 			pumpedUp = 0;
-			if (enemy == Dungeon.hero) {
+			if (enemy == Dungeon.hero || (Dungeon.coop!=null && Dungeon.coop.playerOf(enemy)!=0)) {
 				Statistics.qualifiedForBossChallengeBadge = false;
 				Statistics.bossScores[0] -= 100;
 			}
@@ -110,21 +110,17 @@ public class Goo extends Mob {
 			HP += healInc;
 			Statistics.qualifiedForBossChallengeBadge = false;
 
-			LockedFloor lock = Dungeon.hero.buff(LockedFloor.class);
-			if (lock != null){
-				if (Dungeon.isChallenged(Challenges.STRONGER_BOSSES))   lock.removeTime(healInc);
-				else                                                    lock.removeTime(healInc*1.5f);
-			}
+			adjustLocks(-(Dungeon.isChallenged(Challenges.STRONGER_BOSSES) ? healInc : healInc*1.5f));
 
-			if (Dungeon.level.heroFOV[pos] ){
+			if (Dungeon.coop==null && Dungeon.level.heroFOV[pos] ){
 				sprite.showStatusWithIcon( CharSprite.POSITIVE, Integer.toString(healInc), FloatingText.HEALING );
 			}
 			if (Dungeon.isChallenged(Challenges.STRONGER_BOSSES) && healInc < 3) {
 				healInc++;
 			}
 			if (HP*2 > HT) {
-				BossHealthBar.bleed(false);
-				((GooSprite)sprite).spray(false);
+				if (Dungeon.coop==null) BossHealthBar.bleed(false);
+				if (sprite instanceof GooSprite) ((GooSprite)sprite).spray(false);
 				HP = Math.min(HP, HT);
 			}
 		} else {
@@ -160,7 +156,7 @@ public class Goo extends Mob {
 		}
 
 		if (pumpedUp > 0) {
-			PixelScene.shake( 3, 0.2f );
+			if (Dungeon.coop==null) PixelScene.shake( 3, 0.2f );
 		}
 
 		return damage;
@@ -171,7 +167,7 @@ public class Goo extends Mob {
 		super.updateSpriteState();
 
 		if (pumpedUp > 0){
-			((GooSprite)sprite).pumpUp( pumpedUp );
+			if (sprite instanceof GooSprite) ((GooSprite)sprite).pumpUp( pumpedUp );
 		}
 	}
 
@@ -179,14 +175,14 @@ public class Goo extends Mob {
 	protected boolean doAttack( Char enemy ) {
 		if (pumpedUp == 1) {
 			pumpedUp++;
-			((GooSprite)sprite).pumpUp( pumpedUp );
+			if (sprite instanceof GooSprite) ((GooSprite)sprite).pumpUp( pumpedUp );
 
 			spend( attackDelay() );
 
 			return true;
 		} else if (pumpedUp >= 2 || Random.Int( (HP*2 <= HT) ? 2 : 5 ) > 0) {
 
-			boolean visible = Dungeon.level.heroFOV[pos];
+			boolean visible = Dungeon.coop==null && Dungeon.level.heroFOV[pos];
 
 			if (visible) {
 				if (pumpedUp >= 2) {
@@ -196,7 +192,7 @@ public class Goo extends Mob {
 				}
 			} else {
 				if (pumpedUp >= 2){
-					((GooSprite)sprite).triggerEmitters();
+					if (sprite instanceof GooSprite) ((GooSprite)sprite).triggerEmitters();
 				}
 				attack( enemy );
 				Invisibility.dispel(this);
@@ -216,9 +212,9 @@ public class Goo extends Mob {
 				spend( attackDelay() );
 			}
 
-			((GooSprite)sprite).pumpUp( pumpedUp );
+			if (sprite instanceof GooSprite) ((GooSprite)sprite).pumpUp( pumpedUp );
 
-			if (Dungeon.level.heroFOV[pos]) {
+			if (Dungeon.coop==null && Dungeon.level.heroFOV[pos]) {
 				sprite.showStatus( CharSprite.WARNING, Messages.get(this, "!!!") );
 				GLog.n( Messages.get(this, "pumpup") );
 			}
@@ -232,7 +228,7 @@ public class Goo extends Mob {
 		boolean result = super.attack( enemy, dmgMulti, dmgBonus, accMulti );
 		if (pumpedUp > 0) {
 			pumpedUp = 0;
-			if (enemy == Dungeon.hero) {
+			if (enemy == Dungeon.hero || (Dungeon.coop!=null && Dungeon.coop.playerOf(enemy)!=0)) {
 				Statistics.qualifiedForBossChallengeBadge = false;
 				Statistics.bossScores[0] -= 100;
 			}
@@ -260,22 +256,31 @@ public class Goo extends Mob {
 
 	@Override
 	public void damage(int dmg, Object src) {
-		if (!BossHealthBar.isAssigned()){
-			BossHealthBar.assignBoss( this );
+		if (Dungeon.coop==null ? !BossHealthBar.isAssigned() : !Dungeon.level.locked){
+			if (Dungeon.coop==null) BossHealthBar.assignBoss( this );
 			Dungeon.level.seal();
 		}
 		boolean bleeding = (HP*2 <= HT);
 		super.damage(dmg, src);
 		if ((HP*2 <= HT) && !bleeding){
-			BossHealthBar.bleed(true);
+			if (Dungeon.coop==null) BossHealthBar.bleed(true);
 			sprite.showStatus(CharSprite.WARNING, Messages.get(this, "enraged"));
 			if (sprite instanceof GooSprite) ((GooSprite)sprite).spray(true);
 			yell(Messages.get(this, "gluuurp"));
 		}
-		LockedFloor lock = Dungeon.hero.buff(LockedFloor.class);
-		if (lock != null && !isImmune(src.getClass()) && !isInvulnerable(src.getClass())){
-			if (Dungeon.isChallenged(Challenges.STRONGER_BOSSES))   lock.addTime(dmg);
-			else                                                    lock.addTime(dmg*1.5f);
+		if (!isImmune(src.getClass()) && !isInvulnerable(src.getClass()))
+			adjustLocks(Dungeon.isChallenged(Challenges.STRONGER_BOSSES) ? dmg : dmg*1.5f);
+	}
+
+	public int chargeStage() { return pumpedUp; }
+
+	private void adjustLocks(float amount) {
+		for (int seat=0; seat<(Dungeon.coop==null ? 1 : 2); seat++) {
+			LockedFloor lock=(Dungeon.coop==null ? Dungeon.hero : Dungeon.coop.hero(seat)).buff(LockedFloor.class);
+			if (lock!=null) {
+				if (amount<0) lock.removeTime(-amount);
+				else lock.addTime(amount);
+			}
 		}
 	}
 
@@ -286,7 +291,7 @@ public class Goo extends Mob {
 		
 		Dungeon.level.unseal();
 		
-		GameScene.bossSlain();
+		if (Dungeon.coop==null) GameScene.bossSlain();
 		Dungeon.level.drop( new WornKey( Dungeon.depth ), pos ).animateDrop();
 		
 		//60% chance of 2 blobs, 30% chance of 3, 10% chance for 4. Average of 2.5
@@ -299,8 +304,8 @@ public class Goo extends Mob {
 			Dungeon.level.drop( new GooBlob(), pos + ofs ).animateDrop( pos );
 		}
 		
-		Badges.validateBossSlain();
-		if (Statistics.qualifiedForBossChallengeBadge){
+		if (Dungeon.coop==null) Badges.validateBossSlain();
+		if (Dungeon.coop==null && Statistics.qualifiedForBossChallengeBadge){
 			Badges.validateBossChallengeCompleted();
 		}
 		Statistics.bossScores[0] += 1000;
@@ -311,8 +316,8 @@ public class Goo extends Mob {
 	@Override
 	public void notice() {
 		super.notice();
-		if (!BossHealthBar.isAssigned()) {
-			BossHealthBar.assignBoss(this);
+		if (Dungeon.coop==null ? !BossHealthBar.isAssigned() : !Dungeon.level.locked) {
+			if (Dungeon.coop==null) BossHealthBar.assignBoss(this);
 			Dungeon.level.seal();
 			yell(Messages.get(this, "notice"));
 			for (Char ch : Actor.chars()){
@@ -341,8 +346,8 @@ public class Goo extends Mob {
 		super.restoreFromBundle( bundle );
 
 		pumpedUp = bundle.getInt( PUMPEDUP );
-		if (state != SLEEPING) BossHealthBar.assignBoss(this);
-		if ((HP*2 <= HT)) BossHealthBar.bleed(true);
+		if (state != SLEEPING && Dungeon.coop==null) BossHealthBar.assignBoss(this);
+		if (HP*2<=HT && Dungeon.coop==null) BossHealthBar.bleed(true);
 
 		healInc = bundle.getInt(HEALINC);
 	}

@@ -195,14 +195,7 @@ public class CrystalMimic extends Mimic {
 
 	private boolean canEscape() {
 		if (Dungeon.coop == null) return !Dungeon.level.heroFOV[pos] && Dungeon.level.distance(Dungeon.hero.pos,pos)>=6;
-		boolean[] sight=new boolean[Dungeon.level.length()];
-		for (int seat=0;seat<2;seat++) {
-			Hero observer=Dungeon.coop.hero(seat);
-			if (!observer.isAlive()) continue;
-			Dungeon.level.updateDirectSight(observer,sight);
-			if (sight[pos] || Dungeon.level.distance(observer.pos,pos)<6) return false;
-		}
-		return true;
+		return Dungeon.coop.unseenByParty(pos,6);
 	}
 
 	private class Fleeing extends Mob.Fleeing {

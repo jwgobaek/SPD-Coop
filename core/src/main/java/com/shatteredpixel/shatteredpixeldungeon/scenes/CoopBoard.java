@@ -66,6 +66,18 @@ final class CoopBoard extends Group {
             if(monster!=null) {
                 Image sprite;
                 switch(monster) {
+                    case "Crab": sprite=new CrabSprite();break;
+                    case "Slime": sprite=new SlimeSprite();break;
+                    case "Swarm": sprite=new SwarmSprite();break;
+                    case "CausticSlime": sprite=new CausticSlimeSprite();break;
+                    case "Thief": sprite=new ThiefSprite();break;
+                    case "RatKing": sprite=new RatKingSprite();break;
+                    case "GnollTrickster": sprite=new GnollTricksterSprite();break;
+                    case "GreatCrab": sprite=new GreatCrabSprite();break;
+                    case "Goo":
+                        sprite=new GooSprite();
+                        if(view.source.rows.containsKey("charge"+cell)) sprite.tint(1f,0.2f,0.2f,0.55f);
+                        break;
                     case "Statue": sprite=new StatueSprite();break;
                     case "GnollExile": sprite=new GnollExileSprite();break;
                     case "PhantomPiranha": sprite=new PhantomPiranhaSprite();break;

@@ -24,7 +24,7 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable;
+    private static boolean mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
@@ -36,7 +36,8 @@ public final class CoopRenderSmoke {
         mimic=crystal || golden || (args.length>1 && args[1].equals("mimic"));
         unstable=args.length>1 && args[1].equals("unstable");
         statue=unstable || (args.length>1 && args[1].equals("statue"));
-        floors=statue || mimic || ghost || sentry || (args.length>1 && args[1].equals("floors"));
+        deep=args.length>1 && args[1].equals("deep");
+        floors=deep || statue || mimic || ghost || sentry || (args.length>1 && args[1].equals("floors"));
         mage=floors || (args.length>1 && args[1].equals("mage"));
         shots=new File(args[0]); if(!shots.isDirectory() && !shots.mkdirs()) throw new AssertionError();
         // Test classes share the launcher's package but do not carry release-manifest attributes.
@@ -175,6 +176,32 @@ public final class CoopRenderSmoke {
         click("#"+Messages.get(CoopScene.class,"travel",2));
         await(()->frame().dungeon.depth==2 && frame().dungeon.offered);
         shot("sewer-2");
+        if (deep) {
+            for(int depth=3;depth<=5;depth++) {
+                final int next=depth;
+                RenderEncounter.atExit(hostController());
+                click("wait");
+                await(()->frame().dungeon.offered && frame().dungeon.stair>=0);
+                java.nio.file.Files.createFile(new File(root,"allow"+(depth-1)).toPath());
+                await(()->frame().dungeon.consent);
+                click("#"+Messages.get(CoopScene.class,"travel",depth));
+                await(()->frame().dungeon.depth==next && frame().dungeon.offered);
+                shot("sewer-"+depth);
+            }
+            int cell=RenderEncounter.beside(hostController(),com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo.class);
+            click("wait"); await(()->frame().dungeon.offered && frame().dungeon.monsters.containsValue("Goo"));
+            shot("goo-arena");
+            for(int i=0;i<16 && !frame().image.rows.containsKey("charge"+cell);i++) {
+                long before=frame().image.version;
+                click("wait"); await(()->frame().image.version>before && frame().dungeon.offered);
+            }
+            if(frame().image.rows.containsKey("charge"+cell)) shot("goo-charge");
+            click("menu"); click("saveexit"); await(()->button("saves")!=null);
+            click("saves"); await(()->frame().list.size()==1);
+            if(frame().list.get(0).current.depth!=5) throw new AssertionError("Boss floor missing");
+            shot("boss-save");
+            return;
+        }
         if (statue) {
             int cell=RenderEncounter.beside(hostController(),com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue.class);
             click("wait"); await(()->frame().dungeon.offered && "Statue".equals(frame().dungeon.monsters.get(cell)));
@@ -272,7 +299,7 @@ public final class CoopRenderSmoke {
         render(()->{
             Field active=CoopScene.class.getDeclaredField("active"); active.setAccessible(true);
             active.set(null,new CoopController(CoopPlatform.root(),null,null,LanClient.TCP_PORT,LanClient.UDP_PORT,
-                    new java.util.Random(){@Override public long nextLong(){return unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
+                    new java.util.Random(){@Override public long nextLong(){return deep ? 402 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
             return null;
         });
         click("title"); await(()->button("host")!=null);

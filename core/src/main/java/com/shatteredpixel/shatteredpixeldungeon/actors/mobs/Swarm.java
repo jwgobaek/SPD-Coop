@@ -108,7 +108,7 @@ public class Swarm extends Mob {
 				GameScene.add( clone, SPLIT_DELAY ); //we add before assigning HP due to ascension
 
 				clone.HP = (HP - damage) / 2;
-				Actor.add( new Pushing( clone, pos, clone.pos ) );
+				if (Dungeon.coop == null) Actor.add( new Pushing( clone, pos, clone.pos ) );
 
 				Dungeon.level.occupyCell(clone);
 				

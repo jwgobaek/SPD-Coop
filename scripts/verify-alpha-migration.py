@@ -52,7 +52,7 @@ def same_boundary(old, new):
             if key != "cursor":
                 assert value == b["sync"][seat][key], key
 
-def run(tree, cp, base, mode, previous=None):
+def run(tree, cp, base, mode, previous=None, expected_exit=0):
     assets = tree / "core/src/main/assets"
     prefix = [str(JAVA), "-Xmx256m", "-cp", cp]
     for name in ("endpoint", "stop"):
@@ -71,7 +71,7 @@ def run(tree, cp, base, mode, previous=None):
             subprocess.run(prefix + [PACKAGE + "RestartClient", str(base), mode],
                            cwd=assets, check=True, timeout=60)
             (base / "stop").touch()
-            if host.wait(15):
+            if host.wait(15) != expected_exit:
                 raise RuntimeError("Host did not save and exit")
         finally:
             if host.poll() is None:

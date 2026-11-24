@@ -93,10 +93,12 @@ public class Frost extends FlavourBuff {
 				Item item = ((Thief) target).item;
 
 				if (item instanceof Potion && !item.unique) {
+					if (Dungeon.coop != null) throw new UnsupportedOperationException("Frozen stolen potion shatter");
 					((Potion) ((Thief) target).item).shatter(target.pos);
 					((Thief) target).item = null;
 				} else if (item instanceof MysteryMeat){
 					((Thief) target).item = new FrozenCarpaccio();
+					if (Dungeon.coop!=null) Dungeon.coop.ownership.split(item,((Thief)target).item);
 				}
 
 			}

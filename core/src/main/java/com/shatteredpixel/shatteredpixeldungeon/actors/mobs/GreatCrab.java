@@ -80,7 +80,8 @@ public class GreatCrab extends Crab {
 				&& state != SLEEPING
 				&& paralysed == 0
 				&& (src instanceof Wand || src instanceof ClericSpell)
-				&& enemy == Dungeon.hero
+				&& (Dungeon.coop == null ? enemy == Dungeon.hero : src instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile
+                        && enemy == ((com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)src).chargingHero())
 				&& enemy.invisible == 0){
 			GLog.n( Messages.get(this, "noticed") );
 			sprite.showStatus( CharSprite.NEUTRAL, Messages.get(this, "def_verb") );
@@ -103,7 +104,7 @@ public class GreatCrab extends Crab {
 				Sample.INSTANCE.play(Assets.Sounds.HIT_PARRY, 1, Random.Float(0.96f, 1.05f));
 				GLog.n( Messages.get(this, "noticed") );
 			}
-			if (enemy == Dungeon.hero){
+			if (enemy == Dungeon.hero || (Dungeon.coop!=null && Dungeon.coop.playerOf(enemy)!=0)){
 				Statistics.questScores[0] -= 50;
 			}
 			return INFINITE_EVASION;
@@ -124,6 +125,7 @@ public class GreatCrab extends Crab {
 			//of two potential wander positions, picks the one closest to the hero
 			int pos1 = super.randomDestination();
 			int pos2 = super.randomDestination();
+			if (Dungeon.coop != null) return Dungeon.coop.nearerToParty(pos1,pos2);
 			PathFinder.buildDistanceMap(Dungeon.hero.pos, Dungeon.level.passable);
 			if (PathFinder.distance[pos2] < PathFinder.distance[pos1]){
 				return pos2;

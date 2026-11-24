@@ -71,6 +71,7 @@ final class RenderEncounter {
             Level level=Dungeon.level;
             for (Mob mob:level.mobs) if (mob.getClass()==type) {
                 // A screenshot fixture needs a living observer after the real counterattack.
+                if (mob instanceof Goo) Dungeon.coop.hero(0).HP=Dungeon.coop.hero(0).HT=150;
                 if (mob instanceof Statue && ((Statue)mob).weapon().enchantment instanceof
                         com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Unstable)
                     Dungeon.coop.hero(0).HP=Dungeon.coop.hero(0).HT=120;

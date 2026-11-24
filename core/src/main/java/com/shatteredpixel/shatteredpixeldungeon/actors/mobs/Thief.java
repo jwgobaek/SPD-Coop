@@ -98,7 +98,7 @@ public class Thief extends Mob {
 	@Override
 	public void rollToDropLoot() {
 		if (item != null) {
-			Dungeon.level.drop( item, pos ).sprite.drop();
+			Dungeon.level.drop( item, pos ).animateDrop();
 			//updates position
 			if (item instanceof Honeypot.ShatteredPot) ((Honeypot.ShatteredPot)item).dropPot( this, pos );
 			item = null;
@@ -137,7 +137,7 @@ public class Thief extends Mob {
 	@Override
 	public int defenseProc(Char enemy, int damage) {
 		if (state == FLEEING) {
-			Dungeon.level.drop( new Gold(), pos ).sprite.drop();
+			Dungeon.level.drop( new Gold(), pos ).animateDrop();
 		}
 
 		return super.defenseProc(enemy, damage);
@@ -149,8 +149,8 @@ public class Thief extends Mob {
 
 		if (toSteal != null && !toSteal.unique && toSteal.level() < 1 ) {
 
-			GLog.w( Messages.get(Thief.class, "stole", toSteal.name()) );
-			if (!toSteal.stackable) {
+			if (Dungeon.coop == null) GLog.w( Messages.get(Thief.class, "stole", toSteal.name()) );
+			if (Dungeon.coop == null && !toSteal.stackable) {
 				Dungeon.quickslot.convertToPlaceholder(toSteal);
 			}
 			Item.updateQuickslot();
@@ -162,6 +162,7 @@ public class Thief extends Mob {
 				((Honeypot.ShatteredPot)item).pickupPot(this);
 			}
 
+			if (Dungeon.coop!=null) Dungeon.coop.ownership.claim(item,Dungeon.coop.playerOf(hero));
 			return true;
 		} else {
 			return false;
@@ -198,8 +199,7 @@ public class Thief extends Mob {
 		@Override
 		protected void escaped() {
 			if (item != null
-					&& !Dungeon.level.heroFOV[pos]
-					&& Dungeon.level.distance(Dungeon.hero.pos, pos) >= 6) {
+					&& (Dungeon.coop == null ? !Dungeon.level.heroFOV[pos] && Dungeon.level.distance(Dungeon.hero.pos,pos)>=6 : Dungeon.coop.unseenByParty(pos,6))) {
 
 				int count = 32;
 				int newPos;
@@ -208,18 +208,18 @@ public class Thief extends Mob {
 					if (count-- <= 0) {
 						break;
 					}
-				} while (newPos == -1 || Dungeon.level.heroFOV[newPos] || Dungeon.level.distance(newPos, pos) < (count/3));
+				} while (newPos == -1 || (Dungeon.coop == null ? Dungeon.level.heroFOV[newPos] : !Dungeon.coop.unseenByParty(newPos,0)) || Dungeon.level.distance(newPos, pos) < (count/3));
 
-				if (newPos != -1) {
+				if (newPos != -1 && (Dungeon.coop == null || Dungeon.coop.unseenByParty(newPos,0))) {
 
 					pos = newPos;
 					sprite.place( pos );
 					sprite.visible = Dungeon.level.heroFOV[pos];
-					if (Dungeon.level.heroFOV[pos]) CellEmitter.get(pos).burst(Speck.factory(Speck.WOOL), 6);
+					if (Dungeon.coop==null && Dungeon.level.heroFOV[pos]) CellEmitter.get(pos).burst(Speck.factory(Speck.WOOL), 6);
 
 				}
 
-				if (item != null) GLog.n( Messages.get(Thief.class, "escapes", item.name()));
+				if (Dungeon.coop==null && item != null) GLog.n( Messages.get(Thief.class, "escapes", item.name()));
 				item = null;
 				state = WANDERING;
 			} else {

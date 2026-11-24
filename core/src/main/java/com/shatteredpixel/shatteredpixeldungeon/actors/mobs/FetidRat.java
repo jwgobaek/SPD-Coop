@@ -96,17 +96,7 @@ public class FetidRat extends Rat {
 			//of two potential wander positions, picks the one closest to the hero
 			int pos1 = super.randomDestination();
 			int pos2 = super.randomDestination();
-			if (Dungeon.coop != null) {
-				int d1 = Integer.MAX_VALUE, d2 = Integer.MAX_VALUE;
-				for (int seat = 0; seat < 2; seat++) {
-					Char hero = Dungeon.coop.hero(seat);
-					if (!hero.isAlive()) continue;
-					PathFinder.buildDistanceMap(hero.pos, Dungeon.level.passable);
-					if (pos1 >= 0) d1 = Math.min(d1, PathFinder.distance[pos1]);
-					if (pos2 >= 0) d2 = Math.min(d2, PathFinder.distance[pos2]);
-				}
-				return d2 < d1 ? pos2 : pos1;
-			}
+			if (Dungeon.coop != null) return Dungeon.coop.nearerToParty(pos1,pos2);
 			PathFinder.buildDistanceMap(Dungeon.hero.pos, Dungeon.level.passable);
 			if (PathFinder.distance[pos2] < PathFinder.distance[pos1]){
 				return pos2;

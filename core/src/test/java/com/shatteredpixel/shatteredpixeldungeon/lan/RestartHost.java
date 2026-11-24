@@ -61,6 +61,8 @@ public final class RestartHost {
                 Runtime.getRuntime().halt(80);
             if (stage.equals("WRITING") && java.nio.file.Files.exists(path.resolve("fail-write")))
                 throw new IOException("Injected write failure");
+            if (stage.equals("AFTER_HEAD") && mode.equals("goo") && java.nio.file.Files.exists(path.resolve("boss-action"))
+                    && Actor.findById(Integer.parseInt(read(path,"boss-id")))==null) Runtime.getRuntime().halt(78);
             if (stage.equals("AFTER_HEAD") && mode.equals("unstable") && java.nio.file.Files.exists(path.resolve("watch-hit"))) {
                 int before=Integer.parseInt(read(path,"watch-hit"));
                 if (Dungeon.coop.hero(1).HP < before) {
@@ -74,9 +76,17 @@ public final class RestartHost {
                 Runtime.getRuntime().halt(78);
         });
         InetAddress loop=InetAddress.getLoopbackAddress();
-        boolean special = hazard(mode) || mode.equals("blocked-start") || guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
+        boolean special = mode.equals("goo") || hazard(mode) || mode.equals("blocked-start") || guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
         try(LanRoom room=(special || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup"))) {
+            if (mode.equals("schema2-to-three")) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
+            if (mode.equals("goo-receipt")) {
+                assertEquals(5,Dungeon.depth);
+                assertFalse(Dungeon.level.locked);
+                assertNull(Actor.findById(Integer.parseInt(read(path,"boss-id"))));
+                assertEquals(4,Dungeon.coop.checkpoint().getBundle("dormant").getKeys().size());
+                verifyBossLoot(path);
+            }
             if (mode.startsWith("crystal-") && !mode.equals("crystal-new")) crystalResumeFixture(path,mode);
             Rat rat=null;
             if (mode.equals("revive") || mode.equals("soak")) {
@@ -128,7 +138,15 @@ public final class RestartHost {
                 }
                 if (special && room.state()==LanRoom.State.IN_GAME && arrangedDepth!=Dungeon.depth) {
                     arrangedDepth=Dungeon.depth;
-                    if (hazard(mode)) {
+                    if (mode.equals("goo")) {
+                        if (Dungeon.depth<5) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
+                        else {
+                            Goo boss=SewerSpecialActorTest.actor(Goo.class);
+                            SewerDepthTest.arrangeBoss(Dungeon.coop,boss);
+                            write(path,"boss-id",Integer.toString(boss.id()));
+                        }
+                        measureSaves(path,room,Dungeon.depth);
+                    } else if (hazard(mode)) {
                         CoopSession game = Dungeon.coop;
                         int cell = com.shatteredpixel.shatteredpixeldungeon.SewerHazardsTest.approach(game,1,mode.equals("dart"));
                         if (mode.equals("iron-door")) Dungeon.level.drop(new com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey(1),game.hero(1).pos);
@@ -228,7 +246,7 @@ public final class RestartHost {
             } else if (mode.equals("blocked-start")) {
                 assertNull(Dungeon.coop);
                 assertThrows(IOException.class,room::saveAndClose);
-            } else room.saveAndClose();
+            } else { if (mode.equals("goo-receipt")) verifyBossLoot(path); room.saveAndClose(); }
         }
     }
 
@@ -279,6 +297,18 @@ public final class RestartHost {
         }
     }
 
+    private static void verifyBossLoot(Path path) throws IOException {
+        int keys=0,blobs=0;
+        for(Heap heap:Dungeon.level.heaps.valueList()) for(Item item:heap.items) {
+            if(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.keys.WornKey) keys+=item.quantity();
+            if(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.GooBlob) blobs+=item.quantity();
+        }
+        assertEquals(1,keys); assertTrue(blobs>=2 && blobs<=4);
+        String before=java.nio.file.Files.exists(path.resolve("boss-loot")) ? read(path,"boss-loot") : "";
+        if(before.isEmpty()) write(path,"boss-loot",keys+" "+blobs);
+        else assertEquals(before,keys+" "+blobs);
+    }
+
     private static void measureSaves(Path path,LanRoom room,int depth) throws IOException {
         long[] samples=new long[21];
         for(int i=0;i<samples.length;i++) {
@@ -297,7 +327,7 @@ public final class RestartHost {
             }
         }
         Bundle checkpoint = Dungeon.coop.checkpoint();
-        int parkedBytes = checkpoint.contains("parked") ? checkpoint.getBundle("parked").toString()
+        int parkedBytes = checkpoint.contains("dormant") ? checkpoint.getBundle("dormant").toString().getBytes(java.nio.charset.StandardCharsets.UTF_8).length : checkpoint.contains("parked") ? checkpoint.getBundle("parked").toString()
                 .getBytes(java.nio.charset.StandardCharsets.UTF_8).length : 0;
         Arrays.sort(samples);
         Runtime vm=Runtime.getRuntime();

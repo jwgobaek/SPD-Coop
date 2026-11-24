@@ -12,10 +12,11 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 
-/** One active sewer and at most one parked sewer; only the active floor has registered actors. */
+/** One active sewer and up to four dormant sewers; only the active floor has registered actors. */
 public final class CoopFloors {
     private final CoopSession game;
-    private Bundle parked;
+    public static final int LAST_SEWER = 5;
+    private final java.util.Map<Integer,Bundle> dormant = new java.util.TreeMap<>();
     private long voteTurn;
     private int votedCell=-1;
     private final int[] positions=new int[2];
@@ -24,15 +25,22 @@ public final class CoopFloors {
 
     public int stair() {
         Level l=Dungeon.level;
-        if (Dungeon.branch!=0 || l.locked || (Dungeon.depth!=1 && Dungeon.depth!=2)) return -1;
-        LevelTransition t=l.getTransition(Dungeon.depth==1 ? LevelTransition.Type.REGULAR_EXIT : LevelTransition.Type.REGULAR_ENTRANCE);
-        if (t==null || t.destBranch!=0 || t.destDepth!=3-Dungeon.depth) return -1;
+        if (Dungeon.branch!=0 || l.locked || Dungeon.depth<1 || Dungeon.depth>LAST_SEWER) return -1;
+        for (LevelTransition t : l.transitions) {
+            if ((t.type!=LevelTransition.Type.REGULAR_EXIT && t.type!=LevelTransition.Type.REGULAR_ENTRANCE)
+                    || t.destBranch!=0 || t.destDepth<1 || t.destDepth>LAST_SEWER || Math.abs(t.destDepth-Dungeon.depth)!=1) continue;
+            if (inRange(l,t)) return t.cell();
+        }
+        return -1;
+    }
+
+    private boolean inRange(Level l,LevelTransition t) {
         for(int i=0;i<2;i++) {
             Hero h=game.hero(i);
             if(h==null || game.life(i)!=CoopSession.Life.ALIVE || h.rooted || h.paralysed>0 ||
-                    l.distance(h.pos,t.cell())>1 || !game.knowledge(h).visible(t.cell())) return -1;
+                    l.distance(h.pos,t.cell())>1 || !game.knowledge(h).visible(t.cell())) return false;
         }
-        return t.cell();
+        return true;
     }
 
     public static final class UnsupportedDestination extends RuntimeException {
@@ -55,7 +63,7 @@ public final class CoopFloors {
         if (!blockers.isEmpty()) throw new UnsupportedDestination(blockers.toString());
     }
 
-    public boolean hasParkedFloor() { return parked!=null; }
+    public boolean hasParkedFloor() { return !dormant.isEmpty(); }
 
     public void cancel() { votedCell=-1; }
     public boolean consent(int seat,long turn,int cell,boolean withdraw) {
@@ -92,7 +100,9 @@ public final class CoopFloors {
         leaving.put("items",game.itemState(CoopSession.floorItems(old)));
         for(int i=0;i<2;i++) leaving.put("sight"+i,game.knowledge(game.hero(i)).save());
         validateFloor(leaving, Dungeon.depth);
-        Dungeon.depth=3-Dungeon.depth;
+        int from=Dungeon.depth;
+        Dungeon.depth=old.getTransition(cell).destDepth;
+        Bundle parked=dormant.remove(Dungeon.depth);
         Dungeon.level=null;
         Level next;
         if (parked!=null) {
@@ -109,7 +119,7 @@ public final class CoopFloors {
             game.restoreItems(CoopSession.floorItems(next),parked.getBundle("items"),game.ownership.sequence(),new HashSet<>());
             for(int i=0;i<2;i++) game.knowledge(game.hero(i)).load(parked.getBundle("sight"+i));
         }
-        int gate=Dungeon.depth==2 ? next.entrance() : next.exit();
+        int gate=Dungeon.depth>from ? next.entrance() : next.exit();
         int[] offsets=new int[9];
         System.arraycopy(PathFinder.NEIGHBOURS8,0,offsets,1,8);
         int placed=0;
@@ -131,13 +141,21 @@ public final class CoopFloors {
         if (next.respawner()==null) next.addRespawner(); else Actor.add(next.respawner());
         for(Char ch:Actor.chars()) game.attachSprite(ch);
         game.restoreBeeHomes();
-        parked=leaving;
+        dormant.put(from,leaving);
         cancel();
         return true;
     }
 
+    static void checkLevelType(Bundle floor,int depth) {
+        Class<?> expected=depth==5 ? com.shatteredpixel.shatteredpixeldungeon.levels.SewerBossLevel.class
+                : com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel.class;
+        if (!expected.getName().equals(floor.getString("__className")))
+            throw new IllegalArgumentException("Unexpected level type at depth "+depth);
+    }
+
     private static void validateFloor(Bundle record,int depth) {
         Bundle floor=record.getBundle("level");
+        checkLevelType(floor,depth);
         int w=floor.getInt("width"),h=floor.getInt("height");
         if(record.getInt("branch")!=0 || record.getInt("depth")!=depth || w<3 || h<3 || w>256 || h>256 ||
                 floor.getIntArray("map").length!=w*h || record.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8).length>1500000)
@@ -158,26 +176,63 @@ public final class CoopFloors {
             throw new IllegalArgumentException("Parked physical item mismatch");
     }
 
-    void save(Bundle state) { if(parked!=null) state.put("parked",parked); }
+    int schema() {
+        return Dungeon.depth>2 || Dungeon.levelHasBeenGenerated(3,0) ? 3 : 2;
+    }
+
+    void save(Bundle state) {
+        if (dormant.isEmpty()) return;
+        if (schema()==2) state.put("parked",dormant.values().iterator().next());
+        else {
+            Bundle records=new Bundle();
+            for (java.util.Map.Entry<Integer,Bundle> entry:dormant.entrySet())
+                records.put(String.valueOf(entry.getKey()),entry.getValue());
+            state.put("dormant",records);
+        }
+    }
 
     void restore(Bundle state,HashSet<Long> itemIds) {
-        parked=null; cancel();
-        boolean expected=Dungeon.levelHasBeenGenerated(3-Dungeon.depth,0);
-        if (expected!=state.contains("parked")) throw new IllegalArgumentException("Missing or unexpected floor");
-        if (!expected) return;
-        parked=state.getBundle("parked");
-        validateFloor(parked,3-Dungeon.depth);
-        Bundle floor=parked.getBundle("level");
+        dormant.clear();
+        cancel();
+        boolean multi=state.getInt("schema")==3;
+        HashSet<Integer> generated=new HashSet<>(Dungeon.generatedLevels);
+        if (!generated.contains(Dungeon.depth) || generated.size()!=Dungeon.generatedLevels.size()
+                || generated.size()>LAST_SEWER || (multi && !generated.contains(3)))
+            throw new IllegalArgumentException("Invalid sewer generation history");
+        for(int i=1;i<=generated.size();i++) if (!generated.contains(i)) throw new IllegalArgumentException("Disconnected sewer history");
+        Bundle records=state.getBundle("dormant");
+        if ((multi && state.contains("parked")) || (!multi && state.contains("dormant")))
+            throw new IllegalArgumentException("Mixed floor formats");
         HashSet<Integer> actors=new HashSet<>();
-        for(Actor a:Actor.all()) actors.add(a.id());
+        for (Actor actor:Actor.all()) actors.add(actor.id());
+        for (int i=0;i<2;i++) {
+            Hero hero=game.hero(i);
+            actors.add(hero.id());
+            for (com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff buff:hero.buffs()) actors.add(buff.id());
+        }
         int nextId=state.getBundle("world").getInt("nextid");
+        for (int depth=1;depth<=LAST_SEWER;depth++) {
+            boolean expected=depth!=Dungeon.depth && Dungeon.levelHasBeenGenerated(depth,0);
+            boolean present=multi ? records.contains(String.valueOf(depth)) : depth==3-Dungeon.depth && state.contains("parked");
+            if (expected!=present) throw new IllegalArgumentException("Missing or unexpected parked depth "+depth);
+            if (!present) continue;
+            Bundle record=multi ? records.getBundle(String.valueOf(depth)) : state.getBundle("parked");
+            validateFloor(record,depth);
+            inspectRecord(record,actors,nextId,itemIds);
+            dormant.put(depth,record);
+        }
+        if (multi && records.getKeys().size()!=dormant.size()) throw new IllegalArgumentException("Unknown dormant depth");
+    }
+
+    private void inspectRecord(Bundle parked,HashSet<Integer> actors,int nextId,HashSet<Long> itemIds) {
+        Bundle floor=parked.getBundle("level");
         for(Bundle mob:floor.getBundleArray("mobs")) {
             inspectActor(mob,actors,nextId);
             for(Bundle buff:mob.getBundleArray("buffs")) inspectActor(buff,actors,nextId);
         }
         for(Bundle blob:floor.getBundleArray("blobs")) inspectActor(blob,actors,nextId);
         if(floor.contains("respawner")) inspectActor(floor.getBundle("respawner"),actors,nextId);
-        if(actors.size()>16384) throw new IllegalArgumentException("Two-floor actor count");
+        if(actors.size()>16384) throw new IllegalArgumentException("Sewer actor count");
         Bundle entries=parked.getBundle("items");
         int count=0;
         for(Bundle heap:floor.getBundleArray("heaps")) {
@@ -191,6 +246,10 @@ public final class CoopFloors {
         for(Bundle mob:floor.getBundleArray("mobs")) {
             if (mob.getString("__className").equals(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue.class.getName())) {
                 inspectItem(mob.getBundle("weapon"),entries.getBundle("w"+mob.getInt("id")));
+                count++;
+            }
+            if (mob.getString("__className").equals(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Thief.class.getName()) && !mob.getBundle("item").isNull()) {
+                inspectItem(mob.getBundle("item"),entries.getBundle("th"+mob.getInt("id")));
                 count++;
             }
             if (!mob.contains("items")) continue;

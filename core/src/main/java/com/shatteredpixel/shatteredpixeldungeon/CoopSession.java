@@ -7,6 +7,15 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroAction;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Albino;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Piranha;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Crab;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Swarm;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Slime;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CausticSlime;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Thief;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GnollTrickster;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GreatCrab;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.RatKing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.FetidRat;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SentryRoom;
@@ -35,6 +44,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
+import com.shatteredpixel.shatteredpixeldungeon.items.keys.WornKey;
+import com.shatteredpixel.shatteredpixeldungeon.items.quest.GooBlob;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Sheep;
@@ -316,6 +327,29 @@ public final class CoopSession implements AutoCloseable {
         activeSeat = -1;
     }
 
+    public boolean unseenByParty(int pos,int minDistance) {
+        boolean[] sight=new boolean[Dungeon.level.length()];
+        for (int seat=0;seat<2;seat++) {
+            Hero observer=hero(seat);
+            if (!observer.isAlive()) continue;
+            Dungeon.level.updateDirectSight(observer,sight);
+            if (sight[pos] || Dungeon.level.distance(observer.pos,pos)<minDistance) return false;
+        }
+        return true;
+    }
+
+    public int nearerToParty(int pos1,int pos2) {
+        int d1 = Integer.MAX_VALUE, d2 = Integer.MAX_VALUE;
+        for (int seat = 0; seat < 2; seat++) {
+            Char hero = hero(seat);
+            if (!hero.isAlive()) continue;
+            PathFinder.buildDistanceMap(hero.pos, Dungeon.level.passable);
+            if (pos1 >= 0) d1 = Math.min(d1, PathFinder.distance[pos1]);
+            if (pos2 >= 0) d2 = Math.min(d2, PathFinder.distance[pos2]);
+        }
+        return d2 < d1 ? pos2 : pos1;
+    }
+
     /** Secondary ordering only for equal actor time and priority. */
     public boolean precedes(Actor candidate, Actor other) {
         if (candidate == heroes[0] && other == heroes[1]) return true;
@@ -355,7 +389,10 @@ public final class CoopSession implements AutoCloseable {
         if (type==Statue.class) return statueWeapon(((Statue)actor).weapon());
         return type == GnollExile.class || type == PhantomPiranha.class || type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
                 || type == Mimic.class || type == CrystalMimic.class || type == GoldenMimic.class || type == Sheep.class || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
-                || (Dungeon.depth==2 && (type==Ghost.class || type==FetidRat.class));
+                || type==Crab.class || type==Swarm.class || type==Slime.class || type==CausticSlime.class || type==Thief.class
+                || (Dungeon.depth>=2 && Dungeon.depth<=4 && type==Ghost.class)
+                || (Dungeon.depth==2 && type==FetidRat.class) || (Dungeon.depth==3 && type==GnollTrickster.class)
+                || (Dungeon.depth==4 && type==GreatCrab.class) || (Dungeon.depth==5 && (type==Goo.class || type==RatKing.class));
     }
 
     /** Only passive weapon statistics and on-hit effects run for a statue. Hero abilities have their own gate. */
@@ -440,7 +477,7 @@ public final class CoopSession implements AutoCloseable {
                 case ACCEPT_GHOST:
                 case GHOST_WEAPON:
                 case GHOST_ARMOR:
-                    if (Dungeon.depth != 2 || !level.insideMap(cell) || !level.adjacent(hero.pos,cell)
+                    if (Dungeon.depth < 2 || Dungeon.depth > 4 || !level.insideMap(cell) || !level.adjacent(hero.pos,cell)
                             || !knowledge(activeSeat).visible(cell) || !(Actor.findChar(cell) instanceof Ghost)) return false;
                     Ghost ghost = (Ghost)Actor.findChar(cell);
                     if (action == Action.ACCEPT_GHOST) {
@@ -473,11 +510,13 @@ public final class CoopSession implements AutoCloseable {
                     break;
                 case UNLOCK:
                     if (!level.insideMap(cell) || !level.adjacent(hero.pos,cell) || !knowledge(activeSeat).visible(cell)
-                            || level.map[cell]!=Terrain.LOCKED_DOOR || Dungeon.branch!=0
-                            || Notes.keyCount(new IronKey(Dungeon.depth))<1) return false;
+                            || Dungeon.branch!=0) return false;
+                    boolean bossExit=level.map[cell]==Terrain.LOCKED_EXIT && Dungeon.depth==5 && !level.locked;
+                    if ((!bossExit && level.map[cell]!=Terrain.LOCKED_DOOR)
+                            || Notes.keyCount(bossExit ? new WornKey(Dungeon.depth) : new IronKey(Dungeon.depth))<1) return false;
                     hero.curAction = new HeroAction.Unlock(cell);
                     hero.act();
-                    if (level.map[cell]!=Terrain.DOOR) throw new IllegalStateException("Door remained locked");
+                    if (level.map[cell]!=(bossExit ? Terrain.UNLOCKED_EXIT : Terrain.DOOR)) throw new IllegalStateException("Door remained locked");
                     break;
                 case OPEN:
                     if (!level.insideMap(cell) || !level.adjacent(hero.pos,cell) || !knowledge(activeSeat).visible(cell)) return false;
@@ -526,8 +565,8 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && !(item instanceof Potion) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
-                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && !hero.belongings.backpack.canHold(item))) return false;
+                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && item.getClass()!=GooBlob.class && !(item instanceof Potion) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !hero.belongings.backpack.canHold(item))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
                     hero.act();
@@ -635,7 +674,7 @@ public final class CoopSession implements AutoCloseable {
             throw new IllegalStateException("No committed engine boundary");
         validateActorGraph();
         Bundle b = new Bundle();
-        b.put("schema",2);
+        b.put("schema",stairs.schema());
         stairs.save(b);
         b.put("world",Dungeon.worldState());
         b.put("guest",heroes[1]);
@@ -681,6 +720,7 @@ public final class CoopSession implements AutoCloseable {
         for (Hero hero:heroes) for (Item item:hero.belongings) linkShell(residents,item,-1,hero);
         for (Heap heap:Dungeon.level.heaps.valueList()) for (Item item:heap.items) linkShell(residents,item,heap.pos,null);
         for (Mob mob:Dungeon.level.mobs) {
+            if (mob instanceof Thief) linkShell(residents,((Thief)mob).item,-1,mob);
             if (mob instanceof Mimic && ((Mimic)mob).items!=null)
                 for (Item item:((Mimic)mob).items) linkShell(residents,item,-1,mob);
         }
@@ -727,6 +767,7 @@ public final class CoopSession implements AutoCloseable {
     static Map<String,Item> floorItems(Level level) {
         Map<String,Item> result=new TreeMap<>();
         for (Mob mob : level.mobs) {
+            if (mob instanceof Thief && ((Thief)mob).item!=null) result.put("th"+mob.id(),((Thief)mob).item);
             if (mob instanceof Statue) result.put("w"+mob.id(),((Statue)mob).weapon());
             if (mob instanceof Mimic && ((Mimic)mob).items!=null) {
                 int index=0;
@@ -744,12 +785,13 @@ public final class CoopSession implements AutoCloseable {
         if (Dungeon.coop!=null || Dungeon.hero!=null || Dungeon.level!=null) throw new IllegalStateException("Dungeon in use");
         Bundle world=b.getBundle("world"), floor=b.getBundle("floor");
         int schema=b.getInt("schema"),depth=world.getInt("depth");
-        if ((schema!=1 && schema!=2) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
-                (depth!=1 && (schema!=2 || depth!=2)) || world.getInt("branch")!=0 || world.getInt("challenges")!=0)
+        if ((schema<1 || schema>3) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
+                (depth<1 || depth>(schema==3 ? CoopFloors.LAST_SEWER : schema)) || world.getInt("branch")!=0 || world.getInt("challenges")!=0)
             throw new IllegalArgumentException("Unsupported world");
         int width=floor.getInt("width"), height=floor.getInt("height");
         if (width<3 || height<3 || width>256 || height>256 || floor.getIntArray("map").length!=width*height)
             throw new IllegalArgumentException("Invalid floor bounds");
+        CoopFloors.checkLevelType(floor,depth);
         CoopSession s=new CoopSession();
         Dungeon.coop=s;
         s.restoring=true;

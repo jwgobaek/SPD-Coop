@@ -9,7 +9,7 @@ import java.util.*;
 
 /** Host-private generations. Only the small HEAD rename publishes an image. */
 public final class CoopSaves {
-    static final int SCHEMA = 2, LIMIT = 4 * 1024 * 1024;
+    static final int SCHEMA = 3, LIMIT = 4 * 1024 * 1024;
     private final File root;
     interface Barrier { void reached(String stage) throws IOException; }
     final Barrier barrier;
@@ -157,7 +157,7 @@ public final class CoopSaves {
                 checkDepth(image);
                 Bundle envelope = Bundle.read(new ByteArrayInputStream(image));
                 int schema=envelope.getInt("schema");
-                if ((schema!=1 && schema!=SCHEMA) || envelope.getLong("generation") != generation ||
+                if ((schema<1 || schema>SCHEMA) || envelope.getLong("generation") != generation ||
                         !session.toString().equals(envelope.getString("session")) || !envelope.contains("state"))
                     throw new IOException("Incompatible or mixed generation");
                 Bundle state=envelope.getBundle("state");
@@ -177,7 +177,7 @@ public final class CoopSaves {
             // A damaged former HEAD must never displace the last usable backup.
             if (keep!=0) verify(child(dir,"g"+keep),keep);
             Bundle envelope = new Bundle();
-            envelope.put("schema",SCHEMA); envelope.put("session",session.toString());
+            envelope.put("schema",state.contains("engine") ? state.getBundle("engine").getInt("schema") : SCHEMA); envelope.put("session",session.toString());
             envelope.put("generation",generation); envelope.put("state",state);
             byte[] image = envelope.toString().getBytes(StandardCharsets.UTF_8);
             if (image.length == 0 || image.length > LIMIT) throw new IOException("Checkpoint too large");

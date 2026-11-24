@@ -155,11 +155,12 @@ public class Burning extends Buff implements Hero.Doom, Buff.DOTbuff {
 				Item item = ((Thief) target).item;
 
 				if (!item.unique && item instanceof Scroll) {
-					target.sprite.emitter().burst( ElmoParticle.FACTORY, 6 );
+					if (Dungeon.coop==null) target.sprite.emitter().burst( ElmoParticle.FACTORY, 6 );
 					((Thief)target).item = null;
 				} else if (item instanceof MysteryMeat) {
-					target.sprite.emitter().burst( ElmoParticle.FACTORY, 6 );
+					if (Dungeon.coop==null) target.sprite.emitter().burst( ElmoParticle.FACTORY, 6 );
 					((Thief)target).item = new ChargrilledMeat();
+					if (Dungeon.coop!=null) Dungeon.coop.ownership.split(item,((Thief)target).item);
 				}
 
 			}

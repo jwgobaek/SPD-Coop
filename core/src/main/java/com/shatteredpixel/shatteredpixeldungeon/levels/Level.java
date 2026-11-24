@@ -647,13 +647,15 @@ public abstract class Level implements Bundlable {
 	public void seal(){
 		if (!locked) {
 			locked = true;
-			Buff.affect(Dungeon.hero, LockedFloor.class);
+			if (Dungeon.coop==null || Dungeon.hero.isAlive()) Buff.affect(Dungeon.hero, LockedFloor.class);
+			if (Dungeon.coop!=null && Dungeon.coop.hero(1).isAlive()) Buff.affect(Dungeon.coop.hero(1),LockedFloor.class);
 		}
 	}
 
 	public void unseal(){
 		if (locked) {
 			locked = false;
+			if (Dungeon.coop!=null) Buff.detach(Dungeon.coop.hero(1),LockedFloor.class);
 			if (Dungeon.hero.buff(LockedFloor.class) != null){
 				Dungeon.hero.buff(LockedFloor.class).detach();
 			}

@@ -22,7 +22,7 @@ public class CoopFloorsTest extends HeadlessDungeon {
         return nextStep(game,goal,false,false);
     }
 
-    private static int nextStep(CoopSession game,int goal,boolean avoidOccupiedCorridors,boolean allowGrass) {
+    static int nextStep(CoopSession game,int goal,boolean avoidOccupiedCorridors,boolean allowGrass) {
         Level l=Dungeon.level;
         int start=game.hero(game.activeSeat()).pos;
         if(l.distance(start,goal)<=1) return start;
