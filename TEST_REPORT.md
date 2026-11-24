@@ -342,3 +342,54 @@ Desktop 실행 명령과 X11 전제는 BUILD.md에 있다. 시험은 실제 생�
 **발견 및 수정**. 초기 마법사 장착 시험은 싱글플레이 배지 조회에서 실패했다. 협동 장착이 그 경로에 들어가지 않게 수정했다. 첫 층 숨은 입구는 협동 화면에서 제공하는 원본 탐색으로 찾도록 했다. 휴면 층을 복원할 때 원본 게임이 이미 읽은 문서 아이템을 여과해 소유권 개수가 달라지던 오류를 협동 복원 경계에서 수정했다. 특수 방의 희생 제단은 렌더링 전용 emitter에 접근하기 전에 존재 여부를 검사한다. 미지원 목적지에 대해서는 이동 전 확정 상태를 복원한 뒤 명시적으로 거절하는 시험이 통과했다.
 
 실행 명령은 `git ls-remote coop`, `./gradlew --offline :core:test`, `scripts/verify-android-build.sh <결과 디렉터리>`, `python3 scripts/verify-alpha-migration.py /tmp/spd-c2-base`, `./gradlew --offline :desktop:compileTestJava :desktop:release`, `CoopRenderSmoke <드라이버 출력> mage|floors` 및 일반 `git push coop …:refs/heads/coop/phase8`였다. APK 검사 상세, JUnit XML, 실제 스크린샷, 로그, 성능 원자료와 파일 목록은 [검증 ZIP](docs/coop/phase8-mage-floors-evidence.zip)에 있다.
+
+## 하수도 S1 특수 방과 교전
+
+작업 시작 시 coop/phase8 원격과 깨끗한 작업공간의 커밋은 8fe0ee0900c2bef9aa8eabed2fbaed4c8685a47c였다. 기존 회귀 57건을 먼저 재실행해 PASS를 확인했다. 각 검증은 실제 엔진·소켓·파일을 사용했다.
+
+| 클라우드 검사 | 결과 | 회귀 수 | 빌드 커밋 | APK 크기 | SHA-256 |
+|---|---|---:|---|---:|---|
+| red-sentry | PASS | 61 | 5b39c9d4b071 | 35,234,870 B | `52cd197e85017cf6e185bec5b58c90230a48ec1276a53f0e24cb95acba40e1a9` |
+| sad-ghost | PASS | 63 | ee9e6095f483 | 35,237,730 B | `94e0be62aa37d6092591e9da6253a9037bb61d7fa66ee3e506ac0ae24b21c68a` |
+| hive | PASS | 65 | 3765d34f09f5 | 35,238,756 B | `6e89e773e866549216f01c9a2024db7d4edd5794bf2483187b06c311b3ecc0ad` |
+| sewer-region | PASS | 66 | 90410ac426fb | 35,238,975 B | `363fc642ab55bd7d80b56f28f38c0841a01cbd58469b1fe76d58745b9f31f511` |
+
+최종 버전은 4.0.2-INDEV-sewer-hive, 패키지는 org.spdcoop.dungeon.indev, versionCode는 922이다. 네 APK에서 apksigner v1·v2 검사와 기존 서명 인증서 SHA-256 `0dd9070b5f17192a8b07e5ddb6735161b0d2bb6e49013e4d61ca5ee6216ddb53` 일치를 확인했다.
+
+| 실제 실행 경로 | 결과 | 확인 범위 |
+|---|---|---|
+| 생성 조사 | PASS | 연속 22시드 × 5개 층, 총 110층. 5층은 원본 SewerBossLevel 생성까지 |
+| 계단 인접 배치, 기존 월드 복원 | PASS | 22시드 중 15개 하행·복원·상행. 7개는 목적지 거부 후 기존 1층 지도·RNG·턴 복원 및 다음 행동 성공. 거부 시드 405, 408, 411, 413, 416, 420, 421 |
+| Sentry·Piranha | PASS | 양쪽 좌석에 대한 개별 엔진 교전, 단일 빔·재충전, 다운과 별도 좌석 HP, 수중 이동·원본 고기, 층 왕복 |
+| Sad Ghost·FetidRat | PASS | 월드 의뢰 수락, 마력탄·원본 피해, 무기·방어구 선택, 동일 월드 보상 1회. HEAD 직후 응답 전 호스트 강제 종료, 새 JVM에서 보상 영수증 조회·재전송 |
+| Bee·Honeypot | PASS | 원본 방의 벌과 별도 소환, 수령·깨기·드롭·아이템 귀속, 다른 층에 놓은 조각·벌 ID 대조. TCP에서 인증 후 같은 행동 재전송 |
+| 높은 풀 | PASS | 양쪽 좌석 사냥꾼이 밟은 높은 풀이 이랑으로 바뀌고 복원 뒤 전사가 밟으면 원본 일반 풀이 됨 |
+| 실제 Desktop | PASS | 같은 제품 소스의 3765d34에서 KO·EN 각각 감시탑 충전 및 재개, 유령 대화·수락·재개. 원본 방에 교전 좌표를 미리 배치한 LWJGL/X11 입력 시험 |
+| GitHub Actions | NOT RUN | GitHub API에서 해당 브랜치 실행 기록 0건 |
+| Android 설치·화면·터치·Wi-Fi·핫스팟·성능 | NOT RUN | Android 기기 미사용 |
+| 3~5층 협동 진행·Goo 전투·6층 진입 | NOT RUN | 3~5층은 원본 생성만 조사. 6층 생성·진입도 미실행. 지원 저장 범위는 1·2층 |
+
+**TCP 행동 집계**. 최종 66건 회귀에 포함된 HostRestartTest의 원자료를 사용했다. 계측 커밋 b45fce8에서 자식 JVM 로그의 행동 수와 스냅샷 크기를 함께 보존하도록 고쳤다. 특수 방 시나리오별로 성공 응답을 실제로 받은 게임 요청 수를 기록했다. 이동·기다림·도구 조작을 포함한다. 아래 인증 횟수에는 초기 참가가 포함되지 않는다. 조회·재전송과 응답 전 종료는 성공 응답 수에서 제외한다.
+
+| 시나리오 | 성공 응답 | 재접속 인증 |
+|---|---:|---:|
+| sentry | 5 | 4 |
+| piranha | 3 | 2 |
+| quest | 11 | 0 |
+| questreceipt | 1 | 2 |
+| hive | 8 | 4 |
+
+소켓 특수 방에서는 감시탑과 피라냐의 게스트 피해 및 호스트 HP 불변, 유령 의뢰 수락·전투·보상 한 건, 꿀단지 하나의 획득·깨기·드롭을 구분해 검사했다. 보상 영수증 재조회는 새 보상으로 집계하지 않았다. 시드 415의 원본 경로에서는 이동 121회, 근접 요청 18회, 탐색 1회, 마력탄 1회를 확인했다. 기존 soak의 1000회는 저장·재접속 회귀 범위에 속한다. 개별 방의 위치 배치, 피라냐 전리품 시험의 직접 치명상, 양 좌석 의뢰 전투 조건은 [시드별 검증 설명](docs/coop/sewer-region.md)에 기록했다.
+
+**클라우드 비용**. 시드 415, 동일 상태에서 층별 명시적 저장 21회. 휴면 레코드는 비압축 UTF-8 바이트다. 세대와 슬롯은 실제 디스크 파일 크기, 힙과 Actor 수는 측정 시점의 호스트 값이다.
+
+| 활성 층 | 활성 Actor | 휴면 레코드 B | 저장 세대 / 슬롯 B | 저장 중앙값 / p95 ms | 사용 JVM 힙 B |
+|---|---:|---:|---:|---:|---:|
+| 1 | 17 | 0 | 55793 / 111650 | 13.05 / 24.30 | 92965376 |
+| 2 | 17 | 37303 | 114377 / 228818 | 13.49 / 21.84 | 41864312 |
+
+원본 경로의 행동 응답 149건은 중앙값 12.28 ms, p95 27.26 ms였다. 계단 상행 응답 한 건은 25.06 ms였다. 특수 방 5개 소켓 시나리오에서 마지막 공개 모델의 두 좌석별 전체 스냅샷은 785–2,559 ASCII 바이트였다. 각 수치는 Cloud에서만 측정했다. 이전 1·2층 빌드 0d06cfe의 저장 중앙값/p95는 1층 13.19/32.07 ms, 2층 16.87/26.60 ms였다. 실행 시점의 JVM 부하와 상태가 달라 직접 성능 향상을 판단하기 어렵다. Goo 협동 처리 시간은 NOT RUN이다.
+
+**발견 및 수정**. 9ce097c 전체 검사에서 퀘스트 몬스터가 높은 풀 전리품의 빈 스프라이트에 접근해 FAIL했다. 원본 아이템 드롭을 유지하고 Heap.animateDrop으로 시각 완료를 분리한 ee9e609에서 63건이 통과했다. 94facc5 전체 검사에서는 주소 오류 후 메뉴 복귀를 검사하는 도우미가 비동기 작업 도중 직전 DISCONNECTED 화면을 읽어 64건 중 한 건이 FAIL했다. 작업 완료 후 게시된 Frame을 읽도록 순서를 고쳐 주소 오류와 메뉴 복귀 양쪽 검증을 유지했다. 3765d34에서 65건, 계단 다중 시드 시험을 추가한 90410ac에서 최종 66건 모두 PASS다.
+
+실행한 주요 명령은 `git ls-remote coop`, `./gradlew --offline :core:test`, `scripts/verify-android-build.sh <결과 디렉터리>`, `python3 scripts/coop-content-inventory.py`, `./gradlew --offline :desktop:compileTestJava :desktop:release`, `CoopRenderSmoke <출력> sentry|ghost`, `gh api repos/jwgobaek/SPD-Coop/actions/runs`, `git diff --check`와 일반 `git push coop HEAD:refs/heads/coop/phase8`이다. 키·개인 저장 데이터를 제외한 로그, JUnit XML, 성능 원자료와 실제 화면은 [검증 ZIP](docs/coop/sewer-specials-evidence.zip)에 있다.

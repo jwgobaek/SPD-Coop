@@ -99,3 +99,7 @@ TitleScene 및 WelcomeScene에서 CoopScene으로 진입한다. HostedRoom의 �
 WandOfMagicMissile.cast는 실제 장착자의 Hero와 원본 Ballistica를 받는다. CoopSession.act가 귀속·직접 시야·탄착 셀·적 생존·행동권을 검사한다. 원본 Wand의 피해·충전·턴 소비를 사용하며 장비 내부 Charger는 주인 Actor에 같은 ID와 시각으로 복원한다.
 
 CoopFloors는 원본 Level 하나를 활성화하고 반대쪽 하수도 층 하나를 Bundle로 보관한다. 휴면 층은 스케줄러에 등록하지 않는다. RoomSync가 대기 좌석의 동의와 행동권자의 최종 이동을 각각 인증·확정한다. 새 층은 원본 Dungeon.newLevel로 생성하고, 재방문은 이전 Level과 바닥 귀속·관측 기억을 읽는다. 도착하면 두 캐릭터의 실제 Actor와 새 층의 몬스터·버프·스포너를 등록한다. 미지원 목적지 검출 때만 이동 직전의 정상 이미지로 복원한다. 다른 종류의 엔진 실패와 저장 실패는 일시정지한다. 저장 형식과 오류 경계는 docs/coop/save-format.md에 기록했다.
+
+## 하수도 특수 방 체크포인트
+
+CoopSession.basicMob은 원본 Mob 클래스를 기준으로 지원을 확인한다. Sentry.actCoop은 하나의 Actor 시계에서 노출된 표적 하나를 유지한다. Piranha.surprisedBy, Bee의 방어 AI, FetidRat의 경로 선택은 해당 Hero를 사용한다. Ghost.Quest.accept/claim은 엔진 소유 스레드에서 퀘스트 플래그와 실제 Item을 변경한다. RoomSync가 기존 영수증과 함께 저장한다. 벌과 조각은 ShatteredPot의 coopBee로 연결되며 휴면 층 재활성화 시 실제 바닥과 가방을 대조한다. SeatProjection이 관측된 충전·악취·인접 NPC 대화만 공개하고, CoopBoard와 CoopScene이 SYNC6로 입력을 전송한다. [세부 경로](docs/coop/sewer-region.md)
