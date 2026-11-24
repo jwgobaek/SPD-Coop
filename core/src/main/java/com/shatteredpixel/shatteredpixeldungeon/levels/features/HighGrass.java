@@ -110,7 +110,7 @@ public class HighGrass {
 
 						if (droppingBerry) {
 							dropped.countUp(1);
-							level.drop(new Berry(), pos).sprite.drop();
+							level.drop(new Berry(), pos).animateDrop();
 						}
 					}
 
@@ -138,9 +138,9 @@ public class HighGrass {
 
 				if (Random.Float() < lootChance) {
 					if (Random.Float() < PetrifiedSeed.stoneInsteadOfSeedChance()) {
-						level.drop(Generator.randomUsingDefaults(Generator.Category.STONE), pos).sprite.drop();
+						level.drop(Generator.randomUsingDefaults(Generator.Category.STONE), pos).animateDrop();
 					} else {
-						level.drop(Generator.random(Generator.Category.SEED), pos).sprite.drop();
+						level.drop(Generator.random(Generator.Category.SEED), pos).animateDrop();
 					}
 				}
 				
@@ -153,7 +153,7 @@ public class HighGrass {
 				}
 
 				if (Random.Float() < lootChance) {
-					level.drop(new Dewdrop(), pos).sprite.drop();
+					level.drop(new Dewdrop(), pos).animateDrop();
 				}
 			}
 
