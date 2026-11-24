@@ -60,6 +60,7 @@ public final class CoopController {
     private DisplayReplica replica;
     private UUID proposedEpoch;
     private long confirmedVersion=-1;
+    private int interruptedTransfers;
 
     public CoopController(File root,SeatTickets.Keys keys,InetAddress bind,int tcp,int udp) {
         this(root,keys,bind,tcp,udp,new java.security.SecureRandom());
@@ -112,7 +113,7 @@ public final class CoopController {
         if(client!=null) try {client.close();} catch(IOException ignored) {}
         client=null;
         if(replica!=null) replica.close();
-        replica=null; image=null; dungeon=null; confirmedVersion=-1;
+        replica=null; image=null; dungeon=null; confirmedVersion=-1; interruptedTransfers=0;
     }
 
     public void discover() { discover(null); }
@@ -238,7 +239,15 @@ public final class CoopController {
             expect(value,"USE_SYNC"); replica=new DisplayReplica(ticket.session,ticket.seat); page=Page.GAME;
         }
         if(page!=Page.GAME) return;
-        replica.refresh(client);
+        try {
+            replica.refresh(client);
+            interruptedTransfers=0;
+        } catch (DisplayReplica.InvalidState interrupted) {
+            // Another seat can commit between PAGE requests. Keep the last verified frame;
+            // only a later complete, checksummed transfer may replace it.
+            if (++interruptedTransfers>=3) throw interrupted;
+            return;
+        }
         StateImage next=replica.image();
         if("RECONNECTING".equals(next.rows.get("reason")) && next.version!=confirmedVersion) {
             replica.confirmReconnect(client); next=replica.image(); confirmedVersion=next.version;

@@ -54,12 +54,17 @@ public class SchedulerRegressionTest extends HeadlessDungeon {
     private void awaitInput(Hero hero, Thread worker, AtomicReference<Throwable> failure)
             throws InterruptedException {
         long end = System.nanoTime() + TimeUnit.SECONDS.toNanos(4);
-        while (!hero.ready && failure.get() == null && worker.isAlive()) {
+        // The render loop wakes an idle Actor after a completed visual yields. Wait for
+        // the worker's input park as well as Hero.ready so that a reply cannot be lost.
+        while (!(hero.ready && worker.getState()==Thread.State.WAITING)
+                && failure.get() == null && worker.isAlive()) {
             long remaining = end - System.nanoTime();
             if (remaining <= 0) break;
-            TimeUnit.NANOSECONDS.timedWait(worker, remaining);
+            if (!hero.ready && !Actor.processing() && worker.getState()==Thread.State.WAITING) worker.notifyAll();
+            TimeUnit.NANOSECONDS.timedWait(worker, Math.min(remaining,TimeUnit.MILLISECONDS.toNanos(16)));
         }
         if (failure.get() != null) throw new AssertionError("Actor processing failed", failure.get());
         assertTrue("Actor did not reach the next hero input", hero.ready);
+        assertEquals("Actor did not park for input",Thread.State.WAITING,worker.getState());
     }
 }

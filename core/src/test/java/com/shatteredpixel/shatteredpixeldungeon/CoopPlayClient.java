@@ -39,10 +39,21 @@ public class CoopPlayClient {
             while(index<script.length && waits<55) {
                 view.refresh(h);
                 if("0".equals(view.image().rows.get("active"))) {
+                    // Pace the scripted peer like a player, within the actual transport's burst limit.
+                    Thread.sleep(80);
                     assertTrue(host.prepare(view.image(),"WAIT",0,0).submit(h).endsWith(" APPLIED")); waits++; continue;
                 }
-                until(()->!guest.busy() && guest.frame().dungeon!=null && guest.frame().dungeon.offered
-                        && guest.frame().image.version>=view.image().version);
+                try {
+                    until(()->!guest.busy() && guest.frame().dungeon!=null && guest.frame().dungeon.offered
+                            && guest.frame().image.version>=view.image().version);
+                } catch(AssertionError timeout) {
+                    CoopController.Frame frame=guest.frame();
+                    throw new AssertionError("Waiting for "+script[index]+" host version="+view.image().version
+                            +" active="+view.image().rows.get("active")+" guest="+frame.page+" issue="+frame.issue
+                            +" guest version="+(frame.image==null?"none":frame.image.version)
+                            +" guest active="+(frame.image==null?"none":frame.image.rows.get("active")), timeout);
+                }
+                Thread.sleep(80);
                 PublicDungeon game=guest.frame().dungeon;
                 assertFalse(game.tap(guest,-1)); assertFalse(game.tap(guest,game.pos+3));
                 String verb=script[index]; boolean sent;
