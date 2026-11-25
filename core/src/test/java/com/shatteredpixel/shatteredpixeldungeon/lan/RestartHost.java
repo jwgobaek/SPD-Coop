@@ -51,7 +51,7 @@ public final class RestartHost {
         return mode.startsWith("journey-seven-") || mode.equals("prison") || mode.equals("campaign") || mode.equals("campaign-start") || mode.equals("campaign-team");
     }
     private static long seedFor(String mode) {
-        if (mode.startsWith("necro-setup-")) return 570;
+        if (mode.startsWith("necro-setup-") || mode.equals("late-setup")) return 570;
         if (mode.startsWith("wand-setup-")) return Integer.parseInt(mode.split("-")[2]);
         switch (mode) {
             case "blocked-start": return 452; // Original Spear/Projecting statue remains unsupported.
@@ -145,8 +145,14 @@ public final class RestartHost {
                 else PrisonShopChecks.copiesOf(engine);
             }
         }
-        try(LanRoom room=(special || mode.startsWith("necro-setup-") || mode.startsWith("wand-setup-") || mode.startsWith("scribe") || kit(mode) || knife(mode) || newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
+        try(LanRoom room=(special || mode.equals("late-setup") || mode.startsWith("necro-setup-") || mode.startsWith("wand-setup-") || mode.startsWith("scribe") || kit(mode) || knife(mode) || newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup") || mode.equals("schema3-backup") || mode.equals("prison-backup"))) {
+            if (mode.startsWith("late-down") || mode.startsWith("late-up")) {
+                int depth=Integer.parseInt(mode.substring(mode.length()-1));
+                assertEquals(depth,Dungeon.depth);
+                assertEquals(depth==7 ? 5 : 6,Dungeon.coop.checkpoint().getInt("schema"));
+                SewerSpecialActorTest.atGate(Dungeon.coop,mode.startsWith("late-down") ? Dungeon.level.exit() : Dungeon.level.entrance());
+            }
             if (mode.equals("schema2-to-three")) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
             if (mode.equals("prison-backup")) {
                 assertEquals(5,Dungeon.depth);
@@ -369,6 +375,16 @@ public final class RestartHost {
                         assertTrue(piece.collect(owner.belongings.backpack));
                         game.ownership.claim(piece,game.player(seat));
                     }
+                }
+                if (mode.equals("late-setup") && !started && room.state()==LanRoom.State.IN_GAME) {
+                    started=true;
+                    WandmakerTest.enterPrison(Dungeon.coop);
+                    room.save();
+                    write(path,"return-ready","1");
+                }
+                if (mode.equals("late-up9") && !started && room.state()==LanRoom.State.IN_GAME) {
+                    started=true;
+                    measureSaves(path,room,9);
                 }
                 if (mode.startsWith("necro-setup-") && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;

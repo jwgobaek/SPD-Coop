@@ -13,6 +13,10 @@ PREFIXES = ("items/", "actors/mobs/", "actors/buffs/", "actors/blobs/", "actors/
             "actors/hero/spells/", "levels/", "plants/", "mechanics/")
 ENUMS = {"HeroClass", "HeroSubClass", "Talent"}
 VERIFIED = {
+    "actors/mobs/Necromancer": "native summon, occupied arrival, heal, Adrenaline and re-summon, both seats, disk crash and replay / NecromancerTest, HostRestartTest",
+    "actors/mobs/Necromancer.NecroSkeleton": "native minion ID, parent death, freeze at floor 8 and restore / NecromancerTest, LatePrisonTest",
+    "actors/mobs/SpectralNecromancer": "isolated native wraith summons, identity on restore and caster death cleanup / NecromancerTest",
+    "actors/mobs/Bat": "native prison 9 generation and life-steal proc against both seats / LatePrisonTest",
     "actors/mobs/DM100": "native aimed bolt hits each seat separately, cold restore and next turn / PrisonCombatChecks, HostRestartTest",
     "actors/mobs/Guard": "native chain pull, landing, cripple, spent-chain restore on either seat / PrisonCombatChecks, HostRestartTest",
     "actors/mobs/Skeleton": "floor six generation, native melee and death burst hitting adjacent heroes / SewerDepthTest, HostRestartTest",

@@ -419,10 +419,11 @@ public final class CoopSession implements AutoCloseable {
         if (type==Statue.class) return statueWeapon(((Statue)actor).weapon());
         return (Dungeon.depth>=CoopFloors.FIRST_PRISON && Dungeon.depth<=CoopFloors.LAST_PLAYABLE && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Skeleton.class)
                 || (Dungeon.depth==CoopFloors.FIRST_PRISON && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.class)
-                || (Dungeon.depth==7 && (type==Necromancer.class || type==SpectralNecromancer.class || type==Necromancer.NecroSkeleton.class
+                || (Dungeon.depth>=7 && Dungeon.depth<=CoopFloors.LAST_PLAYABLE && (type==Necromancer.class || type==SpectralNecromancer.class || type==Necromancer.NecroSkeleton.class
                         || type==Wandmaker.class || type==RotHeart.class || type==RotLasher.class
                         || type==Elemental.NewbornFireElemental.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Guard.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM100.class))
-                || type==CorpseDust.DustWraith.class || (Dungeon.depth==7 && (type==Wraith.class || type==TormentedSpirit.class))
+                || (Dungeon.depth==9 && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bat.class)
+                || type==CorpseDust.DustWraith.class || (Dungeon.depth>=7 && Dungeon.depth<=CoopFloors.LAST_PLAYABLE && (type==Wraith.class || type==TormentedSpirit.class))
                 || type == GnollExile.class || type == PhantomPiranha.class || type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
                 || type == Mimic.class || type == CrystalMimic.class || type == GoldenMimic.class || type == Sheep.class || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
                 || type==Crab.class || type==HermitCrab.class || type==Swarm.class || type==Slime.class || type==CausticSlime.class || type==Thief.class
@@ -635,7 +636,7 @@ public final class CoopSession implements AutoCloseable {
                         occupant.interact(hero);
                     } else {
                         Heap chest=level.heaps.get(cell);
-                        if (occupant!=null || chest==null || chest.hidden || ((Dungeon.depth!=7 || chest.type!=Heap.Type.SKELETON) && (chest.haunted || chest.type!=Heap.Type.CHEST))) return false;
+                        if (occupant!=null || chest==null || chest.hidden || ((Dungeon.depth<7 || chest.type!=Heap.Type.SKELETON) && (chest.haunted || chest.type!=Heap.Type.CHEST))) return false;
                         hero.checkVisibleMobs();
                         hero.curAction=new HeroAction.OpenChest(cell);
                         hero.act();
@@ -937,7 +938,7 @@ public final class CoopSession implements AutoCloseable {
         if (Dungeon.coop!=null || Dungeon.hero!=null || Dungeon.level!=null) throw new IllegalStateException("Dungeon in use");
         Bundle world=b.getBundle("world"), floor=b.getBundle("floor");
         int schema=b.getInt("schema"),depth=world.getInt("depth");
-        if ((schema<1 || schema>5) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
+        if ((schema<1 || schema>6) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
                 (depth<1 || depth>CoopFloors.lastDepth(schema)) || world.getInt("branch")!=0 || world.getInt("challenges")!=0)
             throw new IllegalArgumentException("Unsupported world");
         int width=floor.getInt("width"), height=floor.getInt("height");

@@ -12,12 +12,12 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 
-/** One active floor and up to six dormant floors; only the active floor has registered actors. */
+/** One active floor and up to eight dormant floors; only the active floor has registered actors. */
 public final class CoopFloors {
     private final CoopSession game;
-    public static final int LAST_SEWER = 5, FIRST_PRISON = 6, LAST_PLAYABLE = 7;
+    public static final int LAST_SEWER = 5, FIRST_PRISON = 6, LAST_PLAYABLE = 9;
     static int lastDepth(int schema) {
-        return schema==5 ? LAST_PLAYABLE : schema==4 ? FIRST_PRISON : schema==3 ? LAST_SEWER : schema;
+        return schema==6 ? LAST_PLAYABLE : schema==5 ? 7 : schema==4 ? FIRST_PRISON : schema==3 ? LAST_SEWER : schema;
     }
     private final java.util.Map<Integer,Bundle> dormant = new java.util.TreeMap<>();
     private long voteTurn;
@@ -157,6 +157,36 @@ public final class CoopFloors {
                 : com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel.class;
         if (!expected.getName().equals(floor.getString("__className")))
             throw new IllegalArgumentException("Unexpected level type at depth "+depth);
+        validateSummons(floor);
+    }
+
+    private static void validateSummons(Bundle floor) {
+        Bundle[] residents = floor.getBundleArray("mobs");
+        java.util.Map<Integer,String> kinds = new java.util.HashMap<>();
+        for (Bundle resident : residents) kinds.put(resident.getInt("id"), resident.getString("__className"));
+        HashSet<Integer> claimed = new HashSet<>();
+        String skeleton = com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Necromancer.NecroSkeleton.class.getName();
+        String wraith = com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith.class.getName();
+        for (Bundle resident : residents) {
+            if (resident.contains("my_skeleton")) {
+                int id = resident.getInt("my_skeleton");
+                if (!skeleton.equals(kinds.get(id)) || !claimed.add(id))
+                    throw new IllegalArgumentException("Invalid summoned skeleton on this floor");
+            }
+            if (resident.contains("wraith_ids")) for (int id : resident.getIntArray("wraith_ids")) {
+                if (!wraith.equals(kinds.get(id)) || !claimed.add(id))
+                    throw new IllegalArgumentException("Invalid summoned wraith on this floor");
+            }
+            if (resident.getBoolean("summoning")) {
+                String type=resident.getString("__className");
+                if (!type.equals(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Necromancer.class.getName())
+                        && !type.equals(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.SpectralNecromancer.class.getName())) continue;
+                int pos=resident.getInt("summoning_pos"), width=floor.getInt("width"), height=floor.getInt("height");
+                if (!resident.contains("summoning_pos") || width<3 || height<3 || pos<width || pos>=width*(height-1)
+                        || pos%width==0 || pos%width==width-1)
+                    throw new IllegalArgumentException("Invalid summon cell");
+            }
+        }
     }
 
     private static void validateFloor(Bundle record,int depth) {
@@ -183,6 +213,7 @@ public final class CoopFloors {
     }
 
     int schema() {
+        if (Dungeon.levelHasBeenGenerated(8,0)) return 6;
         if (Dungeon.levelHasBeenGenerated(7,0)) return 5;
         if (Dungeon.levelHasBeenGenerated(FIRST_PRISON,0)) return 4;
         return Dungeon.depth>2 || Dungeon.levelHasBeenGenerated(3,0) ? 3 : 2;
@@ -206,7 +237,7 @@ public final class CoopFloors {
         boolean multi=schema>=3;
         HashSet<Integer> generated=new HashSet<>(Dungeon.generatedLevels);
         if (!generated.contains(Dungeon.depth) || generated.size()!=Dungeon.generatedLevels.size()
-                || generated.size()>bound || (multi && !generated.contains(3)) || (schema>=4 && !generated.contains(bound)))
+                || generated.size()>bound || (multi && !generated.contains(3)) || (schema>=4 && !generated.contains(schema==6 ? 8 : bound)))
             throw new IllegalArgumentException("Invalid sewer generation history");
         for(int i=1;i<=generated.size();i++) if (!generated.contains(i)) throw new IllegalArgumentException("Disconnected sewer history");
         Bundle records=state.getBundle("dormant");

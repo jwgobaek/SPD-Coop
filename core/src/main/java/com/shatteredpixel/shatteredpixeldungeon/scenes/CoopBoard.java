@@ -258,6 +258,7 @@ final class CoopBoard extends Group {
                     case "CausticSlime": sprite=new CausticSlimeSprite();break;
                     case "Thief": sprite=new ThiefSprite();break;
                     case "Guard": sprite=new GuardSprite();break;
+                    case "Bat": sprite=new BatSprite();break;
                     case "DM100": sprite=new DM100Sprite();break;
                     case "Necromancer": sprite=new NecromancerSprite();break;
                     case "SpectralNecromancer": sprite=new SpectralNecromancerSprite();break;

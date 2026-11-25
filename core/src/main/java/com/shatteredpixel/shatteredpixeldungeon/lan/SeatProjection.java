@@ -156,7 +156,7 @@ final class SeatProjection {
                         rows.put("quote"+cell,handle+","+com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.sellPrice(stock)+","+stock.quantity()+","+(com.shatteredpixel.shatteredpixeldungeon.CoopTrade.roomFor(hero,stock)?1:0));
                     }
                 } else if (heap != null) rows.put("h"+cell,
-                        (Dungeon.depth==7 && heap.type==Heap.Type.SKELETON) || heap.type==Heap.Type.CHEST || heap.type==Heap.Type.CRYSTAL_CHEST || heap.type==Heap.Type.LOCKED_CHEST ? heap.type.name() : "CONTAINER");
+                        (Dungeon.depth>=7 && heap.type==Heap.Type.SKELETON) || heap.type==Heap.Type.CHEST || heap.type==Heap.Type.CRYSTAL_CHEST || heap.type==Heap.Type.LOCKED_CHEST ? heap.type.name() : "CONTAINER");
             }
             for (Mob mob : level.mobs) {
                 if (sight.visible(mob.pos) && mob.invisible <= 0 && mob.isAlive() && CoopSession.basicMob(mob)) {

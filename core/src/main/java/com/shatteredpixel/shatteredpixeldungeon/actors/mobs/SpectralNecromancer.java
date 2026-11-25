@@ -87,8 +87,16 @@ public class SpectralNecromancer extends Necromancer {
 	@Override
 	public void storeInBundle(Bundle bundle) {
 		super.storeInBundle(bundle);
-		int[] wraithIDArr = new int[wraithIDs.size()];
-		int i = 0; for (Integer val : wraithIDs){ wraithIDArr[i] = val; i++; }
+		ArrayList<Integer> saved = wraithIDs;
+		if (Dungeon.coop != null) {
+			saved = new ArrayList<>(wraithIDs);
+			java.util.HashSet<Integer> living = new java.util.HashSet<>();
+			for (Mob mob : Dungeon.level.mobs) if (mob instanceof Wraith) living.add(mob.id());
+			saved.retainAll(living);
+		}
+		int[] wraithIDArr = new int[saved.size()];
+		int i = 0;
+		for (int id : saved) wraithIDArr[i++] = id;
 		bundle.put(WRAITH_IDS, wraithIDArr);
 	}
 

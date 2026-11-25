@@ -26,7 +26,7 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean wandmaker,seventh,knife,market,armored,scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
+    private static boolean latePrison,wandmaker,seventh,knife,market,armored,scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
@@ -34,7 +34,8 @@ public final class CoopRenderSmoke {
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
         wandmaker=args.length>1 && args[1].equals("wandmaker");
-        seventh=wandmaker || args.length>1 && args[1].equals("seven");
+        latePrison=args.length>1 && args[1].equals("prison-nine");
+        seventh=latePrison || wandmaker || args.length>1 && args[1].equals("seven");
         prison=seventh || market || args.length>1 && args[1].equals("prison");
         controls=args.length>1 && args[1].equals("controls");
         shortcuts=args.length>1 && args[1].equals("shortcuts");
@@ -456,6 +457,24 @@ public final class CoopRenderSmoke {
                         click("#"+Messages.get(CoopScene.class,"travel",7));
                         await(()->frame().dungeon.depth==7);
                         shot("prison-seven-arrival");
+                        if (latePrison) {
+                            for (int depth = 8; depth <= 9; depth++) {
+                                final int arrival = depth;
+                                waitAndRegainTurn();
+                                RenderEncounter.atExit(hostController());
+                                waitAndRegainTurn();
+                                java.nio.file.Files.createFile(new File(root, "allow" + (depth-1)).toPath());
+                                await(() -> frame().dungeon.consent && frame().dungeon.offered);
+                                click("#" + Messages.get(CoopScene.class, "travel", depth));
+                                await(() -> frame().dungeon.depth == arrival);
+                                shot("prison-" + depth + "-arrival");
+                                if (depth == 8) {
+                                    RenderEncounter.beside(hostController(), com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Necromancer.class);
+                                    waitAndRegainTurn();
+                                    shot("prison-necromancer");
+                                }
+                            }
+                        }
                         if (wandmaker) {
                             int npc = RenderEncounter.beside(hostController(),com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker.class);
                             waitAndRegainTurn();
@@ -595,7 +614,7 @@ public final class CoopRenderSmoke {
         render(()->{
             Field active=CoopScene.class.getDeclaredField("active"); active.setAccessible(true);
             active.set(null,new CoopController(CoopPlatform.root(),null,null,testPort,0,
-                    new java.util.Random(){@Override public long nextLong(){return wandmaker ? 577 : seventh ? 581 : deep ? 402 : armored ? 446 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
+                    new java.util.Random(){@Override public long nextLong(){return latePrison ? 570 : wandmaker ? 577 : seventh ? 581 : deep ? 402 : armored ? 446 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
             return null;
         });
         click("title"); await(()->button("host")!=null);

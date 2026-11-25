@@ -144,10 +144,11 @@ public class Necromancer extends Mob {
 		if (summoning){
 			bundle.put( SUMMONING_POS, summoningPos);
 		}
-		if (mySkeleton != null){
+		if (mySkeleton != null && (Dungeon.coop == null || Dungeon.level.mobs.contains(mySkeleton))){
 			bundle.put( MY_SKELETON, mySkeleton.id() );
 		} else if (storedSkeletonID != -1){
-			bundle.put( MY_SKELETON, storedSkeletonID );
+			if (Dungeon.coop == null || Dungeon.level.mobs.stream().anyMatch(m -> m instanceof NecroSkeleton && m.id() == storedSkeletonID))
+				bundle.put( MY_SKELETON, storedSkeletonID );
 		}
 	}
 	
