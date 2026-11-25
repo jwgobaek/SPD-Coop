@@ -174,9 +174,14 @@ public class VaultLevel extends CityLevel {
 	public float levelExplorePercent(int depth) {
 		// Each 1% of tiles seen = 1.25% explored. 80% seen = 100% explored
 		int seen = 0, total = 0;
+        com.shatteredpixel.shatteredpixeldungeon.FloorKnowledge host=null,guest=null;
+        if (Dungeon.coop!=null) {
+            host=Dungeon.coop.knowledge(Dungeon.coop.hero(0));
+            guest=Dungeon.coop.knowledge(Dungeon.coop.hero(1));
+        }
 		for (int i = 0; i < length; i++){
 			if (discoverable[i]) total++;
-			if (visited[i]) seen++;
+			if (host==null ? visited[i] : host.visited(i) || guest.visited(i)) seen++;
 		}
 		return Math.min(1, (seen*1.25f)/total);
 	}
@@ -576,7 +581,7 @@ public class VaultLevel extends CityLevel {
 	public void occupyCell(Char ch) {
 		super.occupyCell(ch);
 		//extra check to ensure vault is left if quest is completed
-		if (ch == Dungeon.hero && (Imp.Quest.isCompleted() && !Imp.Quest.isOld())){
+		if (Dungeon.coop==null && ch == Dungeon.hero && (Imp.Quest.isCompleted() && !Imp.Quest.isOld())){
 			beforeTransition();
 			InterlevelScene.curTransition = new LevelTransition(Dungeon.level,
 					Dungeon.hero.pos,
@@ -586,12 +591,17 @@ public class VaultLevel extends CityLevel {
 					LevelTransition.Type.BRANCH_EXIT);
 			InterlevelScene.mode = InterlevelScene.Mode.ASCEND;
 			Game.switchScene( InterlevelScene.class );
-		} else if (ch == Dungeon.hero) {
+		} else if (ch == Dungeon.hero || Dungeon.coop!=null && Dungeon.coop.playerOf(ch)!=0) {
 			Room r = room(ch.pos);
 			if (r instanceof VaultFinalRoom){
 				((VaultFinalRoom) r).processHeroStep((Hero) ch);
 			}
 		}
+	}
+
+	public boolean startsBossAt(int cell) {
+		Room candidate = room(cell);
+		return candidate instanceof VaultFinalRoom && ((VaultFinalRoom)candidate).startsBossAt(cell);
 	}
 
 	public Actor addRespawner() {

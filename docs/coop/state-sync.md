@@ -1,5 +1,7 @@
 # 협동 게임 동기화 프로토콜
 
+SYNC23은 branch 1의 도시 금고와 광산을 구별한다. 보이는 인접 NPC에는 vaultnpc, 탈출 가능 시 vaultscore, 소유자가 선택할 수 있는 물품에만 vaultpick 행을 제공한다. VAULT_INTERACT와 VAULT_REWARD는 일반 Action ID·좌석·State Version 검증을 거친다. [Imp 금고와 악마의 전당](imp-halls-results.md)
+
 ## 광산·도시 체크포인트
 
 SYNC22에서 공개 floor의 branch와 depth가 함께 지도 식별자가 된다. 버전이 바뀌면 이전 분기에서 준비한 좌표 행동을 거부한다. 채굴, 장비 서비스와 의뢰 수락은 기존 Action ID 및 발행 경계를 따른다. [실행 기록](mines-city-results.md)

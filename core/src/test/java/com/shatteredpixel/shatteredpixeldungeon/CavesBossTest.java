@@ -37,8 +37,8 @@ public class CavesBossTest extends HeadlessDungeon {
         Hero h=g.hero(seat);
         for(int d:PathFinder.NEIGHBOURS8) {
             int c=pos+d;
-            if(!level().passable[c] || level().pit[c] || Actor.findChar(c)!=null && Actor.findChar(c)!=h) continue;
-            h.pos=c;level().updateFieldOfView(h,h.fieldOfView);g.observe(seat);return c;
+            if(!Dungeon.level.passable[c] || Dungeon.level.pit[c] || Actor.findChar(c)!=null && Actor.findChar(c)!=h) continue;
+            h.pos=c;Dungeon.level.updateFieldOfView(h,h.fieldOfView);g.observe(seat);return c;
         }
         throw new AssertionError("No open adjacent cell "+pos);
     }
@@ -109,7 +109,12 @@ public class CavesBossTest extends HeadlessDungeon {
                 SewerSpecialActorTest.atGate(g,dest);return dest;
             }
             for(Heap heap:level().heaps.valueList()) if(heap.peek() instanceof MetalShard) {
-                g.hero(g.activeSeat()).pos=heap.pos;g.observe(g.activeSeat());return heap.pos;
+                int seat=g.activeSeat();
+                if (g.hero(1-seat).pos==heap.pos) beside(g,1-seat,heap.pos);
+                g.hero(seat).pos=heap.pos;
+                assertNotEquals(g.hero(1-seat).pos,g.hero(seat).pos);
+                g.observe(seat);
+                return heap.pos;
             }
             throw new AssertionError("No shards");
         }

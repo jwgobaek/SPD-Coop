@@ -37,7 +37,7 @@ final class CoopBoard extends Group {
         map = new DungeonRenderMap(view);
         float zoom = GameMath.gate(PixelScene.minZoom, PixelScene.defaultZoom + SPDSettings.zoom(), PixelScene.maxZoom);
         camera = Camera.add(Camera.createFullscreen(zoom));
-        water = new SkinnedBlock(view.width*TILE, view.height*TILE, view.depth>=16 ? Assets.Environment.WATER_CITY : view.depth>=11 ? Assets.Environment.WATER_CAVES : view.depth>=6 ? Assets.Environment.WATER_PRISON : Assets.Environment.WATER_SEWERS);
+        water = new SkinnedBlock(view.width*TILE, view.height*TILE, view.depth>=21 ? Assets.Environment.WATER_HALLS : view.depth>=16 ? Assets.Environment.WATER_CITY : view.depth>=11 ? Assets.Environment.WATER_CAVES : view.depth>=6 ? Assets.Environment.WATER_PRISON : Assets.Environment.WATER_SEWERS);
         water.autoAdjust = true;
         add(water);
         layers = new Tilemap[]{
@@ -123,7 +123,14 @@ final class CoopBoard extends Group {
         for (Map.Entry<String,String> row : view.source.rows.entrySet()) {
             String key=row.getKey(), value=row.getValue();
             if (key.length()<2 || !Character.isDigit(key.charAt(key.length()-1))) continue;
-            if (key.charAt(0)=='m' && Character.isDigit(key.charAt(1))) {
+            if (key.startsWith("aim")) {
+                int cell=Integer.parseInt(key.substring(3));
+                if (view.visible(cell)) object(keep,key,cell,()->{
+                    Image target=com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.TARGET);
+                    target.hardlight(0xFF0000);
+                    return target;
+                });
+            } else if (key.charAt(0)=='m' && Character.isDigit(key.charAt(1))) {
                 String[] mob = value.split(",");
                 int cell = Integer.parseInt(mob[0]);
                 boolean charged=view.source.rows.containsKey("charge"+cell);
@@ -139,7 +146,9 @@ final class CoopBoard extends Group {
                     return result;
                 });
                 boolean charging=view.source.rows.containsKey("charge"+cell);
-                if (sprite instanceof GooSprite) ((GooSprite)sprite).displayCharge(charging);
+                if (sprite instanceof EyeSprite) ((EyeSprite)sprite).displayPreparation(charging);
+                else if (sprite instanceof RipperSprite) ((RipperSprite)sprite).displayPreparation(charging);
+                else if (sprite instanceof GooSprite) ((GooSprite)sprite).displayCharge(charging);
                 else if (sprite instanceof NecromancerSprite) ((NecromancerSprite)sprite).displayCharge(charging);
                 else if (sprite instanceof SpectralNecromancerSprite) ((SpectralNecromancerSprite)sprite).displayCharge(charging);
                 else if (sprite instanceof SentrySprite) {
@@ -277,6 +286,20 @@ final class CoopBoard extends Group {
     private static Image monster(String monster, String color) {
                 Image sprite;
                 switch(monster) {
+                    case "VaultDM100": sprite=new DM100Sprite.Vault();break;
+                    case "VaultDM200": sprite=new DM200Sprite.Vault();break;
+                    case "VaultSkeleton": sprite=new SkeletonSprite.Vault();break;
+                    case "VaultGhoul": sprite=new GhoulSprite();break;
+                    case "VaultGolem": sprite=new GolemSprite();break;
+                    case "VaultSentry": sprite=new SentrySprite.VaultScan();break;
+                    case "VaultLaser": sprite=new SentrySprite.VaultLaser();break;
+                    case "VaultMirror": sprite=new VaultMirrorSprite();break;
+                    case "VaultTokenDoor": sprite=new VaultTokenDoorSprite();break;
+                    case "Eye": sprite=new EyeSprite();break;
+                    case "DemonSpawner": sprite=new SpawnerSprite();break;
+                    case "RipperDemon": sprite=new RipperSprite();break;
+                    case "Scorpio": sprite=new ScorpioSprite();break;
+                    case "Succubus": sprite=new SuccubusSprite();break;
                     case "Crab": sprite=new CrabSprite();break;
                     case "HermitCrab": sprite=new HermitCrabSprite();break;
                     case "Slime": sprite=new SlimeSprite();break;

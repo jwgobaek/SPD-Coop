@@ -38,7 +38,7 @@ public class DungeonRenderMap {
     public DungeonRenderMap(PublicDungeon view) {
         solo=null;
         width=view.width; height=view.height; depth=view.depth; branch=view.branch;
-        mining=branch==1; hallsBoss=false; lastShop=false;
+        mining=branch==1 && depth>=12 && depth<=14; hallsBoss=false; lastShop=false;
         int length=width*height;
         nest=new int[length]; exitWalls=new int[length];
         tiles=new int[length]; visible=new boolean[length]; visited=new boolean[length];
@@ -98,6 +98,7 @@ public class DungeonRenderMap {
         if (mining) return "1".equals(seat.source.rows.get("mine"))
                 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_CAVES_CRYSTAL
                 : com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_CAVES_GNOLL;
+        if (depth>=21) return com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_HALLS;
         if (depth>=16) return com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_CITY;
         return depth>=11 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_CAVES : depth>=6 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_PRISON
                 : com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_SEWERS;

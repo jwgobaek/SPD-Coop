@@ -58,9 +58,10 @@ def package(builds, evidence, out):
     assert (builds/'SHA256SUMS').read_text().split()[0]==digest
     inspection=(builds/'apk.txt').read_text()
     version=re.search(r"versionName='([^']+)'",inspection)[1]
+    halls = version.endswith('-INDEV-imp-halls')
     king = version.endswith('-INDEV-dwarf-king')
     mines = king or version.endswith('-INDEV-mines-city')
-    source_base = 'df645fc08d0b33dbd5e2d7a847f075dc26d4b020' if mines else SOURCE_BASE
+    source_base = '960e4bc9ad4b94fdb4de7959c41c17827066ff39' if halls else 'df645fc08d0b33dbd5e2d7a847f075dc26d4b020' if mines else SOURCE_BASE
     code=re.search(r"versionCode='(\d+)'",inspection)[1]
     assert "name='org.spdcoop.dungeon.indev'" in inspection
     assert f'certificate SHA-256 digest: {SIGNER}' in inspection
@@ -106,8 +107,8 @@ APK SHA-256          {digest}
 Certificate SHA-256  {SIGNER}
 Signatures           v1 and v2 verified
 JUnit                {len(cases)} passed; no errors, failures or skipped cases
-Scope                {"Branch 0 through 20, both Blacksmith mines; save schemas 1–11, SYNC22, LAN v1." if king else "Branch 0 through 19 and Blacksmith mines; save schemas 1–10, SYNC22, LAN v1." if mines else "Branch 0 through 15; save schemas 1–9, SYNC21, LAN v1."}
-Checkpoint           {"See documentation/docs/coop/mines-city-results.md for the fixture, seed and network test boundaries." if mines else "12/12 staged cave victories. Mine branch and city 16 closed."}
+Scope                {"Branch 0 through 24 on admitted native rolls, mines and Imp vault; schemas 1-13, SYNC23, LAN v1." if halls else "Branch 0 through 20, both Blacksmith mines; save schemas 1–11, SYNC22, LAN v1." if king else "Branch 0 through 19 and Blacksmith mines; save schemas 1–10, SYNC22, LAN v1." if mines else "Branch 0 through 15; save schemas 1–9, SYNC21, LAN v1."}
+Checkpoint           {"See documentation/docs/coop/imp-halls-results.md for staged and normal-start limits." if halls else "See documentation/docs/coop/mines-city-results.md for the fixture, seed and network test boundaries." if mines else "12/12 staged cave victories. Mine branch and city 16 closed."}
 Normal starts        581 and 1105 reached 6. No complete normal-start DM-300 victory.
 Platforms            Original JVM engine, separate TCP JVMs, real filesystem, KO/EN Desktop, Android package inspection.
 Android runtime      See evidence/android/result.txt.

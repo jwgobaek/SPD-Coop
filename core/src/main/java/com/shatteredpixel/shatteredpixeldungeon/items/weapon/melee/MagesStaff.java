@@ -301,6 +301,8 @@ public class MagesStaff extends MeleeWeapon {
 				&& !cursed && enchantment == null && !wand.cursed ? (WandOfMagicMissile)wand : null;
 	}
 
+	public Wand imbuedWand() { return wand; }
+
 	public Class<?extends Wand> wandClass(){
 		return wand != null ? wand.getClass() : null;
 	}

@@ -89,56 +89,7 @@ public class EscapeCrystal extends Item {
 					return;
 				}
 
-				int score = 0;
-
-				//firstly, score is always a full 4k if the hero had the statue
-				if (hero.belongings.getItem(ImpStatue.class) != null){
-					score = 4000;
-				} else {
-					//otherwise there is partial score, to a max of 3k:
-
-					//1,000 for exploring up to 80% of the level
-					score += (int) (1000 * Dungeon.level.levelExplorePercent(Dungeon.depth));
-
-					//1,000 for collecting tokens (100 each), plus a 250 bonus for opening the door
-					boolean doorOpened = true;
-					for (Char ch : Dungeon.level.mobs){
-						if (ch instanceof VaultTokenDoor){
-							doorOpened = false;
-							break;
-						}
-					}
-					if (doorOpened){
-						score += 1250; //1000 for tokens, 250 for door
-					} else {
-						Item tokens = hero.belongings.getItem(DwarfToken.class);
-						if (tokens != null){
-							score += Math.min(1000, 100*tokens.quantity());
-						}
-					}
-
-					//up to 750 for damaging/killing the boss elemental
-					VaultFinalRoom r = (VaultFinalRoom) ((VaultLevel) Dungeon.level).room(VaultFinalRoom.class);
-					if (r.elementalWasSummoned()){
-						boolean elementalFound = false;
-						for (Char ch : Dungeon.level.mobs){
-							if (ch instanceof VaultBossElemental){
-								elementalFound = true;
-								score += (int) (750 * (ch.HP/(float)ch.HT));
-								break;
-							}
-						}
-						if (!elementalFound){
-							//some poor sucker is absolutely going to kill the boss, not take the statue,
-							// and then be forced to leave by a golem or something
-							score += 750;
-						}
-					}
-
-					//finally, score is rounded down to the nearest 50 points
-					score = (score/50)*50;
-
-				}
+				int score = vaultScore(hero);
 
 				if (score < 50){
 					GameScene.show(new WndTitledMessage(new ImpSprite(),
@@ -171,29 +122,7 @@ public class EscapeCrystal extends Item {
 
 										@Override
 										public boolean itemSelectable(Item item) {
-											if (item instanceof EscapeCrystal){
-												return false;
-											}
-											//lowest reward, just a consumable
-											if (finalScore <= 1000){
-												return !item.unique && !(item instanceof EquipableItem || item instanceof Wand);
-											//mid rewards, item at a max of +0 or +1
-											} else if (finalScore < 4000){
-												int maxLevel = finalScore > 2000 ? 1 : 0;
-												if (item instanceof MagesStaff){
-													return ((MagesStaff) item).wandClass() != null
-															&& item.level() <= maxLevel+1; //+1 to account for staff's level
-												} else if (item instanceof Armor && ((Armor) item).checkSeal() != null){
-													return item.level() <= maxLevel+1; //+1 to account for seal's level
-												} else {
-													return item.level() <= maxLevel && !item.unique;
-												}
-											} else {
-												if (item instanceof MagesStaff){
-													return ((MagesStaff) item).wandClass() != null;
-												}
-												return !item.unique;
-											}
+											return rewardAllowed(item, finalScore);
 										}
 
 										@Override
@@ -254,12 +183,92 @@ public class EscapeCrystal extends Item {
 
 	}
 
-	private void leaveVault( Item preserve, int score ){
-		Sample.INSTANCE.play(Assets.Sounds.TELEPORT);
+	public static int vaultScore(Hero... party) {
+		int score = 0;
 
-		Dungeon.hero.live(); //clears all non-persist buffs, resets hunger/regen
-		Dungeon.hero.HP = Dungeon.hero.HT; //full heal
+		//firstly, score is always a full 4k if the hero had the statue
+		boolean statue = false;
+		int tokenCount = 0;
+		for (Hero hero : party) {
+			statue |= hero.belongings.getItem(ImpStatue.class) != null;
+			Item tokens = hero.belongings.getItem(DwarfToken.class);
+			if (tokens != null) tokenCount += Math.min(10,tokens.quantity());
+		}
+		if (statue){
+			score = 4000;
+		} else {
+			//otherwise there is partial score, to a max of 3k:
 
+			//1,000 for exploring up to 80% of the level
+			score += (int) (1000 * Dungeon.level.levelExplorePercent(Dungeon.depth));
+
+			//1,000 for collecting tokens (100 each), plus a 250 bonus for opening the door
+			boolean doorOpened = true;
+			for (Char ch : Dungeon.level.mobs){
+				if (ch instanceof VaultTokenDoor){
+					doorOpened = false;
+					break;
+				}
+			}
+			if (doorOpened){
+				score += 1250; //1000 for tokens, 250 for door
+			} else {
+				score += Math.min(1000,100*tokenCount);
+			}
+
+			//up to 750 for damaging/killing the boss elemental
+			VaultFinalRoom r = (VaultFinalRoom) ((VaultLevel) Dungeon.level).room(VaultFinalRoom.class);
+			if (r.elementalWasSummoned()){
+				boolean elementalFound = false;
+				for (Char ch : Dungeon.level.mobs){
+					if (ch instanceof VaultBossElemental){
+						elementalFound = true;
+						score += (int) (750 * (ch.HP/(float)ch.HT));
+						break;
+					}
+				}
+				if (!elementalFound){
+					//some poor sucker is absolutely going to kill the boss, not take the statue,
+					// and then be forced to leave by a golem or something
+					score += 750;
+				}
+			}
+
+			//finally, score is rounded down to the nearest 50 points
+			score = (score/50)*50;
+
+		}
+		return score;
+	}
+
+	public static boolean rewardAllowed(Item item, int score) {
+		if (score < 500 || item == null) return false;
+		if (item instanceof EscapeCrystal){
+			return false;
+		}
+		//lowest reward, just a consumable
+		if (score <= 1000){
+			return !item.unique && !(item instanceof EquipableItem || item instanceof Wand);
+		//mid rewards, item at a max of +0 or +1
+		} else if (score < 4000){
+			int maxLevel = score > 2000 ? 1 : 0;
+			if (item instanceof MagesStaff){
+				return ((MagesStaff) item).wandClass() != null
+						&& item.level() <= maxLevel+1; //+1 to account for staff's level
+			} else if (item instanceof Armor && ((Armor) item).checkSeal() != null){
+				return item.level() <= maxLevel+1; //+1 to account for seal's level
+			} else {
+				return item.level() <= maxLevel && !item.unique;
+			}
+		} else {
+			if (item instanceof MagesStaff){
+				return ((MagesStaff) item).wandClass() != null;
+			}
+			return !item.unique;
+		}
+	}
+
+	public static Item prepareReward(Item preserve) {
 		//logic for removing Warrior's Seal or Mage's staff
 		if (preserve instanceof Armor && ((Armor) preserve).checkSeal() != null){
 			BrokenSeal seal = ((Armor) preserve).checkSeal();
@@ -275,6 +284,17 @@ public class EscapeCrystal extends Item {
 			w.upgrade(preserve.level()-1);
 			preserve = w;
 		}
+
+		return preserve;
+	}
+
+	private void leaveVault( Item preserve, int score ){
+		Sample.INSTANCE.play(Assets.Sounds.TELEPORT);
+
+		Dungeon.hero.live(); //clears all non-persist buffs, resets hunger/regen
+		Dungeon.hero.HP = Dungeon.hero.HT; //full heal
+
+		preserve = prepareReward(preserve);
 
 		restoreHeroBelongings(Dungeon.hero, preserve);
 		Dungeon.hero.updateHT(false);

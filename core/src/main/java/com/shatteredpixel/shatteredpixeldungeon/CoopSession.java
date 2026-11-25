@@ -1,4 +1,9 @@
 package com.shatteredpixel.shatteredpixeldungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Succubus;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DemonSpawner;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RipperDemon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Eye;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Scorpio;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Shaman;
@@ -127,9 +132,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
+    public enum Action { VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
         public boolean requiresItem() {
-            return this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
+            return this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -263,6 +268,27 @@ public final class CoopSession implements AutoCloseable {
     String destinationBlocker;
     public boolean restoredAfterTravel() { return restoredAfterTravel; }
     public boolean restoring() { return restoring; }
+
+    void restoreVaultGear(Hero hero, Bundle gear) {
+        restoring=true;
+        try {
+            hero.belongings.restoreFromBundle(gear);
+            restorePackCharge(hero);
+        } finally {
+            Belongings.bundleRestoring=false;
+            restoring=false;
+        }
+    }
+
+    private static void restorePackCharge(Hero hero) {
+        for (Item item : hero.belongings.backpack) {
+            if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag)
+                ((com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag)item).owner=hero;
+            if (item instanceof MagesStaff) ((MagesStaff)item).applyWandChargeBuff(hero);
+            if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand)
+                ((com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand)item).restoreCoopCharge(hero);
+        }
+    }
 
     Level unpackFloor(Bundle parked) {
         restoring=true;
@@ -442,10 +468,13 @@ public final class CoopSession implements AutoCloseable {
 
     public static boolean basicMob(Actor actor) {
         Class<?> type = actor.getClass();
+        if (Dungeon.branch==1 && CoopFloors.vaultDepth(Dungeon.depth)) return CoopVault.resident(actor.getClass());
         if (Dungeon.branch == 1) {
             return type == CrystalGuardian.class || type == CrystalSpire.class || type == CrystalWisp.class
                     || type == GnollGeomancer.class || type == GnollGuard.class || type == GnollSapper.class;
         }
+        if ((Dungeon.depth==19 || Dungeon.depth>=21 && Dungeon.depth<=24) && type==Succubus.class) return true;
+        if (Dungeon.depth>=21 && Dungeon.depth<=24 && (type==DemonSpawner.class || type==RipperDemon.class || type==Eye.class || type==Scorpio.class)) return true;
         if (Dungeon.depth==20 && (type==DwarfKing.class || type==DwarfKing.DKGhoul.class || type==DwarfKing.DKMonk.class || type==DwarfKing.DKWarlock.class || type==DwarfKing.DKGolem.class)) return true;
         if (Dungeon.depth>=16 && Dungeon.depth<=19 && (type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Ghoul.class
                 || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Warlock.class
@@ -485,6 +514,8 @@ public final class CoopSession implements AutoCloseable {
     public static boolean statueWeapon(Item item) {
         if (!(item instanceof MeleeWeapon)) return false;
         Class<?> base = item.getClass();
+        if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WarScythe.class)
+            return ((Weapon)item).enchantment instanceof Projecting;
         if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Quarterstaff.class) return ((MeleeWeapon)item).enchantment instanceof Venomous;
         // Runic Slash is a hero ability. A statue uses the blade's tier-four passive damage curve.
         if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.RunicBlade.class)
@@ -515,6 +546,8 @@ public final class CoopSession implements AutoCloseable {
         Level level = Dungeon.level;
         if (!level.insideMap(cell) || level.pit[cell] || level.map[cell] == Terrain.WELL ||
                 (level.plants.get(cell) != null && !level.plants.get(cell).supportsCoopLanding())) return false;
+        if (level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel
+                && ((com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel)level).startsBossAt(cell)) return false;
         Trap trap = level.traps.get(cell);
         return trap == null || !trap.active || trap.supportedInCoop();
     }
@@ -622,7 +655,7 @@ public final class CoopSession implements AutoCloseable {
         Hero hero = heroes[activeSeat];
         Level level = Dungeon.level;
         Bundle before=null;
-        if(action==Action.TRAVEL) {
+        if(action==Action.TRAVEL || action==Action.VAULT_REWARD) {
             if(cell<0 || cell!=stairs.stair() || !stairs.agreed()) return false;
             before=checkpoint();
         }
@@ -656,9 +689,20 @@ public final class CoopSession implements AutoCloseable {
                     if(cell!=hero.pos) return false;
                     hero.search(true);
                     break;
-                case TRAVEL:
-                    if (!stairs.travel(activeSeat,cell)) return false;
+                case VAULT_REWARD: case TRAVEL:
+                    if (!stairs.travel(activeSeat,cell,item)) return false;
                     break;
+                case VAULT_INTERACT: {
+                    if (!(level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel)
+                            || !level.insideMap(cell) || !level.adjacent(hero.pos,cell) || !knowledge(activeSeat).visible(cell)) return false;
+                    Char target=Actor.findChar(cell);
+                    if (target instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultTokenDoor) {
+                        if (!((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultTokenDoor)target).unlock(hero)) return false;
+                    } else if (target instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultMirror) {
+                        if (!((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultMirror)target).takeReward(hero)) return false;
+                    } else return false;
+                    break;
+                }
                 case ACCEPT_IMP:
                     if (Dungeon.branch!=0 || !level.insideMap(cell) || !level.adjacent(hero.pos,cell) || !knowledge(activeSeat).visible(cell)
                             || !(Actor.findChar(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp)
@@ -772,7 +816,7 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && item.getClass()!=GooBlob.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.quest.MetalShard.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.TengusMask.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.KingsCrown.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand && ownership.owner(item)==player) && !(item instanceof CorpseDust || item instanceof Embers || item instanceof CeremonialCandle || item instanceof Rotberry.Seed) && !(item instanceof Potion) && !supportedScroll(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (!(level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.DwarfToken) && item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && item.getClass()!=GooBlob.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.quest.MetalShard.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.TengusMask.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.KingsCrown.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand && ownership.owner(item)==player) && !(item instanceof CorpseDust || item instanceof Embers || item instanceof CeremonialCandle || item instanceof Rotberry.Seed) && !(item instanceof Potion) && !supportedScroll(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
                             || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && !hero.belongings.backpack.canHold(item))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
@@ -931,7 +975,7 @@ public final class CoopSession implements AutoCloseable {
                 b.put("hit"+i,attackTurn[i]);
             }
         }
-        b.put("items",itemState(physicalItems()));
+        b.put("items",itemState(physicalItems(stairs.schema()>=12)));
         b.put("nextItem",ownership.sequence());
         return b;
     }
@@ -1006,11 +1050,19 @@ public final class CoopSession implements AutoCloseable {
         return items;
     }
 
-    private Map<String,Item> physicalItems() {
+    private Map<String,Item> physicalItems(boolean withParts) {
         Map<String,Item> result=new TreeMap<>();
         for (int seat=0;seat<2;seat++) {
             int index=0;
-            for (Item item : heroes[seat].belongings) result.put("s"+seat+"_"+index++,item);
+            for (Item item : heroes[seat].belongings) {
+                String path="s"+seat+"_"+index++;
+                result.put(path,item);
+                Item part=CoopVault.attached(item);
+                if (withParts && part!=null) {
+                    if (!restoring) ownership.claim(part,players[seat]);
+                    result.put(path+"_part",part);
+                }
+            }
         }
         if (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.Quest.completed()
                 && com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.Quest.pickaxe!=null)
@@ -1020,6 +1072,8 @@ public final class CoopSession implements AutoCloseable {
             for (Item candidate:com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.Quest.smithRewards)
                 result.put("smithOffer"+choice++,candidate);
         }
+        if (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp.Quest.isCompleted() && com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp.Quest.reward!=null)
+            result.put("impReward",com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp.Quest.reward);
         result.putAll(floorItems(Dungeon.level));
         return result;
     }
@@ -1032,6 +1086,10 @@ public final class CoopSession implements AutoCloseable {
                 result.put("encounter" + index++, item);
         }
         for (Mob mob : level.mobs) {
+            if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultMirror) {
+                Item offer=((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultMirror)mob).reward;
+                if (offer!=null) result.put("mirror"+mob.id(),offer);
+            }
             com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PinCushion pins=mob.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PinCushion.class);
             if (pins!=null) {
                 int index=0;
@@ -1064,8 +1122,8 @@ public final class CoopSession implements AutoCloseable {
         if (Dungeon.coop!=null || Dungeon.hero!=null || Dungeon.level!=null) throw new IllegalStateException("Dungeon in use");
         Bundle world=b.getBundle("world"), floor=b.getBundle("floor");
         int schema=b.getInt("schema"),depth=world.getInt("depth");
-        if ((schema<1 || schema>11) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
-                (depth<1 || depth>CoopFloors.lastDepth(schema)) || (world.getInt("branch")!=0 && !(schema>=10 && world.getInt("branch")==1 && CoopFloors.mineDepth(depth))) || world.getInt("challenges")!=0)
+        if ((schema<1 || schema>13) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
+                (depth<1 || depth>CoopFloors.lastDepth(schema)) || (world.getInt("branch")!=0 && !(schema>=10 && world.getInt("branch")==1 && (CoopFloors.mineDepth(depth) || schema>=12 && CoopFloors.vaultDepth(depth)))) || world.getInt("challenges")!=0)
             throw new IllegalArgumentException("Unsupported world");
         int width=floor.getInt("width"), height=floor.getInt("height");
         if (width<3 || height<3 || width>256 || height>256 || floor.getIntArray("map").length!=width*height)
@@ -1115,11 +1173,7 @@ public final class CoopSession implements AutoCloseable {
             h.fieldOfView=i==0 ? level.heroFOV : new boolean[level.length()];
         }
         // Original bag restoration in co-op preserves object identity and skips collect().
-        for (Hero hero : heroes) for (Item item : hero.belongings.backpack) {
-            if (item instanceof MagesStaff) ((MagesStaff)item).applyWandChargeBuff(hero);
-            if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand)
-                ((com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand)item).restoreCoopCharge(hero);
-        }
+        for (Hero hero : heroes) restorePackCharge(hero);
         if (heroes[0].pos==heroes[1].pos) throw new IllegalArgumentException("Overlapping heroes");
         Actor.add(heroes[1]);
         Actor.init();
@@ -1127,7 +1181,13 @@ public final class CoopSession implements AutoCloseable {
         Actor.restoreSchedule(b.getBundle("schedule"),partyDefeated ? null : heroes[activeSeat]);
         for (Char ch : Actor.chars()) attachSprite(ch);
         HashSet<Long> ids=new HashSet<>();
-        restoreItems(physicalItems(),b.getBundle("items"),b.getLong("nextItem"),ids);
+        restoreItems(physicalItems(b.getInt("schema")>=12),b.getBundle("items"),b.getLong("nextItem"),ids);
+        if (Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel) {
+            int holder=stairs.crystalHolder();
+            if (holder<0 || heroes[1-holder].belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.quest.EscapeCrystal.class)!=null)
+                throw new IllegalArgumentException("Missing or duplicate vault crystal");
+            CoopVault.validate(this,heroes[holder].belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.quest.EscapeCrystal.class),holder,b.getLong("nextItem"),ids);
+        }
         stairs.restore(b,ids);
         for (int i=0;i<2;i++) {
             Hero h=heroes[i];

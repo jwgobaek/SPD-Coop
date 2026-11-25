@@ -214,7 +214,7 @@ final class RoomSync {
             return "REJECT_INVALID";
         try {
             if (!game.act(game.player(seat),turn,action,cell,item)) {
-                if (action==CoopSession.Action.TRAVEL && game.restoredAfterTravel()) {
+                if ((action==CoopSession.Action.TRAVEL || action==CoopSession.Action.VAULT_REWARD) && game.restoredAfterTravel()) {
                     for(Seat member:seats) member.view.resetHandles(member.view.cursor());
                     commit(null,seat,id+",TRAVEL,REJECT_FLOOR","IN_GAME");
                     return "REJECT_FLOOR";

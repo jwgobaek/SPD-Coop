@@ -59,6 +59,21 @@ public class VaultTokenDoor extends NPC {
 		}
 	}
 
+    /** Consumes the native token stack after the original confirmation. */
+    public boolean unlock(Hero hero) {
+        DwarfToken tokens=hero.belongings.getItem(DwarfToken.class);
+        if (tokens==null || tokens.quantity()<10 || !Dungeon.level.mobs.contains(this)) return false;
+        destroy();
+        Level.set(pos,Terrain.DOOR);
+        GameScene.updateMap(pos);
+        if (Dungeon.coop==null) {
+            ScrollOfMagicMapping.discover(pos);
+            sprite.killAndErase();
+        }
+        tokens.detachAll(hero.belongings.backpack);
+        return true;
+    }
+
 	@Override
 	public boolean interact(Char c) {
 		if (c instanceof Hero){
@@ -94,12 +109,7 @@ public class VaultTokenDoor extends NPC {
 									Sample.INSTANCE.play(Assets.Sounds.TELEPORT);
 									Sample.INSTANCE.playDelayed(Assets.Sounds.UNLOCK, 0.25f);
 									GLog.p(Messages.get(VaultTokenDoor.class, "unlocked"));
-									VaultTokenDoor.this.destroy();
-									Level.set(pos, Terrain.DOOR);
-									GameScene.updateMap(pos);
-									ScrollOfMagicMapping.discover(pos);
-									sprite.killAndErase();
-									tokens.detachAll(h.belongings.backpack);
+									VaultTokenDoor.this.unlock(h);
 								}
 							}
 						});

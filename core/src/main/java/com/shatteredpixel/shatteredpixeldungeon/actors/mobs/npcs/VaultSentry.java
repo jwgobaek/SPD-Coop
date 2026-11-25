@@ -114,7 +114,7 @@ public class VaultSentry extends NPC {
 						break;
 					}
 				}
-				if (visible){
+				if (visible || Dungeon.coop!=null){
 					for (int cell : scan.cells) {
 						if (fieldOfView[cell]) {
 							Char ch = Actor.findChar(cell);
@@ -127,10 +127,10 @@ public class VaultSentry extends NPC {
 									ch.damage(Random.NormalIntRange(6, 12), new DM100.LightningBolt());
 								}
 								curZaps.add(ch.id());
-								if (ch.sprite.visible || sprite.visible) {
+								if (Dungeon.coop==null && (ch.sprite.visible || sprite.visible)) {
 									Sample.INSTANCE.play(Assets.Sounds.LIGHTNING);
 									sprite.parent.add(new Lightning(sprite.center(), ch.sprite.destinationCenter(), null));
-									if (ch.sprite.visible) {
+									if (Dungeon.coop==null && ch.sprite.visible) {
 										Emitter e = GameScene.emitter();
 										if (e != null) {
 											e.pos(ch.sprite.destinationCenter());
@@ -139,13 +139,13 @@ public class VaultSentry extends NPC {
 										ch.sprite.flash();
 									}
 								}
-								if (ch == Dungeon.hero) {
+								if ((ch == Dungeon.hero || Dungeon.coop != null && Dungeon.coop.playerOf(ch)!=0)) {
 									if (Imp.Quest.hazardFreebies > 0){
 										Imp.Quest.hazardFreebies--;
 									} else {
 										Statistics.questScores[3] -= 100;
 									}
-									if (!ch.isAlive()) {
+									if (Dungeon.coop==null && !ch.isAlive()) {
 										Badges.validateDeathFromEnemyMagic();
 										Dungeon.fail(this);
 										GLog.n(Messages.get(this, "ondeath"));
@@ -201,7 +201,7 @@ public class VaultSentry extends NPC {
 						visible = true;
 					}
 				}
-				if (visible){
+				if (visible || Dungeon.coop!=null){
 					for (int cell : scan.cells) {
 						if (fieldOfView[cell]) {
 							//mainly to prevent the hero from auto-picking up items when targeted

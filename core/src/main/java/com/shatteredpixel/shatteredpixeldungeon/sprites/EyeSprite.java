@@ -102,6 +102,11 @@ public class EyeSprite extends MobSprite {
 		}
 	}
 
+	public void displayPreparation(boolean prepared) {
+		if (prepared && curAnim!=charging) play(charging);
+		else if (!prepared && curAnim==charging) play(idle);
+	}
+
 	public void charge( int pos ){
 		turnTo(ch.pos, pos);
 		play(charging);

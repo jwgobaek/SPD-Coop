@@ -87,7 +87,7 @@ public class VaultFlameTraps extends Blob {
 
 					Char ch = Actor.findChar( cell );
 					if (ch != null && !ch.isImmune(getClass())) {
-						if (ch == Dungeon.hero) {
+						if ((ch == Dungeon.hero || Dungeon.coop != null && Dungeon.coop.playerOf(ch)!=0)) {
 							Sample.INSTANCE.play(Assets.Sounds.BURNING);
 							SFXLastPlayed = ShatteredPixelDungeon.realTime;
 							if (Imp.Quest.hazardFreebies > 0){
@@ -113,7 +113,7 @@ public class VaultFlameTraps extends Blob {
 
 					}
 
-					if (Dungeon.level.heroFOV[cell]) {
+					if (Dungeon.coop==null && Dungeon.level.heroFOV[cell]) {
 						CellEmitter.get(cell).start(ElmoParticle.FACTORY, 0.02f, 10);
 						playSfx = true;
 					}

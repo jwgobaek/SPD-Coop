@@ -21,7 +21,12 @@ public final class SeatTickets {
         boolean nativeKey;
         UUID epoch;
         long pending;
-        SeatQuickslots quickslots;
+        SeatQuickslots quickslots, vaultQuickslots;
+        SeatQuickslots layout(boolean vault) { return vault ? vaultQuickslots : quickslots; }
+        void layout(boolean vault,SeatQuickslots layout) {
+            if (vault) vaultQuickslots=layout;
+            else quickslots=layout;
+        }
         Ticket(UUID session,int seat,long player,String host,int port,UUID epoch,SeatCredential key) {
             this.session=session; this.seat=seat; this.player=player; this.host=host;
             this.port=port; this.epoch=epoch; this.key=key;
@@ -60,12 +65,13 @@ public final class SeatTickets {
     void write(Ticket t) throws IOException {
         File temp=new File(directory,t.session+".tmp");
         try(FileOutputStream file=new FileOutputStream(temp); DataOutputStream out=new DataOutputStream(file)) {
-            out.writeInt(2); out.writeUTF(t.session.toString()); out.writeInt(t.seat); out.writeLong(t.player);
+            out.writeInt(t.vaultQuickslots==null ? 2 : 3); out.writeUTF(t.session.toString()); out.writeInt(t.seat); out.writeLong(t.player);
             out.writeUTF(t.host); out.writeInt(t.port); out.writeUTF(t.epoch.toString()); out.writeLong(t.pending);
             out.writeBoolean(t.nativeKey);
             if (!t.nativeKey) t.key.writePrivate(out);
             out.writeBoolean(t.quickslots!=null);
             if (t.quickslots!=null) t.quickslots.write(out);
+            if (t.vaultQuickslots!=null) t.vaultQuickslots.write(out);
             out.flush(); file.getFD().sync();
         }
         if (!temp.renameTo(new File(directory,t.session+".seat"))) throw new IOException("STORAGE");
@@ -76,7 +82,7 @@ public final class SeatTickets {
         if (file.length()>4096) throw new IOException("CREDENTIAL");
         try(DataInputStream in=new DataInputStream(new FileInputStream(file))) {
             int version=in.readInt();
-            if ((version!=1 && version!=2) || !id.toString().equals(in.readUTF())) throw new IOException("CREDENTIAL");
+            if ((version<1 || version>3) || !id.toString().equals(in.readUTF())) throw new IOException("CREDENTIAL");
             int seat=in.readInt(); long player=in.readLong();
             String host=in.readUTF(); int port=in.readInt(); UUID epoch=UUID.fromString(in.readUTF());
             long pending=in.readLong();
@@ -86,7 +92,8 @@ public final class SeatTickets {
             SeatCredential credential=nativeKey ? keys.load(id) : SeatCredential.readPrivate(in);
 
             Ticket ticket=new Ticket(id,seat,player,host,port,epoch,credential);
-            if (version==2 && in.readBoolean()) ticket.quickslots=SeatQuickslots.read(in);
+            if (version>=2 && in.readBoolean()) ticket.quickslots=SeatQuickslots.read(in);
+            if (version==3) ticket.vaultQuickslots=SeatQuickslots.read(in);
             if (in.read()!=-1) throw new IOException("CREDENTIAL");
             ticket.pending=pending; ticket.nativeKey=nativeKey;
             return ticket;

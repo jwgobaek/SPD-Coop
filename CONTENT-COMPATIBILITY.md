@@ -1,5 +1,7 @@
 # 협동 콘텐츠 지원표
 
+금고의 두 좌석 보관·탈출·거울·토큰 문과 악마의 전당 21~24층의 검증 범위, 연속 시드 차단 조합을 기록했다. [Imp 금고와 악마의 전당](docs/coop/imp-halls-results.md)
+
 ## 광산·도시 체크포인트
 
 현재 선언별 상태 집계는 IMPLEMENTED 14, UNSUPPORTED 1371, VERIFIED 195이다. 각 VERIFIED 행의 실제 범위는 TSV의 scope_or_evidence 열을 따른다. [실행 기록](docs/coop/mines-city-results.md)

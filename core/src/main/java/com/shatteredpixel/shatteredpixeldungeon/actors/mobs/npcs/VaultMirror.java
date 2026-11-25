@@ -98,6 +98,20 @@ public class VaultMirror extends NPC {
 		Random.popGenerator();
 	}
 
+    public boolean takeReward(Hero hero) {
+        if (reward==null || !Dungeon.level.mobs.contains(this)) return false;
+        if (Dungeon.coop!=null) Dungeon.coop.ownership.claim(reward,Dungeon.coop.playerOf(hero));
+        if (reward.doPickUp(hero)) {
+            if (Dungeon.coop==null) GLog.i(Messages.capitalize(Messages.get(hero,"you_now_have",reward.name())));
+        } else {
+            Heap dropped=Dungeon.level.drop(reward,hero.pos);
+            if (Dungeon.coop==null) dropped.sprite.drop();
+        }
+        Imp.Quest.mirrorUsed=true;
+        reward=null;
+        return true;
+    }
+
 	@Override
 	public boolean interact(Char c) {
 		if (c instanceof Hero) {
@@ -138,13 +152,7 @@ public class VaultMirror extends NPC {
 								super.onSelect(index);
 								if (index == 0) {
 									GameScene.show(new WndTitledMessage(sprite(), Messages.titleCase(name()), Messages.get(VaultMirror.class, "scene_take")));
-									if (reward.doPickUp((Hero) c)) {
-										GLog.i( Messages.capitalize(Messages.get(Dungeon.hero, "you_now_have", reward.name())) );
-									} else {
-										Dungeon.level.drop(reward, c.pos).sprite.drop();
-									}
-									Imp.Quest.mirrorUsed = true;
-									reward = null;
+									takeReward((Hero)c);
 								}
 							}
 						});

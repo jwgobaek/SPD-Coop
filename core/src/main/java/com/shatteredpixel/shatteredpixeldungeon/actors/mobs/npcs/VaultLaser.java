@@ -95,11 +95,11 @@ public class VaultLaser extends NPC {
 				Char ch = Actor.findChar(cell);
 				if (ch != null && ch.alignment == Alignment.ALLY){
 					ch.damage(Random.NormalIntRange(10, 20), new Eye.DeathGaze());
-					if (ch.sprite.visible){
+					if (Dungeon.coop==null && ch.sprite.visible){
 						ch.sprite.flash();
 						CellEmitter.center( pos ).burst( PurpleParticle.BURST, Random.IntRange( 1, 2 ) );
 					}
-					if (ch == Dungeon.hero){
+					if ((ch == Dungeon.hero || Dungeon.coop != null && Dungeon.coop.playerOf(ch)!=0)){
 						Sample.INSTANCE.play( Assets.Sounds.RAY );
 						SFXLastPlayed = ShatteredPixelDungeon.realTime;
 						if (Imp.Quest.hazardFreebies > 0){
@@ -107,7 +107,7 @@ public class VaultLaser extends NPC {
 						} else {
 							Statistics.questScores[3] -= 100;
 						}
-						if (!ch.isAlive()){
+						if (Dungeon.coop==null && !ch.isAlive()){
 							Badges.validateDeathFromEnemyMagic();
 							Dungeon.fail( this );
 							GLog.n( Messages.get(this, "ondeath") );
@@ -115,7 +115,7 @@ public class VaultLaser extends NPC {
 					}
 				}
 			}
-			if (visible){
+			if (visible && Dungeon.coop==null){
 				sprite.parent.add(new Beam.DeathRay(sprite.center(), DungeonTilemap.raisedTileCenterToWorld(beam.collisionPos)));
 				if (SFXLastPlayed+80 < ShatteredPixelDungeon.realTime) {
 					Sample.INSTANCE.play(Assets.Sounds.RAY, 0.5f);
@@ -123,7 +123,7 @@ public class VaultLaser extends NPC {
 				}
 			}
 
-			if (observe){
+			if (observe && Dungeon.coop==null){
 				Dungeon.observe();
 			}
 
@@ -152,7 +152,7 @@ public class VaultLaser extends NPC {
 					break;
 				}
 			}
-			if (visible){
+			if (visible && Dungeon.coop==null){
 				for (int cell : nextBeam.subPath(1, nextBeam.dist)) {
 					GameScene.targetedCell(cell, 1);
 					if (Actor.findChar(cell) == Dungeon.hero){

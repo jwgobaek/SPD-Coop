@@ -1,5 +1,7 @@
 # SPD-Coop 개발 기준
 
+현재 작업 경계는 Imp 금고 보관·복귀와 본편 24층까지다. 원본 일반 승리와 Ascension은 계속 별도 필수 완료 항목이다. [Imp 금고와 악마의 전당](docs/coop/imp-halls-results.md)
+
 ## 광산·도시 체크포인트
 
 봉쇄·세 단계 원본 전투 및 왕관까지 20층을 검증했다. 다음 구역은 21층 HallsLevel이다. Imp 금고 분기를 별도로 확장한다. [실행 기록](docs/coop/mines-city-results.md)

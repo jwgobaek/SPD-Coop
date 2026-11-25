@@ -31,7 +31,7 @@ public final class CoopController {
         public final long pending,lastAction,wireBytes;
         Frame(CoopController c) {
             delta=c.replica!=null && c.replica.appliedDelta();
-            quickslots=c.ticket==null ? null : c.ticket.quickslots;
+            quickslots=c.layout();
             page=c.page; wireBytes=c.client==null ? 0 : c.client.transferredBytes(); issue=c.issue; crash=c.crash; cue=c.cue; notice=c.notice; roster=c.roster; list=c.list; image=c.image; dungeon=c.dungeon;
             seat=c.ticket==null ? -1 : c.ticket.seat; session=c.ticket==null ? null : c.ticket.session;
             address=c.advertised; pending=c.ticket==null ? 0 : c.ticket.pending;
@@ -217,7 +217,7 @@ public final class CoopController {
         if(Integer.parseInt(f[1])!=ticket.seat || Long.parseLong(f[2])!=ticket.player) throw new IOException("AUTH");
         lastAction=Long.parseLong(f[4]); lastResult="";
         actions=new SeatActions(ticket.session,ticket.seat,ticket.player,lastAction);
-        if(!ticket.epoch.equals(epoch)) { lastResult="ROLLED_BACK"; ticket.pending=0; ticket.quickslots=SeatQuickslots.empty(); }
+        if(!ticket.epoch.equals(epoch)) { lastResult="ROLLED_BACK"; ticket.pending=0; ticket.quickslots=SeatQuickslots.empty(); ticket.vaultQuickslots=null; }
         ticket.epoch=epoch; tickets.write(ticket);
         replica=new DisplayReplica(ticket.session,ticket.seat);
         show(Page.SNAPSHOT); replica.refresh(client);
@@ -269,25 +269,36 @@ public final class CoopController {
             }
             dungeon=next.rows.containsKey("self") ? new PublicDungeon(next) : null;
             if (dungeon!=null && "IN_GAME".equals(next.rows.get("status"))) {
-                SeatQuickslots layout=ticket.quickslots==null ? SeatQuickslots.defaults(dungeon) : ticket.quickslots.reconnectItems(dungeon);
-                if (layout!=ticket.quickslots) saveLayout(layout);
+                SeatQuickslots current=layout();
+                SeatQuickslots nextLayout=current==null ? SeatQuickslots.defaults(dungeon) : current.reconnectItems(dungeon);
+                if (nextLayout!=current || !dungeon.inVault() && ticket.vaultQuickslots!=null) saveLayout(nextLayout);
             }
             image=next; publish();
         }
     }
+    private SeatQuickslots layout() {
+        return ticket==null ? null : ticket.layout(dungeon!=null && dungeon.inVault());
+    }
+
     private void saveLayout(SeatQuickslots layout) throws IOException {
-        SeatQuickslots old=ticket.quickslots;
-        ticket.quickslots=layout;
-        try { tickets.write(ticket); } catch (IOException failed) { ticket.quickslots=old; throw failed; }
+        boolean vault=dungeon.inVault();
+        SeatQuickslots previous=ticket.layout(vault),previousVault=ticket.vaultQuickslots;
+        ticket.layout(vault,layout);
+        if (!vault) ticket.vaultQuickslots=null;
+        try { tickets.write(ticket); } catch (IOException failed) {
+            ticket.layout(vault,previous);
+            ticket.vaultQuickslots=previousVault;
+            throw failed;
+        }
     }
 
     /** This job changes only the client's app-private seat ticket. */
     public boolean bindShortcut(StateImage shown,int index,PublicDungeon.Loot item) {
         if (shown==null || frame.image!=shown || index<0 || index>=SeatQuickslots.COUNT) return false;
         return enqueue(()->{
-            if (page!=Page.GAME || image!=shown || dungeon==null || ticket.quickslots==null) return;
+            if (page!=Page.GAME || image!=shown || dungeon==null || layout()==null) return;
             if (item!=null && (!dungeon.belongings.contains(item) || item.reference.isEmpty() || PublicDungeon.shortcutAction(item).isEmpty())) return;
-            try { saveLayout(ticket.quickslots.bind(index,item)); }
+            try { saveLayout(layout().bind(index,item)); }
             catch (IOException failed) { issue=notice="STORAGE"; }
         });
     }

@@ -129,7 +129,7 @@ public class Eye extends Mob {
 		if (beamCooldown > 0 || (!beamCharged && !beam.subPath(1, beam.dist).contains(enemy.pos))) {
 			return super.doAttack(enemy);
 		} else if (!beamCharged){
-			((EyeSprite)sprite).charge( enemy.pos );
+			if (Dungeon.coop == null) ((EyeSprite)sprite).charge( enemy.pos );
 			spend( attackDelay()*2f );
 			beamCharged = true;
 			return true;
@@ -137,6 +137,10 @@ public class Eye extends Mob {
 
 			spend( attackDelay() );
 			
+			if (Dungeon.coop != null) {
+				deathGaze();
+				return true;
+			}
 			if (Dungeon.level.heroFOV[pos] || Dungeon.level.heroFOV[beam.collisionPos] ) {
 				sprite.zap( beam.collisionPos );
 				return false;
@@ -195,12 +199,12 @@ public class Eye extends Mob {
 
 				ch.damage( dmg, new DeathGaze() );
 
-				if (Dungeon.level.heroFOV[pos]) {
+				if (Dungeon.coop == null && Dungeon.level.heroFOV[pos]) {
 					ch.sprite.flash();
 					CellEmitter.center( pos ).burst( PurpleParticle.BURST, Random.IntRange( 1, 2 ) );
 				}
 
-				if (!ch.isAlive() && ch == Dungeon.hero) {
+				if (Dungeon.coop == null && !ch.isAlive() && ch == Dungeon.hero) {
 					Badges.validateDeathFromEnemyMagic();
 					Dungeon.fail( this );
 					GLog.n( Messages.get(this, "deathgaze_kill") );
@@ -210,7 +214,7 @@ public class Eye extends Mob {
 			}
 		}
 
-		if (terrainAffected) {
+		if (terrainAffected && Dungeon.coop == null) {
 			Dungeon.observe();
 		}
 

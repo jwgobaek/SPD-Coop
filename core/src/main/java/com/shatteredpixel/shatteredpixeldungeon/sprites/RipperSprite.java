@@ -65,6 +65,11 @@ public class RipperSprite extends MobSprite {
 		play( idle );
 	}
 
+	public void displayPreparation(boolean prepared) {
+		if (prepared && curAnim!=prep) play(prep);
+		else if (!prepared && curAnim==prep) play(idle);
+	}
+
 	public void leapPrep( int cell ){
 		turnTo( ch.pos, cell );
 		play( prep );

@@ -89,7 +89,7 @@ final class SeatProjection {
         boolean changed=current!=null && !floorId.equals(current.rows.get("floor"));
         if(changed) resetHandles(nextItem);
         rows.put("floor",floorId);
-        if(Dungeon.branch==1) rows.put("mine",Integer.toString(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.Quest.Type()));
+        if(Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.MiningLevel) rows.put("mine",Integer.toString(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.Quest.Type()));
         rows.put("status",playing || defeated ? status : "PAUSED");
         if (epoch!=null) rows.put("epoch",epoch.toString());
         rows.put("life",game.life(seat).name());
@@ -128,7 +128,8 @@ final class SeatProjection {
             int stair=game.stairs.stair();
             if(stair>=0) {
                 rows.put("stair",stair+","+(game.stairs.agreed()?1:0));
-                if (level.getTransition(stair).destBranch!=Dungeon.branch) rows.put("branchgate","1");
+                if (level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel) rows.put("vaultscore",Integer.toString(game.stairs.vaultScore()));
+                else if (level.getTransition(stair).destBranch!=Dungeon.branch) rows.put("branchgate","1");
             }
             for (BitSet area : CombatZones.calculate(game, sight)) {
                 for (int cell = area.nextSetBit(0); cell >= 0; cell = area.nextSetBit(cell+1)) {
@@ -224,6 +225,15 @@ final class SeatProjection {
                     if (Dungeon.branch == 1 && mob.spriteClass != null)
                         rows.put("minesprite"+mob.id(), mob.spriteClass.getSimpleName());
                     rows.put("m"+mob.id(),mob.pos+","+mob.getClass().getSimpleName()+","+mob.HP+","+mob.HT);
+                    if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Eye && ((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Eye)mob).beamCharged)
+                        rows.put("charge"+mob.pos,"1");
+                    if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RipperDemon) {
+                        int destination=((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RipperDemon)mob).preparedLanding();
+                        if (destination>=0) {
+                            rows.put("charge"+mob.pos,"1");
+                            if (level.insideMap(destination) && sight.visible(destination)) rows.put("aim"+destination,"1");
+                        }
+                    }
                     if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo && ((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo)mob).chargeStage()>0)
                         rows.put("charge"+mob.pos,Integer.toString(((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo)mob).chargeStage()));
                     if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Necromancer
@@ -234,6 +244,14 @@ final class SeatProjection {
                     if ((mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Pylon && mob.alignment==com.shatteredpixel.shatteredpixeldungeon.actors.Char.Alignment.ENEMY)
                             || (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300 && ((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300)mob).supercharged))
                         rows.put("charge"+mob.pos,"1");
+                    if (level.adjacent(hero.pos,mob.pos)) {
+                        if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultMirror)
+                            rows.put("vaultnpc"+mob.pos,((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultMirror)mob).reward==null ? "scene_nothing" : "take");
+                        if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultTokenDoor) {
+                            Item tokens=hero.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.quest.DwarfToken.class);
+                            rows.put("vaultnpc"+mob.pos,tokens==null ? "no_tokens" : tokens.quantity()<10 ? "too_few_tokens" : "open");
+                        }
+                    }
                     if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp && level.adjacent(hero.pos,mob.pos)
                             && !com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp.Quest.isOld())
                         rows.put("imp"+mob.pos,com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp.Quest.given() ? "quest_in_progress" : "quest_intro_1");
@@ -282,6 +300,7 @@ final class SeatProjection {
                 selection++;
                 putItem(rows,visibleItems,item,slot(hero.belongings,item));
                 if (game.ownership.owner(item)==game.player(seat)) {
+                    if (rows.containsKey("vaultscore") && com.shatteredpixel.shatteredpixeldungeon.items.quest.EscapeCrystal.rewardAllowed(item,Integer.parseInt(rows.get("vaultscore")))) rows.put("vaultpick"+ids.get(item),"1");
                     if (shop!=null && com.shatteredpixel.shatteredpixeldungeon.CoopTrade.maySell(hero,item))
                         rows.put("sell"+ids.get(item),item.value()+","+(com.shatteredpixel.shatteredpixeldungeon.CoopTrade.sellOne(item) ? 1 : 0));
                     if (CoopSession.basicMissile(item) && item.isIdentified()) {

@@ -263,6 +263,11 @@ public class VaultFinalRoom extends SpecialRoom {
 	private int warnState = 0;
 	private boolean lockTriggered = false;
 
+	public boolean startsBossAt(int cell) {
+		Point location = Dungeon.level.cellToPoint(cell);
+		return !lockTriggered && Math.max(Math.abs(location.x - lockedDoor.x), Math.abs(location.y - lockedDoor.y)) <= 3;
+	}
+
 	public void processHeroStep(Hero hero){
 		if (!lockTriggered){
 			Point heroPos = Dungeon.level.cellToPoint(hero.pos);
@@ -303,6 +308,9 @@ public class VaultFinalRoom extends SpecialRoom {
 				GameScene.updateMap(Dungeon.level.pointToCell(entryDoor));
 				GameScene.updateMap(Dungeon.level.pointToCell(lockedDoor)); //to update custom visual
 				lockTriggered = true;
+			} else if (Dungeon.coop != null) {
+				// Single-player warnings use a modal window. Host actions never wait on a renderer.
+				return;
 			} else if (distance == 4 && warnState < 2) {
 				GLog.n(Messages.get(VaultFinalRoom.class, "final_warning"));
 				Sample.INSTANCE.play(Assets.Sounds.CHARGEUP);

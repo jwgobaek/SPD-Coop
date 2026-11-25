@@ -63,6 +63,20 @@ public class CoopScene extends PixelScene {
                 WndSeatTrade.stock(this,view,cell,controller);
             } else if (view.source.rows.containsKey("merchant") && Integer.toString(cell).equals(view.source.rows.get("merchant"))) {
                 WndSeatTrade.merchant(this,view,cell,controller);
+            } else if ("VaultTokenDoor".equals(view.monsters.get(cell)) || "VaultMirror".equals(view.monsters.get(cell))) {
+                String option=view.source.rows.get("vaultnpc"+cell);
+                if (option==null) return;
+                boolean mirror="VaultMirror".equals(view.monsters.get(cell));
+                Class<?> npc=mirror ? com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultMirror.class
+                        : com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultTokenDoor.class;
+                if (view.offered && (option.equals("take") || option.equals("open"))) {
+                    add(new WndOptions(Messages.titleCase(Messages.get(npc,"name")),Messages.get(npc,mirror?"approach":"enough_tokens"),
+                            Messages.get(npc,option),msg("cancel")) {
+                        @Override protected void onSelect(int index) {
+                            if (index==0) controller.act(view.source,"VAULT_INTERACT",cell,0);
+                        }
+                    });
+                } else alert(Messages.get(npc,option));
             } else if ("Imp".equals(view.monsters.get(cell))) {
                 Class<?> imp=com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp.class;
                 String offer=view.source.rows.get("imp"+cell);
@@ -97,6 +111,21 @@ public class CoopScene extends PixelScene {
     void offerStairs(PublicDungeon view,int cell) {
         if(view.stair!=cell) alert(msg("stairconditions"));
         else if(view.offered && !view.consent) alert(msg("awaitvote"));
+        else if (view.source.rows.containsKey("vaultscore") && (view.offered || !view.consent)) {
+            int score=Integer.parseInt(view.source.rows.get("vaultscore"));
+            Class<?> crystal=com.shatteredpixel.shatteredpixeldungeon.items.quest.EscapeCrystal.class;
+            add(new WndOptions(Messages.get(crystal,"name"),Messages.get(crystal,score<500?"leaving_early":score<=1000?"leaving_partly_explored":score<=2000?"leaving_fully_explored":score<4000?"leaving_partial_victory":"leaving_victory"),msg("accept"),msg("cancel")) {
+                @Override protected void onSelect(int index) {
+                    if (index!=0) return;
+                    if (view.offered && score>=500) {
+                        CoopScene.this.add(com.shatteredpixel.shatteredpixeldungeon.windows.WndSeatInventory.select(view,controller,new com.shatteredpixel.shatteredpixeldungeon.windows.WndSeatInventory.Selection() {
+                            public boolean accepts(PublicDungeon.Loot item) { return view.source.rows.containsKey("vaultpick"+item.id); }
+                            public void select(PublicDungeon.Loot item) { controller.act(view.source,"VAULT_REWARD",cell,item.id); }
+                        }));
+                    } else controller.act(view.source,view.offered?"TRAVEL":"CONSENT",cell,0);
+                }
+            });
+        }
         else if (view.branch==1 && (view.offered || !view.consent)) {
             add(new WndOptions(msg("mine_exit"),msg("mine_final_exit"),msg("accept"),msg("cancel")) {
                 @Override protected void onSelect(int index) {

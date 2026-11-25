@@ -36,6 +36,13 @@ public class HostRestartTest {
         }
     }
 
+    @Test(timeout=150000) public void vaultEscrowAndHallsStairsSurvivePostHeadHostExit() throws Exception {
+        for (String boundary:new String[]{"enter","return","hall21","hall22"}) {
+            String name="vault-"+boundary;
+            run(temp.newFolder().toPath(),new String[]{"tengu-setup-"+name,"tengu-commit-"+name,"tengu-read-"+name});
+        }
+    }
+
     @Test(timeout=240000) public void caveBossBoundariesSurviveLostAcknowledgements() throws Exception {
         for(String name:new String[]{"visit","enter","charge","pylon","devices","down","revive","kill","reward","return","revisit"}) {
             Path dir=temp.newFolder().toPath();

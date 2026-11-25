@@ -463,6 +463,8 @@ public final class RestartClient {
             boolean interior=boundary.startsWith("interior-");
             boolean dm=boundary.startsWith("dm-");
             boolean mine=boundary.startsWith("mine-");
+            boolean vault=boundary.startsWith("vault-");
+            if (vault) travel=true;
             boolean king=boundary.startsWith("king-");
             if (king) { verb=RestartHost.read(path,"king-action");travel=verb.equals("TRAVEL"); }
             boolean city=boundary.startsWith("city-");
@@ -491,7 +493,8 @@ public final class RestartClient {
             for (int i=0;i<40;i++) {
                 int seat=active();
                 PublicDungeon view=new PublicDungeon(state(seat));
-                if (king) assertEquals(boundary.endsWith("visit") ? 19 : 20,view.depth);
+                if (vault) assertEquals(boundary.endsWith("return") ? 1 : 0,view.branch);
+                else if (king) assertEquals(boundary.endsWith("visit") ? 19 : 20,view.depth);
                 else if (city) assertEquals(travel ? Integer.parseInt(boundary.substring(5))-1 : 18,view.depth);
                 else if (mine) assertEquals(boundary.endsWith("enter") || boundary.endsWith("claim") || boundary.endsWith("order") || boundary.endsWith("upgrade") || boundary.endsWith("reforge") ? 0 : 1,view.branch);
                 else if (dm) assertEquals(boundary.equals("dm-visit") || boundary.equals("dm-revisit") ? 14 : 15,view.depth);

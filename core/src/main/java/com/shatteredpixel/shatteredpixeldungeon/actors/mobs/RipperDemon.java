@@ -124,7 +124,7 @@ public class RipperDemon extends Mob {
 		if (!(lastState == WANDERING && state == HUNTING)) {
 			if (enemy != null) {
 				lastEnemyPos = enemy.pos;
-			} else {
+			} else if (Dungeon.coop == null) {
 				lastEnemyPos = Dungeon.hero.pos;
 			}
 		}
@@ -133,6 +133,7 @@ public class RipperDemon extends Mob {
 	}
 
 	private int leapPos = -1;
+	public int preparedLanding() { return leapPos; }
 	private float leapCooldown = 0;
 
 	public class Hunting extends Mob.Hunting {
@@ -186,8 +187,9 @@ public class RipperDemon extends Mob {
 				}
 
 				//do leap
-				sprite.visible = Dungeon.level.heroFOV[pos] || Dungeon.level.heroFOV[leapPos] || Dungeon.level.heroFOV[endPos];
-				sprite.jump(pos, leapPos, new Callback() {
+				if (Dungeon.coop != null && !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(endPos))
+					throw new IllegalStateException("Unsupported Ripper landing");
+				Callback landing = new Callback() {
 					@Override
 					public void call() {
 
@@ -195,14 +197,14 @@ public class RipperDemon extends Mob {
 							if (hit(RipperDemon.this, leapVictim, Char.INFINITE_ACCURACY, false)) {
 								Buff.affect(leapVictim, Bleeding.class).set(0.75f * damageRoll());
 								leapVictim.sprite.flash();
-								Sample.INSTANCE.play(Assets.Sounds.HIT);
+								if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.HIT);
 							} else {
 								leapVictim.sprite.showStatus( CharSprite.NEUTRAL, leapVictim.defenseVerb() );
-								Sample.INSTANCE.play(Assets.Sounds.MISS);
+								if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.MISS);
 							}
 						}
 
-						if (endPos != leapPos){
+						if (Dungeon.coop == null && endPos != leapPos){
 							Actor.add(new Pushing(RipperDemon.this, leapPos, endPos));
 						}
 
@@ -210,9 +212,15 @@ public class RipperDemon extends Mob {
 						leapPos = -1;
 						sprite.idle();
 						Dungeon.level.occupyCell(RipperDemon.this);
-						next();
+						if (Dungeon.coop == null) next();
 					}
-				});
+				};
+				if (Dungeon.coop != null) {
+					landing.call();
+					return true;
+				}
+				sprite.visible = Dungeon.level.heroFOV[pos] || Dungeon.level.heroFOV[leapPos] || Dungeon.level.heroFOV[endPos];
+				sprite.jump(pos, leapPos, landing);
 				return false;
 			}
 
@@ -237,7 +245,7 @@ public class RipperDemon extends Mob {
 						&& Dungeon.level.distance(pos, enemy.pos) >= 3) {
 
 					int targetPos = enemy.pos;
-					if (lastEnemyPos != enemy.pos){
+					if (lastEnemyPos >= 0 && lastEnemyPos != enemy.pos){
 						int closestIdx = 0;
 						for (int i = 1; i < PathFinder.CIRCLE8.length; i++){
 							if (Dungeon.level.trueDistance(lastEnemyPos, enemy.pos+PathFinder.CIRCLE8[i])
@@ -260,7 +268,7 @@ public class RipperDemon extends Mob {
 						//don't want to overly punish players with slow move or attack speed
 						float delay = GameMath.gate(attackDelay(), (int)Math.ceil(enemy.cooldown()), 3*attackDelay());
 						spend(delay);
-						if (Dungeon.level.heroFOV[pos] || Dungeon.level.heroFOV[leapPos]){
+						if (Dungeon.coop == null && (Dungeon.level.heroFOV[pos] || Dungeon.level.heroFOV[leapPos])){
 							GLog.w(Messages.get(RipperDemon.this, "leap"));
 							GameScene.targetedCell(leapPos, delay);
 							((RipperSprite)sprite).leapPrep( leapPos );
