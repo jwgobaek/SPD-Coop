@@ -13,6 +13,7 @@ PREFIXES = ("items/", "actors/mobs/", "actors/buffs/", "actors/blobs/", "actors/
             "actors/hero/spells/", "levels/", "plants/", "mechanics/")
 ENUMS = {"HeroClass", "HeroSubClass", "Talent"}
 VERIFIED = {
+    "items/wands/WandOfFireblast": "native cone, all three charge bands, burning, Cripple and Paralysis, cold restore and lost reply on each seat / CoopMageTest, HostRestartTest",
     "items/wands/WandOfBlastWave": "identified uncursed handheld, both owners, native hit and displacement, lost reply and reauthentication / HostRestartTest",
     "actors/mobs/Necromancer": "native summon, occupied arrival, heal, Adrenaline and re-summon, both seats, disk crash and replay / NecromancerTest, HostRestartTest",
     "actors/mobs/Necromancer.NecroSkeleton": "native minion ID, parent death, freeze at floor 8 and restore / NecromancerTest, LatePrisonTest",

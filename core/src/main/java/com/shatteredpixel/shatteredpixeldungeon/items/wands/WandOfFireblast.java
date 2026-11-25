@@ -53,7 +53,7 @@ import com.watabou.utils.Random;
 
 import java.util.ArrayList;
 
-public class WandOfFireblast extends DamageWand {
+public class WandOfFireblast extends TargetedDamageWand {
 
 	{
 		image = ItemSpriteSheet.WAND_FIREBOLT;
@@ -82,7 +82,8 @@ public class WandOfFireblast extends DamageWand {
 	ConeAOE cone;
 
 	@Override
-	public void onZap(Ballistica bolt) {
+	protected void onZap(Hero caster, Ballistica bolt) {
+		if (Dungeon.coop != null) cone = spread(bolt);
 
 		ArrayList<Char> affectedChars = new ArrayList<>();
 		ArrayList<Integer> adjacentCells = new ArrayList<>();
@@ -135,8 +136,8 @@ public class WandOfFireblast extends DamageWand {
 		}
 
 		for ( Char ch : affectedChars ){
-			wandProc(ch, chargesPerCast());
-			ch.damage(damageRoll(), this);
+			wandProc(caster, ch, buffedLvl(), chargesPerCast());
+			ch.damage(damageRoll(caster, buffedLvl()), this);
 			if (ch.isActive()) {
 				Buff.affect(ch, Burning.class).reignite(ch);
 				switch (chargesPerCast()) {
@@ -211,17 +212,22 @@ public class WandOfFireblast extends DamageWand {
 		}
 	}
 
+	private ConeAOE spread(Ballistica bolt) {
+		// 5/7/9 distance
+		int maxDist = 3 + 2*chargesPerCast();
+
+		return new ConeAOE( bolt,
+				maxDist,
+				30 + 20*chargesPerCast(),
+				Ballistica.STOP_TARGET | Ballistica.STOP_SOLID | Ballistica.IGNORE_SOFT_SOLID);
+
+	}
+
 	@Override
 	public void fx(Ballistica bolt, Callback callback) {
 		//need to perform flame spread logic here so we can determine what cells to put flames in.
 
-		// 5/7/9 distance
-		int maxDist = 3 + 2*chargesPerCast();
-
-		cone = new ConeAOE( bolt,
-				maxDist,
-				30 + 20*chargesPerCast(),
-				Ballistica.STOP_TARGET | Ballistica.STOP_SOLID | Ballistica.IGNORE_SOFT_SOLID);
+		cone = spread(bolt);
 
 		//cast to cells at the tip, rather than all cells, better performance.
 		Ballistica longestRay = null;

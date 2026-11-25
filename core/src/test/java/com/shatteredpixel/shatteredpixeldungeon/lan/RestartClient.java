@@ -323,7 +323,7 @@ public final class RestartClient {
                 PublicDungeon.Loot wand=view.belongings.stream().filter(i->i.id==staff).findFirst().get();
                 SeatQuickslots layout=SeatQuickslots.empty().bind(3,wand);
                 try (DataOutputStream out=new DataOutputStream(Files.newOutputStream(path.resolve("user-layout")))) { layout.write(out); }
-                if (mode.startsWith("cast-hand-blast")) {
+                if (mode.startsWith("cast-hand-blast") || mode.startsWith("cast-hand-fire")) {
                     SeatActions.Pending pending = actions[seat].prepare(state(seat),"ZAP",cell,staff);
                     RestartHost.write(path,"blast-record",pending.id+" "+charge+" "+pending.command);
                     RestartHost.write(path,"kill-before-reply","1");
@@ -693,13 +693,14 @@ public final class RestartClient {
             afterStairs(mode);
             return;
         }
-        if (mode.startsWith("readcast-hand-blast")) {
+        if (mode.startsWith("readcast-hand-blast") || mode.startsWith("readcast-hand-fire")) {
             int seat=mode.charAt(mode.length()-1)-'0';
             String[] saved=RestartHost.read(path,"blast-record").split(" ",3);
             PublicDungeon view=new PublicDungeon(state(seat));
             int cell=view.monsters.entrySet().stream().filter(e -> e.getValue().equals("Rat")).findFirst().get().getKey();
             assertTrue(monsterHP(seat,cell)<200);
-            assertNotEquals(view.pos+3,cell);
+            if (mode.startsWith("readcast-hand-blast")) assertNotEquals(view.pos+3,cell);
+            else assertEquals(view.pos+3,cell);
             long version=state(seat).version;
             assertEquals(Integer.parseInt(saved[1])-1,charges(seat));
             String receipt=clients[seat].request("LOOKUP "+epoch+" "+saved[0]);

@@ -94,6 +94,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
@@ -528,7 +529,7 @@ public final class CoopSession implements AutoCloseable {
     }
 
     public static boolean supportedHandheldWand(Item item) {
-        return item != null && (item.getClass() == WandOfMagicMissile.class || item.getClass() == WandOfBlastWave.class)
+        return item != null && (item.getClass() == WandOfMagicMissile.class || item.getClass() == WandOfBlastWave.class || item.getClass() == WandOfFireblast.class)
                 && item.isIdentified() && !item.cursed;
     }
 
@@ -666,12 +667,14 @@ public final class CoopSession implements AutoCloseable {
                             && (targetHeap.type==Heap.Type.CHEST || targetHeap.type==Heap.Type.CRYSTAL_CHEST || targetHeap.type==Heap.Type.LOCKED_CHEST)
                             && level.traps.get(cell)==null && level.plants.get(cell)==null && !level.pit[cell];
                     if (wand==null || level.distance(hero.pos,cell)>hero.viewDistance) return false;
-                    boolean groundTarget = wand instanceof WandOfBlastWave && victim == null && !level.solid[cell];
+                    boolean groundTarget = (wand instanceof WandOfBlastWave || wand instanceof WandOfFireblast) && victim == null && !level.solid[cell];
                     if (!groundTarget && !chestTarget && (!(victim instanceof Mob) || !basicMob(victim) || !victim.isAlive()
                             || (!disguised(victim) && victim.alignment!=Char.Alignment.ENEMY)
                             || victim.invisible>0 || hero.isCharmedBy(victim))) return false;
                     Ballistica bolt=new Ballistica(hero.pos,cell,wand.collisionProperties(cell));
-                    if (bolt.collisionPos!=cell || !wand.cast(hero,bolt)) return false;
+                    // Fireblast aims its cone along a WONT_STOP ray. Its own spread checks each obstruction.
+                    if (!(wand instanceof WandOfFireblast) && bolt.collisionPos != cell) return false;
+                    if (!wand.cast(hero,bolt)) return false;
                     lastOpponent[activeSeat]=(Mob)victim;
                     attackTurn[activeSeat]=turn;
                     break;

@@ -426,7 +426,8 @@ public final class RestartHost {
                     com.shatteredpixel.shatteredpixeldungeon.CoopMageTest.encounter(Dungeon.coop,seat);
                     if (mode.startsWith("cast-hand")) {
                         com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand wand = mode.startsWith("cast-hand-blast")
-                                ? new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave() :
+                                ? new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave() : mode.startsWith("cast-hand-fire")
+                                ? new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast() :
                                 new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile();
                         wand.identify(false);
                         assertTrue(wand.collect(Dungeon.coop.hero(seat).belongings.backpack));

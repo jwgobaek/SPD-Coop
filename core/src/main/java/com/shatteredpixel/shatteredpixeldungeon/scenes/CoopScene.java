@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
@@ -77,8 +78,9 @@ public class CoopScene extends PixelScene {
         String actor=view.monsters.get(cell);
         boolean enemy=actor!=null && !"Wandmaker".equals(actor) && !"Shopkeeper".equals(actor) && !"Sheep".equals(actor) && !"Sentry".equals(actor) && !"Ghost".equals(actor) && !"RatKing".equals(actor);
         boolean missile=targetStaff.kind.equals("STONE") || targetStaff.kind.equals("KNIFE");
-        boolean blast = targetStaff.kind.equals("WAND") && targetStaff.sprite == com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.WAND_BLAST_WAVE;
-        if (targetView==view && (enemy || ((missile || blast) && actor==null && view.visible(cell)) || (!missile && !bow && view.chest(cell)))
+        boolean areaWand = targetStaff.kind.equals("WAND") && (targetStaff.sprite == ItemSpriteSheet.WAND_BLAST_WAVE
+                || targetStaff.sprite == ItemSpriteSheet.WAND_FIREBOLT);
+        if (targetView==view && (enemy || ((missile || areaWand) && actor==null && view.visible(cell)) || (!missile && !bow && view.chest(cell)))
                 && controller.act(view.source,missile?"THROW":bow?"SHOOT":"ZAP",cell,targetStaff.id)) cancelAim();
     }
     private void talkToWandmaker(PublicDungeon view, int cell, String offer) {

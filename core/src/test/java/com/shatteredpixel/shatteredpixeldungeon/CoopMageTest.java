@@ -42,6 +42,39 @@ public class CoopMageTest extends HeadlessDungeon {
         return rat;
     }
 
+    @Test public void fireblastUsesNativeConeChargeBandsAndSavesItsFlames() {
+        for (int seat=0;seat<2;seat++) for (int charges : new int[]{1,4,8}) {
+            Bundle saved;
+            int resident;
+            try (CoopSession game=CoopSession.open(575,11,HeroClass.WARRIOR)) {
+                game.join(22,HeroClass.HUNTRESS);
+                Rat target=encounter(game,seat);
+                resident=target.id();
+                offer(game,seat);
+                Hero caster=game.hero(seat);
+                com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast wand=new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast();
+                wand.upgrade(6);
+                wand.curCharges=charges;
+                wand.identify(false);
+                assertTrue(wand.collect(caster.belongings.backpack));
+                game.ownership.claim(wand,game.player(seat));
+                assertTrue(game.act(game.player(seat),game.turn(),CoopSession.Action.ZAP,target.pos,wand));
+                assertEquals(charges-(int)Math.ceil(charges*0.3),wand.curCharges);
+                assertTrue(target.HP < target.HT);
+                assertNotNull(target.buff(Burning.class));
+                if (charges==4) assertNotNull(target.buff(Cripple.class));
+                if (charges==8) assertNotNull(target.buff(Paralysis.class));
+                assertNull(game.hero(1-seat).buff(Burning.class));
+                saved=game.checkpoint();
+            }
+            try (CoopSession game=CoopSession.restore(saved)) {
+                assertNotNull(((Rat)Actor.findById(resident)).buff(Burning.class));
+                assertNotNull(Dungeon.level.blobs.get(com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire.class));
+                SewerSpecialActorTest.waitOne(game);
+            }
+        }
+    }
+
     @Test public void handheldMissileRequiresAnIdentifiedUncursedWandInTheCastersBag() {
         for (int seat=0; seat<2; seat++) {
             try (CoopSession game=CoopSession.open(575,11,HeroClass.WARRIOR)) {

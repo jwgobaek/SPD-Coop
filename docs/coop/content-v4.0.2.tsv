@@ -1053,7 +1053,7 @@ items/wands/WandOfBlastWave.BlastWave	items/wands	UNSUPPORTED		core/src/main/jav
 items/wands/WandOfCorrosion	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfCorrosion.java
 items/wands/WandOfCorruption	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfCorruption.java
 items/wands/WandOfDisintegration	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfDisintegration.java
-items/wands/WandOfFireblast	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfFireblast.java
+items/wands/WandOfFireblast	items/wands	VERIFIED	native cone, all three charge bands, burning, Cripple and Paralysis, cold restore and lost reply on each seat / CoopMageTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfFireblast.java
 items/wands/WandOfFrost	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfFrost.java
 items/wands/WandOfLightning	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLightning.java
 items/wands/WandOfLightning.LightningCharge	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLightning.java
