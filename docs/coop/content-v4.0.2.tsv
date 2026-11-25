@@ -454,10 +454,10 @@ actors/mobs/EbonyMimic	actors/mobs	UNSUPPORTED		core/src/main/java/com/shattered
 actors/mobs/Elemental	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
 actors/mobs/Elemental.AllyNewBornElemental	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
 actors/mobs/Elemental.ChaosElemental	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
-actors/mobs/Elemental.FireElemental	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
-actors/mobs/Elemental.FrostElemental	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
+actors/mobs/Elemental.FireElemental	actors/mobs	VERIFIED	Native ranged Burning on both seats, buff identity retained after restore / CityResidentProbe	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
+actors/mobs/Elemental.FrostElemental	actors/mobs	VERIFIED	Native ranged Chill on both seats, buff identity retained after restore / CityResidentProbe	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
 actors/mobs/Elemental.NewbornFireElemental	actors/mobs	VERIFIED	ritual summon, original combat and Embers drop / WandmakerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
-actors/mobs/Elemental.ShockElemental	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
+actors/mobs/Elemental.ShockElemental	actors/mobs	VERIFIED	Native ranged Blindness on both seats, buff identity retained after restore / CityResidentProbe	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
 actors/mobs/Eye	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Eye.java
 actors/mobs/Eye.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Eye.java
 actors/mobs/FetidRat	actors/mobs	VERIFIED	spawned quest, actual combat, credited completion / SewerGhostTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/FetidRat.java
@@ -467,7 +467,7 @@ actors/mobs/FungalSentry	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatter
 actors/mobs/FungalSentry.Waiting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/FungalSentry.java
 actors/mobs/FungalSpinner	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/FungalSpinner.java
 actors/mobs/Ghoul	actors/mobs	VERIFIED	Original paired spawn, dormant body ID, life link, revival after restore; CityEntranceTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Ghoul.java
-actors/mobs/Ghoul.GhoulLifeLink	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Ghoul.java
+actors/mobs/Ghoul.GhoulLifeLink	actors/mobs	VERIFIED	Downed original Ghoul object and actor ID through save, revival and final death / CityEntranceTest, CityKingTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Ghoul.java
 actors/mobs/Ghoul.Sleeping	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Ghoul.java
 actors/mobs/Ghoul.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Ghoul.java
 actors/mobs/Gnoll	actors/mobs	IMPLEMENTED	basicMob allowlist	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Gnoll.java
@@ -488,7 +488,7 @@ actors/mobs/GnollSapper.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/co
 actors/mobs/GnollTrickster	actors/mobs	VERIFIED	naturally offered depth 3 quest, native combat, defeat, restore and reward / SewerGhostTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollTrickster.java
 actors/mobs/GnollTrickster.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollTrickster.java
 actors/mobs/GoldenMimic	actors/mobs	VERIFIED	427/428 disguised locked chest, native ambush and prize, durable receipt / SewerMimicTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GoldenMimic.java
-actors/mobs/Golem	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Golem.java
+actors/mobs/Golem	actors/mobs	VERIFIED	Native enemy teleport, landing, 20-turn cooldown and restore on both seats / CityResidentProbe	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Golem.java
 actors/mobs/Golem.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Golem.java
 actors/mobs/Golem.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Golem.java
 actors/mobs/Goo	actors/mobs	VERIFIED	original charged selected-target attack, water heal, seal, defeat, original drops and durable lost response / SewerDepthTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Goo.java
@@ -509,8 +509,8 @@ actors/mobs/Mob.StealthGameplaySleeping	actors/mobs	UNSUPPORTED		core/src/main/j
 actors/mobs/Mob.StealthGameplayWandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob.java
 actors/mobs/Mob.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mob.java
 actors/mobs/MobSpawner	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/MobSpawner.java
-actors/mobs/Monk	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Monk.java
-actors/mobs/Monk.Focus	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Monk.java
+actors/mobs/Monk	actors/mobs	VERIFIED	Original hunting focus, evasion and parry against both seats / CityResidentProbe	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Monk.java
+actors/mobs/Monk.Focus	actors/mobs	VERIFIED	Acquired in hunting; native parry detaches focus and starts 6–7 turn cooldown / CityResidentProbe	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Monk.java
 actors/mobs/Necromancer	actors/mobs	VERIFIED	native summon, occupied arrival, heal, Adrenaline and re-summon, both seats, disk crash and replay / NecromancerTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Necromancer.java
 actors/mobs/Necromancer.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Necromancer.java
 actors/mobs/Necromancer.NecroSkeleton	actors/mobs	VERIFIED	native minion ID, parent death, freeze at floor 8 and restore / NecromancerTest, LatePrisonTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Necromancer.java

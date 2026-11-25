@@ -374,6 +374,23 @@ public final class RestartClient {
         }
         for(int i=0;i<2;i++) bind(i);
         barrier();
+        if (mode.equals("measure-mine-crossing")) {
+            int mover=active();
+            PublicDungeon origin=new PublicDungeon(state(mover));
+            long begin=System.nanoTime();
+            SeatActions.Pending crossing=consentAndCross();
+            assertTrue(crossing.submit(clients[mover]).endsWith(" APPLIED"));
+            refresh();
+            long micros=(System.nanoTime()-begin)/1000;
+            for (int seat=0;seat<2;seat++) {
+                PublicDungeon arrived=new PublicDungeon(state(seat));
+                assertEquals(origin.depth,arrived.depth);
+                assertEquals(1-origin.branch,arrived.branch);
+            }
+            assertNotEquals(pos(0),pos(1));
+            RestartHost.write(path,"crossing-micros",Long.toString(micros));
+            return;
+        }
         if (mode.equals("legacy-prison")) {
             for (int i=0;i<2;i++) {
                 PublicDungeon view=new PublicDungeon(state(i)); assertEquals(6,view.depth);
@@ -488,7 +505,7 @@ public final class RestartClient {
             assertEquals(receipt,clients[seat].request(prior[2]));
             refresh();
             assertEquals(version,state(seat).version);
-            if (mode.equals("tengu-read-devices") || mode.equals("tengu-read-city-19") || mode.equals("tengu-read-mine-crystal-ore") || mode.equals("tengu-read-dm-devices")) {
+            if (RestartHost.measureBoundary(mode) || mode.equals("tengu-read-dm-devices")) {
                 for (int i=0;i<21;i++) act("WAIT",0,0);
                 Collections.sort(latency);
                 System.out.println("tengu_tcp mode="+mode+" restored_arena_waits="+latency.size()+" median_us="+latency.get(10)+" p95_us="+latency.get(19));

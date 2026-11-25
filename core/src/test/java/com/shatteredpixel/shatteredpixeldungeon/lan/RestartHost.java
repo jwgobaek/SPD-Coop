@@ -25,6 +25,11 @@ import static org.junit.Assert.*;
 
 /** Fresh host process for every invocation. Control files are confined to a test-private directory. */
 public final class RestartHost {
+    static boolean measureBoundary(String mode) {
+        return mode.equals("tengu-read-devices") || mode.equals("tengu-read-city-19")
+                || mode.equals("tengu-read-mine-crystal-ore")
+                || Boolean.getBoolean("spd.measureKing") && mode.equals("tengu-read-king-shield");
+    }
     static boolean hazard(String mode) {
         return mode.equals("dart") || mode.equals("geyser") || mode.equals("poison-dart") || mode.equals("iron-door");
     }
@@ -490,7 +495,7 @@ public final class RestartHost {
                     room.save();
                     write(path,"return-ready","1");
                 }
-                if ((mode.equals("tengu-read-devices") || mode.equals("tengu-read-city-19") || mode.equals("tengu-read-mine-crystal-ore") || mode.equals("tengu-read-caves") || mode.equals("tengu-read-dm-devices"))
+                if ((RestartHost.measureBoundary(mode) || mode.equals("tengu-read-caves") || mode.equals("tengu-read-dm-devices"))
                         && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;
                     measureSaves(path,room,Dungeon.depth);
