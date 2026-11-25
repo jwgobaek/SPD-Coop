@@ -15,6 +15,12 @@ import static org.junit.Assert.*;
 
 public class MiningBranchTest extends HeadlessDungeon {
     public static void forScreen(CoopSession game,String shot) {
+        if (shot.equals("smith-services")) {
+            prepareBoundary(game,"gnoll-order");
+            SewerBeeTest.offer(game,0);
+            standBeside(game,SewerSpecialActorTest.actor(Blacksmith.class).pos);
+            return;
+        }
         if (shot.equals("city-market")) {
             CityEntranceTest.win(game);
             CoopFloorsTest.cross(game);
@@ -103,6 +109,7 @@ public class MiningBranchTest extends HeadlessDungeon {
         // Isolate service prices, independent of the number of ore veins mined on the route.
         Blacksmith.Quest.favor=3000;
         standBeside(game,SewerSpecialActorTest.actor(Blacksmith.class).pos);
+        if (name.endsWith("race")) atBranchGate(game,SewerSpecialActorTest.actor(Blacksmith.class).pos);
         if (name.endsWith("claim")) {
             assertTrue(CoopFloorsTest.step(game,CoopSession.Action.SMITH_ORDER,0,null));
             standBeside(game,SewerSpecialActorTest.actor(Blacksmith.class).pos);

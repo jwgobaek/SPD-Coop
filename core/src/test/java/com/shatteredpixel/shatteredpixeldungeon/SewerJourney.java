@@ -149,6 +149,21 @@ public class SewerJourney extends HeadlessDungeon {
         return best;
     }
 
+    private static void growth(CoopSession game,long seed,String stage) {
+        for (int seat=0;seat<2;seat++) {
+            Hero hero=game.hero(seat);
+            int total=hero.exp;
+            for(int level=1;level<hero.lvl;level++) total+=Hero.maxExp(level);
+            int food=0,potions=0;
+            for(Item item:hero.belongings) {
+                if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.food.Food) food+=item.quantity();
+                if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing) potions+=item.quantity();
+            }
+            System.out.println("GROWTH seed="+seed+" stage="+stage+" depth="+Dungeon.depth+" seat="+seat
+                    +" level="+hero.lvl+" cumulative_xp="+total+" hp="+hero.HP+" ht="+hero.HT
+                    +" food="+food+" healing="+potions+" gold="+Dungeon.gold);
+        }
+    }
     private void travel(long seed) throws java.io.IOException {
         counts.clear();
         int goalDepth=Integer.getInteger("journey.goalDepth",Boolean.getBoolean("journey.prison") ? 6 : 5);
@@ -183,7 +198,12 @@ public class SewerJourney extends HeadlessDungeon {
                     visits.merge(key,1,Integer::sum);
                 }
             }
+            int observedDepth=0;
             for(int n=start;n<2500;n++) {
+                if (Boolean.getBoolean("journey.growth") && Dungeon.depth!=observedDepth) {
+                    growth(g,seed,"entry");
+                    observedDepth=Dungeon.depth;
+                }
                 String save=System.getProperty("journey.checkpoint");
                 if (save!=null && n==checkpointStep) {
                     try (java.io.OutputStream out=java.nio.file.Files.newOutputStream(java.nio.file.Paths.get(save))) {
@@ -363,6 +383,7 @@ public class SewerJourney extends HeadlessDungeon {
                 GooBlob loot=g.hero(seat).belongings.getItem(GooBlob.class);
                 if(loot!=null) blobs+=loot.quantity();
             }
+            if (Boolean.getBoolean("journey.growth")) growth(g,seed,"end");
             System.out.println("JOURNEY claimedBlobs="+blobs+" bossHP="+bossHP+" hp="+g.hero(0).HP+"/"+g.hero(1).HP+" front="+front+" back="+back+" seed="+seed+" highest="+highest+" result="+result+" actions="+counts);
         }
     }

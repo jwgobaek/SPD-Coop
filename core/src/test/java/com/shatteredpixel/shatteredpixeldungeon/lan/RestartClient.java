@@ -374,6 +374,31 @@ public final class RestartClient {
         }
         for(int i=0;i<2;i++) bind(i);
         barrier();
+        if (mode.equals("smith-order-race")) {
+            int first=active(),second=1-first;
+            assertEquals("3000",state(first).rows.get("favor"));
+            SeatActions.Pending delayed=actions[first].prepare(state(first),"SMITH_ORDER",0,0);
+            offer(second);
+            SeatActions.Pending current=actions[second].prepare(state(second),"SMITH_ORDER",0,0);
+            java.util.concurrent.CountDownLatch start=new java.util.concurrent.CountDownLatch(1);
+            java.util.concurrent.ExecutorService workers=java.util.concurrent.Executors.newFixedThreadPool(2);
+            try {
+                java.util.concurrent.Future<String> old=workers.submit(()->{start.await();return delayed.submit(clients[first]);});
+                java.util.concurrent.Future<String> fresh=workers.submit(()->{start.await();return current.submit(clients[second]);});
+                start.countDown();
+                assertFalse(old.get(5,java.util.concurrent.TimeUnit.SECONDS).endsWith(" APPLIED"));
+                String receipt=fresh.get(5,java.util.concurrent.TimeUnit.SECONDS);
+                assertTrue(receipt,receipt.endsWith(" APPLIED"));
+                assertEquals(receipt,current.submit(clients[second]));
+                refresh();
+                for (int seat=0;seat<2;seat++) {
+                    assertEquals("1000",state(seat).rows.get("favor"));
+                    assertNotNull(state(seat).rows.get("smithoffer0"));
+                }
+                System.out.println("PASS concurrent authenticated orders charged exactly 2000 favor and returned one durable offer");
+            } finally {workers.shutdownNow();}
+            return;
+        }
         if (mode.equals("measure-mine-crossing")) {
             int mover=active();
             PublicDungeon origin=new PublicDungeon(state(mover));

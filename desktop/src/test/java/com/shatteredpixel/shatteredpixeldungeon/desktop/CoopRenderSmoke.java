@@ -31,7 +31,7 @@ public final class CoopRenderSmoke {
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("mine-crystal|mine-gnoll|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -674,6 +674,26 @@ public final class CoopRenderSmoke {
             await(()->frame().dungeon!=null); await(()->button("bag")!=null);
             if (!regionShot.isEmpty()) {
                 RenderEncounter.tengu(hostController(),regionShot);
+                if (regionShot.equals("smith-services")) {
+                    await(()->frame().dungeon.offered && frame().image.rows.containsKey("priceorder"));
+                    PublicDungeon smithView=frame().dungeon;
+                    int smith=smithView.monsters.entrySet().stream().filter(e->e.getValue().equals("Blacksmith")).findFirst().get().getKey();
+                    String order="#"+CoopScene.msg("service_order",smithView.source.rows.get("priceorder"));
+                    press(mapPoint(smithView,smith));
+                    await(()->button(order)!=null);
+                    shot("smith-services");
+                    click(order);
+                    await(()->frame().image.rows.containsKey("smithoffer0"));
+                    PublicDungeon offers=frame().dungeon;
+                    press(mapPoint(offers,smith));
+                    String first="#"+Messages.get(offers.source.rows.get("smithoffer0")+".name");
+                    await(()->button(first)!=null);
+                    shot("smith-equipment");
+                    if (!offers.offered) { click("cancel"); waitAndRegainTurn();press(mapPoint(frame().dungeon,smith)); }
+                    click(first);
+                    await(()->!frame().image.rows.containsKey("smithoffer0"));
+                    return;
+                }
                 await(()->frame().dungeon!=null && (regionShot.startsWith("king-") ? frame().dungeon.depth==20 : regionShot.equals("city-market") ? frame().dungeon.depth==16
                         : frame().dungeon.branch==1));
                 shot(regionShot);
