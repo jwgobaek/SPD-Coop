@@ -1,5 +1,9 @@
 # SPD-Coop 개발 기준
 
+## Android 검증 운영
+
+플랫폼·저장·네트워크·그래픽·새 구역의 주요 변경에 Android 회귀를 배정한다. [GB2 시험 절차](ANDROID-REMOTE-TESTING.md)
+
 ## 지금 플레이할 수 있는 범위
 
 협동 진입은 branch 0의 1~9층이다. 10층은 원본 보스방 부분 시험 중이다. 감옥 완주·가면·11층 진입은 검증 전이다. [단계별 결과](docs/coop/prison-nine-results.md)

@@ -1,5 +1,9 @@
 # Cloud에서 빌드하기
 
+## Android 설치와 업데이트
+
+빌드와 서명 검사는 Cloud에서 수행한다. 설치 파일은 MuMu 내부의 승인된 비공개 링크를 이용한다. [GB2 시험 절차](ANDROID-REMOTE-TESTING.md)
+
 ## 감옥 9층 개발판
 
 APK 빌드 커밋은 41c3efd다. 전체 JUnit과 Android APK는 `scripts/verify-android-build.sh <새 디렉터리>`로 검사한다. 검증 커밋의 `python3 scripts/verify-prison-nine-surveys.py <APK 소스 작업 트리>`는 연속 시드와 네 보스방 번들을 확인한다. `python3 scripts/verify-summon-latency.py <APK 소스 작업 트리>`는 독립 클라이언트의 실제 소환 확정 지연을 측정한다. Java 및 Android 도구 경로는 아래 Cloud 빌드 설정을 따른다. [빌드와 결과](docs/coop/prison-nine-results.md)

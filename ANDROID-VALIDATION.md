@@ -1,5 +1,23 @@
 # Android validation backlog
 
+## 기준 배포본의 Android 15 실측 · 2026-11-25
+
+빌드 41c3efd, versionCode 922. 비공개 Drive 배포본과 두 설치본의 SHA-256은 모두 f1f51ce7ec2fce8e7b6b4b10b4b63bbae68efdac862f7ad2143c3e7733564de9였다. GB2에서 서로 다른 두 MuMu 인스턴스와 Windows 루프백 ADB 중계를 사용했다.
+
+|기준 빌드 시험|결과|
+|---|---|
+|설치·실행, 한국어 타이틀, 직접 연결 주소 입력·취소|PASS|
+|방 생성·참가, 직업·준비, 전사와 마법사의 1층 진입|PASS|
+|방장 이동 동기화, 참가자 대기 후 방장 행동권|PASS|
+|참가자 강제 종료·재실행·기존 좌석 재인증|PASS|
+|저장·방 닫기, 목록에서 이어하기, 양쪽 행동권|PASS|
+|일반 무선 LAN 검색, 별도 휴대폰 간 연결, 핫스팟·오프라인 Wi-Fi|NOT RUN|
+|장시간 다층 진행, Android 보스전, 저장 손상 복구·버전 간 업데이트·마이그레이션, 전체 회전·핀치, 실폰 발열|NOT RUN|
+
+최종적으로 양쪽 세션이 일치했고 seat 0·1 모두 GAME/INGAME, Turn 4, State Version 9, pending 0, Save PERSISTENT였다. 의도적인 종료 직후 참가자의 CONNECTIONLOST를 기록했다. 확인한 구간에서 앱 크래시·ANR은 관찰되지 않았다. 아래의 Cloud 빌드 당시 기록을 이후 Android 실측과 구분한다. [실측 보고서](https://drive.google.com/file/d/1yqLTA1Ze6u-weS6ngku1NNgju9z3pfWV/view) · [원자료](https://drive.google.com/drive/folders/1ZbDjsdcsGTFm2BKydRhuUSND_oN4jEn7) · [로그 발췌](https://drive.google.com/file/d/1TGyK3UGWDhqcDB6qpSIdjJIbIlb6Xjn2/view)
+
+신규 빌드마다 영향 범위와 설치본 해시를 따로 기록한다. [원격 시험 및 정리 절차](ANDROID-REMOTE-TESTING.md)
+
 ## 감옥 9층 빌드
 
 Android 기기·에뮬레이터 시험은 NOT RUN이다. 설치·실행, 실제 화면·터치·핀치·회전, 백그라운드 복귀, Keystore, 무선 LAN·핫스팟, 오프라인 무선망, 저장 내구성과 기기 발열·성능이 남아 있다. Cloud APK 패키지 검사와 Desktop 화면 증거는 별도로 집계한다.

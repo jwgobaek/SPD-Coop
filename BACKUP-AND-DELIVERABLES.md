@@ -1,5 +1,9 @@
 # 최종 검증판 발행
 
+## 원격 기기의 파일 관리
+
+Windows에는 프로젝트 파일을 남기지 않는다. 실제 Android 자료는 Cloud로 스트리밍해 최종 통합 ZIP에 포함한다. [GB2 시험 절차](ANDROID-REMOTE-TESTING.md)
+
 GitHub의 coop/phase8에는 검증된 소스 체크포인트를 기록한다. Google Drive는 세션 마지막에 최종 검증판을 다운로드하는 용도로 사용한다. 이전 방식으로 보존한 40개 버전과 그 자료는 과거 기록이다.
 
 ## 대상 및 횟수

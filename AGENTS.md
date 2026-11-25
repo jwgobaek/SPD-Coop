@@ -1,5 +1,9 @@
 # 작업 시작 순서
 
+## Android 직접 시험
+
+변경 영향에 따라 Codex가 GB2 기본 MuMu에서 직접 검증한다. [GB2 시험 절차](ANDROID-REMOTE-TESTING.md)
+
 ## 9층 회귀 및 다음 실행
 
 coop/phase8 원격 HEAD에서 시작한다. 시험 배치 12개 시드, 정상 출발 두 시드, Tengu 원본 Level 번들 시험을 구분한다. APK 소스 체크아웃을 인자로 scripts/verify-prison-nine-surveys.py를 실행하면 계단 및 별도 JVM 보스방 검사 결과를 재현할 수 있다. [기록](docs/coop/prison-nine-results.md)
