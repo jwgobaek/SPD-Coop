@@ -159,7 +159,7 @@ public final class RestartClient {
                 epoch=UUID.fromString(keys[i].enroll(clients[i]).split(" ")[1]);
                 actions[i]=new SeatActions(session,i,i+1);
                 models[i]=new DisplayReplica(session,i);
-                String character=(mode.equals("quest") || RestartHost.guardian(mode) || mode.equals("crystal-new"))?"MAGE":mode.startsWith("cast") && i==Integer.parseInt(mode.substring(4)) ? "MAGE" : mode.equals("walk") ? (i==0?"MAGE":"WARRIOR") : i==0?"WARRIOR":"HUNTRESS";
+                String character=(mode.equals("quest") || RestartHost.guardian(mode) || mode.equals("crystal-new"))?"MAGE":mode.startsWith("cast") && !mode.startsWith("cast-hand") && i==mode.charAt(mode.length()-1)-'0' ? "MAGE" : mode.equals("walk") ? (i==0?"MAGE":"WARRIOR") : i==0?"WARRIOR":"HUNTRESS";
                 if (mode.startsWith("wand-setup-")) character=i==0?"WARRIOR":"MAGE";
                 if (RestartHost.newCampaign(mode)) character=i==0?"MAGE":"HUNTRESS";
                 if (mode.startsWith("scribe") && i==mode.charAt(6)-'0') character="WARRIOR";
@@ -309,12 +309,14 @@ public final class RestartClient {
                 return;
             }
             if(mode.startsWith("cast")) {
-                int seat=Integer.parseInt(mode.substring(4));
+                int seat=mode.charAt(mode.length()-1)-'0';
+                String slot=mode.startsWith("cast-hand") ? "BAG" : "WEAPON";
+                String kind=mode.startsWith("cast-hand") ? "WAND" : "STAFF";
                 offer(seat);
                 PublicDungeon view=new PublicDungeon(state(seat));
-                long staff=item(seat,"WEAPON","STAFF");
+                long staff=item(seat,slot,kind);
                 assertTrue(staff>0);
-                assertEquals(0,item(1-seat,"WEAPON","STAFF"));
+                assertEquals(0,item(1-seat,slot,kind));
                 int cell=view.pos+3;
                 assertEquals("Rat",view.monsters.get(cell));
                 int charge=view.belongings.stream().filter(i->i.id==staff).findFirst().get().charges;
@@ -324,7 +326,7 @@ public final class RestartClient {
                 verifyAfterReconnect(act("ZAP",cell,staff),seat);
                 assertEquals(charge-1,charges(seat));
                 offer(seat);
-                long newStaff=item(seat,"WEAPON","STAFF");
+                long newStaff=item(seat,slot,kind);
                 SeatActions.Pending p=actions[seat].prepare(state(seat),"ZAP",cell,newStaff);
                 RestartHost.write(path,"cast-record",p.id+" "+cell+" "+(charge-2)+" "+monsterHP(seat,cell)+" "+p.command);
                 RestartHost.write(path,"kill-before-reply","1");
@@ -627,7 +629,7 @@ public final class RestartClient {
             return;
         }
         if (mode.startsWith("readcast")) {
-            int seat=Integer.parseInt(mode.substring(8));
+            int seat=mode.charAt(mode.length()-1)-'0';
             String[] saved=RestartHost.read(path,"cast-record").split(" ",5);
             int cell=Integer.parseInt(saved[1]);
             int charges=Integer.parseInt(saved[2]);
@@ -646,7 +648,10 @@ public final class RestartClient {
             try (DataInputStream in=new DataInputStream(Files.newInputStream(path.resolve("user-layout")))) { layout=SeatQuickslots.read(in); }
             PublicDungeon.Loot bound=layout.item(3,afterRestart);
             assertNotNull(bound);
-            assertEquals(item(seat,"WEAPON","STAFF"),bound.id);
+            boolean handheld=mode.startsWith("readcast-hand");
+            assertEquals(item(seat,handheld ? "BAG" : "WEAPON",handheld ? "WAND" : "STAFF"),bound.id);
+            assertEquals("ZAP",PublicDungeon.shortcutAction(bound));
+            assertTrue(afterRestart.actions(bound).contains("ZAP"));
             assertFalse(state(1-seat).rows.containsValue(bound.reference));
             act("ZAP",cell,bound.id);
             assertEquals(charges-1,charges(seat));
@@ -1215,7 +1220,7 @@ public final class RestartClient {
     }
 
     private int charges(int seat) {
-        return new PublicDungeon(state(seat)).belongings.stream().filter(i->i.kind.equals("STAFF")).findFirst().get().charges;
+        return new PublicDungeon(state(seat)).belongings.stream().filter(PublicDungeon.Loot::showsCharges).findFirst().get().charges;
     }
 
     private int monsterHP(int seat,int cell) {

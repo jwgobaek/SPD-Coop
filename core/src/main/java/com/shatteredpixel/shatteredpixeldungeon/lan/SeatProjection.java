@@ -278,7 +278,11 @@ final class SeatProjection {
             kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "KNIFE" : "STONE";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle) kind="CANDLE";
         String charges="";
-        if (!slot.startsWith("F") && item instanceof MagesStaff) {
+        if (!slot.startsWith("F") && CoopSession.handheldMagicMissile(item)) {
+            WandOfMagicMissile wand = (WandOfMagicMissile)item;
+            kind = "WAND";
+            charges = "," + wand.curCharges + "," + wand.maxCharges;
+        } else if (!slot.startsWith("F") && item instanceof MagesStaff) {
             WandOfMagicMissile wand=((MagesStaff)item).starterWand();
             if (wand!=null) { kind="STAFF"; charges=","+wand.curCharges+","+wand.maxCharges; }
         }

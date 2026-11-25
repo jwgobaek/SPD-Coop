@@ -214,7 +214,7 @@ final class CoopHud extends Group {
             quick[i].content(item!=null ? item.sprite : layout==null ? -1 : layout.sprite(i));
             boolean usable=item!=null && canAct && view.actions(item).contains(PublicDungeon.shortcutAction(item));
             String amount=item==null ? (layout!=null && layout.assigned(i) ? "0" : "") :
-                    item.kind.equals("STAFF") ? item.charges+"/"+item.capacity : item.quantity>1 ? Integer.toString(item.quantity) : "";
+                    item.showsCharges() ? item.charges+"/"+item.capacity : item.quantity>1 ? Integer.toString(item.quantity) : "";
             quick[i].amount(amount,usable);
             quick[i].enable(layout!=null && !aiming && confirmed);
         }

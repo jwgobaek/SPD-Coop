@@ -51,6 +51,11 @@ public class HostRestartTest {
                 "kill_BEFORE_HEAD","kill_AFTER_HEAD","recover_last","backup"});
     }
 
+    @Test(timeout=100000) public void handheldWandSurvivesLostReplyAndRestartForEitherSeat() throws Exception {
+        for (int seat=0; seat<2; seat++) run(temp.newFolder().toPath(),
+                new String[]{"cast-hand"+seat,"readcast-hand"+seat});
+    }
+
     @Test(timeout=100000) public void confirmedMissileSurvivesLostReplyAndHostDeathOnBothSeats() throws Exception {
         for(int seat=0;seat<2;seat++) run(temp.newFolder().toPath(),new String[]{"cast"+seat,"readcast"+seat});
     }

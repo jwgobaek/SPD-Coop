@@ -106,7 +106,7 @@ public final class WndSeatInventory extends WndTabbed {
             super(null);
             this.loot=loot;
             handle=loot==null ? 0 : loot.id;
-            String count=loot==null ? "" : loot.kind.equals("STAFF") ? loot.charges+"/"+loot.capacity :
+            String count=loot==null ? "" : loot.showsCharges() ? loot.charges+"/"+loot.capacity :
                     loot.quantity>1 ? String.valueOf(loot.quantity) : "";
             display(loot==null ? placeholder : loot.sprite,count,loot==null ? "NA" : loot.upgrade,
                     equipped,loot!=null && (scroll!=null ? view.scrollTarget(loot,scroll.kind)>0 : shortcut<0 || selectable()));
@@ -136,7 +136,7 @@ public final class WndSeatInventory extends WndTabbed {
         String description=key==null ? Messages.NO_TEXT_FOUND : Messages.get(key+".desc");
         String info=msg("quantity",item.quantity);
         if (!item.upgrade.equals("NA") && !item.upgrade.equals("0")) info+="  "+(item.upgrade.startsWith("-")?"":"+")+item.upgrade;
-        if (item.kind.equals("STAFF")) info+="  "+msg("charges",item.charges,item.capacity);
+        if (item.showsCharges()) info+="  "+msg("charges",item.charges,item.capacity);
         if (!Messages.NO_TEXT_FOUND.equals(description)) info=description+"\n\n"+info;
         List<String> verbs=view.actions(item);
         String[] options=new String[verbs.size()+1];

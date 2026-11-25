@@ -521,6 +521,19 @@ public final class CoopSession implements AutoCloseable {
         return basicArmorType(item) && ((Armor)item).glyph==null;
     }
 
+    public static boolean handheldMagicMissile(Item item) {
+        return item != null && item.getClass() == WandOfMagicMissile.class
+                && item.isIdentified() && !item.cursed;
+    }
+
+    private static WandOfMagicMissile missileFor(Hero hero, Item item) {
+        if (item instanceof MagesStaff && hero.belongings.weapon() == item)
+            return ((MagesStaff)item).starterWand();
+        if (handheldMagicMissile(item) && hero.belongings.backpack.contains(item))
+            return (WandOfMagicMissile)item;
+        return null;
+    }
+
     public static boolean basicWeaponType(Item item) {
         return item!=null && ((item instanceof MagesStaff && ((MagesStaff)item).starterWand()!=null)
                 || item.getClass()==Gloves.class || item.getClass()==WornShortsword.class
@@ -639,9 +652,8 @@ public final class CoopSession implements AutoCloseable {
                     hero.act();
                     break;
                 case ZAP:
-                    if (!(item instanceof MagesStaff) || hero.belongings.weapon()!=item
-                            || cell<0 || cell>=level.length() || !level.insideMap(cell) || !knowledge(activeSeat).visible(cell)) return false;
-                    WandOfMagicMissile wand=((MagesStaff)item).starterWand();
+                    if (cell<0 || cell>=level.length() || !level.insideMap(cell) || !knowledge(activeSeat).visible(cell)) return false;
+                    WandOfMagicMissile wand=missileFor(hero,item);
                     Char victim=Actor.findChar(cell);
                     Heap targetHeap=level.heaps.get(cell);
                     boolean chestTarget=victim==null && targetHeap!=null && !targetHeap.hidden

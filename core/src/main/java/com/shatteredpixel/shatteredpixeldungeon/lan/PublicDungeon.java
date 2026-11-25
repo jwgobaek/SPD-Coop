@@ -18,6 +18,9 @@ public final class PublicDungeon {
         public final long id;
         public final String slot,kind,upgrade,reference,stackType;
         public final int sprite,quantity,charges,capacity,bagIndex,order;
+        public boolean showsCharges() {
+            return kind.equals("WAND") || kind.equals("STAFF");
+        }
         Loot(String key,String value,Map<String,String> rows) {
             String[] f=value.split(",");
             id=Long.parseLong(key.substring(1)); slot=f[0]; kind=f[1];
@@ -32,8 +35,8 @@ public final class PublicDungeon {
             String family=rows.get("family"+id);
             stackType=(kind.equals("STONE") || kind.equals("KNIFE")) && family!=null && family.matches(kind.toLowerCase(Locale.ROOT)+"\\.[0-9a-f]{32}") ? family : (kind.equals("FOOD") || kind.equals("HEALING") || kind.equals("UPGRADE") || kind.equals("IDENTIFY")) && label!=null ? label : "";
             sprite=number(f[2],0,1023); quantity=number(f[3],1,Integer.MAX_VALUE); upgrade=f[4];
-            charges=kind.equals("STAFF") ? number(f[5],0,10) : 0;
-            capacity=kind.equals("STAFF") ? number(f[6],charges,10) : 0;
+            charges=showsCharges() ? number(f[5],0,10) : 0;
+            capacity=showsCharges() ? number(f[6],charges,10) : 0;
         }
     }
     public PublicDungeon(StateImage source) {
@@ -97,6 +100,7 @@ public final class PublicDungeon {
             case "KNIFE": case "STONE": return "THROW";
             case "UPGRADE": case "IDENTIFY": return item.kind;
             case "BOW": return "SHOOT";
+            case "WAND": return "ZAP";
             case "STAFF": return item.slot.equals("WEAPON") ? "ZAP" : "EQUIP";
             case "MELEE": case "ARMOR": return item.slot.equals("BAG") ? "EQUIP" : "UNEQUIP";
             case "HONEYPOT": return "SHATTER";
@@ -119,7 +123,7 @@ public final class PublicDungeon {
             if (quote.endsWith(",1")) verbs.add("SELL_ONE");
         }
         boolean weapon=item.kind.equals("MELEE") || item.kind.equals("STAFF");
-        if(item.slot.equals("WEAPON") && item.charges>0) verbs.add("ZAP");
+        if((item.slot.equals("WEAPON") || item.kind.equals("WAND")) && item.charges>0) verbs.add("ZAP");
         if(item.slot.equals("BAG")) {
             if(item.kind.equals("UPGRADE") || item.kind.equals("IDENTIFY")) verbs.add(item.kind);
             if(item.kind.equals("HEALING")) verbs.add("DRINK");

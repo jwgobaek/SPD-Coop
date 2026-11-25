@@ -42,6 +42,34 @@ public class CoopMageTest extends HeadlessDungeon {
         return rat;
     }
 
+    @Test public void handheldMissileRequiresAnIdentifiedUncursedWandInTheCastersBag() {
+        for (int seat=0; seat<2; seat++) {
+            try (CoopSession game=CoopSession.open(575,11,HeroClass.WARRIOR)) {
+                game.join(22,HeroClass.HUNTRESS);
+                Rat target=encounter(game,seat);
+                offer(game,seat);
+                Hero caster=game.hero(seat);
+                WandOfMagicMissile wand=new WandOfMagicMissile();
+                assertTrue(wand.collect(caster.belongings.backpack));
+                game.ownership.claim(wand,game.player(seat));
+                int charges=wand.curCharges;
+                long turn=game.turn();
+                assertFalse(game.act(game.player(seat),turn,CoopSession.Action.ZAP,target.pos,wand));
+                wand.identify(false);
+                wand.cursed=true;
+                assertFalse(game.act(game.player(seat),turn,CoopSession.Action.ZAP,target.pos,wand));
+                wand.cursed=false;
+                assertFalse(game.act(game.player(1-seat),turn,CoopSession.Action.ZAP,target.pos,wand));
+                assertEquals(charges,wand.curCharges);
+                assertEquals(turn,game.turn());
+                assertTrue(game.act(game.player(seat),turn,CoopSession.Action.ZAP,target.pos,wand));
+                assertEquals(charges-1,wand.curCharges);
+                assertTrue(target.HP<target.HT);
+                assertSame(caster,wand.chargingHero());
+            }
+        }
+    }
+
     @Test public void bothSeatsUseOwnStaffAndRestoreItsChargerAndTime() throws Exception {
         HeroClass[] partners={HeroClass.WARRIOR,HeroClass.HUNTRESS,HeroClass.MAGE};
         for(int seat=0;seat<2;seat++) for(HeroClass partner:partners) {

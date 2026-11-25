@@ -373,8 +373,15 @@ public final class RestartHost {
                 }
                 if (mode.startsWith("cast") && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;
-                    int seat=Integer.parseInt(mode.substring(4));
+                    int seat=mode.charAt(mode.length()-1)-'0';
                     com.shatteredpixel.shatteredpixeldungeon.CoopMageTest.encounter(Dungeon.coop,seat);
+                    if (mode.startsWith("cast-hand")) {
+                        com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile wand =
+                                new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile();
+                        wand.identify(false);
+                        assertTrue(wand.collect(Dungeon.coop.hero(seat).belongings.backpack));
+                        Dungeon.coop.ownership.claim(wand, Dungeon.coop.player(seat));
+                    }
                 }
                 if (mode.equals("new") && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;

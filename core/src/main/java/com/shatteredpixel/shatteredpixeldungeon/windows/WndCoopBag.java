@@ -45,7 +45,7 @@ public final class WndCoopBag extends Window {
         for(int i=0;i<verbs.size();i++) options[i]=msg(verbs.get(i).toLowerCase(Locale.ROOT));
         options[verbs.size()]=msg("back");
         String info=msg("quantity",item.quantity)+(item.upgrade.equals("NA")?"":"  +"+item.upgrade);
-        if (item.kind.equals("STAFF")) info+="  "+msg("charges",item.charges,item.capacity);
+        if (item.showsCharges()) info+="  "+msg("charges",item.charges,item.capacity);
         Game.scene().add(new WndOptions(new ItemSprite(item.sprite),msg("kind_"+item.kind.toLowerCase(Locale.ROOT)),info,options) {
             protected void onSelect(int i) {
                 if(i>=verbs.size()) return;
