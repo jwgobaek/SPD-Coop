@@ -153,6 +153,16 @@ public final class CoopRenderSmoke {
         System.out.println("Input "+name);
         press(waitForButton(name));
     }
+    private static void waitAndRegainTurn() throws Exception {
+        long action=frame().lastAction;
+        long version=frame().image.version;
+        click("wait");
+        await(()->frame().lastAction==action+1 && frame().image.version>version && frame().dungeon.offered
+                && frame().lastResult.equals("APPLIED") && button("wait")!=null);
+        PublicDungeon offered=frame().dungeon;
+        mapPoint(offered,offered.pos);
+    }
+
     private static void hold(String name) throws Exception {
         Point p=waitForButton(name);
         render(()->{PointerEvent.addPointerEvent(new PointerEvent(p.x,p.y,1,PointerEvent.Type.DOWN,PointerEvent.LEFT));return null;});
@@ -192,12 +202,8 @@ public final class CoopRenderSmoke {
         press(tab); shot("pouch");
         render(()->{((WndSeatInventory)find(Game.scene(),g->g instanceof WndSeatInventory)).hide();return null;});
         RenderEncounter.healing(hostController());
-        long beforeWait=frame().lastAction;
-        long beforeVersion=frame().image.version;
-        click("wait");
-        await(()->frame().lastAction==beforeWait+1 && frame().image.version>beforeVersion
-                && frame().dungeon.offered && frame().dungeon.hp<frame().dungeon.maxHp
-                && !hostController().busy() && button("wait")!=null);
+        waitAndRegainTurn();
+        if (frame().dungeon.hp>=frame().dungeon.maxHp) throw new AssertionError("Missing rest fixture");
         java.nio.file.Files.createFile(new File(root,"hold-guest").toPath());
         long previousAction=frame().lastAction;
         hold("wait");
@@ -601,7 +607,7 @@ public final class CoopRenderSmoke {
             }
             if(kit) {
                 RenderEncounter.healing(hostController());
-                click("wait"); await(()->frame().dungeon.offered && frame().dungeon.floor.containsKey(frame().dungeon.pos));
+                waitAndRegainTurn(); await(()->frame().dungeon.offered && frame().dungeon.floor.containsKey(frame().dungeon.pos));
                 press(mapPoint(frame().dungeon,frame().dungeon.pos));
                 await(()->frame().dungeon.offered && frame().dungeon.belongings.stream().anyMatch(i->i.kind.equals("HEALING")));
                 int hp=frame().dungeon.hp;
@@ -613,7 +619,7 @@ public final class CoopRenderSmoke {
                 await(()->frame().dungeon.offered && frame().dungeon.hp>hp);
                 shot("healing-draught");
                 RenderEncounter.beside(hostController(),com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat.class);
-                click("wait"); await(()->frame().dungeon.offered && frame().dungeon.monsters.containsValue("Rat"));
+                waitAndRegainTurn(); await(()->frame().dungeon.offered && frame().dungeon.monsters.containsValue("Rat"));
                 if (shortcutKit) {
                     long version=frame().image.version;
                     click("slot2"); await(()->button("cancel")!=null); click("cancel");
