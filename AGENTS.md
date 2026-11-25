@@ -1,5 +1,9 @@
 # 작업 시작 순서
 
+## 감옥 7층 회귀
+
+PrisonGenerationTest는 생성만 검사한다. HostRestartTest의 시드 581 정상 6층 경로, 배치형 6→7→6, PrisonCombatChecks의 두 좌석 전투를 각각 기록한다. 감옥 층 제한을 바꿀 때 실제 이전 버전의 저장본으로 scripts/verify-prison-seven-migration.py까지 실행한다.
+
 ## 감옥 6층 상점 · P1-A
 
 감옥 거래는 원본 가격과 상인의 환매 목록을 사용한다. 전문 상품은 개별 원본 경로를 확인한 뒤 활성화한다. Android 검증 대기는 ANDROID-VALIDATION.md에 기록하며 공통 엔진 개발은 계속한다.

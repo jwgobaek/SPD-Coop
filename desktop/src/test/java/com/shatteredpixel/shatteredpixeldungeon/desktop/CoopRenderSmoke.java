@@ -26,14 +26,15 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean knife,market,armored,scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
+    private static boolean seventh,knife,market,armored,scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
-        prison=market || args.length>1 && args[1].equals("prison");
+        seventh=args.length>1 && args[1].equals("seven");
+        prison=seventh || market || args.length>1 && args[1].equals("prison");
         controls=args.length>1 && args[1].equals("controls");
         shortcuts=args.length>1 && args[1].equals("shortcuts");
         sentry=args.length>1 && args[1].equals("sentry");
@@ -347,7 +348,7 @@ public final class CoopRenderSmoke {
         PublicDungeon sold=frame().dungeon;
         press(mapPoint(sold,merchant)); waitForButton("cancel"); shot("shop-buyback");
         String redeem="#"+Messages.get(CoopScene.class,"shop_buyback",value,1);
-        click(redeem); click(redeem);
+        click(redeem); await(()->frame().dungeon.offered); click(redeem);
         await(()->frame().dungeon.offered && frame().image.rows.keySet().stream().noneMatch(k->k.startsWith("refund")));
         shot("shop-restored-stock");
     }
@@ -432,6 +433,15 @@ public final class CoopRenderSmoke {
                     click("#"+Messages.get(CoopScene.class,"travel",6)); await(()->frame().dungeon.depth==6);
                     shot("prison-arrival");
                     if (market) marketScreens();
+                    if (seventh) {
+                        waitAndRegainTurn();
+                        RenderEncounter.atExit(hostController()); waitAndRegainTurn();
+                        java.nio.file.Files.createFile(new File(root,"allow6").toPath());
+                        await(()->frame().dungeon.consent && frame().dungeon.offered);
+                        click("#"+Messages.get(CoopScene.class,"travel",7));
+                        await(()->frame().dungeon.depth==7);
+                        shot("prison-seven-arrival");
+                    }
                 }
                 click("menu");click("saveexit");await(()->button("host")!=null);
             } finally { returning.destroy(); if(!returning.waitFor(5,TimeUnit.SECONDS)) returning.destroyForcibly(); }
@@ -538,7 +548,7 @@ public final class CoopRenderSmoke {
         render(()->{
             Field active=CoopScene.class.getDeclaredField("active"); active.setAccessible(true);
             active.set(null,new CoopController(CoopPlatform.root(),null,null,testPort,0,
-                    new java.util.Random(){@Override public long nextLong(){return deep ? 402 : armored ? 446 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
+                    new java.util.Random(){@Override public long nextLong(){return seventh ? 581 : deep ? 402 : armored ? 446 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
             return null;
         });
         click("title"); await(()->button("host")!=null);

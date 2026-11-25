@@ -14,6 +14,16 @@ import java.util.Map;
 public final class WndSeatTrade {
     private WndSeatTrade() {}
 
+    private static boolean unchanged(PublicDungeon previous,PublicDungeon current,int cell,long id,String verb) {
+        if (current==null || !previous.source.session.equals(current.source.session) || previous.source.seat!=current.source.seat
+                || !java.util.Objects.equals(previous.source.rows.get("epoch"),current.source.rows.get("epoch"))
+                || previous.depth!=current.depth || previous.pos!=current.pos || !current.visible(cell)) return false;
+        String key=verb.equals("BUYBACK") ? "refund"+id : verb.startsWith("SELL") ? "sell"+id : "quote"+cell;
+        return java.util.Objects.equals(previous.source.rows.get(key),current.source.rows.get(key))
+                && java.util.Objects.equals(previous.source.rows.get("gold"),current.source.rows.get("gold"))
+                && java.util.Objects.equals(previous.source.rows.get("merchant"),current.source.rows.get("merchant"));
+    }
+
     private static void confirm(CoopScene scene,PublicDungeon view,CoopController client,int cell,long id,
                                 int sprite,int price,int quantity,String verb,String label,boolean allowed) {
         int gold=Integer.parseInt(view.source.rows.get("gold"));
@@ -31,9 +41,13 @@ public final class WndSeatTrade {
         }
         scene.add(new WndOptions(new ItemSprite(sprite),Messages.NO_TEXT_FOUND.equals(title)?CoopScene.msg("shop"):Messages.titleCase(title),
                 info,label,CoopScene.msg("cancel")) {
-            @Override protected boolean enabled(int index) { return index!=0 || allowed && space && view.offered; }
+            @Override protected boolean enabled(int index) { return index!=0 || allowed && space; }
             @Override protected void onSelect(int index) {
-                if (index==0) client.act(view.source,verb,cell,id);
+                if (index!=0) return;
+                PublicDungeon live=client.frame().dungeon;
+                if (!unchanged(view,live,cell,id,verb)) scene.add(new WndMessage(CoopScene.msg("shop_changed")));
+                else if (!live.offered) scene.add(new WndMessage(CoopScene.msg("theirturn")));
+                else client.act(live.source,verb,cell,id);
             }
         });
     }
@@ -83,10 +97,10 @@ public final class WndSeatTrade {
             buttons.add(CoopScene.msg("shop_buyback",Integer.parseInt(quote[2]),Integer.parseInt(quote[1])));
         }
         buttons.add(CoopScene.msg("cancel"));
-        scene.add(new WndOptions(CoopScene.msg("shop"),CoopScene.msg("shop_balance",Integer.parseInt(view.source.rows.get("gold")),1),
+        scene.add(new WndOptions(CoopScene.msg("shop"),CoopScene.msg("shop_gold",Integer.parseInt(view.source.rows.get("gold"))),
                 buttons.toArray(new String[0])) {
             @Override protected void onSelect(int index) {
-                if (index==0) scene.add(new WndSeatInventory(view,client));
+                if (index==0 && client.frame().dungeon!=null) scene.add(new WndSeatInventory(client.frame().dungeon,client));
                 else if (index<=handles.size() && index>0) {
                     long id=handles.get(index-1);
                     String[] quote=view.source.rows.get("refund"+id).split(",");

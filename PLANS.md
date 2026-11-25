@@ -1,5 +1,11 @@
 # 단계와 다음 작업
 
+## 현재 시작점 · 7층 이후
+
+1. prison-generation.tsv의 시드 570–581에서 Wandmaker의 MassGraveRoom·RitualSiteRoom·RotGardenRoom을 각각 재현하고 Corpse Dust·Embers·Rotberry의 진행 및 원본 보상 한 번을 검증한다.
+2. Necromancer의 소환과 재접속, 희귀 주민, 복합 물약·폭탄, 신규 지팡이별 시전자와 소유권을 검사한다.
+3. 8·9층 왕복과 용량 측정 후 10층의 방 변경·두 영웅 배치·봉쇄·Tengu 보상까지 확장한다. 마지막에 정상 시작 시드의 감옥 완주와 11층을 검사한다.
+
 ## 감옥 6층 상점 · P1-A
 
 P1-A 이후 ThrowingKnife의 PinCushion 물리적 보관·드롭·복원을 검증한다. 다음 감옥 생성 조사는 연속 시드에서 7–10층을 생성하고 실제 차단 Actor와 퀘스트 방을 기록한다. 경로별 검증 전에는 운영 층 제한을 유지한다.

@@ -13,6 +13,8 @@ PREFIXES = ("items/", "actors/mobs/", "actors/buffs/", "actors/blobs/", "actors/
             "actors/hero/spells/", "levels/", "plants/", "mechanics/")
 ENUMS = {"HeroClass", "HeroSubClass", "Talent"}
 VERIFIED = {
+    "actors/mobs/DM100": "native aimed bolt hits each seat separately, cold restore and next turn / PrisonCombatChecks, HostRestartTest",
+    "actors/mobs/Guard": "native chain pull, landing, cripple, spent-chain restore on either seat / PrisonCombatChecks, HostRestartTest",
     "actors/mobs/Skeleton": "floor six generation, native melee and death burst hitting adjacent heroes / SewerDepthTest, HostRestartTest",
     "actors/mobs/npcs/Shopkeeper": "floor six native stock, price, sale and seller-bound buyback on both seats after process death / HostRestartTest; special merchandise and theft remain gated",
     "items/weapon/missiles/ThrowingKnife": "plain unmodified native projectile, both seats, lodging and durable receipt after host death / PrisonProjectileTest, HostRestartTest",
@@ -23,7 +25,7 @@ VERIFIED = {
     "items/scrolls/ScrollOfIdentify": "known scroll, privately select owned supported equipment, identify once, reconnect / HostRestartTest",
     "items/scrolls/ScrollOfUpgrade": "known scroll, upgrade owned supported equipment; committed use survives response loss and cold restart / HostRestartTest",
     "items/weapon/missiles/ThrowingStone": "plain unupgraded stone, native hit, wear, break, pickup, own-only stack and shortcut / CoopPlayInputTest, HostRestartTest",
-    "levels/PrisonLevel": "original floor 6 after unlocked Goo gate, cold restart, shopkeeper presence, return to 5 / HostRestartTest",
+    "levels/PrisonLevel": "original 6 from normal start, 7 by two-seat staircase fixture, lost response, cold restart and return / HostRestartTest",
     "actors/mobs/Mimic": "seed 408 native disguise, opener, melee, missile, gold, parked floor, receipt / SewerMimicTest, HostRestartTest",
     "actors/mobs/CrystalMimic": "seed 411 ambush, victim stack, escape or return on defeat, two process kills / SewerCrystalMimicTest, HostRestartTest",
     "actors/mobs/Statue": "seeds 416/420/421/428/434/435/437/444; passive base statistics, native on-hit effect, held identity and drop / SewerGuardiansTest, HostRestartTest",

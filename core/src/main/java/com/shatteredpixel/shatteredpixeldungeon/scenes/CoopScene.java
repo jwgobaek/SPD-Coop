@@ -53,7 +53,7 @@ public class CoopScene extends PixelScene {
     private void touchCell(PublicDungeon view,int cell) {
         if (hud!=null) hud.stopRest();
         if (targetView==null) {
-            if(view.visible(cell) && ((view.depth<5 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EXIT)
+            if(view.visible(cell) && (((view.depth<5 || (view.depth>=6 && view.depth<com.shatteredpixel.shatteredpixeldungeon.CoopFloors.LAST_PLAYABLE)) && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EXIT)
                     || (view.depth==5 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.UNLOCKED_EXIT)
                     || (view.depth>1 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.ENTRANCE))) {
                 if(view.stair!=cell) alert(msg("stairconditions"));

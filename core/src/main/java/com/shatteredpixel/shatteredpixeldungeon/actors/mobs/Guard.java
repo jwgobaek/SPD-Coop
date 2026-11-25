@@ -94,7 +94,7 @@ public class Guard extends Mob {
 				final int newPosFinal = newPos;
 				this.target = newPos;
 
-				if (sprite.visible || enemy.sprite.visible) {
+				if (Dungeon.coop==null && (sprite.visible || enemy.sprite.visible)) {
 					yell(Messages.get(this, "scorpion"));
 					new Item().throwSound();
 					Sample.INSTANCE.play(Assets.Sounds.CHAINS);
@@ -121,11 +121,16 @@ public class Guard extends Mob {
 	}
 
 	private void pullEnemy( Char enemy, int pullPos ){
+        if (Dungeon.coop!=null && !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(pullPos))
+            throw new UnsupportedOperationException("Unsupported prison guard landing");
 		enemy.pos = pullPos;
 		enemy.sprite.place(pullPos);
 		Dungeon.level.occupyCell(enemy);
 		Cripple.prolong(enemy, Cripple.class, 4f);
-		if (enemy == Dungeon.hero) {
+		if (Dungeon.coop!=null) {
+            if (enemy instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero)
+                ((com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero)enemy).interrupt();
+        } else if (enemy == Dungeon.hero) {
 			Dungeon.hero.interrupt();
 			Dungeon.observe();
 			GameScene.updateFog();
@@ -182,7 +187,7 @@ public class Guard extends Mob {
 					&& !canAttack( enemy )
 					&& Dungeon.level.distance( pos, enemy.pos ) < 5
 					&& chain(enemy.pos)){
-				return !(sprite.visible || enemy.sprite.visible);
+				return Dungeon.coop!=null || !(sprite.visible || enemy.sprite.visible);
 			} else {
 				return super.act( enemyInFOV, justAlerted );
 			}

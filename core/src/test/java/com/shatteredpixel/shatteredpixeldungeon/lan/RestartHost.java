@@ -128,12 +128,34 @@ public final class RestartHost {
         }
         InetAddress loop=InetAddress.getLoopbackAddress();
         boolean special = plant(mode) || mode.equals("goo") || hazard(mode) || mode.equals("blocked-start") || guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
+        if (mode.equals("seven-resume") || mode.equals("market-buy0")) {
+            try (CoopSaves.Slot original=saves.existing(saves.sessions().get(0))) {
+                Bundle engine=original.read(false).getBundle("engine");
+                if (mode.equals("seven-resume")) PrisonCombatChecks.copiesOf(engine);
+                else PrisonShopChecks.copiesOf(engine);
+            }
+        }
         try(LanRoom room=(special || mode.startsWith("scribe") || kit(mode) || knife(mode) || newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup") || mode.equals("schema3-backup") || mode.equals("prison-backup"))) {
             if (mode.equals("schema2-to-three")) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
             if (mode.equals("prison-backup")) {
                 assertEquals(5,Dungeon.depth);
                 assertEquals(5,Dungeon.coop.checkpoint().getBundle("dormant").getKeys().size());
+            }
+            if (mode.equals("seven-travel")) {
+                assertEquals(6,Dungeon.depth);
+                SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
+            } else if (mode.equals("seven-resume")) {
+                assertEquals(7,Dungeon.depth);
+                Bundle state=Dungeon.coop.checkpoint();
+                assertEquals(5,state.getInt("schema"));
+                assertEquals(6,state.getBundle("dormant").getKeys().size());
+                System.out.println("prison-seven saved_bytes="+state.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8).length+
+                        " active_actors="+Actor.all().size());
+            } else if (mode.equals("seven-return")) {
+                assertEquals(6,Dungeon.depth);
+                assertEquals(5,Dungeon.coop.checkpoint().getInt("schema"));
+                assertNotNull(CoopTrade.merchant(Dungeon.coop.hero(0),false));
             }
             if (mode.startsWith("market-")) arrangeMarket(path,mode);
             if (mode.equals("pin-receipt")) {

@@ -140,6 +140,7 @@ public final class RestartClient {
             try (LanClient old = new LanClient(address)) {
                 assertEquals("ERROR VERSION",old.request("MODE SYNC13"));
                 assertEquals("ERROR VERSION",old.request("MODE SYNC14"));
+                assertEquals("ERROR VERSION",old.request("MODE SYNC15"));
                 assertEquals("ERROR VERSION", old.request("MODE SYNC3"));
                 assertEquals("ERROR VERSION", old.request("MODE SYNC12"));
             }
@@ -351,6 +352,41 @@ public final class RestartClient {
         }
         for(int i=0;i<2;i++) bind(i);
         barrier();
+        if (mode.equals("legacy-prison")) {
+            for (int i=0;i<2;i++) {
+                PublicDungeon view=new PublicDungeon(state(i)); assertEquals(6,view.depth);
+                assertEquals(RestartHost.read(path,"arrived"+i).split(" ")[0],state(i).rows.get("self").split(",")[0]);
+            }
+            return;
+        }
+        if (mode.equals("seven-travel")) {
+            int seat=active();
+            SeatActions.Pending move=consentAndCross();
+            RestartHost.write(path,"travel-seven",seat+" "+move.id+" "+move.command);
+            RestartHost.write(path,"kill-before-reply","1");
+            assertThrows(IOException.class,()->move.submit(clients[seat]));
+            return;
+        }
+        if (mode.equals("seven-resume")) {
+            String[] old=RestartHost.read(path,"travel-seven").split(" ",3);
+            int seat=Integer.parseInt(old[0]);
+            for(int i=0;i<2;i++) {
+                PublicDungeon view=new PublicDungeon(state(i)); assertEquals(7,view.depth);
+                assertEquals(RestartHost.read(path,"arrived"+i).split(" ")[0],view.source.rows.get("self").split(",")[0]);
+                assertEquals(RestartHost.read(path,"arrived"+i).split(" ")[3],
+                        view.belongings.stream().filter(x->x.slot.equals("WEAPON")).findFirst().get().reference);
+            }
+            assertNotEquals(pos(0),pos(1));
+            String receipt=clients[seat].request("LOOKUP "+epoch+" "+old[1]);
+            assertTrue(receipt,receipt.endsWith(" APPLIED")); assertEquals(receipt,clients[seat].request(old[2]));
+            act("WAIT",0,0);
+            int active=active();
+            String back=consentAndCross().submit(clients[active]); assertTrue(back,back.endsWith(" APPLIED"));
+            refresh(); assertEquals(6,new PublicDungeon(state(0)).depth); return;
+        }
+        if (mode.equals("seven-return")) {
+            assertEquals(6,new PublicDungeon(state(1)).depth); act("WAIT",0,0); return;
+        }
         if (mode.startsWith("market-")) { trade(mode); return; }
         if (mode.equals("legacy-sewer")) {
             for (int seat=0; seat<2; seat++) {

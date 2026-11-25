@@ -433,7 +433,7 @@ actors/mobs/CrystalMimic	actors/mobs	VERIFIED	seed 411 ambush, victim stack, esc
 actors/mobs/CrystalMimic.Fleeing	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalMimic.java
 actors/mobs/CrystalSpire	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalSpire.java
 actors/mobs/CrystalWisp	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalWisp.java
-actors/mobs/DM100	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM100.java
+actors/mobs/DM100	actors/mobs	VERIFIED	native aimed bolt hits each seat separately, cold restore and next turn / PrisonCombatChecks, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM100.java
 actors/mobs/DM200	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM200.java
 actors/mobs/DM200.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM200.java
 actors/mobs/DM201	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM201.java
@@ -494,7 +494,7 @@ actors/mobs/Golem.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shat
 actors/mobs/Goo	actors/mobs	VERIFIED	original charged selected-target attack, water heal, seal, defeat, original drops and durable lost response / SewerDepthTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Goo.java
 actors/mobs/GreatCrab	actors/mobs	VERIFIED	naturally offered depth 4 quest, original block, combat, restore and reward / SewerGhostTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GreatCrab.java
 actors/mobs/GreatCrab.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GreatCrab.java
-actors/mobs/Guard	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Guard.java
+actors/mobs/Guard	actors/mobs	VERIFIED	native chain pull, landing, cripple, spent-chain restore on either seat / PrisonCombatChecks, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Guard.java
 actors/mobs/Guard.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Guard.java
 actors/mobs/HermitCrab	actors/mobs	VERIFIED	original armor drop uses credited seat level, survives checkpoint / SewerResidentsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/HermitCrab.java
 actors/mobs/Mimic	actors/mobs	VERIFIED	seed 408 native disguise, opener, melee, missile, gold, parked floor, receipt / SewerMimicTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Mimic.java
@@ -1231,7 +1231,7 @@ levels/PrisonBossLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel
 levels/PrisonBossLevel.ExitVisual	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonBossLevel.java
 levels/PrisonBossLevel.ExitVisualWalls	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonBossLevel.java
 levels/PrisonBossLevel.FadingTraps	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonBossLevel.java
-levels/PrisonLevel	levels	VERIFIED	original floor 6 after unlocked Goo gate, cold restart, shopkeeper presence, return to 5 / HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonLevel.java
+levels/PrisonLevel	levels	VERIFIED	original 6 from normal start, 7 by two-seat staircase fixture, lost response, cold restart and return / HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonLevel.java
 levels/PrisonLevel.Torch	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonLevel.java
 levels/RegularLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/RegularLevel.java
 levels/SewerBossLevel	levels	VERIFIED	original fifth floor, both seat locks, dry combat fixture and reopened exit / SewerDepthTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerBossLevel.java

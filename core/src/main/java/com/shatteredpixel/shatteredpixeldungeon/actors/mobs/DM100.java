@@ -99,12 +99,12 @@ public class DM100 extends Mob {
 				dmg = Math.round(dmg * AscensionChallenge.statModifier(this));
 				enemy.damage( dmg, new LightningBolt() );
 
-				if (enemy.sprite.visible) {
+				if (Dungeon.coop==null && enemy.sprite.visible) {
 					enemy.sprite.centerEmitter().burst(SparkParticle.FACTORY, 3);
 					enemy.sprite.flash();
 				}
 				
-				if (enemy == Dungeon.hero) {
+				if (Dungeon.coop==null && enemy == Dungeon.hero) {
 					
 					PixelScene.shake( 2, 0.3f );
 					
@@ -114,11 +114,11 @@ public class DM100 extends Mob {
 						GLog.n( Messages.get(this, "zap_kill") );
 					}
 				}
-			} else {
+			} else if (Dungeon.coop==null) {
 				enemy.sprite.showStatus( CharSprite.NEUTRAL,  enemy.defenseVerb() );
 			}
 			
-			if (sprite != null && (sprite.visible || enemy.sprite.visible)) {
+			if (Dungeon.coop==null && sprite != null && (sprite.visible || enemy.sprite.visible)) {
 				sprite.zap( enemy.pos );
 				return false;
 			} else {

@@ -35,7 +35,8 @@ public class UpstreamGraphicsReference {
         });
         ImageIO.write(new Robot().createScreenCapture(bounds),"png",new File(out,name+".png"));
     }
-    private static void capture(boolean boss) throws Exception {
+    private static void capture(String mode) throws Exception {
+        boolean boss=mode.equals("goo"), prison=mode.equals("prison");
         long until=System.nanoTime()+TimeUnit.SECONDS.toNanos(30);
         while (Gdx.app==null || !render(()->Game.scene() instanceof PixelScene)) {
             if (System.nanoTime()>until) throw new AssertionError("Startup timeout");
@@ -52,8 +53,14 @@ public class UpstreamGraphicsReference {
             Dungeon.seed=402;
             Dungeon.init();
             if (boss) Dungeon.depth=5;
+            if (prison) Dungeon.depth=6;
             Level level=Dungeon.newLevel();
             int start=level.entrance();
+            if (prison) for (com.shatteredpixel.shatteredpixeldungeon.items.Heap heap:level.heaps.valueList()) {
+                if (heap.type!=com.shatteredpixel.shatteredpixeldungeon.items.Heap.Type.FOR_SALE) continue;
+                start=heap.pos;
+                break;
+            }
             if (boss) for (Mob mob:level.mobs) if (mob instanceof Goo)
                 for (int delta:com.watabou.utils.PathFinder.NEIGHBOURS8) {
                     int cell=mob.pos+delta;
@@ -67,6 +74,18 @@ public class UpstreamGraphicsReference {
         while (!render(()->Game.scene() instanceof GameScene)) {
             if (System.nanoTime()>until) throw new AssertionError("Scene timeout");
             Thread.sleep(50);
+        }
+        if (prison) {
+            shot("prison-shop");
+            render(()->{
+                com.shatteredpixel.shatteredpixeldungeon.items.Heap offer=Dungeon.level.heaps.get(Dungeon.hero.pos);
+                if (offer==null || offer.type!=com.shatteredpixel.shatteredpixeldungeon.items.Heap.Type.FOR_SALE)
+                    throw new AssertionError("Expected original prison shop stock");
+                GameScene.show(new WndTradeItem(offer));
+                return null;
+            });
+            shot("prison-buy");
+            return;
         }
         shot(boss?"goo":"sewer");
         if (!boss) {
@@ -101,7 +120,7 @@ public class UpstreamGraphicsReference {
         for (String k:new String[]{"Specification-Title","Specification-Version","Implementation-Title","Implementation-Version"})
             System.setProperty(k,manifest.getMainAttributes().getValue(k));
         Thread worker=new Thread(()->{
-            try {capture(args[1].equals("goo"));System.out.println("PASS original "+args[1]);Gdx.app.postRunnable(()->Gdx.app.exit());}
+            try {capture(args[1]);System.out.println("PASS original "+args[1]);Gdx.app.postRunnable(()->Gdx.app.exit());}
             catch(Throwable t){t.printStackTrace();System.exit(1);}
         });
         worker.setDaemon(true);worker.start();DesktopLauncher.main(new String[0]);

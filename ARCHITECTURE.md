@@ -1,5 +1,9 @@
 # 엔진 분석 — v4.0.2
 
+## 감옥 Actor와 층 저장
+
+Guard와 DM100은 호스트의 원본 Mob AI, Ballistica, damage, occupyCell, Buff와 단일 Actor 시계를 사용한다. Guard의 끌려간 영웅이 자기 행동을 중단한다. 감옥 스프라이트와 물·타일은 좌석의 공개 상태에서 선택한다. 7층에 도달한 저장은 스키마 5로 여섯 휴면 층을 담는다.
+
 ## 감옥 6층 상점 · P1-A
 
 SeatProjection이 관측 가능한 상품 가격과 자기 판매품만 내보낸다. CoopScene과 WndSeatTrade가 명시적 확인을 받고 기존 SeatActions 경로로 보낸다. CoopTrade는 실제 Hero와 Shopkeeper를 검사한 뒤 WndTradeItem의 원본 거래 메서드를 실행한다. 판매품은 상인의 원본 Bundle과 ItemOwnership의 물리적 위치 표에 함께 들어간다.

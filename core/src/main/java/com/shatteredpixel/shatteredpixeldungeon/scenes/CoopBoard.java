@@ -36,7 +36,7 @@ final class CoopBoard extends Group {
         map = new DungeonRenderMap(view);
         float zoom = GameMath.gate(PixelScene.minZoom, PixelScene.defaultZoom + SPDSettings.zoom(), PixelScene.maxZoom);
         camera = Camera.add(Camera.createFullscreen(zoom));
-        water = new SkinnedBlock(view.width*TILE, view.height*TILE, view.depth==6 ? Assets.Environment.WATER_PRISON : Assets.Environment.WATER_SEWERS);
+        water = new SkinnedBlock(view.width*TILE, view.height*TILE, view.depth>=6 ? Assets.Environment.WATER_PRISON : Assets.Environment.WATER_SEWERS);
         water.autoAdjust = true;
         add(water);
         layers = new Tilemap[]{
@@ -255,6 +255,8 @@ final class CoopBoard extends Group {
                     case "Swarm": sprite=new SwarmSprite();break;
                     case "CausticSlime": sprite=new CausticSlimeSprite();break;
                     case "Thief": sprite=new ThiefSprite();break;
+                    case "Guard": sprite=new GuardSprite();break;
+                    case "DM100": sprite=new DM100Sprite();break;
                     case "Skeleton": sprite=new SkeletonSprite();break;
                     case "Shopkeeper": sprite=new ShopkeeperSprite();break;
                     case "RatKing": sprite=new RatKingSprite();break;

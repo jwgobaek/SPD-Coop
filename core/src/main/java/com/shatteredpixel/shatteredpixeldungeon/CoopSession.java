@@ -405,7 +405,9 @@ public final class CoopSession implements AutoCloseable {
                     && (armor.glyph instanceof Potential || armor.glyph instanceof Repulsion);
         }
         if (type==Statue.class) return statueWeapon(((Statue)actor).weapon());
-        return (Dungeon.depth==CoopFloors.FIRST_PRISON && (type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Skeleton.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.class))
+        return (Dungeon.depth>=CoopFloors.FIRST_PRISON && Dungeon.depth<=CoopFloors.LAST_PLAYABLE && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Skeleton.class)
+                || (Dungeon.depth==CoopFloors.FIRST_PRISON && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.class)
+                || (Dungeon.depth==7 && (type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Guard.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM100.class))
                 || type == GnollExile.class || type == PhantomPiranha.class || type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
                 || type == Mimic.class || type == CrystalMimic.class || type == GoldenMimic.class || type == Sheep.class || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
                 || type==Crab.class || type==HermitCrab.class || type==Swarm.class || type==Slime.class || type==CausticSlime.class || type==Thief.class
@@ -898,7 +900,7 @@ public final class CoopSession implements AutoCloseable {
         if (Dungeon.coop!=null || Dungeon.hero!=null || Dungeon.level!=null) throw new IllegalStateException("Dungeon in use");
         Bundle world=b.getBundle("world"), floor=b.getBundle("floor");
         int schema=b.getInt("schema"),depth=world.getInt("depth");
-        if ((schema<1 || schema>4) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
+        if ((schema<1 || schema>5) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
                 (depth<1 || depth>CoopFloors.lastDepth(schema)) || world.getInt("branch")!=0 || world.getInt("challenges")!=0)
             throw new IllegalArgumentException("Unsupported world");
         int width=floor.getInt("width"), height=floor.getInt("height");
