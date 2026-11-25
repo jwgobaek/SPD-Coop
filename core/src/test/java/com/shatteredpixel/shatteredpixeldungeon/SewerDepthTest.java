@@ -243,6 +243,29 @@ public class SewerDepthTest extends HeadlessDungeon {
             assertEquals(first,game.hero(0).id()); assertEquals(second,game.hero(1).id());
             assertTrue(Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel);
             assertEquals(4,game.checkpoint().getInt("schema"));
+            // Isolated native death burst on this actual prison floor, after the normal boss/door sequence.
+            com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Skeleton skeleton=new com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Skeleton();
+            int entrance=Dungeon.level.entrance();
+            int boneCell=-1;
+            for(int offset:com.watabou.utils.PathFinder.NEIGHBOURS8) {
+                int candidate=entrance+offset;
+                if (Dungeon.level.passable[candidate] && Actor.findChar(candidate)==null
+                        && Dungeon.level.adjacent(candidate,game.hero(1).pos)) { boneCell=candidate; break; }
+            }
+            assertTrue(boneCell>=0);
+            skeleton.pos=boneCell;
+            com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.add(skeleton,1);
+            int[] hp=new int[2];
+            for(int seat=0;seat<2;seat++) {
+                Hero survivor=game.hero(seat);
+                hp[seat]=survivor.HP=survivor.HT=100;
+            }
+            skeleton.damage(skeleton.HP+50,game.hero(1));
+            assertFalse(skeleton.isAlive());
+            for(int seat=0;seat<2;seat++) {
+                int damage=hp[seat]-game.hero(seat).HP;
+                assertTrue("native bone burst seat "+seat+" damage="+damage,damage>0 && damage<=12);
+            }
             CoopFloorsTest.cross(game); assertEquals(Terrain.UNLOCKED_EXIT,Dungeon.level.map[exit]);
         }
     }

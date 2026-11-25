@@ -26,7 +26,7 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
+    private static boolean armored,scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
@@ -41,7 +41,8 @@ public final class CoopRenderSmoke {
         hazards=args.length>1 && args[1].equals("hazards");
         mimic=crystal || golden || (args.length>1 && args[1].equals("mimic"));
         unstable=args.length>1 && args[1].equals("unstable");
-        statue=unstable || (args.length>1 && args[1].equals("statue"));
+        armored=args.length>1 && args[1].equals("armored");
+        statue=armored || unstable || (args.length>1 && args[1].equals("statue"));
         garden=args.length>1 && args[1].equals("garden");
         shortcutKit=args.length>1 && args[1].equals("kit-slots");
         kit=shortcutKit || (args.length>1 && args[1].equals("kit"));
@@ -55,7 +56,7 @@ public final class CoopRenderSmoke {
             System.setProperty(name,manifest.getMainAttributes().getValue(name));
         Thread driver=new Thread(()->{
             try { exercise(); System.out.println("PASS desktop seat UI"); Gdx.app.postRunnable(()->Gdx.app.exit()); }
-            catch(Throwable error) { error.printStackTrace(); System.exit(1); }
+            catch(Throwable error) { error.printStackTrace(); try { shot("failed-input"); } catch(Exception ignored) {} System.exit(1); }
         },"Desktop UI test");
         driver.setDaemon(true); driver.start(); DesktopLauncher.main(new String[0]);
     }
@@ -286,6 +287,8 @@ public final class CoopRenderSmoke {
         });
     }
     private static void bagAction(String kind,String verb) throws Exception {
+        PublicDungeon offered=frame().dungeon;
+        mapPoint(offered,offered.pos); // Wait for the same verified version to reach the clickable HUD.
         click("bag");
         await(()->render(()->find(Game.scene(),g->g instanceof WndSeatInventory)!=null));
         press(inventoryPoint(kind));
@@ -354,13 +357,16 @@ public final class CoopRenderSmoke {
                     throw new AssertionError("Expected visible original boss reward");
                 shot("goo-rewards");
                 if (prison) {
+                    long beforeKey=frame().image.version;
                     RenderEncounter.atBossKey(hostController()); click("wait");
-                    await(()->frame().dungeon.offered && frame().dungeon.floor.containsKey(frame().dungeon.pos));
+                    await(()->frame().image.version>beforeKey && frame().dungeon.offered && frame().dungeon.floor.containsKey(frame().dungeon.pos)
+                            && frame().dungeon.floor.get(frame().dungeon.pos).sprite==com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.WORN_KEY);
                     PublicDungeon v=frame().dungeon;
                     press(mapPoint(v,v.pos));
                     await(()->frame().dungeon.offered && frame().image.version>v.source.version);
+                    long beforeGate=frame().image.version;
                     RenderEncounter.atExit(hostController()); click("wait");
-                    await(()->frame().dungeon.offered);
+                    await(()->frame().image.version>beforeGate && frame().dungeon.offered);
                     PublicDungeon near=frame().dungeon;
                     int exit=-1;
                     for (int j=0;j<near.width*near.height;j++) if(near.visible(j) && near.terrain(j)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.LOCKED_EXIT) {exit=j;break;}
@@ -377,8 +383,10 @@ public final class CoopRenderSmoke {
             return;
         }
         if (statue) {
-            int cell=RenderEncounter.beside(hostController(),com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue.class);
-            click("wait"); await(()->frame().dungeon.offered && "Statue".equals(frame().dungeon.monsters.get(cell)));
+            Class<? extends com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob> kind=armored ?
+                    com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue.class : com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue.class;
+            int cell=RenderEncounter.beside(hostController(),kind);
+            click("wait"); await(()->frame().dungeon.offered && kind.getSimpleName().equals(frame().dungeon.monsters.get(cell)));
             shot("statue-passive");
             int before=staff(frame().dungeon).charges;
             aimStaff(); press(mapPoint(frame().dungeon,cell));
@@ -430,7 +438,7 @@ public final class CoopRenderSmoke {
             await(()->frame().dungeon!=null && frame().dungeon.depth==2 && frame().dungeon.offered);
             shot("sewer-2-reconnected");
             if (statue) {
-                if (!frame().dungeon.monsters.containsValue("Statue")) throw new AssertionError("Missing restored statue");
+                if (!frame().dungeon.monsters.containsValue(armored?"ArmoredStatue":"Statue")) throw new AssertionError("Missing restored statue");
                 shot("statue-reconnected");
                 click("menu");click("saveexit");await(()->button("host")!=null);
                 return;
@@ -475,7 +483,7 @@ public final class CoopRenderSmoke {
         render(()->{
             Field active=CoopScene.class.getDeclaredField("active"); active.setAccessible(true);
             active.set(null,new CoopController(CoopPlatform.root(),null,null,testPort,0,
-                    new java.util.Random(){@Override public long nextLong(){return deep ? 402 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
+                    new java.util.Random(){@Override public long nextLong(){return deep ? 402 : armored ? 446 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
             return null;
         });
         click("title"); await(()->button("host")!=null);

@@ -137,6 +137,7 @@ public final class RestartClient {
         boolean special=RestartHost.plant(mode) || mode.equals("goo") || RestartHost.hazard(mode) || mode.equals("blocked-start") || RestartHost.guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
         if (special) {
             try (LanClient old = new LanClient(address)) {
+                assertEquals("ERROR VERSION",old.request("MODE SYNC13"));
                 assertEquals("ERROR VERSION", old.request("MODE SYNC3"));
                 assertEquals("ERROR VERSION", old.request("MODE SYNC12"));
             }

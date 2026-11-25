@@ -44,11 +44,13 @@ public final class LanClient implements Closeable {
         } catch (IOException failure) { close(); throw failure; }
     }
 
+    static final String PLAY_MODE="SYNC14";
+
     /** Negotiate the synchronized protocol before joining a seat. */
     public static LanClient synchronizedGame(InetSocketAddress address) throws IOException {
         LanClient client = new LanClient(address);
         try {
-            if (!"MODE SYNC13".equals(client.request("MODE SYNC13"))) throw new IOException("VERSION");
+            if (!("MODE "+PLAY_MODE).equals(client.request("MODE "+PLAY_MODE))) throw new IOException("VERSION");
             return client;
         } catch (IOException failure) {
             client.close();
