@@ -144,6 +144,68 @@ public class WandmakerTest extends HeadlessDungeon {
         beside(game,1-seat,npc.pos);
     }
 
+    @Test public void fullBagRewardKeepsItsPhysicalIdentityOnTheFloorForTheClaimant() {
+        for (int seat=0;seat<2;seat++) {
+            Bundle saved;
+            long id;
+            int cell;
+            try (CoopSession game=CoopSession.open(577,11,HeroClass.WARRIOR)) {
+                game.join(22,HeroClass.MAGE);
+                enterPrison(game);
+                Wandmaker npc=SewerSpecialActorTest.actor(Wandmaker.class);
+                cell=npc.pos;
+                offered(game,seat); beside(game,seat,cell);
+                act(game,seat,CoopSession.Action.ACCEPT_WANDMAKER,cell,null);
+                objective(game,seat,Rotberry.Seed.class);
+                Hero owner=game.hero(seat);
+                // Keep the objective stack's slot occupied when the first seed is consumed.
+                owner.belongings.getItem(Rotberry.Seed.class).quantity(2);
+                while (owner.belongings.backpack.canHold(new com.shatteredpixel.shatteredpixeldungeon.items.Ankh()))
+                    assertTrue(new com.shatteredpixel.shatteredpixeldungeon.items.Ankh().collect(owner.belongings.backpack));
+                Wand reward=Wandmaker.Quest.wand1;
+                offered(game,seat); beside(game,seat,cell);
+                act(game,seat,CoopSession.Action.WAND_FIRST,cell,null);
+                assertEquals(1,owner.belongings.getItem(Rotberry.Seed.class).quantity());
+                assertFalse(owner.belongings.contains(reward));
+                assertTrue(Dungeon.level.heaps.get(cell).items.contains(reward));
+                assertEquals(game.player(seat),game.ownership.owner(reward));
+                id=game.ownership.identity(reward);
+                saved=game.checkpoint();
+            }
+            try (CoopSession game=CoopSession.restore(saved)) {
+                Item wand=Dungeon.level.heaps.get(cell).peek();
+                assertEquals(id,game.ownership.identity(wand));
+                assertFalse(game.ownership.allowed(wand,game.player(1-seat)));
+                assertNull(Wandmaker.Quest.wand1);
+                assertNull(Wandmaker.Quest.wand2);
+            }
+        }
+    }
+
+    @Test public void returningDustDispelsActiveWraithsAndPreservesTheOriginalParkedFloor() {
+        try (CoopSession game=CoopSession.open(572,11,HeroClass.WARRIOR)) {
+            game.join(22,HeroClass.MAGE);
+            enterPrison(game);
+            Wandmaker npc=SewerSpecialActorTest.actor(Wandmaker.class);
+            offered(game,1); beside(game,1,npc.pos);
+            act(game,1,CoopSession.Action.ACCEPT_WANDMAKER,npc.pos,null);
+            objective(game,1,CorpseDust.class);
+            SewerDepthTest.gate(game,false);
+            for (int i=0;i<40 && Dungeon.level.mobs.stream().noneMatch(m->m instanceof CorpseDust.DustWraith);i++)
+                SewerSpecialActorTest.waitOne(game);
+            int parked=SewerSpecialActorTest.actor(CorpseDust.DustWraith.class).id();
+            SewerDepthTest.gate(game,true);
+            assertNull(com.shatteredpixel.shatteredpixeldungeon.actors.Actor.findById(parked));
+            offered(game,1); npc=SewerSpecialActorTest.actor(Wandmaker.class); beside(game,1,npc.pos);
+            act(game,1,CoopSession.Action.WAND_SECOND,npc.pos,null);
+            assertNull(game.hero(1).buff(CorpseDust.DustGhostSpawner.class));
+            assertTrue(Dungeon.level.mobs.stream().noneMatch(m->m instanceof CorpseDust.DustWraith));
+            SewerDepthTest.gate(game,false);
+            assertTrue(com.shatteredpixel.shatteredpixeldungeon.actors.Actor.findById(parked) instanceof CorpseDust.DustWraith);
+            assertNull(game.hero(1).buff(CorpseDust.DustGhostSpawner.class));
+        }
+    }
+
     private void exercise(int seed, Class<? extends Item> type) {
         Bundle start;
         try (CoopSession game = CoopSession.open(seed,11,HeroClass.WARRIOR)) {
