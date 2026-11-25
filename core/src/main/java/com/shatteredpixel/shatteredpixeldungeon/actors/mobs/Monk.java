@@ -22,6 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp;
@@ -126,7 +127,7 @@ public class Monk extends Mob {
 		}
 	}
 	
-	private static String FOCUS_COOLDOWN = "focus_cooldown";
+	private static final String FOCUS_COOLDOWN = "focus_cooldown";
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
@@ -137,7 +138,7 @@ public class Monk extends Mob {
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
-		focusCooldown = bundle.getInt( FOCUS_COOLDOWN );
+		focusCooldown = Dungeon.coop == null ? bundle.getInt(FOCUS_COOLDOWN) : bundle.getFloat(FOCUS_COOLDOWN);
 	}
 	
 	public static class Focus extends Buff {

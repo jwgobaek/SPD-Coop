@@ -56,6 +56,32 @@ public class CityEntranceTest extends HeadlessDungeon {
             TenguArenaTest.waitOne(game);
         }
     }
+    @Test public void monkParryCooldownSurvivesAFullRoomRestore() {
+        Bundle checkpoint;
+        int monkId;
+        float cooldown;
+        try (CoopSession game=CavesInteriorTest.open(572)) {
+            CityKingTest.reach(game,19);
+            Monk monk=SewerSpecialActorTest.actor(Monk.class);
+            monkId=monk.id();
+            // A native block consumes Focus and draws a fractional 6-to-7 turn delay.
+            com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff.affect(monk,Monk.Focus.class);
+            monk.defenseVerb();
+            Bundle before=new Bundle();
+            monk.storeInBundle(before);
+            cooldown=before.getFloat("focus_cooldown");
+            assertTrue(cooldown>=6 && cooldown<=7);
+            checkpoint=game.checkpoint();
+        }
+        try (CoopSession game=CoopSession.restore(checkpoint)) {
+            Monk monk=(Monk)Actor.findById(monkId);
+            Bundle after=new Bundle();
+            monk.storeInBundle(after);
+            assertEquals(cooldown,after.getFloat("focus_cooldown"),0f);
+            TenguArenaTest.waitOne(game);
+        }
+    }
+
     @Test public void originalCityTradePricesAndWarlockAtBothSeats() {
         Bundle saved;
         try (CoopSession game=CavesInteriorTest.open(572)) {
