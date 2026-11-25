@@ -220,6 +220,10 @@ public final class RestartHost {
                     started=true;
                     com.watabou.utils.Random.pushGenerator(seedFor(mode));
                 }
+                if (mode.equals("seven-resume") && room.state()==LanRoom.State.IN_GAME
+                        && java.nio.file.Files.deleteIfExists(path.resolve("measure-seven"))) {
+                    measureSaves(path,room,Dungeon.depth);
+                }
                 if (mode.equals("campaign") && room.state()==LanRoom.State.IN_GAME) {
                     if (campaignDepth!=Dungeon.depth) { campaignDepth=Dungeon.depth; arrivalTurn=Dungeon.coop.turn(); }
                     if (profiledCampaignDepth!=campaignDepth && Dungeon.coop.turn()-arrivalTurn>=25) {

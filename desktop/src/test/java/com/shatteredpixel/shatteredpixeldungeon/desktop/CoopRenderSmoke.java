@@ -156,6 +156,21 @@ public final class CoopRenderSmoke {
         System.out.println("Input "+name);
         press(waitForButton(name));
     }
+    private static void sceneMetrics(String boundary) throws Exception {
+        render(()->{
+            java.util.concurrent.atomic.AtomicInteger nodes=new java.util.concurrent.atomic.AtomicInteger();
+            find(Game.scene(),node->{ nodes.incrementAndGet(); return false; });
+            int engines=0, transports=0, clients=0;
+            for (Thread thread:Thread.getAllStackTraces().keySet()) {
+                if (thread.getName().equals("Coop engine")) engines++;
+                if (thread.getName().equals("spd-lan-io")) transports++;
+                if (thread.getName().equals("Coop client")) clients++;
+            }
+            System.out.println("scene boundary="+boundary+" drawn_or_input_nodes="+nodes.get()
+                    +" host_engines="+engines+" lan_transports="+transports+" client_workers="+clients);
+            return null;
+        });
+    }
     private static void waitAndRegainTurn() throws Exception {
         long action=frame().lastAction;
         long version=frame().image.version;
@@ -419,9 +434,8 @@ public final class CoopRenderSmoke {
                     PublicDungeon v=frame().dungeon;
                     press(mapPoint(v,v.pos));
                     await(()->frame().dungeon.offered && frame().image.version>v.source.version);
-                    long beforeGate=frame().image.version;
-                    RenderEncounter.atExit(hostController()); click("wait");
-                    await(()->frame().image.version>beforeGate && frame().dungeon.offered);
+                    RenderEncounter.atExit(hostController());
+                    waitAndRegainTurn();
                     PublicDungeon near=frame().dungeon;
                     int exit=-1;
                     for (int j=0;j<near.width*near.height;j++) if(near.visible(j) && near.terrain(j)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.LOCKED_EXIT) {exit=j;break;}
@@ -552,6 +566,7 @@ public final class CoopRenderSmoke {
             return null;
         });
         click("title"); await(()->button("host")!=null);
+        sceneMetrics("before-room");
         shot("multiplayer"); click("host"); await(()->button("warriorClass")!=null);
         shot("lobby"); click(kit?"huntressClass":mage?"mageClass":"warriorClass");
         if(mage) shot("mage-selected");
@@ -564,6 +579,7 @@ public final class CoopRenderSmoke {
         try {
             click("ready"); await(()->button("start")!=null); shot("ready"); click("start");
             await(()->frame().dungeon!=null); await(()->button("bag")!=null);
+            sceneMetrics("first-floor");
             shot("dungeon");
             if (!mage && !hazards && !kit && !garden) {
                 Point portrait=render(()->{
@@ -730,6 +746,7 @@ public final class CoopRenderSmoke {
             Gizmo inputBefore=render(()->find(boardBefore,g->g instanceof PointerArea));
             press(mapPoint(before,target)); await(()->frame().dungeon.pos==target); await(()->frame().dungeon.offered);
             render(()->{ verifyLayerUpdate((Group)boardBefore); return null; });
+            sceneMetrics("after-move");
             if (!render(()->find(Game.scene(),g->g==boardBefore)==boardBefore && find(Game.scene(),g->g==hudBefore)==hudBefore
                     && find(boardBefore,g->g==inputBefore)==inputBefore))
                 throw new AssertionError("An ordinary move recreated the floor, HUD or touch listener");
@@ -777,6 +794,7 @@ public final class CoopRenderSmoke {
             shot("resumed"); long resumedVersion=frame().image.version;
             click("wait"); await(()->frame().image.version>resumedVersion && "APPLIED".equals(frame().lastResult));
             click("menu"); click("saveexit"); await(()->button("host")!=null);
+            sceneMetrics("after-save-exit");
         } finally {
             if(child.isAlive()) child.destroy(); if(!child.waitFor(5,TimeUnit.SECONDS)) child.destroyForcibly();
         }
