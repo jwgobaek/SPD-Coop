@@ -30,6 +30,7 @@ public class SewerJourney extends HeadlessDungeon {
         if(System.getProperty("journey.trace")!=null)
             java.nio.file.Files.write(java.nio.file.Paths.get(System.getProperty("journey.trace")),run.route);
     }
+    private final boolean coverAlly=Boolean.getBoolean("journey.coverAlly");
     private final List<String> route=new ArrayList<>();
     private final Map<String,Integer> counts=new TreeMap<>();
     private boolean act(CoopSession game,CoopSession.Action verb,int cell,Item item) {
@@ -66,7 +67,12 @@ public class SewerJourney extends HeadlessDungeon {
             if(distance<=level.distance(actor.pos,goo.pos) && !(rinse && level.water[p] && distance>=2)) continue;
             int exits=0;
             for(int n:PathFinder.NEIGHBOURS8) if(level.passable[p+n] && !level.pit[p+n]) exits++;
-            int candidate=distance*10+exits - Math.abs(level.distance(p,ally.pos)-4)*2;
+            int allyDistance=level.distance(p,ally.pos);
+            int candidate=distance*10+exits - Math.abs(allyDistance-4)*2;
+            if (coverAlly) {
+                candidate=distance*8+exits;
+                if (ally.isAlive()) candidate-=Math.abs(allyDistance-3)*9;
+            }
             if(level.water[p]) candidate+=rinse?35:-12;
             if(candidate>score) {score=candidate;best=p;}
         }
@@ -146,7 +152,8 @@ public class SewerJourney extends HeadlessDungeon {
                     Goo goo=(Goo)m;
                     int range=l.distance(h.pos,goo.pos);
                     boolean ooze=h.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Ooze.class)!=null;
-                    if((range<=1 && goo.chargeStage()!=1 && h.HP<h.HT/2) || (range<=2 && goo.chargeStage()==2) || (l.water[goo.pos] && range<=2)
+                    boolean retreatFromMelee=coverAlly ? g.hero(1-s).isAlive() : h.HP<h.HT/2;
+                    if((range<=1 && goo.chargeStage()!=1 && retreatFromMelee) || (range<=2 && goo.chargeStage()==2) || (l.water[goo.pos] && range<=2)
                             || (ooze && !l.water[h.pos] && range<=2)) {
                         int away=retreat(h,g.hero(1-s),goo,ooze);
                         if(away>=0 && act(g,CoopSession.Action.MOVE,away,null)) {acted=true;break;}

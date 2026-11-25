@@ -556,9 +556,11 @@ public final class RestartClient {
         // A separate native-engine process prepares a map-aware list of ordinary player inputs.
         // Each authenticated socket step below checks the independent host's resulting position and HP.
         Path dir=path;
+        boolean coverAlly=mode.equals("campaign-team");
+        String seed=coverAlly ? "1105" : "581";
         Process guide=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-Xmx256m",
-                "-Djourney.front=MAGE","-Djourney.trace="+dir.resolve("route"),"-cp",System.getProperty("java.class.path"),
-                "com.shatteredpixel.shatteredpixeldungeon.SewerJourney","581")
+                "-Djourney.front=MAGE","-Djourney.coverAlly="+coverAlly,"-Djourney.trace="+dir.resolve("route"),"-cp",System.getProperty("java.class.path"),
+                "com.shatteredpixel.shatteredpixeldungeon.SewerJourney",seed)
                 .redirectErrorStream(true).redirectOutput(dir.resolve("guide.log").toFile()).start();
         try {
             assertTrue(guide.waitFor(30,java.util.concurrent.TimeUnit.SECONDS));
@@ -625,7 +627,7 @@ public final class RestartClient {
                     " count="+sample.size()+" median_us="+sample.get(sample.size()/2)+
                     " p95_us="+sample.get((int)Math.ceil(.95*sample.size())-1));
         }
-        System.out.println("native socket route natural campaign seed=581 mode="+mode+" seat_actions="+(resumed ? steps-CAMPAIGN_RESTART_STEP : steps)+
+        System.out.println("native socket route natural campaign seed="+seed+" mode="+mode+" seat_actions="+(resumed ? steps-CAMPAIGN_RESTART_STEP : steps)+
                 " extra_consents="+crossings+" carried_GooBlob="+blobs+" hp="+new PublicDungeon(state(0)).hp+"/"+new PublicDungeon(state(1)).hp);
     }
 

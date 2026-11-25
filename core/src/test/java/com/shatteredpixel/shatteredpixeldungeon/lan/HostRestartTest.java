@@ -82,6 +82,10 @@ public class HostRestartTest {
         for(int depth=1;depth<=5;depth++) System.out.println("campaign "+RestartHost.read(dir,"perf"+depth));
     }
 
+    @Test(timeout=300000) public void bothHeroesClaimGooLootOnAnIndependentSecondSeed() throws Exception {
+        run(temp.getRoot().toPath(),new String[]{"campaign-team"});
+    }
+
     @Test(timeout=330000) public void coldHostAndBothAuthenticatedSeatsFinishNaturalCampaignFromFloorThree() throws Exception {
         run(temp.getRoot().toPath(),new String[]{"campaign-start","campaign-resume"});
     }

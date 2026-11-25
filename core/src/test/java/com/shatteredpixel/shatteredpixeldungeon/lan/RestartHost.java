@@ -47,7 +47,7 @@ public final class RestartHost {
     }
     static boolean kit(String mode) { return mode.equals("kit0") || mode.equals("kit1"); }
     static boolean newCampaign(String mode) {
-        return mode.equals("campaign") || mode.equals("campaign-start");
+        return mode.equals("campaign") || mode.equals("campaign-start") || mode.equals("campaign-team");
     }
     private static long seedFor(String mode) {
         switch (mode) {
@@ -64,6 +64,7 @@ public final class RestartHost {
             case "piranha": return 406;
             case "walk": return 415;
             case "campaign": case "campaign-start": return 581;
+            case "campaign-team": return 1105;
             default: return 402;
         }
     }
@@ -158,7 +159,7 @@ public final class RestartHost {
                     throw new IllegalStateException(room.failure());
                 if (!started && newCampaign(mode) && room.state()==LanRoom.State.IN_GAME) {
                     started=true;
-                    com.watabou.utils.Random.pushGenerator(581);
+                    com.watabou.utils.Random.pushGenerator(seedFor(mode));
                 }
                 if (mode.equals("campaign") && room.state()==LanRoom.State.IN_GAME) {
                     if (campaignDepth!=Dungeon.depth) { campaignDepth=Dungeon.depth; arrivalTurn=Dungeon.coop.turn(); }
