@@ -39,3 +39,18 @@ with TemporaryDirectory() as folder:
         assert fixture["generation"](original) == before
         print("PASS schema", schema, "receipt and next actions from fresh authenticated JVM")
         print((copied / ("perf19" if schema == 10 else "perf20")).read_text())
+        if schema == 10:
+            promoted = tmp / "promotion"
+            shutil.copytree(original, promoted)
+            run(root, current, promoted, "late-down19")
+            arrived = fixture["generation"](promoted)
+            assert arrived["schema"] == 11 and arrived["session"] == before["session"]
+            assert arrived["state"]["engine"]["world"]["depth"] == 20
+            for key in ("epoch", "key0", "key1"):
+                assert arrived["state"][key] == before["state"][key]
+            assert arrived["state"]["engine"]["players"] == before["state"]["engine"]["players"]
+            run(root, current, promoted, "late-up20")
+            returned = fixture["generation"](promoted)
+            assert returned["schema"] == 11 and returned["state"]["engine"]["world"]["depth"] == 19
+            assert fixture["generation"](original) == before
+            print("PASS original schema 10 promoted to 11 on committed TCP crossing, both seats, fresh JVM return and next action")

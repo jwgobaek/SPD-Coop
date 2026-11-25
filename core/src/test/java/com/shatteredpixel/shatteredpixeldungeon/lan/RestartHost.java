@@ -245,7 +245,15 @@ public final class RestartHost {
             if (mode.startsWith("late-down") || mode.startsWith("late-up")) {
                 int depth=Integer.parseInt(mode.replaceFirst("^late-(down|up)", ""));
                 assertEquals(depth,Dungeon.depth);
-                assertEquals(depth==7 ? 5 : depth==11 ? 7 : 6,Dungeon.coop.checkpoint().getInt("schema"));
+                int expectedSchema;
+                switch (depth) {
+                    case 7: expectedSchema=5; break;
+                    case 11: expectedSchema=7; break;
+                    case 19: expectedSchema=10; break;
+                    case 20: expectedSchema=11; break;
+                    default: expectedSchema=6;
+                }
+                assertEquals(expectedSchema,Dungeon.coop.checkpoint().getInt("schema"));
                 SewerSpecialActorTest.atGate(Dungeon.coop,mode.startsWith("late-down") ? Dungeon.level.exit() : Dungeon.level.entrance());
             }
             if (mode.equals("schema2-to-three")) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());

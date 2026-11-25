@@ -1,5 +1,9 @@
 # 엔진 분석 — v4.0.2
 
+## 광산과 도시의 저장 경계
+
+호스트가 원본 LevelTransition의 branch와 depth를 함께 확인한다. 동일한 깊이의 본편과 광산은 지형·아이템·좌석별 탐험 기억을 각각 보관한다. GhoulLifeLink가 보관하는 몸과 버프도 활성·휴면 층 전체의 Actor ID 검사에 포함한다. 20층은 드워프 왕의 소환 대기와 생명 연결, 보호막, 지연 피해 및 왕관을 원본 번들로 복원한다. [저장 명세](docs/coop/save-format.md)
+
 ## Tengu의 같은 층 지도 교체
 
 호스트는 PrisonBossLevel의 상태 머신과 원본 Actor를 실행한다. START·FIGHT_PAUSE에서 별도 보관한 보스, storedItems와 일반 바닥의 물리적 ID를 저장 경계에서 함께 검사한다. 새 방이 공개되면 SYNC20의 층·단계 식별자가 바뀌고 두 좌석은 각각 새 시야로 전체 이미지를 받는다. [저장](docs/coop/save-format.md) · [동기화](docs/coop/state-sync.md)
