@@ -48,7 +48,7 @@ final class RenderEncounter {
         owner.setAccessible(true);
         ((ExecutorService)owner.get(room)).submit(()->{
             CoopSession game=Dungeon.coop;
-            if (destination.startsWith("yog-")) {
+            if (destination.startsWith("yog-") || destination.startsWith("ascent-")) {
                 java.nio.file.Path image=java.nio.file.Paths.get(System.getProperty("spd.yogFrames"),destination);
                 Field service=room.getClass().getDeclaredField("room");
                 service.setAccessible(true);

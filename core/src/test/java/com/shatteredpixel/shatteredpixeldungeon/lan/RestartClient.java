@@ -574,6 +574,14 @@ public final class RestartClient {
                 refresh();
             }
             if (RestartHost.measureBoundary(mode) || mode.equals("tengu-read-dm-devices")) {
+                if (Boolean.getBoolean("spd.measureElemental") && RestartHost.measureBoundary(mode)) {
+                    // Do not ask the owner for a new snapshot while it times 21 synchronous saves.
+                    RestartHost.write(path,"measure-ready","1");
+                    String marker=mode.equals("tengu-read-ascent-24")?"perf24":"perf18";
+                    long until=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(30);
+                    while (!Files.exists(path.resolve(marker)) && System.nanoTime()<until) Thread.sleep(10);
+                    assertTrue("durable save measurements published",Files.exists(path.resolve(marker)));
+                }
                 for (int i=0;i<21;i++) act("WAIT",0,0);
                 Collections.sort(latency);
                 System.out.println("tengu_tcp mode="+mode+" restored_arena_waits="+latency.size()+" median_us="+latency.get(10)+" p95_us="+latency.get(19));

@@ -1,5 +1,7 @@
 # Cloud에서 빌드하기
 
+최종 정령은 scripts/verify-vault-elemental.py, 이전 실제 스키마 14는 scripts/verify-ascent-migration.py로 재현한다. 검증용 임시 프로필은 배포에서 제외한다. [실행 결과와 다음 작업](docs/coop/vault-ascent-results.md)
+
 Yog 일반 승리판 APK의 빌드 커밋은 f1e1bb2이다. 깨끗한 체크아웃에서 scripts/verify-android-build.sh를 실행하고 검증 커밋에서 scripts/package-caves-checkpoint.py로 대응 소스와 시험 자료를 묶는다. [최종 보스·승리 검증 기록](docs/coop/yog-victory-results.md)
 
 Imp 금고·악마의 전당판의 깨끗한 Android 빌드와 전체 JUnit, 이전 서명과의 호환성 및 MuMu 교체 설치를 확인했다. [APK 소스, 크기, 서명과 시험 결과](docs/coop/imp-halls-delivery.md)

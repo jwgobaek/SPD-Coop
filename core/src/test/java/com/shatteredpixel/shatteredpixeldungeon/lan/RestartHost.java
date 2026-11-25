@@ -548,7 +548,8 @@ public final class RestartHost {
                     room.save();
                     write(path,"return-ready","1");
                 }
-                if ((RestartHost.measureBoundary(mode) || mode.equals("tengu-read-caves") || mode.equals("tengu-read-dm-devices"))
+                if ((!Boolean.getBoolean("spd.measureElemental") || java.nio.file.Files.exists(path.resolve("measure-ready")))
+                        && (RestartHost.measureBoundary(mode) || mode.equals("tengu-read-caves") || mode.equals("tengu-read-dm-devices"))
                         && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;
                     measureSaves(path,room,Dungeon.depth);

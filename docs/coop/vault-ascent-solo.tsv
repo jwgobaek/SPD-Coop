@@ -1,0 +1,20 @@
+seed	boundary	depth	inputs	level	total_xp	max_hp	strength	weapon	armor	food	healing	upgrades	ankhs	gold	kills	subclass	hp
+581	entry	1	0	1	0	20	10	MagesStaff	ClothArmor	1	0	0	0	0	0	NONE	20
+581	kill observed	1	12	1	1	20	10	MagesStaff	ClothArmor	1	0	0	0	0	1	NONE	16
+581	kill observed	1	15	1	2	20	10	MagesStaff	ClothArmor	1	0	0	0	0	2	NONE	12
+581	kill observed	1	30	1	3	20	10	MagesStaff	ClothArmor	1	0	0	0	0	3	NONE	12
+581	kill observed	1	36	1	4	20	10	MagesStaff	ClothArmor	1	0	0	0	0	4	NONE	7
+581	kill observed	1	94	1	5	20	10	MagesStaff	ClothArmor	1	0	0	0	0	5	NONE	11
+581	entry	2	94	1	5	20	10	MagesStaff	ClothArmor	1	0	0	0	0	5	NONE	11
+581	kill observed	2	119	1	7	20	10	MagesStaff	ClothArmor	1	0	0	0	0	6	NONE	2
+581	defeat	2	138	1	7	20	10	MagesStaff	ClothArmor	1	0	0	0	0	6	NONE	0
+1105	entry	1	0	1	0	20	10	MagesStaff	ClothArmor	1	0	0	0	0	0	NONE	20
+1105	kill observed	1	18	1	1	20	10	MagesStaff	ClothArmor	1	0	0	0	0	1	NONE	13
+1105	kill observed	1	20	1	2	20	10	MagesStaff	ClothArmor	1	0	0	0	0	2	NONE	10
+1105	kill observed	1	56	1	3	20	10	MagesStaff	ClothArmor	2	0	0	0	0	3	NONE	13
+1105	kill observed	1	106	1	4	20	10	MagesStaff	ClothArmor	2	0	0	0	62	4	NONE	15
+1105	entry	2	107	1	4	20	10	MagesStaff	ClothArmor	2	0	0	0	62	4	NONE	15
+1105	kill observed	2	154	1	5	20	10	MagesStaff	ClothArmor	2	0	0	0	62	5	NONE	20
+1105	kill observed	2	161	1	7	20	10	MagesStaff	ClothArmor	2	0	0	0	62	6	NONE	9
+1105	kill observed	2	176	1	8	20	10	MagesStaff	ClothArmor	2	0	0	0	62	7	NONE	3
+1105	input or wall-clock budget	2	180	1	8	20	10	MagesStaff	ClothArmor	2	0	0	0	62	7	NONE	3

@@ -196,6 +196,48 @@ IMPLEMENTED = {
 }
 
 
+VERIFIED.update({
+    'actors/mobs/CrystalGuardian': 'Native mining residents in isolated two-seat GNOLL/CRYSTAL combat; MiningBranchTest',
+    'actors/mobs/CrystalSpire': 'Native mining residents in isolated two-seat GNOLL/CRYSTAL combat; MiningBranchTest',
+    'actors/mobs/CrystalWisp': 'Native mining residents in isolated two-seat GNOLL/CRYSTAL combat; MiningBranchTest',
+    'actors/mobs/DwarfKing': 'Native three-phase encounter, summoned subjects, crown pickup and restore; CityKingTest, HostRestartTest. Crown abilities excluded.',
+    'actors/mobs/DwarfKing.KingDamager': 'Native three-phase encounter, summoned subjects, crown pickup and restore; CityKingTest, HostRestartTest. Crown abilities excluded.',
+    'actors/mobs/DwarfKing.Summoning': 'Native three-phase encounter, summoned subjects, crown pickup and restore; CityKingTest, HostRestartTest. Crown abilities excluded.',
+    'actors/mobs/Elemental.FireElemental': 'Native ranged Burning on both seats, buff identity retained after restore / CityResidentProbe',
+    'actors/mobs/Elemental.FrostElemental': 'Native ranged Chill on both seats, buff identity retained after restore / CityResidentProbe',
+    'actors/mobs/Elemental.ShockElemental': 'Native ranged Blindness on both seats, buff identity retained after restore / CityResidentProbe',
+    'actors/mobs/Ghoul': 'Original paired spawn, dormant body ID, life link, revival after restore; CityEntranceTest',
+    'actors/mobs/Ghoul.GhoulLifeLink': 'Downed original Ghoul object and actor ID through save, revival and final death / CityEntranceTest, CityKingTest',
+    'actors/mobs/GnollGeomancer': 'Native mining residents in isolated two-seat GNOLL/CRYSTAL combat; MiningBranchTest',
+    'actors/mobs/GnollGuard': 'Native mining residents in isolated two-seat GNOLL/CRYSTAL combat; MiningBranchTest',
+    'actors/mobs/GnollSapper': 'Native mining residents in isolated two-seat GNOLL/CRYSTAL combat; MiningBranchTest',
+    'actors/mobs/Golem': 'Native enemy teleport, landing, 20-turn cooldown and restore on both seats / CityResidentProbe',
+    'actors/mobs/Monk': 'Original hunting focus, evasion and parry against both seats / CityResidentProbe',
+    'actors/mobs/Monk.Focus': 'Acquired in hunting; native parry detaches focus and starts 6–7 turn cooldown / CityResidentProbe',
+    'actors/mobs/Warlock': 'Original dark bolt and Degrade applied to each target seat; CityEntranceTest',
+    'actors/mobs/npcs/Blacksmith': 'Native quest, return and scoped services on own items; MiningBranchTest',
+    'actors/mobs/npcs/Imp': 'City vault introduction and acceptance only; vault entry/escape/reward pending; CityEntranceTest',
+    'items/KingsCrown': 'Native three-phase encounter, summoned subjects, crown pickup and restore; CityKingTest, HostRestartTest. Crown abilities excluded.',
+    'items/quest/DarkGold': 'Original extraction, physical ID and favor on return; MiningBranchTest',
+    'items/quest/Pickaxe': 'Original issue, owner-authorized mining, quest escrow and buyback; MiningBranchTest',
+    'levels/CityBossLevel': 'Native three-phase encounter, summoned subjects, crown pickup and restore; CityKingTest, HostRestartTest. Crown abilities excluded.',
+    'levels/CityLevel': 'Bounded 16–19 seeded stair routes; mines-city-stairs.tsv',
+    'levels/MiningLevel': 'Two seeded mine types, branch 1 same depth, native bosses and irreversible exit; MiningBranchTest',
+})
+
+# These entries describe the verified operation only. The full source census also
+# includes visual helpers and unsupported subclasses separately.
+VERIFIED.update({
+    "actors/mobs/quest/vault/VaultBossElemental": "native 600 HP final fight, three forms, saved weights and future RNG, death and existing treasure / VaultElementalTest and verify-vault-elemental.py",
+    "actors/mobs/quest/vault/VaultElemental.Fire": "seed 578 flame on both seats separately and token loot / VaultElementalTest",
+    "actors/mobs/quest/vault/VaultElemental.Frost": "seed 578 chill on both seats separately and token loot / VaultElementalTest",
+    "actors/mobs/quest/vault/VaultShaman": "seed 578 targeted spell, token and same-seed branch restoration / VaultElementalTest and YogArenaTest",
+    "levels/rooms/quest/vault/VaultFinalRoom": "generated final room, warning and native lock/unlock, original treasure in 696 / VaultElementalTest",
+    "items/quest/ImpStatue": "original treasure pickup and 4000 tier in staged seed 572 fight / VaultElementalTest",
+    "actors/buffs/AscensionChallenge": "single carrier, native climb, per-kill curse reduction, both seats and surface / PartyAscentTest and verify-vault-elemental.py",
+})
+
+
 def main():
     archive = subprocess.check_output(["git", "archive", TAG, BASE])
     rows = []

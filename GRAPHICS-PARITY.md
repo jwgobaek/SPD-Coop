@@ -1,5 +1,7 @@
 # 원본과 협동 던전 화면 대조
 
+영어·한국어 Desktop에서 원본 정령 속성 스프라이트와 보이는 공격 예고, 귀환 제안, 지상 승리를 촬영했다. 픽셀 일치나 Android 보스전은 별도 검증 대상이다. [실행 결과와 다음 작업](docs/coop/vault-ascent-results.md)
+
 최종층은 HallsBossLevel과 LastLevel의 원본 바닥·벽 프레임과 좌석 시야를 사용한다. 1364×1024 한국어·영어 실제 Desktop에서 광선 예고, 첫 주먹, 26층 승리 제안 및 실제 클릭 후 승리 화면을 촬영했다. 보이는 광선 칸만 각 좌석에 전송한다. [최종 보스·승리 검증 기록](docs/coop/yog-victory-results.md)
 
 동일한 1364×1024 Desktop 화면에서 원본 도시 금고와 악마의 전당 타일·수면, 좌석별 안개와 HUD를 확인했다. 위치·전력은 배치형 시험 조건이다. [한국어 금고](docs/coop/imp-halls/ko/imp-vault.png) · [영어 금고](docs/coop/imp-halls/en/imp-vault.png) · [한국어 21층](docs/coop/imp-halls/ko/halls-21.png) · [영어 21층](docs/coop/imp-halls/en/halls-21.png)

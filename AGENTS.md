@@ -1,5 +1,7 @@
 # 작업 시작 순서
 
+금고 최종 정령·귀환 체크포인트는 SYNC25와 저장 스키마 15를 사용한다. 새 작업은 재현 자료와 미완료 목록에서 이어간다. [실행 결과와 다음 작업](docs/coop/vault-ascent-results.md)
+
 최종층 변경은 YogArenaTest와 YogBoundaryTest, 독립 호스트의 verify-yog-recovery.py 및 이전 스키마 작성기로 검증한다. 정상 시작, 성장 범위 배치, 강화 영웅 배치를 각각 기록한다. [최종 보스·승리 검증 기록](docs/coop/yog-victory-results.md)
 
 ## 광산·도시 체크포인트

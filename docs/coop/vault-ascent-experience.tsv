@@ -1,0 +1,5 @@
+policy	native_kills	seat0_xp	seat1_xp	party_xp	seat0_lvl	seat1_lvl
+last_hit	96	77	44	121	5	3
+equal_split	96	61	60	121	4	4
+full_each	96	108	108	216	6	6
+damage_share	96	78	43	121	5	3

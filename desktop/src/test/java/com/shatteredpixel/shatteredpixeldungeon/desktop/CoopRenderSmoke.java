@@ -31,7 +31,7 @@ public final class CoopRenderSmoke {
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("ascent-vote|ascent-surface|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -657,7 +657,7 @@ public final class CoopRenderSmoke {
         render(()->{
             Field active=CoopScene.class.getDeclaredField("active"); active.setAccessible(true);
             active.set(null,new CoopController(CoopPlatform.root(),null,null,testPort,0,
-                    new java.util.Random(){@Override public long nextLong(){return !regionShot.isEmpty() ? (regionShot.startsWith("yog-")?572:regionShot.equals("mine-crystal")?570:(regionShot.equals("vault-elemental") || regionShot.equals("imp-vault") || regionShot.equals("halls-21") || regionShot.equals("city-market") || regionShot.startsWith("king-"))?572:571) : latePrison ? 570 : wandmaker ? 577 : seventh ? 581 : deep ? 402 : armored ? 446 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
+                    new java.util.Random(){@Override public long nextLong(){return !regionShot.isEmpty() ? (regionShot.startsWith("ascent-")?578:regionShot.startsWith("yog-")?572:regionShot.equals("mine-crystal")?570:(regionShot.equals("vault-elemental") || regionShot.equals("imp-vault") || regionShot.equals("halls-21") || regionShot.equals("city-market") || regionShot.startsWith("king-"))?572:571) : latePrison ? 570 : wandmaker ? 577 : seventh ? 581 : deep ? 402 : armored ? 446 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
             return null;
         });
         click("title"); await(()->button("host")!=null);
@@ -667,7 +667,7 @@ public final class CoopRenderSmoke {
         if(mage) shot("mage-selected");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
         java.nio.file.Files.writeString(new File(root,"port").toPath(),Integer.toString(testPort));
-        if(regionShot.startsWith("yog-")) java.nio.file.Files.createFile(new File(root,"yog-room").toPath());
+        if(regionShot.startsWith("yog-") || regionShot.startsWith("ascent-")) java.nio.file.Files.createFile(new File(root,"yog-room").toPath());
         if(kit) java.nio.file.Files.createFile(new File(root,"kit").toPath());
         if(floors) java.nio.file.Files.createFile(new File(root,"stairs").toPath());
         Process child=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-cp",System.getProperty("java.class.path"),
@@ -697,7 +697,9 @@ public final class CoopRenderSmoke {
                     await(()->!frame().image.rows.containsKey("smithoffer0"));
                     return;
                 }
-                if (regionShot.equals("yog-finish")) {
+                if (regionShot.equals("ascent-vote")) {
+                    await(()->"ASCENT_PROPOSED".equals(frame().image.rows.get("ending")));
+                } else if (regionShot.equals("yog-finish") || regionShot.equals("ascent-surface")) {
                     await(()->"WON".equals(frame().image.rows.get("status")));
                 } else await(()->frame().dungeon!=null && (regionShot.startsWith("yog-") ? frame().dungeon.depth==(regionShot.equals("yog-amulet")?26:25) : regionShot.equals("halls-21") ? frame().dungeon.depth==21 : regionShot.startsWith("king-") ? frame().dungeon.depth==20 : regionShot.equals("city-market") ? frame().dungeon.depth==16
                         : frame().dungeon.branch==1));

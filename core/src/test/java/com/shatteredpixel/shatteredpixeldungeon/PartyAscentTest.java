@@ -45,6 +45,22 @@ public class PartyAscentTest extends HeadlessDungeon {
         PartyAscentTest probe=new PartyAscentTest();
         probe.temporary.create();
         probe.startBackend();
+        if (args.length==2 && args[0].equals("screens")) {
+            try {
+                for (String stage:new String[]{"agree","surface"}) {
+                    try (CoopSession game=CoopSession.open(578,1,com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass.WARRIOR)) {
+                        game.join(2,com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass.MAGE);
+                        prepareBoundary(game,stage);
+                        if (stage.equals("surface")) CoopFloorsTest.cross(game);
+                        String name=stage.equals("agree")?"ascent-vote":"ascent-surface";
+                        try (java.io.OutputStream out=java.nio.file.Files.newOutputStream(java.nio.file.Paths.get(args[1],name))) {
+                            assertTrue(Bundle.write(game.checkpoint(),out,false));
+                        }
+                    }
+                }
+            } finally { probe.stopBackend(); probe.temporary.delete(); }
+            return;
+        }
         try (java.io.InputStream in=java.nio.file.Files.newInputStream(java.nio.file.Paths.get(args[0]))) {
             Bundle source=Bundle.read(in);
             assertEquals(14,source.getInt("schema"));
@@ -108,25 +124,24 @@ public class PartyAscentTest extends HeadlessDungeon {
                         assertTrue(ankh.collect(carrier.belongings.backpack));
                         game.ownership.claim(ankh,game.player(owner));
                     }
-                    carrier.HP=1;
+                    carrier.HP=stage.equals("revive") ? 30 : 1;
+                    if (stage.equals("revive")) {
+                        // The down probe uses natural curse damage. Separately stage a lethal blow
+                        // so that the original 30% revival can survive the following curse tick.
+                        carrier.damage(999,AscensionChallenge.current());
+                        game.finishEffects();
+                        while (game.activeSeat()==owner) VaultElementalTest.waitTurn(game);
+                        assertEquals(CoopSession.Life.DOWNED,game.life(owner));
+                        MiningBranchTest.standBeside(game,carrier.pos);
+                        return new StagedInput(game,"REVIVE",carrier.pos);
+                    }
                 }
                 for(int i=0;i<40;i++) {
                     StagedInput before=new StagedInput(game,"WAIT",0);
                     int a=carrier.HP,b=partner.HP;
                     VaultElementalTest.waitTurn(game);
                     if (stage.equals("damage") && carrier.HP<a && partner.HP<b) return before;
-                    if (game.life(owner)==CoopSession.Life.DOWNED) {
-                        if (stage.equals("down")) return before;
-                        assertEquals(1-owner,game.activeSeat());
-                        MiningBranchTest.standBeside(game,carrier.pos);
-                        // The carrier has one pre-death HP. Shield the staged revival against a subsequent curse tick.
-                        com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff.affect(carrier,
-                                com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier.class).setShield(20);
-                        assertTrue(Dungeon.level.passable[carrier.pos]);
-                        assertSame(carrier,com.shatteredpixel.shatteredpixeldungeon.actors.Actor.findChar(carrier.pos));
-                        assertTrue(game.knowledge(partner).visible(carrier.pos));
-                        return new StagedInput(game,"REVIVE",carrier.pos);
-                    }
+                    if (stage.equals("down") && game.life(owner)==CoopSession.Life.DOWNED) return before;
                 }
                 throw new AssertionError("No native curse tick");
             }

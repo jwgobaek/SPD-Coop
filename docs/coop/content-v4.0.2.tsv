@@ -29,7 +29,7 @@ actors/buffs/AllyBuff	actors/buffs	UNSUPPORTED		core/src/main/java/com/shattered
 actors/buffs/Amok	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Amok.java
 actors/buffs/ArcaneArmor	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/ArcaneArmor.java
 actors/buffs/ArtifactRecharge	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/ArtifactRecharge.java
-actors/buffs/AscensionChallenge	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/AscensionChallenge.java
+actors/buffs/AscensionChallenge	actors/buffs	VERIFIED	single carrier, native climb, per-kill curse reduction, both seats and surface / PartyAscentTest and verify-vault-elemental.py	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/AscensionChallenge.java
 actors/buffs/AscensionChallenge.AscensionBuffBlocker	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/AscensionChallenge.java
 actors/buffs/Awareness	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Awareness.java
 actors/buffs/Barkskin	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Barkskin.java
@@ -592,7 +592,7 @@ actors/mobs/npcs/VaultMirror.MirrorSword	NPC	UNSUPPORTED		core/src/main/java/com
 actors/mobs/npcs/VaultSentry	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultSentry.java
 actors/mobs/npcs/VaultTokenDoor	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultTokenDoor.java
 actors/mobs/npcs/Wandmaker	NPC	VERIFIED	adjacent accept and owned turn-in, two native candidates, both seats / WandmakerTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Wandmaker.java
-actors/mobs/quest/vault/VaultBossElemental	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultBossElemental.java
+actors/mobs/quest/vault/VaultBossElemental	actors/mobs/quest/vault	VERIFIED	native 600 HP final fight, three forms, saved weights and future RNG, death and existing treasure / VaultElementalTest and verify-vault-elemental.py	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultBossElemental.java
 actors/mobs/quest/vault/VaultBossElemental.FireWall	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultBossElemental.java
 actors/mobs/quest/vault/VaultBossElemental.FrostCone	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultBossElemental.java
 actors/mobs/quest/vault/VaultBossElemental.FrostResist	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultBossElemental.java
@@ -603,13 +603,13 @@ actors/mobs/quest/vault/VaultBossElemental.ShockResist	actors/mobs/quest/vault	U
 actors/mobs/quest/vault/VaultDM100	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultDM100.java
 actors/mobs/quest/vault/VaultDM200	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultDM200.java
 actors/mobs/quest/vault/VaultElemental	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultElemental.java
-actors/mobs/quest/vault/VaultElemental.Fire	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultElemental.java
-actors/mobs/quest/vault/VaultElemental.Frost	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultElemental.java
+actors/mobs/quest/vault/VaultElemental.Fire	actors/mobs/quest/vault	VERIFIED	seed 578 flame on both seats separately and token loot / VaultElementalTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultElemental.java
+actors/mobs/quest/vault/VaultElemental.Frost	actors/mobs/quest/vault	VERIFIED	seed 578 chill on both seats separately and token loot / VaultElementalTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultElemental.java
 actors/mobs/quest/vault/VaultElemental.Shock	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultElemental.java
 actors/mobs/quest/vault/VaultGhoul	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultGhoul.java
 actors/mobs/quest/vault/VaultGolem	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultGolem.java
 actors/mobs/quest/vault/VaultRat	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultRat.java
-actors/mobs/quest/vault/VaultShaman	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultShaman.java
+actors/mobs/quest/vault/VaultShaman	actors/mobs/quest/vault	VERIFIED	seed 578 targeted spell, token and same-seed branch restoration / VaultElementalTest and YogArenaTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultShaman.java
 actors/mobs/quest/vault/VaultSkeleton	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultSkeleton.java
 items/Amulet	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Amulet.java
 items/Ankh	items	VERIFIED	owned revival resource, save, consume once / CheckpointTest, ReconnectTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Ankh.java
@@ -854,7 +854,7 @@ items/quest/DwarfToken	items/quest	UNSUPPORTED		core/src/main/java/com/shattered
 items/quest/Embers	items/quest	VERIFIED	owner pickup and one-time reward exchange / WandmakerTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/Embers.java
 items/quest/EscapeCrystal	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/EscapeCrystal.java
 items/quest/GooBlob	items/quest	VERIFIED	original 2–4 quantity across host termination after HEAD / SewerDepthTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/GooBlob.java
-items/quest/ImpStatue	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/ImpStatue.java
+items/quest/ImpStatue	items/quest	VERIFIED	original treasure pickup and 4000 tier in staged seed 572 fight / VaultElementalTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/ImpStatue.java
 items/quest/MetalShard	items/quest	VERIFIED	two to four original shards, owned pickup and idempotent receipt / CavesBossTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/MetalShard.java
 items/quest/Pickaxe	items/quest	VERIFIED	Original issue, owner-authorized mining, quest escrow and buyback; MiningBranchTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/Pickaxe.java
 items/quest/VaultBeacon	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/VaultBeacon.java
@@ -1340,7 +1340,7 @@ levels/rooms/quest/vault/VaultCrossRoom	levels/rooms/quest/vault	UNSUPPORTED		co
 levels/rooms/quest/vault/VaultEnemyCenterRoom	levels/rooms/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/vault/VaultEnemyCenterRoom.java
 levels/rooms/quest/vault/VaultEntranceRoom	levels/rooms/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/vault/VaultEntranceRoom.java
 levels/rooms/quest/vault/VaultEntranceRoom.QuestEntranceInternal	levels/rooms/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/vault/VaultEntranceRoom.java
-levels/rooms/quest/vault/VaultFinalRoom	levels/rooms/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/vault/VaultFinalRoom.java
+levels/rooms/quest/vault/VaultFinalRoom	levels/rooms/quest/vault	VERIFIED	generated final room, warning and native lock/unlock, original treasure in 696 / VaultElementalTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/vault/VaultFinalRoom.java
 levels/rooms/quest/vault/VaultFinalRoom.FinalRoomDoor	levels/rooms/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/vault/VaultFinalRoom.java
 levels/rooms/quest/vault/VaultFinalRoom.FinalRoomDoorOverhang	levels/rooms/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/vault/VaultFinalRoom.java
 levels/rooms/quest/vault/VaultFinalRoom.MarkerTiles	levels/rooms/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/vault/VaultFinalRoom.java

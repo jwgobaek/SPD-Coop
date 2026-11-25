@@ -1,0 +1,13 @@
+seed	depth	result	fists_or_blocker
+570	23	AssertionError	Travel stopped=null blocker=Unsupported destination actor: [Acidic]
+571	26	ordinary victory	BurningFist,RottingFist,BrightFist
+572	22	AssertionError	Travel stopped=null blocker=Unsupported destination actor: [ArmoredStatue/Gauntlet/Blazing/ScaleArmor/Viscosity]
+573	26	ordinary victory	BurningFist,RottingFist,DarkFist
+574	23	AssertionError	Travel stopped=null blocker=Unsupported destination actor: [Statue/Greatshield/Kinetic]
+575	26	ordinary victory	BrightFist,BurningFist,RottingFist
+576	23	AssertionError	Travel stopped=null blocker=Unsupported destination actor: [Statue/WarScythe/Corrupting]
+577	26	ordinary victory	RottingFist,SoiledFist,DarkFist
+578	26	ordinary victory	BrightFist,SoiledFist,RustedFist
+579	16	AssertionError	Travel stopped=null blocker=Unsupported destination actor: [Statue/Gauntlet/Unstable]
+580	26	ordinary victory	SoiledFist,BrightFist,RottingFist
+581	16	AssertionError	Travel stopped=null blocker=Unsupported destination actor: [ArmoredStatue/Glaive/Corrupting/PlateArmor/Brimstone]
