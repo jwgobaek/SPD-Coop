@@ -75,11 +75,13 @@ def package(builds, evidence, out):
         shutil.copyfile(apk,staging/APK)
         with zipfile.ZipFile(staging/ZIP,'w',compression=zipfile.ZIP_DEFLATED) as z:
             add_tree(z,build,'source',lambda name: True)
+            evidence_changes = set(git('diff','--name-only','-z',build,verification).decode().split('\0'))
             def final_doc(name):
                 path=PurePosixPath(name)
                 return ((len(path.parts)==1 and path.suffix=='.md') or
                         (name.startswith('docs/coop/') and path.suffix in {'.md','.tsv','.txt'}) or
-                        name.startswith('scripts/') or name.endswith('/SewerJourney.java'))
+                        name.startswith('scripts/') or
+                        (name in evidence_changes and name.startswith(('core/src/test/', 'desktop/src/test/'))))
             add_tree(z,verification,'documentation',final_doc)
             extras={p:'evidence/junit/'+p.name for p in junit}
             extras[builds/'build.log']='evidence/build.log'
