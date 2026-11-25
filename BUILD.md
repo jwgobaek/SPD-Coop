@@ -2,7 +2,11 @@
 
 빌드 커밋과 원격 보고 커밋을 분리해 기록하고 최신 APK·증거·대응 소스의 해시와 비공개 Drive 파일을 확인한다. [백업 절차](BACKUP-AND-DELIVERABLES.md)
 
-## 감옥 7층 개발판
+## 감옥 7층 의뢰와 독 다트 개발판
+
+빌드 커밋 5e22a74에서 `scripts/verify-android-build.sh`를 실행했다. 버전은 4.0.2-INDEV-prison-effects, versionCode는 922다. 이전 7층 커밋의 실제 스키마 5 저장을 시험하려면 `python3 scripts/verify-wandmaker-compatibility.py <ef88893의 작업 트리>`를 실행한다. 이전과 새 프로세스는 각 커밋의 클라이언트로 접속한다. [빌드·세대·시험 기록](docs/coop/wandmaker-results.md)
+
+## 이전 감옥 7층 개발판
 
 4.0.2-INDEV-prison-seven은 기존 verify-android-build.sh로 전체 코어 테스트 및 디버그 APK를 빌드한다. scripts/verify-prison-seven-migration.py는 9b6130f 기준 Git 작업 트리 경로 하나를 인자로 받아 각 트리의 테스트 classpath를 구한다. 기기 설치와 무선 LAN은 ANDROID-VALIDATION.md에서 추적한다.
 

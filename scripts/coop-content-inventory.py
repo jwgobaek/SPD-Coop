@@ -46,7 +46,7 @@ VERIFIED = {
     "levels/rooms/special/SentryRoom.Sentry": "native charge, one eligible seat, damage and save boundary / SewerSpecialActorTest",
     "actors/hero/HeroClass.MAGE": "starting staff, two seats, disk restart / CoopMageTest, HostRestartTest",
     "items/weapon/melee/MagesStaff": "starting equipment, equip, unequip, charge, cast and restore / CoopMageTest",
-    "items/wands/WandOfMagicMissile": "non-cursed starting staff missile against a visible basic enemy / CoopMageTest, HostRestartTest",
+    "items/wands/WandOfMagicMissile": "starting staff and identified uncursed standalone Magic Missile on either seat, charges, owner, quickslot and crash receipt / CoopMageTest, HostRestartTest",
     "items/wands/Wand.Charger": "staff charge recovery, owner, actor ID and partial charge restore / CoopMageTest",
     "actors/buffs/WandEmpower": "damage and charge effects belong to the caster / CoopMageTest",
     "actors/mobs/Rat": "adjacent attack, lethal hit and revival setup / CoopPlayInputTest",
@@ -127,7 +127,22 @@ VERIFIED.update({
 })
 for trap in ("GrippingTrap","RockfallTrap","GatewayTrap"):
     VERIFIED["levels/traps/"+trap]="native effect on either seat, same-floor checkpoint, original gateway destination / SewerTravelGearTest"
+VERIFIED.update({
+    "actors/mobs/npcs/Wandmaker": "adjacent accept and owned turn-in, two native candidates, both seats / WandmakerTest, HostRestartTest",
+    "items/quest/CorpseDust": "haunted bones, pickup and return for either bearer / WandmakerTest",
+    "items/quest/CorpseDust.DustGhostSpawner": "bearer buff, native summoning and active-floor removal / WandmakerTest",
+    "items/quest/CorpseDust.DustWraith": "scheduled spawn and active-floor cleanup on turn-in / WandmakerTest",
+    "items/quest/CeremonialCandle": "four native ritual cells with alternating owners / WandmakerTest",
+    "actors/mobs/Elemental.NewbornFireElemental": "ritual summon, original combat and Embers drop / WandmakerTest",
+    "levels/traps/PoisonDartTrap": "native VFX priority actor, poison, movement, knockback and guest crash receipt / SewerHazardsTest, HostRestartTest",
+    "levels/rooms/special/ToxicGasRoom.ToxicVent": "original permanently disarmed vent in generated floor 6; persistent emitter after 6-7-6 / SewerHazardsTest",
+    "levels/rooms/special/ToxicGasRoom.ToxicGasSeed": "parked emitter ID resumes native gas production / SewerHazardsTest",
+    "items/quest/Embers": "owner pickup and one-time reward exchange / WandmakerTest, HostRestartTest",
+    "actors/mobs/RotHeart": "native garden, battle, lasher cleanup and quest seed / WandmakerTest",
+    "plants/Rotberry.Seed": "native quest drop and turn-in by either seat / WandmakerTest",
+})
 IMPLEMENTED = {
+    "actors/mobs/RotLasher": "generated garden resident, native cleanup with RotHeart; isolated combat pending",
     "items/armor/MailArmor": "plain unglyphed armor ownership and equipment path, separate item-specific trial pending",
     "actors/mobs/Crab": "native basic AI in generated upper sewers, isolated per-seat case pending",
     "actors/mobs/Slime": "native basic AI in generated upper sewers, isolated per-seat case pending",

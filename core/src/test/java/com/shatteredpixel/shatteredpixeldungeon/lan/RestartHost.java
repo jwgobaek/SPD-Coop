@@ -358,7 +358,7 @@ public final class RestartHost {
                     started=true;
                     String[] spec=mode.split("-");
                     com.shatteredpixel.shatteredpixeldungeon.WandmakerTest.prepareReturn(Dungeon.coop,Integer.parseInt(spec[2]),Integer.parseInt(spec[3]));
-                    room.save();
+                    measureSaves(path,room,7);
                     write(path,"return-ready","1");
                 }
                 if (knife(mode) && !started && room.state()==LanRoom.State.IN_GAME) {

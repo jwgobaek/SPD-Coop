@@ -456,7 +456,7 @@ actors/mobs/Elemental.AllyNewBornElemental	actors/mobs	UNSUPPORTED		core/src/mai
 actors/mobs/Elemental.ChaosElemental	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
 actors/mobs/Elemental.FireElemental	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
 actors/mobs/Elemental.FrostElemental	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
-actors/mobs/Elemental.NewbornFireElemental	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
+actors/mobs/Elemental.NewbornFireElemental	actors/mobs	VERIFIED	ritual summon, original combat and Embers drop / WandmakerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
 actors/mobs/Elemental.ShockElemental	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
 actors/mobs/Eye	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Eye.java
 actors/mobs/Eye.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Eye.java
@@ -524,8 +524,8 @@ actors/mobs/Pylon	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel
 actors/mobs/Rat	actors/mobs	VERIFIED	adjacent attack, lethal hit and revival setup / CoopPlayInputTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Rat.java
 actors/mobs/RipperDemon	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RipperDemon.java
 actors/mobs/RipperDemon.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RipperDemon.java
-actors/mobs/RotHeart	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RotHeart.java
-actors/mobs/RotLasher	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RotLasher.java
+actors/mobs/RotHeart	actors/mobs	VERIFIED	native garden, battle, lasher cleanup and quest seed / WandmakerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RotHeart.java
+actors/mobs/RotLasher	actors/mobs	IMPLEMENTED	generated garden resident, native cleanup with RotHeart; isolated combat pending	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RotLasher.java
 actors/mobs/RotLasher.Waiting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RotLasher.java
 actors/mobs/Scorpio	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Scorpio.java
 actors/mobs/Senior	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Senior.java
@@ -591,7 +591,7 @@ actors/mobs/npcs/VaultMirror	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpi
 actors/mobs/npcs/VaultMirror.MirrorSword	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultMirror.java
 actors/mobs/npcs/VaultSentry	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultSentry.java
 actors/mobs/npcs/VaultTokenDoor	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultTokenDoor.java
-actors/mobs/npcs/Wandmaker	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Wandmaker.java
+actors/mobs/npcs/Wandmaker	NPC	VERIFIED	adjacent accept and owned turn-in, two native candidates, both seats / WandmakerTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Wandmaker.java
 actors/mobs/quest/vault/VaultBossElemental	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultBossElemental.java
 actors/mobs/quest/vault/VaultBossElemental.FireWall	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultBossElemental.java
 actors/mobs/quest/vault/VaultBossElemental.FrostCone	actors/mobs/quest/vault	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultBossElemental.java
@@ -845,13 +845,13 @@ items/potions/exotic/PotionOfShroudingFog	items/potions/exotic	UNSUPPORTED		core
 items/potions/exotic/PotionOfSnapFreeze	items/potions/exotic	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfSnapFreeze.java
 items/potions/exotic/PotionOfStamina	items/potions/exotic	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfStamina.java
 items/potions/exotic/PotionOfStormClouds	items/potions/exotic	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/potions/exotic/PotionOfStormClouds.java
-items/quest/CeremonialCandle	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/CeremonialCandle.java
-items/quest/CorpseDust	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/CorpseDust.java
-items/quest/CorpseDust.DustGhostSpawner	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/CorpseDust.java
-items/quest/CorpseDust.DustWraith	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/CorpseDust.java
+items/quest/CeremonialCandle	items/quest	VERIFIED	four native ritual cells with alternating owners / WandmakerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/CeremonialCandle.java
+items/quest/CorpseDust	items/quest	VERIFIED	haunted bones, pickup and return for either bearer / WandmakerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/CorpseDust.java
+items/quest/CorpseDust.DustGhostSpawner	items/quest	VERIFIED	bearer buff, native summoning and active-floor removal / WandmakerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/CorpseDust.java
+items/quest/CorpseDust.DustWraith	items/quest	VERIFIED	scheduled spawn and active-floor cleanup on turn-in / WandmakerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/CorpseDust.java
 items/quest/DarkGold	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/DarkGold.java
 items/quest/DwarfToken	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/DwarfToken.java
-items/quest/Embers	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/Embers.java
+items/quest/Embers	items/quest	VERIFIED	owner pickup and one-time reward exchange / WandmakerTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/Embers.java
 items/quest/EscapeCrystal	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/EscapeCrystal.java
 items/quest/GooBlob	items/quest	VERIFIED	original 2–4 quantity across host termination after HEAD / SewerDepthTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/GooBlob.java
 items/quest/ImpStatue	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/ImpStatue.java
@@ -1061,7 +1061,7 @@ items/wands/WandOfLivingEarth	items/wands	UNSUPPORTED		core/src/main/java/com/sh
 items/wands/WandOfLivingEarth.EarthGuardian	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLivingEarth.java
 items/wands/WandOfLivingEarth.RockArmor	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLivingEarth.java
 items/wands/WandOfLivingEarth.Wandering	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLivingEarth.java
-items/wands/WandOfMagicMissile	items/wands	VERIFIED	non-cursed starting staff missile against a visible basic enemy / CoopMageTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfMagicMissile.java
+items/wands/WandOfMagicMissile	items/wands	VERIFIED	starting staff and identified uncursed standalone Magic Missile on either seat, charges, owner, quickslot and crash receipt / CoopMageTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfMagicMissile.java
 items/wands/WandOfMagicMissile.MagicCharge	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfMagicMissile.java
 items/wands/WandOfPrismaticLight	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfPrismaticLight.java
 items/wands/WandOfRegrowth	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfRegrowth.java
@@ -1417,8 +1417,8 @@ levels/rooms/special/SpecialRoom	levels/rooms/special	UNSUPPORTED		core/src/main
 levels/rooms/special/StatueRoom	levels/rooms/special	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/StatueRoom.java
 levels/rooms/special/StorageRoom	levels/rooms/special	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/StorageRoom.java
 levels/rooms/special/ToxicGasRoom	levels/rooms/special	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/ToxicGasRoom.java
-levels/rooms/special/ToxicGasRoom.ToxicGasSeed	levels/rooms/special	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/ToxicGasRoom.java
-levels/rooms/special/ToxicGasRoom.ToxicVent	levels/rooms/special	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/ToxicGasRoom.java
+levels/rooms/special/ToxicGasRoom.ToxicGasSeed	levels/rooms/special	VERIFIED	parked emitter ID resumes native gas production / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/ToxicGasRoom.java
+levels/rooms/special/ToxicGasRoom.ToxicVent	levels/rooms/special	VERIFIED	original permanently disarmed vent in generated floor 6; persistent emitter after 6-7-6 / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/ToxicGasRoom.java
 levels/rooms/special/TrapsRoom	levels/rooms/special	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/TrapsRoom.java
 levels/rooms/special/TreasuryRoom	levels/rooms/special	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/TreasuryRoom.java
 levels/rooms/special/WeakFloorRoom	levels/rooms/special	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/special/WeakFloorRoom.java
@@ -1531,7 +1531,7 @@ levels/traps/GuardianTrap.GuardianSprite	levels/traps	UNSUPPORTED		core/src/main
 levels/traps/OozeTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/OozeTrap.java
 levels/traps/PitfallTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PitfallTrap.java
 levels/traps/PitfallTrap.DelayedPit	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PitfallTrap.java
-levels/traps/PoisonDartTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PoisonDartTrap.java
+levels/traps/PoisonDartTrap	levels/traps	VERIFIED	native VFX priority actor, poison, movement, knockback and guest crash receipt / SewerHazardsTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PoisonDartTrap.java
 levels/traps/RockfallTrap	levels/traps	VERIFIED	native effect on either seat, same-floor checkpoint, original gateway destination / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/RockfallTrap.java
 levels/traps/ShockingTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ShockingTrap.java
 levels/traps/StormTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/StormTrap.java
@@ -1566,7 +1566,7 @@ plants/Plant	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shattered
 plants/Plant.PlaceHolder	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Plant.java
 plants/Plant.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Plant.java
 plants/Rotberry	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Rotberry.java
-plants/Rotberry.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Rotberry.java
+plants/Rotberry.Seed	plants	VERIFIED	native quest drop and turn-in by either seat / WandmakerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Rotberry.java
 plants/Sorrowmoss	plants	VERIFIED	native Poison on either occupant, restored with remaining effect / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Sorrowmoss.java
 plants/Sorrowmoss.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Sorrowmoss.java
 plants/Starflower	plants	VERIFIED	native Bless buff on the occupant of either seat, persists on restore / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Starflower.java

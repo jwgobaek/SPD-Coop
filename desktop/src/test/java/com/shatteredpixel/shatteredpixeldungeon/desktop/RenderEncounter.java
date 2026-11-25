@@ -93,6 +93,22 @@ final class RenderEncounter {
         }).get(5,TimeUnit.SECONDS);
     }
 
+    // The native objective and an identified test wand are staged only for UI capture.
+    static void questItems(CoopController client) throws Exception {
+        Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
+        Object room=host.get(client);
+        Field executor=room.getClass().getDeclaredField("owner"); executor.setAccessible(true);
+        ((ExecutorService)executor.get(room)).submit(()->{
+            Hero owner=Dungeon.coop.hero(0);
+            for (com.shatteredpixel.shatteredpixeldungeon.items.Item item : new com.shatteredpixel.shatteredpixeldungeon.items.Item[]{
+                    new com.shatteredpixel.shatteredpixeldungeon.plants.Rotberry.Seed(),
+                    new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile().identify(false)}) {
+                if (!item.collect(owner.belongings.backpack)) throw new AssertionError("Test bag full");
+                Dungeon.coop.ownership.claim(item,Dungeon.coop.player(0));
+            }
+        }).get(5,TimeUnit.SECONDS);
+    }
+
     static void knives(CoopController client) throws Exception {
         Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
         Object room=host.get(client);

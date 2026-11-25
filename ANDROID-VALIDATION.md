@@ -1,5 +1,9 @@
 # Android validation backlog
 
+## Prison quest checkpoint
+
+NOT RUN on Android for quest dialog touch, orientation and lifecycle, install/launch, Keystore, LAN/hotspot, storage durability and mobile performance. Korean and English desktop input use the same cooperative dialogue controller.
+
 Common game logic, persistence and LAN protocol run under the desktop JVM and libGDX Headless. The Android build has its own package and signature checks in `scripts/verify-android-build.sh`. The following checks require an Android runtime. A standard unrooted installation is sufficient for the installation and UI checks.
 
 | Check | Result this session | Procedure when a device becomes available |

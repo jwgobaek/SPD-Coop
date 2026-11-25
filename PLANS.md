@@ -1,8 +1,16 @@
 # 단계와 다음 작업
 
+## 다음 구현 순서
+
+Necromancer의 소환 대상 셀, 원본 firstSummon·storedSkeletonID, HUNTING의 스프라이트 콜백과 소환수 회복을 분리해 두 좌석에서 검증한다. GeyserTrap의 물 변환과 밀치기 후 착지, 나머지 보상 지팡이는 개별 효과별로 검증한다. 스키마 6에서 기존 스키마 5의 상한은 7로 유지하고 8·9층 자료와 실제 구버전 세대 마이그레이션을 검사한다.
+
+## 감옥 후속 작업의 시작점
+
+7층 시드 572에서 다른 층에 남은 망령의 수명을 추가 검증한다. 직접 시전 가능한 보상 지팡이는 원본 효과별로 검증하고, 강령술사의 소환 관계와 GeyserTrap의 강제 착지와 복합 효과를 검사한다. PoisonDartTrap 및 ToxicVent의 원본 비활성 상태 검증은 5e22a74에 있다. 8·9층을 먼저 열고 Tengu의 별도 보관 객체·storedItems와 다섯 단계의 내구성 경계가 검증된 다음 10층을 연다.
+
 매 주요 체크포인트와 세션 종료 시 보존 상태 및 다음 세션의 누락 파일 목록을 갱신한다. [백업 절차](BACKUP-AND-DELIVERABLES.md)
 
-## 현재 시작점 · 7층 이후
+## 이전 계획 · 첫 7층 체크포인트
 
 1. prison-generation.tsv의 시드 570–581에서 Wandmaker의 MassGraveRoom·RitualSiteRoom·RotGardenRoom을 각각 재현하고 Corpse Dust·Embers·Rotberry의 진행 및 원본 보상 한 번을 검증한다.
 2. Necromancer의 소환과 재접속, 희귀 주민, 복합 물약·폭탄, 신규 지팡이별 시전자와 소유권을 검사한다.

@@ -466,6 +466,27 @@ public final class CoopRenderSmoke {
                             click("accept");
                             await(()->"berry,HUNT".equals(frame().image.rows.get("wandquest"+npc)));
                             shot("wandmaker-accepted");
+                            RenderEncounter.questItems(hostController());
+                            waitAndRegainTurn();
+                            String row=frame().image.rows.get("wandquest"+npc);
+                            if (row==null || !row.startsWith("berry,REWARD,")) throw new AssertionError("Missing native candidates");
+                            String label=Messages.titleCase(Messages.get("items.wands."+row.split(",")[2].toLowerCase(java.util.Locale.ROOT)+".name"));
+                            press(mapPoint(frame().dungeon,npc));
+                            await(()->button("#"+label)!=null);
+                            shot("wandmaker-two-rewards");
+                            click("#"+label);
+                            await(()->!frame().image.rows.containsKey("wandquest"+npc));
+                            shot("wandmaker-after-reward");
+                            waitAndRegainTurn();
+                            PublicDungeon.Loot wand=frame().dungeon.belongings.stream()
+                                    .filter(item->item.kind.equals("WAND")).findFirst().get();
+                            hold("slot4"); press(inventoryPoint(wand.id));
+                            await(()->frame().quickslots.item(3,frame().dungeon)!=null
+                                    && frame().quickslots.item(3,frame().dungeon).kind.equals("WAND"));
+                            click("slot4");
+                            await(()->button("cancel")!=null);
+                            shot("handheld-missile-target");
+                            click("cancel");
                         }
                     }
                 }

@@ -1,5 +1,9 @@
 # 엔진 분석 — v4.0.2
 
+## 의뢰 상태와 소유자
+
+Wandmaker.Quest가 생성한 두 원본 아이템과 진행 플래그를 원본 Bundle에 유지한다. 호스트 CoopSession이 좌석, 인접성, 의뢰물 소유자를 검사하고 SeatProjection이 해당 좌석의 공개 대화 상태를 만든다. 좌석 재접속에는 동일한 영수증과 스키마 5의 HEAD를 사용한다.
+
 ## 감옥 Actor와 층 저장
 
 Guard와 DM100은 호스트의 원본 Mob AI, Ballistica, damage, occupyCell, Buff와 단일 Actor 시계를 사용한다. Guard의 끌려간 영웅이 자기 행동을 중단한다. 감옥 스프라이트와 물·타일은 좌석의 공개 상태에서 선택한다. 7층에 도달한 저장은 스키마 5로 여섯 휴면 층을 담는다.

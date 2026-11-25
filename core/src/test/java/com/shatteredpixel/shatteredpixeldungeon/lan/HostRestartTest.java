@@ -175,6 +175,7 @@ public class HostRestartTest {
                 assertEquals(RestartHost.read(dir,"RestartHost.log"),(mode.startsWith("kill_") || mode.equals("ascendfault"))?80:(mode.startsWith("wand-claim-") || mode.startsWith("market-") && !mode.startsWith("market-finish") || mode.equals("seven-travel") || RestartHost.knife(mode) || RestartHost.plant(mode) || RestartHost.kit(mode) || mode.equals("goo") || RestartHost.hazard(mode) || mode.equals("unstable") || mode.equals("armored") || mode.startsWith("scribe") || mode.equals("revive") || mode.equals("walk") || mode.equals("quest") || (mode.equals("mimic") || mode.equals("golden")) || mode.equals("crystal-open") || mode.equals("crystal-fight") || mode.startsWith("cast"))?78:mode.equals("soak")?79:0,host.exitValue());
                 if (mode.startsWith("market-") || mode.equals("seven-resume")) for (String line:RestartHost.read(dir,"RestartHost.log").split("\\R"))
                     if (line.startsWith("trade publication ") || line.startsWith("prison-seven ")) System.out.println(line);
+                if(mode.startsWith("wand-setup-")) System.out.println(mode+" "+RestartHost.read(dir,"perf7"));
                 if(mode.equals("verifyfloor")) for(String metric:new String[]{"perf1","perf2","perf-travel"})
                     System.out.println(RestartHost.read(dir,metric));
             } finally {
