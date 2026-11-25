@@ -1,6 +1,6 @@
 # SPD-Coop 클라우드 실행 보고
 
-시작 기준 ce70d08에서 208개 테스트를 재실행했다. 최종 전투의 추가 검증에는 네 번의 배치형 처치, 주먹 여섯 종류의 양쪽 표적, 실제 TCP 확정 후 응답 유실 및 재인증 20개 배치가 포함된다. [최종 보스·승리 검증 기록](docs/coop/yog-victory-results.md)
+시작 기준 ce70d08은 208/208 PASS, APK 소스 f1e1bb2는 213/213 PASS였다. 최종 JUnit XML 60개에서 실패·오류·건너뜀은 0건이다. 최종 전투의 추가 검증에는 네 번의 배치형 처치, 주먹 여섯 종류의 양쪽 표적, 실제 TCP 확정 후 응답 유실 및 재인증 20개 배치가 포함된다. [최종 보스·승리 검증 기록](docs/coop/yog-victory-results.md)
 
 Imp 금고·악마의 전당 APK 소스 5f00b27의 전체 회귀는 **208/208 PASS**였다. 58개의 JUnit XML을 확인했다. [빌드·서명·배포 기록](docs/coop/imp-halls-delivery.md)
 
