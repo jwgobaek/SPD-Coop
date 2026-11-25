@@ -150,6 +150,7 @@ public class PrisonLevel extends RegularLevel {
 	private Boolean wandmakerQuestWasActive = null;
 
 	public void updateWandmakerQuestMusic(){
+		if (Dungeon.coop != null) return;
 		if (wandmakerQuestWasActive == null) {
 			wandmakerQuestWasActive = Wandmaker.Quest.active();
 			return;

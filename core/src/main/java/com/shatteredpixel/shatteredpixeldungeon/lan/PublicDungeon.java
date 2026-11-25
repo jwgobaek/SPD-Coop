@@ -70,7 +70,7 @@ public final class PublicDungeon {
                 break;
             case 'm':
                 String[] mob=value.split(",");
-                if(!mob[1].matches("Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Sheep|Statue|ArmoredStatue|GnollExile|PhantomPiranha|Crab|HermitCrab|Swarm|Slime|CausticSlime|Thief|GnollTrickster|GreatCrab|RatKing|Goo|Skeleton|DM100|Guard|Shopkeeper")) throw new IllegalArgumentException("Monster");
+                if(!mob[1].matches("Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Sheep|Statue|ArmoredStatue|GnollExile|PhantomPiranha|Crab|HermitCrab|Swarm|Slime|CausticSlime|Thief|GnollTrickster|GreatCrab|RatKing|Goo|Skeleton|DM100|Guard|Shopkeeper|RotHeart|RotLasher|Wandmaker|DustWraith|Wraith|TormentedSpirit|NewbornFireElemental")) throw new IllegalArgumentException("Monster");
                 enemies.put(number(mob[0],0,65535),mob[1]); break;
             case 'b': effects.add(number(value.split(",")[0],0,255)); break;
             case 't': number(value,0,63); break;
@@ -128,7 +128,7 @@ public final class PublicDungeon {
             if(item.kind.equals("FOOD")) verbs.add("EAT");
             if(weapon || item.kind.equals("ARMOR")) verbs.add("EQUIP");
             if(item.kind.equals("HONEYPOT")) verbs.add("SHATTER");
-            if(item.kind.equals("FOOD") || weapon || item.kind.equals("ARMOR") || item.kind.equals("INSCRIBED") || item.kind.equals("HONEYPOT") || item.kind.equals("SHELL")) verbs.add("DROP");
+            if(item.kind.equals("CANDLE") || item.kind.equals("FOOD") || weapon || item.kind.equals("ARMOR") || item.kind.equals("INSCRIBED") || item.kind.equals("HONEYPOT") || item.kind.equals("SHELL")) verbs.add("DROP");
         } else if((item.slot.equals("WEAPON") && weapon) || (item.slot.equals("ARMOR") && item.kind.equals("ARMOR"))) verbs.add("UNEQUIP");
         return verbs;
     }
@@ -147,12 +147,12 @@ public final class PublicDungeon {
     }
     public boolean chest(int cell) {
         String kind=source.rows.get("h"+cell);
-        return "CHEST".equals(kind) || "CRYSTAL_CHEST".equals(kind) || "LOCKED_CHEST".equals(kind);
+        return "SKELETON".equals(kind) || "CHEST".equals(kind) || "CRYSTAL_CHEST".equals(kind) || "LOCKED_CHEST".equals(kind);
     }
     public boolean tap(CoopController c,int cell) {
         if(!offered || cell<0 || !visible(cell) || Math.abs(cell%width-pos%width)>1 || Math.abs(cell/width-pos/width)>1) return false;
         if(cell==ally) return "DOWNED".equals(source.rows.get("allylife")) && c.act(source,"REVIVE",cell,0);
-        if("Shopkeeper".equals(monsters.get(cell)) || "Ghost".equals(monsters.get(cell)) || "Sentry".equals(monsters.get(cell))) return false;
+        if("Wandmaker".equals(monsters.get(cell)) || "Shopkeeper".equals(monsters.get(cell)) || "Ghost".equals(monsters.get(cell)) || "Sentry".equals(monsters.get(cell))) return false;
         if("Sheep".equals(monsters.get(cell))) return c.act(source,"GREET",cell,0);
         if(monsters.containsKey(cell)) return c.act(source,"ATTACK",cell,0);
         if(terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.LOCKED_DOOR || terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.LOCKED_EXIT) return c.act(source,"UNLOCK",cell,0);

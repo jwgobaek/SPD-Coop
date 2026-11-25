@@ -21,6 +21,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -110,19 +111,7 @@ public class Wandmaker extends NPC {
 
 		if (Quest.given) {
 			
-			Item item;
-			switch (Quest.type) {
-				case 1:
-				default:
-					item = Dungeon.hero.belongings.getItem(CorpseDust.class);
-					break;
-				case 2:
-					item = Dungeon.hero.belongings.getItem(Embers.class);
-					break;
-				case 3:
-					item = Dungeon.hero.belongings.getItem(Rotberry.Seed.class);
-					break;
-			}
+			Item item = Quest.objective(Dungeon.hero);
 
 			if (item != null) {
 				Game.runOnRenderThread(new Callback() {
@@ -228,8 +217,47 @@ public class Wandmaker extends NPC {
 		public static Wand wand1;
 		public static Wand wand2;
 		
+		private static Item objective(Hero hero) {
+			switch (type) {
+				case 1: return hero.belongings.getItem(CorpseDust.class);
+				case 2: return hero.belongings.getItem(Embers.class);
+				case 3: return hero.belongings.getItem(Rotberry.Seed.class);
+				default: return null;
+			}
+		}
+
+		public static String offerFor(Hero hero) {
+			if (!spawned || wand1 == null || wand2 == null) return null;
+			String kind = type == 1 ? "dust" : type == 2 ? "ember" : "berry";
+			if (!given) return kind + ",OFFER";
+			if (objective(hero) == null) return kind + ",HUNT";
+			return kind + ",REWARD," + wand1.getClass().getSimpleName() + "," + wand2.getClass().getSimpleName();
+		}
+
+		public static boolean accept() {
+			if (!spawned || given || wand1 == null || wand2 == null) return false;
+			given = true;
+			return true;
+		}
+
+		public static boolean claim(Wandmaker npc, Hero recipient, boolean second) {
+			if (!given || wand1 == null || wand2 == null) return false;
+			Item item = objective(recipient);
+			if (item == null || Dungeon.coop.ownership.owner(item) != Dungeon.coop.playerOf(recipient)) return false;
+			Wand reward = second ? wand2 : wand1;
+			if (item.detach(recipient.belongings.backpack) == null) throw new IllegalStateException("Missing quest item");
+			reward.identify(false);
+			Dungeon.coop.ownership.claim(reward, Dungeon.coop.playerOf(recipient));
+			if (!reward.doPickUp(recipient)) Dungeon.level.drop(reward, npc.pos);
+			npc.destroy();
+			complete();
+			return true;
+		}
+
 		public static void reset() {
 			spawned = false;
+			given = false;
+			questRoomSpawned = false;
 			type = 0;
 
 			wand1 = null;

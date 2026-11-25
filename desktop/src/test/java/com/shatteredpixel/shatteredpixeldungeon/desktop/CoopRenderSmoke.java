@@ -26,14 +26,15 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean seventh,knife,market,armored,scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
+    private static boolean wandmaker,seventh,knife,market,armored,scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
-        seventh=args.length>1 && args[1].equals("seven");
+        wandmaker=args.length>1 && args[1].equals("wandmaker");
+        seventh=wandmaker || args.length>1 && args[1].equals("seven");
         prison=seventh || market || args.length>1 && args[1].equals("prison");
         controls=args.length>1 && args[1].equals("controls");
         shortcuts=args.length>1 && args[1].equals("shortcuts");
@@ -455,6 +456,17 @@ public final class CoopRenderSmoke {
                         click("#"+Messages.get(CoopScene.class,"travel",7));
                         await(()->frame().dungeon.depth==7);
                         shot("prison-seven-arrival");
+                        if (wandmaker) {
+                            int npc = RenderEncounter.beside(hostController(),com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker.class);
+                            waitAndRegainTurn();
+                            await(()->frame().image.rows.containsKey("wandquest"+npc));
+                            press(mapPoint(frame().dungeon,npc));
+                            await(()->button("accept")!=null);
+                            shot("wandmaker-garden-offer");
+                            click("accept");
+                            await(()->"berry,HUNT".equals(frame().image.rows.get("wandquest"+npc)));
+                            shot("wandmaker-accepted");
+                        }
                     }
                 }
                 click("menu");click("saveexit");await(()->button("host")!=null);
@@ -562,7 +574,7 @@ public final class CoopRenderSmoke {
         render(()->{
             Field active=CoopScene.class.getDeclaredField("active"); active.setAccessible(true);
             active.set(null,new CoopController(CoopPlatform.root(),null,null,testPort,0,
-                    new java.util.Random(){@Override public long nextLong(){return seventh ? 581 : deep ? 402 : armored ? 446 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
+                    new java.util.Random(){@Override public long nextLong(){return wandmaker ? 577 : seventh ? 581 : deep ? 402 : armored ? 446 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
             return null;
         });
         click("title"); await(()->button("host")!=null);

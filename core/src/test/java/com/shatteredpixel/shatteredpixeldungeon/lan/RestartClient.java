@@ -146,11 +146,12 @@ public final class RestartClient {
                 assertEquals("ERROR VERSION",old.request("MODE SYNC13"));
                 assertEquals("ERROR VERSION",old.request("MODE SYNC14"));
                 assertEquals("ERROR VERSION",old.request("MODE SYNC15"));
+                assertEquals("ERROR VERSION",old.request("MODE SYNC16"));
                 assertEquals("ERROR VERSION", old.request("MODE SYNC3"));
                 assertEquals("ERROR VERSION", old.request("MODE SYNC12"));
             }
         }
-        if (special || mode.startsWith("scribe") || RestartHost.kit(mode) || RestartHost.knife(mode) || RestartHost.newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
+        if (special || mode.startsWith("wand-setup-") || mode.startsWith("scribe") || RestartHost.kit(mode) || RestartHost.knife(mode) || RestartHost.newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
             for(int i=0;i<2;i++) {
                 assertTrue(clients[i].request(i==0 ? RestartHost.read(path,"endpoint").split("\n")[1] : "JOIN").startsWith("JOINED"));
                 keys[i]=SeatCredential.generate();
@@ -159,6 +160,7 @@ public final class RestartClient {
                 actions[i]=new SeatActions(session,i,i+1);
                 models[i]=new DisplayReplica(session,i);
                 String character=(mode.equals("quest") || RestartHost.guardian(mode) || mode.equals("crystal-new"))?"MAGE":mode.startsWith("cast") && i==Integer.parseInt(mode.substring(4)) ? "MAGE" : mode.equals("walk") ? (i==0?"MAGE":"WARRIOR") : i==0?"WARRIOR":"HUNTRESS";
+                if (mode.startsWith("wand-setup-")) character=i==0?"WARRIOR":"MAGE";
                 if (RestartHost.newCampaign(mode)) character=i==0?"MAGE":"HUNTRESS";
                 if (mode.startsWith("scribe") && i==mode.charAt(6)-'0') character="WARRIOR";
                 if (RestartHost.kit(mode)) character=i==mode.charAt(3)-'0'?"HUNTRESS":"WARRIOR";
@@ -172,6 +174,12 @@ public final class RestartClient {
             }
             assertEquals("GAME_STARTED",clients[0].request("START"));
             RestartHost.write(path,"epoch",epoch.toString());
+            if (mode.startsWith("wand-setup-")) {
+                long until = System.nanoTime()+30000000000L;
+                while (!Files.exists(path.resolve("return-ready")) && System.nanoTime()<until) Thread.sleep(10);
+                assertTrue(Files.exists(path.resolve("return-ready")));
+                return;
+            }
             refresh();
             if(RestartHost.newCampaign(mode)) { campaign(mode); return; }
             if(mode.equals("walk")) { walk(); return; }
@@ -434,6 +442,34 @@ public final class RestartClient {
             assertEquals(receipt,clients[seat].request(pending[1]));
             refresh();
             assertEquals(before,state(seat).version);
+            act("WAIT",0,0);
+            return;
+        }
+        if (mode.startsWith("wand-claim-")) {
+            int seat=Integer.parseInt(mode.substring("wand-claim-".length()));
+            offer(seat);
+            PublicDungeon view=new PublicDungeon(state(seat));
+            int cell=view.monsters.entrySet().stream().filter(e -> e.getValue().equals("Wandmaker")).findFirst().get().getKey();
+            act("ACCEPT_WANDMAKER",cell,0);
+            offer(seat);
+            String publicOffer=state(seat).rows.get("wandquest"+cell);
+            assertTrue(publicOffer,publicOffer.contains(",REWARD,"));
+            assertTrue(state(1-seat).rows.get("wandquest"+cell).endsWith(",HUNT"));
+            SeatActions.Pending p=actions[seat].prepare(state(seat),seat==0?"WAND_FIRST":"WAND_SECOND",cell,0);
+            RestartHost.write(path,"wand-pending",seat+" "+p.id+" "+p.command);
+            RestartHost.write(path,"kill-before-reply","1");
+            assertThrows(IOException.class,()->p.submit(clients[seat]));
+            return;
+        }
+        if (mode.equals("wand-receipt")) {
+            String[] old=RestartHost.read(path,"wand-pending").split(" ",3);
+            int seat=Integer.parseInt(old[0]); long version=state(seat).version;
+            String receipt=clients[seat].request("LOOKUP "+epoch+" "+old[1]);
+            assertTrue(receipt,receipt.endsWith(" APPLIED"));
+            assertEquals(receipt,clients[seat].request(old[2]));
+            refresh();
+            assertEquals(version,state(seat).version);
+            assertFalse(new PublicDungeon(state(seat)).monsters.containsValue("Wandmaker"));
             act("WAIT",0,0);
             return;
         }

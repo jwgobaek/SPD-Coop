@@ -134,7 +134,7 @@ final class CoopBoard extends Group {
             } else if (key.charAt(0)=='h' && Character.isDigit(key.charAt(1))) {
                 int cell = Integer.parseInt(key.substring(1));
                 if (view.floor.containsKey(cell)) continue;
-                int image="CRYSTAL_CHEST".equals(value) ? ItemSpriteSheet.CRYSTAL_CHEST :
+                int image="SKELETON".equals(value) ? ItemSpriteSheet.BONES : "CRYSTAL_CHEST".equals(value) ? ItemSpriteSheet.CRYSTAL_CHEST :
                         "LOCKED_CHEST".equals(value) ? ItemSpriteSheet.LOCKED_CHEST : ItemSpriteSheet.CHEST;
                 object(keep,key+":"+image,cell,()->new ItemSprite(image));
             } else if (key.startsWith("sale")) {
@@ -258,6 +258,12 @@ final class CoopBoard extends Group {
                     case "Guard": sprite=new GuardSprite();break;
                     case "DM100": sprite=new DM100Sprite();break;
                     case "Skeleton": sprite=new SkeletonSprite();break;
+                    case "Wandmaker": sprite=new WandmakerSprite();break;
+                    case "RotHeart": sprite=new RotHeartSprite();break;
+                    case "RotLasher": sprite=new RotLasherSprite();break;
+                    case "DustWraith": case "Wraith": sprite=new WraithSprite();break;
+                    case "TormentedSpirit": sprite=new TormentedSpiritSprite();break;
+                    case "NewbornFireElemental": sprite=new ElementalSprite.NewbornFire();break;
                     case "Shopkeeper": sprite=new ShopkeeperSprite();break;
                     case "RatKing": sprite=new RatKingSprite();break;
                     case "GnollTrickster": sprite=new GnollTricksterSprite();break;

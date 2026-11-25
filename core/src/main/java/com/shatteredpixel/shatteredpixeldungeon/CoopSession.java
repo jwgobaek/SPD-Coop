@@ -1,5 +1,15 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.TormentedSpirit;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Elemental;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RotLasher;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RotHeart;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Rotberry;
+import com.shatteredpixel.shatteredpixeldungeon.items.quest.Embers;
+import com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle;
+import com.shatteredpixel.shatteredpixeldungeon.items.quest.CorpseDust;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -94,7 +104,7 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
+    public enum Action { ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
         public boolean requiresItem() {
             return this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
@@ -407,7 +417,9 @@ public final class CoopSession implements AutoCloseable {
         if (type==Statue.class) return statueWeapon(((Statue)actor).weapon());
         return (Dungeon.depth>=CoopFloors.FIRST_PRISON && Dungeon.depth<=CoopFloors.LAST_PLAYABLE && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Skeleton.class)
                 || (Dungeon.depth==CoopFloors.FIRST_PRISON && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.class)
-                || (Dungeon.depth==7 && (type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Guard.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM100.class))
+                || (Dungeon.depth==7 && (type==Wandmaker.class || type==RotHeart.class || type==RotLasher.class
+                        || type==Elemental.NewbornFireElemental.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Guard.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM100.class))
+                || type==CorpseDust.DustWraith.class || (Dungeon.depth==7 && (type==Wraith.class || type==TormentedSpirit.class))
                 || type == GnollExile.class || type == PhantomPiranha.class || type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
                 || type == Mimic.class || type == CrystalMimic.class || type == GoldenMimic.class || type == Sheep.class || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
                 || type==Crab.class || type==HermitCrab.class || type==Swarm.class || type==Slime.class || type==CausticSlime.class || type==Thief.class
@@ -420,6 +432,7 @@ public final class CoopSession implements AutoCloseable {
     public static boolean statueWeapon(Item item) {
         if (!(item instanceof MeleeWeapon)) return false;
         Class<?> base = item.getClass();
+        if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Quarterstaff.class) return ((MeleeWeapon)item).enchantment instanceof Venomous;
         if (base != Sickle.class && base != BattleAxe.class && base != Shortsword.class
                 && base != Dirk.class && base != RoundShield.class && base != Scimitar.class) return false;
         Weapon.Enchantment effect = ((Weapon)item).enchantment;
@@ -449,7 +462,7 @@ public final class CoopSession implements AutoCloseable {
         if (!level.passable[cell]) return false;
         int terrain = level.map[cell];
         return (moving && (terrain == Terrain.DOOR || terrain == Terrain.OPEN_DOOR))
-                || terrain == Terrain.EMPTY || terrain == Terrain.EMPTY_SP || terrain == Terrain.GRASS
+                || terrain == Terrain.CUSTOM_DECO_EMPTY || terrain == Terrain.EMPTY || terrain == Terrain.EMPTY_SP || terrain == Terrain.GRASS
                 || terrain == Terrain.HIGH_GRASS || terrain == Terrain.FURROWED_GRASS
                 || terrain == Terrain.WATER || terrain == Terrain.EMBERS || terrain == Terrain.EMPTY_DECO;
     }
@@ -545,6 +558,15 @@ public final class CoopSession implements AutoCloseable {
                 case TRAVEL:
                     if (!stairs.travel(activeSeat,cell)) return false;
                     break;
+                case ACCEPT_WANDMAKER:
+                case WAND_FIRST:
+                case WAND_SECOND:
+                    if (!level.insideMap(cell) || !level.adjacent(hero.pos, cell) || !knowledge(activeSeat).visible(cell)
+                            || !(Actor.findChar(cell) instanceof Wandmaker)) return false;
+                    if (action == Action.ACCEPT_WANDMAKER) {
+                        if (!Wandmaker.Quest.accept()) return false;
+                    } else if (!Wandmaker.Quest.claim((Wandmaker)Actor.findChar(cell), hero, action == Action.WAND_SECOND)) return false;
+                    break;
                 case ACCEPT_GHOST:
                 case GHOST_WEAPON:
                 case GHOST_ARMOR:
@@ -597,7 +619,7 @@ public final class CoopSession implements AutoCloseable {
                         occupant.interact(hero);
                     } else {
                         Heap chest=level.heaps.get(cell);
-                        if (occupant!=null || chest==null || chest.hidden || chest.haunted || chest.type!=Heap.Type.CHEST) return false;
+                        if (occupant!=null || chest==null || chest.hidden || ((Dungeon.depth!=7 || chest.type!=Heap.Type.SKELETON) && (chest.haunted || chest.type!=Heap.Type.CHEST))) return false;
                         hero.checkVisibleMobs();
                         hero.curAction=new HeroAction.OpenChest(cell);
                         hero.act();
@@ -637,7 +659,7 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && item.getClass()!=GooBlob.class && !(item instanceof Potion) && !supportedScroll(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && item.getClass()!=GooBlob.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand && ownership.owner(item)==player) && !(item instanceof CorpseDust || item instanceof Embers || item instanceof CeremonialCandle || item instanceof Rotberry.Seed) && !(item instanceof Potion) && !supportedScroll(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
                             || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !hero.belongings.backpack.canHold(item))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
@@ -724,7 +746,7 @@ public final class CoopSession implements AutoCloseable {
                     Heap floor = level.heaps.get(hero.pos);
                     if (cell != hero.pos || (floor != null && floor.type != Heap.Type.HEAP)
                             || level.pit[cell] || !level.passable[cell] || !hero.belongings.backpack.contains(item)
-                            || !(basicFood(item) || basicArmorType(item) || basicWeapon(item) || item instanceof Honeypot || item instanceof Honeypot.ShatteredPot)) return false;
+                            || !(item instanceof CeremonialCandle || basicFood(item) || basicArmorType(item) || basicWeapon(item) || item instanceof Honeypot || item instanceof Honeypot.ShatteredPot)) return false;
                     item.dropCoopUnit(hero);
                     break;
                 default:
@@ -953,6 +975,8 @@ public final class CoopSession implements AutoCloseable {
         // Original bag restoration in co-op preserves object identity and skips collect().
         for (Hero hero : heroes) for (Item item : hero.belongings.backpack) {
             if (item instanceof MagesStaff) ((MagesStaff)item).applyWandChargeBuff(hero);
+            if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand)
+                ((com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand)item).restoreCoopCharge(hero);
         }
         if (heroes[0].pos==heroes[1].pos) throw new IllegalArgumentException("Overlapping heroes");
         Actor.add(heroes[1]);

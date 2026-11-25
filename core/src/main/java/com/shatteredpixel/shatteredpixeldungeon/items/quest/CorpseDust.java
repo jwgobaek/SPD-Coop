@@ -81,7 +81,13 @@ public class CorpseDust extends Item {
 
 	@Override
 	protected void onDetach() {
-		DustGhostSpawner spawner = Dungeon.hero.buff(DustGhostSpawner.class);
+		Hero owner = Dungeon.hero;
+		if (Dungeon.coop != null) {
+			long player = Dungeon.coop.ownership.owner(this);
+			owner = player == Dungeon.coop.player(0) ? Dungeon.coop.hero(0)
+					: player == Dungeon.coop.player(1) ? Dungeon.coop.hero(1) : null;
+		}
+		DustGhostSpawner spawner = owner == null ? null : owner.buff(DustGhostSpawner.class);
 		if (spawner != null){
 			spawner.dispel();
 		}
@@ -122,12 +128,18 @@ public class CorpseDust extends Item {
 				ArrayList<Integer> candidates = new ArrayList<>();
 				//min distance scales based on hero's view distance
 				// wraiths must spawn at least 4/3/2/1 tiles away at view distance of 8(default)/7/4/1
-				int minDist = Math.round(Dungeon.hero.viewDistance/3f);
+				Hero bearer = (Hero)target;
+				boolean[] sight = Dungeon.level.heroFOV;
+				if (Dungeon.coop != null) {
+					sight = new boolean[Dungeon.level.length()];
+					Dungeon.level.updateDirectSight(bearer, sight);
+				}
+				int minDist = Math.round(bearer.viewDistance/3f);
 				for (int i = 0; i < Dungeon.level.length(); i++){
-					if (Dungeon.level.heroFOV[i]
+					if (sight[i]
 							&& !Dungeon.level.solid[i]
 							&& Actor.findChar( i ) == null
-							&& Dungeon.level.distance(i, Dungeon.hero.pos) > minDist){
+							&& Dungeon.level.distance(i, bearer.pos) > minDist){
 						candidates.add(i);
 					}
 				}
@@ -152,6 +164,7 @@ public class CorpseDust extends Item {
 					mob.die(null);
 				}
 			}
+			if (Dungeon.coop != null) return;
 			Game.runOnRenderThread(new Callback() {
 				@Override
 				public void call() {
@@ -188,7 +201,7 @@ public class CorpseDust extends Item {
 
 		@Override
 		public boolean attack(Char enemy, float dmgMulti, float dmgBonus, float accMulti) {
-			if (enemy == Dungeon.hero){
+			if (enemy == Dungeon.hero || (Dungeon.coop != null && enemy instanceof Hero)){
 				atkCount++;
 				//first attack from each wraith is free, max of -200 point penalty per wraith
 				if (atkCount == 2 || atkCount == 3){

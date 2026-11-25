@@ -1,5 +1,7 @@
 # 작업 시작 순서
 
+주요 기능·APK·원격 체크포인트 및 작업 종료 시 지정 계정의 비공개 Drive 백업과 검증 상태를 기록한다. [백업 절차](BACKUP-AND-DELIVERABLES.md)
+
 ## 감옥 7층 회귀
 
 PrisonGenerationTest는 생성만 검사한다. HostRestartTest의 시드 581 정상 6층 경로, 배치형 6→7→6, PrisonCombatChecks의 두 좌석 전투를 각각 기록한다. 감옥 층 제한을 바꿀 때 실제 이전 버전의 저장본으로 scripts/verify-prison-seven-migration.py까지 실행한다.

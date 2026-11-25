@@ -1,5 +1,7 @@
 # 단계와 다음 작업
 
+매 주요 체크포인트와 세션 종료 시 보존 상태 및 다음 세션의 누락 파일 목록을 갱신한다. [백업 절차](BACKUP-AND-DELIVERABLES.md)
+
 ## 현재 시작점 · 7층 이후
 
 1. prison-generation.tsv의 시드 570–581에서 Wandmaker의 MassGraveRoom·RitualSiteRoom·RotGardenRoom을 각각 재현하고 Corpse Dust·Embers·Rotberry의 진행 및 원본 보상 한 번을 검증한다.

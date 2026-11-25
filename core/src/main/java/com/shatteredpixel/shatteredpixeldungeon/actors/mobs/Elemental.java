@@ -21,6 +21,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -275,7 +276,7 @@ public abstract class Elemental extends Mob {
 			if (targetingPos != -1 && state == HUNTING){
 				//account for bolt hitting walls, in case position suddenly changed
 				targetingPos = new Ballistica( pos, targetingPos, Ballistica.STOP_SOLID | Ballistica.STOP_TARGET ).collisionPos;
-				if (sprite != null && (sprite.visible || Dungeon.level.heroFOV[targetingPos])) {
+				if (Dungeon.coop == null && sprite != null && (sprite.visible || Dungeon.level.heroFOV[targetingPos])) {
 					sprite.zap( targetingPos );
 					return false;
 				} else {
@@ -321,17 +322,18 @@ public abstract class Elemental extends Mob {
 				if (!candidates.isEmpty()){
 					targetingPos = Random.element(candidates);
 
-					float delay = GameMath.gate(attackDelay(), (int)Math.ceil(Dungeon.hero.cooldown()), 3*attackDelay());
+					float delay = GameMath.gate(attackDelay(), (int)Math.ceil((Dungeon.coop == null ? Dungeon.hero : enemy).cooldown()), 3*attackDelay());
 
 					for (int i : PathFinder.NEIGHBOURS9){
 						if (!Dungeon.level.solid[targetingPos + i]) {
-							GameScene.targetedCell(targetingPos + i, delay);
+							if (Dungeon.coop == null) GameScene.targetedCell(targetingPos + i, delay);
 						}
 					}
 
 					GLog.n(Messages.get(this, "charging"));
 					spend(delay);
-					Dungeon.hero.interrupt();
+					if (Dungeon.coop == null) Dungeon.hero.interrupt();
+					else if (enemy instanceof Hero) ((Hero)enemy).interrupt();
 					return true;
 				} else {
 					rangedCooldown = 1;
@@ -341,7 +343,7 @@ public abstract class Elemental extends Mob {
 
 			} else {
 
-				if (sprite != null && (sprite.visible || Dungeon.level.heroFOV[targetingPos])) {
+				if (Dungeon.coop == null && sprite != null && (sprite.visible || Dungeon.level.heroFOV[targetingPos])) {
 					sprite.zap( targetingPos );
 					return false;
 				} else {
@@ -361,7 +363,7 @@ public abstract class Elemental extends Mob {
 
 				for (int i : PathFinder.NEIGHBOURS9) {
 					if (!Dungeon.level.solid[targetingPos + i]) {
-						CellEmitter.get(targetingPos + i).burst(ElmoParticle.FACTORY, 5);
+						if (Dungeon.coop == null) CellEmitter.get(targetingPos + i).burst(ElmoParticle.FACTORY, 5);
 						if (Dungeon.level.water[targetingPos + i]) {
 							GameScene.add(Blob.seed(targetingPos + i, 2, Fire.class));
 						} else {
@@ -371,7 +373,7 @@ public abstract class Elemental extends Mob {
 						Char target = Actor.findChar(targetingPos + i);
 						if (target != null && target != this) {
 							Buff.affect(target, Burning.class).reignite(target);
-							if (target == Dungeon.hero){
+							if (target == Dungeon.hero || (Dungeon.coop != null && target instanceof Hero)){
 								Statistics.questScores[1] -= 200;
 							}
 						}
@@ -414,9 +416,10 @@ public abstract class Elemental extends Mob {
 		public void die(Object cause) {
 			super.die(cause);
 			if (alignment == Alignment.ENEMY) {
-				Dungeon.level.drop( new Embers(), pos ).sprite.drop();
+				Dungeon.level.drop(new Embers(), pos).animateDrop();
 				//assign score here as player may choose to keep the embers
 				Statistics.questScores[1] += 2000;
+				if (Dungeon.coop != null) return;
 				Game.runOnRenderThread(new Callback() {
 					@Override
 					public void call() {

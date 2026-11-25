@@ -75,7 +75,7 @@ public class RotLasher extends Mob {
 
 	@Override
 	public boolean attack(Char enemy, float dmgMulti, float dmgBonus, float accMulti) {
-		if (enemy == Dungeon.hero){
+		if (enemy == Dungeon.hero || (Dungeon.coop != null && enemy instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero)){
 			Statistics.questScores[1] -= 100;
 		}
 		return super.attack(enemy, dmgMulti, dmgBonus, accMulti);

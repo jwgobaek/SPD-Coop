@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.lan;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SentryRoom.Sentry;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.*;
@@ -155,7 +156,7 @@ final class SeatProjection {
                         rows.put("quote"+cell,handle+","+com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.sellPrice(stock)+","+stock.quantity()+","+(com.shatteredpixel.shatteredpixeldungeon.CoopTrade.roomFor(hero,stock)?1:0));
                     }
                 } else if (heap != null) rows.put("h"+cell,
-                        heap.type==Heap.Type.CHEST || heap.type==Heap.Type.CRYSTAL_CHEST || heap.type==Heap.Type.LOCKED_CHEST ? heap.type.name() : "CONTAINER");
+                        (Dungeon.depth==7 && heap.type==Heap.Type.SKELETON) || heap.type==Heap.Type.CHEST || heap.type==Heap.Type.CRYSTAL_CHEST || heap.type==Heap.Type.LOCKED_CHEST ? heap.type.name() : "CONTAINER");
             }
             for (Mob mob : level.mobs) {
                 if (sight.visible(mob.pos) && mob.invisible <= 0 && mob.isAlive() && CoopSession.basicMob(mob)) {
@@ -171,6 +172,10 @@ final class SeatProjection {
                         rows.put("charge"+mob.pos,Integer.toString(((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo)mob).chargeStage()));
                     if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue)
                         rows.put("mail"+mob.id(),Integer.toString(((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue)mob).armor().tier));
+                    if (mob instanceof Wandmaker && level.adjacent(hero.pos, mob.pos)) {
+                        String offer = Wandmaker.Quest.offerFor(hero);
+                        if (offer != null) rows.put("wandquest"+mob.pos, offer);
+                    }
                     if (mob instanceof Ghost && level.adjacent(hero.pos,mob.pos))
                         rows.put("quest"+mob.pos,Ghost.Quest.sewerOffer());
                     if (mob instanceof Sentry
@@ -271,6 +276,7 @@ final class SeatProjection {
             kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade ? "UPGRADE" : "IDENTIFY";
         if (!slot.startsWith("F") && CoopSession.basicMissile(item) && item.isIdentified())
             kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "KNIFE" : "STONE";
+        if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle) kind="CANDLE";
         String charges="";
         if (!slot.startsWith("F") && item instanceof MagesStaff) {
             WandOfMagicMissile wand=((MagesStaff)item).starterWand();

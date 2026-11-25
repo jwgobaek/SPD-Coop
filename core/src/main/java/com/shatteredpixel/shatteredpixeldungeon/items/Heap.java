@@ -96,14 +96,14 @@ public class Heap implements Bundlable {
 			break;
 		case REMAINS:
 		case SKELETON:
-			CellEmitter.center( pos ).start(Speck.factory(Speck.RATTLE), 0.1f, 3);
+			if (Dungeon.coop == null) CellEmitter.center( pos ).start(Speck.factory(Speck.RATTLE), 0.1f, 3);
 			break;
 		default:
 		}
 		
 		if (haunted){
 			if (Wraith.spawnAt( pos ) == null) {
-				hero.sprite.emitter().burst( ShadowParticle.CURSE, 6 );
+				if (Dungeon.coop == null) hero.sprite.emitter().burst( ShadowParticle.CURSE, 6 );
 				hero.damage( hero.HP / 2, this );
 				if (!hero.isAlive()){
 					Dungeon.fail(Wraith.class);

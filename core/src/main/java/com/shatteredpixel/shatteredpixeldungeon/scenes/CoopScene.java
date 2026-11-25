@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
@@ -63,6 +64,9 @@ public class CoopScene extends PixelScene {
                 WndSeatTrade.stock(this,view,cell,controller);
             } else if (view.source.rows.containsKey("merchant") && Integer.toString(cell).equals(view.source.rows.get("merchant"))) {
                 WndSeatTrade.merchant(this,view,cell,controller);
+            } else if ("Wandmaker".equals(view.monsters.get(cell))) {
+                String offer = view.source.rows.get("wandquest"+cell);
+                if (offer != null) talkToWandmaker(view, cell, offer);
             } else if ("Ghost".equals(view.monsters.get(cell))) {
                 String offer=view.source.rows.get("quest"+cell);
                 if (offer!=null) talkToGhost(view,cell,offer);
@@ -71,11 +75,37 @@ public class CoopScene extends PixelScene {
         }
         boolean bow=targetStaff.kind.equals("BOW");
         String actor=view.monsters.get(cell);
-        boolean enemy=actor!=null && !"Shopkeeper".equals(actor) && !"Sheep".equals(actor) && !"Sentry".equals(actor) && !"Ghost".equals(actor) && !"RatKing".equals(actor);
+        boolean enemy=actor!=null && !"Wandmaker".equals(actor) && !"Shopkeeper".equals(actor) && !"Sheep".equals(actor) && !"Sentry".equals(actor) && !"Ghost".equals(actor) && !"RatKing".equals(actor);
         boolean missile=targetStaff.kind.equals("STONE") || targetStaff.kind.equals("KNIFE");
         if (targetView==view && (enemy || (missile && actor==null && view.visible(cell)) || (!missile && !bow && view.chest(cell)))
                 && controller.act(view.source,missile?"THROW":bow?"SHOOT":"ZAP",cell,targetStaff.id)) cancelAim();
     }
+    private void talkToWandmaker(PublicDungeon view, int cell, String offer) {
+        String[] fields = offer.split(",");
+        String kind = fields[0];
+        if (fields[1].equals("HUNT")) {
+            alert(Messages.get(Wandmaker.class, "reminder_"+kind,
+                    com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass.valueOf(view.heroClass).title()));
+            return;
+        }
+        if (!view.offered) return;
+        boolean reward = fields[1].equals("REWARD");
+        String body = reward ? Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndWandmaker.class, kind)
+                : Messages.get(Wandmaker.class, "intro_"+kind) + Messages.get(Wandmaker.class, "intro_2");
+        String[] options = reward ? new String[]{wandName(fields[2]), wandName(fields[3]), msg("cancel")}
+                : new String[]{msg("accept"), msg("cancel")};
+        add(new WndOptions(Messages.get(Wandmaker.class,"name"), body, options) {
+            protected void onSelect(int choice) {
+                if (choice >= 0 && choice < options.length-1)
+                    controller.act(view.source, reward ? (choice == 0 ? "WAND_FIRST" : "WAND_SECOND") : "ACCEPT_WANDMAKER", cell, 0);
+            }
+        });
+    }
+
+    private String wandName(String type) {
+        return Messages.titleCase(Messages.get("items.wands."+type.toLowerCase(java.util.Locale.ROOT)+".name"));
+    }
+
     private void talkToGhost(PublicDungeon view,int cell,String offer) {
         Class<?> ghost=com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost.class;
         String title=Messages.get(ghost,"name");

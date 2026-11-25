@@ -51,6 +51,7 @@ public final class RestartHost {
         return mode.startsWith("journey-seven-") || mode.equals("prison") || mode.equals("campaign") || mode.equals("campaign-start") || mode.equals("campaign-team");
     }
     private static long seedFor(String mode) {
+        if (mode.startsWith("wand-setup-")) return Integer.parseInt(mode.split("-")[2]);
         switch (mode) {
             case "blocked-start": return 452; // Original Spear/Projecting statue remains unsupported.
             case "armored": return 446;
@@ -135,7 +136,7 @@ public final class RestartHost {
                 else PrisonShopChecks.copiesOf(engine);
             }
         }
-        try(LanRoom room=(special || mode.startsWith("scribe") || kit(mode) || knife(mode) || newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
+        try(LanRoom room=(special || mode.startsWith("wand-setup-") || mode.startsWith("scribe") || kit(mode) || knife(mode) || newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup") || mode.equals("schema3-backup") || mode.equals("prison-backup"))) {
             if (mode.equals("schema2-to-three")) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
             if (mode.equals("prison-backup")) {
@@ -158,6 +159,10 @@ public final class RestartHost {
                 assertNotNull(CoopTrade.merchant(Dungeon.coop.hero(0),false));
             }
             if (mode.startsWith("market-")) arrangeMarket(path,mode);
+            if (mode.equals("wand-receipt")) {
+                assertNull(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker.Quest.wand1);
+                assertFalse(Dungeon.level.mobs.stream().anyMatch(m -> m instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker));
+            }
             if (mode.equals("pin-receipt")) {
                 String[] saved=read(path,"pin-identity").split(" ");
                 Mob target=(Mob)Actor.findById(Integer.parseInt(saved[0]));
@@ -342,6 +347,13 @@ public final class RestartHost {
                         assertTrue(piece.collect(owner.belongings.backpack));
                         game.ownership.claim(piece,game.player(seat));
                     }
+                }
+                if (mode.startsWith("wand-setup-") && !started && room.state()==LanRoom.State.IN_GAME) {
+                    started=true;
+                    String[] spec=mode.split("-");
+                    com.shatteredpixel.shatteredpixeldungeon.WandmakerTest.prepareReturn(Dungeon.coop,Integer.parseInt(spec[2]),Integer.parseInt(spec[3]));
+                    room.save();
+                    write(path,"return-ready","1");
                 }
                 if (knife(mode) && !started && room.state()==LanRoom.State.IN_GAME) {
                     int seat=mode.charAt(5)-'0'; started=true;

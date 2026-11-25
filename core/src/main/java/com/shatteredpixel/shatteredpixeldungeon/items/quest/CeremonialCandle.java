@@ -120,7 +120,7 @@ public class CeremonialCandle extends Item {
 		return super.emitter();
 	}
 
-	private static void checkCandles(){
+	public static void checkCandles(){
 		if (!(Dungeon.level instanceof RegularLevel)){
 			return;
 		}
@@ -144,7 +144,7 @@ public class CeremonialCandle extends Item {
 					if (i instanceof CeremonialCandle){
 						if (!((CeremonialCandle) i).aflame) {
 							((CeremonialCandle) i).aflame = true;
-							h.sprite.view(h).place(h.pos);
+							if (h.sprite != null) h.sprite.view(h).place(h.pos);
 						}
 						foundCandle = true;
 					}
@@ -187,6 +187,8 @@ public class CeremonialCandle extends Item {
 			}
 			elemental.state = elemental.HUNTING;
 			GameScene.add(elemental, 1);
+
+			if (Dungeon.coop != null) return;
 
 			if (Dungeon.level instanceof PrisonLevel){
 				((PrisonLevel) Dungeon.level).updateWandmakerQuestMusic();
