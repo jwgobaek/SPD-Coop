@@ -382,6 +382,20 @@ public final class CoopRenderSmoke {
             click("ready"); await(()->button("start")!=null); shot("ready"); click("start");
             await(()->frame().dungeon!=null); await(()->button("bag")!=null);
             shot("dungeon");
+            if (!mage && !hazards && !kit && !garden) {
+                Point portrait=render(()->{
+                    com.shatteredpixel.shatteredpixeldungeon.ui.Button info=(com.shatteredpixel.shatteredpixeldungeon.ui.Button)find(Game.scene(),
+                            g->g instanceof com.shatteredpixel.shatteredpixeldungeon.ui.Button
+                                    && g.getClass().getEnclosingClass()!=null && g.getClass().getEnclosingClass().getSimpleName().equals("CoopHud")
+                                    && ((com.shatteredpixel.shatteredpixeldungeon.ui.Button)g).width()==82);
+                    return info.camera().cameraToScreen(info.left()+14,info.top()+14);
+                });
+                press(portrait);
+                await(()->render(()->find(Game.scene(),g->g instanceof com.shatteredpixel.shatteredpixeldungeon.windows.WndTitledMessage)!=null));
+                shot("character");
+                render(()->{((com.shatteredpixel.shatteredpixeldungeon.ui.Window)find(Game.scene(),
+                        g->g instanceof com.shatteredpixel.shatteredpixeldungeon.windows.WndTitledMessage)).hide();return null;});
+            }
             if (mage) {
                 long turnBefore=frame().image.version;
                 click("zap");

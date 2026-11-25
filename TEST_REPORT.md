@@ -1,5 +1,26 @@
 # SPD-Coop 클라우드 실행 보고
 
+## 2026-11-25 · 원본 그래픽 및 협동 UI
+
+| 실제 실행 | 판정 | 결과 |
+| --- | --- | --- |
+| 시작 기준 `011364d` | PASS | 별도 worktree에서 이전 JUnit 129/129건 재실행 |
+| V1 `8ddf53b` | PASS | 기존 회귀와 신규 좌석 표시 입력 검사 130/130건, Desktop 하수도와 Goo, Android APK와 서명 검사 |
+| V2 `b00303e` | PASS | Desktop의 원본 기반 HUD·툴바와 독립 게스트 JVM, 기본 및 Goo 시나리오. 중간 체크포인트의 별도 전체 JUnit은 NOT RUN |
+| V3 `e4162cb` 및 최종 APK `12191be` | PASS | 각각 전체 JUnit 130/130건, 38개 suite, 오류·실패·건너뜀 0건, Android 빌드 및 검사 |
+| 원본 및 변경 후 싱글플레이 | PASS | 원본을 별도 worktree에서 Desktop release JAR로 빌드. 두 빌드 모두 실제 GameScene, WndBag, WndHero, 잠긴 문과 5층 Goo 촬영 |
+| 변경 전·후 Desktop | PASS | 변경 전 하수도·가방·보스·문 촬영. 최종 영어·한국어 각각 일반 던전, 문·다트, 2–5층과 보스, 초상화 클릭. 가방에서 식량 사용, 퀵슬롯 표적 선택 취소, 저장 후 재개를 실제 입력으로 확인 |
+| 렌더러와 호스트 | PASS | 양쪽 좌석에서 공개 지형, 미발견 셀, 자기 가방 설명, 표시 전후 월드 RNG·지형·Actor 집합·시간·턴·위치를 검사. 이동 후 일곱 네이티브 타일맵의 부분 갱신 결과가 전체 재계산과 일치 |
+| 하수도 정상 시작 소켓 회귀 | PASS | 실제 호스트와 게스트에서 시드 581의 1,121회 및 1105의 1,018회 기존 경로를 재실행. 581은 새 호스트 복원 전후 400+721회 경로도 통과 |
+| APK 검사 | PASS | `org.spdcoop.dungeon.indev`, `4.0.2-INDEV-graphics-v3` (922), 35,262,185바이트, 서명자 1명, APK v1/v2 검증 |
+| GitHub Actions 및 Android 실기기 | NOT RUN | 개발 브랜치의 호스팅 실행 조회 결과 0건. 실제 Android 설치, 화면·터치·회전, Wi-Fi와 핫스팟은 기기 시험 대상 |
+
+APK 빌드 커밋은 `12191bec54d425c02f218d98e440f73772a93769`, SHA-256은 `a1994ac425acb810043b187ca2a7830cf073b3cc6ecafd81373c0ef315cddaee`다. 개발 서명 인증서 SHA-256은 `0dd9070b5f17192a8b07e5ddb6735161b0d2bb6e49013e4d61ca5ee6216ddb53`이며 직전 알파와 같다. V1 APK의 SHA-256은 `35c3372d6805fc02734e78b528eb5efbc8094c2835fab297d2c3785d70d252eb`이다.
+
+공식 원본은 `57a4e06a4caf162446d1c28caa7983f0493fecf0`이다. 최초 비교 촬영에서 원본 소개창이 HUD를 가려, 동일한 컴팩트 모드·3배 배율·소개 종료 조건으로 재촬영했다. 일부 지형 및 보스 화면에서는 실제 생성된 방에 시험 배치를 사용했다. [원본·변경 전·변경 후 화면과 조건](GRAPHICS-PARITY.md) · [실행 로그, JUnit XML 및 PNG](docs/coop/graphics-parity-evidence.zip)
+
+### 이전 개발 검증
+
 ## 2026-11-25 · 협동 식물, 냉간 복원, 두 번째 정상 완주
 
 | 시험 | 판정 | 실제 결과 |

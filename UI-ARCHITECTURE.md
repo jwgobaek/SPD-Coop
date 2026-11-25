@@ -1,5 +1,11 @@
 # 협동 화면과 실행 스레드
 
+## 기본 던전 화면의 렌더 경로
+
+호스트의 SeatProjection이 좌석별 공개 행을 생성한다. DisplayReplica가 검증한 StateImage를 PublicDungeon이 읽고, CoopBoard가 DungeonRenderMap의 공개 배열을 네이티브 타일맵과 FogOfWar에 전달한다. 층과 좌석이 같으면 보드·카메라·HUD·입력 리스너가 살아 있다. 지형 또는 관측이 달라지면 이웃 셀을 포함한 사각형을 갱신한다. 몬스터는 공개 Actor ID로, 바닥 아이템은 공개 핸들로 표시 객체를 유지한다. 지팡이 등 효과는 기존의 확정 이벤트에서만 시작한다.
+
+CoopHud는 StatusPane의 배경, 원본 게이지와 초상화, Toolbar의 버튼 구현을 사용한다. WndSeatInventory는 WndBag의 그리드 계산, WndTabbed, InventorySlot의 실제 표시 구성 요소를 사용한다. 빠른 사용, 아이템 정보창, 지도 입력은 그린 StateImage를 CoopController에 전달한다. WndCoopBag은 옛 구현의 기록이며 일반 가방 버튼은 WndSeatInventory를 연다. [레이어별 책임과 비교](GRAPHICS-PARITY.md)
+
 협동 보드의 식물은 SeatProjection이 수신 좌석의 직접 시야로 제한한 `plant<cell>` 행에서 읽는다. PublicDungeon과 CoopBoard가 원본 terrain features atlas의 식물 이미지를 표시하며, 시야를 잃거나 식물이 시들면 그 이미지를 지운다. 두 언어의 Sungrass 화면은 [검증 ZIP](docs/coop/sewer-plants-evidence.zip)에 있다.
 
 

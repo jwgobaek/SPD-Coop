@@ -1,5 +1,9 @@
 # Cloud에서 빌드하기
 
+## 그래픽 대조 실행
+
+JDK 21, 기존 Android SDK 및 실행 중인 Cloud X11 디스플레이를 사용한다. `scripts/capture-graphics-desktop.sh <공식 worktree> <변경 전 worktree> <출력 경로>`가 공식 Desktop JAR에 외부 드라이버를 컴파일하고 분리된 앱 프로필에서 원본·협동 장면을 촬영한다. 실제 그래픽 APK와 전체 JVM 회귀는 기존 `scripts/verify-android-build.sh <새 출력 경로>`로 검증한다. [비교 조건](GRAPHICS-PARITY.md)
+
 ## 현재 하수도 식물·복원 빌드
 
 JDK 21과 기존 Android SDK, Gradle Wrapper를 사용한다. 브랜치의 검증 대상 커밋을 별도 worktree에 체크아웃한 뒤 `bash scripts/verify-android-build.sh <새 출력 디렉터리>`를 실행했다. 해당 디렉터리에 APK, 패키지·서명 확인, SHA-256, 커밋, 빌드 로그와 JUnit XML이 생성된다. 버전은 `4.0.2-INDEV-sewer-plants`, versionCode는 922다. Desktop에서는 `:desktop:compileTestJava :desktop:release` 후 X11에서 `CoopRenderSmoke`의 garden 시나리오를 양 언어로 실행한다. [검증 자료](docs/coop/sewer-plants-evidence.zip)
