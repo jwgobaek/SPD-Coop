@@ -1,5 +1,9 @@
 # Android validation backlog
 
+## 신규 Tengu판의 Android 상태 · GB2
+
+Codex에서 승인된 Commander와 기본 Device-2의 로컬 ADB에 직접 접근했다. 기본 Android 15에 설치된 기존 41c3efd의 base.apk 해시를 대조하고 앱을 실행해 표준 출력으로 화면을 수집했다. 지정된 비공개 APK 링크를 Android Chrome에서 열면 Google 로그인이 필요했고 Drive 앱은 설치돼 있지 않았다. 신규 빌드 다운로드·데이터 보존 업데이트·설치본 해시·Android 보스전은 NOT RUN이다. 제2 인스턴스, Windows 파일 중계 또는 새 ADB 매핑은 사용하지 않았다. 실기기 Wi-Fi·핫스팟, 장시간 성능, 실제 저장 마이그레이션, 회전·핀치·Keystore는 별도 시험이다.
+
 ## 기준 배포본의 Android 15 실측 · 2026-11-25
 
 빌드 41c3efd, versionCode 922. 비공개 Drive 배포본과 두 설치본의 SHA-256은 모두 f1f51ce7ec2fce8e7b6b4b10b4b63bbae68efdac862f7ad2143c3e7733564de9였다. GB2에서 서로 다른 두 MuMu 인스턴스와 Windows 루프백 ADB 중계를 사용했다.

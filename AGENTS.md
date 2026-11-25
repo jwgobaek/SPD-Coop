@@ -1,5 +1,9 @@
 # 작업 시작 순서
 
+## 11층 회귀
+
+Tengu 변경 시 실제 피해로 다섯 단계가 진행되는 TenguArenaTest, 두 좌석의 HostRestartTest와 이전 스키마 6 저장본을 함께 검사한다. 시드 570~581의 동굴 원본 생성 조사와 계단 배치형 왕복, 시드 581·1105 정상 시작 기록을 구분한다. [실행 결과](docs/coop/tengu-caves-results.md)
+
 ## Android 직접 시험
 
 변경 영향에 따라 Codex가 GB2 기본 MuMu에서 직접 검증한다. [GB2 시험 절차](ANDROID-REMOTE-TESTING.md)

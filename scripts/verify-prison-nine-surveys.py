@@ -13,7 +13,8 @@ with tempfile.TemporaryDirectory() as name:
     work = Path(name)
     cp = helpers["classpath"](repo, work)
     java = helpers["JAVA"]
-    sources = sorted((tools_dir / "verification").glob("*.java"))
+    sources = [tools_dir / "verification" / (name + ".java")
+               for name in ("PrisonNineSurvey", "TenguBoundaryProbe")]
     subprocess.run([str(java.with_name("javac")), "-cp", cp, "-d", name, *map(str, sources)], check=True)
     for main, args in (("PrisonNineSurvey", []), ("TenguBoundaryProbe", ["write", name]),
                        ("TenguBoundaryProbe", ["read", name])):

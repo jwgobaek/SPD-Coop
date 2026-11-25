@@ -1,5 +1,9 @@
 # 엔진 분석 — v4.0.2
 
+## Tengu의 같은 층 지도 교체
+
+호스트는 PrisonBossLevel의 상태 머신과 원본 Actor를 실행한다. START·FIGHT_PAUSE에서 별도 보관한 보스, storedItems와 일반 바닥의 물리적 ID를 저장 경계에서 함께 검사한다. 새 방이 공개되면 SYNC20의 층·단계 식별자가 바뀌고 두 좌석은 각각 새 시야로 전체 이미지를 받는다. [저장](docs/coop/save-format.md) · [동기화](docs/coop/state-sync.md)
+
 ## 감옥 9층 호스트와 표시 모델
 
 강령술사와 해골·망령은 원본 Actor 스케줄러에서 행동한다. 협동 호스트가 스프라이트 완료 콜백을 대신하는 경계에서 원본 효과를 한 번 확정한다. 스키마 6은 소환자와 소환수의 층 및 ID를 검사한다. SYNC19는 좌석이 볼 수 있는 강령술사의 준비 상태를 전달한다. 10층 보스방의 검증 범위는 [실행 기록](docs/coop/prison-nine-results.md)에 있다.

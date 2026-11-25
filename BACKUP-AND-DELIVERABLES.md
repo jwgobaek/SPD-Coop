@@ -10,8 +10,8 @@ GitHub의 coop/phase8에는 검증된 소스 체크포인트를 기록한다. Go
 
 승인 계정 jwgobaek2022@gmail.com의 기존 My Drive/SPD-Coop/01_Latest에서 두 이름만 관리한다.
 
-* SPD-Coop-latest.apk
-* SPD-Coop-latest-backup.zip
+* [SPD-Coop-latest.apk](https://drive.google.com/file/d/1UhjuelcgZwugUyiGmAHco_dXdnTFuDZ2/view)
+* [SPD-Coop-latest-backup.zip](https://drive.google.com/file/d/1nxC-3dq29HUmt7pSuoYP8JGqUALNVvW8/view)
 
 한 세션의 전송 상한은 APK 한 개와 통합 ZIP 한 개다. 검증된 신규 APK가 없으면 업로드는 0개다. 중간 빌드는 Cloud에서만 보관한다. 기존 파일의 삭제·이동, 소급 백업, 아카이브 복사 및 별도 자료 업로드는 사용자의 별도 요청이 필요하다.
 
@@ -20,7 +20,7 @@ GitHub의 coop/phase8에는 검증된 소스 체크포인트를 기록한다. Go
 1. 전체 JUnit 회귀, APK 패키지·서명·빌드 커밋, 일반 Git 푸시 및 원격 커밋을 확인한다. APK와 ZIP 각각의 로컬 크기와 SHA-256을 기록한다.
 2. 통합 ZIP에는 APK 빌드 커밋의 소스, 에셋, Gradle Wrapper JAR, 라이선스·크레딧, 빌드 도구와 문서, 실제 JUnit XML·빌드·서명 로그·화면·체크섬·BUILD-INFO.txt·남은 작업을 포함한다. APK와 이전 증거 압축 파일을 제외한다. 서명 개인 키, 인증값 및 사용자 세이브를 제외하고 압축 내부를 검사한다.
 3. 지정 계정과 실제 프로젝트·대상 폴더 ID, 비공개 상태 및 기존 관리 파일을 확인한다. 기존 백업 기록과 해시가 같으면 해당 링크를 재사용한다. 과거 폴더를 소급 조사하지 않는다.
-4. 관리 파일이 있으면 검증된 기존 ID로 내용을 갱신한다. 없을 때만 최초 생성한다. 같은 이름이 여러 개이거나 내용 갱신이 불가능하면 파일을 추가 생성하지 않고 Cloud 결과와 사유를 기록한다.
+4. 지정된 두 기존 파일 ID를 확인하고 같은 ID의 내용만 갱신한다. 파일 접근 또는 내용 갱신이 불가능하면 Cloud 결과물과 사유를 기록한다. 공개 범위와 과거 파일은 유지한다.
 5. 응답 유실·시간 초과 시 먼저 대상 ID나 부모 폴더에서 파일을 다시 조회한다. 전송 후 원격 파일 크기와 SHA-256을 비교하고 접근 범위를 확인한다. 실제 APK·ZIP 전송 횟수, 신규 생성 또는 갱신, 검증 수준과 각 링크를 보고한다. 실패 시 검증된 Cloud 파일을 제공한다.
 
 통합 ZIP의 source/는 APK 빌드 커밋의 Git 트리에서 구성하고, 검증 문서와 검증 당시 자료는 documentation/ 및 evidence/에 둔다. Python 3.11 이상에서 `python3 scripts/verify-final-deliverables.py <두 파일이 있는 디렉터리> <APK의 전체 커밋>`을 실행하면 모든 구성 파일, 독립 APK의 SHA-256 및 빌드 커밋과의 소스 일치를 게시 전에 검사할 수 있다.

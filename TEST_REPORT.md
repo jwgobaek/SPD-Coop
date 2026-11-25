@@ -1,5 +1,9 @@
 # SPD-Coop 클라우드 실행 보고
 
+## Tengu 및 동굴 11층 · b2ad0d2
+
+시작 소스 재실행 167/168, 최종 전체 174/174 PASS. 정상 시작 두 시드는 6층 전멸이고, 배치형 원본 Tengu 처치 및 동굴 왕복은 연속 12/12다. 독립 JVM의 발행 직후 종료 11개 경계, 실제 스키마 1~6 이행, 한국어·영어 Desktop, APK v1·v2를 검사했다. 신규 APK의 Android 설치·실행은 NOT RUN이다. [전체 결과 및 성능](docs/coop/tengu-caves-results.md)
+
 ## Android 15 기준 빌드 41c3efd
 
 두 MuMu 인스턴스에서 설치 해시, 2인 1층 진행, 강제 종료·좌석 재접속, 저장 목록 복원과 양쪽 턴 동기화가 PASS였다. ADB 중계 경로를 사용했다. 세부 수치와 실제 무선 LAN 등 미실행 항목을 빌드별로 관리한다. [시험 범위와 원자료](ANDROID-VALIDATION.md)

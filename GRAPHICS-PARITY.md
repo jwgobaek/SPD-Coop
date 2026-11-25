@@ -1,5 +1,9 @@
 # 원본과 협동 던전 화면 대조
 
+## Tengu와 원본 동굴 입구
+
+시드 570의 시험 배치에서 Xorg 소프트웨어 OpenGL로 두 좌석을 실행했다. 한국어와 영어로 각각 10층 도착, 첫 전투방, 두 번째 전투장, 승리 후 방, 11층 도착을 캡처했다. 원본 v4.0.2의 전투방·전투장 캡처도 통합 ZIP에 있다. 비교 대상의 영웅 위치·상태가 달라 픽셀 일치율을 산출하지 않았다. 원본 출구 커스텀 타일과 좌석별 안개, HUD·퀵슬롯은 실제 협동 화면에 표시된다. 동일 해상도의 공식 전투장 화면에는 상단 중앙 보스 체력 바가 있다. 협동 캡처에서는 그 자리가 비어 있고, 두 번째 영웅과 동적 전투 구역이 표시된다. 개별 공격 소리와 모든 파티클의 일치는 미검증이다. [한국어 전투장](docs/coop/tengu-caves/ko/tengu-fight_arena.png) · [영어 11층](docs/coop/tengu-caves/en/prison-11-arrival.png)
+
 ## 감옥 8·9층 실제 Desktop 화면
 
 한국어·영어 Desktop에서 시드 570의 원본 감옥 타일, 좌석별 안개, 원본 강령술사 스프라이트, HUD, 퀵슬롯과 층 이동 버튼을 확인했다. 두 좌석의 실제 LAN 컨트롤러를 사용하고 전투 위치·계단은 시험용으로 배치했다. 통합 백업의 screenshots/에 양 언어의 8·9층 도착 및 강령술사 6장을 보존한다. [한국어 강령술사](docs/coop/prison-nine/ko/prison-necromancer.png) · [영어 9층](docs/coop/prison-nine/en/prison-9-arrival.png) Tengu 화면, 실제 Android 렌더링과 터치는 NOT RUN이다.

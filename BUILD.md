@@ -1,5 +1,9 @@
 # Cloud에서 빌드하기
 
+## Tengu 및 동굴 개발판
+
+Cloud에서 `bash scripts/verify-android-build.sh <새 결과 디렉터리>`를 실행하면 JUnit XML과 SHA-256, APK, 패키지·서명 검사를 얻는다. 이전 9층 빌드의 작업 트리로 `python3 scripts/verify-tengu-migration.py <이전 작업 트리>`를 실행해 6→7 저장 스키마 전환을 확인한다. 최종 APK와 ZIP은 `scripts/verify-final-deliverables.py`로 APK의 실제 빌드 커밋에 대조한다. [실행 결과](docs/coop/tengu-caves-results.md)
+
 ## Android 설치와 업데이트
 
 빌드와 서명 검사는 Cloud에서 수행한다. 설치 파일은 MuMu 내부의 승인된 비공개 링크를 이용한다. [GB2 시험 절차](ANDROID-REMOTE-TESTING.md)

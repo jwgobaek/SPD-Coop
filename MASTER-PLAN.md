@@ -6,7 +6,7 @@
 
 ## 지금 플레이할 수 있는 범위
 
-협동 진입은 branch 0의 1~9층이다. 10층은 원본 보스방 부분 시험 중이다. 감옥 완주·가면·11층 진입은 검증 전이다. [단계별 결과](docs/coop/prison-nine-results.md)
+협동 운영 범위는 branch 0의 1~11층이다. Tengu 처치와 가면 한 개, 11층 왕복을 배치형 원본 전투로 검증했다. 정상 시작 감옥 완주, 가면 전직, 동굴 12~15층은 다음 인수 범위다. [실행 결과](docs/coop/tengu-caves-results.md)
 
 Drive 발행은 전체 회귀·APK 서명·GitHub 원격 확인 후 세션 마지막에 한 번 수행한다. 기존 01_Latest에서 SPD-Coop-latest.apk와 APK를 제외한 SPD-Coop-latest-backup.zip만 관리한다. 세션당 전송 상한은 각각 한 개다. [백업 절차](BACKUP-AND-DELIVERABLES.md)
 
