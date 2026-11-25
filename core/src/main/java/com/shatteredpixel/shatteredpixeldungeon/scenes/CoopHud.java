@@ -1,0 +1,151 @@
+package com.shatteredpixel.shatteredpixeldungeon.scenes;
+
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.lan.*;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
+import com.shatteredpixel.shatteredpixeldungeon.ui.*;
+import com.shatteredpixel.shatteredpixeldungeon.windows.*;
+import com.watabou.noosa.*;
+import com.watabou.utils.RectF;
+import java.util.*;
+
+/** Persistent compact HUD. Commands use the exact StateImage from which the controls were drawn. */
+final class CoopHud extends Group {
+    private final CoopScene scene;
+    private final CoopController client;
+    private final Image portrait = new Image();
+    private final Image hp = new Image(Assets.Interfaces.STATUS,0,40,50,4);
+    private final Image shield = new Image(Assets.Interfaces.STATUS,0,44,50,4);
+    private final Image xp = new Image(Assets.Interfaces.STATUS,0,48,17,4);
+    private final BitmapText health = new BitmapText(PixelScene.pixelFont);
+    private final BitmapText level = new BitmapText(PixelScene.pixelFont);
+    private final BitmapText floor = new BitmapText(PixelScene.pixelFont);
+    private final RenderedTextBlock turn = PixelScene.renderTextBlock("",6);
+    private final Group effects = new Group();
+    private final List<BuffIcon> icons = new ArrayList<>();
+    private final StyledButton stairs, cancel;
+    private final Toolbar.SeatTool wait,search,pickup,bag;
+    private final Toolbar.SeatTool[] quick = new Toolbar.SeatTool[4];
+    private final PublicDungeon.Loot[] items = new PublicDungeon.Loot[4];
+    private final String[] verbs = {"ZAP","SHOOT","EAT","DRINK"};
+    private List<Integer> lastBuffs = Collections.emptyList();
+    private String lastPortrait, lastLine;
+    private final float left,top,right,bottom;
+    private PublicDungeon view;
+
+    CoopHud(CoopScene scene,CoopController client,RectF inset) {
+        this.scene=scene; this.client=client;
+        left=inset.left; top=inset.top; right=Camera.main.width-inset.right; bottom=Camera.main.height-inset.bottom;
+        NinePatch bg=StatusPane.background(false);
+        bg.x=left; bg.y=top; add(bg);
+        add(portrait); add(shield); add(hp); add(xp); add(health); add(level); add(effects);
+        hp.x=shield.x=left+30; hp.y=shield.y=top+2; xp.x=left+2; xp.y=top+30;
+        health.x=hp.x+1; health.y=hp.y; health.scale.set(0.5f); health.alpha(0.8f);
+        level.hardlight(0xFFFFAA);
+        Button info=new Button(){ @Override protected void onClick() {
+            if(view!=null) scene.add(new WndTitledMessage(HeroSprite.avatar(HeroClass.valueOf(view.heroClass),tier()),
+                    HeroClass.valueOf(view.heroClass).title(),"HP "+view.hp+"/"+view.maxHp+"\n"+
+                    CoopScene.msg("level",view.level,view.experience)+"\n"+CoopScene.msg("depth",view.depth)));
+        }};
+        info.setRect(left,top,82,35);add(info);
+        Image menuBase=new Image(Assets.Interfaces.MENU,1,0,31,21);
+        menuBase.x=right-31;menuBase.y=top;add(menuBase);
+        Image menuIcon=new Image(Assets.Interfaces.MENU_BTN,17,2,12,11);
+        menuIcon.x=right-13;menuIcon.y=top+8;add(menuIcon);
+        Button menu=new MenuButton();
+        menu.setRect(right-31,top,31,21);add(menu);
+        floor.x=right-26;floor.y=top+7;add(floor);
+        turn.setPos(left+33,top+21);add(turn);
+
+        float x=right;
+        bag=tool("bag",0,24,160,()->scene.openBag(view));
+        bag.setPos(x-=24,bottom-26);
+        search=tool("search",44,20,192,()->client.act(view.source,"SEARCH",view.pos,0));
+        search.setPos(x-=20,bottom-26);
+        wait=tool("wait",24,20,176,()->client.act(view.source,"WAIT",0,0));
+        wait.setPos(x-=20,bottom-26);
+        for(int i=quick.length-1;i>=0;i--) {
+            final int slot=i;
+            quick[i]=tool(verbs[i].toLowerCase(Locale.ROOT),64,22,-1,()->use(slot));
+            quick[i].setPos(x-=22,bottom-24);
+        }
+        pickup=tool("pick_up",64,22,-1,()->view.tap(client,view.pos));
+        pickup.setPos(x-22,bottom-24);
+        float width=Math.min(180,right-left-8);
+        stairs=new RedButton("") { @Override protected void onClick() {
+            client.act(view.source,view.offered ? "TRAVEL" : view.consent ? "CANCEL_TRAVEL" : "CONSENT",view.stair,0);
+        }};
+        stairs.setRect((left+right-width)/2,top+38,width,16);add(stairs);
+        cancel=new RedButton(CoopScene.msg("cancel")) { @Override protected void onClick(){scene.cancelAim();} };
+        cancel.setRect((left+right-width)/2,bottom-42,width,16);add(cancel);
+    }
+
+    private Toolbar.SeatTool tool(String name,int x,int w,int icon,Runnable action) {
+        Toolbar.SeatTool button=new Toolbar.SeatTool(name,x,w,icon,action);
+        add(button);return button;
+    }
+
+    private void use(int slot) {
+        PublicDungeon.Loot item=items[slot];
+        if(item==null || !view.actions(item).contains(verbs[slot])) return;
+        if(slot<2) scene.aim(view,item);
+        else view.use(client,item,verbs[slot]);
+    }
+
+    private final class MenuButton extends Button {
+        @Override protected void onClick() { scene.gameMenu(); }
+    }
+
+    private int tier() { return Integer.parseInt(view.source.rows.getOrDefault("selftier","0")); }
+
+    void apply(PublicDungeon next, boolean confirmed, String line, boolean aiming) {
+        view=next;
+        String appearance=view.heroClass+tier();
+        if (!appearance.equals(lastPortrait)) {
+            portrait.copy(HeroSprite.avatar(HeroClass.valueOf(view.heroClass),tier()));
+            portrait.x=left+15-portrait.width()/2; portrait.y=top+16-portrait.height()/2;
+            PixelScene.align(portrait);lastPortrait=appearance;
+        }
+        float total=Math.max(view.maxHp,(float)view.hp+view.shield);
+        hp.scale.x=view.hp/total;shield.scale.x=(view.hp+view.shield)/total;
+        xp.scale.x=(float)view.experience/Hero.maxExp(view.level);
+        health.text(view.hp+(view.shield==0?"":"+"+view.shield)+"/"+view.maxHp);
+        level.text(String.valueOf(view.level));level.measure();level.x=left+22-level.width()/2;level.y=top+27;
+        floor.text(String.valueOf(view.depth));
+        if(!line.equals(lastLine)) {
+            turn.text(line);turn.hardlight(view.offered ? 0xB4DA80 : 0xCBC6BA);lastLine=line;
+        }
+        if(!lastBuffs.equals(view.buffs)) {
+            for (BuffIcon icon:icons) icon.destroy();
+            icons.clear();
+            effects.clear();
+            float x=left+32;
+            for (int id:view.buffs) { BuffIcon icon=new BuffIcon(id,false);icon.x=x;icon.y=top+9;effects.add(icon);icons.add(icon);x+=9; }
+            lastBuffs=view.buffs;
+        }
+        stairs.visible=!aiming && view.stair>=0;
+        stairs.enable(stairs.visible && confirmed && (!view.offered || view.consent));
+        if (stairs.visible) {
+            String key=view.offered ? (view.consent ? "travel" : "awaitvote") : (view.consent ? "canceltravel" : "vote");
+            int direction=view.terrain(view.stair)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.ENTRANCE ? -1 : 1;
+            stairs.text(CoopScene.msg(key,view.depth+direction));
+        }
+        cancel.visible=aiming;cancel.enable(aiming);
+        boolean canAct=confirmed && view.offered && !aiming;
+        wait.enable(canAct); search.enable(canAct);bag.enable(!aiming);
+        PublicDungeon.Loot ground=view.floor.get(view.pos);
+        pickup.visible=ground!=null;pickup.enable(canAct && pickup.visible);
+        pickup.content(ground==null?-1:ground.sprite);
+        String[] kinds={"STAFF","BOW","FOOD","HEALING"};
+        for(int i=0;i<quick.length;i++) {
+            items[i]=null;
+            for(PublicDungeon.Loot item:view.belongings) {
+                if(kinds[i].equals(item.kind) && (i!=0 || "WEAPON".equals(item.slot))) { items[i]=item;break; }
+            }
+            quick[i].content(items[i]==null?-1:items[i].sprite);
+            quick[i].enable(canAct && items[i]!=null && view.actions(items[i]).contains(verbs[i]));
+        }
+    }
+}

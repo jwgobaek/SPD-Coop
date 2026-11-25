@@ -66,6 +66,7 @@ final class CoopBoard extends Group {
     }
 
     void refresh(PublicDungeon next, String cue) {
+        if (view==next && cue.isEmpty() && !sprites.isEmpty()) return;
         if (view.source != next.source && map.apply(next)) {
             for (Tilemap layer : layers) layer.updateMap();
             fog.updateFog();

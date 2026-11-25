@@ -47,6 +47,8 @@ public class UpstreamGraphicsReference {
             SPDSettings.intro(false);
             // Use the compact native HUD for the same viewport as the LAN scene.
             SPDSettings.interfaceSize(0);
+            SPDSettings.scale(3);
+            SPDSettings.zoom(0);
             Dungeon.seed=402;
             Dungeon.init();
             if (boss) Dungeon.depth=5;

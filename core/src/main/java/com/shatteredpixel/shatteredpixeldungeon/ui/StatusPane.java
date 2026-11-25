@@ -88,6 +88,11 @@ public class StatusPane extends Component {
 	public static float[] buffBarRowMaxWidths;
 	public static float[] buffBarRowAdjusts;
 
+	public static NinePatch background(boolean large) {
+		return large ? new NinePatch(Assets.Interfaces.STATUS, 0, 64, 41, 39, 33, 0, 4, 0)
+				: new NinePatch(Assets.Interfaces.STATUS, 0, 0, 82, 38, 32, 0, 5, 0);
+	}
+
 	public StatusPane( boolean large ){
 		super();
 
@@ -95,8 +100,7 @@ public class StatusPane extends Component {
 
 		this.large = large;
 
-		if (large)  bg = new NinePatch( asset, 0, 64, 41, 39, 33, 0, 4, 0 );
-		else        bg = new NinePatch( asset, 0,  0, 82, 38, 32, 0, 5, 0 );
+		bg = background(large);
 		add( bg );
 
 		heroPaneCutout = new NinePatch(asset, 0, 0, 5, 36, 4, 0, 0, 0);

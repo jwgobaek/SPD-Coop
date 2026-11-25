@@ -775,6 +775,47 @@ public class Toolbar extends Component {
 		}
 	}
 	
+	/** Native toolbar button whose input is owned by the seat controller. */
+	public static final class SeatTool extends Tool {
+		public final String command;
+		private final Runnable action;
+		private ItemSprite content;
+		private int lastImage = -1;
+
+		public SeatTool(String command, int frameX, int width, int iconX, Runnable action) {
+			super(frameX, 0, width, frameX == 64 ? 24 : 26);
+			this.command = command;
+			this.action = action;
+			if (iconX >= 0) icon(iconX, 0, 16, 16);
+		}
+
+		public void content(int image) {
+			if (image == lastImage) return;
+			lastImage = image;
+			if (content == null) {
+				content = new ItemSprite();
+				add(content);
+			}
+			content.visible = image >= 0;
+			if (content.visible) content.view(image, null);
+			layout();
+		}
+
+		@Override protected void layout() {
+			super.layout();
+			if (content != null) {
+				content.x = x + (width - content.width()) / 2;
+				content.y = y + (height - content.height()) / 2;
+				PixelScene.align(content);
+			}
+		}
+
+		@Override protected void onClick() { action.run(); }
+		@Override protected String hoverText() {
+			return Messages.get(com.shatteredpixel.shatteredpixeldungeon.scenes.CoopScene.class, command);
+		}
+	}
+
 	private static class QuickslotTool extends Tool {
 		
 		private QuickSlotButton slot;

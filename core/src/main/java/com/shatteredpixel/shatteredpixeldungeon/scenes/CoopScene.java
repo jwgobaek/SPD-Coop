@@ -18,6 +18,7 @@ public class CoopScene extends PixelScene {
     private CoopController.Frame shown;
     private Group panel;
     private CoopBoard board;
+    private CoopHud hud;
     private int first;
     private float left,top,width,bottom,center;
     private boolean exiting;
@@ -29,7 +30,7 @@ public class CoopScene extends PixelScene {
         if (controller.frame().image!=view.source || (!view.actions(staff).contains("ZAP") && !view.actions(staff).contains("SHOOT"))) return;
         targetView=view; targetStaff=staff; renderFrame();
     }
-    private void cancelAim() { targetView=null; targetStaff=null; renderFrame(); }
+    void cancelAim() { targetView=null; targetStaff=null; renderFrame(); }
     private void touchCell(PublicDungeon view,int cell) {
         if (targetView==null) {
             if(view.visible(cell) && ((view.depth<5 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EXIT)
@@ -110,10 +111,17 @@ public class CoopScene extends PixelScene {
         else controller.menu();
     }
     private void renderFrame() {
+        CoopController.Frame f=controller.frame();
+        if (board!=null && hud!=null && f.page==CoopController.Page.GAME && f.dungeon!=null && board.sameFloor(f.dungeon)) {
+            shown=f;
+            if (f.dungeon!=targetView || f.pending!=0) { targetView=null; targetStaff=null; }
+            game(f);
+            return;
+        }
         if(panel!=null) {remove(panel); panel.destroy();}
         panel=new Group(); addToBack(panel);
+        if(hud!=null) { remove(hud); addToBack(hud); }
         if(board!=null) { remove(board); addToBack(board); }
-        CoopController.Frame f=controller.frame();
         if(shown==null || shown.page!=f.page) first=0;
         shown=f;
         if (f.dungeon!=targetView || f.pending!=0) { targetView=null; targetStaff=null; }
@@ -123,6 +131,7 @@ public class CoopScene extends PixelScene {
         left=center-width/2; top=inset.top+3; bottom=Camera.main.height-inset.bottom-2;
         if (board!=null && (f.dungeon==null || f.page!=CoopController.Page.GAME || !board.sameFloor(f.dungeon))) {
             remove(board); board.destroy(); board=null;
+            if (hud!=null) { remove(hud); hud.destroy(); hud=null; }
         }
         if(f.page==CoopController.Page.GAME && f.image!=null) { game(f); return; }
         panel.add(new ColorBlock(Camera.main.width,Camera.main.height,0xFF18151B));
@@ -239,7 +248,10 @@ public class CoopScene extends PixelScene {
         });
     }
     private void alert(String body) {add(new WndOptions(msg("title"),body,msg("back")));}
-    private void gameMenu() {
+    void openBag(PublicDungeon view) {
+        add(new com.shatteredpixel.shatteredpixeldungeon.windows.WndCoopBag(view,controller));
+    }
+    void gameMenu() {
         boolean host=shown.seat==0;
         boolean save=host && shown.page==CoopController.Page.GAME;
         add(new WndOptions(msg("menu"),shown.address+"\n"+status(shown.image==null?"LOBBY":shown.image.rows.get("status")),
@@ -275,7 +287,6 @@ public class CoopScene extends PixelScene {
         if(sound!=null) com.watabou.noosa.audio.Sample.INSTANCE.play(sound);
         if(board==null) { board=new CoopBoard(v,this::touchCell); addToBack(board); }
         else board.refresh(v,effect);
-        label(msg("depth",v.depth)+"   "+HeroClass.valueOf(v.heroClass).title()+"    HP "+v.hp+"/"+v.maxHp+"    "+msg("level",v.level,v.experience),8,Window.TITLE_COLOR);
         String line=f.pending!=0 ? ("TRAVEL".equals(f.pendingVerb)?msg("travelling"):msg("pending",f.pending)) : f.image.rows.containsKey("reason") ?
                 status(f.image.rows.get("reason")) : !"ALIVE".equals(f.image.rows.get("life")) ?
                 status(f.image.rows.get("life")) : msg(v.offered?"yourturn":"theirturn");
@@ -283,30 +294,7 @@ public class CoopScene extends PixelScene {
             line+=" · "+msg("ironkeys",Integer.parseInt(f.image.rows.get("keys")));
         if(v.ally>=0 && "DOWNED".equals(f.image.rows.get("allylife"))) line+=" / "+msg("reviveally");
         if(f.lastResult.startsWith("REJECT") || f.lastResult.equals("UNKNOWN")) line+=" · "+status(f.lastResult);
-        label(targetView!=null ? msg("aim") : line,7,v.offered?0xB4DA80:0xCBC6BA);
-        if (targetView==null && v.stair>=0) {
-            String verb=v.offered ? "TRAVEL" : v.consent ? "CANCEL_TRAVEL" : "CONSENT";
-            String key=v.offered ? (v.consent ? "travel" : "awaitvote") : (v.consent ? "canceltravel" : "vote");
-            StyledButton stairs=make(msg(key,v.depth+(v.terrain(v.stair)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.ENTRANCE ? -1 : 1)),()->controller.act(f.image,verb,v.stair,0));
-            stairs.setRect(left,top,width,16); stairs.enable(f.pending==0 && (!v.offered || v.consent)); top+=17;
-        }
-        float bx=left;
-        for(int buff:v.buffs) {
-            BuffIcon icon=new BuffIcon(buff,false);icon.x=bx;icon.y=top;panel.add(icon);
-            bx+=9;if(bx>left+width-7) break;
-        }
-        if(!v.buffs.isEmpty()) top+=9;
-        if (targetView!=null) {
-            make(msg("cancel"),this::cancelAim).setRect(left,bottom-17,width,17);
-            return;
-        }
-        float part=(width-6)/4;
-        StyledButton wait=make(msg("wait"),()->controller.act(f.image,"WAIT",0,0));
-        wait.setRect(left,bottom-17,part,17); wait.enable(v.offered && f.pending==0);
-        make(msg("bag"),()->add(new com.shatteredpixel.shatteredpixeldungeon.windows.WndCoopBag(v,controller)))
-                .setRect(left+part+2,bottom-17,part,17);
-        StyledButton search=make(msg("search"),()->controller.act(f.image,"SEARCH",v.pos,0));
-        search.setRect(left+2*part+4,bottom-17,part,17); search.enable(v.offered && f.pending==0);
-        make(msg("menu"),this::gameMenu).setRect(left+3*part+6,bottom-17,part,17);
+        if (hud==null) { hud=new CoopHud(this,controller,getCommonInsets()); addToBack(hud); remove(board); addToBack(board); }
+        hud.apply(v,f.pending==0,targetView!=null ? msg("aim") : line,targetView!=null);
     }
 }

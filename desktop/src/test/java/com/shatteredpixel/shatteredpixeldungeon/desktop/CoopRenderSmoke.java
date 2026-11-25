@@ -114,7 +114,17 @@ public final class CoopRenderSmoke {
         return render(()->{
             StyledButton b=(StyledButton)find(Game.scene(),g->g instanceof StyledButton && g.active &&
                     ((StyledButton)g).text().equalsIgnoreCase(name.startsWith("#") ? name.substring(1) : label(name)));
-            return b==null?null:b.camera().cameraToScreen(b.left()+b.width()/2,b.top()+b.height()/2);
+            if(b!=null) return b.camera().cameraToScreen(b.left()+b.width()/2,b.top()+b.height()/2);
+            if (name.equals("menu")) {
+                com.shatteredpixel.shatteredpixeldungeon.ui.Button menu=(com.shatteredpixel.shatteredpixeldungeon.ui.Button)find(Game.scene(),
+                        g->g.getClass().getSimpleName().equals("MenuButton") && g instanceof com.shatteredpixel.shatteredpixeldungeon.ui.Button);
+                if(menu!=null) return menu.camera().cameraToScreen(menu.left()+menu.width()/2,menu.top()+menu.height()/2);
+            }
+            com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar.SeatTool tool=(com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar.SeatTool)find(Game.scene(),
+                    g->g instanceof com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar.SeatTool && g.active &&
+                            ((com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar.SeatTool)g).command.equals(name));
+            if(tool!=null) return tool.camera().cameraToScreen(tool.left()+tool.width()/2,tool.top()+tool.height()/2);
+            return null;
         });
     }
     private static void click(String name) throws Exception {
@@ -349,6 +359,14 @@ public final class CoopRenderSmoke {
             click("ready"); await(()->button("start")!=null); shot("ready"); click("start");
             await(()->frame().dungeon!=null); await(()->button("bag")!=null);
             shot("dungeon");
+            if (mage) {
+                long turnBefore=frame().image.version;
+                click("zap");
+                await(()->button("cancel")!=null);
+                shot("quickslot-target");
+                click("cancel");
+                if (frame().image.version!=turnBefore) throw new AssertionError("Aiming consumed a turn");
+            }
             if(garden) {
                 int cell=RenderEncounter.sungrass(hostController());
                 click("wait");
