@@ -5,7 +5,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.lan.*;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.*;
-import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTileSheet;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.*;
+import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
+import com.watabou.utils.GameMath;
+import java.util.*;
 import com.watabou.input.PointerEvent;
 import com.watabou.noosa.*;
 import com.watabou.utils.PointF;
@@ -14,58 +17,167 @@ import com.watabou.utils.PointF;
 final class CoopBoard extends Group {
     private static final int TILE=16;
     private static final int[] CLOUD_COLORS = {0x77ED6525, 0x667EDFFF, 0x66E5E067, 0x664AA940, 0x669E60CD};
-    private final int columns,rows,ox,oy;
-    private final float left,top;
-    interface Input { void tap(PublicDungeon view,int cell); }
-    CoopBoard(PublicDungeon view,Input input,float x,float y,float w,float h,String effect) {
-        columns=Math.max(1,((int)w/TILE-1)/2*2+1);
-        rows=Math.max(1,((int)h/TILE-1)/2*2+1);
-        left=Math.round(x+(w-columns*TILE)/2); top=Math.round(y+(h-rows*TILE)/2);
-        ox=view.pos%view.width-columns/2; oy=view.pos/view.width-rows/2;
-        for(int dy=0;dy<rows;dy++) for(int dx=0;dx<columns;dx++) {
-            int cx=ox+dx,cy=oy+dy;
-            if(cx<0 || cx>=view.width || cy<0) continue;
-            int cell=cy*view.width+cx, t=view.terrain(cell);
-            if(t<0) continue;
-            float px=left+dx*TILE, py=top+dy*TILE;
-            int index=tile(t);
-            Image ground=new Image(Assets.Environment.TILES_SEWERS,(index%16)*TILE,(index/16)*TILE,TILE,TILE);
-            if(!view.visible(cell)) {
-                if(view.source.mappedOnly(cell)) ground.hardlight(0x55546A);
-                else ground.brightness(0.42f);
+    interface Input { void tap(PublicDungeon view, int cell); }
+
+    private final DungeonRenderMap map;
+    private final Tilemap[] layers;
+    private final FogOfWar fog;
+    private final SkinnedBlock water;
+    private final Group markings = new Group();
+    private final Group heaps = new Group();
+    private final Group actors = new Group();
+    private final Group effects = new Group();
+    private final PointerArea inputArea;
+    private final Map<String, Image> sprites = new HashMap<>();
+    private PublicDungeon view;
+
+    CoopBoard(PublicDungeon initial, Input input) {
+        view = initial;
+        map = new DungeonRenderMap(view);
+        float zoom = GameMath.gate(PixelScene.minZoom, PixelScene.defaultZoom + SPDSettings.zoom(), PixelScene.maxZoom);
+        camera = Camera.add(Camera.createFullscreen(zoom));
+        water = new SkinnedBlock(view.width*TILE, view.height*TILE, Assets.Environment.WATER_SEWERS);
+        water.autoAdjust = true;
+        add(water);
+        layers = new Tilemap[]{
+                new DungeonTerrainTilemap(map), map.nestLayer(), new WallOcclusionTilemap(map), new TerrainFeaturesTilemap(map),
+                new RaisedTerrainTilemap(map), new DungeonWallsTilemap(map), new WallBlockingTilemap(map)};
+        for (int i=0; i<layers.length; i++) {
+            if (i==4) { add(markings); add(heaps); add(actors); }
+            add(layers[i]);
+        }
+        add(effects);
+        fog = new FogOfWar(map);
+        add(fog);
+        inputArea = new PointerArea(0, 0, camera.width, camera.height) {
+            @Override protected void onClick(PointerEvent e) {
+                PointF point = camera().screenToCamera((int)e.current.x, (int)e.current.y);
+                int x = (int)Math.floor(point.x/TILE), y = (int)Math.floor(point.y/TILE);
+                if (x>=0 && x<view.width && y>=0 && y<view.height) input.tap(view, x+y*view.width);
             }
-            ground.x=px;ground.y=py;add(ground);
-            if(!view.visible(cell)) continue;
-            if(view.source.rows.containsKey("stench"+cell)) {
-                com.watabou.noosa.ColorBlock gas=new com.watabou.noosa.ColorBlock(TILE,TILE,0x447DA63A);
-                gas.x=px;gas.y=py;add(gas);
+        };
+        add(inputArea);
+        refresh(initial, "");
+    }
+
+    boolean sameFloor(PublicDungeon next) {
+        return view.source.session.equals(next.source.session) && view.source.seat==next.source.seat
+                && view.depth==next.depth && view.width==next.width && view.height==next.height;
+    }
+
+    void refresh(PublicDungeon next, String cue) {
+        if (view.source != next.source && map.apply(next)) {
+            for (Tilemap layer : layers) layer.updateMap();
+            fog.updateFog();
+        }
+        view = next;
+        PointF center = center(view.pos);
+        camera.snapTo(center);
+        inputArea.x = center.x - inputArea.width()/2;
+        inputArea.y = center.y - inputArea.height()/2;
+
+        Set<String> keep = new HashSet<>();
+        for (Map.Entry<String,String> row : view.source.rows.entrySet()) {
+            String key=row.getKey(), value=row.getValue();
+            if (key.length()<2 || !Character.isDigit(key.charAt(key.length()-1))) continue;
+            if (key.charAt(0)=='m' && Character.isDigit(key.charAt(1))) {
+                String[] mob = value.split(",");
+                int cell = Integer.parseInt(mob[0]);
+                Image sprite=object(keep, key+":"+mob[1], cell, ()->monster(mob[1]));
+                sprite.resetColor();
+                if (view.source.rows.containsKey("charge"+cell)) sprite.tint(1f,0.2f,0.2f,0.55f);
+            } else if (key.charAt(0)=='h' && Character.isDigit(key.charAt(1))) {
+                int cell = Integer.parseInt(key.substring(1));
+                if (view.floor.containsKey(cell)) continue;
+                int image="CRYSTAL_CHEST".equals(value) ? ItemSpriteSheet.CRYSTAL_CHEST :
+                        "LOCKED_CHEST".equals(value) ? ItemSpriteSheet.LOCKED_CHEST : ItemSpriteSheet.CHEST;
+                object(keep,key+":"+image,cell,()->new ItemSprite(image));
+            } else if (key.startsWith("stench") || key.startsWith("cloud")) {
+                boolean stench=key.startsWith("stench");
+                int cell=Integer.parseInt(key.substring(stench ? 6 : 5));
+                if (stench) object(keep,key,cell,()->new ColorBlock(TILE,TILE,0x447DA63A));
+                else for (int i=0;i<CLOUD_COLORS.length;i++) {
+                    int color=CLOUD_COLORS[i];
+                    if ((Integer.parseInt(value)&(1<<i))!=0)
+                        object(keep,key+":"+i,cell,()->new ColorBlock(TILE,TILE,color));
+                }
+            } else if (key.charAt(0)=='z' && Character.isDigit(key.charAt(1))) {
+                int cell=Integer.parseInt(key.substring(1)), mask=Integer.parseInt(value);
+                for (int side=0;side<4;side++) {
+                    if ((mask & (1<<side))==0) continue;
+                    final boolean horizontal=(side%2)==0;
+                    Image edge=object(keep,key+":"+side,cell,()->new ColorBlock(horizontal?16:1,horizontal?1:16,0x99CE7843));
+                    edge.x=cell%view.width*TILE+(side==1?15:0);
+                    edge.y=cell/view.width*TILE+(side==2?15:0);
+                }
             }
-            int plant = view.plant(cell);
-            if (plant >= 0) place(new Image(Assets.Environment.TERRAIN_FEATURES,plant*TILE,7*TILE,TILE,TILE),px,py);
-            String trap=view.source.rows.get("trap"+cell);
-            if (trap!=null) {
-                int feature=Integer.parseInt(trap);
-                place(new Image(Assets.Environment.TERRAIN_FEATURES,(feature%16)*TILE,(feature/16)*TILE,TILE,TILE),px,py);
+        }
+        for (Map.Entry<Integer,PublicDungeon.Loot> heap : view.floor.entrySet()) {
+            PublicDungeon.Loot item=heap.getValue();
+            object(keep,"i"+item.id+":"+item.sprite,heap.getKey(),()->new ItemSprite(item.sprite));
+        }
+        if (view.ally>=0) avatar(keep,"ally",view.ally,view.allyClass,"");
+        avatar(keep,"self",view.pos,view.heroClass,cue);
+        Iterator<Map.Entry<String,Image>> it=sprites.entrySet().iterator();
+        while(it.hasNext()) {
+            Map.Entry<String,Image> entry=it.next();
+            if (!keep.contains(entry.getKey())) {
+                Image sprite=entry.getValue();
+                sprite.parent.remove(sprite); sprite.destroy(); it.remove();
             }
-            String cloud=view.source.rows.get("cloud"+cell);
-            if (cloud!=null) {
-                int mask=Integer.parseInt(cloud);
-                for (int i=0; i<CLOUD_COLORS.length; i++)
-                    if ((mask & (1<<i))!=0) place(new ColorBlock(TILE,TILE,CLOUD_COLORS[i]),px,py);
+        }
+        if ("ZAP".equals(cue)) {
+            String[] receipt=view.source.rows.get("receipt").split(",");
+            if (receipt.length==4) {
+                int to=Integer.parseInt(receipt[2]);
+                if (view.visible(to)) {
+                    com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile bolt=new com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile();
+                    effects.add(bolt);
+                    bolt.reset(com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile.MAGIC_MISSILE,
+                            center(view.pos),center(to),null);
+                }
             }
-            String z=view.source.rows.get("z"+cell);
-            if(z!=null) edges(px,py,Integer.parseInt(z));
-            PublicDungeon.Loot loot=view.floor.get(cell);
-            if(loot!=null) place(new ItemSprite(loot.sprite),px,py);
-            else if(view.source.rows.containsKey("h"+cell)) {
-                int image = ItemSpriteSheet.CHEST;
-                String chest = view.source.rows.get("h"+cell);
-                if ("CRYSTAL_CHEST".equals(chest)) image = ItemSpriteSheet.CRYSTAL_CHEST;
-                if ("LOCKED_CHEST".equals(chest)) image = ItemSpriteSheet.LOCKED_CHEST;
-                place(new ItemSprite(image),px,py);
-            }
-            String monster=view.monsters.get(cell);
-            if(monster!=null) {
+        }
+    }
+
+    private void avatar(Set<String> keep, String role, int cell, String type, String cue) {
+        String tier=view.source.rows.get(role+"tier");
+        String life=view.source.rows.get(role.equals("self") ? "life" : "allylife");
+        String key=role+":"+type+":"+tier+":"+life;
+        MovieClip clip=(MovieClip)object(keep,key,cell,()->hero(type,tier,life,""));
+        if (!cue.isEmpty() && "ALIVE".equals(life)) animate(clip,type,tier,life,cue);
+    }
+
+    private interface Factory { Image create(); }
+    private Image object(Set<String> keep,String key,int cell,Factory factory) {
+        keep.add(key);
+        Image sprite=sprites.get(key);
+        if(sprite==null) {
+            sprite=factory.create();
+            Group group;
+            if (key.startsWith("self") || key.startsWith("ally") || key.startsWith("m")) group=actors;
+            else if (key.startsWith("i") || key.startsWith("h")) group=heaps;
+            else group=markings;
+            group.add(sprite);
+            sprites.put(key,sprite);
+        }
+        sprite.x=cell%view.width*TILE+(TILE-sprite.width())/2;
+        sprite.y=cell/view.width*TILE+TILE-sprite.height();
+        return sprite;
+    }
+    private PointF center(int cell) {
+        return new PointF((cell%view.width+0.5f)*TILE,(cell/view.width+0.5f)*TILE);
+    }
+    @Override public void update() {
+        super.update();
+        water.offsetTo(0,water.offsetY()-5*Game.elapsed);
+    }
+    @Override public void destroy() {
+        Camera.remove(camera).destroy();
+        super.destroy();
+    }
+
+    private static Image monster(String monster) {
                 Image sprite;
                 switch(monster) {
                     case "Crab": sprite=new CrabSprite();break;
@@ -79,7 +191,7 @@ final class CoopBoard extends Group {
                     case "GreatCrab": sprite=new GreatCrabSprite();break;
                     case "Goo":
                         sprite=new GooSprite();
-                        if(view.source.rows.containsKey("charge"+cell)) sprite.tint(1f,0.2f,0.2f,0.55f);
+
                         break;
                     case "Statue": sprite=new StatueSprite();break;
                     case "GnollExile": sprite=new GnollExileSprite();break;
@@ -93,57 +205,21 @@ final class CoopBoard extends Group {
                     case "FetidRat": sprite=new Image(Assets.Sprites.RAT,0,30,16,15);break;
                     case "Piranha": sprite=new Image(Assets.Sprites.PIRANHA,0,0,12,16);break;
                     case "Sentry": sprite=new Image(Assets.Sprites.SENTRY,0,0,8,15);
-                        if(view.source.rows.containsKey("charge"+cell)) sprite.tint(1f,0.2f,0.2f,0.55f);
+
                         break;
                     case "Gnoll": sprite=new Image(Assets.Sprites.GNOLL,0,0,12,15);break;
                     case "Snake": sprite=new Image(Assets.Sprites.SNAKE,0,0,12,11);break;
                     case "Albino": sprite=new Image(Assets.Sprites.RAT,0,15,16,15);break;
                     default: sprite=new Image(Assets.Sprites.RAT,0,0,16,15);
                 }
-                place(sprite,px,py);
-            }
-            if(view.ally==cell) place(hero(view.allyClass,view.source.rows.get("allytier"),
-                    view.source.rows.get("allylife"),""),px,py);
-        }
-        // A downed observer has no direct sight but always knows their own position.
-        place(hero(view.heroClass,view.source.rows.get("selftier"),view.source.rows.get("life"),effect),
-                left+columns/2*TILE,top+rows/2*TILE);
-        if ("ZAP".equals(effect)) {
-            String[] receipt=view.source.rows.get("receipt").split(",");
-            if (receipt.length==4) {
-                int to=Integer.parseInt(receipt[2]);
-                if (view.visible(to)) {
-                    com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile bolt=new com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile();
-                    add(bolt);
-                    bolt.reset(com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile.MAGIC_MISSILE,
-                        center(view,view.pos),center(view,to),null);
-                }
-            }
-        }
-        add(new PointerArea(left,top,columns*TILE,rows*TILE){
-            protected void onClick(PointerEvent e) {
-                PointF p=camera().screenToCamera((int)e.current.x,(int)e.current.y);
-                int cx=ox+(int)Math.floor((p.x-left)/TILE),cy=oy+(int)Math.floor((p.y-top)/TILE);
-                if(cx>=0 && cx<view.width && cy>=0) input.tap(view,cx+cy*view.width);
-            }
-        });
-    }
-    private PointF center(PublicDungeon view,int cell) {
-        return new PointF(left+(cell%view.width-ox+0.5f)*TILE,top+(cell/view.width-oy+0.5f)*TILE);
-    }
-    private static int tile(int t) {
-        Integer idx=DungeonTileSheet.directFlatVisuals.get(t);
-        if(idx==null) idx=DungeonTileSheet.directVisuals.get(t);
-        if(idx!=null) return idx;
-        if(t==Terrain.WATER) return DungeonTileSheet.WATER;
-        if(t==Terrain.CHASM) return DungeonTileSheet.CHASM;
-        return DungeonTileSheet.FLAT_WALL;
-    }
-    private void place(Image im,float x,float y) {
-        im.x=x+(TILE-im.width())/2; im.y=y+TILE-im.height(); add(im);
+        return sprite;
     }
     private static MovieClip hero(String type,String tier,String life,String action) {
         MovieClip sprite=new MovieClip(HeroClass.valueOf(type).spritesheet());
+        animate(sprite,type,tier,life,action);
+        return sprite;
+    }
+    private static void animate(MovieClip sprite,String type,String tier,String life,String action) {
         int row=tier==null?0:Math.max(0,Math.min(6,Integer.parseInt(tier)));
         TextureFilm film=new TextureFilm(HeroSprite.tiers(),row,12,15);
         MovieClip.Animation idle=new MovieClip.Animation(1,true).frames(film,0,0,0,1,0,0,1,1);
@@ -157,15 +233,5 @@ final class CoopBoard extends Group {
             sprite.play(move==null?idle:move);
             sprite.listener=animation->sprite.play(idle);
         }
-        return sprite;
-    }
-    private void edges(float x,float y,int mask) {
-        if((mask&1)!=0) line(x,y,16,1);
-        if((mask&2)!=0) line(x+15,y,1,16);
-        if((mask&4)!=0) line(x,y+15,16,1);
-        if((mask&8)!=0) line(x,y,1,16);
-    }
-    private void line(float x,float y,int w,int h) {
-        ColorBlock edge=new ColorBlock(w,h,0x99CE7843);edge.x=x;edge.y=y;add(edge);
     }
 }

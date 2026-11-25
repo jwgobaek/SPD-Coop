@@ -30,16 +30,20 @@ public class DungeonWallsTilemap extends DungeonTilemap {
 
 	public static HashSet<Integer> skipCells = new HashSet<>();
 
-	public DungeonWallsTilemap(){
-		super(Dungeon.level.tilesTex());
-		skipCells.clear();
-		map( Dungeon.level.map, Dungeon.level.width() );
+	public DungeonWallsTilemap() {
+		this(DungeonRenderMap.solo());
+	}
+
+	public DungeonWallsTilemap(DungeonRenderMap view) {
+		super(view.tilesTexture(), view);
+		if (!view.isSeat()) skipCells.clear();
+		map(view.tiles, view.width);
 	}
 
 	@Override
 	protected int getTileVisual(int pos, int tile, boolean flat){
 
-		if (flat) return -1;
+		if (flat || tile < 0) return -1;
 
 		if (DungeonTileSheet.wallStitcheable(tile)) {
 			if (pos + mapWidth < size && !DungeonTileSheet.wallStitcheable(map[pos + mapWidth])){
@@ -63,13 +67,13 @@ public class DungeonWallsTilemap extends DungeonTilemap {
 						(pos+1) % mapWidth != 0 && pos + mapWidth < size ?  map[pos + 1 + mapWidth] : -1,
 						pos + mapWidth < size ?                             map[pos + mapWidth] : -1,
 						pos % mapWidth != 0 && pos + mapWidth < size ?      map[pos - 1 + mapWidth] : -1,
-						pos % mapWidth != 0 ?                               map[pos - 1] : -1
+						pos % mapWidth != 0 ?                               map[pos - 1] : -1, view.branch
 				);
 			}
 
 		}
 
-		if (skipCells.contains(pos)){
+		if (!view.isSeat() && skipCells.contains(pos)){
 			return -1;
 		}
 
@@ -81,18 +85,18 @@ public class DungeonWallsTilemap extends DungeonTilemap {
 					tile,
 					(pos+1) % mapWidth != 0 ?   map[pos + 1 + mapWidth] : -1,
 												map[pos + mapWidth],
-					pos % mapWidth != 0 ?       map[pos - 1 + mapWidth] : -1
+					pos % mapWidth != 0 ?       map[pos - 1 + mapWidth] : -1, view.branch
 			);
 
-		} else if (Dungeon.level.insideMap(pos) && map[pos+mapWidth] == Terrain.DOOR ) {
+		} else if (view.inside(pos) && map[pos+mapWidth] == Terrain.DOOR ) {
 			return DungeonTileSheet.DOOR_OVERHANG;
-		} else if (Dungeon.level.insideMap(pos) && map[pos+mapWidth] == Terrain.LOCKED_DOOR ) {
+		} else if (view.inside(pos) && map[pos+mapWidth] == Terrain.LOCKED_DOOR ) {
 			return DungeonTileSheet.DOOR_OVERHANG;
-		} else if (Dungeon.level.insideMap(pos) && map[pos+mapWidth] == Terrain.HERO_LKD_DR ) {
+		} else if (view.inside(pos) && map[pos+mapWidth] == Terrain.HERO_LKD_DR ) {
 			return DungeonTileSheet.DOOR_OVERHANG;
-		} else if (Dungeon.level.insideMap(pos) && map[pos+mapWidth] == Terrain.OPEN_DOOR ) {
+		} else if (view.inside(pos) && map[pos+mapWidth] == Terrain.OPEN_DOOR ) {
 			return DungeonTileSheet.DOOR_OVERHANG_OPEN;
-		} else if (Dungeon.level.insideMap(pos) && map[pos+mapWidth] == Terrain.CRYSTAL_DOOR ) {
+		} else if (view.inside(pos) && map[pos+mapWidth] == Terrain.CRYSTAL_DOOR ) {
 			return DungeonTileSheet.DOOR_OVERHANG_CRYSTAL;
 		} else if (pos + mapWidth < size && map[pos+mapWidth] == Terrain.STATUE){
 			return DungeonTileSheet.STATUE_OVERHANG;
@@ -103,17 +107,17 @@ public class DungeonWallsTilemap extends DungeonTilemap {
 		} else if (pos + mapWidth < size && map[pos+mapWidth] == Terrain.REGION_DECO_ALT){
 			return DungeonTileSheet.REGION_DECO_ALT_OVERHANG;
 		} else if (pos + mapWidth < size && map[pos+mapWidth] == Terrain.MINE_CRYSTAL){
-			return DungeonTileSheet.getVisualWithAlts(DungeonTileSheet.MINE_CRYSTAL_OVERHANG_BLUE, pos + mapWidth);
+			return view.alt(DungeonTileSheet.MINE_CRYSTAL_OVERHANG_BLUE, pos + mapWidth);
 		} else if (pos + mapWidth < size && map[pos+mapWidth] == Terrain.MINE_BOULDER){
-			return DungeonTileSheet.getVisualWithAlts(DungeonTileSheet.MINE_BOULDER_OVERHANG, pos + mapWidth);
+			return view.alt(DungeonTileSheet.MINE_BOULDER_OVERHANG, pos + mapWidth);
 		} else if (pos + mapWidth < size && map[pos+mapWidth] == Terrain.ALCHEMY){
 			return DungeonTileSheet.ALCHEMY_POT_OVERHANG;
 		} else if (pos + mapWidth < size && map[pos+mapWidth] == Terrain.BARRICADE){
 			return DungeonTileSheet.BARRICADE_OVERHANG;
 		} else if (pos + mapWidth < size && map[pos+mapWidth] == Terrain.HIGH_GRASS){
-			return DungeonTileSheet.getVisualWithAlts(DungeonTileSheet.HIGH_GRASS_OVERHANG, pos + mapWidth);
+			return view.alt(DungeonTileSheet.HIGH_GRASS_OVERHANG, pos + mapWidth);
 		} else if (pos + mapWidth < size && map[pos+mapWidth] == Terrain.FURROWED_GRASS){
-			return DungeonTileSheet.getVisualWithAlts(DungeonTileSheet.FURROWED_OVERHANG, pos + mapWidth);
+			return view.alt(DungeonTileSheet.FURROWED_OVERHANG, pos + mapWidth);
 		}
 
 		return -1;

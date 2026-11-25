@@ -17,6 +17,7 @@ public class CoopScene extends PixelScene {
     private CoopController controller;
     private CoopController.Frame shown;
     private Group panel;
+    private CoopBoard board;
     private int first;
     private float left,top,width,bottom,center;
     private boolean exiting;
@@ -111,6 +112,7 @@ public class CoopScene extends PixelScene {
     private void renderFrame() {
         if(panel!=null) {remove(panel); panel.destroy();}
         panel=new Group(); addToBack(panel);
+        if(board!=null) { remove(board); addToBack(board); }
         CoopController.Frame f=controller.frame();
         if(shown==null || shown.page!=f.page) first=0;
         shown=f;
@@ -119,8 +121,11 @@ public class CoopScene extends PixelScene {
         width=Math.min(212,Camera.main.width-inset.left-inset.right-8);
         center=(Camera.main.width+inset.left-inset.right)/2f;
         left=center-width/2; top=inset.top+3; bottom=Camera.main.height-inset.bottom-2;
-        panel.add(new ColorBlock(Camera.main.width,Camera.main.height,0xFF18151B));
+        if (board!=null && (f.dungeon==null || f.page!=CoopController.Page.GAME || !board.sameFloor(f.dungeon))) {
+            remove(board); board.destroy(); board=null;
+        }
         if(f.page==CoopController.Page.GAME && f.image!=null) { game(f); return; }
+        panel.add(new ColorBlock(Camera.main.width,Camera.main.height,0xFF18151B));
         Image backdrop=new Image(com.shatteredpixel.shatteredpixeldungeon.Assets.Splashes.SEWERS);
         backdrop.scale.set(Math.max(Camera.main.width/backdrop.width(),Camera.main.height/backdrop.height()));
         backdrop.x=(Camera.main.width-backdrop.width())/2; backdrop.y=(Camera.main.height-backdrop.height())/2;
@@ -268,6 +273,8 @@ public class CoopScene extends PixelScene {
             case "REVIVE": case "REVIVED": sound=com.shatteredpixel.shatteredpixeldungeon.Assets.Sounds.TELEPORT;break;
         }
         if(sound!=null) com.watabou.noosa.audio.Sample.INSTANCE.play(sound);
+        if(board==null) { board=new CoopBoard(v,this::touchCell); addToBack(board); }
+        else board.refresh(v,effect);
         label(msg("depth",v.depth)+"   "+HeroClass.valueOf(v.heroClass).title()+"    HP "+v.hp+"/"+v.maxHp+"    "+msg("level",v.level,v.experience),8,Window.TITLE_COLOR);
         String line=f.pending!=0 ? ("TRAVEL".equals(f.pendingVerb)?msg("travelling"):msg("pending",f.pending)) : f.image.rows.containsKey("reason") ?
                 status(f.image.rows.get("reason")) : !"ALIVE".equals(f.image.rows.get("life")) ?
@@ -289,7 +296,6 @@ public class CoopScene extends PixelScene {
             bx+=9;if(bx>left+width-7) break;
         }
         if(!v.buffs.isEmpty()) top+=9;
-        panel.add(new CoopBoard(v,this::touchCell,0,top,Camera.main.width,bottom-top-19,effect));
         if (targetView!=null) {
             make(msg("cancel"),this::cancelAim).setRect(left,bottom-17,width,17);
             return;

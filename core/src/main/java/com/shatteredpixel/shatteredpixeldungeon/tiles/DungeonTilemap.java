@@ -36,6 +36,12 @@ public abstract class DungeonTilemap extends Tilemap {
 	public static final int SIZE = 16;
 
 	protected int[] map;
+	protected DungeonRenderMap view;
+
+	protected DungeonTilemap(String texture, DungeonRenderMap view) {
+		this(texture);
+		this.view = view;
+	}
 
 	public DungeonTilemap(String tex) {
 		super(tex, new TextureFilm( tex, SIZE, SIZE ) );
@@ -59,9 +65,10 @@ public abstract class DungeonTilemap extends Tilemap {
 	@Override
 	public synchronized void updateMapCell(int cell) {
 		//update in a 3x3 grid to account for neighbours which might also be affected
-		if (Dungeon.level.insideMap(cell)) {
-			for (int i : PathFinder.NEIGHBOURS9) {
-				data[cell + i] = getTileVisual(cell + i, map[cell + i], false);
+		if (cell>=mapWidth && cell<size-mapWidth && cell%mapWidth>0 && cell%mapWidth<mapWidth-1) {
+			for (int dy=-1; dy<=1; dy++) for (int dx=-1; dx<=1; dx++) {
+				int pos=cell + dy*mapWidth + dx;
+				data[pos] = getTileVisual(pos, map[pos], false);
 			}
 			super.updateMapCell(cell - mapWidth - 1);
 			super.updateMapCell(cell + mapWidth + 1);
@@ -85,10 +92,10 @@ public abstract class DungeonTilemap extends Tilemap {
 			invScale( SIZE );
 		
 		//snap to the edges of the tilemap
-		p.x = GameMath.gate(0, p.x, Dungeon.level.width()-0.001f);
-		p.y = GameMath.gate(0, p.y, Dungeon.level.height()-0.001f);
+		p.x = GameMath.gate(0, p.x, mapWidth-0.001f);
+		p.y = GameMath.gate(0, p.y, mapHeight-0.001f);
 
-		int cell = (int)p.x + (int)p.y * Dungeon.level.width();
+		int cell = (int)p.x + (int)p.y * mapWidth;
 
 		//wall assist is used to make raised perspective tapping a bit easier.
 		// If the pressed tile is a wall tile, the tap can be 'bumped' down into a none-wall tile.
@@ -118,7 +125,8 @@ public abstract class DungeonTilemap extends Tilemap {
 		}
 
 		//caves region deco is very wall-like, so it counts
-		if (Dungeon.depth >= 10 && Dungeon.depth <= 15
+		int depth = view == null ? Dungeon.depth : view.depth;
+		if (depth >= 10 && depth <= 15
 				&& (map[cell] == Terrain.REGION_DECO || map[cell] == Terrain.REGION_DECO_ALT)) {
 			return true;
 		}

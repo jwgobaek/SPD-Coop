@@ -71,6 +71,17 @@ final class SeatProjection {
             Level level = Dungeon.level;
             FloorKnowledge sight = game.observe(seat);
             writeMemory(rows, sight);
+            for (com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTilemap tile : level.customTiles) {
+                if (!(tile instanceof com.shatteredpixel.shatteredpixeldungeon.levels.rooms.sewerboss.GooBossRoom.GooNest)) continue;
+                com.shatteredpixel.shatteredpixeldungeon.levels.rooms.sewerboss.GooBossRoom.GooNest nest =
+                        (com.shatteredpixel.shatteredpixeldungeon.levels.rooms.sewerboss.GooBossRoom.GooNest)tile;
+                for (int y=0;y<nest.tileH;y++) for (int x=0;x<nest.tileW;x++) {
+                    int cell=(nest.tileY+y)*level.width()+nest.tileX+x;
+                    int sprite=nest.visualAt(x,y);
+                    if (sprite>=0 && (sight.visible(cell) || sight.visited(cell)))
+                        rows.put("nest"+cell,Integer.toString(sprite));
+                }
+            }
             int stair=game.stairs.stair();
             if(stair>=0) rows.put("stair",stair+","+(game.stairs.agreed()?1:0));
             for (BitSet area : CombatZones.calculate(game, sight)) {
@@ -82,6 +93,8 @@ final class SeatProjection {
             rows.put("keys",Integer.toString(com.shatteredpixel.shatteredpixeldungeon.journal.Notes.keyCount(
                     new com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey(Dungeon.depth))));
             rows.put("width",Integer.toString(level.width()));
+            rows.put("height",Integer.toString(level.height()));
+            rows.put("shield",Integer.toString(hero.shielding()));
             rows.put("self",hero.id()+","+hero.pos+","+hero.HP+","+hero.HT+","+hero.heroClass.name()+","+hero.lvl+","+hero.exp);
             rows.put("selftier",Integer.toString(hero.tier()));
             Hero ally = game.hero(1-seat);

@@ -47,14 +47,21 @@ public class TerrainFeaturesTilemap extends DungeonTilemap {
 		this.traps = traps;
 
 		if (Dungeon.level != null) {
-			map(Dungeon.level.map, Dungeon.level.width());
+			view = DungeonRenderMap.solo();
+			map(view.tiles, view.width);
 		}
 
 		instance = this;
 	}
 
+	public TerrainFeaturesTilemap(DungeonRenderMap view) {
+		super(Assets.Environment.TERRAIN_FEATURES, view);
+		map(view.tiles, view.width);
+	}
+
 	protected int getTileVisual(int pos, int tile, boolean flat){
-		if (traps.get(pos) != null){
+		if (view.isSeat() && view.feature(pos) >= 0) return view.feature(pos);
+		if (traps != null && traps.get(pos) != null){
 			Trap trap = traps.get(pos);
 			if (!trap.visible)
 				return -1;
@@ -62,27 +69,27 @@ public class TerrainFeaturesTilemap extends DungeonTilemap {
 				return (trap.active ? trap.color : Trap.BLACK) + (trap.shape * 16);
 		}
 
-		if (plants.get(pos) != null){
+		if (plants != null && plants.get(pos) != null){
 			return plants.get(pos).image + 7*16;
 		}
 
-		int stage = (Dungeon.depth-1)/5;
-		if (Dungeon.depth == 21 && Dungeon.level instanceof LastShopLevel) stage--;
+		int stage = (view.depth-1)/5;
+		if (view.depth == 21 && view.lastShop) stage--;
 		stage = Math.min(stage, 4);
 		if (tile == Terrain.HIGH_GRASS){
-			if (DungeonTileSheet.getVisualWithAlts(DungeonTileSheet.RAISED_HIGH_GRASS, pos) == DungeonTileSheet.RAISED_HIGH_GRASS_ALT){
+			if (view.alt(DungeonTileSheet.RAISED_HIGH_GRASS, pos) == DungeonTileSheet.RAISED_HIGH_GRASS_ALT){
 				return 128 + 16*stage + 1;
 			} else {
 				return 128 + 16*stage;
 			}
 		} else if (tile == Terrain.FURROWED_GRASS){
-			if (DungeonTileSheet.getVisualWithAlts(DungeonTileSheet.RAISED_FURROWED_GRASS, pos) == DungeonTileSheet.RAISED_FURROWED_ALT){
+			if (view.alt(DungeonTileSheet.RAISED_FURROWED_GRASS, pos) == DungeonTileSheet.RAISED_FURROWED_ALT){
 				return 130 + 16*stage + 1;
 			} else {
 				return 130 + 16*stage;
 			}
 		} else if (tile == Terrain.GRASS) {
-			if (DungeonTileSheet.getVisualWithAlts(DungeonTileSheet.GRASS, pos) == DungeonTileSheet.GRASS_ALT){
+			if (view.alt(DungeonTileSheet.GRASS, pos) == DungeonTileSheet.GRASS_ALT){
 				return 132 + 16*stage + 1;
 			} else {
 				return 132 + 16*stage;
@@ -103,13 +110,13 @@ public class TerrainFeaturesTilemap extends DungeonTilemap {
 			return 138 + 16 * stage;
 
 		} else if (tile == Terrain.EMBERS) {
-			if (DungeonTileSheet.getVisualWithAlts(DungeonTileSheet.EMBERS, pos) == DungeonTileSheet.EMBERS_ALT){
+			if (view.alt(DungeonTileSheet.EMBERS, pos) == DungeonTileSheet.EMBERS_ALT){
 				return 208 + 1;
 			} else {
 				return 208;
 			}
 		} else if (tile == Terrain.MINE_CRYSTAL){
-			int vis = DungeonTileSheet.getVisualWithAlts(DungeonTileSheet.RAISED_MINE_CRYSTAL_BLUE_1, pos);
+			int vis = view.alt(DungeonTileSheet.RAISED_MINE_CRYSTAL_BLUE_1, pos);
 			if (vis == DungeonTileSheet.RAISED_MINE_CRYSTAL_RED_2){
 				return 210 + 5;
 			} else if (vis == DungeonTileSheet.RAISED_MINE_CRYSTAL_RED_1){
@@ -124,7 +131,7 @@ public class TerrainFeaturesTilemap extends DungeonTilemap {
 				return 210 + 0;
 			}
 		} else if (tile == Terrain.MINE_BOULDER){
-			int vis = DungeonTileSheet.getVisualWithAlts(DungeonTileSheet.RAISED_MINE_BOULDER, pos);
+			int vis = view.alt(DungeonTileSheet.RAISED_MINE_BOULDER, pos);
 			if (vis == DungeonTileSheet.RAISED_MINE_BOULDER_ALT_2){
 				return 216 + 2;
 			} else if (vis == DungeonTileSheet.RAISED_MINE_BOULDER_ALT){

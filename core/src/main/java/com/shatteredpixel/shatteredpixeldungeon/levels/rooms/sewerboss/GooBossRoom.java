@@ -76,40 +76,7 @@ public abstract class GooBossRoom extends StandardRoom {
 			for (int x = 0; x < tileW; x++){
 				for (int y = 0; y < tileH; y++){
 					
-					//corners
-					if ((x == 0 || x == tileW-1) && (y == 0 || y == tileH-1)){
-						data[x + tileW*y] = -1;
-					
-					//adjacent to corners
-					} else if ((x == 1 && y == 0) || (x == 0 && y == 1)){
-						data[x + tileW*y] = 0;
-						
-					} else if ((x == tileW-2 && y == 0) || (x == tileW-1 && y == 1)){
-						data[x + tileW*y] = 1;
-						
-					} else if ((x == 1 && y == tileH-1) || (x == 0 && y == tileH-2)){
-						data[x + tileW*y] = 2;
-					
-					} else if ((x == tileW-2 && y == tileH-1) || (x == tileW-1 && y == tileH-2)) {
-						data[x + tileW*y] = 3;
-					
-					//sides
-					} else if (x == 0){
-						data[x + tileW*y] = 4;
-					
-					} else if (y == 0){
-						data[x + tileW*y] = 5;
-					
-					} else if (x == tileW-1){
-						data[x + tileW*y] = 6;
-					
-					} else if (y == tileH-1){
-						data[x + tileW*y] = 7;
-					
-					//inside
-					} else {
-						data[x + tileW*y] = 8;
-					}
+					data[x + tileW*y] = visualAt(x, y);
 					
 				}
 			}
@@ -117,8 +84,46 @@ public abstract class GooBossRoom extends StandardRoom {
 			return v;
 		}
 		
+		/** Native frame shared with the seat-scoped display projection. */
+		public int visualAt(int x, int y) {
+			//corners
+			if ((x == 0 || x == tileW-1) && (y == 0 || y == tileH-1)){
+				return -1;
+
+			//adjacent to corners
+			} else if ((x == 1 && y == 0) || (x == 0 && y == 1)){
+				return 0;
+
+			} else if ((x == tileW-2 && y == 0) || (x == tileW-1 && y == 1)){
+				return 1;
+
+			} else if ((x == 1 && y == tileH-1) || (x == 0 && y == tileH-2)){
+				return 2;
+
+			} else if ((x == tileW-2 && y == tileH-1) || (x == tileW-1 && y == tileH-2)) {
+				return 3;
+
+			//sides
+			} else if (x == 0){
+				return 4;
+
+			} else if (y == 0){
+				return 5;
+
+			} else if (x == tileW-1){
+				return 6;
+
+			} else if (y == tileH-1){
+				return 7;
+
+			//inside
+			} else {
+				return 8;
+			}
+		}
+
 		@Override
-		public Image image(int tileX, int tileY) {
+public Image image(int tileX, int tileY) {
 			return null;
 		}
 	}

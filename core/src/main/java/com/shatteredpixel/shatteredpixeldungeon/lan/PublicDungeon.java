@@ -5,7 +5,7 @@ import java.util.*;
 /** Typed render and input model derived solely from one verified seat image. */
 public final class PublicDungeon {
     public final StateImage source;
-    public final int width,pos,hp,maxHp,level,experience,ally;
+    public final int width,height,shield,pos,hp,maxHp,level,experience,ally;
     public final String heroClass,allyClass;
     public final int depth,stair;
     public final boolean consent;
@@ -34,8 +34,11 @@ public final class PublicDungeon {
         String[] gate=(source.rows.containsKey("stair")?source.rows.get("stair"):"-1,0").split(",");
         stair=number(gate[0],-1,65535); consent=number(gate[1],0,1)==1;
         width=number(source.rows.get("width"),3,256);
+        // Older hosts did not publish floor height. Reserve the original maximum for those peers.
+        height=number(source.rows.getOrDefault("height","256"),3,256);
+        shield=number(source.rows.getOrDefault("shield","0"),0,Integer.MAX_VALUE);
         String[] hero=source.rows.get("self").split(",");
-        pos=number(hero[1],0,65535); hp=number(hero[2],0,Integer.MAX_VALUE);
+        pos=number(hero[1],0,width*height-1); hp=number(hero[2],0,Integer.MAX_VALUE);
         maxHp=number(hero[3],Math.max(1,hp),Integer.MAX_VALUE);
         heroClass=profession(hero[4]); level=number(hero[5],1,999); experience=number(hero[6],0,Integer.MAX_VALUE);
         String[] friend=(source.rows.containsKey("ally") ? source.rows.get("ally") : "").split(",");

@@ -41,16 +41,23 @@ public class WallBlockingTilemap extends Tilemap {
 	private static final int BLOCK_ALL      = 2;
 	private static final int BLOCK_BELOW    = 3;
 
+	private final DungeonRenderMap view;
+
 	public WallBlockingTilemap() {
+		this(DungeonRenderMap.solo());
+	}
+
+	public WallBlockingTilemap(DungeonRenderMap view) {
 		super(Assets.Environment.WALL_BLOCKING, new TextureFilm( Assets.Environment.WALL_BLOCKING, SIZE, SIZE ) );
-		map( new int[Dungeon.level.length()], Dungeon.level.width());
+		this.view = view;
+		map(new int[view.tiles.length], view.width);
 	}
 
 	@Override
 	public synchronized void updateMap() {
 		for (int cell = 0; cell < data.length; cell++) {
 			//force all top/bottom row, and none-discoverable cells to cleared
-			if (!Dungeon.level.discoverable[cell]
+			if ((view.isSeat() && !view.inside(cell)) || !view.discoverable[cell]
 					|| (cell - mapWidth) <= 0
 					|| (cell + mapWidth) >= size){
 				data[cell] = CLEARED;
@@ -69,7 +76,7 @@ public class WallBlockingTilemap extends Tilemap {
 
 		//FIXME this is to address the wall blocking looking odd on the new yog floor.
 		// The true solution is to improve the fog of war so the blockers aren't necessary.
-		if (Dungeon.level instanceof HallsBossLevel){
+		if (view.hallsBoss){
 			data[cell] = CLEARED;
 			super.updateMapCell(cell);
 			return;
@@ -111,7 +118,7 @@ public class WallBlockingTilemap extends Tilemap {
 				//unless one or more is a shelf, or we can mine, then we have to just block none
 				if (wall(cell - 1 - mapWidth) && wall(cell - mapWidth) && wall(cell + 1 - mapWidth)){
 					if (shelf(cell - 1 - mapWidth) || shelf(cell - mapWidth)
-							|| shelf(cell + 1 - mapWidth) || Dungeon.level instanceof MiningLevel){
+							|| shelf(cell + 1 - mapWidth) || view.mining){
 						curr = BLOCK_NONE;
 					} else {
 						curr = CLEARED;
@@ -192,25 +199,25 @@ public class WallBlockingTilemap extends Tilemap {
 	}
 
 	private boolean fogHidden(int cell){
-		if (!Dungeon.level.visited[cell] && !Dungeon.level.mapped[cell]) {
+		if (!view.visited[cell] && !view.mapped[cell]) {
 			return true;
 		} else if (wall(cell) && cell + mapWidth < size && !wall(cell + mapWidth) &&
-				!Dungeon.level.visited[cell + mapWidth] && !Dungeon.level.mapped[cell + mapWidth]) {
+				!view.visited[cell + mapWidth] && !view.mapped[cell + mapWidth]) {
 			return true;
 		}
 		return false;
 	}
 
 	private boolean wall(int cell) {
-		return DungeonTileSheet.wallStitcheable(Dungeon.level.map[cell]);
+		return DungeonTileSheet.wallStitcheable(view.tiles[cell]);
 	}
 
 	private boolean shelf(int cell) {
-		return Dungeon.level.map[cell] == Terrain.BOOKSHELF;
+		return view.tiles[cell] == Terrain.BOOKSHELF;
 	}
 
 	private boolean door(int cell) {
-		return DungeonTileSheet.doorTile(Dungeon.level.map[cell]);
+		return DungeonTileSheet.doorTile(view.tiles[cell]);
 	}
 	
 	public synchronized void updateArea(int cell, int radius){

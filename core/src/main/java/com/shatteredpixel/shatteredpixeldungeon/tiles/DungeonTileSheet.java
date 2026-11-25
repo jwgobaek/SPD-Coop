@@ -127,11 +127,15 @@ public class DungeonTileSheet {
 	}
 
 	public static int stitchChasmTile(int above){
+		return stitchChasmTile(above, Dungeon.depth);
+	}
+
+	static int stitchChasmTile(int above, int depth){
 		//alt region deco has different visuals per region, but most commonly FLOOR_SP
 		if (above == Terrain.REGION_DECO_ALT){
-			if (Dungeon.depth <= 5)     return CHASM_FLOOR_SP;
-			if (Dungeon.depth <= 10)    return CHASM;
-			if (Dungeon.depth <= 20)    return CHASM_FLOOR_SP;
+			if (depth <= 5)     return CHASM_FLOOR_SP;
+			if (depth <= 10)    return CHASM;
+			if (depth <= 20)    return CHASM_FLOOR_SP;
 			else                        return CHASM_FLOOR;
 		}
 		return chasmStitcheable.get(above, CHASM);
@@ -156,10 +160,12 @@ public class DungeonTileSheet {
 			Terrain.DOOR, Terrain.OPEN_DOOR, Terrain.LOCKED_DOOR, Terrain.HERO_LKD_DR, Terrain.CRYSTAL_DOOR
 	));
 
-	public static boolean waterStitcheable(int tile){
+	public static boolean waterStitcheable(int tile){ return waterStitcheable(tile, Dungeon.depth); }
+
+	private static boolean waterStitcheable(int tile, int depth){
 		//alt region deco has different visuals per region, is stitcheable in demon halls
 		if (tile == Terrain.REGION_DECO_ALT){
-			if (Dungeon.depth <= 20)    return false;
+			if (depth <= 20)    return false;
 			else                        return true;
 		}
 		return waterStitcheable.contains(tile);
@@ -167,11 +173,15 @@ public class DungeonTileSheet {
 
 	//+1 for ground above, +2 for ground right, +4 for ground below, +8 for ground left.
 	public static int stitchWaterTile(int top, int right, int bottom, int left){
+		return stitchWaterTile(top, right, bottom, left, Dungeon.depth);
+	}
+
+	static int stitchWaterTile(int top, int right, int bottom, int left, int depth){
 		int result = WATER;
-		if (waterStitcheable(top))      result += 1;
-		if (waterStitcheable(right))    result += 2;
-		if (waterStitcheable(bottom))   result += 4;
-		if (waterStitcheable(left))     result += 8;
+		if (waterStitcheable(top, depth))      result += 1;
+		if (waterStitcheable(right, depth))    result += 2;
+		if (waterStitcheable(bottom, depth))   result += 4;
+		if (waterStitcheable(left, depth))     result += 8;
 		return result;
 	}
 
@@ -254,6 +264,10 @@ public class DungeonTileSheet {
 	}
 
 	public static int getRaisedWallTile(int tile, int pos, int right, int below, int left){
+		return getRaisedWallTile(tile, pos, right, below, left, tileVariance[pos]);
+	}
+
+	static int getRaisedWallTile(int tile, int pos, int right, int below, int left, int variance){
 		int result;
 		
 		if (below == -1 || wallStitcheable(below))                      return -1;
@@ -263,7 +277,7 @@ public class DungeonTileSheet {
 		else if (tile == Terrain.BOOKSHELF)                             result = RAISED_WALL_BOOKSHELF;
 		else                                                            return -1;
 
-		result = getVisualWithAlts(result, pos);
+		result = visualWithVariance(result, variance);
 
 		if (!wallStitcheable(right))   result += 1;
 		if (!wallStitcheable(left))    result += 2;
@@ -337,11 +351,15 @@ public class DungeonTileSheet {
 	private static final int WALL_INTERNAL_WOODEN       = WALLS_INTERNAL+32;
 
 	public static int stitchInternalWallTile(int tile, int right, int rightBelow, int below, int leftBelow, int left){
+		return stitchInternalWallTile(tile, right, rightBelow, below, leftBelow, left, Dungeon.branch);
+	}
+
+	static int stitchInternalWallTile(int tile, int right, int rightBelow, int below, int leftBelow, int left, int branch){
 		int result;
 
 		if (tile == Terrain.BOOKSHELF || below == Terrain.BOOKSHELF)        result = WALL_INTERNAL_WOODEN;
 		//TODO currently this line on triggers on mining floors, do we want to make it universal?
-		else if (Dungeon.branch == 1 && tile == Terrain.WALL_DECO)          result = WALL_INTERNAL_DECO;
+		else if (branch == 1 && tile == Terrain.WALL_DECO)          result = WALL_INTERNAL_DECO;
 		else                                                                result = WALL_INTERNAL;
 
 		if (!wallStitcheable(right))        result += 1;
@@ -363,6 +381,10 @@ public class DungeonTileSheet {
 
 
 	public static int stitchWallOverhangTile(int tile, int rightBelow, int below, int leftBelow){
+		return stitchWallOverhangTile(tile, rightBelow, below, leftBelow, Dungeon.branch);
+	}
+
+	static int stitchWallOverhangTile(int tile, int rightBelow, int below, int leftBelow, int branch){
 		int visual;
 		if (tile == Terrain.OPEN_DOOR)                              visual = DOOR_SIDEWAYS_OVERHANG;
 		else if (tile == Terrain.DOOR)                              visual = DOOR_SIDEWAYS_OVERHANG_CLOSED;
@@ -370,7 +392,7 @@ public class DungeonTileSheet {
 		else if (tile == Terrain.HERO_LKD_DR)                       visual = DOOR_SIDEWAYS_OVERHANG_LOCKED;
 		else if (tile == Terrain.CRYSTAL_DOOR)                      visual = DOOR_SIDEWAYS_OVERHANG_CRYSTAL;
 		//TODO currently this line on triggers on mining floors, do we want to make it universal?
-		else if (Dungeon.branch == 1 && below == Terrain.WALL_DECO) visual = WALL_OVERHANG_DECO;
+		else if (branch == 1 && below == Terrain.WALL_DECO) visual = WALL_OVERHANG_DECO;
 		else if (below == Terrain.BOOKSHELF)                        visual = WALL_OVERHANG_WOODEN;
 		else                                                        visual = WALL_OVERHANG;
 
@@ -542,10 +564,14 @@ public class DungeonTileSheet {
 	//alt visual priority is back to front, so put lowest chance ones last
 	//e.g. a 67% and a 33% chance work out to 33% chance each with a 33% chance of no alt
 	public static int getVisualWithAlts(int visual, int pos){
+		return tileAltVisuals.containsKey(visual) ? visualWithVariance(visual, tileVariance[pos]) : visual;
+	}
+
+	static int visualWithVariance(int visual, int variance){
 		if (tileAltVisuals.containsKey(visual)){
 			tileAlt alts = tileAltVisuals.get(visual);
 			for (int i = 0; i < alts.chances.length; i++){
-				if (tileVariance[pos] < alts.chances[i]){
+				if (variance < alts.chances[i]){
 					visual = alts.alts[i];
 				}
 			}

@@ -31,19 +31,22 @@ public class DungeonTerrainTilemap extends DungeonTilemap {
 
 	static DungeonTerrainTilemap instance;
 
-	public DungeonTerrainTilemap(){
-		super(Dungeon.level.tilesTex());
+	public DungeonTerrainTilemap() {
+		this(DungeonRenderMap.solo());
+	}
 
-		map( Dungeon.level.map, Dungeon.level.width() );
-
-		instance = this;
+	public DungeonTerrainTilemap(DungeonRenderMap view) {
+		super(view.tilesTexture(), view);
+		if (!view.isSeat()) instance = this;
+		map(view.tiles, view.width);
 	}
 
 	@Override
 	protected int getTileVisual(int pos, int tile, boolean flat) {
+		if (tile < 0) return -1;
 		int visual = DungeonTileSheet.directVisuals.get(tile, -1);
 		if (visual != -1) {
-			if (visual == DungeonTileSheet.FLOOR_DECO && Dungeon.level instanceof MiningLevel) {
+			if (visual == DungeonTileSheet.FLOOR_DECO && view.mining) {
 				for (int i : PathFinder.NEIGHBOURS4) {
 					if (map[pos + i] == Terrain.MINE_BOULDER) {
 						visual = DungeonTileSheet.MINE_FLOOR_DECO_HEAVY;
@@ -51,31 +54,31 @@ public class DungeonTerrainTilemap extends DungeonTilemap {
 					}
 				}
 			}
-			return DungeonTileSheet.getVisualWithAlts(visual, pos);
+			return view.alt(visual, pos);
 		}
 
 		if (tile == Terrain.WATER) {
 			return DungeonTileSheet.stitchWaterTile(
-					map[pos + PathFinder.CIRCLE4[0]],
-					map[pos + PathFinder.CIRCLE4[1]],
-					map[pos + PathFinder.CIRCLE4[2]],
-					map[pos + PathFinder.CIRCLE4[3]]
+					pos >= mapWidth ? map[pos-mapWidth] : -1,
+					(pos+1)%mapWidth != 0 ? map[pos+1] : -1,
+					pos+mapWidth < size ? map[pos+mapWidth] : -1,
+					pos%mapWidth != 0 ? map[pos-1] : -1, view.depth
 			);
 
 		} else if (tile == Terrain.CHASM) {
-			return DungeonTileSheet.stitchChasmTile( pos > mapWidth ? map[pos - mapWidth] : -1);
+			return DungeonTileSheet.stitchChasmTile( pos > mapWidth ? map[pos - mapWidth] : -1, view.depth);
 		}
 
 		if (!flat) {
 			if ((DungeonTileSheet.doorTile(tile))) {
-				return DungeonTileSheet.getRaisedDoorTile(tile, map[pos - mapWidth]);
+				return DungeonTileSheet.getRaisedDoorTile(tile, pos >= mapWidth ? map[pos - mapWidth] : -1);
 			} else if (DungeonTileSheet.wallStitcheable(tile)){
 				return DungeonTileSheet.getRaisedWallTile(
 						tile,
 						pos,
 						(pos+1) % mapWidth != 0 ?   map[pos + 1] : -1,
 						pos + mapWidth < size ?     map[pos + mapWidth] : -1,
-						pos % mapWidth != 0 ?       map[pos - 1] : -1
+						pos % mapWidth != 0 ?       map[pos - 1] : -1, view.variance[pos]
 						);
 			} else if (tile == Terrain.STATUE) {
 				return DungeonTileSheet.RAISED_STATUE;
@@ -86,11 +89,11 @@ public class DungeonTerrainTilemap extends DungeonTilemap {
 			} else if (tile == Terrain.REGION_DECO_ALT) {
 				return DungeonTileSheet.RAISED_REGION_DECO_ALT;
 			} else if (tile == Terrain.MINE_CRYSTAL) {
-				return DungeonTileSheet.getVisualWithAlts(
+				return view.alt(
 						DungeonTileSheet.RAISED_MINE_CRYSTAL_BLUE_1,
 						pos);
 			} else if (tile == Terrain.MINE_BOULDER) {
-				return DungeonTileSheet.getVisualWithAlts(
+				return view.alt(
 						DungeonTileSheet.RAISED_MINE_BOULDER,
 						pos);
 			} else if (tile == Terrain.ALCHEMY) {
@@ -98,18 +101,18 @@ public class DungeonTerrainTilemap extends DungeonTilemap {
 			} else if (tile == Terrain.BARRICADE) {
 				return DungeonTileSheet.RAISED_BARRICADE;
 			} else if (tile == Terrain.HIGH_GRASS) {
-				return DungeonTileSheet.getVisualWithAlts(
+				return view.alt(
 						DungeonTileSheet.RAISED_HIGH_GRASS,
 						pos);
 			} else if (tile == Terrain.FURROWED_GRASS) {
-				return DungeonTileSheet.getVisualWithAlts(
+				return view.alt(
 						DungeonTileSheet.RAISED_FURROWED_GRASS,
 						pos);
 			} else {
 				return DungeonTileSheet.NULL_TILE;
 			}
 		} else {
-			return DungeonTileSheet.getVisualWithAlts(
+			return view.alt(
 					DungeonTileSheet.directFlatVisuals.get(tile),
 					pos);
 		}

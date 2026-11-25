@@ -47,12 +47,16 @@ public class WallOcclusionTilemap extends DungeonTilemap {
 	private static final int WALL_RIGHT_BOTH = 32; //both above and below
 
 	public WallOcclusionTilemap() {
-		super(Assets.Environment.OCCLUSION_SHADOWS);
-		map( Dungeon.level.map, Dungeon.level.width());
+		this(DungeonRenderMap.solo());
+	}
+
+	public WallOcclusionTilemap(DungeonRenderMap view) {
+		super(Assets.Environment.OCCLUSION_SHADOWS, view);
+		map(view.tiles, view.width);
 	}
 
 	protected int getTileVisual( int pos, int tile, boolean flat ){
-		if (!Dungeon.level.insideMap(pos) || !Dungeon.level.discoverable[pos]){
+		if (!view.inside(pos) || !view.discoverable[pos]){
 			return CLEARED;
 		}
 
@@ -65,7 +69,7 @@ public class WallOcclusionTilemap extends DungeonTilemap {
 				curr = DOOR_VERT;
 			}
 
-		} else if (!DungeonTileSheet.wallStitcheable(tile) && !Dungeon.level.pit[pos]) {
+		} else if (!DungeonTileSheet.wallStitcheable(tile) && !view.pit(pos)) {
 
 			//branch for above wall
 			//we specifically skip this for alchemy pots to preserve their passthrough to water layer

@@ -11,6 +11,34 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 public final class ProjectionChecks {
+    public static void checkNativeRenderInputs(CoopSession game) {
+        UUID session=UUID.randomUUID();
+        for (int seat=0; seat<2; seat++) {
+            SeatProjection p=new SeatProjection(session,seat);
+            p.capture(game,1,"IN_GAME",null,null);
+            PublicDungeon image=new PublicDungeon(p.current);
+            long[] rng=com.watabou.utils.Random.worldState();
+            int[] terrain=Dungeon.level.map.clone();
+            java.util.Set<?> actors=com.shatteredpixel.shatteredpixeldungeon.actors.Actor.all();
+            long turn=game.turn();
+            float time=com.shatteredpixel.shatteredpixeldungeon.actors.Actor.now();
+            com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonRenderMap map=
+                    new com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonRenderMap(image);
+            int hidden=0, shown=0;
+            for (int i=0;i<terrain.length;i++) {
+                assertEquals(image.terrain(i),map.terrain(i));
+                if (map.terrain(i)<0) hidden++; else shown++;
+            }
+            assertTrue(hidden>0 && shown>0);
+            assertFalse(map.apply(image));
+            assertArrayEquals(rng,com.watabou.utils.Random.worldState());
+            assertArrayEquals(terrain,Dungeon.level.map);
+            assertEquals(actors,com.shatteredpixel.shatteredpixeldungeon.actors.Actor.all());
+            assertEquals(turn,game.turn());
+            assertEquals(time,com.shatteredpixel.shatteredpixeldungeon.actors.Actor.now(),0);
+            assertEquals(image.pos,game.hero(seat).pos);
+        }
+    }
     public static void check(CoopSession game) throws Exception {
         Level level=Dungeon.level;
         int w=level.width(), center=level.length()/2/w*w+w/2;

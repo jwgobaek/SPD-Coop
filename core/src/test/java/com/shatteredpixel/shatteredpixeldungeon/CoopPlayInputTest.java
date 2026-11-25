@@ -19,6 +19,13 @@ import static org.junit.Assert.*;
 
 /** Exercise the same public-map and inventory commands used by the widgets against a real saved game. */
 public class CoopPlayInputTest extends HeadlessDungeon {
+    @Test public void nativeRenderInputsForBothSeatsLeaveWorldUnchanged() {
+        try (CoopSession game=CoopSession.open(402,1,com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass.WARRIOR)) {
+            game.join(2,com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass.HUNTRESS);
+            com.shatteredpixel.shatteredpixeldungeon.lan.ProjectionChecks.checkNativeRenderInputs(game);
+        }
+    }
+
     @Test(timeout=5000) public void renderingDoesNotConsumeWorldRandomState() throws Exception {
         com.watabou.utils.Random.enterWorld();
         try {

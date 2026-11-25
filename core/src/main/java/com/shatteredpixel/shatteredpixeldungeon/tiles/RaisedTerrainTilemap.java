@@ -30,9 +30,13 @@ import java.util.HashSet;
 public class RaisedTerrainTilemap extends DungeonTilemap {
 	
 	public RaisedTerrainTilemap() {
-		super(Assets.Environment.RAISED_TERRAIN);
-		skipCells.clear();
-		map( Dungeon.level.map, Dungeon.level.width() );
+		this(DungeonRenderMap.solo());
+	}
+
+	public RaisedTerrainTilemap(DungeonRenderMap view) {
+		super(Assets.Environment.RAISED_TERRAIN, view);
+		if (!view.isSeat()) skipCells.clear();
+		map(view.tiles, view.width);
 	}
 
 	public static HashSet<Integer> skipCells = new HashSet<>();
@@ -42,21 +46,21 @@ public class RaisedTerrainTilemap extends DungeonTilemap {
 		
 		if (flat) return -1;
 
-		if (skipCells.contains(pos)){
+		if (!view.isSeat() && skipCells.contains(pos)){
 			return -1;
 		}
 
-		int region = (Dungeon.depth-1)/5;
+		int region = (view.depth-1)/5;
 		int regionOffset = region*4;
 
 		if (tile == Terrain.HIGH_GRASS){
-			if (DungeonTileSheet.getVisualWithAlts(DungeonTileSheet.RAISED_HIGH_GRASS, pos) == DungeonTileSheet.RAISED_HIGH_GRASS_ALT){
+			if (view.alt(DungeonTileSheet.RAISED_HIGH_GRASS, pos) == DungeonTileSheet.RAISED_HIGH_GRASS_ALT){
 				return regionOffset + 2;
 			} else {
 				return regionOffset;
 			}
 		} else if (tile == Terrain.FURROWED_GRASS){
-			if (DungeonTileSheet.getVisualWithAlts(DungeonTileSheet.RAISED_FURROWED_GRASS, pos) == DungeonTileSheet.RAISED_FURROWED_ALT){
+			if (view.alt(DungeonTileSheet.RAISED_FURROWED_GRASS, pos) == DungeonTileSheet.RAISED_FURROWED_ALT){
 				return regionOffset + 1 + 2;
 			} else {
 				return regionOffset + 1;

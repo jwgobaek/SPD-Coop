@@ -85,9 +85,20 @@ public class FogOfWar extends Image {
 	the advantage here is that it may be possible to totally eliminate the tile blocking map
 	*/
 	
-	public FogOfWar( int mapWidth, int mapHeight ) {
+	private final DungeonRenderMap seatMap;
+	private final Object textureKey;
 
+	public FogOfWar(DungeonRenderMap view) {
+		this(view.width, view.height, view);
+	}
+
+	public FogOfWar( int mapWidth, int mapHeight ) {
+		this(mapWidth, mapHeight, null);
+	}
+
+	private FogOfWar(int mapWidth, int mapHeight, DungeonRenderMap seatMap) {
 		super();
+		this.seatMap = seatMap;
 
 		this.mapWidth = mapWidth;
 		this.mapHeight = mapHeight;
@@ -110,8 +121,8 @@ public class FogOfWar extends Image {
 		width = width2 * size;
 		height = height2 * size;
 
-		String key = "FogOfWar" + width2 + "x" + height2;
-		texture(TextureCache.create(key, width2, height2));
+		textureKey = seatMap == null ? "FogOfWar" + width2 + "x" + height2 : new Object();
+		texture(TextureCache.create(textureKey, width2, height2));
 
 		//sets contents to all black
 		texture.bitmap.setColor( 0x000000FF );
@@ -195,9 +206,9 @@ public class FogOfWar extends Image {
 				cell = mapWidth * i + update.left;
 				for (int j = update.left; j < update.right; j++) {
 					
-					if (cell >= Dungeon.level.length()) continue; //do nothing
+					if (cell >= mapLength) continue; //do nothing
 					
-					if (!Dungeon.level.discoverable[cell]
+					if (!(seatMap == null ? Dungeon.level.discoverable[cell] : seatMap.discoverable[cell])
 							|| (!visible[cell] && !visited[cell] && !mapped[cell])) {
 						//we skip filling cells here if it isn't a full update
 						// because they must already be dark
@@ -282,7 +293,7 @@ public class FogOfWar extends Image {
 	}
 	
 	private boolean wall(int cell) {
-		return DungeonTileSheet.wallStitcheable(Dungeon.level.map[cell]);
+		return DungeonTileSheet.wallStitcheable(seatMap == null ? Dungeon.level.map[cell] : seatMap.tiles[cell]);
 	}
 
 	private int getCellFog( int cell ){
@@ -322,7 +333,8 @@ public class FogOfWar extends Image {
 	public void draw() {
 
 		if (!toUpdate.isEmpty()){
-			updateTexture(Dungeon.level.heroFOV, Dungeon.level.visited, Dungeon.level.mapped);
+			if (seatMap == null) updateTexture(Dungeon.level.heroFOV, Dungeon.level.visited, Dungeon.level.mapped);
+			else updateTexture(seatMap.visible, seatMap.visited, seatMap.mapped);
 		}
 
 		super.draw();
@@ -332,7 +344,7 @@ public class FogOfWar extends Image {
 	public void destroy() {
 		super.destroy();
 		if (texture != null){
-			TextureCache.remove(FogOfWar.class);
+			if (seatMap != null) TextureCache.remove(textureKey);
 		}
 	}
 }
