@@ -1,5 +1,7 @@
 # 동굴 12~15층 및 DM-300 · 2026-11-25
 
+기준 76ed050, APK 소스 23e6a84. JUnit 174/174 → 185/185, Gradle 전체 회귀 및 APK 빌드 18분 7초. APK는 4.0.2-INDEV-caves-dm300, org.spdcoop.dungeon.indev, versionCode 922, 35,297,164바이트다. SHA-256은 23a724056c750e470169cf758daa7e43e0ab1b9e7e68c64c373f43d0d1002f08이며 개발 인증서 0dd9070b5f17192a8b07e5ddb6735161b0d2bb6e49013e4d61ca5ee6216ddb53으로 v1·v2 검사를 통과했다.
+
 ## 실행 결과
 
 | 시험 | 결과 | 조건과 관측값 |

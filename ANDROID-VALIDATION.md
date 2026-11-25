@@ -51,3 +51,5 @@ The manifest declares INTERNET and ACCESS_NETWORK_STATE. AndroidLauncher supplie
 The prison checkpoint adds desktop evidence for a sold item returning from a dormant floor, the two clients resuming from floor 7, and full room shutdown. Repeat these on Android under screen lock and app process death.
 
 최신 APK와 통합 ZIP 두 파일만 기존 ID에 링크 뷰어와 다운로드를 허용한다. 비로그인 다운로드의 실제 파일 크기와 SHA-256을 별도로 확인한다. [발행 절차](BACKUP-AND-DELIVERABLES.md)
+
+동굴 최종 APK를 기존 Drive ID에 1회 발행한 뒤 기본 MuMu에서 다시 시도했다. Android Chromium은 계정 입력란이 비어 있는 Google 로그인 화면을 표시했다. 다운로드 FAIL, 데이터 보존 업데이트 및 신규 기기 실행은 NOT RUN이다. 기존 설치본은 41c3efd, SHA-256 f1f51ce7ec2fce8e7b6b4b10b4b63bbae68efdac862f7ad2143c3e7733564de9였다. 인스턴스 1개, 이번 작업의 Windows 파일 출력·리스너·ADB 매핑 0개였다. 최종 APK의 소유자 인증 Drive 다운로드에서는 Cloud 원본과 동일한 바이트와 SHA-256을 확인했다.
