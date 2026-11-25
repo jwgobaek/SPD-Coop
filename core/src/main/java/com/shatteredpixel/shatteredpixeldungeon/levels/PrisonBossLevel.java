@@ -28,6 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Regrowth;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.StormCloud;
@@ -321,7 +322,12 @@ public class PrisonBossLevel extends Level {
 	}
 	
 	//keep track of removed items as the level is changed. Dump them back into the level at the end.
-	private ArrayList<Item> storedItems = new ArrayList<>();
+	private final ArrayList<Item> storedItems = new ArrayList<>();
+
+    /** Native items temporarily removed from the map between encounter layouts. */
+    public java.util.List<Item> storedEncounterItems() {
+        return java.util.Collections.unmodifiableList(storedItems);
+    }
 	
 	private void clearEntities(Rect safeArea){
 		for (Heap heap : heaps.valueList()){
@@ -366,7 +372,7 @@ public class PrisonBossLevel extends Level {
 		for (Blob blob: blobs.values()){
 			blob.fullyClear();
 		}
-		addVisuals(); //this also resets existing visuals
+		if (Dungeon.coop == null) addVisuals(); //this also resets existing visuals
 		traps.clear();
 
 		for (CustomTilemap t : customTiles.toArray(new CustomTilemap[0])){
@@ -375,8 +381,10 @@ public class PrisonBossLevel extends Level {
 			}
 		}
 		
-		GameScene.resetMap();
-		Dungeon.observe();
+		if (Dungeon.coop == null) {
+            GameScene.resetMap();
+            Dungeon.observe();
+        } else Dungeon.coop.replaceEncounterMap();
 	}
 
 	//randomly places up to 5 cages on tiles that are aside walls (but not torches or doors!)
@@ -406,7 +414,11 @@ public class PrisonBossLevel extends Level {
 	}
 	
 	public void progress(){
-		switch (state){
+        progress(Dungeon.hero);
+    }
+
+    private void progress(Hero entrant){
+        switch (state){
 			case START:
 				
 				int tenguPos = pointToCell(tenguCellCenter);
@@ -428,7 +440,8 @@ public class PrisonBossLevel extends Level {
 					}
 				}
 				
-				seal();
+                if (Dungeon.coop != null) bringPartnerIntoRoom(entrant, tenguCell, tenguPos);
+                seal();
 				Statistics.qualifiedForBossChallengeBadge = true;
 				set(pointToCell(tenguCellDoor), Terrain.LOCKED_DOOR);
 				GameScene.updateMap(pointToCell(tenguCellDoor));
@@ -437,7 +450,8 @@ public class PrisonBossLevel extends Level {
 				Heap h = heaps.get(tenguDoorPos);
 				if (h != null){
 					for (Item i : h.items){
-						drop(i, tenguDoorPos + width()).sprite.drop(tenguDoorPos);
+						Heap moved = drop(i, tenguDoorPos + width());
+                        if (Dungeon.coop == null) moved.sprite.drop(tenguDoorPos);
 					}
 					h.destroy();
 				}
@@ -445,14 +459,19 @@ public class PrisonBossLevel extends Level {
 				//moves intelligent allies with the hero, preferring closer pos to cell door
 				int doorPos = pointToCell(tenguCellDoor);
 				Mob.holdAllies(this, doorPos);
-				Mob.restoreAllies(this, Dungeon.hero.pos, doorPos);
+				Mob.restoreAllies(this, entrant.pos, doorPos);
 				
 				tengu.state = tengu.HUNTING;
 				tengu.pos = tenguPos;
 				GameScene.add( tengu, 1 );
-				tengu.notice();
+                if (Dungeon.coop != null) {
+                    tengu.aggro(entrant);
+                    state = State.FIGHT_START;
+                    break;
+                }
+                tengu.notice();
 
-				CellEmitter.get( tengu.pos ).burst( Speck.factory( Speck.WOOL ), 6 );
+                CellEmitter.get( tengu.pos ).burst( Speck.factory( Speck.WOOL ), 6 );
 				Sample.INSTANCE.play( Assets.Sounds.PUFF );
 				
 				state = State.FIGHT_START;
@@ -476,29 +495,44 @@ public class PrisonBossLevel extends Level {
 				Actor.remove(tengu);
 				mobs.remove(tengu);
 				tengu.clearTime();
-				TargetHealthIndicator.instance.target(null);
-				tengu.sprite.kill();
+				if (Dungeon.coop == null) {
+                    TargetHealthIndicator.instance.target(null);
+                    tengu.sprite.kill();
+                }
 				if (d != null) tengu.add(d);
 				
-				GameScene.flash(0x80FFFFFF);
-				Sample.INSTANCE.play(Assets.Sounds.BLAST);
-				
-				state = State.FIGHT_PAUSE;
+                if (Dungeon.coop == null) {
+                    GameScene.flash(0x80FFFFFF);
+                    Sample.INSTANCE.play(Assets.Sounds.BLAST);
+                }
+                state = State.FIGHT_PAUSE;
 				break;
 
 			case FIGHT_PAUSE:
-				
-				Dungeon.hero.interrupt();
+                entrant.interrupt();
+                if (Dungeon.coop != null) {
+                    Hero other = Dungeon.coop.hero(entrant == Dungeon.coop.hero(0) ? 1 : 0);
+                    other.interrupt();
+                }
 				
 				clearEntities( pauseSafeArea );
 				
 				setMapArena();
-				cleanMapState();
+                if (Dungeon.coop != null) {
+                    buildFlagMaps();
+                    bringPartnerIntoRoom(entrant, pauseSafeArea, (arena.left + arena.width()/2) + width()*(arena.top+2));
+                }
+                cleanMapState();
 				
 				tengu.state = tengu.HUNTING;
 				tengu.pos = (arena.left + arena.width()/2) + width()*(arena.top+2);
 				GameScene.add( tengu, 1 );
-				tengu.notice();
+				if (Dungeon.coop != null) {
+                    tengu.aggro(entrant);
+                    state = State.FIGHT_ARENA;
+                    break;
+                }
+                tengu.notice();
 
 				CellEmitter.get( tengu.pos ).burst( Speck.factory( Speck.WOOL ), 6 );
 				
@@ -571,21 +605,37 @@ public class PrisonBossLevel extends Level {
 		}
 	}
 	
+    private void bringPartnerIntoRoom(Hero entrant, Rect room, int bossCell) {
+        Hero partner = Dungeon.coop.hero(entrant == Dungeon.coop.hero(0) ? 1 : 0);
+        Point partnerPos = cellToPoint(partner.pos);
+        if (room.inside(partnerPos) && partnerPos.y > room.top && passable[partner.pos]
+                && partner.pos != bossCell && partner.pos != entrant.pos) return;
+        for (int offset : PathFinder.NEIGHBOURS8) {
+            int cell = entrant.pos + offset;
+            Point point = cellToPoint(cell);
+            if (!room.inside(point) || point.y <= room.top || !passable[cell] || pit[cell]
+                    || cell == bossCell || traps.get(cell) != null || Actor.findChar(cell) != null) continue;
+            partner.pos = cell;
+            return;
+        }
+        throw new IllegalStateException("No safe companion cell inside the Tengu room");
+    }
+
 	private boolean[] triggered = new boolean[]{false, false, false, false};
 	
 	@Override
 	public void occupyCell(Char ch) {
-		if (ch == Dungeon.hero){
+		if (ch == Dungeon.hero || Dungeon.coop != null && ch == Dungeon.coop.hero(1)){
 			switch (state){
 				case START:
 					if (cellToPoint(ch.pos).y > tenguCell.top){
-						progress();
+						progress((Hero)ch);
 					}
 					break;
 				case FIGHT_PAUSE:
 					
 					if (cellToPoint(ch.pos).y <= startHallway.top+1){
-						progress();
+						progress((Hero)ch);
 					}
 					break;
 			}
@@ -596,7 +646,9 @@ public class PrisonBossLevel extends Level {
 	
 	@Override
 	protected void createMobs() {
-		tengu = new Tengu(); //We want to keep track of tengu independently of other mobs, he's not always in the level.
+		tengu = new Tengu();
+		if (Dungeon.coop != null) tengu.id(); // reserve identity before its first scheduled turn
+		//We want to keep track of tengu independently of other mobs, he's not always in the level.
 	}
 	
 	public Actor addRespawner() {

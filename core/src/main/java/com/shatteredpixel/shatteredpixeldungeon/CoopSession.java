@@ -152,6 +152,13 @@ public final class CoopSession implements AutoCloseable {
         return memories[seat];
     }
 
+    public void replaceEncounterMap() {
+        checkExecutor();
+        long floor = ((long) Dungeon.branch << 32) | (Dungeon.depth & 0xffffffffL);
+        floors.remove(floor);
+        for (int seat = 0; seat < heroes.length; seat++) observe(seat);
+    }
+
     public FloorKnowledge observe(int seat) {
         FloorKnowledge memory = knowledge(seat);
         memory.observe(Dungeon.level, heroes[seat]);
@@ -925,6 +932,11 @@ public final class CoopSession implements AutoCloseable {
 
     static Map<String,Item> floorItems(Level level) {
         Map<String,Item> result=new TreeMap<>();
+        if (level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel) {
+            int index = 0;
+            for (Item item : ((com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel)level).storedEncounterItems())
+                result.put("encounter" + index++, item);
+        }
         for (Mob mob : level.mobs) {
             com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PinCushion pins=mob.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PinCushion.class);
             if (pins!=null) {
