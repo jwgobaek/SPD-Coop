@@ -13,7 +13,19 @@ public class CityEntranceTest extends HeadlessDungeon {
         CavesBossTest.arrive(game);
         CavesBossTest.start(game);
         CavesBossTest.fight(game);
-        SewerSpecialActorTest.atGate(game,Dungeon.level.exit());
+        stageAtExit(game);
+    }
+    static void stageAtExit(CoopSession game) {
+        int exit=Dungeon.level.exit();
+        assertFalse(Dungeon.level.locked);
+        for (int waits=0;;waits++) {
+            SewerSpecialActorTest.atGate(game,exit);
+            if (game.stairs.stair()==exit) return;
+            boolean immobilized=game.hero(0).rooted || game.hero(1).rooted
+                    || game.hero(0).paralysed>0 || game.hero(1).paralysed>0;
+            assertTrue("Unexpected unavailable exit on floor "+Dungeon.depth,immobilized && waits<64);
+            TenguArenaTest.waitOne(game);
+        }
     }
     public static int prepareBoundary(CoopSession game,String name) {
         win(game);

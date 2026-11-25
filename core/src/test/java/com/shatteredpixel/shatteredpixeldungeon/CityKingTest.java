@@ -16,13 +16,7 @@ public class CityKingTest extends HeadlessDungeon {
     static void reach(CoopSession game,int depth) {
         CityEntranceTest.win(game);
         while(Dungeon.depth<depth) {
-            int exit=Dungeon.level.exit();
-            SewerSpecialActorTest.atGate(game,exit);
-            for (int wait=0;game.stairs.stair()!=exit && wait<64;wait++) {
-                TenguArenaTest.waitOne(game);
-                SewerSpecialActorTest.atGate(game,exit);
-            }
-            assertEquals("Locked or incapacitated at "+Dungeon.depth,exit,game.stairs.stair());
+            CityEntranceTest.stageAtExit(game);
             CoopFloorsTest.cross(game);
         }
     }
