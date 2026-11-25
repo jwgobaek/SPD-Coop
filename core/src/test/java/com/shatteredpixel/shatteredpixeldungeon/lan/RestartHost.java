@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.lan;
 
+import com.shatteredpixel.shatteredpixeldungeon.CavesInteriorTest;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.backends.headless.*;
 import com.shatteredpixel.shatteredpixeldungeon.*;
@@ -93,6 +94,13 @@ public final class RestartHost {
                 throw new IOException("Injected write failure");
             if (stage.equals("AFTER_HEAD") && mode.startsWith("tengu-commit-") && java.nio.file.Files.exists(path.resolve("boss-command"))) {
                 String boundary=mode.substring("tengu-commit-".length());
+                if (boundary.startsWith("interior-")) {
+                    if (CavesInteriorTest.committed(boundary.substring(9))) {
+                        write(path,"tengu-signature",CavesInteriorTest.signature(Dungeon.coop));
+                        Runtime.getRuntime().halt(78);
+                    }
+                    return;
+                }
                 String phase=Dungeon.depth==10 ? TenguArenaTest.floor().state().name() : "";
                 if ((!boundary.equals("kill") || phase.equals("WON")) && (!boundary.equals("pause") || phase.equals("FIGHT_PAUSE"))) {
                     write(path,"tengu-signature",TenguArenaTest.signature(Dungeon.coop));
@@ -156,11 +164,14 @@ public final class RestartHost {
         try(LanRoom room=(special || mode.startsWith("tengu-setup-") || mode.equals("late-setup") || mode.startsWith("necro-setup-") || mode.startsWith("wand-setup-") || mode.startsWith("scribe") || kit(mode) || knife(mode) || newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup") || mode.equals("schema3-backup") || mode.equals("prison-backup"))) {
             if (mode.startsWith("tengu-read-")) {
-                assertEquals(read(path,"tengu-signature"),TenguArenaTest.signature(Dungeon.coop));
+                boolean interior=mode.startsWith("tengu-read-interior-");
+                assertEquals(read(path,"tengu-signature"),interior?CavesInteriorTest.signature(Dungeon.coop):TenguArenaTest.signature(Dungeon.coop));
                 String boundary=mode.substring("tengu-read-".length());
                 String expected=boundary.equals("enter") ? "FIGHT_START" : boundary.equals("pause") ? "FIGHT_PAUSE"
                         : boundary.equals("kill") || boundary.equals("claim") ? "WON" : "FIGHT_ARENA";
-                if (boundary.equals("caves")) {
+                if (interior) {
+                    assertTrue(CavesInteriorTest.committed(boundary.substring(9)));
+                } else if (boundary.equals("caves")) {
                     assertEquals(11,Dungeon.depth);
                     assertNotNull(CoopTrade.merchant(Dungeon.coop.hero(0),false));
                 } else {
@@ -430,7 +441,9 @@ public final class RestartHost {
                 }
                 if (mode.startsWith("tengu-setup-") && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;
-                    int target=TenguArenaTest.prepareSocket(Dungeon.coop,mode.substring("tengu-setup-".length()));
+                    String name=mode.substring("tengu-setup-".length());
+                    int target=name.startsWith("interior-") ? CavesInteriorTest.prepareSocket(Dungeon.coop,name.substring(9))
+                            : TenguArenaTest.prepareSocket(Dungeon.coop,name);
                     write(path,"tengu-target",Integer.toString(target));
                     room.save();
                     write(path,"return-ready","1");

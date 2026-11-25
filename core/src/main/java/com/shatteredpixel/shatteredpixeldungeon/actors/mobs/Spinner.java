@@ -106,8 +106,12 @@ public class Spinner extends Mob {
 			if (!shotWebVisually){
 				if (enemy != null && enemySeen) {
 					lastEnemyPos = enemy.pos;
-				} else {
+				} else if (Dungeon.coop == null) {
 					lastEnemyPos = Dungeon.hero.pos;
+				} else if (enemy != null) {
+					lastEnemyPos = enemy.pos;
+				} else {
+					lastEnemyPos = -1;
 				}
 			}
 			shotWebVisually = false;
@@ -197,7 +201,9 @@ public class Spinner extends Mob {
 			
 			webCoolDown = 10;
 
-			if (Dungeon.level.heroFOV[enemy.pos]){
+			if (Dungeon.coop != null && enemy instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero) {
+				((com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero)enemy).interrupt();
+			} else if (Dungeon.coop == null && Dungeon.level.heroFOV[enemy.pos]){
 				Dungeon.hero.interrupt();
 			}
 		}
@@ -230,7 +236,7 @@ public class Spinner extends Mob {
 		public boolean act(boolean enemyInFOV, boolean justAlerted) {
 			if (enemyInFOV && webCoolDown <= 0 && lastEnemyPos != -1){
 				if (webPos() != -1){
-					if (sprite != null && (sprite.visible || enemy.sprite.visible)) {
+					if (Dungeon.coop == null && sprite != null && (sprite.visible || enemy.sprite.visible)) {
 						sprite.zap( webPos() );
 						shotWebVisually = true;
 						return false;
@@ -257,7 +263,7 @@ public class Spinner extends Mob {
 
 			if (enemyInFOV && webCoolDown <= 0 && lastEnemyPos != -1){
 				if (webPos() != -1){
-					if (sprite != null && (sprite.visible || enemy.sprite.visible)) {
+					if (Dungeon.coop == null && sprite != null && (sprite.visible || enemy.sprite.visible)) {
 						sprite.zap( webPos() );
 						shotWebVisually = true;
 						return false;

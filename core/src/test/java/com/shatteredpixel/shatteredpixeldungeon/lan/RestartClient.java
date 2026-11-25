@@ -418,11 +418,18 @@ public final class RestartClient {
             boolean travel=boundary.equals("ten") || boundary.equals("caves") || boundary.equals("return");
             String verb=boundary.equals("revive") ? "REVIVE" : boundary.equals("down") || boundary.equals("devices") ? "WAIT" : boundary.equals("claim") ? "PICK_UP"
                     : boundary.equals("enter") || boundary.equals("arena") ? "MOVE" : "ATTACK";
+            boolean interior=boundary.startsWith("interior-");
+            if (interior) {
+                String name=boundary.substring(9);
+                travel=Character.isDigit(name.charAt(0));
+                verb=name.equals("smith")?"ACCEPT_BLACKSMITH":"WAIT";
+            }
             int cell=Integer.parseInt(RestartHost.read(path,"tengu-target"));
             for (int i=0;i<40;i++) {
                 int seat=active();
                 PublicDungeon view=new PublicDungeon(state(seat));
-                assertEquals(boundary.equals("ten") ? 9 : boundary.equals("return") ? 11 : 10,view.depth);
+                if (interior) assertEquals(travel ? Integer.parseInt(boundary.substring(9))-1 : boundary.contains("web")?12:13,view.depth);
+                else assertEquals(boundary.equals("ten") ? 9 : boundary.equals("return") ? 11 : 10,view.depth);
                 long handle=verb.equals("PICK_UP") ? view.floor.get(cell).id : 0;
                 SeatActions.Pending p=travel ? consentAndCross() : actions[seat].prepare(state(seat),verb,verb.equals("WAIT") ? 0 : cell,handle);
                 RestartHost.write(path,"boss-command",seat+" "+p.id+" "+p.command);

@@ -23,6 +23,7 @@ final class CoopBoard extends Group {
     private final Tilemap[] layers;
     private final FogOfWar fog;
     private final SkinnedBlock water;
+    private final Map<Integer,com.watabou.noosa.particles.Emitter> webs = new HashMap<>();
     private final Group markings = new Group();
     private final Group heaps = new Group();
     private final Group actors = new Group();
@@ -36,7 +37,7 @@ final class CoopBoard extends Group {
         map = new DungeonRenderMap(view);
         float zoom = GameMath.gate(PixelScene.minZoom, PixelScene.defaultZoom + SPDSettings.zoom(), PixelScene.maxZoom);
         camera = Camera.add(Camera.createFullscreen(zoom));
-        water = new SkinnedBlock(view.width*TILE, view.height*TILE, view.depth==11 ? Assets.Environment.WATER_CAVES : view.depth>=6 ? Assets.Environment.WATER_PRISON : Assets.Environment.WATER_SEWERS);
+        water = new SkinnedBlock(view.width*TILE, view.height*TILE, view.depth>=11 ? Assets.Environment.WATER_CAVES : view.depth>=6 ? Assets.Environment.WATER_PRISON : Assets.Environment.WATER_SEWERS);
         water.autoAdjust = true;
         add(water);
         layers = new Tilemap[]{
@@ -110,6 +111,14 @@ final class CoopBoard extends Group {
         if (follow) camera.snapTo(center);
         trackViewport();
 
+        for (Iterator<Map.Entry<Integer,com.watabou.noosa.particles.Emitter>> it=webs.entrySet().iterator();it.hasNext();) {
+            Map.Entry<Integer,com.watabou.noosa.particles.Emitter> web=it.next();
+            if (!view.source.rows.containsKey("web"+web.getKey())) {
+                markings.remove(web.getValue());
+                web.getValue().destroy();
+                it.remove();
+            }
+        }
         Set<String> keep = new HashSet<>();
         for (Map.Entry<String,String> row : view.source.rows.entrySet()) {
             String key=row.getKey(), value=row.getValue();
@@ -142,6 +151,15 @@ final class CoopBoard extends Group {
             } else if (key.startsWith("sale")) {
                 int cell=Integer.parseInt(key.substring(4)), image=Integer.parseInt(value);
                 object(keep,key+":"+image,cell,()->new ItemSprite(image));
+            } else if (key.startsWith("web")) {
+                int cell=Integer.parseInt(key.substring(3));
+                if (!webs.containsKey(cell)) {
+                    com.watabou.noosa.particles.Emitter emitter=new com.watabou.noosa.particles.Emitter();
+                    markings.add(emitter);
+                    emitter.pos(center(cell));
+                    emitter.pour(com.shatteredpixel.shatteredpixeldungeon.effects.particles.WebParticle.FACTORY,0.25f);
+                    webs.put(cell,emitter);
+                }
             } else if (key.startsWith("stench") || key.startsWith("cloud")) {
                 boolean stench=key.startsWith("stench");
                 int cell=Integer.parseInt(key.substring(stench ? 6 : 5));
@@ -276,6 +294,9 @@ final class CoopBoard extends Group {
                     case "GreatCrab": sprite=new GreatCrabSprite();break;
                     case "Brute": sprite=new BruteSprite();break;
                     case "RedShaman": sprite=new ShamanSprite.Red();break;
+                    case "Spinner": sprite=new SpinnerSprite();break;
+                    case "Blacksmith": sprite=new BlacksmithSprite();break;
+                    case "DM200": sprite=new DM200Sprite();break;
                     case "BlueShaman": sprite=new ShamanSprite.Blue();break;
                     case "PurpleShaman": sprite=new ShamanSprite.Purple();break;
                     case "Tengu": sprite=new TenguSprite();break;

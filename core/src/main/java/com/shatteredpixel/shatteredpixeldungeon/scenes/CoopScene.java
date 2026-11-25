@@ -65,6 +65,9 @@ public class CoopScene extends PixelScene {
                 WndSeatTrade.stock(this,view,cell,controller);
             } else if (view.source.rows.containsKey("merchant") && Integer.toString(cell).equals(view.source.rows.get("merchant"))) {
                 WndSeatTrade.merchant(this,view,cell,controller);
+            } else if ("Blacksmith".equals(view.monsters.get(cell))) {
+                String offer=view.source.rows.get("smith"+cell);
+                if (offer!=null) talkToSmith(view,cell,offer);
             } else if ("Wandmaker".equals(view.monsters.get(cell))) {
                 String offer = view.source.rows.get("wandquest"+cell);
                 if (offer != null) talkToWandmaker(view, cell, offer);
@@ -76,13 +79,26 @@ public class CoopScene extends PixelScene {
         }
         boolean bow=targetStaff.kind.equals("BOW");
         String actor=view.monsters.get(cell);
-        boolean enemy=actor!=null && !"Wandmaker".equals(actor) && !"Shopkeeper".equals(actor) && !"Sheep".equals(actor) && !"Sentry".equals(actor) && !"Ghost".equals(actor) && !"RatKing".equals(actor);
+        boolean enemy=actor!=null && !"Blacksmith".equals(actor) && !"Wandmaker".equals(actor) && !"Shopkeeper".equals(actor) && !"Sheep".equals(actor) && !"Sentry".equals(actor) && !"Ghost".equals(actor) && !"RatKing".equals(actor);
         boolean missile=targetStaff.kind.equals("STONE") || targetStaff.kind.equals("KNIFE");
         boolean areaWand = targetStaff.kind.equals("WAND") && (targetStaff.sprite == ItemSpriteSheet.WAND_BLAST_WAVE
                 || targetStaff.sprite == ItemSpriteSheet.WAND_FIREBOLT);
         if (targetView==view && (enemy || ((missile || areaWand) && actor==null && view.visible(cell)) || (!missile && !bow && view.chest(cell)))
                 && controller.act(view.source,missile?"THROW":bow?"SHOOT":"ZAP",cell,targetStaff.id)) cancelAim();
     }
+    private void talkToSmith(PublicDungeon view,int cell,String offer) {
+        Class<?> smith=com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.class;
+        String body=Messages.get(smith,offer);
+        if (offer.startsWith("reminder_") || !view.offered) { alert(body); return; }
+        body=Messages.get(smith,"intro_quest_"+view.heroClass.toLowerCase(java.util.Locale.ROOT))+"\n\n"
+                +Messages.get(smith,"intro_quest_start")+"\n\n"+body;
+        add(new WndOptions(Messages.get(smith,"name"),body,msg("accept"),msg("cancel")) {
+            @Override protected void onSelect(int choice) {
+                if (choice==0) controller.act(view.source,"ACCEPT_BLACKSMITH",cell,0);
+            }
+        });
+    }
+
     private void talkToWandmaker(PublicDungeon view, int cell, String offer) {
         String[] fields = offer.split(",");
         String kind = fields[0];

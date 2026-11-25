@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.lan;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SentryRoom.Sentry;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
@@ -162,6 +163,8 @@ final class SeatProjection {
                         | (Blob.volumeAt(cell, Electricity.class)>0 || Blob.volumeAt(cell, com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Tengu.ShockerAbility.ShockerBlob.class)>0 ? 4 : 0)
                         | (Blob.volumeAt(cell, ToxicGas.class)>0 ? 8 : 0)
                         | (Blob.volumeAt(cell, ConfusionGas.class)>0 ? 16 : 0);
+                if (Blob.volumeAt(cell, com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Web.class)>0)
+                    rows.put("web"+cell,"1");
                 if (clouds != 0) rows.put("cloud"+cell,Integer.toString(clouds));
                 Heap heap = level.heaps.get(cell);
                 if (heap != null && heap.hidden) continue;
@@ -194,6 +197,10 @@ final class SeatProjection {
                         rows.put("charge"+mob.pos,"1");
                     if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue)
                         rows.put("mail"+mob.id(),Integer.toString(((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue)mob).armor().tier));
+                    if (mob instanceof Blacksmith && level.adjacent(hero.pos,mob.pos)) {
+                        String type = Blacksmith.Quest.Type()==Blacksmith.Quest.CRYSTAL ? "crystal" : "gnoll";
+                        rows.put("smith"+mob.pos, (Blacksmith.Quest.given() ? "reminder_" : "intro_quest_")+type);
+                    }
                     if (mob instanceof Wandmaker && level.adjacent(hero.pos, mob.pos)) {
                         String offer = Wandmaker.Quest.offerFor(hero);
                         if (offer != null) rows.put("wandquest"+mob.pos, offer);

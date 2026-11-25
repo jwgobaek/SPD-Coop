@@ -116,15 +116,12 @@ public class Blacksmith extends NPC {
 						public void hide() {
 							super.hide();
 
-							Quest.given = true;
-							Quest.completed = false;
-							Item pick = Quest.pickaxe != null ? Quest.pickaxe : new Pickaxe();
+							Item pick = Quest.takeQuestPick();
 							if (pick.doPickUp( Dungeon.hero )) {
 								GLog.i( Messages.capitalize(Messages.get(Dungeon.hero, "you_now_have", pick.name()) ));
 							} else {
 								Dungeon.level.drop( pick, Dungeon.hero.pos ).sprite.drop();
 							}
-							Quest.pickaxe = null;
 
 							if (msg2Final != ""){
 								GameScene.show(new WndQuest(Blacksmith.this, msg2Final));
@@ -410,6 +407,23 @@ public class Blacksmith extends NPC {
 				smithGlyph = null;
 			}
 
+		}
+
+		/** Accept the generated quest for the acting seat. The branch has its own entrance gate. */
+		public static boolean acceptFor(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero recipient) {
+			if (Dungeon.coop == null || !spawned || given || (type != CRYSTAL && type != GNOLL)) return false;
+			Item pick = takeQuestPick();
+			Dungeon.coop.ownership.claim(pick, Dungeon.coop.playerOf(recipient));
+			if (!pick.doPickUp(recipient)) Dungeon.level.drop(pick, recipient.pos);
+			return true;
+		}
+
+		private static Item takeQuestPick() {
+			given = true;
+			completed = false;
+			Item pick = pickaxe != null ? pickaxe : new Pickaxe();
+			pickaxe = null;
+			return pick;
 		}
 
 		public static int Type(){

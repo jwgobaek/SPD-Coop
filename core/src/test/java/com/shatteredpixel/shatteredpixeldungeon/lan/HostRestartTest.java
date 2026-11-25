@@ -17,6 +17,13 @@ public class HostRestartTest {
                 .redirectErrorStream(true).redirectOutput(dir.resolve(main.getSimpleName()+".log").toFile()).start();
     }
 
+    @Test(timeout=180000) public void cavesTravelSmithAndBothSeatsNativeHazardsSurviveLostAcknowledgements() throws Exception {
+        for(String name:new String[]{"12","13","14","web0","web1","gas0","gas1","smith"}) {
+            Path directory=temp.newFolder().toPath();
+            run(directory,new String[]{"tengu-setup-interior-"+name,"tengu-commit-interior-"+name,"tengu-read-interior-"+name});
+        }
+    }
+
     @Test(timeout=180000) public void tenguCombatAndMaskReplayAcrossPublishedHostDeaths() throws Exception {
         for (String boundary:new String[]{"devices","enter","pause","arena","kill","claim","down","revive","ten","caves","return"}) {
             Path directory=temp.newFolder().toPath();

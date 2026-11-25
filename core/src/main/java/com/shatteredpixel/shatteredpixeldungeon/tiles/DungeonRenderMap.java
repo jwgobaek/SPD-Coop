@@ -95,7 +95,7 @@ public class DungeonRenderMap {
     }
     String tilesTexture() {
         if (!isSeat()) return solo.tilesTex();
-        return depth==11 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_CAVES : depth>=6 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_PRISON
+        return depth>=11 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_CAVES : depth>=6 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_PRISON
                 : com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_SEWERS;
     }
     boolean isSeat() { return solo==null; }
