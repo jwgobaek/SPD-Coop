@@ -24,3 +24,14 @@ GB2 MuMu Android 15의 기본 Device-2 한 개에서 로그인 없는 Chromium�
 시험 프로세스 크래시 버퍼에서 치명 오류 0건, 최근 Android 이벤트 1,500행에서 이 패키지의 ANR 0건을 확인했다. 이번 다운로드를 제거한 후 ADB forward/reverse는 각각 0개였고 #2만 실행 중이었다. 화면과 진단은 Windows의 메모리로 전달했다. 이번 작업이 만든 Windows 프로젝트 파일, 매핑 및 테스트 리스너는 없었다. 기존 개인 폴더의 파일은 조사 대상에서 제외했다.
 
 재실행 뒤 협동 저장 목록에서 같은 방의 1층 13세대를 확인했다. Android 증거에는 세션 인증 키나 사용자 저장 파일을 포함하지 않았다.
+
+## 최종 Drive 발행
+
+지정 계정 jwgobaek2022@gmail.com의 기존 My Drive/SPD-Coop/01_Latest 두 파일에 APK와 통합 ZIP을 각각 한 번 전송했다. 두 파일의 ID와 상위 폴더가 유지됐고 권한은 anyone/reader, allowFileDiscovery=false였다. 로그인 없는 별도 HTTP 요청으로 두 바이너리 전체를 읽어 로컬 크기 및 SHA-256과 다시 대조했다.
+
+| 파일 | 바이트 | SHA-256 | 검증 |
+|---|---:|---|---|
+| [최신 APK](https://drive.google.com/file/d/1UhjuelcgZwugUyiGmAHco_dXdnTFuDZ2/view) | 35,316,633 | `10298aa225ff0ea0b5a4c52696e2a628ddf2899b29d1eee6221d4b600514a8ca` | UPLOADED_AND_HASH_VERIFIED |
+| [최신 통합 ZIP](https://drive.google.com/file/d/1nxC-3dq29HUmt7pSuoYP8JGqUALNVvW8/view) | 72,357,559 | `fcc002a108f4217c3d3b86b834bc3ea5b1be11d43507ee785b2690dc6862d305` | UPLOADED_AND_HASH_VERIFIED |
+
+통합 ZIP의 문서·검증 소스는 `7ef16b280311b791981aa6a479082e7a1f5696c5`이다. APK 빌드 커밋과 대응되는 소스 파일 2,237개와 체크섬 2,447개를 대조했다. 두 Drive 파일 모두 리비전이 4개에서 5개로 늘었으며 직전 리비전 ID가 업로드 전 최신 리비전 ID와 일치했다. 직전 리비전의 영구 보관 플래그는 꺼져 있었다. 실제 롤백과 장기 보존 여부는 NOT RUN이다.
