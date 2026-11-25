@@ -66,6 +66,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Shortsword;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WornShortsword;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Journal;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Document;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
@@ -706,6 +707,7 @@ public final class CoopSession implements AutoCloseable {
         b.put("schema",stairs.schema());
         stairs.save(b);
         b.put("world",Dungeon.worldState());
+        b.put("documents",Document.coopState());
         b.put("guest",heroes[1]);
         b.put("floor",Dungeon.level);
         b.put("players",players);
@@ -841,6 +843,7 @@ public final class CoopSession implements AutoCloseable {
             throw new IllegalArgumentException("Invalid roster");
         System.arraycopy(roster,0,players,0,2);
         Dungeon.restoreWorld(world,true);
+        if (b.contains("documents")) Document.restore(b.getBundle("documents"));
         heroes[0]=Dungeon.hero;
         heroes[1]=(Hero)b.get("guest");
         Level level=Dungeon.level=(Level)b.get("floor");

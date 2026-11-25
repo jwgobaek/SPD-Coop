@@ -337,6 +337,13 @@ public enum Document {
 		store(bundle, false);
 	}
 
+	/** Includes NOT_FOUND so restoring over a different profile also restores missing pages. */
+	public static Bundle coopState() {
+		Bundle state = new Bundle();
+		store(state, true);
+		return state;
+	}
+
 	static void store(Bundle bundle, boolean includeDefaults) {
 		
 		Bundle docsBundle = new Bundle();

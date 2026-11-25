@@ -47,7 +47,7 @@ final class RenderEncounter {
             Hero hero=Dungeon.coop.hero(0);
             for (int offset:com.watabou.utils.PathFinder.NEIGHBOURS8) {
                 int cell=hero.pos+offset;
-                if (Dungeon.level.map[cell]!=Terrain.EMPTY || Actor.findChar(cell)!=null
+                if (Dungeon.level.map[cell]!=Terrain.EMPTY || Dungeon.level.getTransition(cell)!=null || Actor.findChar(cell)!=null
                         || Dungeon.level.heaps.get(cell)!=null || Dungeon.level.plants.get(cell)!=null) continue;
                 hero.HP=4;
                 Dungeon.level.plant(new com.shatteredpixel.shatteredpixeldungeon.plants.Sungrass.Seed(),cell);

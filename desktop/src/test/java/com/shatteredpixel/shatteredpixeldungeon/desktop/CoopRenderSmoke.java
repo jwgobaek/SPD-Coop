@@ -355,7 +355,13 @@ public final class CoopRenderSmoke {
                 await(()->frame().dungeon.offered && frame().dungeon.plant(cell)==3);
                 shot("sungrass-visible");
                 press(mapPoint(frame().dungeon,cell));
-                await(()->frame().dungeon.offered && frame().dungeon.pos==cell && frame().dungeon.plant(cell)<0);
+                try {
+                    await(()->frame().dungeon.offered && frame().dungeon.pos==cell && frame().dungeon.plant(cell)<0);
+                } catch (AssertionError stalled) {
+                    CoopController.Frame f=frame();
+                    throw new AssertionError("Sungrass move to "+cell+" from "+f.dungeon.pos+" result "+f.lastResult
+                            +" notice "+f.notice+" offered "+f.dungeon.offered+" hp "+f.dungeon.hp, stalled);
+                }
                 int hp=frame().dungeon.hp;
                 for (int i=0;i<6 && frame().dungeon.hp<=hp;i++) {
                     long version=frame().image.version;

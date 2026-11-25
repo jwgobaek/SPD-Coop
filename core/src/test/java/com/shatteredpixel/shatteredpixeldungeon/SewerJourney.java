@@ -62,11 +62,28 @@ public class SewerJourney extends HeadlessDungeon {
         counts.clear();
         String result="action budget"; int highest=1;
         HeroClass front=HeroClass.valueOf(System.getProperty("journey.front","WARRIOR"));
-        try(CoopSession g=CoopSession.open(seed,1,front)) {
-            HeroClass back=HeroClass.valueOf(System.getProperty("journey.back","HUNTRESS"));
-            g.join(2,back);
+        HeroClass back=HeroClass.valueOf(System.getProperty("journey.back","HUNTRESS"));
+        String resume=System.getProperty("journey.resume");
+        CoopSession session;
+        if (resume==null) {
+            session=CoopSession.open(seed,1,front);
+        } else {
+            try (java.io.InputStream in=java.nio.file.Files.newInputStream(java.nio.file.Paths.get(resume))) {
+                session=CoopSession.restore(com.watabou.utils.Bundle.read(in));
+            }
+        }
+        try(CoopSession g=session) {
+            if (resume==null) {
+                g.join(2,back);
+                com.watabou.utils.Random.pushGenerator(seed); // fixed combat stream, never redrawn
+                String save=System.getProperty("journey.checkpoint");
+                if (save!=null) {
+                    try (java.io.OutputStream out=java.nio.file.Files.newOutputStream(java.nio.file.Paths.get(save))) {
+                        if (!com.watabou.utils.Bundle.write(g.checkpoint(),out)) throw new java.io.IOException("Checkpoint write failed");
+                    }
+                }
+            }
             Map<Integer,Integer> visits=new HashMap<>();
-            com.watabou.utils.Random.pushGenerator(seed); // fixed combat stream, never redrawn
             for(int n=0;n<2500;n++) {
                 highest=Math.max(highest,Dungeon.depth);
                 int s=g.activeSeat();
