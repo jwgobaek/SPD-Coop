@@ -39,6 +39,23 @@ final class RenderEncounter {
         }).get(5,TimeUnit.SECONDS);
     }
 
+    static int sungrass(CoopController client) throws Exception {
+        Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
+        Object room=host.get(client);
+        Field executor=room.getClass().getDeclaredField("owner"); executor.setAccessible(true);
+        return ((ExecutorService)executor.get(room)).submit(()->{
+            Hero hero=Dungeon.coop.hero(0);
+            for (int offset:com.watabou.utils.PathFinder.NEIGHBOURS8) {
+                int cell=hero.pos+offset;
+                if (Dungeon.level.map[cell]!=Terrain.EMPTY || Actor.findChar(cell)!=null
+                        || Dungeon.level.heaps.get(cell)!=null || Dungeon.level.plants.get(cell)!=null) continue;
+                hero.HP=4;
+                Dungeon.level.plant(new com.shatteredpixel.shatteredpixeldungeon.plants.Sungrass.Seed(),cell);
+                return cell;
+            }
+            throw new AssertionError("Missing adjacent plant cell");
+        }).get(5,TimeUnit.SECONDS);
+    }
     static void healing(CoopController client) throws Exception {
         Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
         Object room=host.get(client);

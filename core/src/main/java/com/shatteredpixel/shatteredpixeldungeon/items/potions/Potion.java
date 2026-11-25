@@ -333,9 +333,16 @@ public class Potion extends Item {
 		shatter( hero.pos );
 	}
 	
+    /** These original types all inherit the base splash, including fire, burning and ooze removal. */
+    public boolean supportsCoopShatter() {
+        return getClass() == PotionOfHealing.class
+                || getClass() == PotionOfMindVision.class || getClass() == PotionOfInvisibility.class
+                || getClass() == PotionOfHaste.class || getClass() == PotionOfExperience.class;
+    }
+
 	public void shatter( int cell ) {
 		splash( cell );
-		if (Dungeon.level.heroFOV[cell]) {
+		if (Dungeon.coop == null && Dungeon.level.heroFOV[cell]) {
 			GLog.i( Messages.get(Potion.class, "shatter") );
 			Sample.INSTANCE.play( Assets.Sounds.SHATTER );
 		}
@@ -428,7 +435,7 @@ public class Potion extends Item {
 			Buff.detach(ch, Ooze.class);
 		}
 
-		if (Dungeon.level.heroFOV[cell]) {
+		if (Dungeon.coop == null && Dungeon.level.heroFOV[cell]) {
 			if (ch != null) {
 				Splash.at(ch.sprite.center(), splashColor(), 5);
 			} else {

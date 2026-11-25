@@ -40,6 +40,8 @@ final class CoopBoard extends Group {
                 com.watabou.noosa.ColorBlock gas=new com.watabou.noosa.ColorBlock(TILE,TILE,0x447DA63A);
                 gas.x=px;gas.y=py;add(gas);
             }
+            int plant = view.plant(cell);
+            if (plant >= 0) place(new Image(Assets.Environment.TERRAIN_FEATURES,plant*TILE,7*TILE,TILE,TILE),px,py);
             String trap=view.source.rows.get("trap"+cell);
             if (trap!=null) {
                 int feature=Integer.parseInt(trap);

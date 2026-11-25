@@ -100,6 +100,11 @@ public final class PublicDungeon {
         return t==null ? source.rememberedTerrain(cell) : Integer.parseInt(t);
     }
     public boolean visible(int cell) { return source.rows.containsKey("t"+cell); }
+    /** Original terrain-features atlas column, disclosed only during direct observation. */
+    public int plant(int cell) {
+        String value = source.rows.get("plant"+cell);
+        return value == null || !visible(cell) ? -1 : number(value,0,15);
+    }
     public boolean chest(int cell) {
         String kind=source.rows.get("h"+cell);
         return "CHEST".equals(kind) || "CRYSTAL_CHEST".equals(kind) || "LOCKED_CHEST".equals(kind);

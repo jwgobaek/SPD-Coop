@@ -338,7 +338,7 @@ public class Heap implements Bundlable {
 		}
 		
 		if (Dungeon.coop != null) for (Item item : items) {
-			if ((item instanceof Potion && !item.unique) || (item instanceof Bomb && ((Bomb)item).fuse != null))
+			if ((item instanceof Potion && !item.unique && !((Potion)item).supportsCoopShatter()) || (item instanceof Bomb && ((Bomb)item).fuse != null))
 				throw new IllegalStateException("Unsupported frozen potion or fuse");
 		}
 		boolean frozen = false;

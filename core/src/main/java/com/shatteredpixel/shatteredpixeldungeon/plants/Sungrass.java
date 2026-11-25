@@ -54,7 +54,7 @@ public class Sungrass extends Plant {
 			}
 		}
 		
-		if (Dungeon.level.heroFOV[pos]) {
+		if (Dungeon.coop == null && Dungeon.level.heroFOV[pos]) {
 			CellEmitter.get( pos ).start( ShaftParticle.FACTORY, 0.2f, 3 );
 		}
 	}
@@ -99,7 +99,9 @@ public class Sungrass extends Plant {
 				if (target.HP < target.HT) {
 
 					target.HP += healThisTurn;
-					target.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(healThisTurn), FloatingText.HEALING);
+					if (Dungeon.coop == null) {
+						target.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(healThisTurn), FloatingText.HEALING);
+					}
 
 					if (target.HP >= target.HT) {
 						target.HP = target.HT;

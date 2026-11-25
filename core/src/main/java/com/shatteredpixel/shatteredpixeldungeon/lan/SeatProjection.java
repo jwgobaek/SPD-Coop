@@ -16,6 +16,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.*;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.*;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import java.util.*;
 
 /** Host-only projection. Handles survive continuous observation, including floor-to-bag movement. */
@@ -99,6 +100,8 @@ final class SeatProjection {
                 rows.put("t"+cell,Integer.toString(sight.terrain(cell)));
                 if (stench != null && stench.volume>0 && stench.cur[cell]>0) rows.put("stench"+cell,"1");
                 com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap trap = level.traps.get(cell);
+                Plant plant = level.plants.get(cell);
+                if (trap == null && plant != null) rows.put("plant"+cell, Integer.toString(plant.image));
                 if (trap != null && trap.visible) {
                     int color = trap.active ? trap.color : com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap.BLACK;
                     rows.put("trap"+cell,Integer.toString(color + 16*trap.shape));

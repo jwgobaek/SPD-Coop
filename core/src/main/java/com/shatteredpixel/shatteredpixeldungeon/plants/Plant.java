@@ -59,7 +59,10 @@ public abstract class Plant implements Bundlable {
 
     public boolean supportsCoopLanding() {
         return this instanceof Fadeleaf || this instanceof Earthroot
-                || this instanceof Starflower || this instanceof Sorrowmoss;
+                || this instanceof Starflower || this instanceof Sorrowmoss
+                || this instanceof Blindweed || this instanceof Mageroyal || this instanceof Stormvine
+                || this instanceof Sungrass || this instanceof Swiftthistle
+                || this instanceof Icecap || this instanceof Firebloom;
     }
 
 	public void trigger(){

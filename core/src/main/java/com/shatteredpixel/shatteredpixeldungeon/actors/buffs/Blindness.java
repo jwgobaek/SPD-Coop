@@ -36,7 +36,8 @@ public class Blindness extends FlavourBuff {
 	@Override
 	public void detach() {
 		super.detach();
-		Dungeon.observe();
+		// The coop commit observes both seats after all scheduled effects have resolved.
+		if (Dungeon.coop == null) Dungeon.observe();
 	}
 	
 	@Override

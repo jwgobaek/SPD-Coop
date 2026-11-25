@@ -24,7 +24,7 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit;
+    private static boolean mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
@@ -36,6 +36,7 @@ public final class CoopRenderSmoke {
         mimic=crystal || golden || (args.length>1 && args[1].equals("mimic"));
         unstable=args.length>1 && args[1].equals("unstable");
         statue=unstable || (args.length>1 && args[1].equals("statue"));
+        garden=args.length>1 && args[1].equals("garden");
         kit=args.length>1 && args[1].equals("kit");
         deep=args.length>1 && args[1].equals("deep");
         floors=deep || statue || mimic || ghost || sentry || (args.length>1 && args[1].equals("floors"));
@@ -348,6 +349,24 @@ public final class CoopRenderSmoke {
             click("ready"); await(()->button("start")!=null); shot("ready"); click("start");
             await(()->frame().dungeon!=null); await(()->button("bag")!=null);
             shot("dungeon");
+            if(garden) {
+                int cell=RenderEncounter.sungrass(hostController());
+                click("wait");
+                await(()->frame().dungeon.offered && frame().dungeon.plant(cell)==3);
+                shot("sungrass-visible");
+                press(mapPoint(frame().dungeon,cell));
+                await(()->frame().dungeon.offered && frame().dungeon.pos==cell && frame().dungeon.plant(cell)<0);
+                int hp=frame().dungeon.hp;
+                for (int i=0;i<6 && frame().dungeon.hp<=hp;i++) {
+                    long version=frame().image.version;
+                    click("wait");
+                    await(()->frame().dungeon.offered && frame().image.version>version);
+                }
+                if (frame().dungeon.hp<=hp || !frame().dungeon.buffs.contains(com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator.HERB_HEALING))
+                    throw new AssertionError("Expected a real sungrass tick");
+                shot("sungrass-healing");
+                return;
+            }
             if(kit) {
                 RenderEncounter.healing(hostController());
                 click("wait"); await(()->frame().dungeon.offered && frame().dungeon.floor.containsKey(frame().dungeon.pos));

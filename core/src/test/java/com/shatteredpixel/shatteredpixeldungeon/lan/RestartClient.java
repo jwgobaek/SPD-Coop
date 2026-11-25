@@ -134,7 +134,7 @@ public final class RestartClient {
     }
 
     private void run(String mode) throws Exception {
-        boolean special=mode.equals("goo") || RestartHost.hazard(mode) || mode.equals("blocked-start") || RestartHost.guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
+        boolean special=RestartHost.plant(mode) || mode.equals("goo") || RestartHost.hazard(mode) || mode.equals("blocked-start") || RestartHost.guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
         if (special) {
             try (LanClient old = new LanClient(address)) {
                 assertEquals("ERROR VERSION", old.request("MODE SYNC3"));
@@ -181,6 +181,18 @@ public final class RestartClient {
                 return;
             }
             if (mode.equals("goo")) { boss(); return; }
+            if (RestartHost.plant(mode)) {
+                String[] fixture=RestartHost.read(path,"landing").split(" ");
+                int seat=Integer.parseInt(fixture[1]), cell=Integer.parseInt(fixture[2]);
+                offer(seat);
+                assertEquals(Integer.parseInt(fixture[3]),new PublicDungeon(state(seat)).plant(cell));
+                assertFalse(state(1-seat).rows.containsKey("plant"+cell));
+                SeatActions.Pending move=actions[seat].prepare(state(seat),"MOVE",cell,0);
+                RestartHost.write(path,"landing-action",move.id+" "+move.command);
+                RestartHost.write(path,"kill-before-reply","1");
+                assertThrows(IOException.class,()->move.submit(clients[seat]));
+                return;
+            }
             if (RestartHost.hazard(mode)) {
                 offer(1);
                 int cell=Integer.parseInt(RestartHost.read(path,"hazard-cell"));
@@ -297,6 +309,30 @@ public final class RestartClient {
             assertEquals(3,new PublicDungeon(state(1)).depth);
             assertNotEquals(RestartHost.read(path,"epoch"),epoch.toString());
             assertEquals("ERROR EPOCH",clients[0].request("LOOKUP "+RestartHost.read(path,"epoch")+" 1"));
+            act("WAIT",0,0);
+            return;
+        }
+        if (mode.equals("plant-receipt")) {
+            String[] fixture=RestartHost.read(path,"landing").split(" ");
+            RestartHost.Landing landing=RestartHost.Landing.valueOf(fixture[0]);
+            int seat=Integer.parseInt(fixture[1]), cell=Integer.parseInt(fixture[2]);
+            String[] pending=RestartHost.read(path,"landing-action").split(" ",2);
+            PublicDungeon owner=new PublicDungeon(state(seat));
+            assertEquals(cell,owner.pos);
+            assertEquals(-1,owner.plant(cell));
+            if (landing==RestartHost.Landing.FIREBLOOM) {
+                assertNotNull(state(seat).rows.get("cloud"+cell));
+                assertFalse(state(1-seat).rows.containsKey("cloud"+cell));
+            } else {
+                assertEquals(landing!=RestartHost.Landing.MAGEROYAL,owner.buffs.contains(landing.icon));
+            }
+            assertFalse(new PublicDungeon(state(1-seat)).buffs.contains(landing.icon));
+            long before=state(seat).version;
+            String receipt=clients[seat].request("LOOKUP "+epoch+" "+pending[0]);
+            assertTrue(receipt,receipt.endsWith(" APPLIED"));
+            assertEquals(receipt,clients[seat].request(pending[1]));
+            refresh();
+            assertEquals(before,state(seat).version);
             act("WAIT",0,0);
             return;
         }

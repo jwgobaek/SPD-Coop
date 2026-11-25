@@ -21,6 +21,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.plants;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.BlobImmunity;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -45,7 +46,7 @@ public class Mageroyal extends Plant {
 			PotionOfHealing.cure(ch);
 
 			if (ch instanceof Hero) {
-				GLog.i( Messages.get(this, "refreshed") );
+				if (Dungeon.coop == null) GLog.i( Messages.get(this, "refreshed") );
 
 				if (((Hero) ch).subClass == HeroSubClass.WARDEN){
 					Buff.affect(ch, BlobImmunity.class, BlobImmunity.DURATION/2f);

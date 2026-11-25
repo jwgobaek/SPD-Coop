@@ -176,7 +176,7 @@ public class Swiftthistle extends Plant {
 
 		@Override
 		public void fx(boolean on) {
-			if (!(target instanceof Hero)) return;
+			if (Dungeon.coop != null || !(target instanceof Hero)) return;
 			Emitter.freezeEmitters = on;
 			if (on){
 				for (Mob mob : Dungeon.level.mobs.toArray(new Mob[0])) {

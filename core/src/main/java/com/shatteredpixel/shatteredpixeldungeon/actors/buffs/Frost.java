@@ -50,6 +50,12 @@ public class Frost extends FlavourBuff {
 	
 	@Override
 	public boolean attachTo( Char target ) {
+        if (Dungeon.coop != null && Dungeon.coop.restoring()) {
+            // Rebuild the paralysis counter without freezing a second unit of its owner's inventory.
+            if (!super.attachTo(target)) return false;
+            target.paralysed++;
+            return true;
+        }
 		Buff.detach( target, Burning.class );
 
 		if (super.attachTo( target )) {
@@ -73,10 +79,10 @@ public class Frost extends FlavourBuff {
 				
 				if (!freezable.isEmpty()){
 					Item selected = Random.element(freezable);
-					if (Dungeon.coop != null && selected instanceof Potion)
+					if (Dungeon.coop != null && selected instanceof Potion && !((Potion)selected).supportsCoopShatter())
 						throw new IllegalStateException("Unsupported carried potion shatter");
 					Item toFreeze = selected.detach( hero.belongings.backpack );
-					GLog.w( Messages.capitalize(Messages.get(this, "freezes", toFreeze.title())) );
+					if (Dungeon.coop == null) GLog.w( Messages.capitalize(Messages.get(this, "freezes", toFreeze.title())) );
 					if (toFreeze instanceof Potion){
 						((Potion) toFreeze).shatter(hero.pos);
 					} else if (toFreeze instanceof MysteryMeat){
@@ -93,7 +99,7 @@ public class Frost extends FlavourBuff {
 				Item item = ((Thief) target).item;
 
 				if (item instanceof Potion && !item.unique) {
-					if (Dungeon.coop != null) throw new UnsupportedOperationException("Frozen stolen potion shatter");
+					if (Dungeon.coop != null && !((Potion)item).supportsCoopShatter()) throw new UnsupportedOperationException("Frozen stolen potion shatter");
 					((Potion) ((Thief) target).item).shatter(target.pos);
 					((Thief) target).item = null;
 				} else if (item instanceof MysteryMeat){

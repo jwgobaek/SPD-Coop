@@ -7,6 +7,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.*;
 import com.shatteredpixel.shatteredpixeldungeon.items.*;
+import com.shatteredpixel.shatteredpixeldungeon.plants.*;
+import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.watabou.noosa.Game;
@@ -21,6 +23,24 @@ import static org.junit.Assert.*;
 public final class RestartHost {
     static boolean hazard(String mode) {
         return mode.equals("dart") || mode.equals("iron-door");
+    }
+    static boolean plant(String mode) { return mode.startsWith("plant-") && !mode.equals("plant-receipt"); }
+
+    enum Landing {
+        FIREBLOOM(new Firebloom.Seed(), BuffIndicator.FIRE),
+        ICECAP(new Icecap.Seed(), BuffIndicator.FROST),
+        SUNGRASS(new Sungrass.Seed(), BuffIndicator.HERB_HEALING),
+        BLINDWEED(new Blindweed.Seed(), BuffIndicator.BLINDNESS),
+        STORMVINE(new Stormvine.Seed(), BuffIndicator.VERTIGO),
+        SWIFTTHISTLE(new Swiftthistle.Seed(), BuffIndicator.TIME),
+        MAGEROYAL(new Mageroyal.Seed(), BuffIndicator.WEAKNESS);
+
+        final Plant.Seed seed;
+        final int icon;
+        Landing(Plant.Seed seed, int icon) {
+            this.seed=seed;
+            this.icon=icon;
+        }
     }
     static boolean guardian(String mode) {
         return mode.equals("statue") || mode.equals("unstable") || mode.equals("phantom") || mode.equals("exile");
@@ -86,7 +106,7 @@ public final class RestartHost {
             assertEquals(3,saves.inspect(id,true).depth);
         }
         InetAddress loop=InetAddress.getLoopbackAddress();
-        boolean special = mode.equals("goo") || hazard(mode) || mode.equals("blocked-start") || guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
+        boolean special = plant(mode) || mode.equals("goo") || hazard(mode) || mode.equals("blocked-start") || guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
         try(LanRoom room=(special || kit(mode) || mode.equals("campaign") || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup") || mode.equals("schema3-backup"))) {
             if (mode.equals("schema2-to-three")) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
@@ -168,6 +188,15 @@ public final class RestartHost {
                             write(path,"boss-id",Integer.toString(boss.id()));
                         }
                         measureSaves(path,room,Dungeon.depth);
+                    } else if (plant(mode)) {
+                        String[] parts=mode.split("-");
+                        int seat=Integer.parseInt(parts[2]);
+                        Landing landing=Landing.valueOf(parts[1]);
+                        int cell=SewerPlantTest.arrange(Dungeon.coop,seat,landing.seed,true);
+                        if (landing==Landing.MAGEROYAL)
+                            com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff.prolong(Dungeon.coop.hero(seat),
+                                    com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Weakness.class,30);
+                        write(path,"landing",parts[1]+" "+seat+" "+cell+" "+Dungeon.level.plants.get(cell).image);
                     } else if (hazard(mode)) {
                         CoopSession game = Dungeon.coop;
                         int cell = com.shatteredpixel.shatteredpixeldungeon.SewerHazardsTest.approach(game,1,mode.equals("dart"));

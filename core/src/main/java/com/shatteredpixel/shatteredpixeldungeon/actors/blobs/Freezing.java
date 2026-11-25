@@ -131,7 +131,7 @@ public class Freezing extends Blob {
 			heap.freeze();
 		}
 		
-		if (Dungeon.level.heroFOV[cell]) {
+		if (Dungeon.coop == null && Dungeon.level.heroFOV[cell]) {
 			CellEmitter.get( cell ).start( SnowParticle.FACTORY, 0.2f, 6 );
 			return true;
 		} else {

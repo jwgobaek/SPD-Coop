@@ -56,7 +56,7 @@ public class Firebloom extends Plant {
 		
 		GameScene.add( Blob.seed( pos, 2, Fire.class ) );
 		
-		if (Dungeon.level.heroFOV[pos]) {
+		if (Dungeon.coop == null && Dungeon.level.heroFOV[pos]) {
 			CellEmitter.get( pos ).burst( FlameParticle.FACTORY, 5 );
 		}
 	}
