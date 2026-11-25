@@ -16,11 +16,13 @@ public class CityEntranceTest extends HeadlessDungeon {
         stageAtExit(game);
     }
     static void stageAtExit(CoopSession game) {
-        int exit=Dungeon.level.exit();
+        stageAtStair(game,Dungeon.level.exit());
+    }
+    static void stageAtStair(CoopSession game,int stair) {
         assertFalse(Dungeon.level.locked);
         for (int waits=0;;waits++) {
-            SewerSpecialActorTest.atGate(game,exit);
-            if (game.stairs.stair()==exit) return;
+            SewerSpecialActorTest.atGate(game,stair);
+            if (game.stairs.stair()==stair) return;
             boolean immobilized=game.hero(0).rooted || game.hero(1).rooted
                     || game.hero(0).paralysed>0 || game.hero(1).paralysed>0;
             assertTrue("Unexpected unavailable exit on floor "+Dungeon.depth,immobilized && waits<64);

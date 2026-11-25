@@ -38,3 +38,19 @@ with TemporaryDirectory() as temp:
             assert before["state"][key] == state["state"][key]
     assert before == fixture["generation"](original)
     print("PASS original schema 13 isolated copy, both seats and receipt, TCP 24 to 25 to 24, original generation intact")
+    vault = work / "original-vault"
+    vault.mkdir()
+    run(previous, old_cp, vault, "tengu-setup-vault-enter")
+    run(previous, old_cp, vault, "tengu-commit-vault-enter", expected_exit=78)
+    old_vault = fixture["generation"](vault)
+    assert old_vault["schema"] == 12
+    vault_copy = work / "vault-copy"
+    shutil.copytree(vault, vault_copy)
+    run(root, new_cp, vault_copy, "tengu-read-vault-enter")
+    after = fixture["generation"](vault_copy)
+    assert after["session"] == old_vault["session"]
+    assert after["state"]["engine"]["players"] == old_vault["state"]["engine"]["players"]
+    for key in ("key0", "key1", "epoch"):
+        assert after["state"][key] == old_vault["state"][key]
+    assert fixture["generation"](vault) == old_vault
+    print("PASS original schema 12 vault, both seats and enter receipt, next action and original intact")

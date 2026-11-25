@@ -104,9 +104,12 @@ public class CavesBossTest extends HeadlessDungeon {
         if(name.equals("reward") || name.equals("return") || name.equals("revisit")) {
             fight(g);
             if(!name.equals("reward")) {
-                if(name.equals("revisit")) SewerDepthTest.gate(g,false);
+                if(name.equals("revisit")) {
+                    CityEntranceTest.stageAtStair(g,Dungeon.level.entrance());
+                    CoopFloorsTest.cross(g);
+                }
                 int dest=name.equals("revisit")?levelExit():Dungeon.level.entrance();
-                SewerSpecialActorTest.atGate(g,dest);return dest;
+                CityEntranceTest.stageAtStair(g,dest);return dest;
             }
             for(Heap heap:level().heaps.valueList()) if(heap.peek() instanceof MetalShard) {
                 int seat=g.activeSeat();

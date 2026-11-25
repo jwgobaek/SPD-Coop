@@ -1,5 +1,7 @@
 # 협동 콘텐츠 지원표
 
+일반 모드 HallsBossLevel, YogDzewa, 여섯 YogFist, Larva·YogRipper, LastLevel, 아뮬렛 획득과 일반 승리를 검증했다. 운영 범위는 검증된 생성 조합의 본편 1~26층과 기존 분기다. 도전 모드와 Ascension은 별도 항목이다. [최종 보스·승리 검증 기록](docs/coop/yog-victory-results.md)
+
 금고의 두 좌석 보관·탈출·거울·토큰 문과 악마의 전당 21~24층의 검증 범위, 연속 시드 차단 조합을 기록했다. [Imp 금고와 악마의 전당](docs/coop/imp-halls-results.md)
 
 ## 광산·도시 체크포인트

@@ -1,5 +1,7 @@
 # 작업 시작 순서
 
+최종층 변경은 YogArenaTest와 YogBoundaryTest, 독립 호스트의 verify-yog-recovery.py 및 이전 스키마 작성기로 검증한다. 정상 시작, 성장 범위 배치, 강화 영웅 배치를 각각 기록한다. [최종 보스·승리 검증 기록](docs/coop/yog-victory-results.md)
+
 ## 광산·도시 체크포인트
 
 광산 변경 시 MiningBranchTest, CityEntranceTest, CityKingTest, HostRestartTest와 실제 구버전 세대 마이그레이션을 실행한다. 계단 배치와 정상 출발 기록을 분리한다. [실행 기록](docs/coop/mines-city-results.md)

@@ -1,0 +1,5 @@
+seed	fixture	native_order	result
+578	staged consecutive route	BrightFist, SoiledFist, RustedFist	Yog killed
+570	independent floor 25 after staged 578 approach	BrightFist, RustedFist, SoiledFist	Yog killed
+572	independent floor 25 after staged 578 approach	RustedFist, DarkFist, BurningFist	Yog killed
+573	independent floor 25 after staged 578 approach	BurningFist, RottingFist, DarkFist	Yog killed

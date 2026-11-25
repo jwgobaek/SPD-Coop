@@ -4,6 +4,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.*;
 import com.shatteredpixel.shatteredpixeldungeon.levels.*;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp;
+import com.shatteredpixel.shatteredpixeldungeon.items.quest.DwarfToken;
+import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import org.junit.Test;
@@ -267,6 +271,12 @@ public class YogArenaTest extends HeadlessDungeon {
     }
 
     public static boolean published(String boundary) {
+        if (boundary.equals("mine-return") || boundary.equals("branch-capacity")) {
+            boolean combined=boundary.equals("branch-capacity");
+            Bundle dormant=Dungeon.coop.checkpoint().getBundle("dormant");
+            return published("amulet") && dormant.contains("1013") && dormant.contains("1018")==combined
+                    && dormant.getKeys().size()==(combined?27:26);
+        }
         CoopSession game=Dungeon.coop;
         YogDzewa boss=resident(YogDzewa.class);
         switch (boundary) {
@@ -282,12 +292,73 @@ public class YogArenaTest extends HeadlessDungeon {
             case "phase5":return boss!=null && boss.phase()==5 && resident(YogFist.class)==null;
             case "first":return boss!=null && boss.phase()==2 && resident(YogFist.class)!=null;
             case "kill":return Dungeon.depth==25 && boss==null && !Dungeon.level.locked && Dungeon.level.map[Dungeon.level.exit()]==Terrain.EXIT;
+            case "return25":return Dungeon.depth==25 && !Dungeon.level.locked && boss==null && game.ending()==CoopSession.Ending.CONTINUING;
+            case "revisit26":return Dungeon.depth==26 && amuletCell()<0 && game.amuletOwner()>=0 && game.ending()==CoopSession.Ending.CONTINUING;
             case "last":return Dungeon.depth==26 && amuletCell()>=0;
             case "amulet":return game.ending()==CoopSession.Ending.OFFER;
             case "propose":return game.ending()==CoopSession.Ending.PROPOSED;
             case "win":return game.ending()==CoopSession.Ending.WON;
             default:throw new IllegalArgumentException(boundary);
         }
+    }
+
+    /** Compare the uninterrupted 578 route with a separate, mixed-seed storage fixture. */
+    static StagedInput visitSideLevels(CoopSession game,boolean combinedCapacity) {
+        while (Dungeon.depth>13) SewerDepthTest.gate(game,false);
+        Blacksmith smith=resident(Blacksmith.class);
+        assertNotNull(smith);
+        MiningBranchTest.standBeside(game,smith.pos);
+        assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ACCEPT_BLACKSMITH,smith.pos,null));
+        visitMine(game);
+        while (Dungeon.depth<18) SewerDepthTest.gate(game,true);
+        Imp imp=resident(Imp.class);
+        assertNotNull(imp);
+        MiningBranchTest.standBeside(game,imp.pos);
+        assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ACCEPT_IMP,imp.pos,null));
+        int gate=Dungeon.level.getTransition(LevelTransition.Type.BRANCH_EXIT).cell();
+        MiningBranchTest.atBranchGate(game,gate);
+        if (combinedCapacity) {
+            // Isolated capacity fixture: only the native vault roll comes from 572.
+            long campaignSeed=Dungeon.seed;
+            Dungeon.seed=572;
+            CoopFloorsTest.cross(game);
+            assertTrue(Dungeon.level instanceof VaultLevel);
+            Dungeon.seed=campaignSeed;
+            assertTrue(new DwarfToken().collect(game.hero(game.activeSeat()).belongings.backpack));
+            game.observe(0);
+            game.observe(1);
+            CoopFloorsTest.cross(game);
+            assertEquals(0,Dungeon.branch);
+        } else {
+            long turn=game.turn();
+            assertTrue(game.stairs.consent(1-game.activeSeat(),turn,gate,false));
+            assertFalse(CoopFloorsTest.step(game,CoopSession.Action.TRAVEL,gate,null));
+            assertEquals(18,Dungeon.depth);
+            assertEquals(0,Dungeon.branch);
+            assertEquals(turn,game.turn());
+            assertTrue(game.restoredAfterTravel());
+            assertTrue(game.destinationBlocker,game.destinationBlocker.contains("VaultShaman"));
+            assertFalse(game.checkpoint().getBundle("dormant").contains("1018"));
+            System.out.println("SEED578_VAULT_REFUSED "+game.destinationBlocker);
+        }
+        while (Dungeon.depth<26) SewerDepthTest.gate(game,true);
+        Bundle dormant=game.checkpoint().getBundle("dormant");
+        assertEquals(combinedCapacity?27:26,dormant.getKeys().size());
+        if (combinedCapacity) assertTrue(dormant.getBundle("1018").getBundle("level").getString("__className").endsWith("VaultLevel"));
+        assertTrue(dormant.getBundle("1013").getBundle("level").getString("__className").endsWith("MiningLevel"));
+        positionAtAmulet(game);
+        return new StagedInput(game,"PICK_UP",amuletCell());
+    }
+
+    private static void visitMine(CoopSession game) {
+        MiningBranchTest.atBranchGate(game,Dungeon.level.getTransition(LevelTransition.Type.BRANCH_EXIT).cell());
+        CoopFloorsTest.cross(game);
+        assertEquals(1,Dungeon.branch);
+        assertTrue(Dungeon.level instanceof MiningLevel);
+        MiningBranchTest.atBranchGate(game,Dungeon.level.getTransition(
+                LevelTransition.Type.BRANCH_ENTRANCE).cell());
+        CoopFloorsTest.cross(game);
+        assertEquals(0,Dungeon.branch);
     }
 
     public static StagedInput prepareBoundary(CoopSession game,String boundary) {
@@ -320,8 +391,20 @@ public class YogArenaTest extends HeadlessDungeon {
         }
         CoopFloorsTest.cross(game);
         positionAtAmulet(game);
+        if (boundary.equals("mine-return") || boundary.equals("branch-capacity")) return visitSideLevels(game,boundary.equals("branch-capacity"));
         if (boundary.equals("amulet")) return new StagedInput(game,"PICK_UP",amuletCell());
         takeAmulet(game);
+        if (boundary.equals("return25") || boundary.equals("revisit26")) {
+            assertTrue(game.chooseEnding(game.amuletOwner(),false));
+            SewerSpecialActorTest.atGate(game,Dungeon.level.entrance());
+            if (boundary.equals("return25")) return new StagedInput(game,"TRAVEL",Dungeon.level.entrance());
+            CoopFloorsTest.cross(game);
+            assertTrue(published("return25"));
+            SewerSpecialActorTest.atGate(game,Dungeon.level.entrance());
+            assertEquals(-1,game.stairs.stair());
+            awaitExit(game);
+            return new StagedInput(game,"TRAVEL",Dungeon.level.exit());
+        }
         if (boundary.equals("win")) assertTrue(game.chooseEnding(game.amuletOwner(),true));
         return new StagedInput(game,"END_RUN",0);
     }

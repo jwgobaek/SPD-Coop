@@ -543,11 +543,18 @@ public final class RestartClient {
             assertEquals(version,state(seat).version);
             if (mode.equals("tengu-read-yog-win")) {
                 for (int i=0;i<2;i++) assertEquals("WON",state(i).rows.get("status"));
+                String[] closed=prior[2].split(" ");
+                closed[4]=Long.toString(Long.parseLong(prior[1])+1);
+                closed[5]=Long.toString(version);
+                closed[6]=state(seat).rows.get("turn");
+                closed[7]="WAIT";
+                String rejected=clients[seat].request(String.join(" ",closed));
+                assertTrue(rejected,rejected.endsWith(" REJECT_ENDING"));
                 return;
             }
-            if (mode.equals("tengu-read-yog-amulet") || mode.equals("tengu-read-yog-propose")) {
+            if (mode.equals("tengu-read-yog-amulet") || mode.equals("tengu-read-yog-mine-return") || mode.equals("tengu-read-yog-branch-capacity") || mode.equals("tengu-read-yog-propose")) {
                 int owner=Integer.parseInt(state(0).rows.get("amuletowner"));
-                int voter=mode.endsWith("amulet") ? owner : 1-owner;
+                int voter=mode.endsWith("propose") ? 1-owner : owner;
                 assertTrue(actions[voter].prepare(state(voter),"CONTINUE_RUN",0,0).submit(clients[voter]).endsWith(" APPLIED"));
                 refresh();
             }

@@ -10,7 +10,7 @@ fixture = runpy.run_path(str(root / "scripts/verify-alpha-migration.py"))
 with TemporaryDirectory() as work:
     parent = Path(work)
     cp = fixture["classpath"](root, parent)
-    for boundary in sys.argv[1:] or ("warning", "first", "ray", "regular", "first-death", "second", "second-death", "third", "phase5", "down", "revive", "kill", "last", "amulet", "propose", "win"):
+    for boundary in sys.argv[1:] or ("warning", "first", "ray", "regular", "first-death", "second", "second-death", "third", "phase5", "down", "revive", "kill", "last", "amulet", "propose", "win", "return25", "revisit26", "mine-return", "branch-capacity"):
         room = parent / boundary
         room.mkdir()
         try:

@@ -1,5 +1,7 @@
 # GB2 원격 Android 시험
 
+최종 보스와 아뮬렛 화면의 한국어·영어 Desktop 증거는 독립 자료다. 새 빌드의 Android 결과는 설치된 base.apk 해시, 기존 저장 목록과 재개 여부를 기준으로 기록한다. [최종 보스·승리 검증 기록](docs/coop/yog-victory-results.md)
+
 ## 광산·도시 체크포인트
 
 Drive 미리보기에서 다운로드 버튼이 보이지 않을 때도 동일한 승인 파일 ID에 대한 공식 drive.usercontent.google.com/download 경로를 MuMu 안에서 확인한다. 설치 파일의 크기와 SHA-256을 확인한 뒤 Android 안에서 업데이트하고 이번 다운로드만 정리한다. [실행 기록](docs/coop/mines-city-results.md)

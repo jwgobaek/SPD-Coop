@@ -1,5 +1,7 @@
 # 4.0.2 기반 개발 기준판
 
+4.0.2-INDEV-yog-victory에서 협동 25·26층, 아뮬렛 한 개와 두 좌석의 승리 동의를 추가했다. 저장 형식 14, 동기화 SYNC24, LAN v1을 사용한다. [최종 보스·승리 검증 기록](docs/coop/yog-victory-results.md)
+
 Imp 금고의 두 좌석 보관·탈출, 금고 전용 퀵슬롯과 악마의 전당 21~24층의 검증 조합을 추가했다. [시드·기능별 결과](docs/coop/imp-halls-results.md)
 
 ## 광산·도시 체크포인트

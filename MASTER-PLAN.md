@@ -1,6 +1,6 @@
 # SPD-Coop 개발 기준
 
-현재 작업 경계는 Imp 금고 보관·복귀와 본편 24층까지다. 원본 일반 승리와 Ascension은 계속 별도 필수 완료 항목이다. [Imp 금고와 악마의 전당](docs/coop/imp-halls-results.md)
+일반 모드의 원본 25층 Yog 전투와 26층 아뮬렛, 두 좌석의 승리 동의를 운영 경로에 연결했다. 다음 목표는 Imp 금고 최종 정령, 최고 점수 보상, 미지원 석상, Ascension 및 정상 성장으로 승리하는 경로다. [최종 보스·승리 검증 기록](docs/coop/yog-victory-results.md)
 
 ## 광산·도시 체크포인트
 

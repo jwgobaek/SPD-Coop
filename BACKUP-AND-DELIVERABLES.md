@@ -1,5 +1,7 @@
 # 최종 검증판 발행
 
+Yog 일반 승리판도 기존 두 관리 파일의 ID를 유지한다. 통합 ZIP 안에 APK 빌드 소스와 후속 검증 커밋의 테스트 및 보고서를 별도 경로로 수록한다. [최종 보스·승리 검증 기록](docs/coop/yog-victory-results.md)
+
 ## 원격 기기의 파일 관리
 
 Windows에는 프로젝트 파일을 남기지 않는다. 실제 Android 자료는 Cloud로 스트리밍해 최종 통합 ZIP에 포함한다. [GB2 시험 절차](ANDROID-REMOTE-TESTING.md)
