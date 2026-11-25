@@ -15,7 +15,7 @@ def main():
     with tempfile.TemporaryDirectory() as directory:
         work = Path(directory)
         classpath = tools["classpath"](tree, work)
-        probes = ("MiningBranchSurvey", "CavesInteriorSurvey", "LanResourceProbe")
+        probes = ("MiningBranchSurvey", "CavesBoundaryProbe", "CavesInteriorSurvey", "LanResourceProbe")
         sources = [root / "scripts/verification" / (name + ".java") for name in probes]
         subprocess.run([str(java.with_name("javac")), "-cp", classpath, "-d", str(work), *map(str, sources)], check=True)
         for name in probes:
