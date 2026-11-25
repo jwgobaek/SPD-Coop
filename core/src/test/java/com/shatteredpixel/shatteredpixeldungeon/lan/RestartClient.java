@@ -370,6 +370,19 @@ public final class RestartClient {
             refresh(); assertEquals(version,state(seat).version); act("WAIT",0,0);
             return;
         }
+        if (mode.equals("prison-resume")) {
+            for (int i=0;i<2;i++) {
+                PublicDungeon view=new PublicDungeon(state(i));
+                assertEquals(6,view.depth);
+                String old=RestartHost.read(path,"arrived"+i);
+                PublicDungeon.Loot equipped=view.belongings.stream().filter(x->x.slot.equals("WEAPON")).findFirst().get();
+                assertEquals(old,state(i).rows.get("actor")+" "+view.pos+" "+view.hp+" "+equipped.reference);
+            }
+            int seat=active();
+            assertTrue(consentAndCross().submit(clients[seat]).endsWith(" APPLIED")); refresh();
+            assertEquals(5,new PublicDungeon(state(0)).depth); act("WAIT",0,0);
+            return;
+        }
         if (mode.equals("readscroll")) {
             String[] old=RestartHost.read(path,"scroll-action").split(" ",3);
             int seat=Integer.parseInt(old[0]);
@@ -603,7 +616,7 @@ public final class RestartClient {
         boolean coverAlly=mode.equals("campaign-team");
         String seed=coverAlly ? "1105" : "581";
         Process guide=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-Xmx256m",
-                "-Djourney.front=MAGE","-Djourney.coverAlly="+coverAlly,"-Djourney.trace="+dir.resolve("route"),"-cp",System.getProperty("java.class.path"),
+                "-Djourney.front=MAGE","-Djourney.prison="+mode.equals("prison"),"-Djourney.coverAlly="+coverAlly,"-Djourney.trace="+dir.resolve("route"),"-cp",System.getProperty("java.class.path"),
                 "com.shatteredpixel.shatteredpixeldungeon.SewerJourney",seed)
                 .redirectErrorStream(true).redirectOutput(dir.resolve("guide.log").toFile()).start();
         try {
@@ -661,7 +674,15 @@ public final class RestartClient {
             }
             Thread.sleep(30);
         }
-        assertEquals(4,priorCrossings+crossings); assertEquals(1,exitsOpened);
+        assertEquals(mode.equals("prison")?5:4,priorCrossings+crossings); assertEquals(1,exitsOpened);
+        if (mode.equals("prison")) {
+            for (int i=0;i<2;i++) {
+                PublicDungeon view=new PublicDungeon(state(i)); assertEquals(6,view.depth);
+                PublicDungeon.Loot weapon=view.belongings.stream().filter(x->x.slot.equals("WEAPON")).findFirst().get();
+                assertFalse(weapon.reference.isEmpty());
+                RestartHost.write(path,"arrived"+i,state(i).rows.get("actor")+" "+view.pos+" "+view.hp+" "+weapon.reference);
+            }
+        }
         int blobs=0;
         for (int seat=0;seat<2;seat++) {
             PublicDungeon survivor=new PublicDungeon(state(seat));

@@ -87,7 +87,9 @@ public class DungeonRenderMap {
         return layer;
     }
     String tilesTexture() {
-        return isSeat() ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_SEWERS : solo.tilesTex();
+        if (!isSeat()) return solo.tilesTex();
+        return depth==6 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_PRISON
+                : com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_SEWERS;
     }
     boolean isSeat() { return solo==null; }
     boolean pit(int cell) { return solo==null ? tiles[cell]==Terrain.CHASM : solo.pit[cell]; }

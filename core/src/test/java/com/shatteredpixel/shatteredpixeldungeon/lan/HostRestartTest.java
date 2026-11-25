@@ -17,6 +17,10 @@ public class HostRestartTest {
                 .redirectErrorStream(true).redirectOutput(dir.resolve(main.getSimpleName()+".log").toFile()).start();
     }
 
+    @Test(timeout=330000) public void nativeSewerSurvivorsEnterPrisonAndReturnOnANewHost() throws Exception {
+        run(temp.getRoot().toPath(),new String[]{"prison","prison-resume"});
+    }
+
     @Test(timeout=100000) public void selectedScrollTargetAndSpentScrollShareOneDurableReceipt() throws Exception {
         for (int seat=0;seat<2;seat++) run(temp.newFolder().toPath(),new String[]{"scribe"+seat,"readscroll"});
     }

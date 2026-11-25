@@ -35,6 +35,7 @@ public class CoopScene extends PixelScene {
         if (hud!=null) hud.stopRest();
         if (targetView==null) {
             if(view.visible(cell) && ((view.depth<5 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EXIT)
+                    || (view.depth==5 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.UNLOCKED_EXIT)
                     || (view.depth>1 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.ENTRANCE))) {
                 if(view.stair!=cell) alert(msg("stairconditions"));
                 else if(view.offered && !view.consent) alert(msg("awaitvote"));

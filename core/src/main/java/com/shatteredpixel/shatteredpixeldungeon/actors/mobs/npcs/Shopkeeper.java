@@ -84,7 +84,7 @@ public class Shopkeeper extends NPC {
 			turnsSinceHarmed ++;
 		}
 
-		sprite.turnTo( pos, Dungeon.hero.pos );
+		if (Dungeon.coop==null) sprite.turnTo( pos, Dungeon.hero.pos );
 		spend( TICK );
 		return super.act();
 	}
@@ -105,7 +105,7 @@ public class Shopkeeper extends NPC {
 	public void processHarm(){
 
 		//do nothing if the shopkeeper is out of the hero's FOV
-		if (!Dungeon.level.heroFOV[pos]){
+		if (Dungeon.coop==null ? !Dungeon.level.heroFOV[pos] : !(Dungeon.coop.knowledge(Dungeon.coop.hero(0)).visible(pos) || Dungeon.coop.knowledge(Dungeon.coop.hero(1)).visible(pos))){
 			return;
 		}
 
@@ -143,7 +143,7 @@ public class Shopkeeper extends NPC {
 								}
 							}
 
-							if (affected && Dungeon.level.heroFOV[i]) {
+							if (Dungeon.coop==null && affected && Dungeon.level.heroFOV[i]) {
 								CellEmitter.get( i ).burst( Speck.factory( Speck.DISCOVER ), 2 );
 							}
 
@@ -168,7 +168,7 @@ public class Shopkeeper extends NPC {
 		GLog.newLine();
 		GLog.n(Messages.get(this, "flee"));
 
-		if (sprite != null) {
+		if (Dungeon.coop==null && sprite != null) {
 			sprite.killAndErase();
 			CellEmitter.get(pos).burst(ElmoParticle.FACTORY, 6);
 		}

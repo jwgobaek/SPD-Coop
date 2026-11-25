@@ -125,6 +125,18 @@ public class SewerJourney extends HeadlessDungeon {
                 int visitsHere=visits.merge(Dungeon.depth*200000+s*100000+h.pos,1,Integer::sum);
                 if(Dungeon.depth==5 && l.map[l.exit()]==Terrain.UNLOCKED_EXIT &&
                         (g.hero(0).belongings.getItem(GooBlob.class)!=null || g.hero(1).belongings.getItem(GooBlob.class)!=null)) {
+                    if (Boolean.getBoolean("journey.prison") && g.hero(0).isAlive() && g.hero(1).isAlive()) {
+                        if (g.stairs.stair()==l.exit()) {
+                            if (!g.stairs.consent(1-s,g.turn(),l.exit(),false) || !act(g,CoopSession.Action.TRAVEL,l.exit(),null)) {
+                                result="prison refused "+g.destinationBlocker; break;
+                            }
+                            result="both alive, exit unlocked, entered prison"; highest=Dungeon.depth; break;
+                        }
+                        int step=CoopFloorsTest.nextStep(g,l.exit(),true,true);
+                        if (step>=0 && step!=h.pos && act(g,CoopSession.Action.MOVE,step,null)) continue;
+                        if (act(g,CoopSession.Action.WAIT,0,null)) continue;
+                        result="prison approach stopped"; break;
+                    }
                     result=g.hero(0).isAlive() && g.hero(1).isAlive() ? "both alive, exit unlocked" : "exit unlocked with a fallen seat"; break;
                 }
                 if(g.life(1-s)==CoopSession.Life.DOWNED) {

@@ -36,7 +36,7 @@ final class CoopBoard extends Group {
         map = new DungeonRenderMap(view);
         float zoom = GameMath.gate(PixelScene.minZoom, PixelScene.defaultZoom + SPDSettings.zoom(), PixelScene.maxZoom);
         camera = Camera.add(Camera.createFullscreen(zoom));
-        water = new SkinnedBlock(view.width*TILE, view.height*TILE, Assets.Environment.WATER_SEWERS);
+        water = new SkinnedBlock(view.width*TILE, view.height*TILE, view.depth==6 ? Assets.Environment.WATER_PRISON : Assets.Environment.WATER_SEWERS);
         water.autoAdjust = true;
         add(water);
         layers = new Tilemap[]{
@@ -136,6 +136,9 @@ final class CoopBoard extends Group {
                 if (view.floor.containsKey(cell)) continue;
                 int image="CRYSTAL_CHEST".equals(value) ? ItemSpriteSheet.CRYSTAL_CHEST :
                         "LOCKED_CHEST".equals(value) ? ItemSpriteSheet.LOCKED_CHEST : ItemSpriteSheet.CHEST;
+                object(keep,key+":"+image,cell,()->new ItemSprite(image));
+            } else if (key.startsWith("sale")) {
+                int cell=Integer.parseInt(key.substring(4)), image=Integer.parseInt(value);
                 object(keep,key+":"+image,cell,()->new ItemSprite(image));
             } else if (key.startsWith("stench") || key.startsWith("cloud")) {
                 boolean stench=key.startsWith("stench");
@@ -248,6 +251,8 @@ final class CoopBoard extends Group {
                     case "Swarm": sprite=new SwarmSprite();break;
                     case "CausticSlime": sprite=new CausticSlimeSprite();break;
                     case "Thief": sprite=new ThiefSprite();break;
+                    case "Skeleton": sprite=new SkeletonSprite();break;
+                    case "Shopkeeper": sprite=new ShopkeeperSprite();break;
                     case "RatKing": sprite=new RatKingSprite();break;
                     case "GnollTrickster": sprite=new GnollTricksterSprite();break;
                     case "GreatCrab": sprite=new GreatCrabSprite();break;

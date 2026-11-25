@@ -405,7 +405,8 @@ public final class CoopSession implements AutoCloseable {
                     && (armor.glyph instanceof Potential || armor.glyph instanceof Repulsion);
         }
         if (type==Statue.class) return statueWeapon(((Statue)actor).weapon());
-        return type == GnollExile.class || type == PhantomPiranha.class || type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
+        return (Dungeon.depth==CoopFloors.FIRST_PRISON && (type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Skeleton.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.class))
+                || type == GnollExile.class || type == PhantomPiranha.class || type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
                 || type == Mimic.class || type == CrystalMimic.class || type == GoldenMimic.class || type == Sheep.class || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
                 || type==Crab.class || type==HermitCrab.class || type==Swarm.class || type==Slime.class || type==CausticSlime.class || type==Thief.class
                 || (Dungeon.depth>=2 && Dungeon.depth<=4 && type==Ghost.class)
@@ -866,8 +867,8 @@ public final class CoopSession implements AutoCloseable {
         if (Dungeon.coop!=null || Dungeon.hero!=null || Dungeon.level!=null) throw new IllegalStateException("Dungeon in use");
         Bundle world=b.getBundle("world"), floor=b.getBundle("floor");
         int schema=b.getInt("schema"),depth=world.getInt("depth");
-        if ((schema<1 || schema>3) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
-                (depth<1 || depth>(schema==3 ? CoopFloors.LAST_SEWER : schema)) || world.getInt("branch")!=0 || world.getInt("challenges")!=0)
+        if ((schema<1 || schema>4) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
+                (depth<1 || depth>CoopFloors.lastDepth(schema)) || world.getInt("branch")!=0 || world.getInt("challenges")!=0)
             throw new IllegalArgumentException("Unsupported world");
         int width=floor.getInt("width"), height=floor.getInt("height");
         if (width<3 || height<3 || width>256 || height>256 || floor.getIntArray("map").length!=width*height)

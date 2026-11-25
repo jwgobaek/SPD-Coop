@@ -12,10 +12,13 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 
-/** One active sewer and up to four dormant sewers; only the active floor has registered actors. */
+/** One active floor and up to five dormant floors; only the active floor has registered actors. */
 public final class CoopFloors {
     private final CoopSession game;
-    public static final int LAST_SEWER = 5;
+    public static final int LAST_SEWER = 5, FIRST_PRISON = 6;
+    static int lastDepth(int schema) {
+        return schema==4 ? FIRST_PRISON : schema==3 ? LAST_SEWER : schema;
+    }
     private final java.util.Map<Integer,Bundle> dormant = new java.util.TreeMap<>();
     private long voteTurn;
     private int votedCell=-1;
@@ -25,10 +28,12 @@ public final class CoopFloors {
 
     public int stair() {
         Level l=Dungeon.level;
-        if (Dungeon.branch!=0 || l.locked || Dungeon.depth<1 || Dungeon.depth>LAST_SEWER) return -1;
+        if (Dungeon.branch!=0 || l.locked || Dungeon.depth<1 || Dungeon.depth>FIRST_PRISON) return -1;
         for (LevelTransition t : l.transitions) {
             if ((t.type!=LevelTransition.Type.REGULAR_EXIT && t.type!=LevelTransition.Type.REGULAR_ENTRANCE)
-                    || t.destBranch!=0 || t.destDepth<1 || t.destDepth>LAST_SEWER || Math.abs(t.destDepth-Dungeon.depth)!=1) continue;
+                    || t.destBranch!=0 || t.destDepth<1 || t.destDepth>FIRST_PRISON || Math.abs(t.destDepth-Dungeon.depth)!=1) continue;
+            if (Dungeon.depth==LAST_SEWER && t.destDepth==FIRST_PRISON
+                    && l.map[t.cell()]!=com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.UNLOCKED_EXIT) continue;
             if (inRange(l,t)) return t.cell();
         }
         return -1;
@@ -147,7 +152,8 @@ public final class CoopFloors {
     }
 
     static void checkLevelType(Bundle floor,int depth) {
-        Class<?> expected=depth==5 ? com.shatteredpixel.shatteredpixeldungeon.levels.SewerBossLevel.class
+        Class<?> expected=depth==FIRST_PRISON ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel.class
+                : depth==5 ? com.shatteredpixel.shatteredpixeldungeon.levels.SewerBossLevel.class
                 : com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel.class;
         if (!expected.getName().equals(floor.getString("__className")))
             throw new IllegalArgumentException("Unexpected level type at depth "+depth);
@@ -177,6 +183,7 @@ public final class CoopFloors {
     }
 
     int schema() {
+        if (Dungeon.levelHasBeenGenerated(FIRST_PRISON,0)) return 4;
         return Dungeon.depth>2 || Dungeon.levelHasBeenGenerated(3,0) ? 3 : 2;
     }
 
@@ -194,10 +201,11 @@ public final class CoopFloors {
     void restore(Bundle state,HashSet<Long> itemIds) {
         dormant.clear();
         cancel();
-        boolean multi=state.getInt("schema")==3;
+        int schema=state.getInt("schema"), bound=lastDepth(schema);
+        boolean multi=schema>=3;
         HashSet<Integer> generated=new HashSet<>(Dungeon.generatedLevels);
         if (!generated.contains(Dungeon.depth) || generated.size()!=Dungeon.generatedLevels.size()
-                || generated.size()>LAST_SEWER || (multi && !generated.contains(3)))
+                || generated.size()>bound || (multi && !generated.contains(3)) || (schema==4 && !generated.contains(FIRST_PRISON)))
             throw new IllegalArgumentException("Invalid sewer generation history");
         for(int i=1;i<=generated.size();i++) if (!generated.contains(i)) throw new IllegalArgumentException("Disconnected sewer history");
         Bundle records=state.getBundle("dormant");
@@ -211,7 +219,7 @@ public final class CoopFloors {
             for (com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff buff:hero.buffs()) actors.add(buff.id());
         }
         int nextId=state.getBundle("world").getInt("nextid");
-        for (int depth=1;depth<=LAST_SEWER;depth++) {
+        for (int depth=1;depth<=bound;depth++) {
             boolean expected=depth!=Dungeon.depth && Dungeon.levelHasBeenGenerated(depth,0);
             boolean present=multi ? records.contains(String.valueOf(depth)) : depth==3-Dungeon.depth && state.contains("parked");
             if (expected!=present) throw new IllegalArgumentException("Missing or unexpected parked depth "+depth);

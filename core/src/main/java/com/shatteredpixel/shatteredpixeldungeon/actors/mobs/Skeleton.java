@@ -124,13 +124,13 @@ public class Skeleton extends Mob {
 				//apply DR twice (with 2 rolls for more consistency)
 				damage = Math.max( 0,  damage - (ch.drRoll() + ch.drRoll()) );
 				ch.damage( damage, this );
-				if (ch == Dungeon.hero && !ch.isAlive()) {
+				if (Dungeon.coop==null && ch == Dungeon.hero && !ch.isAlive()) {
 					heroKilled = true;
 				}
 			}
 		}
 		
-		if (Dungeon.level.heroFOV[pos]) {
+		if (Dungeon.coop==null && Dungeon.level.heroFOV[pos]) {
 			Sample.INSTANCE.play( Assets.Sounds.BONES );
 		}
 		

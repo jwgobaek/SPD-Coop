@@ -47,7 +47,7 @@ public final class RestartHost {
     }
     static boolean kit(String mode) { return mode.equals("kit0") || mode.equals("kit1"); }
     static boolean newCampaign(String mode) {
-        return mode.equals("campaign") || mode.equals("campaign-start") || mode.equals("campaign-team");
+        return mode.equals("prison") || mode.equals("campaign") || mode.equals("campaign-start") || mode.equals("campaign-team");
     }
     private static long seedFor(String mode) {
         switch (mode) {
@@ -64,7 +64,7 @@ public final class RestartHost {
             case "quest": return 403;
             case "piranha": return 406;
             case "walk": return 415;
-            case "campaign": case "campaign-start": return 581;
+            case "prison": case "campaign": case "campaign-start": return 581;
             case "campaign-team": return 1105;
             default: return 402;
         }
@@ -115,6 +115,13 @@ public final class RestartHost {
         try(LanRoom room=(special || mode.startsWith("scribe") || kit(mode) || newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup") || mode.equals("schema3-backup"))) {
             if (mode.equals("schema2-to-three")) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
+            if (mode.equals("prison-resume")) {
+                assertEquals(6,Dungeon.depth);
+                assertTrue(Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel);
+                assertEquals(5,Dungeon.coop.checkpoint().getBundle("dormant").getKeys().size());
+                assertNotEquals(Dungeon.coop.hero(0).pos,Dungeon.coop.hero(1).pos);
+                assertTrue(Dungeon.level.mobs.stream().anyMatch(m->m instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper));
+            }
             if (mode.equals("goo-receipt")) {
                 assertEquals(5,Dungeon.depth);
                 assertFalse(Dungeon.level.locked);

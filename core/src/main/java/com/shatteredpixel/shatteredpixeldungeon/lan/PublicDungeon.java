@@ -39,7 +39,7 @@ public final class PublicDungeon {
         this.source=source;
         String[] location=(source.rows.containsKey("floor")?source.rows.get("floor"):"0,1").split(",");
         if(location.length!=2 || !location[0].equals("0")) throw new IllegalArgumentException("Floor");
-        depth=number(location[1],1,5);
+        depth=number(location[1],1,6);
         String[] gate=(source.rows.containsKey("stair")?source.rows.get("stair"):"-1,0").split(",");
         stair=number(gate[0],-1,65535); consent=number(gate[1],0,1)==1;
         width=number(source.rows.get("width"),3,256);
@@ -69,7 +69,7 @@ public final class PublicDungeon {
                 break;
             case 'm':
                 String[] mob=value.split(",");
-                if(!mob[1].matches("Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Sheep|Statue|ArmoredStatue|GnollExile|PhantomPiranha|Crab|HermitCrab|Swarm|Slime|CausticSlime|Thief|GnollTrickster|GreatCrab|RatKing|Goo")) throw new IllegalArgumentException("Monster");
+                if(!mob[1].matches("Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Sheep|Statue|ArmoredStatue|GnollExile|PhantomPiranha|Crab|HermitCrab|Swarm|Slime|CausticSlime|Thief|GnollTrickster|GreatCrab|RatKing|Goo|Skeleton|Shopkeeper")) throw new IllegalArgumentException("Monster");
                 enemies.put(number(mob[0],0,65535),mob[1]); break;
             case 'b': effects.add(number(value.split(",")[0],0,255)); break;
             case 't': number(value,0,63); break;
@@ -143,7 +143,7 @@ public final class PublicDungeon {
     public boolean tap(CoopController c,int cell) {
         if(!offered || cell<0 || !visible(cell) || Math.abs(cell%width-pos%width)>1 || Math.abs(cell/width-pos/width)>1) return false;
         if(cell==ally) return "DOWNED".equals(source.rows.get("allylife")) && c.act(source,"REVIVE",cell,0);
-        if("Ghost".equals(monsters.get(cell)) || "Sentry".equals(monsters.get(cell))) return false;
+        if("Shopkeeper".equals(monsters.get(cell)) || "Ghost".equals(monsters.get(cell)) || "Sentry".equals(monsters.get(cell))) return false;
         if("Sheep".equals(monsters.get(cell))) return c.act(source,"GREET",cell,0);
         if(monsters.containsKey(cell)) return c.act(source,"ATTACK",cell,0);
         if(terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.LOCKED_DOOR || terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.LOCKED_EXIT) return c.act(source,"UNLOCK",cell,0);

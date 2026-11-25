@@ -237,6 +237,13 @@ public class SewerDepthTest extends HeadlessDungeon {
             assertEquals(Terrain.UNLOCKED_EXIT,Dungeon.level.map[exit]);
             assertEquals(0,com.shatteredpixel.shatteredpixeldungeon.journal.Notes.keyCount(new WornKey(5)));
             assertFalse(CoopFloorsTest.step(game,CoopSession.Action.UNLOCK,exit,null));
+            int first=game.hero(0).id(),second=game.hero(1).id();
+            CoopFloorsTest.cross(game);
+            assertEquals(6,Dungeon.depth); assertNotEquals(game.hero(0).pos,game.hero(1).pos);
+            assertEquals(first,game.hero(0).id()); assertEquals(second,game.hero(1).id());
+            assertTrue(Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel);
+            assertEquals(4,game.checkpoint().getInt("schema"));
+            CoopFloorsTest.cross(game); assertEquals(Terrain.UNLOCKED_EXIT,Dungeon.level.map[exit]);
         }
     }
 }

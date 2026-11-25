@@ -136,6 +136,8 @@ final class SeatProjection {
                 if (heap != null && heap.hidden) continue;
                 if (heap != null && heap.type == Heap.Type.HEAP && heap.peek()!=null) {
                     putItem(rows,visibleItems,heap.peek(),"F"+cell);
+                } else if (heap!=null && heap.type==Heap.Type.FOR_SALE && heap.peek()!=null) {
+                    rows.put("sale"+cell,Integer.toString(heap.peek().image()));
                 } else if (heap != null) rows.put("h"+cell,
                         heap.type==Heap.Type.CHEST || heap.type==Heap.Type.CRYSTAL_CHEST || heap.type==Heap.Type.LOCKED_CHEST ? heap.type.name() : "CONTAINER");
             }
