@@ -63,3 +63,5 @@
 금고의 다음 수정 지점을 실제로 재현했다. 시드 572의 원본 63×63 금고에는 보스 생성 전부터 보물 칸 696에 ImpStatue가 한 개 있었다. 원본 VaultBossElemental의 번들은 현재 속성과 공격 재사용 시간을 저장하지만 생성자에서 감소시키는 formChances 가중치를 저장하지 않는다. 같은 속성·HP로 복원한 객체에서도 다음 속성 추첨 가중치가 달라졌다. 격리 재현기는 scripts/verification/VaultFinalRoomSurvey.java에 있다. 다음 구현은 협동 복원 시 남은 가중치를 보존하고 실제 속성 전환의 추첨·효과를 재시작 전후 대조하는 것부터 시작한다.
 
 독립 JVM에서 싱글플레이 1층 저장, 배지와 랭킹을 실제로 생성했다. 같은 임시 프로필을 사용하는 새 호스트에서 아뮬렛 승리와 WON 복원을 마친 뒤 원래 파일 네 개의 모든 바이트가 일치했다. 단독 승리용 AmuletScene이나 싱글플레이 랭킹 제출을 호출하는 대신 협동 세션에 양쪽의 선택과 종료 상태를 기록한다.
+
+재현 명령은 저장소 루트에서 실행한다. scripts/verify-android-build.sh는 전체 JUnit과 Android 빌드를 수행한다. python3 scripts/verify-yog-recovery.py는 20개의 개별 호스트 종료 경계, python3 scripts/verify-yog-migration.py <이전 ce70d08 체크아웃>은 실제 구버전 금고와 전당의 마이그레이션을 검사한다. python3 scripts/verify-yog-probes.py는 여섯 원본 효과, 성장 배치, 싱글플레이 파일 격리, 금고 생성·속성 저장 조사와 소켓 자원 시험을 수행한다.
