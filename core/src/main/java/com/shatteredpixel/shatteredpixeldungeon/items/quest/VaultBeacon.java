@@ -40,11 +40,17 @@ public class VaultBeacon extends Spell {
 
 	@Override
 	protected void onCast(Hero hero) {
+		returnToEntrance(hero);
+	}
+
+	public boolean returnToEntrance(Hero hero) {
 		if (ScrollOfTeleportation.teleportToLocation(hero, Dungeon.level.entrance())){
 			hero.spendAndNext( 1f );
 			Catalog.countUse(getClass());
 			detach(hero.belongings.backpack);
+			return true;
 		}
+		return false;
 	}
 
 	private static final ItemSprite.Glowing WHITE = new ItemSprite.Glowing( 0xFFFFFF );

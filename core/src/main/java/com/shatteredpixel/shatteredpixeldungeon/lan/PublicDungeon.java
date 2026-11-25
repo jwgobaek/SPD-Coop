@@ -98,6 +98,7 @@ public final class PublicDungeon {
     }
     public static String shortcutAction(Loot item) {
         switch (item.kind) {
+            case "VAULT_BEACON": return "VAULT_RECALL";
             case "FOOD": return "EAT";
             case "HEALING": return "DRINK";
             case "KNIFE": case "STONE": return "THROW";
@@ -133,6 +134,7 @@ public final class PublicDungeon {
             if(item.kind.equals("STONE") || item.kind.equals("KNIFE")) verbs.add("THROW");
             if(item.kind.equals("BOW")) verbs.add("SHOOT");
             if(item.kind.equals("FOOD")) verbs.add("EAT");
+            if(inVault() && item.kind.equals("VAULT_BEACON")) verbs.add("VAULT_RECALL");
             if(weapon || item.kind.equals("ARMOR")) verbs.add("EQUIP");
             if(item.kind.equals("HONEYPOT")) verbs.add("SHATTER");
             if(item.kind.equals("CANDLE") || item.kind.equals("FOOD") || weapon || item.kind.equals("ARMOR") || item.kind.equals("INSCRIBED") || item.kind.equals("HONEYPOT") || item.kind.equals("SHELL")) verbs.add("DROP");

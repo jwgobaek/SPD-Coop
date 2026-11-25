@@ -142,18 +142,18 @@ public class VaultLaser extends NPC {
 
 		}
 
-		if (curCooldown == 1 && giveWarning){
+		if (curCooldown == 1 && giveWarning && Dungeon.coop == null){
 
-			Ballistica nextBeam = new Ballistica(pos, laserDirs[laserDirIdx], Ballistica.STOP_SOLID);
+			java.util.List<Integer> cells = warnedCells();
 			boolean visible = false;
-			for (int cell : nextBeam.subPath(1, nextBeam.dist)){
+			for (int cell : cells){
 				if (Dungeon.level.heroFOV[cell]) {
 					visible = true;
 					break;
 				}
 			}
-			if (visible && Dungeon.coop==null){
-				for (int cell : nextBeam.subPath(1, nextBeam.dist)) {
+			if (visible){
+				for (int cell : cells) {
 					GameScene.targetedCell(cell, 1);
 					if (Actor.findChar(cell) == Dungeon.hero){
 						//mainly to prevent the hero from auto-picking up items when targeted
@@ -169,6 +169,12 @@ public class VaultLaser extends NPC {
 		spend(TICK);
 		return true;
 	}
+
+    public java.util.List<Integer> warnedCells() {
+        if (curCooldown != 1 || !giveWarning) return java.util.Collections.emptyList();
+        Ballistica beam = new Ballistica(pos, laserDirs[laserDirIdx], Ballistica.STOP_SOLID);
+        return beam.subPath(1, beam.dist);
+    }
 
 	@Override
 	public boolean isImmune(Class effect) {

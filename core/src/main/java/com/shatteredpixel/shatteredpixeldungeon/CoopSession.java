@@ -93,6 +93,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
+import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop;
+import com.shatteredpixel.shatteredpixeldungeon.items.quest.VaultBeacon;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.LeatherArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.MailArmor;
@@ -116,6 +118,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gloves;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Shortsword;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sickle;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WornShortsword;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Document;
@@ -143,9 +146,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
+    public enum Action { VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
         public boolean requiresItem() {
-            return this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
+            return this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -725,7 +728,7 @@ public final class CoopSession implements AutoCloseable {
     public static boolean basicWeaponType(Item item) {
         return item!=null && ((item instanceof MagesStaff && ((MagesStaff)item).starterWand()!=null)
                 || item.getClass()==Gloves.class || item.getClass()==WornShortsword.class
-                || item.getClass()==Shortsword.class || item.getClass()==Dagger.class);
+                || item.getClass()==Shortsword.class || item.getClass()==Dagger.class || item.getClass()==Sickle.class);
     }
 
     private boolean basicWeapon(Item item) {
@@ -782,6 +785,12 @@ public final class CoopSession implements AutoCloseable {
                     break;
                 case VAULT_REWARD: case TRAVEL:
                     if (!stairs.travel(activeSeat,cell,item)) return false;
+                    break;
+                case VAULT_RECALL:
+                    if (!(level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel)
+                            || !(item instanceof VaultBeacon) || !hero.belongings.backpack.contains(item)
+                            || ownership.owner(item)!=player || !supportedLanding(level.entrance())
+                            || !((VaultBeacon)item).returnToEntrance(hero)) return false;
                     break;
                 case VAULT_INTERACT: {
                     if (!(level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel)
@@ -907,8 +916,9 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (!CoopVault.questPickup(item,cell) && item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && item.getClass()!=GooBlob.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.quest.MetalShard.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.TengusMask.class && !(Dungeon.depth==26 && item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.Amulet.class && !Statistics.amuletObtained) && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.KingsCrown.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand && ownership.owner(item)==player) && !(item instanceof CorpseDust || item instanceof Embers || item instanceof CeremonialCandle || item instanceof Rotberry.Seed) && !(item instanceof Potion) && !supportedScroll(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
-                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && !hero.belongings.backpack.canHold(item))) return false;
+                            || (item instanceof Dewdrop && !Dewdrop.canCollect(hero,cell))
+                            || (!(item instanceof Dewdrop) && !CoopVault.questPickup(item,cell) && item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && item.getClass()!=GooBlob.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.quest.MetalShard.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.TengusMask.class && !(Dungeon.depth==26 && item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.Amulet.class && !Statistics.amuletObtained) && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.KingsCrown.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand && ownership.owner(item)==player) && !(item instanceof CorpseDust || item instanceof Embers || item instanceof CeremonialCandle || item instanceof Rotberry.Seed) && !(item instanceof Potion) && !supportedScroll(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (!(item instanceof Dewdrop) && item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && !hero.belongings.backpack.canHold(item))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
                     hero.act();

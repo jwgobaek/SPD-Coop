@@ -49,6 +49,25 @@ public class Dewdrop extends Item {
 		dropsDownHeap = true;
 	}
 	
+    /** The native pickup uses no backpack slot. Refusal must precede a cooperative turn. */
+    public static boolean canCollect(Hero hero, int pos) {
+        Waterskin flask = hero.belongings.getItem(Waterskin.class);
+        if (flask != null && !flask.isFull()) return true;
+        if (forcedAt(pos)) return true;
+        int effect = Math.round(hero.HT * 0.05f);
+        if (effect <= 0) return false;
+        if (hero.HP < hero.HT) return true;
+        Barrier barrier = hero.buff(Barrier.class);
+        return hero.hasTalent(Talent.SHIELDING_DEW)
+                && (barrier == null ? 0 : barrier.shielding()) < Math.round(hero.HT * 0.2f * hero.pointsInTalent(Talent.SHIELDING_DEW));
+    }
+
+    private static boolean forcedAt(int pos) {
+        int terrain = Dungeon.level.map[pos];
+        return terrain == Terrain.ENTRANCE || terrain == Terrain.ENTRANCE_SP
+                || terrain == Terrain.EXIT || terrain == Terrain.UNLOCKED_EXIT;
+    }
+
 	@Override
 	public boolean doPickUp(Hero hero, int pos) {
 		
@@ -63,9 +82,7 @@ public class Dewdrop extends Item {
 
 		} else {
 
-			int terr = Dungeon.level.map[pos];
-			if (!consumeDew(1, hero, terr == Terrain.ENTRANCE || terr == Terrain.ENTRANCE_SP
-					|| terr == Terrain.EXIT || terr == Terrain.UNLOCKED_EXIT)){
+			if (!consumeDew(1, hero, forcedAt(pos))){
 				return false;
 			} else {
 				Catalog.countUse(getClass());

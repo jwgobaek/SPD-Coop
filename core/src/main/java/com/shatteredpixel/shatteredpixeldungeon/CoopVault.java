@@ -32,7 +32,8 @@ final class CoopVault {
 
     static boolean questPickup(Item item, int cell) {
         if (!(Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel)) return false;
-        if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.DwarfToken) return true;
+        if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.DwarfToken
+                || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.VaultBeacon) return true;
         com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel vault=(com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel)Dungeon.level;
         return vault.finalTreasureOpen()
                 && vault.room(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.levels.rooms.quest.vault.VaultFinalRoom

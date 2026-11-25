@@ -11,6 +11,12 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 public final class ProjectionChecks {
+    public static PublicDungeon seatImage(CoopSession game, int seat) {
+        SeatProjection projection = new SeatProjection(UUID.randomUUID(),seat);
+        projection.capture(game,1,"IN_GAME",null,null);
+        return new PublicDungeon(projection.current);
+    }
+
     public static void checkShortcuts(CoopSession game) {
         UUID id=UUID.randomUUID();
         SeatProjection host=new SeatProjection(id,0), guest=new SeatProjection(id,1);

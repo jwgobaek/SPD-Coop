@@ -1,6 +1,8 @@
 package com.shatteredpixel.shatteredpixeldungeon.lan;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultLaser;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultSentry;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SentryRoom.Sentry;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
@@ -129,7 +131,14 @@ final class SeatProjection {
                 }
                 if (hero.HP < hero.HT*0.334f) rows.put("vaultinjured","1");
                 for (Mob mob:level.mobs) {
-                    if (!(mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultBossElemental) || !sight.visible(mob.pos)) continue;
+                    if (!sight.visible(mob.pos)) continue;
+                    if (mob instanceof VaultLaser || mob instanceof VaultSentry) {
+                        Iterable<Integer> cells = mob instanceof VaultLaser
+                                ? ((VaultLaser)mob).warnedCells() : ((VaultSentry)mob).warnedCells();
+                        for (int cell : cells) if (sight.visible(cell)) rows.put("aim"+cell, "1");
+                        continue;
+                    }
+                    if (!(mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultBossElemental)) continue;
                     com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultBossElemental boss =
                             (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultBossElemental)mob;
                     rows.put("element"+mob.pos,boss.curForm().name());
@@ -426,6 +435,7 @@ final class SeatProjection {
                 : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow ? "BOW"
                 : item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing.class && ((com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion)item).isKnown() ? "HEALING"
                 : CoopSession.basicArmorType(item) ? "ARMOR" : CoopSession.basicFood(item) ? "FOOD" : item instanceof Ankh ? "ANKH" : CoopSession.basicWeaponType(item) ? "MELEE" : "OTHER";
+        if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.VaultBeacon) kind="VAULT_BEACON";
         if (!slot.startsWith("F") && item.isIdentified() && CoopSession.basicArmorType(item)
                 && ((com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor)item).glyph!=null) kind="INSCRIBED";
         if (!slot.startsWith("F") && CoopSession.supportedScroll(item)

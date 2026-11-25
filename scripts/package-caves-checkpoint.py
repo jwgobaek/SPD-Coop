@@ -58,12 +58,13 @@ def package(builds, evidence, out):
     assert (builds/'SHA256SUMS').read_text().split()[0]==digest
     inspection=(builds/'apk.txt').read_text()
     version=re.search(r"versionName='([^']+)'",inspection)[1]
+    play = version.endswith('-INDEV-vault-play')
     ascent = version.endswith('-INDEV-vault-ascent')
     yog = version.endswith('-INDEV-yog-victory')
     halls = version.endswith('-INDEV-imp-halls')
     king = version.endswith('-INDEV-dwarf-king')
     mines = king or version.endswith('-INDEV-mines-city')
-    source_base = 'f239c06a638b20f2729579f5ee7a4c72f7aa911c' if ascent else 'ce70d083eaa29c31bd704dab9595c2e59da1d1d3' if yog else '960e4bc9ad4b94fdb4de7959c41c17827066ff39' if halls else 'df645fc08d0b33dbd5e2d7a847f075dc26d4b020' if mines else SOURCE_BASE
+    source_base = 'f4232290d8050d2c938bd927d95c8003f7e27f3f' if play else 'f239c06a638b20f2729579f5ee7a4c72f7aa911c' if ascent else 'ce70d083eaa29c31bd704dab9595c2e59da1d1d3' if yog else '960e4bc9ad4b94fdb4de7959c41c17827066ff39' if halls else 'df645fc08d0b33dbd5e2d7a847f075dc26d4b020' if mines else SOURCE_BASE
     code=re.search(r"versionCode='(\d+)'",inspection)[1]
     assert "name='org.spdcoop.dungeon.indev'" in inspection
     assert f'certificate SHA-256 digest: {SIGNER}' in inspection
@@ -109,9 +110,9 @@ APK SHA-256          {digest}
 Certificate SHA-256  {SIGNER}
 Signatures           v1 and v2 verified
 JUnit                {len(cases)} passed; no errors, failures or skipped cases
-Scope                {"Branch 0 through 26 on admitted rolls, mines and vault, ordinary and Ascent endings, schemas 1-15, SYNC25, LAN v1." if ascent else "Branch 0 through 26 on admitted rolls, cooperative ending, schemas 1-14, SYNC24." if yog else "Branch 0 through 24 on admitted native rolls, mines and Imp vault; schemas 1-13, SYNC23, LAN v1." if halls else "Branch 0 through 20, both Blacksmith mines; save schemas 1–11, SYNC22, LAN v1." if king else "Branch 0 through 19 and Blacksmith mines; save schemas 1–10, SYNC22, LAN v1." if mines else "Branch 0 through 15; save schemas 1–9, SYNC21, LAN v1."}
-Checkpoint           {"See documentation/docs/coop/vault-ascent-results.md for native fights, staged heroes and recovery." if ascent else "See documentation/docs/coop/yog-victory-results.md for native fights, staged heroes and recovery." if yog else "See documentation/docs/coop/imp-halls-results.md for staged and normal-start limits." if halls else "See documentation/docs/coop/mines-city-results.md for the fixture, seed and network test boundaries." if mines else "12/12 staged cave victories. Mine branch and city 16 closed."}
-Normal starts        {"Normal-start Yog and Ascension remain unverified. See development report." if yog or ascent else "Eight seeds. 581 reached 6. 1105 reached 5 within this guide budget. No Yog victory." if halls else "581 and 1105 reached 6. No complete normal-start DM-300 victory."}
+Scope                {"Branch 0 through 26, the mines and Imp vault. Save schemas 1-15, SYNC26, LAN v1." if play else "Branch 0 through 26 on admitted rolls, mines and vault, ordinary and Ascent endings, schemas 1-15, SYNC25, LAN v1." if ascent else "Branch 0 through 26 on admitted rolls, cooperative ending, schemas 1-14, SYNC24." if yog else "Branch 0 through 24 on admitted native rolls, mines and Imp vault; schemas 1-13, SYNC23, LAN v1." if halls else "Branch 0 through 20, both Blacksmith mines; save schemas 1–11, SYNC22, LAN v1." if king else "Branch 0 through 19 and Blacksmith mines; save schemas 1–10, SYNC22, LAN v1." if mines else "Branch 0 through 15; save schemas 1–9, SYNC21, LAN v1."}
+Checkpoint           {"See documentation/docs/coop/vault-play-results.md for twelve staged victories, the vault entrance trials and Android results." if play else "See documentation/docs/coop/vault-ascent-results.md for native fights, staged heroes and recovery." if ascent else "See documentation/docs/coop/yog-victory-results.md for native fights, staged heroes and recovery." if yog else "See documentation/docs/coop/imp-halls-results.md for staged and normal-start limits." if halls else "See documentation/docs/coop/mines-city-results.md for the fixture, seed and network test boundaries." if mines else "12/12 staged cave victories. Mine branch and city 16 closed."}
+Normal starts        {"Normal-start Yog and Ascension remain unverified. See development report." if yog or ascent or play else "Eight seeds. 581 reached 6. 1105 reached 5 within this guide budget. No Yog victory." if halls else "581 and 1105 reached 6. No complete normal-start DM-300 victory."}
 Platforms            Original JVM engine, separate TCP JVMs, real filesystem, KO/EN Desktop, Android package inspection.
 Android runtime      See evidence/android/result.txt.
 Source               source/ is the APK tree. documentation/ contains subsequent reports and verification scripts.

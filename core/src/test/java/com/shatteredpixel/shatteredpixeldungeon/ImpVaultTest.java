@@ -14,6 +14,24 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class ImpVaultTest extends HeadlessDungeon {
+    /** Staged city approach, followed by native vault entry. Neither seat keeps a fixture HP boost. */
+    public static CoopSession openAtVaultEntrance(int seed) {
+        CoopSession game = CavesInteriorTest.open(seed);
+        try {
+            entrance(game);
+            for (int seat = 0; seat < 2; seat++) {
+                Hero hero = game.hero(seat);
+                hero.HTBoost = 0;
+                hero.updateHT(false);
+            }
+            CoopFloorsTest.cross(game);
+            return game;
+        } catch (RuntimeException | Error failure) {
+            game.close();
+            throw failure;
+        }
+    }
+
     public static int entrance(CoopSession game) {
         int npc=CityEntranceTest.prepareBoundary(game,"imp");
         assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ACCEPT_IMP,npc,null));

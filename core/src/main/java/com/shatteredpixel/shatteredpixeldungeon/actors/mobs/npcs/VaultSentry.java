@@ -97,16 +97,7 @@ public class VaultSentry extends NPC {
 
 			boolean visible = false;
 			for (int scanDir : scanDirsThisTurn) {
-				Ballistica aim = new Ballistica(pos, scanDir, Ballistica.WONT_STOP);
-				ConeAOE scan = new ConeAOE(
-						aim,
-						scanLength,
-						scanWidth,
-						Ballistica.STOP_SOLID | Ballistica.STOP_TARGET);
-
-				if (scan.cells.isEmpty() && aim.path.size() >= 2){
-					scan.cells.add(aim.path.get(1));
-				}
+				ConeAOE scan = scanCone(scanDir);
 
 				for (int cell : scan.cells) {
 					if (fieldOfView[cell] && Dungeon.level.heroFOV[cell]) {
@@ -181,44 +172,46 @@ public class VaultSentry extends NPC {
 		recentZaps.clear();
 		recentZaps.addAll(curZaps);
 
-		if (curCooldown == 1 && giveWarning){
-			int[] scanDirsNextTurn = scanDirs[scanDirIdx];
-			for (int scanDir : scanDirsNextTurn) {
-				Ballistica aim = new Ballistica(pos, scanDir, Ballistica.WONT_STOP);
-				ConeAOE scan = new ConeAOE(
-						aim,
-						scanLength,
-						scanWidth,
-						Ballistica.STOP_SOLID | Ballistica.STOP_TARGET);
-
-				if (scan.cells.isEmpty() && aim.path.size() >= 2){
-					scan.cells.add(aim.path.get(1));
-				}
-
-				boolean visible = false;
-				for (int cell : scan.cells) {
-					if (Dungeon.level.heroFOV[cell] && fieldOfView[cell]) {
-						visible = true;
-					}
-				}
-				if (visible || Dungeon.coop!=null){
-					for (int cell : scan.cells) {
-						if (fieldOfView[cell]) {
-							//mainly to prevent the hero from auto-picking up items when targeted
-							Dungeon.hero.interrupt();
-							GameScene.targetedCell(cell, 0xFF0000, TICK);
-						}
-					}
-				}
-
-			}
-		}
+		if (Dungeon.coop == null && curCooldown == 1 && giveWarning) {
+            // Each native cone is shown when at least one of its cells is visible.
+            for (int dir : scanDirs[scanDirIdx]) {
+                ConeAOE scan = scanCone(dir);
+                boolean visible = false;
+                for (int cell : scan.cells) {
+                    if (Dungeon.level.heroFOV[cell] && fieldOfView[cell]) visible = true;
+                }
+                if (visible) {
+                    for (int cell : scan.cells) if (fieldOfView[cell]) {
+                        Dungeon.hero.interrupt();
+                        GameScene.targetedCell(cell, 0xFF0000, TICK);
+                    }
+                }
+            }
+        }
 
 		throwItems();
 
 		spend(TICK);
 		return true;
 	}
+
+    private ConeAOE scanCone(int direction) {
+        Ballistica aim = new Ballistica(pos, direction, Ballistica.WONT_STOP);
+        ConeAOE scan = new ConeAOE(aim, scanLength, scanWidth, Ballistica.STOP_SOLID | Ballistica.STOP_TARGET);
+        if (scan.cells.isEmpty() && aim.path.size() >= 2) scan.cells.add(aim.path.get(1));
+        return scan;
+    }
+
+    public java.util.Set<Integer> warnedCells() {
+        if (curCooldown != 1 || !giveWarning) return java.util.Collections.emptySet();
+        boolean[] sight = new boolean[Dungeon.level.length()];
+        Dungeon.level.updateFieldOfView(this, sight);
+        java.util.Set<Integer> result = new java.util.HashSet<>();
+        for (int direction : scanDirs[scanDirIdx]) {
+            for (int cell : scanCone(direction).cells) if (sight[cell]) result.add(cell);
+        }
+        return result;
+    }
 
 	@Override
 	public boolean isImmune(Class effect) {
