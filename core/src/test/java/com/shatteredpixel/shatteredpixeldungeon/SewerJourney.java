@@ -154,14 +154,25 @@ public class SewerJourney extends HeadlessDungeon {
             Hero hero=game.hero(seat);
             int total=hero.exp;
             for(int level=1;level<hero.lvl;level++) total+=Hero.maxExp(level);
-            int food=0,potions=0;
+            int food=0,potions=0,upgrades=0,ankhs=0,items=0;
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon weapon=hero.belongings.weapon instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon
+                    ? (com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon)hero.belongings.weapon : null;
+            com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor armor=hero.belongings.armor;
             for(Item item:hero.belongings) {
+                items++;
+                if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade) upgrades+=item.quantity();
+                if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.Ankh) ankhs+=item.quantity();
                 if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.food.Food) food+=item.quantity();
                 if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing) potions+=item.quantity();
             }
             System.out.println("GROWTH seed="+seed+" stage="+stage+" depth="+Dungeon.depth+" seat="+seat
                     +" level="+hero.lvl+" cumulative_xp="+total+" hp="+hero.HP+" ht="+hero.HT
-                    +" food="+food+" healing="+potions+" gold="+Dungeon.gold);
+                    +" food="+food+" healing="+potions+" gold="+Dungeon.gold+" str="+hero.STR()+" upgrades="+upgrades+" ankhs="+ankhs
+                    +" inventory_objects="+items+" subclass="+hero.subClass.name()+" life="+game.life(seat)
+                    +" weapon="+(weapon==null ? "none" : weapon.getClass().getSimpleName()+":"+weapon.trueLevel())
+                    +" weapon_range="+(weapon==null ? "unmeasured" : weapon.min(weapon.buffedLvl())+".."+weapon.max(weapon.buffedLvl()))
+                    +" armor="+(armor==null ? "none" : armor.getClass().getSimpleName()+":"+armor.trueLevel())
+                    +" armor_range="+(armor==null ? "0..0" : armor.DRMin()+".."+armor.DRMax()));
         }
     }
     private void travel(long seed) throws java.io.IOException {

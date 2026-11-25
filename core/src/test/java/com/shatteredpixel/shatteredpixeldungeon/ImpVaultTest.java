@@ -38,11 +38,21 @@ public class ImpVaultTest extends HeadlessDungeon {
             return exit;
         }
         int gate=entrance(game);
+        if (boundary.equals("full")) {
+            for (int seat=0;seat<2;seat++) {
+                Hero hero=game.hero(seat);
+                while (hero.belongings.backpack.items.size()<hero.belongings.backpack.capacity())
+                    assertTrue(new com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger().collect(hero.belongings.backpack));
+            }
+        }
         Dungeon.gold=137;
         Dungeon.energy=9;
         if (boundary.equals("enter")) return gate;
         CoopFloorsTest.cross(game);
-        assertTrue(new DwarfToken().collect(game.hero(game.activeSeat()).belongings.backpack));
+        boolean reward=boundary.equals("pick") || boundary.equals("full");
+        Hero chooser=game.hero(game.activeSeat());
+        assertTrue(new DwarfToken().quantity(reward ? 6 : 1).collect(chooser.belongings.backpack));
+        if (reward) assertTrue(new com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation().quantity(3).collect(chooser.belongings.backpack));
         Dungeon.gold=71;
         Dungeon.energy=3;
         for (int seat=0;seat<2;seat++) game.observe(seat);
@@ -52,7 +62,23 @@ public class ImpVaultTest extends HeadlessDungeon {
     public static boolean published(String stage) {
         if (stage.startsWith("hall")) return Dungeon.branch==0 && Dungeon.depth==Integer.parseInt(stage.substring(4));
         if (stage.equals("enter")) return Dungeon.level instanceof VaultLevel && Dungeon.gold==0 && Dungeon.energy==0;
-        return Dungeon.branch==0 && Dungeon.depth==18 && Imp.Quest.isCompleted() && Dungeon.gold==137 && Dungeon.energy==9;
+        if (!(Dungeon.branch==0 && Dungeon.depth==18 && Imp.Quest.isCompleted() && Dungeon.gold==137 && Dungeon.energy==9)) return false;
+        if (stage.equals("pick") || stage.equals("full")) {
+            int count=0;
+            for (Item candidate:Dungeon.coop.hero(0).belongings) count+=rewardUnits(candidate);
+            for (Item candidate:Dungeon.coop.hero(1).belongings) count+=rewardUnits(candidate);
+            for (com.shatteredpixel.shatteredpixeldungeon.items.Heap heap:Dungeon.level.heaps.valueList())
+                for (Item candidate:heap.items) count+=rewardUnits(candidate);
+            count+=rewardUnits(Imp.Quest.reward);
+            return count==1;
+        }
+        return true;
+    }
+
+    private static int rewardUnits(Item candidate) {
+        if (!(candidate instanceof com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation) || Dungeon.coop.ownership.owner(candidate)==0) return 0;
+        assertTrue(Dungeon.coop.ownership.identity(candidate)>0);
+        return candidate.quantity();
     }
 
     public static String receiptState(CoopSession game) {
@@ -69,6 +95,8 @@ public class ImpVaultTest extends HeadlessDungeon {
                 }
             }
         }
+        Item held=Imp.Quest.reward;
+        if (held!=null) result+="/pending/"+game.ownership.identity(held)+"/"+game.ownership.owner(held);
         return result;
     }
 

@@ -1,5 +1,7 @@
 # 원본과 협동 던전 화면 대조
 
+동일한 1364×1024 Desktop 화면에서 원본 도시 금고와 악마의 전당 타일·수면, 좌석별 안개와 HUD를 확인했다. 위치·전력은 배치형 시험 조건이다. [한국어 금고](docs/coop/imp-halls/ko/imp-vault.png) · [영어 금고](docs/coop/imp-halls/en/imp-vault.png) · [한국어 21층](docs/coop/imp-halls/ko/halls-21.png) · [영어 21층](docs/coop/imp-halls/en/halls-21.png)
+
 ## 광산·도시 체크포인트
 
 같은 깊이에서 광산으로 이동하면 지도·안개·카메라를 새로 설정한다. 원본 광산 타일, 도시 수면과 상인을 한국어·영어 Desktop에서 촬영했다. 시드 572의 원본 왕좌 방에서 보호막 단계와 보스 처치 직후도 두 언어로 촬영했다. 협동 호스트의 로컬 업적 배너가 좌석 화면 전체를 가리던 문제를 수정했다. 두 언어에서 원본 대장장이 앞에서 제작 대금을 지불하고 보상 후보를 선택하는 화면을 추가했다. 14개 Desktop 화면의 위치와 장비는 시험용 배치다. [실행 기록](docs/coop/mines-city-results.md)

@@ -1,0 +1,13 @@
+seed	spawners_alive	initial_phase	initial_hp	first_three_fists	regular_rotation
+570	4	0	1000	BrightFist,RustedFist,SoiledFist	YogRipper,YogRipper,YogRipper,YogRipper
+571	4	0	1000	BurningFist,RottingFist,BrightFist	YogRipper,YogRipper,YogRipper,YogRipper
+572	4	0	1000	RustedFist,DarkFist,BurningFist	YogRipper,YogRipper,YogRipper,YogRipper
+573	4	0	1000	BurningFist,RottingFist,DarkFist	YogRipper,YogRipper,YogRipper,YogRipper
+574	4	0	1000	SoiledFist,BrightFist,RustedFist	YogRipper,YogRipper,YogRipper,YogRipper
+575	4	0	1000	BrightFist,BurningFist,RottingFist	YogRipper,YogRipper,YogRipper,YogRipper
+576	4	0	1000	BurningFist,BrightFist,RustedFist	YogRipper,YogRipper,YogRipper,YogRipper
+577	4	0	1000	RottingFist,SoiledFist,DarkFist	YogRipper,YogRipper,YogRipper,YogRipper
+578	4	0	1000	BrightFist,SoiledFist,RustedFist	YogRipper,YogRipper,YogRipper,YogRipper
+579	4	0	1000	BurningFist,BrightFist,RustedFist	YogRipper,YogRipper,YogRipper,YogRipper
+580	4	0	1000	SoiledFist,BrightFist,RottingFist	YogRipper,YogRipper,YogRipper,YogRipper
+581	4	0	1000	RustedFist,BurningFist,BrightFist	YogRipper,YogRipper,YogRipper,YogRipper

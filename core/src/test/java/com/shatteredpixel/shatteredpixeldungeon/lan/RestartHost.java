@@ -26,7 +26,8 @@ import static org.junit.Assert.*;
 /** Fresh host process for every invocation. Control files are confined to a test-private directory. */
 public final class RestartHost {
     static boolean measureBoundary(String mode) {
-        return mode.equals("tengu-read-devices") || mode.equals("tengu-read-city-19")
+        return Boolean.getBoolean("spd.measureVault") && (mode.equals("tengu-read-vault-enter") || mode.equals("tengu-read-vault-hall24"))
+                || mode.equals("tengu-read-devices") || mode.equals("tengu-read-city-19")
                 || mode.equals("tengu-read-mine-crystal-ore")
                 || Boolean.getBoolean("spd.measureKing") && mode.equals("tengu-read-king-shield");
     }
@@ -60,6 +61,7 @@ public final class RestartHost {
         return mode.startsWith("journey-seven-") || mode.equals("prison") || mode.equals("campaign") || mode.equals("campaign-start") || mode.equals("campaign-team");
     }
     private static long seedFor(String mode) {
+        if (mode.equals("tengu-setup-vault-hall24")) return 578;
         if (mode.startsWith("tengu-setup-vault-")) return 572;
         if (mode.startsWith("tengu-setup-city-") || mode.startsWith("tengu-setup-king-")) return 572;
         if(mode.startsWith("tengu-setup-mine-gnoll")) return 571;
