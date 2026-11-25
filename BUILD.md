@@ -1,5 +1,9 @@
 # Cloud에서 빌드하기
 
+## 동굴 빌드와 결과물 검증
+
+4.0.2-INDEV-caves-dm300의 versionCode는 922다. 현재 엔진이 저장 헤더와 Game.versionCode의 일치를 검사하므로 다음 코드 증가 전에는 기존 922 세대의 호환성을 먼저 시험한다. scripts/verify-android-build.sh가 출력한 디렉터리, 공개용으로 검사한 증거 디렉터리, 출력 디렉터리를 scripts/package-caves-checkpoint.py에 순서대로 전달한다. 스크립트는 APK 소스 Git 트리, Gradle Wrapper와 라이선스, 모든 체크섬, v1·v2 및 기존 인증서 지문을 검사한다.
+
 ## Tengu 및 동굴 개발판
 
 Cloud에서 `bash scripts/verify-android-build.sh <새 결과 디렉터리>`를 실행하면 JUnit XML과 SHA-256, APK, 패키지·서명 검사를 얻는다. 이전 9층 빌드의 작업 트리로 `python3 scripts/verify-tengu-migration.py <이전 작업 트리>`를 실행해 6→7 저장 스키마 전환을 확인한다. 최종 APK와 ZIP은 `scripts/verify-final-deliverables.py`로 APK의 실제 빌드 커밋에 대조한다. [실행 결과](docs/coop/tengu-caves-results.md)

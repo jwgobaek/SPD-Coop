@@ -1,5 +1,9 @@
 # Android validation backlog
 
+## 동굴 개발 중 확인한 GB2 기준 설치본
+
+Android 15 기본 Device-2에서 기존 prison-nine(41c3efd, 922)의 서명된 설치 파일 해시와 실행을 확인했다. 로그인하지 않은 Chromium에서 기존 Tengu APK 링크는 Google 로그인을 요구했다. Cloud의 Drive 커넥터는 수신자 이메일 또는 조직 도메인 공유만 제공하며, Cloud 브라우저에도 승인된 소유자 로그인 세션이 없었다. 신규 APK의 데이터 보존 업데이트·다층·보스·터치·무선 LAN 시험은 NOT RUN이다. 저장 목록과 좌석 자격도 새 앱에서 검사하지 못했다.
+
 ## 신규 Tengu판의 Android 상태 · GB2
 
 Codex에서 승인된 Commander와 기본 Device-2의 로컬 ADB에 직접 접근했다. 기본 Android 15에 설치된 기존 41c3efd의 base.apk 해시를 대조하고 앱을 실행해 표준 출력으로 화면을 수집했다. 지정된 비공개 APK 링크를 Android Chrome에서 열면 Google 로그인이 필요했고 Drive 앱은 설치돼 있지 않았다. 신규 빌드 다운로드·데이터 보존 업데이트·설치본 해시·Android 보스전은 NOT RUN이다. 제2 인스턴스, Windows 파일 중계 또는 새 ADB 매핑은 사용하지 않았다. 실기기 Wi-Fi·핫스팟, 장시간 성능, 실제 저장 마이그레이션, 회전·핀치·Keystore는 별도 시험이다.

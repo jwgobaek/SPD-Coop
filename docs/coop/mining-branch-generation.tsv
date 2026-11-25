@@ -1,0 +1,13 @@
+seed	main_depth	native_quest	branch_exit_cell	branch_entrance_cell	decorated_wall_cells	residents
+570	13	CRYSTAL	934	1545	47	[CrystalGuardian, CrystalSpire, CrystalWisp]
+571	12	GNOLL	744	315	37	[GnollGeomancer, GnollGuard, GnollSapper]
+572	14	GNOLL	157	2374	37	[GnollGeomancer, GnollGuard, GnollSapper]
+573	12	CRYSTAL	1002	651	45	[CrystalGuardian, CrystalSpire, CrystalWisp]
+574	13	CRYSTAL	382	1257	45	[CrystalGuardian, CrystalSpire, CrystalWisp]
+575	14	CRYSTAL	997	865	46	[CrystalGuardian, CrystalSpire, CrystalWisp]
+576	14	CRYSTAL	616	1283	46	[CrystalGuardian, CrystalSpire, CrystalWisp]
+577	14	GNOLL	1020	1555	39	[GnollGeomancer, GnollGuard, GnollSapper]
+578	13	CRYSTAL	299	1390	46	[CrystalGuardian, CrystalSpire, CrystalWisp]
+579	14	CRYSTAL	73	1268	46	[CrystalGuardian, CrystalSpire, CrystalWisp]
+580	14	CRYSTAL	1415	1417	46	[CrystalGuardian, CrystalSpire, CrystalWisp]
+581	12	GNOLL	506	575	37	[GnollGeomancer, GnollGuard, GnollSapper]

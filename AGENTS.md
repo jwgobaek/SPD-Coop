@@ -1,5 +1,9 @@
 # 작업 시작 순서
 
+## 15층 체크포인트 회귀
+
+변경 범위에 따라 CavesInteriorTest, CavesRareTest, CavesTrapsTest, CavesBossTest와 HostRestartTest를 실행한다. 원본 광산·도시 생성과 실제 협동 승리를 분리해 기록한다. [현재 시험 결과](docs/coop/caves-dm300-results.md)
+
 ## 11층 회귀
 
 Tengu 변경 시 실제 피해로 다섯 단계가 진행되는 TenguArenaTest, 두 좌석의 HostRestartTest와 이전 스키마 6 저장본을 함께 검사한다. 시드 570~581의 동굴 원본 생성 조사와 계단 배치형 왕복, 시드 581·1105 정상 시작 기록을 구분한다. [실행 결과](docs/coop/tengu-caves-results.md)

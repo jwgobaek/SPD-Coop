@@ -1,5 +1,9 @@
 # 단계와 다음 작업
 
+## 다음 시작점 · 광산 분기와 도시 입구
+
+571의 12층 GNOLL, 570의 13층 CRYSTAL에서 같은 깊이의 서로 다른 branch를 저장 키로 표현한다. 새 스키마로 이동·복귀·재입장 제한과 이전 스키마 1~9를 먼저 시험한다. 다음으로 광산 보스·채굴·favor와 장비별 소유권, 도시 16층의 Ghoul 관계, Warlock, 정령, 상인과 함정의 원본 실행 경로를 검증한다. [시드·원본 전투·저장 검증](docs/coop/caves-dm300-results.md)
+
 ## 동굴 12층의 시작점
 
 1. 시드 570의 원본 12층 Spinner가 거미줄을 놓고 양쪽 좌석을 물었을 때의 중독·이동·행동 시간과 휴면 복원을 검사한다. 원본 Spinner는 web_cooldown과 last_enemy_pos를 저장하고 Hunting/Fleeing에서 이동 방향으로 Web을 놓는다. 시각 콜백 완료와 좌석별 실제 enemy, Poison에 따른 도주를 함께 검사한다. 시드 571에서는 Blacksmith와 실제 의뢰 분기도 생성된다. [시드별 생성표](docs/coop/caves-generation.tsv)

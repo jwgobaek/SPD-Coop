@@ -1,5 +1,9 @@
 # Phase 5 동기화 프로토콜 SYNC1
 
+## SYNC21 · 동굴
+
+LAN v1을 유지한다. 대장장이 수락은 ACCEPT_BLACKSMITH로 현재 좌석, 인접 NPC, 퀘스트와 소유권을 검증한다. 보스방 장식과 과충전, 전격·가스 셀은 기존 좌석별 지도와 시야를 따르고 새 스냅샷에 과거 공격을 재생하지 않는다. [동굴 실행 기록](caves-dm300-results.md)
+
 ## SYNC20 · 같은 깊이의 보스방 교체
 
 공개 floor 행에는 10층에서 branch,depth,stage가 들어간다. stage는 START, FIGHT_START, FIGHT_PAUSE, FIGHT_ARENA, WON 중 하나다. floor 행이 달라지면 전체 이미지를 검증한 뒤 지형·시야·스프라이트를 교체한다. 원본 출구 장식의 exitfloor와 exitwall은 해당 좌석이 관찰한 셀만 전달한다. 현재 보이는 원본 함정 예고와 화염·전격은 지속 상태로 표시한다. 행동 검증에는 기존 턴·버전·영수증을 사용한다. LAN 발견 프로토콜은 v1이다.

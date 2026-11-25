@@ -1,5 +1,9 @@
 # SPD-Coop 개발 기준
 
+## 동굴 본편 검증 범위
+
+branch 0 깊이 15까지 현재 운영한다. 광산 두 유형은 원본 생성과 곡괭이 발급까지 확인했으며 광산 분기 및 도시 운영 진입은 다음 개발 대상이다. [시드·원본 전투·저장 검증](docs/coop/caves-dm300-results.md)
+
 ## Android 검증 운영
 
 플랫폼·저장·네트워크·그래픽·새 구역의 주요 변경에 Android 회귀를 배정한다. [GB2 시험 절차](ANDROID-REMOTE-TESTING.md)

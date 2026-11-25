@@ -24,7 +24,7 @@ with TemporaryDirectory() as name:
     current = tools["classpath"](repo, work)
     resumed = work / "restored"
     shutil.copytree(original, resumed)
-    (resumed / "kill-before-reply").unlink()
+    (resumed / "kill-before-reply").unlink(missing_ok=True)
     tools["run"](repo, current, resumed, "tengu-read-caves")
     tools["run"](repo, current, resumed, "late-down11")
     after = tools["generation"](resumed)

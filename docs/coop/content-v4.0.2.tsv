@@ -21,7 +21,7 @@ actors/blobs/ToxicGas	actors/blobs	UNSUPPORTED		core/src/main/java/com/shattered
 actors/blobs/VaultFlameTraps	actors/blobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/VaultFlameTraps.java
 actors/blobs/WaterOfAwareness	actors/blobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/WaterOfAwareness.java
 actors/blobs/WaterOfHealth	actors/blobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/WaterOfHealth.java
-actors/blobs/Web	actors/blobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Web.java
+actors/blobs/Web	actors/blobs	VERIFIED	native obstacle/contact/root, visibility, duration and save / CavesInteriorTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/Web.java
 actors/blobs/WellWater	actors/blobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/blobs/WellWater.java
 actors/buffs/Adrenaline	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Adrenaline.java
 actors/buffs/AdrenalineSurge	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/AdrenalineSurge.java
@@ -434,12 +434,12 @@ actors/mobs/CrystalMimic.Fleeing	actors/mobs	UNSUPPORTED		core/src/main/java/com
 actors/mobs/CrystalSpire	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalSpire.java
 actors/mobs/CrystalWisp	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalWisp.java
 actors/mobs/DM100	actors/mobs	VERIFIED	native aimed bolt hits each seat separately, cold restore and next turn / PrisonCombatChecks, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM100.java
-actors/mobs/DM200	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM200.java
+actors/mobs/DM200	actors/mobs	VERIFIED	native gas trajectory and concentrations on each seat, Actor identity and durable replay / CavesInteriorTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM200.java
 actors/mobs/DM200.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM200.java
-actors/mobs/DM201	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM201.java
+actors/mobs/DM201	actors/mobs	VERIFIED	stationary native corrosive retaliation, threat restore and death loot / CavesRareTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM201.java
 actors/mobs/DM201.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM201.java
-actors/mobs/DM300	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM300.java
-actors/mobs/DM300.FallingRockBuff	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM300.java
+actors/mobs/DM300	actors/mobs	VERIFIED	native staged fight, two overcharges, invulnerability, abilities, death and durable receipts / CavesBossTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM300.java
+actors/mobs/DM300.FallingRockBuff	actors/mobs	VERIFIED	original delayed rock cells, actor IDs, recovery and next ticks / CavesBossTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM300.java
 actors/mobs/DelayedRockFall	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DelayedRockFall.java
 actors/mobs/DemonSpawner	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DemonSpawner.java
 actors/mobs/DwarfKing	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DwarfKing.java
@@ -520,7 +520,7 @@ actors/mobs/Piranha	actors/mobs	VERIFIED	native water AI, seat combat, loot, par
 actors/mobs/Piranha.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Piranha.java
 actors/mobs/Piranha.Sleeping	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Piranha.java
 actors/mobs/Piranha.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Piranha.java
-actors/mobs/Pylon	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Pylon.java
+actors/mobs/Pylon	actors/mobs	VERIFIED	native activation, directional electricity, destruction, energy shutdown and restored IDs / CavesBossTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Pylon.java
 actors/mobs/Rat	actors/mobs	VERIFIED	adjacent attack, lethal hit and revival setup / CoopPlayInputTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Rat.java
 actors/mobs/RipperDemon	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RipperDemon.java
 actors/mobs/RipperDemon.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/RipperDemon.java
@@ -537,7 +537,7 @@ actors/mobs/Skeleton	actors/mobs	VERIFIED	floor six generation, native melee and
 actors/mobs/Slime	actors/mobs	IMPLEMENTED	native basic AI in generated upper sewers, isolated per-seat case pending	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Slime.java
 actors/mobs/Snake	actors/mobs	IMPLEMENTED	basicMob allowlist	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Snake.java
 actors/mobs/SpectralNecromancer	actors/mobs	VERIFIED	isolated native wraith summons, identity on restore and caster death cleanup / NecromancerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/SpectralNecromancer.java
-actors/mobs/Spinner	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java
+actors/mobs/Spinner	actors/mobs	VERIFIED	two seats, targeted web and poison, original AI and cooldown, park and restore / CavesInteriorTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java
 actors/mobs/Spinner.Fleeing	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java
 actors/mobs/Spinner.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java
 actors/mobs/Statue	actors/mobs	VERIFIED	seeds 416/420/421/428/434/435/437/444; passive base statistics, native on-hit effect, held identity and drop / SewerGuardiansTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Statue.java
@@ -570,7 +570,7 @@ actors/mobs/YogFist.DarkFist	actors/mobs	UNSUPPORTED		core/src/main/java/com/sha
 actors/mobs/YogFist.RottingFist	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/YogFist.java
 actors/mobs/YogFist.RustedFist	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/YogFist.java
 actors/mobs/YogFist.SoiledFist	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/YogFist.java
-actors/mobs/npcs/Blacksmith	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Blacksmith.java
+actors/mobs/npcs/Blacksmith	NPC	VERIFIED	generated quest, original dialogue, one owned pick, no mine entry or services / CavesInteriorTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Blacksmith.java
 actors/mobs/npcs/DirectableAlly	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/DirectableAlly.java
 actors/mobs/npcs/DirectableAlly.Hunting	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/DirectableAlly.java
 actors/mobs/npcs/DirectableAlly.Wandering	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/DirectableAlly.java
@@ -730,7 +730,7 @@ items/bags/ScrollHolder	items/bags	UNSUPPORTED		core/src/main/java/com/shattered
 items/bags/VelvetPouch	items/bags	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bags/VelvetPouch.java
 items/bombs/ArcaneBomb	items/bombs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/ArcaneBomb.java
 items/bombs/ArcaneBomb.ArcaneBombFuse	items/bombs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/ArcaneBomb.java
-items/bombs/Bomb	items/bombs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/Bomb.java
+items/bombs/Bomb	items/bombs	VERIFIED	ordinary immediate chain explosion only, not manual lighting or special variants / CavesTrapsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/Bomb.java
 items/bombs/Bomb.ConjuredBomb	items/bombs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/Bomb.java
 items/bombs/Bomb.DoubleBomb	items/bombs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/Bomb.java
 items/bombs/Bomb.EnhanceBomb	items/bombs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/bombs/Bomb.java
@@ -855,8 +855,8 @@ items/quest/Embers	items/quest	VERIFIED	owner pickup and one-time reward exchang
 items/quest/EscapeCrystal	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/EscapeCrystal.java
 items/quest/GooBlob	items/quest	VERIFIED	original 2–4 quantity across host termination after HEAD / SewerDepthTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/GooBlob.java
 items/quest/ImpStatue	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/ImpStatue.java
-items/quest/MetalShard	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/MetalShard.java
-items/quest/Pickaxe	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/Pickaxe.java
+items/quest/MetalShard	items/quest	VERIFIED	two to four original shards, owned pickup and idempotent receipt / CavesBossTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/MetalShard.java
+items/quest/Pickaxe	items/quest	VERIFIED	original smith issue, one physical owner; mining and reforge excluded / CavesInteriorTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/Pickaxe.java
 items/quest/VaultBeacon	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/VaultBeacon.java
 items/remains/BowFragment	items/remains	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/remains/BowFragment.java
 items/remains/BrokenHilt	items/remains	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/remains/BrokenHilt.java
@@ -1192,13 +1192,13 @@ items/weapon/missiles/darts/PoisonDart	items/weapon/missiles	UNSUPPORTED		core/s
 items/weapon/missiles/darts/RotDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/RotDart.java
 items/weapon/missiles/darts/ShockingDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/ShockingDart.java
 items/weapon/missiles/darts/TippedDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/TippedDart.java
-levels/CavesBossLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java
+levels/CavesBossLevel	levels	VERIFIED	seal, four pylons, original fight, unseal, durable WON and revisit / CavesBossTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java
 levels/CavesBossLevel.ArenaVisuals	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java
 levels/CavesBossLevel.CityEntrance	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java
 levels/CavesBossLevel.EntranceOverhang	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java
 levels/CavesBossLevel.EntranceTerrain	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java
-levels/CavesBossLevel.PylonEnergy	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java
-levels/CavesLevel	levels	VERIFIED	floor 11 only, shop and native residents, two-seat arrival, restart and return / CavesEntranceTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesLevel.java
+levels/CavesBossLevel.PylonEnergy	levels	VERIFIED	native energy blob, powered cells, shock, reactivation and clear / CavesBossTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java
+levels/CavesLevel	levels	VERIFIED	floor 11 shop and floors 12–14 native residents, two-seat stairs, preserved dormant levels, restart and return / CavesInteriorTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesLevel.java
 levels/CavesLevel.Sparkle	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesLevel.java
 levels/CavesLevel.Vein	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesLevel.java
 levels/CityBossLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityBossLevel.java
@@ -1316,7 +1316,7 @@ levels/rooms/quest/AmbitiousImpRoom	levels/rooms/quest	UNSUPPORTED		core/src/mai
 levels/rooms/quest/AmbitiousImpRoom.EntranceBarrier	levels/rooms/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/AmbitiousImpRoom.java
 levels/rooms/quest/AmbitiousImpRoom.QuestEntrance	levels/rooms/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/AmbitiousImpRoom.java
 levels/rooms/quest/AmbitiousImpRoom.WallBanners	levels/rooms/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/AmbitiousImpRoom.java
-levels/rooms/quest/BlacksmithRoom	levels/rooms/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/BlacksmithRoom.java
+levels/rooms/quest/BlacksmithRoom	levels/rooms/quest	VERIFIED	original branch exit generated, conditional smith interaction; cooperative mine closed / CavesInteriorTest, MiningBranchSurvey	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/BlacksmithRoom.java
 levels/rooms/quest/BlacksmithRoom.FurnaceOverhang	levels/rooms/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/BlacksmithRoom.java
 levels/rooms/quest/BlacksmithRoom.QuestEntrance	levels/rooms/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/BlacksmithRoom.java
 levels/rooms/quest/BlacksmithRoom.SmithyVisuals	levels/rooms/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/rooms/quest/BlacksmithRoom.java
@@ -1511,15 +1511,15 @@ levels/traps/BlazingTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatte
 levels/traps/BurningTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/BurningTrap.java
 levels/traps/ChillingTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ChillingTrap.java
 levels/traps/ConfusionTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ConfusionTrap.java
-levels/traps/CorrosionTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/CorrosionTrap.java
+levels/traps/CorrosionTrap	levels/traps	VERIFIED	native area corrosive gas, both triggering seats, saved active hazard / CavesTrapsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/CorrosionTrap.java
 levels/traps/CursingTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/CursingTrap.java
 levels/traps/DisarmingTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/DisarmingTrap.java
 levels/traps/DisintegrationTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/DisintegrationTrap.java
 levels/traps/DistortionTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/DistortionTrap.java
-levels/traps/ExplosiveTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ExplosiveTrap.java
+levels/traps/ExplosiveTrap	levels/traps	VERIFIED	original immediate blast, adjacent bomb chain, preservation or consumption of physical items / CavesTrapsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ExplosiveTrap.java
 levels/traps/FlashingTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FlashingTrap.java
 levels/traps/FlockTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FlockTrap.java
-levels/traps/FrostTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FrostTrap.java
+levels/traps/FrostTrap	levels/traps	VERIFIED	original area Freezing, native item shatter in supported subset and continued freeze after restore / CavesTrapsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FrostTrap.java
 levels/traps/GatewayTrap	levels/traps	VERIFIED	native effect on either seat, same-floor checkpoint, original gateway destination / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GatewayTrap.java
 levels/traps/GeyserTrap	levels/traps	VERIFIED	native water field, random center push, walked and forced landing on both seats, disk receipt / SewerHazardsTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GeyserTrap.java
 levels/traps/GnollRockfallTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GnollRockfallTrap.java
@@ -1534,7 +1534,7 @@ levels/traps/PitfallTrap.DelayedPit	levels/traps	UNSUPPORTED		core/src/main/java
 levels/traps/PoisonDartTrap	levels/traps	VERIFIED	native VFX priority actor, poison, movement, knockback and guest crash receipt / SewerHazardsTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/PoisonDartTrap.java
 levels/traps/RockfallTrap	levels/traps	VERIFIED	native effect on either seat, same-floor checkpoint, original gateway destination / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/RockfallTrap.java
 levels/traps/ShockingTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ShockingTrap.java
-levels/traps/StormTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/StormTrap.java
+levels/traps/StormTrap	levels/traps	VERIFIED	native area electricity, original duration, two seats and restore / CavesTrapsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/StormTrap.java
 levels/traps/SummoningTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/SummoningTrap.java
 levels/traps/TeleportationTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/TeleportationTrap.java
 levels/traps/TenguDartTrap	levels/traps	VERIFIED	native hidden dart activation during staged first fight / TenguArenaTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/TenguDartTrap.java

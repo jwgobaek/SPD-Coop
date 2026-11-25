@@ -156,13 +156,33 @@ VERIFIED.update({
     "items/TengusMask": "one original drop, first lawful pickup, ownership and receipt after restart; subclass use excluded / HostRestartTest",
     "levels/PrisonBossLevel": "five phases, off-map boss, stored items, seal, two heroes and WON revisit / TenguArenaTest, HostRestartTest",
     "levels/traps/TenguDartTrap": "native hidden dart activation during staged first fight / TenguArenaTest",
-    "levels/CavesLevel": "floor 11 only, shop and native residents, two-seat arrival, restart and return / CavesEntranceTest, HostRestartTest",
+    "levels/CavesLevel": "floor 11 shop and floors 12–14 native residents, two-seat stairs, preserved dormant levels, restart and return / CavesInteriorTest, HostRestartTest",
     "actors/mobs/Brute": "floor 11, native rage at zero HP, restored actor, shield expiry and death / CavesEntranceTest",
     "actors/mobs/Brute.BruteRage": "original shield and expiration across a save / CavesEntranceTest",
     "items/weapon/melee/RunicBlade": "seed 572 cave armored statue only, passive damage, chain proc, mail and blade IDs and drops; duelist ability excluded / CavesEntranceTest",
 })
 for shaman in ("RedShaman", "BlueShaman", "PurpleShaman"):
     VERIFIED["actors/mobs/Shaman."+shaman] = "native earthen bolt and specific debuff against each seat / CavesEntranceTest"
+VERIFIED.update({
+    'actors/mobs/Spinner': 'two seats, targeted web and poison, original AI and cooldown, park and restore / CavesInteriorTest, HostRestartTest',
+    'actors/mobs/DM200': 'native gas trajectory and concentrations on each seat, Actor identity and durable replay / CavesInteriorTest, HostRestartTest',
+    'actors/mobs/DM201': 'stationary native corrosive retaliation, threat restore and death loot / CavesRareTest',
+    'actors/mobs/npcs/Blacksmith': 'generated quest, original dialogue, one owned pick, no mine entry or services / CavesInteriorTest, HostRestartTest',
+    'actors/mobs/DM300': 'native staged fight, two overcharges, invulnerability, abilities, death and durable receipts / CavesBossTest, HostRestartTest',
+    'actors/mobs/Pylon': 'native activation, directional electricity, destruction, energy shutdown and restored IDs / CavesBossTest, HostRestartTest',
+    'actors/mobs/DM300.FallingRockBuff': 'original delayed rock cells, actor IDs, recovery and next ticks / CavesBossTest',
+    'levels/CavesBossLevel': 'seal, four pylons, original fight, unseal, durable WON and revisit / CavesBossTest, HostRestartTest',
+    'levels/CavesBossLevel.PylonEnergy': 'native energy blob, powered cells, shock, reactivation and clear / CavesBossTest',
+    'items/quest/MetalShard': 'two to four original shards, owned pickup and idempotent receipt / CavesBossTest, HostRestartTest',
+    'items/quest/Pickaxe': 'original smith issue, one physical owner; mining and reforge excluded / CavesInteriorTest',
+    'actors/blobs/Web': 'native obstacle/contact/root, visibility, duration and save / CavesInteriorTest',
+    'levels/traps/FrostTrap': 'original area Freezing, native item shatter in supported subset and continued freeze after restore / CavesTrapsTest',
+    'levels/traps/StormTrap': 'native area electricity, original duration, two seats and restore / CavesTrapsTest',
+    'levels/traps/CorrosionTrap': 'native area corrosive gas, both triggering seats, saved active hazard / CavesTrapsTest',
+    'levels/traps/ExplosiveTrap': 'original immediate blast, adjacent bomb chain, preservation or consumption of physical items / CavesTrapsTest',
+    'items/bombs/Bomb': 'ordinary immediate chain explosion only, not manual lighting or special variants / CavesTrapsTest',
+    'levels/rooms/quest/BlacksmithRoom': 'original branch exit generated, conditional smith interaction; cooperative mine closed / CavesInteriorTest, MiningBranchSurvey',
+})
 IMPLEMENTED = {
     "actors/mobs/RotLasher": "generated garden resident, native cleanup with RotHeart; isolated combat pending",
     "items/armor/MailArmor": "plain unglyphed armor ownership and equipment path, separate item-specific trial pending",

@@ -32,6 +32,7 @@ public class SewerJourney extends HeadlessDungeon {
     }
     private final boolean coverAlly=Boolean.getBoolean("journey.coverAlly");
     private final boolean prisonSupplies=Boolean.getBoolean("journey.prisonSupplies");
+    private final boolean prisonEscort=Boolean.getBoolean("journey.prisonEscort");
     private final boolean prisonTrace=Boolean.getBoolean("journey.prisonTrace");
     private final List<String> route=new ArrayList<>();
     private final Map<String,Integer> counts=new TreeMap<>();
@@ -107,6 +108,21 @@ public class SewerJourney extends HeadlessDungeon {
         if (best.pos==hero.pos) return act(game,CoopSession.Action.BUY,best.pos,best.peek());
         int step=CoopFloorsTest.nextStep(game,best.pos,true,true);
         return step>=0 && step!=hero.pos && act(game,CoopSession.Action.MOVE,step,null);
+    }
+
+    /** Optional diagnostic policy. Only visible stock and this seat's known equipment are eligible. */
+    private boolean preparePrisonArmor(CoopSession game, Hero hero) {
+        com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade scroll =
+                hero.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade.class);
+        Item armor = hero.belongings.armor();
+        if (scroll == null || !scroll.isKnown() || armor == null || !armor.isIdentified()
+                || !armor.isUpgradable() || armor.level() > 0) return false;
+        int index = 0;
+        for (Item item : hero.belongings) {
+            index++;
+            if (item == armor) return act(game, CoopSession.Action.UPGRADE, index, scroll);
+        }
+        return false;
     }
 
     private int retreat(Hero actor,Hero ally,Goo goo,boolean rinse) {
@@ -217,8 +233,17 @@ public class SewerJourney extends HeadlessDungeon {
                 ArrayList<Mob> enemies=new ArrayList<>();
                 for(Mob m:l.mobs) if(m.alignment==Char.Alignment.ENEMY && m.invisible<=0 && g.observe(s).visible(m.pos)) enemies.add(m);
                 enemies.sort(Comparator.comparingInt((Mob m)->l.distance(h.pos,m.pos)).thenComparingInt(Actor::id));
+                Hero partnerHero=g.hero(1-s);
                 boolean prisonPolicy=prisonSupplies && Dungeon.depth>=6;
                 if (prisonPolicy && enemies.isEmpty() && seekPrisonSupplies(g,h)) continue;
+                if (prisonPolicy && prisonEscort && enemies.isEmpty()) {
+                    if (preparePrisonArmor(g,h)) continue;
+                    if (partnerHero.isAlive() && g.knowledge(h).visible(partnerHero.pos)
+                            && l.distance(h.pos,partnerHero.pos)>3 && partnerHero.HP*2<partnerHero.HT) {
+                        int step=CoopFloorsTest.nextStep(g,partnerHero.pos,true,true);
+                        if (step>=0 && step!=h.pos && act(g,CoopSession.Action.MOVE,step,null)) continue;
+                    }
+                }
                 boolean acted=false;
                 for(Mob m:enemies) if(m instanceof Goo) {
                     Goo goo=(Goo)m;
@@ -232,7 +257,6 @@ public class SewerJourney extends HeadlessDungeon {
                     }
                 }
                 if(acted) continue;
-                Hero partnerHero=g.hero(1-s);
                 if(Dungeon.depth<5 && !enemies.isEmpty() && h.HP<h.HT/2 && partnerHero.isAlive()
                         && l.adjacent(h.pos,enemies.get(0).pos)) {
                     int best=-1,bestScore=0;
@@ -289,7 +313,8 @@ public class SewerJourney extends HeadlessDungeon {
                     if(pile.hidden || pile.type!=Heap.Type.HEAP || !g.knowledge(h).visible(pile.pos)
                             || Actor.findChar(pile.pos)!=null || !g.ownership.allowed(pile.peek(),g.player(s))) continue;
                     Item item=pile.peek();
-                    if(!(item instanceof Food || item instanceof IronKey || item instanceof PotionOfHealing)) continue;
+                    if(!(item instanceof Food || item instanceof IronKey || item instanceof PotionOfHealing
+                            || prisonPolicy && prisonEscort && item instanceof Gold)) continue;
                     if(!h.belongings.backpack.canHold(item)) continue;
                     if(l.distance(h.pos,pile.pos)<=6 && (supply<0 || l.distance(h.pos,pile.pos)<l.distance(h.pos,supply))) supply=pile.pos;
                 }
