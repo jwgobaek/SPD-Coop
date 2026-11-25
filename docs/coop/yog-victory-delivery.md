@@ -20,3 +20,14 @@ Android 15 MuMu Device-2 한 개에서 비로그인 Chromium으로 지정된 Dri
 MuMu에 이번에 받은 APK 한 개를 해시 확인 후 삭제했고 파일 부재를 재확인했다. ADB 정방향·역방향 매핑은 비어 있었고 Windows 파일 생성이나 리스너 설치 없이 표준 출력으로 검사했다. 종료 시 기본 인스턴스 #2만 실행 중이고 #3은 종료 상태였다. Windows 파일 확인 범위는 이번 작업에서 실행한 명령과 경로다. 공개 ZIP에는 방 식별자가 포함된 저장 목록 이미지와 개인 세이브를 담지 않는다.
 
 [지정 APK](https://drive.google.com/file/d/1UhjuelcgZwugUyiGmAHco_dXdnTFuDZ2/view) · [지정 통합 ZIP](https://drive.google.com/file/d/1nxC-3dq29HUmt7pSuoYP8JGqUALNVvW8/view)
+
+## Drive 발행 실측
+
+jwgobaek2022@gmail.com의 기존 My Drive/SPD-Coop/01_Latest 파일 두 개의 내용을 각 한 번 갱신했다. 각 파일을 Cloud에서 비로그인으로 다시 내려받아 모든 바이트의 SHA-256과 크기를 대조했다. APK는 Android에서도 같은 크기와 SHA-256으로 받았다.
+
+| 파일 | 크기 | SHA-256 | 전송 | 확인 |
+|---|---:|---|---:|---|
+| SPD-Coop-latest.apk | 35,324,056 B | 1a4beeb3b04ce0ac76337d73d3228571a5aadea717ada0543ecf5646295c8719 | 1 | UPLOADED_AND_HASH_VERIFIED |
+| SPD-Coop-latest-backup.zip | 73,946,441 B | 9934560ecac6ae3ed8fff08a2b2f0417bfd7f1e1dfc15cc229dc740b061ce21a | 1 | UPLOADED_AND_HASH_VERIFIED |
+
+통합 ZIP의 검증 커밋은 c637af3ed57307ab32d9ad0010496d3f0c99938f다. 빌드 커밋의 소스 2,258개, 체크섬 2,565개, Android 사진 7장·Desktop 사진 10장, 최종 XML 60개 및 시작 소스의 XML을 확인했다. 두 파일의 기존 ID와 anyone/reader, allowFileDiscovery=false가 유지됐다. 각 파일의 직전 리비전 ID가 발행 전의 최신 ID와 일치했고 직전 리비전의 keepForever는 false였다. 실제 롤백·장기 보존은 NOT RUN이다.
