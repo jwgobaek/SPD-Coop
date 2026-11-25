@@ -18,9 +18,13 @@ public class HostRestartTest {
     }
 
     @Test(timeout=180000) public void tenguCombatAndMaskReplayAcrossPublishedHostDeaths() throws Exception {
-        for (String boundary:new String[]{"devices","enter","pause","arena","kill","claim"}) {
-            run(temp.newFolder().toPath(),new String[]{"tengu-setup-"+boundary,"tengu-commit-"+boundary,"tengu-read-"+boundary});
+        for (String boundary:new String[]{"devices","enter","pause","arena","kill","claim","down","revive","ten","caves","return"}) {
+            Path directory=temp.newFolder().toPath();
+            run(directory,new String[]{"tengu-setup-"+boundary,"tengu-commit-"+boundary,"tengu-read-"+boundary});
             System.out.println("Tengu durable receipt "+boundary);
+            if (boundary.equals("devices") || boundary.equals("caves")) {
+                System.out.println(RestartHost.read(directory,boundary.equals("devices") ? "perf10" : "perf11"));
+            }
         }
     }
 

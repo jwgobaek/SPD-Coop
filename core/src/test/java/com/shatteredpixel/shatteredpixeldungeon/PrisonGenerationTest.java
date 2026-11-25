@@ -21,7 +21,7 @@ public class PrisonGenerationTest extends HeadlessDungeon {
         for (int seed=570;seed<=581;seed++) {
             Dungeon.seed=seed;
             Dungeon.init();
-            for (int depth=1;depth<=10;depth++) {
+            for (int depth=1;depth<=11;depth++) {
                 Dungeon.depth=depth;
                 Level level=Dungeon.newLevel();
                 Dungeon.level=level;
@@ -37,6 +37,10 @@ public class PrisonGenerationTest extends HeadlessDungeon {
                     if (depth==6) assertTrue(mobs.contains("Shopkeeper"));
                     if (mobs.contains("Wandmaker")) for (String kind:new String[]{"MassGraveRoom","RitualSiteRoom","RotGardenRoom"})
                         if (rooms.contains(kind)) questRooms.add(kind);
+                } else if (depth==11) {
+                    assertTrue(level instanceof CavesLevel);
+                    for (Room room:((CavesLevel)level).rooms()) rooms.add(room.getClass().getSimpleName());
+                    assertTrue(mobs.contains("Shopkeeper"));
                 } else {
                     assertEquals(PrisonBossLevel.State.START,((PrisonBossLevel)level).state());
                 }

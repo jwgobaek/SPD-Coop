@@ -109,6 +109,8 @@ runtime {
 
 dependencies {
     implementation project(':core')
+    testImplementation rootProject.project(':core').sourceSets.test.output
+    testImplementation 'junit:junit:4.13.2'
 
     implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"

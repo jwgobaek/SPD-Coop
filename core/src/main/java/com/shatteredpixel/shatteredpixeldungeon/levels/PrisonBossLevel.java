@@ -118,7 +118,12 @@ public class PrisonBossLevel extends Level {
 	private static final String STATE	        = "state";
 	private static final String TENGU	        = "tengu";
 	private static final String STORED_ITEMS    = "storeditems";
-	private static final String TRIGGERED       = "triggered";
+	private float trapHintUntil;
+    public boolean showingTrapHints() {
+        return state==State.FIGHT_START && trapHintUntil > Statistics.duration + Actor.now();
+    }
+
+    private static final String TRIGGERED       = "triggered";
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
@@ -127,12 +132,14 @@ public class PrisonBossLevel extends Level {
 		bundle.put( TENGU, tengu );
 		bundle.put( STORED_ITEMS, storedItems);
 		bundle.put(TRIGGERED, triggered );
+        if (trapHintUntil>0) bundle.put("coop_trap_until",trapHintUntil);
 	}
 	
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle(bundle);
 		state = bundle.getEnum( STATE, State.class );
+        trapHintUntil=bundle.getFloat("coop_trap_until");
 		
 		//in some states tengu won't be in the world, in others he will be.
 		if (state == State.START || state == State.FIGHT_PAUSE) {
@@ -553,9 +560,9 @@ public class PrisonBossLevel extends Level {
 				Dungeon.hero.interrupt();
 				Dungeon.hero.pos = tenguCell.left+4 + (tenguCell.top+2)*width();
 				if (Dungeon.coop == null) {
-				Dungeon.hero.sprite.interruptMotion();
-				Dungeon.hero.sprite.place(Dungeon.hero.pos);
-				Camera.main.snapTo(Dungeon.hero.sprite.center());
+					Dungeon.hero.sprite.interruptMotion();
+					Dungeon.hero.sprite.place(Dungeon.hero.pos);
+					Camera.main.snapTo(Dungeon.hero.sprite.center());
 				}
 				
 				tengu.pos = pointToCell(tenguCellCenter);
@@ -573,7 +580,7 @@ public class PrisonBossLevel extends Level {
 				setMapEnd();
 				if (Dungeon.coop != null) {
 					buildFlagMaps();
-					bringPartnerIntoRoom(entrant, tenguCell, tengu.pos);
+					bringPartnerIntoRoom(Dungeon.hero, tenguCell, tengu.pos);
 				}
 				
 				for (Mob m : allies){
@@ -789,8 +796,12 @@ public class PrisonBossLevel extends Level {
 		
 		GameScene.updateMap();
 		
-		FadingTraps t = new FadingTraps();
-		t.fadeDelay = 2f;
+		if (Dungeon.coop != null) {
+            trapHintUntil=Statistics.duration + Actor.now() + 2f;
+            return;
+        }
+        FadingTraps t = new FadingTraps();
+        t.fadeDelay = 2f;
 		t.setCoveringArea(tenguCell);
 		GameScene.add(t, false);
 		customTiles.add(t);
@@ -951,7 +962,23 @@ public class PrisonBossLevel extends Level {
 		
 	}
 	
-	public static class ExitVisual extends CustomTilemap {
+	public static abstract class ExitTiles extends CustomTilemap {
+        protected abstract int firstRow();
+        protected abstract byte[] mask();
+
+        public int visualAt(int x,int y) {
+            return mask()[y*tileW+x]==0 ? -1 : x+(firstRow()+y)*16;
+        }
+        @Override public Tilemap create() {
+            Tilemap tilemap=super.create();
+            int[] frames=new int[tileW*tileH];
+            for (int i=0;i<frames.length;i++) frames[i]=visualAt(i%tileW,i/tileW);
+            tilemap.map(frames,tileW);
+            return tilemap;
+        }
+    }
+
+    public static class ExitVisual extends ExitTiles {
 		
 		{
 			texture = Assets.Environment.PRISON_EXIT;
@@ -960,7 +987,7 @@ public class PrisonBossLevel extends Level {
 			tileH = 11;
 		}
 		
-		final int TEX_WIDTH = 256;
+		@Override protected byte[] mask() { return render; }
 		
 		private static byte[] render = new byte[]{
 				0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
@@ -976,16 +1003,7 @@ public class PrisonBossLevel extends Level {
 				0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		};
 		
-		@Override
-		public Tilemap create() {
-			Tilemap v = super.create();
-			int[] data = mapSimpleImage(0, 0, TEX_WIDTH);
-			for (int i = 0; i < data.length; i++){
-				if (render[i] == 0) data[i] = -1;
-			}
-			v.map(data, tileW);
-			return v;
-		}
+		@Override protected int firstRow() { return 0; }
 		
 		@Override
 		public void restoreFromBundle(Bundle bundle) {
@@ -997,7 +1015,7 @@ public class PrisonBossLevel extends Level {
 		}
 	}
 	
-	public static class ExitVisualWalls extends CustomTilemap {
+	public static class ExitVisualWalls extends ExitTiles {
 		
 		{
 			texture = Assets.Environment.PRISON_EXIT;
@@ -1006,7 +1024,7 @@ public class PrisonBossLevel extends Level {
 			tileH = 22;
 		}
 		
-		final int TEX_WIDTH = 256;
+		@Override protected byte[] mask() { return render; }
 		
 		private static byte[] render = new byte[]{
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
@@ -1033,16 +1051,7 @@ public class PrisonBossLevel extends Level {
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1
 		};
 		
-		@Override
-		public Tilemap create() {
-			Tilemap v = super.create();
-			int[] data = mapSimpleImage(0, 10, TEX_WIDTH);
-			for (int i = 0; i < data.length; i++){
-				if (render[i] == 0) data[i] = -1;
-			}
-			v.map(data, tileW);
-			return v;
-		}
+		@Override protected int firstRow() { return 10; }
 		
 		@Override
 		public void restoreFromBundle(Bundle bundle) {

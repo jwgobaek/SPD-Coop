@@ -93,7 +93,7 @@ public final class RestartHost {
                 throw new IOException("Injected write failure");
             if (stage.equals("AFTER_HEAD") && mode.startsWith("tengu-commit-") && java.nio.file.Files.exists(path.resolve("boss-command"))) {
                 String boundary=mode.substring("tengu-commit-".length());
-                String phase=TenguArenaTest.floor().state().name();
+                String phase=Dungeon.depth==10 ? TenguArenaTest.floor().state().name() : "";
                 if ((!boundary.equals("kill") || phase.equals("WON")) && (!boundary.equals("pause") || phase.equals("FIGHT_PAUSE"))) {
                     write(path,"tengu-signature",TenguArenaTest.signature(Dungeon.coop));
                     Runtime.getRuntime().halt(78);
@@ -160,7 +160,19 @@ public final class RestartHost {
                 String boundary=mode.substring("tengu-read-".length());
                 String expected=boundary.equals("enter") ? "FIGHT_START" : boundary.equals("pause") ? "FIGHT_PAUSE"
                         : boundary.equals("kill") || boundary.equals("claim") ? "WON" : "FIGHT_ARENA";
-                assertEquals(expected,TenguArenaTest.floor().state().name());
+                if (boundary.equals("caves")) {
+                    assertEquals(11,Dungeon.depth);
+                    assertNotNull(CoopTrade.merchant(Dungeon.coop.hero(0),false));
+                } else {
+                    if (boundary.equals("ten")) expected="START";
+                    if (boundary.equals("return")) expected="WON";
+                    assertEquals(expected,TenguArenaTest.floor().state().name());
+                }
+                if (boundary.equals("revive") || boundary.equals("down")) {
+                    int seat=1-Integer.parseInt(read(path,"boss-command").split(" ")[0]);
+                    assertEquals(boundary.equals("revive") ? CoopSession.Life.ALIVE : CoopSession.Life.DOWNED,Dungeon.coop.life(seat));
+                    if (boundary.equals("revive")) assertEquals(5,Dungeon.coop.hero(seat).HP);
+                }
                 if (boundary.equals("devices")) {
                     Tengu boss=TenguArenaTest.boss();
                     assertNotNull(boss.buff(Tengu.BombAbility.class));
@@ -416,6 +428,11 @@ public final class RestartHost {
                     WandmakerTest.enterPrison(Dungeon.coop);
                     room.save();
                     write(path,"return-ready","1");
+                }
+                if ((mode.equals("tengu-read-devices") || mode.equals("tengu-read-caves"))
+                        && !started && room.state()==LanRoom.State.IN_GAME) {
+                    started=true;
+                    measureSaves(path,room,Dungeon.depth);
                 }
                 if (mode.equals("late-up9") && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;

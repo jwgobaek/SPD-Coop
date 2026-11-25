@@ -44,6 +44,7 @@ public final class PublicDungeon {
         String[] location=(source.rows.containsKey("floor")?source.rows.get("floor"):"0,1").split(",");
         if((location.length!=2 && !(location.length==3 && location[1].equals("10")
                 && location[2].matches("START|FIGHT_START|FIGHT_PAUSE|FIGHT_ARENA|WON"))) || !location[0].equals("0")) throw new IllegalArgumentException("Floor");
+        if (location[1].equals("10") && location.length!=3) throw new IllegalArgumentException("Missing boss room stage");
         depth=number(location[1],1,com.shatteredpixel.shatteredpixeldungeon.CoopFloors.LAST_PLAYABLE);
         String[] gate=(source.rows.containsKey("stair")?source.rows.get("stair"):"-1,0").split(",");
         stair=number(gate[0],-1,65535); consent=number(gate[1],0,1)==1;
@@ -74,7 +75,7 @@ public final class PublicDungeon {
                 break;
             case 'm':
                 String[] mob=value.split(",");
-                if(!mob[1].matches("Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Sheep|Statue|ArmoredStatue|GnollExile|PhantomPiranha|Crab|HermitCrab|Swarm|Slime|CausticSlime|Thief|GnollTrickster|GreatCrab|RatKing|Goo|Tengu|Skeleton|Necromancer|NecroSkeleton|SpectralNecromancer|Bat|DM100|Guard|Shopkeeper|RotHeart|RotLasher|Wandmaker|DustWraith|Wraith|TormentedSpirit|NewbornFireElemental")) throw new IllegalArgumentException("Monster");
+                if(!mob[1].matches("Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Sheep|Statue|ArmoredStatue|GnollExile|PhantomPiranha|Crab|HermitCrab|Swarm|Slime|CausticSlime|Thief|GnollTrickster|GreatCrab|RatKing|Goo|Tengu|Brute|RedShaman|BlueShaman|PurpleShaman|Skeleton|Necromancer|NecroSkeleton|SpectralNecromancer|Bat|DM100|Guard|Shopkeeper|RotHeart|RotLasher|Wandmaker|DustWraith|Wraith|TormentedSpirit|NewbornFireElemental")) throw new IllegalArgumentException("Monster");
                 enemies.put(number(mob[0],0,65535),mob[1]); break;
             case 'b': effects.add(number(value.split(",")[0],0,255)); break;
             case 't': number(value,0,63); break;

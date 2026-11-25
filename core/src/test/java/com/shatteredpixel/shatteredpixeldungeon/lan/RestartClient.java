@@ -415,15 +415,16 @@ public final class RestartClient {
         }
         if (mode.startsWith("tengu-commit-")) {
             String boundary=mode.substring("tengu-commit-".length());
-            String verb=boundary.equals("devices") ? "WAIT" : boundary.equals("claim") ? "PICK_UP"
+            boolean travel=boundary.equals("ten") || boundary.equals("caves") || boundary.equals("return");
+            String verb=boundary.equals("revive") ? "REVIVE" : boundary.equals("down") || boundary.equals("devices") ? "WAIT" : boundary.equals("claim") ? "PICK_UP"
                     : boundary.equals("enter") || boundary.equals("arena") ? "MOVE" : "ATTACK";
             int cell=Integer.parseInt(RestartHost.read(path,"tengu-target"));
             for (int i=0;i<40;i++) {
                 int seat=active();
                 PublicDungeon view=new PublicDungeon(state(seat));
-                assertEquals(10,view.depth);
+                assertEquals(boundary.equals("ten") ? 9 : boundary.equals("return") ? 11 : 10,view.depth);
                 long handle=verb.equals("PICK_UP") ? view.floor.get(cell).id : 0;
-                SeatActions.Pending p=actions[seat].prepare(state(seat),verb,cell,handle);
+                SeatActions.Pending p=travel ? consentAndCross() : actions[seat].prepare(state(seat),verb,verb.equals("WAIT") ? 0 : cell,handle);
                 RestartHost.write(path,"boss-command",seat+" "+p.id+" "+p.command);
                 try { String result=p.submit(clients[seat]); assertTrue(result,result.endsWith(" APPLIED")); }
                 catch (IOException lost) { return; }

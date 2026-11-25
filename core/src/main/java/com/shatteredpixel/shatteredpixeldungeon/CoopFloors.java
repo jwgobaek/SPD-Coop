@@ -12,12 +12,12 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 
-/** One active floor and up to eight dormant floors; only the active floor has registered actors. */
+/** One active floor and up to ten dormant floors; only the active floor has registered actors. */
 public final class CoopFloors {
     private final CoopSession game;
-    public static final int LAST_SEWER = 5, FIRST_PRISON = 6, LAST_PLAYABLE = 10;
+    public static final int LAST_SEWER = 5, FIRST_PRISON = 6, LAST_PLAYABLE = 11;
     static int lastDepth(int schema) {
-        return schema==7 ? 10 : schema==6 ? 9 : schema==5 ? 7 : schema==4 ? FIRST_PRISON : schema==3 ? LAST_SEWER : schema;
+        return schema==7 ? 11 : schema==6 ? 9 : schema==5 ? 7 : schema==4 ? FIRST_PRISON : schema==3 ? LAST_SEWER : schema;
     }
     private final java.util.Map<Integer,Bundle> dormant = new java.util.TreeMap<>();
     private long voteTurn;
@@ -34,6 +34,7 @@ public final class CoopFloors {
                     || t.destBranch!=0 || t.destDepth<1 || t.destDepth>LAST_PLAYABLE || Math.abs(t.destDepth-Dungeon.depth)!=1) continue;
             if (Dungeon.depth==LAST_SEWER && t.destDepth==FIRST_PRISON
                     && l.map[t.cell()]!=com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.UNLOCKED_EXIT) continue;
+            if (Dungeon.depth==10 && t.destDepth==11 && ((com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel)l).state()!=com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel.State.WON) continue;
             if (inRange(l,t)) return t.cell();
         }
         return -1;
@@ -158,7 +159,7 @@ public final class CoopFloors {
     }
 
     static void checkLevelType(Bundle floor,int depth) {
-        Class<?> expected=depth==10 ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel.class : depth>=FIRST_PRISON ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel.class
+        Class<?> expected=depth==11 ? com.shatteredpixel.shatteredpixeldungeon.levels.CavesLevel.class : depth==10 ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel.class : depth>=FIRST_PRISON ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel.class
                 : depth==5 ? com.shatteredpixel.shatteredpixeldungeon.levels.SewerBossLevel.class
                 : com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel.class;
         if (!expected.getName().equals(floor.getString("__className")))
@@ -274,7 +275,7 @@ public final class CoopFloors {
         boolean multi=schema>=3;
         HashSet<Integer> generated=new HashSet<>(Dungeon.generatedLevels);
         if (!generated.contains(Dungeon.depth) || generated.size()!=Dungeon.generatedLevels.size()
-                || generated.size()>bound || (multi && !generated.contains(3)) || (schema>=4 && !generated.contains(schema==6 ? 8 : bound)))
+                || generated.size()>bound || (multi && !generated.contains(3)) || (schema>=4 && !generated.contains(schema==7 ? 10 : schema==6 ? 8 : bound)))
             throw new IllegalArgumentException("Invalid sewer generation history");
         for(int i=1;i<=generated.size();i++) if (!generated.contains(i)) throw new IllegalArgumentException("Disconnected sewer history");
         Bundle records=state.getBundle("dormant");

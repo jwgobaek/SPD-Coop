@@ -22,6 +22,18 @@ import java.util.*;
 
 /** Host-only projection. Handles survive continuous observation, including floor-to-bag movement. */
 final class SeatProjection {
+    private static void writeExitTiles(Map<String,String> rows,Iterable<com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTilemap> tiles,
+                                       FloorKnowledge sight, Level level, String prefix) {
+        for (com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTilemap tile:tiles) {
+            if (!(tile instanceof PrisonBossLevel.ExitTiles)) continue;
+            PrisonBossLevel.ExitTiles exit=(PrisonBossLevel.ExitTiles)tile;
+            for (int y=0;y<exit.tileH;y++) for (int x=0;x<exit.tileW;x++) {
+                int cell=(exit.tileY+y)*level.width()+exit.tileX+x;
+                int frame=exit.visualAt(x,y);
+                if (frame>=0 && (sight.visible(cell) || sight.visited(cell))) rows.put(prefix+cell,Integer.toString(frame));
+            }
+        }
+    }
     final int seat;
     final UUID session;
     private long nextItem;
@@ -86,6 +98,10 @@ final class SeatProjection {
                         rows.put("nest"+cell,Integer.toString(sprite));
                 }
             }
+            if (level instanceof PrisonBossLevel) {
+                writeExitTiles(rows,level.customTiles,sight,level,"exitfloor");
+                writeExitTiles(rows,level.customWalls,sight,level,"exitwall");
+            }
             int stair=game.stairs.stair();
             if(stair>=0) rows.put("stair",stair+","+(game.stairs.agreed()?1:0));
             for (BitSet area : CombatZones.calculate(game, sight)) {
@@ -136,13 +152,14 @@ final class SeatProjection {
                 com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap trap = level.traps.get(cell);
                 Plant plant = level.plants.get(cell);
                 if (trap == null && plant != null) rows.put("plant"+cell, Integer.toString(plant.image));
-                if (trap != null && trap.visible) {
+                if (trap != null && (trap.visible || level instanceof PrisonBossLevel && ((PrisonBossLevel)level).showingTrapHints()
+                        && trap instanceof com.shatteredpixel.shatteredpixeldungeon.levels.traps.TenguDartTrap)) {
                     int color = trap.active ? trap.color : com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap.BLACK;
                     rows.put("trap"+cell,Integer.toString(color + 16*trap.shape));
                 }
-                int clouds = (Blob.volumeAt(cell, Fire.class)>0 ? 1 : 0)
+                int clouds = (Blob.volumeAt(cell, Fire.class)>0 || Blob.volumeAt(cell, com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Tengu.FireAbility.FireBlob.class)>0 ? 1 : 0)
                         | (Blob.volumeAt(cell, Freezing.class)>0 ? 2 : 0)
-                        | (Blob.volumeAt(cell, Electricity.class)>0 ? 4 : 0)
+                        | (Blob.volumeAt(cell, Electricity.class)>0 || Blob.volumeAt(cell, com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Tengu.ShockerAbility.ShockerBlob.class)>0 ? 4 : 0)
                         | (Blob.volumeAt(cell, ToxicGas.class)>0 ? 8 : 0)
                         | (Blob.volumeAt(cell, ConfusionGas.class)>0 ? 16 : 0);
                 if (clouds != 0) rows.put("cloud"+cell,Integer.toString(clouds));

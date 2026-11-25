@@ -91,6 +91,12 @@ public class TenguArenaTest extends HeadlessDungeon {
 
     /** Stage only the starting boundary. The subsequent command is issued by an authenticated client. */
     public static int prepareSocket(CoopSession game,String boundary) {
+        if (boundary.equals("ten")) {
+            WandmakerTest.enterPrison(game);
+            while (Dungeon.depth<9) SewerDepthTest.gate(game,true);
+            SewerSpecialActorTest.atGate(game,Dungeon.level.exit());
+            return Dungeon.level.exit();
+        }
         arrive(game);
         if (boundary.equals("enter")) return prepareEntry(game,false);
         enter(game,false);
@@ -103,14 +109,37 @@ public class TenguArenaTest extends HeadlessDungeon {
             devices(game);
             return 0;
         }
-        if (boundary.equals("claim")) {
+        if (boundary.equals("claim") || boundary.equals("caves") || boundary.equals("return")) {
             fight(game,PrisonBossLevel.State.FIGHT_ARENA);
+            if (!boundary.equals("claim")) {
+                if (boundary.equals("return")) SewerDepthTest.gate(game,true);
+                int gate=boundary.equals("return") ? Dungeon.level.entrance() : Dungeon.level.exit();
+                SewerSpecialActorTest.atGate(game,gate);
+                return gate;
+            }
             for (Heap heap:floor().heaps.valueList()) if (heap.peek() instanceof TengusMask) {
                 game.hero(game.activeSeat()).pos=heap.pos;
                 game.observe(game.activeSeat());
                 return heap.pos;
             }
             throw new AssertionError("Missing mask");
+        }
+        if (boundary.equals("down") || boundary.equals("revive")) {
+            int seat=1-game.activeSeat();
+            Hero hero=game.hero(seat);
+            assertTrue(new com.shatteredpixel.shatteredpixeldungeon.items.Ankh().collect(hero.belongings.backpack));
+            Hero ally=game.hero(1-seat);
+            for (int offset:PathFinder.NEIGHBOURS8) {
+                int target=ally.pos+offset;
+                if (!floor().passable[target] || floor().pit[target] || Actor.findChar(target)!=null) continue;
+                hero.pos=target;
+                hero.HP=17;
+                hero.damage(999,Tengu.class);
+                assertEquals(CoopSession.Life.DOWNED,game.life(seat));
+                game.observe(1-seat);
+                return hero.pos;
+            }
+            throw new AssertionError("Missing safe downed position");
         }
         assertTrue(boundary.equals("kill") || boundary.equals("pause"));
         Tengu enemy=boss();
@@ -126,10 +155,15 @@ public class TenguArenaTest extends HeadlessDungeon {
 
     public static String signature(CoopSession game) {
         Bundle level=new Bundle();
-        floor().storeInBundle(level);
+        Dungeon.level.storeInBundle(level);
         Bundle enemy=level.getBundle("tengu");
         java.util.List<String> fields=new java.util.ArrayList<>();
-        fields.add(floor().state().name()+"/"+floor().locked+"/"+game.turn());
+        fields.add(Dungeon.depth+"/"+level.getString("state")+"/"+Dungeon.level.locked+"/"+game.turn());
+        java.util.List<String> actors=new java.util.ArrayList<>();
+        for (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob mob:Dungeon.level.mobs)
+            actors.add(mob.id()+"/"+mob.getClass().getSimpleName()+"/"+mob.pos+"/"+mob.HP);
+        java.util.Collections.sort(actors);
+        fields.addAll(actors);
         fields.add(java.util.Arrays.toString(com.watabou.utils.Random.worldState()));
         if (!enemy.isNull()) {
             fields.add(enemy.getInt("id")+"/"+enemy.getInt("HP")+"/"+enemy.getInt("pos"));
@@ -140,13 +174,57 @@ public class TenguArenaTest extends HeadlessDungeon {
         }
         for (int seat=0;seat<2;seat++) {
             Hero h=game.hero(seat);
-            fields.add(h.id()+"/"+h.pos+"/"+h.HP+"/"+h.exp+"/"+h.lvl);
+            fields.add(h.id()+"/"+h.pos+"/"+h.HP+"/"+h.exp+"/"+h.lvl+"/"+game.life(seat)+"/"+game.preDeathHP(seat));
             for (Item i:h.belongings) if (i instanceof TengusMask)
                 fields.add("owned-mask/"+game.ownership.identity(i)+"/"+game.ownership.owner(i));
         }
-        for (Heap heap:floor().heaps.valueList()) for (Item i:heap.items) if (i instanceof TengusMask)
+        for (Heap heap:Dungeon.level.heaps.valueList()) for (Item i:heap.items) if (i instanceof TengusMask)
             fields.add("floor-mask/"+heap.pos+"/"+game.ownership.identity(i));
         return String.join("\n",fields);
+    }
+
+    @Test public void bothSeatsObserveTheSameNativeHazardTrajectoryAfterRestore() {
+        Bundle checkpoint;
+        java.util.List<String> trajectory=new java.util.ArrayList<>();
+        try (CoopSession g=CoopSession.open(570,11,HeroClass.WARRIOR)) {
+            g.join(22,HeroClass.MAGE);
+            prepareSocket(g,"devices");
+            checkpoint=g.checkpoint();
+            for (int i=0;i<14;i++) {
+                waitOne(g);
+                trajectory.add(signature(g));
+            }
+        }
+        try (CoopSession g=CoopSession.restore(checkpoint)) {
+            for (String expected:trajectory) {
+                waitOne(g);
+                assertEquals(expected,signature(g));
+            }
+        }
+    }
+
+    @Test public void downedPartnerFollowsTheNativeRoomChangeAndKeepsTheirAnkh() {
+        try (CoopSession g=CoopSession.open(570,11,HeroClass.WARRIOR)) {
+            g.join(22,HeroClass.MAGE);
+            arrive(g);
+            int cell=prepareEntry(g,false);
+            int fallen=1-g.activeSeat();
+            Hero hero=g.hero(fallen);
+            assertTrue(new com.shatteredpixel.shatteredpixeldungeon.items.Ankh().collect(hero.belongings.backpack));
+            int id=hero.id();
+            hero.HP=17; hero.damage(999,Tengu.class);
+            assertEquals(CoopSession.Life.DOWNED,g.life(fallen));
+            assertTrue(CoopFloorsTest.step(g,CoopSession.Action.MOVE,cell,null));
+            assertTrue(floor().locked);
+            assertEquals(-1,g.stairs.stair());
+            assertEquals(id,hero.id());
+            assertTrue(floor().passable[hero.pos]);
+            assertNotEquals(g.hero(1-fallen).pos,hero.pos);
+            assertTrue(floor().adjacent(g.hero(1-fallen).pos,hero.pos));
+            assertTrue(CoopFloorsTest.step(g,CoopSession.Action.REVIVE,hero.pos,null));
+            assertEquals(5,hero.HP);
+            assertNull(hero.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.Ankh.class));
+        }
     }
 
     @Test public void naturalHitsAdvanceTheFightAndPendingHazardsRestoreThroughVictory() {
@@ -201,7 +279,19 @@ public class TenguArenaTest extends HeadlessDungeon {
             SewerDepthTest.gate(game,false); assertEquals(9,Dungeon.depth);
             SewerDepthTest.gate(game,true); assertEquals(PrisonBossLevel.State.WON,floor().state());
             assertEquals(1,CoopSession.floorItems(floor()).values().stream().filter(TengusMask.class::isInstance).count());
+            SewerDepthTest.gate(game,true);
+            assertTrue(Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CavesLevel);
+            assertEquals(11,Dungeon.depth);
+            saved=game.checkpoint();
+            assertEquals(7,saved.getInt("schema"));
             waitOne(game);
+        }
+        try (CoopSession game=CoopSession.restore(saved)) {
+            assertEquals(11,Dungeon.depth);
+            waitOne(game);
+            SewerDepthTest.gate(game,false);
+            assertEquals(PrisonBossLevel.State.WON,floor().state());
+            assertEquals(1,CoopSession.floorItems(floor()).values().stream().filter(TengusMask.class::isInstance).count());
         }
     }
 }

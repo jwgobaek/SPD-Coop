@@ -1,5 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Shaman;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Brute;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.TormentedSpirit;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Elemental;
@@ -436,13 +438,14 @@ public final class CoopSession implements AutoCloseable {
                     || armor.glyph instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Swiftness);
         }
         if (type==Statue.class) return statueWeapon(((Statue)actor).weapon());
-        return (Dungeon.depth>=CoopFloors.FIRST_PRISON && Dungeon.depth<=CoopFloors.LAST_PLAYABLE && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Skeleton.class)
-                || (Dungeon.depth==CoopFloors.FIRST_PRISON && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.class)
-                || (Dungeon.depth>=7 && Dungeon.depth<=CoopFloors.LAST_PLAYABLE && (type==Necromancer.class || type==SpectralNecromancer.class || type==Necromancer.NecroSkeleton.class
+        return (Dungeon.depth>=CoopFloors.FIRST_PRISON && Dungeon.depth<=9 && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Skeleton.class)
+                || ((Dungeon.depth==CoopFloors.FIRST_PRISON || Dungeon.depth==11) && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.class)
+                || (Dungeon.depth>=7 && Dungeon.depth<=9 && (type==Necromancer.class || type==SpectralNecromancer.class || type==Necromancer.NecroSkeleton.class
                         || type==Wandmaker.class || type==RotHeart.class || type==RotLasher.class
                         || type==Elemental.NewbornFireElemental.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Guard.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM100.class))
-                || (Dungeon.depth==9 && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bat.class)
-                || type==CorpseDust.DustWraith.class || (Dungeon.depth>=7 && Dungeon.depth<=CoopFloors.LAST_PLAYABLE && (type==Wraith.class || type==TormentedSpirit.class))
+                || ((Dungeon.depth==9 || Dungeon.depth==11) && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bat.class)
+                || (Dungeon.depth==11 && (type==Brute.class || type==Shaman.RedShaman.class || type==Shaman.BlueShaman.class || type==Shaman.PurpleShaman.class))
+                || type==CorpseDust.DustWraith.class || (Dungeon.depth>=7 && Dungeon.depth<=9 && (type==Wraith.class || type==TormentedSpirit.class))
                 || type == GnollExile.class || type == PhantomPiranha.class || type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
                 || type == Mimic.class || type == CrystalMimic.class || type == GoldenMimic.class || type == Sheep.class || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
                 || type==Crab.class || type==HermitCrab.class || type==Swarm.class || type==Slime.class || type==CausticSlime.class || type==Thief.class

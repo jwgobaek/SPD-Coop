@@ -26,7 +26,7 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean latePrison,wandmaker,seventh,knife,market,armored,scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
+    private static boolean tengu,latePrison,wandmaker,seventh,knife,market,armored,scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
@@ -34,7 +34,8 @@ public final class CoopRenderSmoke {
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
         wandmaker=args.length>1 && args[1].equals("wandmaker");
-        latePrison=args.length>1 && args[1].equals("prison-nine");
+        tengu=args.length>1 && args[1].equals("tengu");
+        latePrison=tengu || args.length>1 && args[1].equals("prison-nine");
         seventh=latePrison || wandmaker || args.length>1 && args[1].equals("seven");
         prison=seventh || market || args.length>1 && args[1].equals("prison");
         controls=args.length>1 && args[1].equals("controls");
@@ -458,7 +459,7 @@ public final class CoopRenderSmoke {
                         await(()->frame().dungeon.depth==7);
                         shot("prison-seven-arrival");
                         if (latePrison) {
-                            for (int depth = 8; depth <= 9; depth++) {
+                            for (int depth = 8; depth <= (tengu ? 11 : 9); depth++) {
                                 final int arrival = depth;
                                 waitAndRegainTurn();
                                 RenderEncounter.atExit(hostController());
@@ -468,6 +469,14 @@ public final class CoopRenderSmoke {
                                 click("#" + Messages.get(CoopScene.class, "travel", depth));
                                 await(() -> frame().dungeon.depth == arrival);
                                 shot("prison-" + depth + "-arrival");
+                                if (depth == 10) {
+                                    for (String phase:new String[]{"FIGHT_START","FIGHT_ARENA","WON"}) {
+                                        RenderEncounter.tengu(hostController(),phase);
+                                        await(()->frame().image.rows.get("floor").endsWith(","+phase));
+                                        shot("tengu-"+phase.toLowerCase(java.util.Locale.ROOT));
+                                    }
+                                    await(()->frame().dungeon.offered);
+                                }
                                 if (depth == 8) {
                                     RenderEncounter.beside(hostController(), com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Necromancer.class);
                                     waitAndRegainTurn();

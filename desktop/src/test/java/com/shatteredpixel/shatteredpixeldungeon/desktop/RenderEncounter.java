@@ -39,6 +39,35 @@ final class RenderEncounter {
         }).get(5,TimeUnit.SECONDS);
     }
 
+    /** Prepare actual encounters for a screenshot without putting a geometry or HP shortcut in the game. */
+    static void tengu(CoopController controller,String destination) throws Exception {
+        Field host=CoopController.class.getDeclaredField("host");
+        host.setAccessible(true);
+        Object room=host.get(controller);
+        Field owner=room.getClass().getDeclaredField("owner");
+        owner.setAccessible(true);
+        ((ExecutorService)owner.get(room)).submit(()->{
+            CoopSession game=Dungeon.coop;
+            if (destination.equals("FIGHT_START")) {
+                com.shatteredpixel.shatteredpixeldungeon.TenguArenaTest.enter(game,false);
+            } else if (destination.equals("FIGHT_ARENA")) {
+                com.shatteredpixel.shatteredpixeldungeon.TenguArenaTest.fight(game,PrisonBossLevel.State.FIGHT_START);
+                com.shatteredpixel.shatteredpixeldungeon.TenguArenaTest.enter(game,true);
+                com.shatteredpixel.shatteredpixeldungeon.TenguArenaTest.devices(game);
+            } else {
+                com.shatteredpixel.shatteredpixeldungeon.TenguArenaTest.fight(game,PrisonBossLevel.State.FIGHT_ARENA);
+            }
+            // The native controller reads both fresh seat projections after the fixture moves actors.
+            Field sync=room.getClass().getDeclaredField("sync");
+            sync.setAccessible(true);
+            Object value=sync.get(room);
+            java.lang.reflect.Method commit=value.getClass().getDeclaredMethod("commit",Mob.class,int.class,String.class,String.class);
+            commit.setAccessible(true);
+            commit.invoke(value,null,-1,null,"IN_GAME");
+            return null;
+        }).get(15,TimeUnit.SECONDS);
+    }
+
     static int sungrass(CoopController client) throws Exception {
         Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
         Object room=host.get(client);

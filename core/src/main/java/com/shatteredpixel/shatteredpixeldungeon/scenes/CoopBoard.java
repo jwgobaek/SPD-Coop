@@ -36,12 +36,12 @@ final class CoopBoard extends Group {
         map = new DungeonRenderMap(view);
         float zoom = GameMath.gate(PixelScene.minZoom, PixelScene.defaultZoom + SPDSettings.zoom(), PixelScene.maxZoom);
         camera = Camera.add(Camera.createFullscreen(zoom));
-        water = new SkinnedBlock(view.width*TILE, view.height*TILE, view.depth>=6 ? Assets.Environment.WATER_PRISON : Assets.Environment.WATER_SEWERS);
+        water = new SkinnedBlock(view.width*TILE, view.height*TILE, view.depth==11 ? Assets.Environment.WATER_CAVES : view.depth>=6 ? Assets.Environment.WATER_PRISON : Assets.Environment.WATER_SEWERS);
         water.autoAdjust = true;
         add(water);
         layers = new Tilemap[]{
                 new DungeonTerrainTilemap(map), map.nestLayer(), new WallOcclusionTilemap(map), new TerrainFeaturesTilemap(map),
-                new RaisedTerrainTilemap(map), new DungeonWallsTilemap(map), new WallBlockingTilemap(map)};
+                new RaisedTerrainTilemap(map), new DungeonWallsTilemap(map), map.exitWallsLayer(), new WallBlockingTilemap(map)};
         for (int i=0; i<layers.length; i++) {
             if (i==4) { add(markings); add(heaps); add(actors); }
             add(layers[i]);
@@ -274,6 +274,10 @@ final class CoopBoard extends Group {
                     case "RatKing": sprite=new RatKingSprite();break;
                     case "GnollTrickster": sprite=new GnollTricksterSprite();break;
                     case "GreatCrab": sprite=new GreatCrabSprite();break;
+                    case "Brute": sprite=new BruteSprite();break;
+                    case "RedShaman": sprite=new ShamanSprite.Red();break;
+                    case "BlueShaman": sprite=new ShamanSprite.Blue();break;
+                    case "PurpleShaman": sprite=new ShamanSprite.Purple();break;
                     case "Tengu": sprite=new TenguSprite();break;
                     case "Goo":
                         sprite=new GooSprite();
