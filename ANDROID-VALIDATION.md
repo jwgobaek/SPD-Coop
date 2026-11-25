@@ -1,5 +1,7 @@
 # Android validation backlog
 
+5f00b27의 Imp 금고·악마의 전당판은 기존 드워프 왕판에서 데이터 보존 업데이트, 설치 SHA-256 대조, 기존 방장 저장 재개, 가방과 퀵슬롯, 방 저장·닫기 및 앱 재실행이 PASS였다. 단일 MuMu에서 파트너를 기다리는 방으로 확인했다. Android 금고·악마의 전당 진행과 기기 간 통신은 NOT RUN이다. [화면 및 정리 기록](docs/coop/imp-halls-delivery.md)
+
 ## 광산·도시 체크포인트
 
 Device-2의 비로그인 Chromium에서 기존 동굴판을 내려받아 원래 앱 데이터 위에 업데이트했다. caves-dm300 설치본 해시와 기존 저장 목록을 확인했다. 이어서 54742d9 드워프 왕판을 Android 안에서 비로그인 다운로드했다. 앱 데이터 유지 업데이트 후 설치본 해시, 기존 1층 9세대 방장 인증·복원, 두 영웅의 HUD, 인벤토리·장비 정보·퀵슬롯 길게 누르기, 방 저장·닫기, 앱 재실행이 통과했다. 기본 인스턴스 한 개로 시험했다. 두 번째 좌석과 Android 광산·도시·보스전, 실기기 Wi-Fi·핫스팟은 NOT RUN이다. [설치·정리·화면](docs/coop/mines-city-delivery.md) [실행 기록](docs/coop/mines-city-results.md)

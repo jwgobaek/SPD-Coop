@@ -1,5 +1,7 @@
 # Cloud에서 빌드하기
 
+Imp 금고·악마의 전당판의 깨끗한 Android 빌드와 전체 JUnit, 이전 서명과의 호환성 및 MuMu 교체 설치를 확인했다. [APK 소스, 크기, 서명과 시험 결과](docs/coop/imp-halls-delivery.md)
+
 ## 광산·도시 체크포인트
 
 실제 이전 동굴 소스 df645fc를 scripts/verify-mining-migration.py에 넘겨 스키마 8·9의 원래 세대와 행동 영수증을 확인한다. scripts/verify-city-restore.py에는 스키마 10을 발행한 555688c 작업 트리를 전달한다. scripts/measure-mining-crossings.py는 원본 분기별 입장과 귀환을 두 좌석의 동의부터 화면 동기화까지 측정한다. 최종 ZIP은 빌드 커밋의 소스와 전체 JUnit XML을 포함한다. [실행 기록](docs/coop/mines-city-results.md)
