@@ -10,8 +10,8 @@ from pathlib import Path, PurePosixPath
 
 APK = "SPD-Coop-latest.apk"
 BACKUP = "SPD-Coop-latest-backup.zip"
-EXCLUDE = {".apk", ".apks", ".aab", ".zip", ".keystore", ".jks", ".p12", ".pem", ".key"}
-PRIVATE_DIRECTORIES = {".git", ".gradle", "coop-saves-v1", "seat-credentials"}
+EXCLUDE = {".apk", ".apks", ".aab", ".zip", ".keystore", ".jks", ".p12", ".pem", ".key", ".pfx", ".seat"}
+PRIVATE_DIRECTORIES = {".git", ".gradle", "coop-saves-v1", "coop-seats-v1", "seat-credentials"}
 
 
 def allowed(name):
