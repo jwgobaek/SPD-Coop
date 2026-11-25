@@ -218,7 +218,17 @@ public class CavesBossTest extends HeadlessDungeon {
             }
             try(CoopSession g=CoopSession.restore(won)) {
                 assertTrue(level().exitOpen());assertEquals(quantity,shards());
-                SewerDepthTest.gate(g,false);assertEquals(14,Dungeon.depth);
+                int entrance=Dungeon.level.entrance();
+                SewerSpecialActorTest.atGate(g,entrance);
+                // Charged cells and rockfall can leave a surviving hero immobilized at victory.
+                for (int waits=0;g.stairs.stair()!=entrance && waits<20;waits++) {
+                    assertTrue("Expected native movement restriction after the restored fight",
+                            g.hero(0).paralysed>0 || g.hero(1).paralysed>0 || g.hero(0).rooted || g.hero(1).rooted);
+                    assertFalse(g.stairs.consent(1-g.activeSeat(),g.turn(),entrance,false));
+                    TenguArenaTest.waitOne(g);
+                }
+                assertEquals(entrance,g.stairs.stair());
+                CoopFloorsTest.cross(g);assertEquals(14,Dungeon.depth);
                 SewerDepthTest.gate(g,true);assertNull(boss());assertEquals(quantity,shards());
                 int cell=-1;
                 for(int pos:Dungeon.level.heaps.keyArray()) if(Dungeon.level.heaps.get(pos).peek() instanceof MetalShard) {cell=pos;break;}
