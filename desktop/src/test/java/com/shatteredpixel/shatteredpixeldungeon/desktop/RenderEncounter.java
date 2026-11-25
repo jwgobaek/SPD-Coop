@@ -49,6 +49,11 @@ final class RenderEncounter {
         ((ExecutorService)owner.get(room)).submit(()->{
             CoopSession game=Dungeon.coop;
             if (destination.equals("FIGHT_START")) {
+                for (int seat=0;seat<2;seat++) {
+                    com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero hero=game.hero(seat);
+                    hero.HT=hero.HP=500;
+                    hero.belongings.weapon().upgrade(5);
+                }
                 com.shatteredpixel.shatteredpixeldungeon.TenguArenaTest.enter(game,false);
             } else if (destination.equals("FIGHT_ARENA")) {
                 com.shatteredpixel.shatteredpixeldungeon.TenguArenaTest.fight(game,PrisonBossLevel.State.FIGHT_START);
@@ -58,9 +63,12 @@ final class RenderEncounter {
                 com.shatteredpixel.shatteredpixeldungeon.TenguArenaTest.fight(game,PrisonBossLevel.State.FIGHT_ARENA);
             }
             // The native controller reads both fresh seat projections after the fixture moves actors.
-            Field sync=room.getClass().getDeclaredField("sync");
+            Field field=room.getClass().getDeclaredField("room");
+            field.setAccessible(true);
+            Object lan=field.get(room);
+            Field sync=lan.getClass().getDeclaredField("sync");
             sync.setAccessible(true);
-            Object value=sync.get(room);
+            Object value=sync.get(lan);
             java.lang.reflect.Method commit=value.getClass().getDeclaredMethod("commit",Mob.class,int.class,String.class,String.class);
             commit.setAccessible(true);
             commit.invoke(value,null,-1,null,"IN_GAME");

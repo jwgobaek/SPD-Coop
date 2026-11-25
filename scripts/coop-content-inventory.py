@@ -148,6 +148,21 @@ VERIFIED.update({
     "actors/mobs/RotHeart": "native garden, battle, lasher cleanup and quest seed / WandmakerTest",
     "plants/Rotberry.Seed": "native quest drop and turn-in by either seat / WandmakerTest",
 })
+VERIFIED.update({
+    "actors/mobs/Tengu": "native staged two-seat combat, teleports, two fights, victory, published receipts / TenguArenaTest, HostRestartTest",
+    "actors/mobs/Tengu.BombAbility": "native throw, radius and timer, active-device restore and deterministic continuation / TenguArenaTest",
+    "actors/mobs/Tengu.ShockerAbility": "native device, alternating cells, timer and original Actor ID / TenguArenaTest, HostRestartTest",
+    "actors/mobs/Tengu.FireAbility": "native directed wave and burning, restore remaining cells and subsequent turns / TenguArenaTest",
+    "items/TengusMask": "one original drop, first lawful pickup, ownership and receipt after restart; subclass use excluded / HostRestartTest",
+    "levels/PrisonBossLevel": "five phases, off-map boss, stored items, seal, two heroes and WON revisit / TenguArenaTest, HostRestartTest",
+    "levels/traps/TenguDartTrap": "native hidden dart activation during staged first fight / TenguArenaTest",
+    "levels/CavesLevel": "floor 11 only, shop and native residents, two-seat arrival, restart and return / CavesEntranceTest, HostRestartTest",
+    "actors/mobs/Brute": "floor 11, native rage at zero HP, restored actor, shield expiry and death / CavesEntranceTest",
+    "actors/mobs/Brute.BruteRage": "original shield and expiration across a save / CavesEntranceTest",
+    "items/weapon/melee/RunicBlade": "seed 572 cave armored statue only, passive damage, chain proc, mail and blade IDs and drops; duelist ability excluded / CavesEntranceTest",
+})
+for shaman in ("RedShaman", "BlueShaman", "PurpleShaman"):
+    VERIFIED["actors/mobs/Shaman."+shaman] = "native earthen bolt and specific debuff against each seat / CavesEntranceTest"
 IMPLEMENTED = {
     "actors/mobs/RotLasher": "generated garden resident, native cleanup with RotHeart; isolated combat pending",
     "items/armor/MailArmor": "plain unglyphed armor ownership and equipment path, separate item-specific trial pending",

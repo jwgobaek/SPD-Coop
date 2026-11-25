@@ -423,8 +423,8 @@ actors/mobs/ArmoredStatue	actors/mobs	VERIFIED	716 Mail/Potential, 446 Leather/R
 actors/mobs/Bandit	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bandit.java
 actors/mobs/Bat	actors/mobs	VERIFIED	native prison 9 generation and life-steal proc against both seats / LatePrisonTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bat.java
 actors/mobs/Bee	actors/mobs	VERIFIED	host and guest, guarding a pot or holder, parked and active targets / SewerBeeTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bee.java
-actors/mobs/Brute	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Brute.java
-actors/mobs/Brute.BruteRage	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Brute.java
+actors/mobs/Brute	actors/mobs	VERIFIED	floor 11, native rage at zero HP, restored actor, shield expiry and death / CavesEntranceTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Brute.java
+actors/mobs/Brute.BruteRage	actors/mobs	VERIFIED	original shield and expiration across a save / CavesEntranceTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Brute.java
 actors/mobs/CausticSlime	actors/mobs	VERIFIED	native ooze applied to the struck seat / SewerResidentsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CausticSlime.java
 actors/mobs/Crab	actors/mobs	IMPLEMENTED	native basic AI in generated upper sewers, isolated per-seat case pending	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Crab.java
 actors/mobs/CrystalGuardian	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalGuardian.java
@@ -530,9 +530,9 @@ actors/mobs/RotLasher.Waiting	actors/mobs	UNSUPPORTED		core/src/main/java/com/sh
 actors/mobs/Scorpio	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Scorpio.java
 actors/mobs/Senior	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Senior.java
 actors/mobs/Shaman	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Shaman.java
-actors/mobs/Shaman.BlueShaman	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Shaman.java
-actors/mobs/Shaman.PurpleShaman	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Shaman.java
-actors/mobs/Shaman.RedShaman	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Shaman.java
+actors/mobs/Shaman.BlueShaman	actors/mobs	VERIFIED	native earthen bolt and specific debuff against each seat / CavesEntranceTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Shaman.java
+actors/mobs/Shaman.PurpleShaman	actors/mobs	VERIFIED	native earthen bolt and specific debuff against each seat / CavesEntranceTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Shaman.java
+actors/mobs/Shaman.RedShaman	actors/mobs	VERIFIED	native earthen bolt and specific debuff against each seat / CavesEntranceTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Shaman.java
 actors/mobs/Skeleton	actors/mobs	VERIFIED	floor six generation, native melee and death burst hitting adjacent heroes / SewerDepthTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Skeleton.java
 actors/mobs/Slime	actors/mobs	IMPLEMENTED	native basic AI in generated upper sewers, isolated per-seat case pending	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Slime.java
 actors/mobs/Snake	actors/mobs	IMPLEMENTED	basicMob allowlist	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Snake.java
@@ -543,13 +543,13 @@ actors/mobs/Spinner.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shat
 actors/mobs/Statue	actors/mobs	VERIFIED	seeds 416/420/421/428/434/435/437/444; passive base statistics, native on-hit effect, held identity and drop / SewerGuardiansTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Statue.java
 actors/mobs/Succubus	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Succubus.java
 actors/mobs/Swarm	actors/mobs	VERIFIED	native split, health division and distinct scheduled actor ID / SewerResidentsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Swarm.java
-actors/mobs/Tengu	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
-actors/mobs/Tengu.BombAbility	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
+actors/mobs/Tengu	actors/mobs	VERIFIED	native staged two-seat combat, teleports, two fights, victory, published receipts / TenguArenaTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
+actors/mobs/Tengu.BombAbility	actors/mobs	VERIFIED	native throw, radius and timer, active-device restore and deterministic continuation / TenguArenaTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
 actors/mobs/Tengu.BombItem	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
-actors/mobs/Tengu.FireAbility	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
+actors/mobs/Tengu.FireAbility	actors/mobs	VERIFIED	native directed wave and burning, restore remaining cells and subsequent turns / TenguArenaTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
 actors/mobs/Tengu.FireBlob	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
 actors/mobs/Tengu.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
-actors/mobs/Tengu.ShockerAbility	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
+actors/mobs/Tengu.ShockerAbility	actors/mobs	VERIFIED	native device, alternating cells, timer and original Actor ID / TenguArenaTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
 actors/mobs/Tengu.ShockerBlob	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
 actors/mobs/Tengu.ShockerItem	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
 actors/mobs/Thief	actors/mobs	VERIFIED	steal one unit from either victim, flee, preserve physical identity and owner on parked floor / SewerResidentsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Thief.java
@@ -636,7 +636,7 @@ items/LostBackpack	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shat
 items/Recipe	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Recipe.java
 items/Recipe.SimpleRecipe	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Recipe.java
 items/Stylus	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Stylus.java
-items/TengusMask	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/TengusMask.java
+items/TengusMask	items	VERIFIED	one original drop, first lawful pickup, ownership and receipt after restart; subclass use excluded / HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/TengusMask.java
 items/Torch	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Torch.java
 items/Waterskin	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Waterskin.java
 items/armor/Armor	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/Armor.java
@@ -1142,7 +1142,7 @@ items/weapon/melee/Quarterstaff.DefensiveStance	items/weapon/melee	UNSUPPORTED		
 items/weapon/melee/Rapier	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Rapier.java
 items/weapon/melee/RoundShield	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RoundShield.java
 items/weapon/melee/RoundShield.GuardTracker	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RoundShield.java
-items/weapon/melee/RunicBlade	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RunicBlade.java
+items/weapon/melee/RunicBlade	items/weapon/melee	VERIFIED	seed 572 cave armored statue only, passive damage, chain proc, mail and blade IDs and drops; duelist ability excluded / CavesEntranceTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RunicBlade.java
 items/weapon/melee/RunicBlade.RunicSlashTracker	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RunicBlade.java
 items/weapon/melee/Sai	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Sai.java
 items/weapon/melee/Sai.ComboStrikeTracker	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Sai.java
@@ -1198,7 +1198,7 @@ levels/CavesBossLevel.CityEntrance	levels	UNSUPPORTED		core/src/main/java/com/sh
 levels/CavesBossLevel.EntranceOverhang	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java
 levels/CavesBossLevel.EntranceTerrain	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java
 levels/CavesBossLevel.PylonEnergy	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java
-levels/CavesLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesLevel.java
+levels/CavesLevel	levels	VERIFIED	floor 11 only, shop and native residents, two-seat arrival, restart and return / CavesEntranceTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesLevel.java
 levels/CavesLevel.Sparkle	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesLevel.java
 levels/CavesLevel.Vein	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesLevel.java
 levels/CityBossLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityBossLevel.java
@@ -1227,7 +1227,7 @@ levels/MiningLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/sha
 levels/MiningLevel.BorderTopDarken	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/MiningLevel.java
 levels/MiningLevel.BorderWallsDarken	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/MiningLevel.java
 levels/Patch	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Patch.java
-levels/PrisonBossLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonBossLevel.java
+levels/PrisonBossLevel	levels	VERIFIED	five phases, off-map boss, stored items, seal, two heroes and WON revisit / TenguArenaTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonBossLevel.java
 levels/PrisonBossLevel.ExitVisual	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonBossLevel.java
 levels/PrisonBossLevel.ExitVisualWalls	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonBossLevel.java
 levels/PrisonBossLevel.FadingTraps	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonBossLevel.java
@@ -1537,7 +1537,7 @@ levels/traps/ShockingTrap	levels/traps	VERIFIED	exact native trap, either seat, 
 levels/traps/StormTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/StormTrap.java
 levels/traps/SummoningTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/SummoningTrap.java
 levels/traps/TeleportationTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/TeleportationTrap.java
-levels/traps/TenguDartTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/TenguDartTrap.java
+levels/traps/TenguDartTrap	levels/traps	VERIFIED	native hidden dart activation during staged first fight / TenguArenaTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/TenguDartTrap.java
 levels/traps/ToxicTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/ToxicTrap.java
 levels/traps/Trap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/Trap.java
 levels/traps/Trap.HazardAssistTracker	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/Trap.java

@@ -452,7 +452,11 @@ public final class RestartClient {
             assertEquals(receipt,clients[seat].request(prior[2]));
             refresh();
             assertEquals(version,state(seat).version);
-            act("WAIT",0,0);
+            if (mode.equals("tengu-read-devices")) {
+                for (int i=0;i<21;i++) act("WAIT",0,0);
+                Collections.sort(latency);
+                System.out.println("tengu_tcp restored_arena_waits="+latency.size()+" median_us="+latency.get(10)+" p95_us="+latency.get(19));
+            } else act("WAIT",0,0);
             return;
         }
         if (mode.equals("seven-travel")) {

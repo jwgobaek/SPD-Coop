@@ -459,6 +459,9 @@ public final class CoopSession implements AutoCloseable {
         if (!(item instanceof MeleeWeapon)) return false;
         Class<?> base = item.getClass();
         if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Quarterstaff.class) return ((MeleeWeapon)item).enchantment instanceof Venomous;
+        // Runic Slash is a hero ability. A statue uses the blade's tier-four passive damage curve.
+        if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.RunicBlade.class)
+            return ((Weapon)item).enchantment instanceof Shocking;
         boolean extendedReach = base == Spear.class || base == Whip.class;
         // Innate reach and Projecting both use the original Weapon.reachFactor.
         if (base == Whip.class && ((Weapon)item).enchantment instanceof Projecting) return false;

@@ -202,7 +202,7 @@ public class HostRestartTest {
                 assertEquals(mode+" "+trace+" "+RestartHost.read(dir,"RestartHost.log"),0,client.exitValue());
                 for (String line : trace.split("\\r?\\n")) {
                     if (line.startsWith("native socket route ") || line.startsWith("mode=")
-                            || line.startsWith("public_snapshot ")) System.out.println(line);
+                            || line.startsWith("tengu_tcp ") || line.startsWith("public_snapshot ")) System.out.println(line);
                 }
                 RestartHost.write(dir,"stop","1");
                 assertTrue(host.waitFor(10,TimeUnit.SECONDS));
