@@ -274,6 +274,12 @@ public class VaultFinalRoom extends SpecialRoom {
 			int distance = Math.max(Math.abs(heroPos.x - lockedDoor.x), Math.abs(heroPos.y - lockedDoor.y));
 			//clear warned state if hero leaves
 			if (distance <= 3){
+				if (Dungeon.coop != null) {
+					Hero partner = Dungeon.coop.hero(hero == Dungeon.coop.hero(0) ? 1 : 0);
+					Point p = Dungeon.level.cellToPoint(partner.pos);
+					// Only close the entry when both party members are already inside the arena.
+					if (Math.abs(p.x - (left+right)/2) > 5 || Math.abs(p.y - (top+bottom)/2) > 5) return;
+				}
 				int bossPoss = Dungeon.level.pointToCell(center());
 				//if something is occupying the space, try to move the boss adjacent cell
 				if (Actor.findChar(bossPoss) != null){
@@ -300,8 +306,8 @@ public class VaultFinalRoom extends SpecialRoom {
 				//we add a 1 turn delay, but compute FOV to prevent an opening surprise attack
 				boss.fieldOfView = new boolean[Dungeon.level.length()];
 				Dungeon.level.updateFieldOfView( boss, boss.fieldOfView );
-				boss.aggro(Dungeon.hero);
-				boss.sprite.turnTo(boss.pos, Dungeon.hero.pos);
+				boss.aggro(hero);
+				if (Dungeon.coop == null) boss.sprite.turnTo(boss.pos, hero.pos);
 				boss.setElementalForm(boss.curForm()); //re-assert default form for particle fx
 				Dungeon.level.seal();
 				Level.set(Dungeon.level.pointToCell(entryDoor), Terrain.LOCKED_DOOR);
@@ -309,8 +315,9 @@ public class VaultFinalRoom extends SpecialRoom {
 				GameScene.updateMap(Dungeon.level.pointToCell(lockedDoor)); //to update custom visual
 				lockTriggered = true;
 			} else if (Dungeon.coop != null) {
-				// Single-player warnings use a modal window. Host actions never wait on a renderer.
-				return;
+				if (distance == 4) warnState = 2;
+				else if (distance <= 10) warnState = 1;
+				else if (distance > 12) warnState = 0;
 			} else if (distance == 4 && warnState < 2) {
 				GLog.n(Messages.get(VaultFinalRoom.class, "final_warning"));
 				Sample.INSTANCE.play(Assets.Sounds.CHARGEUP);
@@ -323,34 +330,7 @@ public class VaultFinalRoom extends SpecialRoom {
 				ShatteredPixelDungeon.runOnRenderThread(new Callback() {
 					@Override
 					public void call() {
-						//we check to ensure the hero has at least a T2 each of:
-						// melee weapon, thrown weapon, armor, and wand
-
-						boolean[] prepCriteria = new boolean[4];
-						for (Item i : Dungeon.hero.belongings){
-							//+2 or higher items means they're T2 or T3 vault loot
-							if (i.level() >= 2){
-								if (i instanceof MagesStaff){
-									if (((MagesStaff) i).wandClass() != null){
-										prepCriteria[2] = true;
-									}
-								}
-								else if (i instanceof MeleeWeapon) prepCriteria[0] = true;
-								else if (i instanceof MissileWeapon) prepCriteria[1] = true;
-								else if (i instanceof Armor) prepCriteria[2] = true;
-								else if (i instanceof Wand) prepCriteria[3] = true;
-							}
-						}
-
-						boolean prepared = true;
-						for (Boolean b : prepCriteria){
-							prepared = prepared && b;
-						}
-
-						if (!Imp.Quest.mirrorUsed){
-							prepared = false;
-						}
-
+						boolean prepared = preparedForFight(hero);
 						//if they don't, they are likely unprepared, and get a warning
 						if (!prepared) {
 							GameScene.show(new WndTitledMessage(new ImpSprite(),
@@ -368,6 +348,45 @@ public class VaultFinalRoom extends SpecialRoom {
 				warnState = 0;
 			}
 		}
+	}
+
+	public String warningFor(Hero hero) {
+		if (lockTriggered || !inside(Dungeon.level.cellToPoint(hero.pos))) return null;
+		int distance = Dungeon.level.distance(hero.pos, Dungeon.level.pointToCell(lockedDoor));
+		if (distance <= 4) return "final_warning";
+		if (distance <= 10) return preparedForFight(hero) ? "imp_warning_prepared" : "imp_warning_unprepared";
+		return null;
+	}
+
+	private boolean preparedForFight(Hero hero) {
+		//we check to ensure the hero has at least a T2 each of:
+		// melee weapon, thrown weapon, armor, and wand
+
+		boolean[] prepCriteria = new boolean[4];
+		for (Item i : hero.belongings){
+			//+2 or higher items means they're T2 or T3 vault loot
+			if (i.level() >= 2){
+				if (i instanceof MagesStaff){
+					if (((MagesStaff) i).wandClass() != null){
+						prepCriteria[2] = true;
+					}
+				}
+				else if (i instanceof MeleeWeapon) prepCriteria[0] = true;
+				else if (i instanceof MissileWeapon) prepCriteria[1] = true;
+				else if (i instanceof Armor) prepCriteria[2] = true;
+				else if (i instanceof Wand) prepCriteria[3] = true;
+			}
+		}
+
+		boolean prepared = true;
+		for (Boolean b : prepCriteria){
+			prepared = prepared && b;
+		}
+
+		if (!Imp.Quest.mirrorUsed){
+			prepared = false;
+		}
+		return prepared;
 	}
 
 	public boolean elementalWasSummoned(){

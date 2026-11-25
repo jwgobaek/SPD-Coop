@@ -135,8 +135,11 @@ final class CoopBoard extends Group {
                 int cell = Integer.parseInt(mob[0]);
                 boolean charged=view.source.rows.containsKey("charge"+cell);
                 boolean bossForm=charged && ("Pylon".equals(mob[1]) || "DM300".equals(mob[1]));
-                Image sprite=object(keep, key+":"+mob[1]+(bossForm?":active":""),cell,()->{
+                String form=view.source.rows.get("element"+cell);
+                Image sprite=object(keep, key+":"+mob[1]+(bossForm?":active":"")+(form==null?"":form),cell,()->{
                     Image result=monster(mob[1], view.source.rows.get("minesprite"+key.substring(1)));
+                    if (result instanceof VaultBossElementalSprite && form!=null)
+                        ((VaultBossElementalSprite)result).setForm(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultBossElemental.ElementalForm.valueOf(form));
                     if ("ArmoredStatue".equals(mob[1])) {
                         String tier=view.source.rows.get("mail"+key.substring(1));
                         if (tier!=null) ((StatueSprite)result).setArmor(Integer.parseInt(tier));
@@ -309,6 +312,7 @@ final class CoopBoard extends Group {
                     case "BurningFist": sprite=new FistSprite.Burning();break;
                     case "Succubus": sprite=new SuccubusSprite();break;
                     case "Crab": sprite=new CrabSprite();break;
+                    case "VaultBossElemental": sprite=new VaultBossElementalSprite();break;
                     case "HermitCrab": sprite=new HermitCrabSprite();break;
                     case "Slime": sprite=new SlimeSprite();break;
                     case "Swarm": sprite=new SwarmSprite();break;

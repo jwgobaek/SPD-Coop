@@ -465,6 +465,8 @@ public final class RestartClient {
             boolean mine=boundary.startsWith("mine-");
             boolean vault=boundary.startsWith("vault-");
             if (vault) travel=true;
+            boolean elemental=boundary.startsWith("elemental-");
+            if (elemental) { verb=RestartHost.read(path,"elemental-action"); travel=verb.equals("VAULT_REWARD"); }
             boolean yog=boundary.startsWith("yog-");
             if (yog) { verb=RestartHost.read(path,"yog-action");travel=verb.equals("TRAVEL"); }
             boolean king=boundary.startsWith("king-");
@@ -499,7 +501,8 @@ public final class RestartClient {
                     seat=boundary.equals("yog-win")?1-owner:owner;
                 }
                 PublicDungeon view=new PublicDungeon(state(seat));
-                if (yog) assertTrue(view.depth==25 || view.depth==26);
+                if (elemental) { assertEquals(18,view.depth); assertEquals(1,view.branch); }
+                else if (yog) assertTrue(view.depth==25 || view.depth==26);
                 else if (vault) assertEquals(boundary.matches("vault-(return|pick|full)") ? 1 : 0,view.branch);
                 else if (king) assertEquals(boundary.endsWith("visit") ? 19 : 20,view.depth);
                 else if (city) assertEquals(travel ? Integer.parseInt(boundary.substring(5))-1 : 18,view.depth);
@@ -512,7 +515,7 @@ public final class RestartClient {
                     String index=RestartHost.read(path,"mine-index")+",";
                     handle=view.belongings.stream().filter(item->view.source.rows.getOrDefault("forge"+item.id,"").startsWith(index)).findFirst().get().id;
                 }
-                SeatActions.Pending p=travel ? consentAndCross(boundary.equals("vault-pick") || boundary.equals("vault-full")) : actions[seat].prepare(state(seat),verb,verb.equals("WAIT") ? 0 : cell,handle);
+                SeatActions.Pending p=travel ? (boundary.equals("elemental-escape") ? consentAndCross(true,true) : consentAndCross(boundary.equals("vault-pick") || boundary.equals("vault-full"))) : actions[seat].prepare(state(seat),verb,verb.equals("WAIT") ? 0 : cell,handle);
                 if (yog) System.out.println("native_fixture "+boundary+" verb="+verb+" input="+cell+" seat="+seat+" depth="+view.depth+" visible="+view.visible(cell)+" actor="+state(seat).rows.get("self"));
                 RestartHost.write(path,"boss-command",seat+" "+p.id+" "+p.command);
                 try { String result=p.submit(clients[seat]); assertTrue(result,result.endsWith(" APPLIED")); }
@@ -935,7 +938,8 @@ public final class RestartClient {
     }
 
     private SeatActions.Pending consentAndCross() throws Exception { return consentAndCross(false); }
-    private SeatActions.Pending consentAndCross(boolean vaultReward) throws Exception {
+    private SeatActions.Pending consentAndCross(boolean vaultReward) throws Exception { return consentAndCross(vaultReward,false); }
+    private SeatActions.Pending consentAndCross(boolean vaultReward,boolean finalTreasure) throws Exception {
         refresh();
         int mover=active(),other=1-mover;
         int cell=new PublicDungeon(state(mover)).stair;
@@ -946,7 +950,7 @@ public final class RestartClient {
         assertTrue(new PublicDungeon(state(mover)).consent);
         if (vaultReward) {
             PublicDungeon view=new PublicDungeon(state(mover));
-            PublicDungeon.Loot reward=view.belongings.stream().filter(i->"FOOD".equals(i.kind)
+            PublicDungeon.Loot reward=view.belongings.stream().filter(i->(finalTreasure ? i.sprite>=com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.RING_GARNET && i.sprite<=com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.RING_GARNET+15 : "FOOD".equals(i.kind))
                     && view.source.rows.containsKey("vaultpick"+i.id)).findFirst().orElseThrow(AssertionError::new);
             return actions[mover].prepare(state(mover),"VAULT_REWARD",cell,reward.id);
         }

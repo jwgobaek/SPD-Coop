@@ -599,6 +599,11 @@ public class VaultLevel extends CityLevel {
 		}
 	}
 
+	public boolean finalTreasureOpen() {
+		VaultFinalRoom room = (VaultFinalRoom)room(VaultFinalRoom.class);
+		return room != null && room.elementalWasSummoned() && !locked && map[pointToCell(room.lockedDoor)] != Terrain.LOCKED_DOOR;
+	}
+
 	public boolean startsBossAt(int cell) {
 		Room candidate = room(cell);
 		return candidate instanceof VaultFinalRoom && ((VaultFinalRoom)candidate).startsBossAt(cell);
@@ -668,7 +673,7 @@ public class VaultLevel extends CityLevel {
 				((VaultFinalRoom) r).unlock();
 			}
 		}
-		Game.runOnRenderThread(new Callback() {
+		if (Dungeon.coop == null) Game.runOnRenderThread(new Callback() {
 			@Override
 			public void call() {
 				Music.INSTANCE.fadeOut(5f, new Callback() {

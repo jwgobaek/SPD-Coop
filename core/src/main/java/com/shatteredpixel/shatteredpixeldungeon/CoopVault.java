@@ -24,9 +24,19 @@ final class CoopVault {
     private CoopVault() {}
 
     static boolean resident(Class<?> type) {
-        return type==VaultDM100.class || type==VaultDM200.class || type==VaultGhoul.class || type==VaultGolem.class
+        return type==VaultBossElemental.class || type==VaultDM100.class || type==VaultDM200.class || type==VaultGhoul.class || type==VaultGolem.class
                 || type==VaultSkeleton.class || type==VaultLaser.class || type==VaultMirror.class
                 || type==VaultSentry.class || type==VaultTokenDoor.class;
+    }
+
+    static boolean questPickup(Item item, int cell) {
+        if (!(Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel)) return false;
+        if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.DwarfToken) return true;
+        com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel vault=(com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel)Dungeon.level;
+        return vault.finalTreasureOpen()
+                && vault.room(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.levels.rooms.quest.vault.VaultFinalRoom
+                && (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.ImpStatue
+                || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring);
     }
 
     static Item attached(Item parent) {

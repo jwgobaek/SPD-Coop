@@ -952,7 +952,7 @@ public class Hero extends Char {
 		GameScene.ready();
 		//check statistics to see if vault warned?
 		//or just used shared prefs?
-		if (Dungeon.level instanceof VaultLevel
+		if (Dungeon.coop == null && Dungeon.level instanceof VaultLevel
 				&& HP < HT*0.334f
 				&& !Statistics.vaultInjureWarned
 				&& SPDSettings.vaultInjureWarns() < 3){

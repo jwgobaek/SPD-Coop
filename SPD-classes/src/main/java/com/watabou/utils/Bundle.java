@@ -190,6 +190,21 @@ public class Bundle {
 		}
 	}
 
+	/** Read a fixed-size vector without JSON numeric coercion or attacker-sized allocation. */
+	public int[] getBoundedIntArray(String key, int length, int min, int max) {
+		JSONArray array = data.optJSONArray(key);
+		if (array == null || array.length() != length) throw new IllegalArgumentException(key);
+		int[] result = new int[length];
+		for (int i = 0; i < length; i++) {
+			Object value = array.opt(i);
+			if (!(value instanceof Number)) throw new IllegalArgumentException(key);
+			double number = ((Number)value).doubleValue();
+			if (number < min || number > max || number != (int)number) throw new IllegalArgumentException(key);
+			result[i] = (int)number;
+		}
+		return result;
+	}
+
 	public long[] getLongArray( String key ) {
 		try {
 			JSONArray array = data.getJSONArray( key );

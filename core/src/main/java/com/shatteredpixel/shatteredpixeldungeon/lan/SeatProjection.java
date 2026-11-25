@@ -120,6 +120,22 @@ final class SeatProjection {
             Level level = Dungeon.level;
             FloorKnowledge sight = game.observe(seat);
             writeMemory(rows, sight);
+            if (level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel) {
+                com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room room =
+                        ((com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel)level).room(hero.pos);
+                if (room instanceof com.shatteredpixel.shatteredpixeldungeon.levels.rooms.quest.vault.VaultFinalRoom) {
+                    String warning=((com.shatteredpixel.shatteredpixeldungeon.levels.rooms.quest.vault.VaultFinalRoom)room).warningFor(hero);
+                    if (warning!=null) rows.put("vaultwarning",warning);
+                }
+                if (hero.HP < hero.HT*0.334f) rows.put("vaultinjured","1");
+                for (Mob mob:level.mobs) {
+                    if (!(mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultBossElemental) || !sight.visible(mob.pos)) continue;
+                    com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultBossElemental boss =
+                            (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultBossElemental)mob;
+                    rows.put("element"+mob.pos,boss.curForm().name());
+                    for (int cell:boss.warnedCells()) if (sight.visible(cell)) rows.put("aim"+cell,"1");
+                }
+            }
             for (com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTilemap tile : level.customTiles) {
                 if (!(tile instanceof com.shatteredpixel.shatteredpixeldungeon.levels.rooms.sewerboss.GooBossRoom.GooNest)) continue;
                 com.shatteredpixel.shatteredpixeldungeon.levels.rooms.sewerboss.GooBossRoom.GooNest nest =

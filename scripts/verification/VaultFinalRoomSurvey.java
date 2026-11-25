@@ -50,7 +50,8 @@ public class VaultFinalRoomSurvey extends HeadlessDungeon {
                     break;
                 }
             }
-            System.out.println("Native elemental form weight replay diverged="+diverged);
+            assertFalse("Remaining form weights diverged",diverged);
+            System.out.println("PASS native elemental form weights and current form preserved across 64 restores");
         } finally {
             probe.stopBackend();
             probe.temporary.delete();

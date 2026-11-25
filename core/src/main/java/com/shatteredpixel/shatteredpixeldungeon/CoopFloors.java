@@ -269,6 +269,16 @@ public final class CoopFloors {
         if (!expected.getName().equals(floor.getString("__className")))
             throw new IllegalArgumentException("Unexpected level type at depth "+depth);
         validateSummons(floor);
+        if (expected == VaultLevel.class) {
+            int count=0;
+            for (Bundle mob : floor.getBundleArray("mobs")) {
+                if (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultBossElemental.class.getName().equals(mob.getString("__className"))) {
+                    com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultBossElemental.savedFormWeights(mob);
+                    count++;
+                }
+            }
+            if (count>1 || count==1 && !floor.getBoolean("locked")) throw new IllegalArgumentException("Invalid vault boss lock");
+        }
         if (depth == 10) validateBoss(floor);
         if (depth == 15) validateCavesBoss(floor);
         if (depth == 20) validateCityBoss(floor);

@@ -69,6 +69,8 @@ final class RenderEncounter {
                     engine.set(lan,resumed);
                     source.set(replication,resumed);
                 }
+            } else if (destination.equals("vault-elemental")) {
+                com.shatteredpixel.shatteredpixeldungeon.VaultElementalTest.forScreen(game);
             } else if (destination.equals("imp-vault") || destination.equals("halls-21")) {
                 com.shatteredpixel.shatteredpixeldungeon.ImpVaultTest.forScreen(game,destination);
             } else if (destination.startsWith("king-")) {

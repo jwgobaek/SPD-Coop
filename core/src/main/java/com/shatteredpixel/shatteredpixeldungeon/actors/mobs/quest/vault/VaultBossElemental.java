@@ -167,35 +167,10 @@ public class VaultBossElemental extends Mob {
 		Buff.affect(this, PinCushionRemover.class).preferGrouping = this.form == ElementalForm.FIRE;
 
 		this.form = form;
-		boolean wasTurned = sprite.flipHorizontal;
-
-		((VaultBossElementalSprite)sprite).updateForm();
-		AttackIndicator.target(this);
-		Emitter e = sprite.emitter();
-		//centered a bit, but not totally
-		e.fillTarget = false;
-		e.pos(sprite, 4, 4, 24, 24);
-		if (form == ElementalForm.FIRE){
-			e.burst(FlameParticle.FACTORY, 50);
-			Sample.INSTANCE.play(Assets.Sounds.BURNING, 2f);
-
-			for (Buff b : buffs()){
-				if (b instanceof Chill || b instanceof Frost){
-					b.detach();
-				}
-			}
-		} else if (form == ElementalForm.FROST){
-			e.burst(MagicMissile.MagicParticle.FACTORY, 50);
-			Sample.INSTANCE.play(Assets.Sounds.SHATTER, 2f);
-
-			for (Buff b : buffs()){
-				if (b instanceof Burning){
-					b.detach();
-				}
-			}
-		} else if (form == ElementalForm.SHOCK){
-			e.burst(SparkParticle.FACTORY, 50);
-			Sample.INSTANCE.play(Assets.Sounds.LIGHTNING, 2f);
+		if (Dungeon.coop == null) showFormChange();
+		for (Buff b : buffs()) {
+			if (form == ElementalForm.FIRE && (b instanceof Chill || b instanceof Frost)
+					|| form == ElementalForm.FROST && b instanceof Burning) b.detach();
 		}
 
 		//don't want to follow through now that form changed, so force a new sp attack instead
@@ -207,9 +182,32 @@ public class VaultBossElemental extends Mob {
 		//significantly reduce environment attack cooldown
 		envAttackCooldown /= 2;
 
+		weakAnnounced = false;
+	}
+
+	private void showFormChange() {
+		boolean wasTurned = sprite.flipHorizontal;
+		((VaultBossElementalSprite)sprite).updateForm();
+		AttackIndicator.target(this);
+		Emitter e = sprite.emitter();
+		e.fillTarget = false;
+		e.pos(sprite, 4, 4, 24, 24);
+		if (form == ElementalForm.FIRE) {
+			e.burst(FlameParticle.FACTORY, 50);
+			Sample.INSTANCE.play(Assets.Sounds.BURNING, 2f);
+		} else if (form == ElementalForm.FROST) {
+			e.burst(MagicMissile.MagicParticle.FACTORY, 50);
+			Sample.INSTANCE.play(Assets.Sounds.SHATTER, 2f);
+		} else if (form == ElementalForm.SHOCK) {
+			e.burst(SparkParticle.FACTORY, 50);
+			Sample.INSTANCE.play(Assets.Sounds.LIGHTNING, 2f);
+		}
 		sprite.flipHorizontal = wasTurned;
 		BossHealthBar.assignBoss(this, true);
-		weakAnnounced = false;
+	}
+
+	private Hero targetHero() {
+		return Dungeon.coop == null ? Dungeon.hero : Dungeon.coop.bossTarget(enemy, pos);
 	}
 
 	@Override
@@ -226,11 +224,12 @@ public class VaultBossElemental extends Mob {
 				fieldOfView = new boolean[Dungeon.level.length()];
 				Dungeon.level.updateFieldOfView( this, fieldOfView );
 			}
-			chooseEnemy();
+			if (Dungeon.coop != null) enemy = chooseEnemy();
+			else chooseEnemy();
 		}
 
 		if (spTargetCell != -1 && paralysed == 0 && enemy != null){
-			if (sprite != null && (sprite.visible || enemy.sprite.visible)) {
+			if (Dungeon.coop == null && sprite != null && (sprite.visible || enemy.sprite.visible)) {
 				sprite.zap( spTargetCell );
 				lastEnemyPos = enemy.pos;
 				return false;
@@ -245,7 +244,7 @@ public class VaultBossElemental extends Mob {
 		envAttackCooldown--;
 		if (state == HUNTING && paralysed == 0  && enemy != null){
 			if (spAttackCooldown <= 0){
-				spend(GameMath.gate(attackDelay(), (int)Math.ceil(Dungeon.hero.cooldown()), 3*attackDelay()));
+				spend(GameMath.gate(attackDelay(), (int)Math.ceil(targetHero().cooldown()), 3*attackDelay()));
 				if (form == ElementalForm.FIRE){
 					setupFireBall(enemy);
 				} else if (form == ElementalForm.FROST){
@@ -254,7 +253,7 @@ public class VaultBossElemental extends Mob {
 					setupLightningBolt(enemy);
 				}
 
-				Dungeon.hero.interrupt();
+				targetHero().interrupt();
 				lastEnemyPos = enemy.pos;
 				return true;
 			} else if (envAttackCooldown <= 0){
@@ -267,14 +266,14 @@ public class VaultBossElemental extends Mob {
 					setupLightningChase();
 				}
 				//not an actual attack, do nothing
-				sprite.operate(enemy.pos);
+				if (Dungeon.coop == null) sprite.operate(enemy.pos);
 				envAttackCooldown = Random.NormalIntRange( 10, 15 );
 				//shock form gets faster abilities
 				if (form == ElementalForm.SHOCK){
 					envAttackCooldown = (int) (envAttackCooldown*0.67f);
 				}
 
-				Dungeon.hero.interrupt();
+				targetHero().interrupt();
 				lastEnemyPos = enemy.pos;
 				return true;
 			}
@@ -289,7 +288,7 @@ public class VaultBossElemental extends Mob {
 			if (enemy != null) {
 				lastEnemyPos = enemy.pos;
 			} else {
-				lastEnemyPos = Dungeon.hero.pos;
+				lastEnemyPos = targetHero().pos;
 			}
 		}
 
@@ -323,14 +322,14 @@ public class VaultBossElemental extends Mob {
 
 	@Override
 	public int defenseProc(Char enemy, int damage) {
-		if (form == ElementalForm.SHOCK && enemy == Dungeon.hero && !(Dungeon.hero.belongings.attackingWeapon() instanceof MissileWeapon)){
-			enemy.sprite.parent.addToFront( new Lightning( sprite.center(), enemy.sprite.center(), null ) );
+		if (form == ElementalForm.SHOCK && enemy instanceof Hero && !(((Hero)enemy).belongings.attackingWeapon() instanceof MissileWeapon)){
+			if (Dungeon.coop == null) enemy.sprite.parent.addToFront( new Lightning( sprite.center(), enemy.sprite.center(), null ) );
 			enemy.damage( Random.IntRange(5, 10), new Shocking() );
-			Sample.INSTANCE.play(Assets.Sounds.LIGHTNING);
-			PixelScene.shake( 2, 0.3f );
-			enemy.sprite.centerEmitter().burst(SparkParticle.FACTORY, 3);
-			enemy.sprite.flash();
-			if (!enemy.isAlive()){
+			if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.LIGHTNING);
+			if (Dungeon.coop == null) PixelScene.shake( 2, 0.3f );
+			if (Dungeon.coop == null) enemy.sprite.centerEmitter().burst(SparkParticle.FACTORY, 3);
+			if (Dungeon.coop == null) enemy.sprite.flash();
+			if (Dungeon.coop == null && !enemy.isAlive()){
 				Badges.validateDeathFromEnemyMagic();
 				Dungeon.fail(this);
 			} else {
@@ -341,6 +340,7 @@ public class VaultBossElemental extends Mob {
 	}
 
 	private boolean weakAnnounced = false;
+	private boolean restoringBuffs;
 
 	@Override
 	public void damage(int dmg, Object src) {
@@ -354,26 +354,26 @@ public class VaultBossElemental extends Mob {
 					spAttackCooldown -= 3;
 					envAttackCooldown -= 5;
 				}
-			} else if (src == Dungeon.hero && Dungeon.hero.belongings.attackingWeapon() instanceof MissileWeapon){
+			} else if (src instanceof Hero && ((Hero)src).belongings.attackingWeapon() instanceof MissileWeapon){
 				if (!weakAnnounced){
 					GLog.p(Messages.get(this, "fire_weak"));
 					weakAnnounced = true;
 				}
-				Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
+				if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
 				dmg += 10;
 			}
 		//frost form is resistant to thrown weapons and weak to melee (only from the hero though!)
 		} else if ( form == ElementalForm.FROST ){
-			if (src == Dungeon.hero && Dungeon.hero.belongings.attackingWeapon() instanceof MissileWeapon){
+			if (src instanceof Hero && ((Hero)src).belongings.attackingWeapon() instanceof MissileWeapon){
 				GLog.w(Messages.get(this, "frost_resist"));
 				//penalty is that the weapon sticks
 				dmg /= 4;
-			} else if (src == Dungeon.hero && !(Dungeon.hero.belongings.attackingWeapon() instanceof MissileWeapon)){
+			} else if (src instanceof Hero && !(((Hero)src).belongings.attackingWeapon() instanceof MissileWeapon)){
 				if (!weakAnnounced){
 					GLog.p(Messages.get(this, "frost_weak"));
 					weakAnnounced = true;
 				}
-				Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
+				if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
 				dmg += 10;
 			}
 		//shock form is resistant to melee and weak to magic
@@ -385,11 +385,22 @@ public class VaultBossElemental extends Mob {
 				}
 				//all wands get a little charge
 				if (src instanceof Wand || src instanceof ClericSpell){
-					Dungeon.hero.belongings.charge(0.2f);
+					Hero caster = Dungeon.hero;
+					if (Dungeon.coop != null) {
+						caster = null;
+						if (src instanceof Wand) {
+							for (int seat=0; seat<2; seat++) {
+								Hero hero = Dungeon.coop.hero(seat);
+								for (Wand.Charger charger : hero.buffs(Wand.Charger.class))
+									if (charger.wand() == src) caster = hero;
+							}
+						}
+					}
+					if (caster != null) caster.belongings.charge(0.2f);
 				}
-				Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
+				if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
 				dmg += 10;
-			} else if (src instanceof Char && !(src == Dungeon.hero && Dungeon.hero.belongings.attackingWeapon() instanceof MissileWeapon)){
+			} else if (src instanceof Char && !(src instanceof Hero && ((Hero)src).belongings.attackingWeapon() instanceof MissileWeapon)){
 				//resisted text already in defenseproc, as well as shock penalty (only for the hero)
 				dmg /= 4;
 			}
@@ -428,7 +439,7 @@ public class VaultBossElemental extends Mob {
 	public void die(Object cause) {
 		super.die(cause);
 		Dungeon.level.unseal();
-		GameScene.bossSlain();
+		if (Dungeon.coop == null) GameScene.bossSlain();
 	}
 
 	@Override
@@ -445,6 +456,7 @@ public class VaultBossElemental extends Mob {
 
 	@Override
 	public boolean add(Buff buff) {
+		if (restoringBuffs) return super.add(buff);
 		if (buff instanceof PinCushion && form != ElementalForm.FROST){
 			Buff.affect(this, PinCushionRemover.class).preferGrouping = this.form == ElementalForm.FIRE;
 		}
@@ -504,6 +516,7 @@ public class VaultBossElemental extends Mob {
 		}
 	}
 
+	private static final String FORM_CHANCES = "form_chances";
 	private static final String FORM = "elemental_form";
 
 	private static final String ENV_ATK_COOLDOWN = "env_atk_cooldown";
@@ -517,6 +530,8 @@ public class VaultBossElemental extends Mob {
 	public void storeInBundle(Bundle bundle) {
 		super.storeInBundle(bundle);
 		bundle.put(FORM, form);
+		bundle.put(FORM_CHANCES, formChances);
+		bundle.put("weak_announced", weakAnnounced);
 
 		bundle.put(ENV_ATK_COOLDOWN, envAttackCooldown);
 		bundle.put(SP_ATK_COOLDOWN, spAttackCooldown);
@@ -526,10 +541,41 @@ public class VaultBossElemental extends Mob {
 		bundle.put(LIGHTNING_OFS, lightningOfs);
 	}
 
+	/** Validates the record before a saved co-op level is activated, including parked mines/vaults. */
+	public static int[] savedFormWeights(Bundle bundle) {
+		ElementalForm current;
+		try {
+			current = ElementalForm.valueOf(bundle.getString(FORM));
+		} catch (RuntimeException e) {
+			throw new IllegalArgumentException("Invalid vault elemental form", e);
+		}
+		int[] weights = bundle.getBoundedIntArray(FORM_CHANCES, 3, 0, 2);
+		int left = weights[0] + weights[1] + weights[2];
+		if (current == ElementalForm.UNSTABLE || weights[current.ordinal()] > 1 || left < 1 || left > 5) {
+			throw new IllegalArgumentException("Invalid vault elemental form history");
+		}
+		return weights;
+	}
+
 	@Override
 	public void restoreFromBundle(Bundle bundle) {
-		super.restoreFromBundle(bundle);
 		form = bundle.getEnum(FORM, ElementalForm.class);
+		// Reattaching persisted buffs is not a new hit, freeze or missile impact.
+		restoringBuffs = true;
+		try {
+			super.restoreFromBundle(bundle);
+		} finally {
+			restoringBuffs = false;
+		}
+		if (bundle.contains(FORM_CHANCES) || Dungeon.coop != null) {
+			int[] weights = savedFormWeights(bundle);
+			for (int i = 0; i < weights.length; i++) formChances[i] = weights[i];
+		} else {
+			// Old solo saves recorded the current form, but not past draws.
+			java.util.Arrays.fill(formChances, 2);
+			formChances[form.ordinal()]--;
+		}
+		weakAnnounced = bundle.getBoolean("weak_announced");
 
 		envAttackCooldown = bundle.getInt(ENV_ATK_COOLDOWN);
 		spAttackCooldown = bundle.getInt(SP_ATK_COOLDOWN);
@@ -538,7 +584,7 @@ public class VaultBossElemental extends Mob {
 		lastEnemyPos = bundle.getInt(LAST_ENEMY_POS);
 		lightningOfs = bundle.getInt(LIGHTNING_OFS);
 
-		BossHealthBar.assignBoss(this);
+		if (Dungeon.coop == null) BossHealthBar.assignBoss(this);
 	}
 
 	//used to forcefully remove pincushion after its applied
@@ -550,6 +596,16 @@ public class VaultBossElemental extends Mob {
 
 		//triggered when elemental is currently in or leaving fire form, making collecting easier
 		public boolean preferGrouping = false;
+
+		@Override public void storeInBundle(Bundle bundle) {
+			super.storeInBundle(bundle);
+			bundle.put("prefer_grouping", preferGrouping);
+		}
+
+		@Override public void restoreFromBundle(Bundle bundle) {
+			super.restoreFromBundle(bundle);
+			preferGrouping = bundle.getBoolean("prefer_grouping");
+		}
 
 		@Override
 		public boolean act() {
@@ -565,7 +621,7 @@ public class VaultBossElemental extends Mob {
 			int closestDist = 100;
 			for (int i = 0; i < Dungeon.level.length(); i++){
 				if (PathFinder.distance[i] == 2){
-					int dist = Dungeon.level.distance(i, Dungeon.hero.pos);
+					int dist = Dungeon.level.distance(i, ((VaultBossElemental)target).targetHero().pos);
 					if (dist > 1) {
 						if (dist < closestDist){
 							closestDist = dist;
@@ -586,7 +642,7 @@ public class VaultBossElemental extends Mob {
 			ArrayList<Integer> existingStacks = new ArrayList<>();
 
 			for (int i : candidates.toArray(new Integer[0])){
-				int dist = Dungeon.level.distance(i, Dungeon.hero.pos);
+				int dist = Dungeon.level.distance(i, ((VaultBossElemental)target).targetHero().pos);
 				if (dist <= closestDist || dist >= furthestDist){
 					candidates.remove((Integer)i);
 				} else {
@@ -604,7 +660,9 @@ public class VaultBossElemental extends Mob {
 			while (target.buff(PinCushion.class) != null) {
 				Item item = target.buff(PinCushion.class).grabOne();
 
-				Dungeon.level.drop(item, Random.element(candidates)).sprite.drop(target.pos);
+				int drop = candidates.isEmpty() && Dungeon.coop != null ? target.pos : Random.element(candidates);
+				com.shatteredpixel.shatteredpixeldungeon.items.Heap heap = Dungeon.level.drop(item, drop);
+				if (Dungeon.coop == null) heap.sprite.drop(target.pos);
 			}
 			detach();
 			return true;
@@ -614,6 +672,37 @@ public class VaultBossElemental extends Mob {
 	/***************************
 	 *** Fire Form Abilities ***
 	 **************************/
+
+	/** The same marked cells used by the solo GameScene, independent of animation or random draws. */
+	public java.util.Set<Integer> warnedCells() {
+		HashSet<Integer> cells = new HashSet<>();
+		if (spTargetCell == -1) return cells;
+		switch (form) {
+			case FIRE:
+				for (int offset : PathFinder.NEIGHBOURS9) {
+					int cell = spTargetCell + offset;
+					if (Dungeon.level.insideMap(cell) && !Dungeon.level.solid[cell]) cells.add(cell);
+				}
+				break;
+			case FROST:
+				Ballistica core = new Ballistica(pos, spTargetCell, Ballistica.WONT_STOP);
+				for (int cell : new ConeAOE(core, 10, 50, Ballistica.STOP_SOLID).cells)
+					if (Dungeon.level.trueDistance(cell, pos) <= 2) cells.add(cell);
+				break;
+			case SHOCK:
+				Ballistica bolt = new Ballistica(pos, spTargetCell, Ballistica.STOP_SOLID);
+				cells.addAll(bolt.subPath(0, bolt.dist));
+				for (int i=lightningOfs % 2; i<PathFinder.CIRCLE8.length; i+=2)
+					cells.add(spTargetCell + PathFinder.CIRCLE8[i]);
+				break;
+		}
+		return cells;
+	}
+
+	private void showAttackWarning() {
+		if (Dungeon.coop == null)
+			for (int cell : warnedCells()) GameScene.targetedCell(cell, cooldown());
+	}
 
 	public void setupFireBall( Char enemy ){
 		//aim at direction enemy is moving
@@ -644,29 +733,25 @@ public class VaultBossElemental extends Mob {
 			spTargetCell += ofs;
 		}
 
-		for (int i : PathFinder.NEIGHBOURS9){
-			if (!Dungeon.level.solid[spTargetCell+i]) {
-				GameScene.targetedCell(spTargetCell + i, cooldown());
-			}
-		}
+		showAttackWarning();
 	}
 
 	public void doFireBall( int cell ){
 
-		Sample.INSTANCE.play(Assets.Sounds.BURNING);
+		if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.BURNING);
 		for (int i : PathFinder.NEIGHBOURS9){
 			if (Dungeon.level.solid[cell+i]) {
 				continue;
 			}
 
-			CellEmitter.get(cell+i).burst(FlameParticle.FACTORY, 10);
+			if (Dungeon.coop == null) CellEmitter.get(cell+i).burst(FlameParticle.FACTORY, 10);
 			GameScene.add(Blob.seed(cell+i, 2, Fire.class));
 
 			Char ch = Actor.findChar(cell+i);
 			if (ch != null && !(ch instanceof VaultBossElemental)){
 				//at this depth fire deals ~32 damage, already loads
 				Buff.affect(ch, Burning.class).reignite(ch);
-				if (ch == Dungeon.hero){
+				if (ch instanceof Hero){
 					Statistics.questScores[3] -= 100;
 				}
 			}
@@ -684,7 +769,7 @@ public class VaultBossElemental extends Mob {
 		ArrayList<Integer> wallDistances = new ArrayList<>();
 
 		//0,1,2,3 for left,top,right,bottom
-		Point heroPos = Dungeon.level.cellToPoint(Dungeon.hero.pos);
+		Point heroPos = Dungeon.level.cellToPoint(targetHero().pos);
 		wallDistances.add(0, heroPos.x - (c.x-6));
 		wallDistances.add(1, heroPos.y - (c.y-6));
 		wallDistances.add(2, (c.x+6) - heroPos.x);
@@ -775,12 +860,12 @@ public class VaultBossElemental extends Mob {
 
 				for (int j = 0; j < 2; j++) {
 					if (Dungeon.level.insideMap(cells[i]+j*direction) && !Dungeon.level.solid[cells[i]+j*direction]) {
-						CellEmitter.get(cells[i]+j*direction).burst(FlameParticle.FACTORY, 10);
+						if (Dungeon.coop == null) CellEmitter.get(cells[i]+j*direction).burst(FlameParticle.FACTORY, 10);
 						Char ch = Actor.findChar(cells[i]+j*direction);
 						if (ch != null && !(ch instanceof VaultBossElemental)){
 							Buff.affect(ch, Burning.class).reignite(ch, 5); //~20 effective damage
-							if (ch == Dungeon.hero){
-								Sample.INSTANCE.play(Assets.Sounds.BURNING);
+							if (ch instanceof Hero){
+								if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.BURNING);
 								Statistics.questScores[3] -= 100;
 							}
 						}
@@ -790,7 +875,7 @@ public class VaultBossElemental extends Mob {
 				cells[i] += direction;
 			}
 
-			Sample.INSTANCE.play(Assets.Sounds.BURNING, 0.5f);
+			if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.BURNING, 0.5f);
 
 			if (left-- <= 0){
 				detach();
@@ -803,6 +888,7 @@ public class VaultBossElemental extends Mob {
 		}
 
 		private void updateFX(){
+			if (Dungeon.coop != null) return;
 			for (Emitter e : emitters){
 				e.on = false;
 			}
@@ -875,15 +961,7 @@ public class VaultBossElemental extends Mob {
 	public void setupFrostCone( Char enemy ){
 
 		spTargetCell = enemy.pos;
-		Ballistica core = new Ballistica(pos, enemy.pos, Ballistica.WONT_STOP);
-
-		ConeAOE cone = new ConeAOE(core, 10, 50, Ballistica.STOP_SOLID);
-		for (int cell : cone.cells){
-			if (Dungeon.level.trueDistance(cell, pos) <= 2){
-				GameScene.targetedCell(cell, cooldown());
-			}
-		}
-
+		showAttackWarning();
 	}
 
 	public void doFrostCone( int cell ){
@@ -928,16 +1006,16 @@ public class VaultBossElemental extends Mob {
 
 			for (int cell : cells.toArray(new Integer[0])){
 				if (Dungeon.level.trueDistance(cell, startPos) <= distance){
-					CellEmitter.get(cell).burst(MagicMissile.WhiteParticle.FACTORY, 10);
+					if (Dungeon.coop == null) CellEmitter.get(cell).burst(MagicMissile.WhiteParticle.FACTORY, 10);
 					Char ch = Actor.findChar(cell);
 					if (ch != null && !(ch instanceof VaultBossElemental) && ch.buff(FrostResist.class) == null){
 						ch.damage(Random.NormalIntRange(10, 15), new Frost());
 						Buff.affect(ch, Frost.class, 5f);
 						Buff.affect(ch, FrostResist.class);
-						if (ch == Dungeon.hero){
+						if (ch instanceof Hero){
 							Statistics.questScores[3] -= 100;
-							Sample.INSTANCE.play(Assets.Sounds.SHATTER);
-							if (!ch.isAlive()){
+							if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.SHATTER);
+							if (Dungeon.coop == null && !ch.isAlive()){
 								Badges.validateDeathFromEnemyMagic();
 								Dungeon.fail(target);
 							}
@@ -968,6 +1046,7 @@ public class VaultBossElemental extends Mob {
 		}
 
 		private void updateFX(){
+			if (Dungeon.coop != null) return;
 			for (Emitter e : emitters){
 				e.on = false;
 			}
@@ -1027,7 +1106,7 @@ public class VaultBossElemental extends Mob {
 
 	public void setupFrostVortex(){
 		FrostVortex vortex = Buff.append(this, FrostVortex.class);
-		vortex.targetCell = Dungeon.hero.pos;
+		vortex.targetCell = targetHero().pos;
 	}
 
 	public static class FrostVortex extends Buff {
@@ -1084,24 +1163,25 @@ public class VaultBossElemental extends Mob {
 				return true;
 			} else {
 				for (Integer cell : cells){
-					CellEmitter.get(cell).burst(MagicMissile.WhiteParticle.FACTORY, 10);
+					if (Dungeon.coop == null) CellEmitter.get(cell).burst(MagicMissile.WhiteParticle.FACTORY, 10);
 					Char ch = Actor.findChar(cell);
 					if (ch != null && !(ch instanceof VaultBossElemental) && ch.buff(FrostResist.class) == null){
 						Buff.affect(ch, Frost.class, 5f);
 						Buff.affect(ch, FrostResist.class);
-						if (ch == Dungeon.hero){
-							Sample.INSTANCE.play(Assets.Sounds.SHATTER);
+						if (ch instanceof Hero){
+							if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.SHATTER);
 							Statistics.questScores[3] -= 100;
 						}
 					}
 				}
-				Sample.INSTANCE.play(Assets.Sounds.GAS, 0.25f);
+				if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.GAS, 0.25f);
 				spend(TICK);
 				return true;
 			}
 		}
 
 		private void updateFX(){
+			if (Dungeon.coop != null) return;
 			for (Emitter e : emitters){
 				e.on = false;
 			}
@@ -1218,15 +1298,7 @@ public class VaultBossElemental extends Mob {
 		spTargetCell = enemy.pos;
 		lightningOfs = Random.Int(2);
 
-		Ballistica bolt = new Ballistica(pos, spTargetCell, Ballistica.STOP_SOLID);
-		for (int cell : bolt.subPath(0, bolt.dist)){
-			GameScene.targetedCell(cell, cooldown());
-		}
-
-		for (int i = lightningOfs % 2; i < PathFinder.CIRCLE8.length; i+=2){
-			GameScene.targetedCell(spTargetCell + PathFinder.CIRCLE8[i], cooldown());
-		}
-
+		showAttackWarning();
 	}
 
 	public void doLightningBolt(int cell){
@@ -1235,12 +1307,12 @@ public class VaultBossElemental extends Mob {
 
 		Ballistica bolt = new Ballistica(pos, cell, Ballistica.STOP_SOLID);
 		for (int c : bolt.subPath(0, bolt.dist)){
-			CellEmitter.get(c).burst(SparkParticle.FACTORY, 5);
+			if (Dungeon.coop == null) CellEmitter.get(c).burst(SparkParticle.FACTORY, 5);
 			affectedCells.add(c);
 		}
 
 		for (int i = lightningOfs % 2; i < PathFinder.CIRCLE8.length; i+=2){
-			CellEmitter.get(cell + PathFinder.CIRCLE8[i]).burst(SparkParticle.FACTORY, 5);
+			if (Dungeon.coop == null) CellEmitter.get(cell + PathFinder.CIRCLE8[i]).burst(SparkParticle.FACTORY, 5);
 			affectedCells.add(cell + PathFinder.CIRCLE8[i]);
 		}
 
@@ -1250,13 +1322,13 @@ public class VaultBossElemental extends Mob {
 				ch.damage(Random.NormalIntRange(20, 30), new Electricity());
 				Buff.prolong(ch, Paralysis.class, 1f);
 				Buff.affect(ch, ShockResist.class);
-				ch.sprite.centerEmitter().burst(SparkParticle.FACTORY, 3);
-				ch.sprite.flash();
-				if (ch == Dungeon.hero){
-					Sample.INSTANCE.play(Assets.Sounds.LIGHTNING);
-					PixelScene.shake( 2, 0.3f );
+				if (Dungeon.coop == null) ch.sprite.centerEmitter().burst(SparkParticle.FACTORY, 3);
+				if (Dungeon.coop == null) ch.sprite.flash();
+				if (ch instanceof Hero){
+					if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.LIGHTNING);
+					if (Dungeon.coop == null) PixelScene.shake( 2, 0.3f );
 					Statistics.questScores[3] -= 100;
-					if (!ch.isAlive()){
+					if (Dungeon.coop == null && !ch.isAlive()){
 						Badges.validateDeathFromEnemyMagic();
 						Dungeon.fail(this);
 					}
@@ -1264,9 +1336,9 @@ public class VaultBossElemental extends Mob {
 			}
 		}
 
-		sprite.parent.add(new Lightning(cell + PathFinder.CIRCLE8[lightningOfs],
+		if (Dungeon.coop == null) sprite.parent.add(new Lightning(cell + PathFinder.CIRCLE8[lightningOfs],
 				cell + PathFinder.CIRCLE8[lightningOfs+4], null));
-		sprite.parent.add(new Lightning(cell + PathFinder.CIRCLE8[lightningOfs+2],
+		if (Dungeon.coop == null) sprite.parent.add(new Lightning(cell + PathFinder.CIRCLE8[lightningOfs+2],
 				cell + PathFinder.CIRCLE8[lightningOfs+6], null));
 
 	}
@@ -1338,28 +1410,28 @@ public class VaultBossElemental extends Mob {
 				curPos.x += 0.5f;
 				curPos.y += 0.5f;
 
-				direction = PointF.angle(curPos, new PointF(Dungeon.level.cellToPoint(Dungeon.hero.pos)));
+				direction = PointF.angle(curPos, new PointF(Dungeon.level.cellToPoint(((VaultBossElemental)target).targetHero().pos)));
 
 				//just started, so do initial bolt visuals
 
 				int curCell = Dungeon.level.pointToCell(curPos.floor());
-				CellEmitter.get(curCell).burst(SparkParticle.FACTORY, 10);
+				if (Dungeon.coop == null) CellEmitter.get(curCell).burst(SparkParticle.FACTORY, 10);
 
 			} else {
 
-				CellEmitter.get(curCell).burst(SparkParticle.FACTORY, 10);
+				if (Dungeon.coop == null) CellEmitter.get(curCell).burst(SparkParticle.FACTORY, 10);
 				Char ch = Actor.findChar(curCell);
 				if (ch != null && !(ch instanceof VaultBossElemental) && ch.buff(ShockResist.class) == null){
 					shockChar(ch);
 				}
 				if ( Dungeon.level.insideMap(midCell) && !Dungeon.level.solid[midCell]) {
-					CellEmitter.get(midCell).burst(SparkParticle.FACTORY, 10);
+					if (Dungeon.coop == null) CellEmitter.get(midCell).burst(SparkParticle.FACTORY, 10);
 					ch = Actor.findChar(midCell);
 					if (ch != null && !(ch instanceof VaultBossElemental) && ch.buff(ShockResist.class) == null){
 						shockChar(ch);
 					}
 					if (Dungeon.level.insideMap(endCell) && !Dungeon.level.solid[endCell]) {
-						CellEmitter.get(endCell).burst(SparkParticle.FACTORY, 10);
+						if (Dungeon.coop == null) CellEmitter.get(endCell).burst(SparkParticle.FACTORY, 10);
 						ch = Actor.findChar(endCell);
 						if (ch != null && !(ch instanceof VaultBossElemental) && ch.buff(ShockResist.class) == null){
 							shockChar(ch);
@@ -1377,7 +1449,7 @@ public class VaultBossElemental extends Mob {
 				curPos.x += 0.5f;
 				curPos.y += 0.5f;
 
-				float targetAngle = PointF.angle(curPos, new PointF(Dungeon.level.cellToPoint(Dungeon.hero.pos)));
+				float targetAngle = PointF.angle(curPos, new PointF(Dungeon.level.cellToPoint(((VaultBossElemental)target).targetHero().pos)));
 
 				if (Math.abs(direction - targetAngle) > PointF.PI){
 					if (direction > targetAngle){
@@ -1415,8 +1487,8 @@ public class VaultBossElemental extends Mob {
 			curCell = Dungeon.level.pointToCell(curPos.floor());
 
 			//prevents many instances from all making their sfx at once
-			if (Actor.now() > lastSFXTime) {
-				Sample.INSTANCE.play(Assets.Sounds.LIGHTNING, 0.5f);
+			if (Dungeon.coop == null && Actor.now() > lastSFXTime) {
+				if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.LIGHTNING, 0.5f);
 				lastSFXTime = Actor.now();
 			}
 
@@ -1430,13 +1502,13 @@ public class VaultBossElemental extends Mob {
 			ch.damage(Random.NormalIntRange(10, 15), new Electricity());
 			Buff.prolong(ch, Paralysis.class, 1f);
 			Buff.affect(ch, ShockResist.class);
-			ch.sprite.centerEmitter().burst(SparkParticle.FACTORY, 3);
-			ch.sprite.flash();
-			if (ch == Dungeon.hero){
-				Sample.INSTANCE.play(Assets.Sounds.LIGHTNING);
-				PixelScene.shake( 2, 0.3f );
+			if (Dungeon.coop == null) ch.sprite.centerEmitter().burst(SparkParticle.FACTORY, 3);
+			if (Dungeon.coop == null) ch.sprite.flash();
+			if (ch instanceof Hero){
+				if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.LIGHTNING);
+				if (Dungeon.coop == null) PixelScene.shake( 2, 0.3f );
 				Statistics.questScores[3] -= 100;
-				if (!ch.isAlive()){
+				if (Dungeon.coop == null && !ch.isAlive()){
 					Badges.validateDeathFromEnemyMagic();
 					Dungeon.fail(target);
 				}
@@ -1444,6 +1516,7 @@ public class VaultBossElemental extends Mob {
 		}
 
 		private void updateFX(){
+			if (Dungeon.coop != null) return;
 			for (Emitter e : emitters){
 				e.on = false;
 			}
@@ -1498,7 +1571,7 @@ public class VaultBossElemental extends Mob {
 		@Override
 		public void restoreFromBundle(Bundle bundle) {
 			super.restoreFromBundle(bundle);
-			direction = bundle.getInt(DIRECTION);
+			direction = bundle.getFloat(DIRECTION);
 			curCell = bundle.getInt(CUR_CELL);
 			midCell = bundle.getInt(MID_CELL);
 			endCell = bundle.getInt(END_CELL);

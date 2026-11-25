@@ -17,6 +17,7 @@ import java.util.UUID;
 
 /** All widgets are render-thread only. Scene reconstruction keeps the live controller. */
 public class CoopScene extends PixelScene {
+    private String lastVaultWarning="";
     private static CoopController active;
     private CoopController controller;
     private CoopController.Frame shown;
@@ -504,6 +505,18 @@ public class CoopScene extends PixelScene {
         if(v.ally>=0 && "DOWNED".equals(f.image.rows.get("allylife"))) line+=" / "+msg("reviveally");
         if(f.lastResult.startsWith("REJECT") || f.lastResult.equals("UNKNOWN")) line+=" · "+status(f.lastResult);
         if (hud==null) { hud=new CoopHud(this,controller,getCommonInsets()); addToBack(hud); remove(board); addToBack(board); }
+        String warning=f.image.rows.get("vaultwarning");
+        if (f.image.rows.containsKey("vaultinjured")) warning="injure_warning_1";
+        if (warning==null) warning="";
+        if (!warning.isEmpty() && !warning.equals(lastVaultWarning)) {
+            Class<?> source=warning.startsWith("injure") ? com.shatteredpixel.shatteredpixeldungeon.items.quest.EscapeCrystal.class
+                    : com.shatteredpixel.shatteredpixeldungeon.levels.rooms.quest.vault.VaultFinalRoom.class;
+            add(new com.shatteredpixel.shatteredpixeldungeon.windows.WndTitledMessage(
+                    new com.shatteredpixel.shatteredpixeldungeon.sprites.ImpSprite(),
+                    Messages.titleCase(Messages.get(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp.class,"name")),
+                    Messages.get(source,warning)));
+        }
+        lastVaultWarning=warning;
         hud.apply(v,f.pending==0,targetView!=null ? msg("aim") : line,targetView!=null);
     }
 }
