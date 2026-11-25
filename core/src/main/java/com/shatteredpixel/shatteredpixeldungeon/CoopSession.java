@@ -32,6 +32,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SentryRoom;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Gnoll;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Necromancer;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.SpectralNecromancer;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue;
@@ -417,7 +419,8 @@ public final class CoopSession implements AutoCloseable {
         if (type==Statue.class) return statueWeapon(((Statue)actor).weapon());
         return (Dungeon.depth>=CoopFloors.FIRST_PRISON && Dungeon.depth<=CoopFloors.LAST_PLAYABLE && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Skeleton.class)
                 || (Dungeon.depth==CoopFloors.FIRST_PRISON && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.class)
-                || (Dungeon.depth==7 && (type==Wandmaker.class || type==RotHeart.class || type==RotLasher.class
+                || (Dungeon.depth==7 && (type==Necromancer.class || type==SpectralNecromancer.class || type==Necromancer.NecroSkeleton.class
+                        || type==Wandmaker.class || type==RotHeart.class || type==RotLasher.class
                         || type==Elemental.NewbornFireElemental.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Guard.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM100.class))
                 || type==CorpseDust.DustWraith.class || (Dungeon.depth==7 && (type==Wraith.class || type==TormentedSpirit.class))
                 || type == GnollExile.class || type == PhantomPiranha.class || type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class

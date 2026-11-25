@@ -165,27 +165,27 @@ public class Necromancer extends Mob {
 	}
 	
 	public void onZapComplete(){
-		if (mySkeleton == null || mySkeleton.sprite == null || !mySkeleton.isAlive()){
+		if (mySkeleton == null || !mySkeleton.isAlive() || (Dungeon.coop == null && mySkeleton.sprite == null)){
 			return;
 		}
 		
 		//heal skeleton first
 		if (mySkeleton.HP < mySkeleton.HT){
 
-			if (sprite.visible || mySkeleton.sprite.visible) {
+			if (Dungeon.coop == null && (sprite.visible || mySkeleton.sprite.visible)) {
 				sprite.parent.add(new Beam.HealthRay(sprite.center(), mySkeleton.sprite.center()));
 				Sample.INSTANCE.play( Assets.Sounds.RAY );
 			}
 			
 			mySkeleton.HP = Math.min(mySkeleton.HP + mySkeleton.HT/5, mySkeleton.HT);
-			if (mySkeleton.sprite.visible) {
+			if (Dungeon.coop == null && mySkeleton.sprite.visible) {
 				mySkeleton.sprite.showStatusWithIcon( CharSprite.POSITIVE, Integer.toString( mySkeleton.HT/5 ), FloatingText.HEALING );
 			}
 			
 		//otherwise give it adrenaline
 		} else if (mySkeleton.buff(Adrenaline.class) == null) {
 
-			if (sprite.visible || mySkeleton.sprite.visible) {
+			if (Dungeon.coop == null && (sprite.visible || mySkeleton.sprite.visible)) {
 				sprite.parent.add(new Beam.HealthRay(sprite.center(), mySkeleton.sprite.center()));
 				Sample.INSTANCE.play( Assets.Sounds.RAY );
 			}
@@ -193,7 +193,27 @@ public class Necromancer extends Mob {
 			Buff.affect(mySkeleton, Adrenaline.class, 3f);
 		}
 		
-		next();
+		if (Dungeon.coop == null) next();
+	}
+
+	// The original recall decision depends on whether the caster is visible.
+	private boolean visibleForRecall() {
+		if (Dungeon.coop == null) return sprite != null && sprite.visible;
+		return !Dungeon.coop.unseenByParty(pos, 0);
+	}
+
+	private void beginSummoning(int cell) {
+		summoning = true;
+		summoningPos = cell;
+		if (Dungeon.coop == null) {
+			sprite.zap(cell);
+			if (Dungeon.level.heroFOV[pos] || Dungeon.level.heroFOV[cell]) Dungeon.hero.interrupt();
+		}
+	}
+
+	protected void requireLanding(int cell) {
+		if (Dungeon.coop != null && !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(cell))
+			throw new UnsupportedOperationException("Unsupported summoning landing effect");
 	}
 
 	public void summonMinion(){
@@ -218,6 +238,7 @@ public class Necromancer extends Mob {
 				if (ch == null || Char.hasProp(ch, Property.IMMOVABLE)){
 					summoningPos = pushPos;
 				} else {
+					requireLanding(pushPos);
 					Actor.add(new Pushing(ch, ch.pos, pushPos));
 
 					ch.pos = pushPos;
@@ -230,7 +251,7 @@ public class Necromancer extends Mob {
 				Char blocker = Actor.findChar(summoningPos);
 				if (blocker != null && blocker.alignment != alignment){
 					blocker.damage( Random.NormalIntRange(2, 10), new SummoningBlockDamage() );
-					if (blocker == Dungeon.hero && !blocker.isAlive()){
+					if (Dungeon.coop == null && blocker == Dungeon.hero && !blocker.isAlive()){
 						Badges.validateDeathFromEnemyMagic();
 						Dungeon.fail(this);
 						GLog.n( Messages.capitalize(Messages.get(Char.class, "kill", name())) );
@@ -242,6 +263,7 @@ public class Necromancer extends Mob {
 			}
 		}
 
+		requireLanding(summoningPos);
 		summoning = firstSummon = false;
 
 		if (mySkeleton == null || !mySkeleton.isActive()) {
@@ -258,7 +280,7 @@ public class Necromancer extends Mob {
 		} else {
 			ScrollOfTeleportation.appear(mySkeleton, summoningPos);
 		}
-		((NecromancerSprite)sprite).finishSummoning();
+		if (Dungeon.coop == null) ((NecromancerSprite)sprite).finishSummoning();
 	}
 
 	public static class SummoningBlockDamage{}
@@ -316,13 +338,7 @@ public class Necromancer extends Mob {
 				
 				if (summoningPos != -1){
 					
-					summoning = true;
-					sprite.zap( summoningPos );
-
-					if (Dungeon.level.heroFOV[pos] || Dungeon.level.heroFOV[summoningPos]){
-						Dungeon.hero.interrupt();
-					}
-					
+					beginSummoning(summoningPos);
 					spend( firstSummon ? TICK : 2*TICK );
 				} else {
 					//wait for a turn
@@ -369,13 +385,8 @@ public class Necromancer extends Mob {
 						
 						if (telePos != -1){
 
-							if (sprite != null && sprite.visible) {
-								summoning = true;
-								summoningPos = telePos;
-								sprite.zap(telePos);
-								if (Dungeon.level.heroFOV[pos] || Dungeon.level.heroFOV[summoningPos]) {
-									Dungeon.hero.interrupt();
-								}
+							if (visibleForRecall()) {
+								beginSummoning(telePos);
 								spend(TICK); //2 ticks total, it can't be the first summon
 							}
 						}
@@ -387,7 +398,7 @@ public class Necromancer extends Mob {
 					
 					//zap skeleton
 					if (mySkeleton.HP < mySkeleton.HT || mySkeleton.buff(Adrenaline.class) == null) {
-						if (sprite != null && sprite.visible){
+						if (Dungeon.coop == null && sprite != null && sprite.visible){
 							sprite.zap(mySkeleton.pos);
 							return false;
 						} else {

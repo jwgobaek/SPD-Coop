@@ -51,6 +51,7 @@ public final class RestartHost {
         return mode.startsWith("journey-seven-") || mode.equals("prison") || mode.equals("campaign") || mode.equals("campaign-start") || mode.equals("campaign-team");
     }
     private static long seedFor(String mode) {
+        if (mode.startsWith("necro-setup-")) return 570;
         if (mode.startsWith("wand-setup-")) return Integer.parseInt(mode.split("-")[2]);
         switch (mode) {
             case "blocked-start": return 452; // Original Spear/Projecting statue remains unsupported.
@@ -104,6 +105,14 @@ public final class RestartHost {
             }
             if (stage.equals("AFTER_HEAD") && mode.equals("crystal-fight") && java.nio.file.Files.exists(path.resolve("strike"))
                     && Actor.findById(Integer.parseInt(read(path,"crystal-id")))==null) Runtime.getRuntime().halt(78);
+            if (stage.equals("AFTER_HEAD") && mode.equals("necro-summon") && java.nio.file.Files.exists(path.resolve("summon-request"))) {
+                Necromancer necro=(Necromancer)Actor.findById(Integer.parseInt(read(path,"caster")));
+                int minion=NecromancerTest.data(necro).getInt("my_skeleton");
+                if (Actor.findById(minion) instanceof Necromancer.NecroSkeleton) {
+                    write(path,"summoned",Integer.toString(minion));
+                    Runtime.getRuntime().halt(78);
+                }
+            }
             if (stage.equals("AFTER_HEAD") && knife(mode) && java.nio.file.Files.exists(path.resolve("pin-pending"))) {
                 Mob target=(Mob)Actor.findById(Integer.parseInt(read(path,"pin-target").split(" ")[0]));
                 com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PinCushion cushion=target.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PinCushion.class);
@@ -136,7 +145,7 @@ public final class RestartHost {
                 else PrisonShopChecks.copiesOf(engine);
             }
         }
-        try(LanRoom room=(special || mode.startsWith("wand-setup-") || mode.startsWith("scribe") || kit(mode) || knife(mode) || newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
+        try(LanRoom room=(special || mode.startsWith("necro-setup-") || mode.startsWith("wand-setup-") || mode.startsWith("scribe") || kit(mode) || knife(mode) || newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup") || mode.equals("schema3-backup") || mode.equals("prison-backup"))) {
             if (mode.equals("schema2-to-three")) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
             if (mode.equals("prison-backup")) {
@@ -159,6 +168,13 @@ public final class RestartHost {
                 assertNotNull(CoopTrade.merchant(Dungeon.coop.hero(0),false));
             }
             if (mode.startsWith("market-")) arrangeMarket(path,mode);
+            if (mode.equals("necro-receipt")) {
+                int minion=Integer.parseInt(read(path,"summoned"));
+                Necromancer necro=(Necromancer)Actor.findById(Integer.parseInt(read(path,"caster")));
+                assertEquals(minion,NecromancerTest.data(necro).getInt("my_skeleton"));
+                assertTrue(Actor.findById(minion) instanceof Necromancer.NecroSkeleton);
+                assertEquals(1,Dungeon.level.mobs.stream().filter(m->m instanceof Necromancer.NecroSkeleton).count());
+            }
             if (mode.equals("wand-receipt")) {
                 assertNull(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker.Quest.wand1);
                 assertFalse(Dungeon.level.mobs.stream().anyMatch(m -> m instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker));
@@ -353,6 +369,16 @@ public final class RestartHost {
                         assertTrue(piece.collect(owner.belongings.backpack));
                         game.ownership.claim(piece,game.player(seat));
                     }
+                }
+                if (mode.startsWith("necro-setup-") && !started && room.state()==LanRoom.State.IN_GAME) {
+                    started=true;
+                    WandmakerTest.enterPrison(Dungeon.coop);
+                    int seat=Integer.parseInt(mode.substring("necro-setup-".length()));
+                    Necromancer necro=NecromancerTest.arrange(Dungeon.coop,seat,false);
+                    NecromancerTest.prepare(Dungeon.coop,necro);
+                    write(path,"caster",Integer.toString(necro.id()));
+                    room.save();
+                    write(path,"return-ready","1");
                 }
                 if (mode.startsWith("wand-setup-") && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;

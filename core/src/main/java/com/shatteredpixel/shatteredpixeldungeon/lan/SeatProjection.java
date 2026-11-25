@@ -170,6 +170,9 @@ final class SeatProjection {
                     rows.put("m"+mob.id(),mob.pos+","+mob.getClass().getSimpleName()+","+mob.HP+","+mob.HT);
                     if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo && ((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo)mob).chargeStage()>0)
                         rows.put("charge"+mob.pos,Integer.toString(((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo)mob).chargeStage()));
+                    if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Necromancer
+                            && ((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Necromancer)mob).summoning)
+                        rows.put("charge"+mob.pos,"1");
                     if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue)
                         rows.put("mail"+mob.id(),Integer.toString(((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue)mob).armor().tier));
                     if (mob instanceof Wandmaker && level.adjacent(hero.pos, mob.pos)) {

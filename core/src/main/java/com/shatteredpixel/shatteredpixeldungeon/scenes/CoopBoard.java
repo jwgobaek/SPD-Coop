@@ -127,6 +127,8 @@ final class CoopBoard extends Group {
                 });
                 boolean charging=view.source.rows.containsKey("charge"+cell);
                 if (sprite instanceof GooSprite) ((GooSprite)sprite).displayCharge(charging);
+                else if (sprite instanceof NecromancerSprite) ((NecromancerSprite)sprite).displayCharge(charging);
+                else if (sprite instanceof SpectralNecromancerSprite) ((SpectralNecromancerSprite)sprite).displayCharge(charging);
                 else if (sprite instanceof SentrySprite) {
                     sprite.resetColor();
                     if (charging) sprite.tint(1f,0.2f,0.2f,0.55f);
@@ -257,6 +259,9 @@ final class CoopBoard extends Group {
                     case "Thief": sprite=new ThiefSprite();break;
                     case "Guard": sprite=new GuardSprite();break;
                     case "DM100": sprite=new DM100Sprite();break;
+                    case "Necromancer": sprite=new NecromancerSprite();break;
+                    case "SpectralNecromancer": sprite=new SpectralNecromancerSprite();break;
+                    case "NecroSkeleton": sprite=new com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Necromancer.NecroSkeleton.NecroSkeletonSprite();break;
                     case "Skeleton": sprite=new SkeletonSprite();break;
                     case "Wandmaker": sprite=new WandmakerSprite();break;
                     case "RotHeart": sprite=new RotHeartSprite();break;

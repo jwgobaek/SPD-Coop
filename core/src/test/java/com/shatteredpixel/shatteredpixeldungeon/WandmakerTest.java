@@ -46,7 +46,7 @@ public class WandmakerTest extends HeadlessDungeon {
         assertFalse(game.stopReason(), game.stopped());
     }
 
-    static void enterPrison(CoopSession game) {
+    public static void enterPrison(CoopSession game) {
         for (int seat = 0; seat < 2; seat++) {
             Hero hero = game.hero(seat);
             hero.HT = hero.HP = 500;

@@ -58,7 +58,7 @@ public class SpectralNecromancer extends Necromancer {
 
 	@Override
 	public void rollToDropLoot() {
-		if (Dungeon.hero.lvl > maxLvl + 2) return;
+		if (lootOwner().lvl > maxLvl + 2) return;
 
 		super.rollToDropLoot();
 
@@ -66,7 +66,8 @@ public class SpectralNecromancer extends Necromancer {
 		do {
 			ofs = PathFinder.NEIGHBOURS8[Random.Int(8)];
 		} while (Dungeon.level.solid[pos + ofs] && !Dungeon.level.passable[pos + ofs]);
-		Dungeon.level.drop( new ScrollOfRemoveCurse(), pos + ofs ).sprite.drop( pos );
+		com.shatteredpixel.shatteredpixeldungeon.items.Heap heap = Dungeon.level.drop(new ScrollOfRemoveCurse(), pos + ofs);
+		if (Dungeon.coop == null) heap.sprite.drop(pos);
 	}
 
 	@Override
@@ -122,6 +123,7 @@ public class SpectralNecromancer extends Necromancer {
 			//push enemy, or wait a turn if there is no valid pushing position
 			if (pushPos != pos) {
 				Char ch = Actor.findChar(summoningPos);
+				requireLanding(pushPos);
 				Actor.add( new Pushing( ch, ch.pos, pushPos ) );
 
 				ch.pos = pushPos;
@@ -132,7 +134,7 @@ public class SpectralNecromancer extends Necromancer {
 				Char blocker = Actor.findChar(summoningPos);
 				if (blocker.alignment != alignment){
 					blocker.damage( Random.NormalIntRange(2, 10), new SummoningBlockDamage() );
-					if (blocker == Dungeon.hero && !blocker.isAlive()){
+					if (Dungeon.coop == null && blocker == Dungeon.hero && !blocker.isAlive()){
 						Badges.validateDeathFromEnemyMagic();
 						Dungeon.fail(this);
 						GLog.n( Messages.capitalize(Messages.get(Char.class, "kill", name())) );
@@ -144,6 +146,7 @@ public class SpectralNecromancer extends Necromancer {
 			}
 		}
 
+		requireLanding(summoningPos);
 		summoning = firstSummon = false;
 
 		Wraith wraith = Wraith.spawnAt(summoningPos, Wraith.class);
@@ -153,7 +156,7 @@ public class SpectralNecromancer extends Necromancer {
 		}
 		wraith.adjustStats(4);
 		Dungeon.level.occupyCell( wraith );
-		((SpectralNecromancerSprite)sprite).finishSummoning();
+		if (Dungeon.coop == null) ((SpectralNecromancerSprite)sprite).finishSummoning();
 
 		for (Buff b : buffs()){
 			if (b.revivePersists) {

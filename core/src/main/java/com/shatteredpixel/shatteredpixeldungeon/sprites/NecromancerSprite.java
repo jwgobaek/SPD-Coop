@@ -116,6 +116,11 @@ public class NecromancerSprite extends MobSprite {
 		idle();
 	}
 
+	public void displayCharge(boolean preparing) {
+		if (preparing && curAnim != charging) charge();
+		else if (!preparing && curAnim == charging) idle();
+	}
+
 	public void charge(){
 		play(charging);
 	}

@@ -151,7 +151,7 @@ public final class RestartClient {
                 assertEquals("ERROR VERSION", old.request("MODE SYNC12"));
             }
         }
-        if (special || mode.startsWith("wand-setup-") || mode.startsWith("scribe") || RestartHost.kit(mode) || RestartHost.knife(mode) || RestartHost.newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
+        if (special || mode.startsWith("necro-setup-") || mode.startsWith("wand-setup-") || mode.startsWith("scribe") || RestartHost.kit(mode) || RestartHost.knife(mode) || RestartHost.newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
             for(int i=0;i<2;i++) {
                 assertTrue(clients[i].request(i==0 ? RestartHost.read(path,"endpoint").split("\n")[1] : "JOIN").startsWith("JOINED"));
                 keys[i]=SeatCredential.generate();
@@ -160,7 +160,7 @@ public final class RestartClient {
                 actions[i]=new SeatActions(session,i,i+1);
                 models[i]=new DisplayReplica(session,i);
                 String character=(mode.equals("quest") || RestartHost.guardian(mode) || mode.equals("crystal-new"))?"MAGE":mode.startsWith("cast") && !mode.startsWith("cast-hand") && i==mode.charAt(mode.length()-1)-'0' ? "MAGE" : mode.equals("walk") ? (i==0?"MAGE":"WARRIOR") : i==0?"WARRIOR":"HUNTRESS";
-                if (mode.startsWith("wand-setup-")) character=i==0?"WARRIOR":"MAGE";
+                if (mode.startsWith("wand-setup-") || mode.startsWith("necro-setup-")) character=i==0?"WARRIOR":"MAGE";
                 if (RestartHost.newCampaign(mode)) character=i==0?"MAGE":"HUNTRESS";
                 if (mode.startsWith("scribe") && i==mode.charAt(6)-'0') character="WARRIOR";
                 if (RestartHost.kit(mode)) character=i==mode.charAt(3)-'0'?"HUNTRESS":"WARRIOR";
@@ -174,7 +174,7 @@ public final class RestartClient {
             }
             assertEquals("GAME_STARTED",clients[0].request("START"));
             RestartHost.write(path,"epoch",epoch.toString());
-            if (mode.startsWith("wand-setup-")) {
+            if (mode.startsWith("wand-setup-") || mode.startsWith("necro-setup-")) {
                 long until = System.nanoTime()+30000000000L;
                 while (!Files.exists(path.resolve("return-ready")) && System.nanoTime()<until) Thread.sleep(10);
                 assertTrue(Files.exists(path.resolve("return-ready")));
@@ -372,6 +372,29 @@ public final class RestartClient {
                 PublicDungeon view=new PublicDungeon(state(i)); assertEquals(6,view.depth);
                 assertEquals(RestartHost.read(path,"arrived"+i).split(" ")[0],state(i).rows.get("self").split(",")[0]);
             }
+            return;
+        }
+        if (mode.equals("necro-summon")) {
+            for(int i=0;i<8;i++) {
+                int seat=active();
+                SeatActions.Pending action=actions[seat].prepare(state(seat),"WAIT",0,0);
+                RestartHost.write(path,"summon-request",seat+" "+action.id+" "+action.command);
+                try { assertTrue(action.submit(clients[seat]).endsWith(" APPLIED")); }
+                catch(IOException dropped) { return; }
+                refresh();
+            }
+            fail("Expected lost reply at native summon publication");
+        }
+        if (mode.equals("necro-receipt")) {
+            String[] prior=RestartHost.read(path,"summon-request").split(" ",3);
+            int seat=Integer.parseInt(prior[0]);
+            long version=state(seat).version;
+            String receipt=clients[seat].request("LOOKUP "+epoch+" "+prior[1]);
+            assertTrue(receipt,receipt.endsWith(" APPLIED"));
+            assertEquals(receipt,clients[seat].request(prior[2]));
+            refresh();
+            assertEquals(version,state(seat).version);
+            act("WAIT",0,0);
             return;
         }
         if (mode.equals("seven-travel")) {
