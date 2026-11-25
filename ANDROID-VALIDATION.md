@@ -1,5 +1,7 @@
 # Android validation backlog
 
+Yog 일반 승리판 f1e1bb2를 GB2의 MuMu Android 15에서 실제 설치했다. 비로그인 다운로드, 기존 앱 및 1층 방장 저장 보존 업데이트, 원본 HUD·가방·퀵슬롯, 저장·앱 강제 종료·재실행·재개가 PASS다. 25·26층 Android 실전과 두 번째 좌석, 실기기 무선 LAN은 NOT RUN이다. [설치 해시와 시험 범위](docs/coop/yog-victory-delivery.md)
+
 5f00b27의 Imp 금고·악마의 전당판은 기존 드워프 왕판에서 데이터 보존 업데이트, 설치 SHA-256 대조, 기존 방장 저장 재개, 가방과 퀵슬롯, 방 저장·닫기 및 앱 재실행이 PASS였다. 단일 MuMu에서 파트너를 기다리는 방으로 확인했다. Android 금고·악마의 전당 진행과 기기 간 통신은 NOT RUN이다. [화면 및 정리 기록](docs/coop/imp-halls-delivery.md)
 
 ## 광산·도시 체크포인트
