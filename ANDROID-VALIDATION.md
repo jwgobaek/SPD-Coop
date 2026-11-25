@@ -13,3 +13,5 @@ Common game logic, persistence and LAN protocol run under the desktop JVM and li
 | Device performance and endurance | NOT RUN | Measure frame pacing, latency, heap usage, thermal behavior and battery use over an extended session. |
 
 The manifest declares INTERNET and ACCESS_NETWORK_STATE. AndroidLauncher supplies the lifecycle and ACTION_SEND integration. AndroidSeatKeys uses the platform AndroidKeyStore provider. Desktop screenshots, JVM loopback tests and package inspection have separate results in TEST_REPORT.md.
+
+The prison checkpoint adds desktop evidence for a sold item returning from a dormant floor, the two clients resuming from floor 7, and full room shutdown. Repeat these on Android under screen lock and app process death.

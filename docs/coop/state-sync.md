@@ -120,9 +120,9 @@ SYNC6은 시야 안의 Sentry·Piranha·Ghost·FetidRat·Bee와 허용된 아이
 
 SeatProjection은 중립 미믹을 CHEST 또는 CRYSTAL_CHEST로 표시한다. 위장 상태에서는 해당 Actor의 m행·HP·전리품·공격 상태가 없다. PublicDungeon과 CoopBoard는 두 좌석에서 같은 h셀 입력을 사용한다. 공개 후 직접 볼 수 있는 동안 기존 m행의 위치·HP와 원본 텍스처를 사용한다. 몬스터 보관품의 내부 ID 및 소유자 필드는 디스크 저장에만 존재한다. 귀속품이 바닥으로 돌아오면 공개 item ID와 별개로 호스트가 실제 소유자를 검증한다.
 
-### SYNC15 prison shop
+### Shop checkpoint protocol SYNC15
 
-The persistent room requires MODE SYNC15. SYNC14 and older peers receive ERROR VERSION. Stock and price inspection use the authenticated seat's snapshot. A visible sale cell has saleN (original item image) and, for supported merchandise, quoteN (seat handle, native price, quantity, capacity flag). On floor 6 gold carries the party balance. Adjacent, observing seats get merchant (shopkeeper cell) and sellH (total value, single-unit sale eligibility) for their own eligible inventory. Only that seller gets refundH (image, quantity, value, capacity flag) for merchandise retained by the keeper.
+The shop checkpoint used MODE SYNC15 and rejected older peers with ERROR VERSION. Its transaction rows and validation rules carry forward to SYNC16. Stock and price inspection use the authenticated seat's snapshot. A visible sale cell has saleN (original item image) and, for supported merchandise, quoteN (seat handle, native price, quantity, capacity flag). On floor 6 gold carries the party balance. Adjacent, observing seats get merchant (shopkeeper cell) and sellH (total value, single-unit sale eligibility) for their own eligible inventory. Only that seller gets refundH (image, quantity, value, capacity flag) for merchandise retained by the keeper.
 
 BUY takes the stock cell and handle. SELL, SELL_ONE and BUYBACK take the merchant cell and a seat-scoped handle. All four reuse the ordinary turn, State Version, Action ID, item resolution and durable receipt path. Opening and cancelling a quote send no game action. A full bag, insufficient funds, mismatched location, ownership, expired offer or missing stock prevents the transaction. No client supplies a price.
 
