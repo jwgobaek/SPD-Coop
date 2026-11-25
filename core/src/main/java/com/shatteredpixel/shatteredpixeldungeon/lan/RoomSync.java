@@ -81,6 +81,7 @@ final class RoomSync {
         b.put("version",version);
         for (int i=0;i<seats.length;i++) {
             Seat seat=seats[i];
+            b.put("shortcutSalt"+i,seat.view.shortcutSalt.toString());
             Bundle ledger=new Bundle();
             ledger.put("highest",seat.highWater);
             ledger.put("cursor",seat.view.cursor());
@@ -102,6 +103,7 @@ final class RoomSync {
         if (version<=0 || version>=Long.MAX_VALUE-1) throw new IllegalArgumentException("Invalid state version");
         for (int i=0;i<seats.length;i++) {
             Seat s=seats[i];
+            if (b.contains("shortcutSalt"+i)) s.view.shortcutSalt=UUID.fromString(b.getString("shortcutSalt"+i));
             Bundle ledger=b.getBundle("seat"+i);
             int count=ledger.getInt("count");
             long high=ledger.getLong("highest"), last=0;

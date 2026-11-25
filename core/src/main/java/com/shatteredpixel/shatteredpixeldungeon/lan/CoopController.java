@@ -24,10 +24,12 @@ public final class CoopController {
         public final List<Entry> list;
         public final StateImage image;
         public final PublicDungeon dungeon;
+        public final SeatQuickslots quickslots;
         public final UUID session;
         public final int seat;
         public final long pending,lastAction,wireBytes;
         Frame(CoopController c) {
+            quickslots=c.ticket==null ? null : c.ticket.quickslots;
             page=c.page; wireBytes=c.client==null ? 0 : c.client.transferredBytes(); issue=c.issue; crash=c.crash; cue=c.cue; notice=c.notice; roster=c.roster; list=c.list; image=c.image; dungeon=c.dungeon;
             seat=c.ticket==null ? -1 : c.ticket.seat; session=c.ticket==null ? null : c.ticket.session;
             address=c.advertised; pending=c.ticket==null ? 0 : c.ticket.pending;
@@ -213,7 +215,7 @@ public final class CoopController {
         if(Integer.parseInt(f[1])!=ticket.seat || Long.parseLong(f[2])!=ticket.player) throw new IOException("AUTH");
         lastAction=Long.parseLong(f[4]); lastResult="";
         actions=new SeatActions(ticket.session,ticket.seat,ticket.player,lastAction);
-        if(!ticket.epoch.equals(epoch)) { lastResult="ROLLED_BACK"; ticket.pending=0; }
+        if(!ticket.epoch.equals(epoch)) { lastResult="ROLLED_BACK"; ticket.pending=0; ticket.quickslots=SeatQuickslots.empty(); }
         ticket.epoch=epoch; tickets.write(ticket);
         replica=new DisplayReplica(ticket.session,ticket.seat);
         show(Page.SNAPSHOT); replica.refresh(client);
@@ -264,9 +266,30 @@ public final class CoopController {
                 if(Integer.parseInt(next.rows.get("self").split(",")[2])<dungeon.hp) cue="HURT";
             }
             dungeon=next.rows.containsKey("self") ? new PublicDungeon(next) : null;
+            if (dungeon!=null && "IN_GAME".equals(next.rows.get("status"))) {
+                SeatQuickslots layout=ticket.quickslots==null ? SeatQuickslots.defaults(dungeon) : ticket.quickslots.reconnectItems(dungeon);
+                if (layout!=ticket.quickslots) saveLayout(layout);
+            }
             image=next; publish();
         }
     }
+    private void saveLayout(SeatQuickslots layout) throws IOException {
+        SeatQuickslots old=ticket.quickslots;
+        ticket.quickslots=layout;
+        try { tickets.write(ticket); } catch (IOException failed) { ticket.quickslots=old; throw failed; }
+    }
+
+    /** This job changes only the client's app-private seat ticket. */
+    public boolean bindShortcut(StateImage shown,int index,PublicDungeon.Loot item) {
+        if (shown==null || frame.image!=shown || index<0 || index>=SeatQuickslots.COUNT) return false;
+        return enqueue(()->{
+            if (page!=Page.GAME || image!=shown || dungeon==null || ticket.quickslots==null) return;
+            if (item!=null && (!dungeon.belongings.contains(item) || item.reference.isEmpty() || PublicDungeon.shortcutAction(item).isEmpty())) return;
+            try { saveLayout(ticket.quickslots.bind(index,item)); }
+            catch (IOException failed) { issue=notice="STORAGE"; }
+        });
+    }
+
     public boolean act(StateImage offered,String verb,int cell,long item) {
         if(offered==null || frame.image!=offered || (!verb.equals("CONSENT") && !verb.equals("CANCEL_TRAVEL") && !Integer.toString(frame.seat).equals(offered.rows.get("active")))) return false;
         return enqueue(()->{

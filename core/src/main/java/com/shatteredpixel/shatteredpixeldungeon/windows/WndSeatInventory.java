@@ -16,17 +16,22 @@ public final class WndSeatInventory extends WndTabbed {
             ItemSpriteSheet.ARTIFACT_HOLDER,ItemSpriteSheet.SOMETHING,ItemSpriteSheet.RING_HOLDER};
     private final PublicDungeon view;
     private final CoopController client;
+    private final int shortcut;
 
-    public WndSeatInventory(PublicDungeon view,CoopController client) { this(view,client,0); }
+    public WndSeatInventory(PublicDungeon view,CoopController client) { this(view,client,0,-1); }
 
     @Override protected int tabHeight() { return 20; }
 
-    private WndSeatInventory(PublicDungeon view,CoopController client,int page) {
+    public static WndSeatInventory chooseShortcut(PublicDungeon view,CoopController client,int slot) {
+        return new WndSeatInventory(view,client,0,slot);
+    }
+    private WndSeatInventory(PublicDungeon view,CoopController client,int page,int shortcut) {
+        this.shortcut=shortcut;
         this.view=view;
         this.client=client;
         WndBag.Grid grid=WndBag.grid(chrome.marginTop(),chrome.marginHor());
         resize(grid.width,grid.height);
-        RenderedTextBlock title=PixelScene.renderTextBlock(msg("bag"),8);
+        RenderedTextBlock title=PixelScene.renderTextBlock(shortcut<0 ? msg("bag") : msg("choose_shortcut",shortcut+1),8);
         title.hardlight(TITLE_COLOR);title.setPos(0,(WndBag.TITLE_HEIGHT-title.height())/2);add(title);
         List<PublicDungeon.Loot> pack=new ArrayList<>();
         PublicDungeon.Loot[] gear=new PublicDungeon.Loot[GEAR.length];
@@ -60,7 +65,7 @@ public final class WndSeatInventory extends WndTabbed {
 
     private void changePage(int from,int to) {
         if (from==to) return;
-        hide(); Game.scene().add(new WndSeatInventory(view,client,to));
+        hide(); Game.scene().add(new WndSeatInventory(view,client,to,shortcut));
     }
 
     public final class Slot extends InventorySlot {
@@ -73,9 +78,19 @@ public final class WndSeatInventory extends WndTabbed {
             String count=loot==null ? "" : loot.kind.equals("STAFF") ? loot.charges+"/"+loot.capacity :
                     loot.quantity>1 ? String.valueOf(loot.quantity) : "";
             display(loot==null ? placeholder : loot.sprite,count,loot==null ? "NA" : loot.upgrade,
-                    equipped,loot!=null);
+                    equipped,loot!=null && (shortcut<0 || selectable()));
         }
-        @Override protected void onClick() { if(loot!=null) inspect(loot); }
+        private boolean selectable() {
+            return loot!=null && !loot.reference.isEmpty() && !PublicDungeon.shortcutAction(loot).isEmpty();
+        }
+        @Override protected void onClick() {
+            if (loot==null) return;
+            if (shortcut<0) inspect(loot);
+            else if (selectable()) {
+                client.bindShortcut(view.source,shortcut,loot);
+                WndSeatInventory.this.hide();
+            }
+        }
     }
 
     private static String msg(String key,Object...args) { return Messages.get(CoopScene.class,key,args); }

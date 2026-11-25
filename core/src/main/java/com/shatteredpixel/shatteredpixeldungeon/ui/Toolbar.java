@@ -51,6 +51,7 @@ import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Image;
+import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.PointerArea;
 import com.watabou.noosa.ui.Component;
 import com.watabou.utils.Point;
@@ -781,6 +782,23 @@ public class Toolbar extends Component {
 		private final Runnable action;
 		private ItemSprite content;
 		private int lastImage = -1;
+        private Runnable held;
+        private BitmapText amount;
+        public void onHold(Runnable callback) { held=callback; }
+        @Override protected boolean onLongClick() {
+            if (held==null) return super.onLongClick();
+            held.run();
+            return true;
+        }
+        public void amount(String text,boolean usable) {
+            if (amount==null) {
+                amount=new BitmapText(PixelScene.pixelFont);
+                add(amount);
+            }
+            amount.text(text);
+            amount.x=x+2; amount.y=y+2;
+            if (content!=null) content.alpha(usable ? 1f : 0.4f);
+        }
 
 		public SeatTool(String command, int frameX, int width, int iconX, Runnable action) {
 			super(frameX, 0, width, frameX == 64 ? 24 : 26);
@@ -812,7 +830,8 @@ public class Toolbar extends Component {
 
 		@Override protected void onClick() { action.run(); }
 		@Override protected String hoverText() {
-			return Messages.get(com.shatteredpixel.shatteredpixeldungeon.scenes.CoopScene.class, command);
+			if (command.startsWith("slot")) return Messages.get(com.shatteredpixel.shatteredpixeldungeon.scenes.CoopScene.class, "choose_shortcut",command.substring(4));
+            return Messages.get(com.shatteredpixel.shatteredpixeldungeon.scenes.CoopScene.class, command);
 		}
 	}
 

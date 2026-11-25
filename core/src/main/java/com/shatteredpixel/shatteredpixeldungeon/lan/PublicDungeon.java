@@ -16,11 +16,16 @@ public final class PublicDungeon {
     public final List<Integer> buffs;
     public static final class Loot {
         public final long id;
-        public final String slot,kind,upgrade;
+        public final String slot,kind,upgrade,reference,stackType;
         public final int sprite,quantity,charges,capacity;
-        Loot(String key,String value) {
+        Loot(String key,String value,Map<String,String> rows) {
             String[] f=value.split(",");
             id=Long.parseLong(key.substring(1)); slot=f[0]; kind=f[1];
+            String ref=rows.get("ref"+id);
+            if (ref!=null && (!ref.matches("[0-9a-f]{32}") || slot.startsWith("F"))) throw new IllegalArgumentException("Inventory reference");
+            reference=ref==null ? "" : ref;
+            String label=rows.get("label"+id);
+            stackType=(kind.equals("FOOD") || kind.equals("HEALING")) && label!=null ? label : "";
             sprite=number(f[2],0,1023); quantity=number(f[3],1,Integer.MAX_VALUE); upgrade=f[4];
             charges=kind.equals("STAFF") ? number(f[5],0,10) : 0;
             capacity=kind.equals("STAFF") ? number(f[6],charges,10) : 0;
@@ -54,7 +59,7 @@ public final class PublicDungeon {
             if(key.length()<2 || !Character.isDigit(key.charAt(1))) continue;
             switch(key.charAt(0)) {
             case 'i':
-                Loot item=new Loot(key,value);
+                Loot item=new Loot(key,value,source.rows);
                 if(item.slot.startsWith("F")) heaps.put(number(item.slot.substring(1),0,65535),item);
                 else bag.add(item);
                 break;
@@ -79,6 +84,17 @@ public final class PublicDungeon {
         int n=Integer.parseInt(s);
         if(n<low || n>high) throw new IllegalArgumentException("Public state range");
         return n;
+    }
+    public static String shortcutAction(Loot item) {
+        switch (item.kind) {
+            case "FOOD": return "EAT";
+            case "HEALING": return "DRINK";
+            case "BOW": return "SHOOT";
+            case "STAFF": return item.slot.equals("WEAPON") ? "ZAP" : "EQUIP";
+            case "MELEE": case "ARMOR": return item.slot.equals("BAG") ? "EQUIP" : "UNEQUIP";
+            case "HONEYPOT": return "SHATTER";
+            default: return "";
+        }
     }
     public List<String> actions(Loot item) {
         List<String> verbs=new ArrayList<>();

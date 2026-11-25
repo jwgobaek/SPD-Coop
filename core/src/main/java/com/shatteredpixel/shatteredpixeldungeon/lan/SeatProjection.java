@@ -36,6 +36,7 @@ final class SeatProjection {
     }
 
     UUID epoch;
+    UUID shortcutSalt = UUID.randomUUID();
     long cursor() { return nextItem; }
     void resetHandles(long start) {
         if (start < seat+1 || start % 2 != (seat+1)%2 || start > Long.MAX_VALUE-32768)
@@ -156,7 +157,14 @@ final class SeatProjection {
                 String old = current.rows.get(key);
                 if (old != null && old.startsWith(attacked.pos+",")) witnessedDeath = key;
             }
-            for (Item item : hero.belongings) putItem(rows,visibleItems,item,slot(hero.belongings,item));
+            for (Item item : hero.belongings) {
+                putItem(rows,visibleItems,item,slot(hero.belongings,item));
+                if (game.ownership.owner(item)==game.player(seat)) {
+                    // Only an owned item in this seat's actual inventory gets a shortcut reference.
+                    String token=StateImage.hash(shortcutSalt+"/item/"+game.ownership.identity(item)).substring(0,32);
+                    rows.put("ref"+ids.get(item),token);
+                }
+            }
         }
         ids.keySet().retainAll(visibleItems.values());
         items = visibleItems;

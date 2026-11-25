@@ -26,6 +26,22 @@ public class CoopPlayInputTest extends HeadlessDungeon {
         }
     }
 
+    @Test public void stackAndGearShortcutsTrackOnlyTheirOriginalOwner() {
+        try (CoopSession game=CoopSession.open(402,11,com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass.WARRIOR)) {
+            game.join(22,com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass.MAGE);
+            com.shatteredpixel.shatteredpixeldungeon.lan.ProjectionChecks.checkShortcuts(game);
+        }
+    }
+
+    @Test public void soloQuickslotStillReplacesOriginalConsumedStack() {
+        QuickSlot solo=new QuickSlot();
+        Food ration=new Food(), next=new Food();
+        solo.setSlot(0,ration); solo.convertToPlaceholder(ration);
+        assertTrue(solo.isPlaceholder(0)); solo.replacePlaceholder(next);
+        assertSame(next,solo.getItem(0)); solo.setSlot(3,next);
+        assertTrue(solo.isNonePlaceholder(3)); assertNull(solo.getItem(0));
+    }
+
     @Test(timeout=5000) public void renderingDoesNotConsumeWorldRandomState() throws Exception {
         com.watabou.utils.Random.enterWorld();
         try {

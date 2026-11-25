@@ -11,6 +11,49 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 public final class ProjectionChecks {
+    public static void checkShortcuts(CoopSession game) {
+        UUID id=UUID.randomUUID();
+        SeatProjection host=new SeatProjection(id,0), guest=new SeatProjection(id,1);
+        Hero hero=game.hero(0);
+        Food ration=(Food)hero.belongings.getItem(Food.class);
+        host.capture(game,1,"IN_GAME",null,null);
+        PublicDungeon view=new PublicDungeon(host.current);
+        SeatQuickslots layout=SeatQuickslots.defaults(view);
+        PublicDungeon.Loot food=layout.item(2,view);
+        assertNotNull(food);
+        layout=layout.bind(1,food);
+        assertFalse(layout.assigned(2));
+        assertEquals(food.reference,layout.item(1,view).reference);
+        ration.quantity(2);
+        com.shatteredpixel.shatteredpixeldungeon.items.Item part=ration.detach(hero.belongings.backpack);
+        game.ownership.split(ration,part);
+        assertNotEquals(game.ownership.identity(ration),game.ownership.identity(part));
+        assertTrue(part.collect(hero.belongings.backpack));
+        assertEquals(2,ration.quantity());
+        ration.detachAll(hero.belongings.backpack);
+        Dungeon.level.drop(ration,hero.pos);
+        host.capture(game,2,"IN_GAME",null,null);
+        view=new PublicDungeon(host.current);
+        assertNull(layout.item(1,view));
+        assertTrue(view.floor.get(hero.pos).reference.isEmpty());
+        assertSame(layout,layout.reconnectItems(view));
+        assertFalse(game.ownership.allowed(ration,game.player(1)));
+        assertSame(ration,Dungeon.level.heaps.get(hero.pos).pickUp());
+        assertTrue(ration.collect(hero.belongings.backpack));
+        host.capture(game,3,"IN_GAME",null,null);
+        view=new PublicDungeon(host.current);
+        assertEquals(food.reference,layout.item(1,view).reference);
+        ration.detachAll(hero.belongings.backpack);
+        Food replacement=new Food();
+        game.ownership.claim(replacement,game.player(0)); assertTrue(replacement.collect(hero.belongings.backpack));
+        host.capture(game,4,"IN_GAME",null,null);
+        view=new PublicDungeon(host.current);
+        assertNull(layout.item(1,view));
+        layout=layout.reconnectItems(view);
+        assertNotEquals(food.reference,layout.item(1,view).reference);
+        guest.capture(game,4,"IN_GAME",null,null);
+        assertFalse(guest.current.rows.containsValue(layout.item(1,view).reference));
+    }
     public static void checkNativeRenderInputs(CoopSession game) {
         UUID session=UUID.randomUUID();
         for (int seat=0; seat<2; seat++) {

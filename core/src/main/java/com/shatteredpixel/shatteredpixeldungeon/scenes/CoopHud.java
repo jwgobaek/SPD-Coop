@@ -29,7 +29,7 @@ final class CoopHud extends Group {
     private final Toolbar.SeatTool wait,search,pickup,bag;
     private final Toolbar.SeatTool[] quick = new Toolbar.SeatTool[4];
     private final PublicDungeon.Loot[] items = new PublicDungeon.Loot[4];
-    private final String[] verbs = {"ZAP","SHOOT","EAT","DRINK"};
+    private SeatQuickslots layout;
     private List<Integer> lastBuffs = Collections.emptyList();
     private String lastPortrait, lastLine;
     private final float left,top,right,bottom;
@@ -68,7 +68,8 @@ final class CoopHud extends Group {
         wait.setPos(x-=20,bottom-26);
         for(int i=quick.length-1;i>=0;i--) {
             final int slot=i;
-            quick[i]=tool(verbs[i].toLowerCase(Locale.ROOT),64,22,-1,()->use(slot));
+            quick[i]=tool("slot"+(i+1),64,22,-1,()->use(slot));
+            quick[i].onHold(()->edit(slot));
             quick[i].setPos(x-=22,bottom-24);
         }
         pickup=tool("pick_up",64,22,-1,()->view.tap(client,view.pos));
@@ -87,11 +88,30 @@ final class CoopHud extends Group {
         add(button);return button;
     }
 
+    private void edit(int slot) {
+        if (view==null || layout==null || client.frame().image!=view.source) return;
+        final PublicDungeon shown=view;
+        if (!layout.assigned(slot)) {
+            scene.add(WndSeatInventory.chooseShortcut(shown,client,slot));
+            return;
+        }
+        scene.add(new WndOptions(CoopScene.msg("choose_shortcut",slot+1),"",
+                CoopScene.msg("replace_shortcut"),CoopScene.msg("clear_shortcut"),CoopScene.msg("cancel")) {
+            protected void onSelect(int choice) {
+                if (choice==0) scene.add(WndSeatInventory.chooseShortcut(shown,client,slot));
+                if (choice==1) client.bindShortcut(shown.source,slot,null);
+            }
+        });
+    }
+
     private void use(int slot) {
+        if (layout==null || !layout.assigned(slot)) { edit(slot); return; }
         PublicDungeon.Loot item=items[slot];
-        if(item==null || !view.actions(item).contains(verbs[slot])) return;
-        if(slot<2) scene.aim(view,item);
-        else view.use(client,item,verbs[slot]);
+        if(item==null) return;
+        String verb=PublicDungeon.shortcutAction(item);
+        if(!view.actions(item).contains(verb)) return;
+        if(verb.equals("ZAP") || verb.equals("SHOOT")) scene.aim(view,item);
+        else view.use(client,item,verb);
     }
 
     private final class MenuButton extends Button {
@@ -138,14 +158,16 @@ final class CoopHud extends Group {
         PublicDungeon.Loot ground=view.floor.get(view.pos);
         pickup.visible=ground!=null;pickup.enable(canAct && pickup.visible);
         pickup.content(ground==null?-1:ground.sprite);
-        String[] kinds={"STAFF","BOW","FOOD","HEALING"};
+        layout=client.frame().quickslots;
         for(int i=0;i<quick.length;i++) {
-            items[i]=null;
-            for(PublicDungeon.Loot item:view.belongings) {
-                if(kinds[i].equals(item.kind) && (i!=0 || "WEAPON".equals(item.slot))) { items[i]=item;break; }
-            }
-            quick[i].content(items[i]==null?-1:items[i].sprite);
-            quick[i].enable(canAct && items[i]!=null && view.actions(items[i]).contains(verbs[i]));
+            PublicDungeon.Loot item=layout==null ? null : layout.item(i,view);
+            items[i]=item;
+            quick[i].content(item!=null ? item.sprite : layout==null ? -1 : layout.sprite(i));
+            boolean usable=item!=null && canAct && view.actions(item).contains(PublicDungeon.shortcutAction(item));
+            String amount=item==null ? (layout!=null && layout.assigned(i) ? "0" : "") :
+                    item.kind.equals("STAFF") ? item.charges+"/"+item.capacity : item.quantity>1 ? Integer.toString(item.quantity) : "";
+            quick[i].amount(amount,usable);
+            quick[i].enable(layout!=null && !aiming && confirmed);
         }
     }
 }

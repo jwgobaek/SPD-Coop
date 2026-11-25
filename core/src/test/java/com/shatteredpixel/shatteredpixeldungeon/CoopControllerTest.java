@@ -71,7 +71,16 @@ public class CoopControllerTest extends HeadlessDungeon {
             until(g,f->f.roster.contains("HUNTRESS"));
             h.ready(true);g.ready(true); until(h,f->f.roster.startsWith("LOBBY READY"));
             h.start(); CoopController.Frame first=until(h,f->f.image!=null);
-            until(g,f->f.image!=null);
+            CoopController.Frame gf=until(g,f->f.dungeon!=null);
+            PublicDungeon.Loot hFood=first.quickslots.item(2,first.dungeon), bow=gf.quickslots.item(1,gf.dungeon);
+            assertNotNull(hFood); assertNotNull(bow);
+            assertTrue(h.bindShortcut(first.image,0,hFood)); assertTrue(g.bindShortcut(gf.image,3,bow));
+            until(h,f->f.quickslots.item(0,f.dungeon)==hFood);
+            until(g,f->f.quickslots.item(3,f.dungeon)==bow);
+            assertFalse(h.frame().quickslots.assigned(2)); assertFalse(g.frame().quickslots.assigned(1));
+            assertEquals(first.image.version,h.frame().image.version);
+            assertFalse(first.image.rows.containsValue(bow.reference));
+            assertFalse(gf.image.rows.containsValue(hFood.reference));
             assertTrue(h.act(first.image,"WAIT",0,0)); assertFalse(h.act(first.image,"WAIT",0,0));
             CoopController.Frame after=until(h,f->f.image!=null && f.image.version>first.image.version);
             assertEquals("APPLIED",after.lastResult); String turn=after.image.rows.get("turn");
@@ -87,6 +96,12 @@ public class CoopControllerTest extends HeadlessDungeon {
             g.reconnect(id,resumedAddr);
             CoopController.Frame guest=until(g,f->f.image!=null && "IN_GAME".equals(f.image.rows.get("status")));
             assertEquals(turn,guest.image.rows.get("turn"));
+            PublicDungeon.Loot newBow=guest.quickslots.item(3,guest.dungeon);
+            assertEquals(bow.reference,newBow.reference);
+            assertNotEquals(bow.id,newBow.id);
+            CoopController.Frame hostAgain=until(h,f->f.dungeon!=null && "IN_GAME".equals(f.image.rows.get("status")));
+            assertEquals(hFood.reference,hostAgain.quickslots.item(0,hostAgain.dungeon).reference);
+            assertFalse(hostAgain.quickslots.assigned(2));
             assertEquals(1,guest.seat); assertEquals("HUNTRESS",guest.image.rows.get("self").split(",")[4]);
             h.leave(true); until(h,f->f.page==CoopController.Page.MENU && f.notice.equals("SAVED"));
             stop(g); g=new CoopController(gr,null,loop,0,0);
@@ -103,6 +118,7 @@ public class CoopControllerTest extends HeadlessDungeon {
             assertNull(g.frame().dungeon); g.acceptEpoch();
             CoopController.Frame accepted=until(g,f->f.dungeon!=null && "IN_GAME".equals(f.image.rows.get("status")));
             assertEquals("ROLLED_BACK",accepted.lastResult);
+            for(int i=0;i<SeatQuickslots.COUNT;i++) assertFalse(accepted.quickslots.assigned(i));
             assertNotEquals(guest.image.rows.get("epoch"),accepted.image.rows.get("epoch"));
         } finally {stop(g); stop(h);}
         long deadline=System.nanoTime()+3000000000L;

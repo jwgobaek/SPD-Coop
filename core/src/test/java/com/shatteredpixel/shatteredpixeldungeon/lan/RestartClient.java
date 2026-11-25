@@ -260,6 +260,9 @@ public final class RestartClient {
                 int cell=view.pos+3;
                 assertEquals("Rat",view.monsters.get(cell));
                 int charge=view.belongings.stream().filter(i->i.id==staff).findFirst().get().charges;
+                PublicDungeon.Loot wand=view.belongings.stream().filter(i->i.id==staff).findFirst().get();
+                SeatQuickslots layout=SeatQuickslots.empty().bind(3,wand);
+                try (DataOutputStream out=new DataOutputStream(Files.newOutputStream(path.resolve("user-layout")))) { layout.write(out); }
                 verifyAfterReconnect(act("ZAP",cell,staff),seat);
                 assertEquals(charge-1,charges(seat));
                 offer(seat);
@@ -468,7 +471,14 @@ public final class RestartClient {
             assertEquals(hp,monsterHP(seat,cell));
             assertEquals(charges,charges(seat));
             offer(seat);
-            act("ZAP",cell,item(seat,"WEAPON","STAFF"));
+            PublicDungeon afterRestart=new PublicDungeon(state(seat));
+            SeatQuickslots layout;
+            try (DataInputStream in=new DataInputStream(Files.newInputStream(path.resolve("user-layout")))) { layout=SeatQuickslots.read(in); }
+            PublicDungeon.Loot bound=layout.item(3,afterRestart);
+            assertNotNull(bound);
+            assertEquals(item(seat,"WEAPON","STAFF"),bound.id);
+            assertFalse(state(1-seat).rows.containsValue(bound.reference));
+            act("ZAP",cell,bound.id);
             assertEquals(charges-1,charges(seat));
             return;
         }

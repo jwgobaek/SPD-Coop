@@ -26,10 +26,11 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
+    private static boolean shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
+        shortcuts=args.length>1 && args[1].equals("shortcuts");
         sentry=args.length>1 && args[1].equals("sentry");
         ghost=args.length>1 && args[1].equals("ghost");
         crystal=args.length>1 && args[1].equals("crystal");
@@ -39,7 +40,8 @@ public final class CoopRenderSmoke {
         unstable=args.length>1 && args[1].equals("unstable");
         statue=unstable || (args.length>1 && args[1].equals("statue"));
         garden=args.length>1 && args[1].equals("garden");
-        kit=args.length>1 && args[1].equals("kit");
+        shortcutKit=args.length>1 && args[1].equals("kit-slots");
+        kit=shortcutKit || (args.length>1 && args[1].equals("kit"));
         deep=args.length>1 && args[1].equals("deep");
         floors=deep || statue || mimic || ghost || sentry || (args.length>1 && args[1].equals("floors"));
         mage=floors || (args.length>1 && args[1].equals("mage"));
@@ -93,7 +95,10 @@ public final class CoopRenderSmoke {
     private static void await(Callable<Boolean> condition) throws Exception {
         long end=System.nanoTime()+LIMIT;
         while(System.nanoTime()<end) { if(condition.call()) return; Thread.sleep(35); }
-        throw new AssertionError("Desktop condition timed out");
+        CoopController.Frame current=frame();
+        throw new AssertionError("Desktop condition timed out: "+(current==null ? "no client" :
+                current.page+" "+current.notice+" "+current.issue+" action="+current.lastAction+" result="+current.lastResult+
+                (current.dungeon==null ? "" : " offered="+current.dungeon.offered+" floor="+current.dungeon.floor.keySet()+" hero="+current.dungeon.pos)));
     }
     private static Gizmo find(Gizmo node,Predicate<Gizmo> match) throws Exception {
         if(node==null || !node.exists || (!node.visible && !(node instanceof PointerArea))) return null;
@@ -132,6 +137,32 @@ public final class CoopRenderSmoke {
     private static void click(String name) throws Exception {
         System.out.println("Input "+name); await(()->button(name)!=null); Point p=button(name);
         press(p);
+    }
+    private static void hold(String name) throws Exception {
+        Point p=button(name);
+        render(()->{PointerEvent.addPointerEvent(new PointerEvent(p.x,p.y,1,PointerEvent.Type.DOWN,PointerEvent.LEFT));return null;});
+        Thread.sleep(1000);
+        render(()->{PointerEvent.addPointerEvent(new PointerEvent(p.x,p.y,1,PointerEvent.Type.UP,PointerEvent.LEFT));return null;});
+        Thread.sleep(150);
+    }
+
+    private static void shortcutInputs() throws Exception {
+        long version=frame().image.version;
+        click("slot1");
+        press(inventoryPoint("FOOD"));
+        await(()->frame().quickslots.item(0,frame().dungeon)!=null);
+        if (frame().quickslots.assigned(2)) throw new AssertionError("Duplicate food shortcut");
+        hold("slot1"); click("replace_shortcut"); press(inventoryPoint("ARMOR"));
+        await(()->frame().quickslots.item(0,frame().dungeon).kind.equals("ARMOR"));
+        hold("slot1"); click("clear_shortcut"); await(()->!frame().quickslots.assigned(0));
+        click("slot4"); press(inventoryPoint("FOOD"));
+        await(()->frame().quickslots.item(3,frame().dungeon)!=null);
+        shot("custom-shortcuts");
+        if (frame().image.version!=version) throw new AssertionError("Binding changed game state");
+        click("slot4");
+        await(()->frame().lastResult.equals("APPLIED") && frame().quickslots.item(3,frame().dungeon)==null);
+        shot("empty-food-shortcut");
+        System.out.println("PASS slot assignment, replacement, relocation, clear and confirmed consumption");
     }
     private static void press(Point p) throws Exception {
         for(PointerEvent.Type type:new PointerEvent.Type[]{PointerEvent.Type.DOWN,PointerEvent.Type.UP}) {
@@ -213,6 +244,7 @@ public final class CoopRenderSmoke {
     }
     private static void floorScreens(File root,Process oldGuest) throws Exception {
         await(()->frame().dungeon.offered);
+        PublicDungeon.Loot first=frame().quickslots.item(0,frame().dungeon);
         RenderEncounter.atExit(hostController());
         click("wait");
         await(()->frame().dungeon.offered && frame().dungeon.stair>=0);
@@ -221,6 +253,9 @@ public final class CoopRenderSmoke {
         await(()->frame().dungeon.consent); shot("stairs-agreed");
         click("#"+Messages.get(CoopScene.class,"travel",2));
         await(()->frame().dungeon.depth==2 && frame().dungeon.offered);
+        PublicDungeon.Loot carried=frame().quickslots.item(0,frame().dungeon);
+        if (first==null || carried==null || !first.reference.equals(carried.reference) || first.id==carried.id)
+            throw new AssertionError("Shortcut did not rebind across floors");
         shot("sewer-2");
         if (deep) {
             for(int depth=3;depth<=5;depth++) {
@@ -396,9 +431,10 @@ public final class CoopRenderSmoke {
                 render(()->{((com.shatteredpixel.shatteredpixeldungeon.ui.Window)find(Game.scene(),
                         g->g instanceof com.shatteredpixel.shatteredpixeldungeon.windows.WndTitledMessage)).hide();return null;});
             }
+            if (shortcuts) { shortcutInputs(); return; }
             if (mage) {
                 long turnBefore=frame().image.version;
-                click("zap");
+                click("slot1");
                 await(()->button("cancel")!=null);
                 shot("quickslot-target");
                 click("cancel");
@@ -434,11 +470,22 @@ public final class CoopRenderSmoke {
                 press(mapPoint(frame().dungeon,frame().dungeon.pos));
                 await(()->frame().dungeon.offered && frame().dungeon.belongings.stream().anyMatch(i->i.kind.equals("HEALING")));
                 int hp=frame().dungeon.hp;
-                bagAction("HEALING","drink"); await(()->frame().dungeon.offered && frame().dungeon.hp>hp);
+                if (shortcutKit) {
+                    click("slot1"); press(inventoryPoint("HEALING"));
+                    await(()->frame().quickslots.item(0,frame().dungeon)!=null);
+                    click("slot1");
+                } else bagAction("HEALING","drink");
+                await(()->frame().dungeon.offered && frame().dungeon.hp>hp);
                 shot("healing-draught");
                 RenderEncounter.beside(hostController(),com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat.class);
                 click("wait"); await(()->frame().dungeon.offered && frame().dungeon.monsters.containsValue("Rat"));
-                bagAction("BOW","shoot"); await(()->button("cancel")!=null); shot("bow-target");
+                if (shortcutKit) {
+                    long version=frame().image.version;
+                    click("slot2"); await(()->button("cancel")!=null); click("cancel");
+                    if (frame().image.version!=version) throw new AssertionError("Bow targeting consumed time");
+                    click("slot2");
+                } else bagAction("BOW","shoot");
+                await(()->button("cancel")!=null); shot("bow-target");
                 PublicDungeon view=frame().dungeon;
                 int cell=view.monsters.entrySet().stream().filter(e->"Rat".equals(e.getValue())).findFirst().get().getKey();
                 press(mapPoint(view,cell));
