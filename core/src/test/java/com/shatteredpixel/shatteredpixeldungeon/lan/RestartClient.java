@@ -570,7 +570,7 @@ public final class RestartClient {
         } finally { guide.destroyForcibly(); }
 
         boolean resumed=mode.equals("campaign-resume");
-        int steps=0, crossings=0, exitsOpened=0, blobs=0;
+        int steps=0, crossings=0, exitsOpened=0;
         int priorCrossings=0;
         List<Long> crossingMicros=new ArrayList<>(),bossMicros=new ArrayList<>();
         for(String line:Files.readAllLines(path.resolve("route"))) {
@@ -608,8 +608,6 @@ public final class RestartClient {
             assertEquals(where,Integer.parseInt(row[6]),after.pos);
             assertEquals(where,Integer.parseInt(row[7]),after.hp);
             if(verb.equals("UNLOCK") && after.depth==5) exitsOpened++;
-            for(PublicDungeon.Loot loot:after.belongings)
-                if(loot.sprite==com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.BLOB) blobs=Math.max(blobs,loot.quantity);
             steps++;
             if (mode.equals("campaign-start") && steps==CAMPAIGN_RESTART_STEP) {
                 assertEquals(3,after.depth);
@@ -619,8 +617,16 @@ public final class RestartClient {
             }
             Thread.sleep(30);
         }
-        assertEquals(4,priorCrossings+crossings); assertEquals(1,exitsOpened); assertTrue(blobs>0);
-        for(int seat=0;seat<2;seat++) assertTrue(new PublicDungeon(state(seat)).hp>0);
+        assertEquals(4,priorCrossings+crossings); assertEquals(1,exitsOpened);
+        int blobs=0;
+        for (int seat=0;seat<2;seat++) {
+            PublicDungeon survivor=new PublicDungeon(state(seat));
+            assertTrue(survivor.hp>0);
+            for (PublicDungeon.Loot loot:survivor.belongings) {
+                if (loot.sprite==com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.BLOB) blobs+=loot.quantity;
+            }
+        }
+        assertEquals(coverAlly ? 2 : 1,blobs);
         for (List<Long> sample:Arrays.asList(latency,bossMicros,crossingMicros)) {
             assertFalse(sample.isEmpty()); Collections.sort(sample);
             System.out.println("native socket route campaign "+(sample==latency?"action_ack":sample==bossMicros?"visible_goo_ack":"consent_travel_sync")+
