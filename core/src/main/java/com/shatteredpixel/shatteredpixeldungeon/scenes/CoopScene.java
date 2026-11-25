@@ -426,13 +426,31 @@ public class CoopScene extends PixelScene {
     void openBag(PublicDungeon view) {
         add(new com.shatteredpixel.shatteredpixeldungeon.windows.WndSeatInventory(view,controller));
     }
+    private String lastEnding = "";
+
+    private void endingWindow(CoopController.Frame f) {
+        String phase=f.image.rows.get("ending");
+        boolean owner=Integer.toString(f.seat).equals(f.image.rows.get("amuletowner"));
+        boolean canAccept=phase.equals("PROPOSED") ? !owner : owner;
+        String[] options=canAccept ? new String[]{msg("end_vote"),msg("end_continue")} : new String[]{msg("end_continue")};
+        add(new WndOptions(new Image(com.shatteredpixel.shatteredpixeldungeon.Assets.Sprites.AMULET),
+                msg("end_title"),msg(phase.equals("PROPOSED")?"end_proposed":"end_offer"),options) {
+            protected void onSelect(int index) {
+                controller.act(f.image,canAccept && index==0 ? "END_RUN" : "CONTINUE_RUN",0,0);
+            }
+        });
+    }
+
     void gameMenu() {
         boolean host=shown.seat==0;
         boolean save=host && shown.page==CoopController.Page.GAME;
+        boolean hasAmulet=board!=null && ("PROPOSED".equals(shown.image.rows.get("ending"))
+                || Integer.toString(shown.seat).equals(shown.image.rows.get("amuletowner")));
         add(new WndOptions(msg("menu"),shown.address+"\n"+status(shown.image==null?"LOBBY":shown.image.rows.get("status")),
                 board==null ? new String[]{msg("continue"),msg("diagnostics"),msg(host?"closeroom":"leave")} :
+                hasAmulet ? new String[]{msg("continue"),msg("diagnostics"),msg(save?"saveexit":"leave"),msg("center_view"),msg("zoom_in"),msg("zoom_out"),msg("end_title")} :
                 new String[]{msg("continue"),msg("diagnostics"),msg(save?"saveexit":"leave"),msg("center_view"),msg("zoom_in"),msg("zoom_out")}){
-            protected void onSelect(int n) { if(n==1) diagnostics(); if(n==2) controller.leave(save); if(board!=null && n==3) board.centerOnHero(); if(board!=null && n>=4) board.zoom(n==4?1:-1); }
+            protected void onSelect(int n) { if(n==1) diagnostics(); if(n==2) controller.leave(save); if(board!=null && n==3) board.centerOnHero(); if(board!=null && (n==4 || n==5)) board.zoom(n==4?1:-1); if(hasAmulet && n==6) endingWindow(shown); }
         });
     }
     private void diagnostics() {
@@ -443,11 +461,25 @@ public class CoopScene extends PixelScene {
     }
     private void game(CoopController.Frame f) {
         PublicDungeon v=f.dungeon;
+        if(v==null && "WON".equals(f.image.rows.get("status"))) {
+            label(msg("end_won"),12,Window.TITLE_COLOR);
+            Image amulet=new Image(com.shatteredpixel.shatteredpixeldungeon.Assets.Sprites.AMULET);
+            amulet.x=center-amulet.width()/2; amulet.y=top; panel.add(amulet); top+=amulet.height()+4;
+            button(msg("menu"),this::gameMenu);
+            return;
+        }
         if(v==null) {
             label(status(f.image.rows.get("status")),10,Window.TITLE_COLOR);
             if(f.image.rows.containsKey("reason")) label(status(f.image.rows.get("reason")),8,0xF6BD89);
             button(msg("menu"),this::gameMenu); return;
         }
+        String ending=f.image.rows.get("ending");
+        if (ending!=null && ("OFFER".equals(ending) || "PROPOSED".equals(ending))
+                && !ending.equals(lastEnding) && "IN_GAME".equals(f.image.rows.get("status"))
+                && ("PROPOSED".equals(ending) || Integer.toString(f.seat).equals(f.image.rows.get("amuletowner")))) {
+            endingWindow(f);
+        }
+        lastEnding=ending==null ? "" : ending;
         String effect="";
         boolean advanced=f.delta && effectsVersion!=0 && f.image.version==effectsVersion+1;
         if(advanced) effect=f.cue;

@@ -48,7 +48,28 @@ final class RenderEncounter {
         owner.setAccessible(true);
         ((ExecutorService)owner.get(room)).submit(()->{
             CoopSession game=Dungeon.coop;
-            if (destination.equals("imp-vault") || destination.equals("halls-21")) {
+            if (destination.startsWith("yog-")) {
+                java.nio.file.Path image=java.nio.file.Paths.get(System.getProperty("spd.yogFrames"),destination);
+                Field service=room.getClass().getDeclaredField("room");
+                service.setAccessible(true);
+                Object lan=service.get(room);
+                Field engine=lan.getClass().getDeclaredField("game");
+                Field sync=lan.getClass().getDeclaredField("sync");
+                engine.setAccessible(true);
+                sync.setAccessible(true);
+                Object replication=sync.get(lan);
+                Field source=replication.getClass().getDeclaredField("game");
+                source.setAccessible(true);
+                try (java.io.InputStream in=java.nio.file.Files.newInputStream(image)) {
+                    com.watabou.utils.Bundle checkpoint=com.watabou.utils.Bundle.read(in);
+                    long[] roster=checkpoint.getLongArray("players");
+                    if (roster[0]!=game.player(0) || roster[1]!=game.player(1)) throw new AssertionError("Desktop fixture roster mismatch");
+                    game.close();
+                    CoopSession resumed=CoopSession.restore(checkpoint);
+                    engine.set(lan,resumed);
+                    source.set(replication,resumed);
+                }
+            } else if (destination.equals("imp-vault") || destination.equals("halls-21")) {
                 com.shatteredpixel.shatteredpixeldungeon.ImpVaultTest.forScreen(game,destination);
             } else if (destination.startsWith("king-")) {
                 com.shatteredpixel.shatteredpixeldungeon.CityKingTest.prepareBoundary(game,destination.equals("king-crown")?"win":"shield");

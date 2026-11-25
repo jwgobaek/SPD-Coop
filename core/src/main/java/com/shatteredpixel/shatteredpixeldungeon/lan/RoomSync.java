@@ -118,12 +118,14 @@ final class RoomSync {
                 if (id<=last || id>high || f.length!=8 || args.length!=5 || !f[0].equals("RESULT") ||
                         Long.parseLong(f[1])!=id || Integer.parseInt(f[2])!=i || Integer.parseInt(f[3])!=game.hero(i).id() ||
                         !f[4].equals(args[1]) || !f[5].equals(args[0]) || Long.parseLong(f[6])>version ||
-                        Long.parseLong(f[6])<1 || !f[7].matches("APPLIED|PARTY_DEFEATED|REJECT_(DEFEATED|VERSION|TURN|ACTION|ITEM|INVALID|FLOOR)"))
+                        Long.parseLong(f[6])<1 || !f[7].matches("APPLIED|PARTY_DEFEATED|REJECT_(DEFEATED|VERSION|TURN|ACTION|ITEM|INVALID|FLOOR|ENDING)"))
                     throw new IllegalArgumentException("Invalid action receipt");
                 long base=Long.parseLong(args[0]), turn=Long.parseLong(args[1]), after=Long.parseLong(f[6]);
                 Integer.parseInt(args[3]); Long.parseLong(args[4]);
                 if (f[7].equals("APPLIED") || f[7].equals("PARTY_DEFEATED")) {
-                    CoopSession.Action.valueOf(args[2]);
+                    if (!args[2].equals("END_RUN") && !args[2].equals("CONTINUE_RUN")) CoopSession.Action.valueOf(args[2]);
+                    else if (Integer.parseInt(args[3])!=0 || Long.parseLong(args[4])!=0 || game.ending()==CoopSession.Ending.NONE)
+                        throw new IllegalArgumentException("Invalid ending receipt");
                     if (turn<1 || turn>game.turn() || base<1 || base!=after-1)
                         throw new IllegalArgumentException("Inconsistent committed boundary");
                 }
@@ -190,6 +192,12 @@ final class RoomSync {
         if (paused) return "REJECT_PAUSED";
         if (base!=version) return "REJECT_VERSION";
         if (turn!=game.turn()) return "REJECT_TURN";
+        if (verb.equals("END_RUN") || verb.equals("CONTINUE_RUN")) {
+            if (cell!=0 || handle!=0 || !game.chooseEnding(seat,verb.equals("END_RUN"))) return "REJECT_INVALID";
+            commit(null,seat,id+","+verb+",APPLIED","IN_GAME");
+            return "APPLIED";
+        }
+        if (game.awaitingEnding()) return "REJECT_ENDING";
         if (verb.equals("CONSENT") || verb.equals("CANCEL_TRAVEL")) {
             if(handle!=0 || !game.stairs.consent(seat,turn,cell,verb.equals("CANCEL_TRAVEL"))) return "REJECT_INVALID";
             commit(null,seat,id+","+verb+",APPLIED","IN_GAME");

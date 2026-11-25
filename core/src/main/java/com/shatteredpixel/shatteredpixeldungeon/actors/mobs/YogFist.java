@@ -91,10 +91,11 @@ public abstract class YogFist extends Mob {
 	protected boolean act() {
 		if (paralysed <= 0 && rangedCooldown > 0) rangedCooldown--;
 
-		if (Dungeon.hero.invisible <= 0 && state == WANDERING){
-			beckon(Dungeon.hero.pos);
+		Char quarry = Dungeon.coop == null ? Dungeon.hero : Dungeon.coop.bossTarget(enemy,pos);
+		if (quarry.invisible <= 0 && state == WANDERING){
+			beckon(quarry.pos);
 			state = HUNTING;
-			enemy = Dungeon.hero;
+			enemy = quarry;
 		}
 
 		return super.act();
@@ -135,7 +136,7 @@ public abstract class YogFist extends Mob {
 		} else {
 
 			incrementRangedCooldown();
-			if (sprite != null && (sprite.visible || enemy.sprite.visible)) {
+			if (Dungeon.coop == null && sprite != null && (sprite.visible || enemy.sprite.visible)) {
 				sprite.zap( enemy.pos );
 				return false;
 			} else {
@@ -151,10 +152,11 @@ public abstract class YogFist extends Mob {
 		super.damage(dmg, src);
 		int dmgTaken = preHP - HP;
 
-		LockedFloor lock = Dungeon.hero.buff(LockedFloor.class);
-		if (dmgTaken > 0 && lock != null && !isImmune(src.getClass()) && !isInvulnerable(src.getClass())){
-			if (Dungeon.isChallenged(Challenges.STRONGER_BOSSES))   lock.addTime(dmgTaken/4f);
-			else                                                    lock.addTime(dmgTaken/2f);
+		for (int seat = 0; seat < (Dungeon.coop == null ? 1 : 2); seat++) {
+			LockedFloor lock = (Dungeon.coop == null ? Dungeon.hero : Dungeon.coop.hero(seat)).buff(LockedFloor.class);
+			if (dmgTaken > 0 && lock != null && !isImmune(src.getClass()) && !isInvulnerable(src.getClass())) {
+				lock.addTime(dmgTaken / (Dungeon.isChallenged(Challenges.STRONGER_BOSSES) ? 4f : 2f));
+			}
 		}
 	}
 
@@ -229,7 +231,7 @@ public abstract class YogFist extends Mob {
 			if (Dungeon.level.map[pos] == Terrain.WATER){
 				Level.set( pos, Terrain.EMPTY);
 				GameScene.updateMap( pos );
-				CellEmitter.get( pos ).burst( Speck.factory( Speck.STEAM ), 10 );
+				if (Dungeon.coop == null) CellEmitter.get( pos ).burst( Speck.factory( Speck.STEAM ), 10 );
 			}
 
 			//1.67 evaporated tiles on average
@@ -240,7 +242,7 @@ public abstract class YogFist extends Mob {
 				if (Dungeon.level.map[cell] == Terrain.WATER){
 					Level.set( cell, Terrain.EMPTY);
 					GameScene.updateMap( cell );
-					CellEmitter.get( cell ).burst( Speck.factory( Speck.STEAM ), 10 );
+					if (Dungeon.coop == null) CellEmitter.get( cell ).burst( Speck.factory( Speck.STEAM ), 10 );
 				}
 			}
 
@@ -261,7 +263,7 @@ public abstract class YogFist extends Mob {
 			if (Dungeon.level.map[enemy.pos] == Terrain.WATER){
 				Level.set( enemy.pos, Terrain.EMPTY);
 				GameScene.updateMap( enemy.pos );
-				CellEmitter.get( enemy.pos ).burst( Speck.factory( Speck.STEAM ), 10 );
+				if (Dungeon.coop == null) CellEmitter.get( enemy.pos ).burst( Speck.factory( Speck.STEAM ), 10 );
 			} else {
 				Buff.affect( enemy, Burning.class ).reignite( enemy );
 			}
@@ -305,11 +307,11 @@ public abstract class YogFist extends Mob {
 				if (Dungeon.level.map[cell] == Terrain.GRASS) {
 					Level.set(cell, Terrain.FURROWED_GRASS);
 					GameScene.updateMap(cell);
-					CellEmitter.get(cell).burst(LeafParticle.GENERAL, 10);
+					if (Dungeon.coop == null) CellEmitter.get(cell).burst(LeafParticle.GENERAL, 10);
 				}
 			}
 
-			Dungeon.observe();
+			if (Dungeon.coop == null) Dungeon.observe();
 
 			for (int i : PathFinder.NEIGHBOURS9) {
 				int cell = pos + i;
@@ -381,10 +383,10 @@ public abstract class YogFist extends Mob {
 						Level.set(cell, Terrain.GRASS);
 						GameScene.updateMap( cell );
 					}
-					CellEmitter.get( cell ).burst( LeafParticle.GENERAL, 10 );
+					if (Dungeon.coop == null) CellEmitter.get( cell ).burst( LeafParticle.GENERAL, 10 );
 				}
 			}
-			Dungeon.observe();
+			if (Dungeon.coop == null) Dungeon.observe();
 
 		}
 
@@ -451,7 +453,7 @@ public abstract class YogFist extends Mob {
 
 			if (Random.Int( 2 ) == 0) {
 				Buff.affect( enemy, Ooze.class ).set( Ooze.DURATION );
-				enemy.sprite.burst( 0xFF000000, 5 );
+				if (Dungeon.coop == null) enemy.sprite.burst( 0xFF000000, 5 );
 			}
 
 			return damage;
@@ -527,7 +529,7 @@ public abstract class YogFist extends Mob {
 				enemy.damage( Random.NormalIntRange(10, 20), new LightBeam() );
 				Buff.prolong( enemy, Blindness.class, Blindness.DURATION/2f );
 
-				if (!enemy.isAlive() && enemy == Dungeon.hero) {
+				if (Dungeon.coop == null && !enemy.isAlive() && enemy == Dungeon.hero) {
 					Badges.validateDeathFromEnemyMagic();
 					Dungeon.fail( this );
 					GLog.n( Messages.get(Char.class, "kill", name()) );
@@ -542,25 +544,26 @@ public abstract class YogFist extends Mob {
 
 		@Override
 		public void damage(int dmg, Object src) {
+			Char affected = Dungeon.coop == null ? Dungeon.hero : Dungeon.coop.bossTarget(src instanceof Char ? (Char)src : enemy, pos);
 			int beforeHP = HP;
 			super.damage(dmg, src);
 			if (isAlive() && beforeHP > HT/2 && HP <= HT/2){
 				HP = HT/2;
-				Buff.prolong( Dungeon.hero, Blindness.class, Blindness.DURATION*1.5f );
+				Buff.prolong( affected, Blindness.class, Blindness.DURATION*1.5f );
 				int i;
 				do {
 					i = Random.Int(Dungeon.level.length());
-				} while (Dungeon.level.heroFOV[i]
+				} while ((Dungeon.coop == null ? Dungeon.level.heroFOV[i] : !Dungeon.coop.unseenByParty(i, 0))
 						|| Dungeon.level.solid[i]
 						|| Actor.findChar(i) != null
 						|| PathFinder.getStep(i, Dungeon.level.exit(), Dungeon.level.passable) == -1);
 				ScrollOfTeleportation.appear(this, i);
 				state = WANDERING;
-				GameScene.flash(0x80FFFFFF);
+				if (Dungeon.coop == null) GameScene.flash(0x80FFFFFF);
 				GLog.w( Messages.get( this, "teleport" ));
 			} else if (!isAlive()){
-				Buff.prolong( Dungeon.hero, Blindness.class, Blindness.DURATION*3f );
-				GameScene.flash(0x80FFFFFF);
+				Buff.prolong( affected, Blindness.class, Blindness.DURATION*3f );
+				if (Dungeon.coop == null) GameScene.flash(0x80FFFFFF);
 			}
 		}
 
@@ -597,7 +600,7 @@ public abstract class YogFist extends Mob {
 					l.weaken(50);
 				}
 
-				if (!enemy.isAlive() && enemy == Dungeon.hero) {
+				if (Dungeon.coop == null && !enemy.isAlive() && enemy == Dungeon.hero) {
 					Badges.validateDeathFromEnemyMagic();
 					Dungeon.fail( this );
 					GLog.n( Messages.get(Char.class, "kill", name()) );
@@ -612,31 +615,32 @@ public abstract class YogFist extends Mob {
 
 		@Override
 		public void damage(int dmg, Object src) {
+			Char affected = Dungeon.coop == null ? Dungeon.hero : Dungeon.coop.bossTarget(src instanceof Char ? (Char)src : enemy, pos);
 			int beforeHP = HP;
 			super.damage(dmg, src);
 			if (isAlive() && beforeHP > HT/2 && HP <= HT/2){
 				HP = HT/2;
-				Light l = Dungeon.hero.buff(Light.class);
+				Light l = affected.buff(Light.class);
 				if (l != null){
 					l.detach();
 				}
 				int i;
 				do {
 					i = Random.Int(Dungeon.level.length());
-				} while (Dungeon.level.heroFOV[i]
+				} while ((Dungeon.coop == null ? Dungeon.level.heroFOV[i] : !Dungeon.coop.unseenByParty(i, 0))
 						|| Dungeon.level.solid[i]
 						|| Actor.findChar(i) != null
 						|| PathFinder.getStep(i, Dungeon.level.exit(), Dungeon.level.passable) == -1);
 				ScrollOfTeleportation.appear(this, i);
 				state = WANDERING;
-				GameScene.flash(0, false);
+				if (Dungeon.coop == null) GameScene.flash(0, false);
 				GLog.w( Messages.get( this, "teleport" ));
 			} else if (!isAlive()){
-				Light l = Dungeon.hero.buff(Light.class);
+				Light l = affected.buff(Light.class);
 				if (l != null){
 					l.detach();
 				}
-				GameScene.flash(0, false);
+				if (Dungeon.coop == null) GameScene.flash(0, false);
 			}
 		}
 

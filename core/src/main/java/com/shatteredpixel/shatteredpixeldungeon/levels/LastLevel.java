@@ -253,7 +253,7 @@ public class LastLevel extends Level {
 		return visuals;
 	}
 
-	public static class CustomFloor extends CustomTilemap {
+	public static class CustomFloor extends HallsBossLevel.HallsOverlay {
 
 		{
 			texture = Assets.Environment.HALLS_SP;
@@ -273,20 +273,25 @@ public class LastLevel extends Level {
 		public Tilemap create() {
 			Tilemap v = super.create();
 
-			int candlesStart = AMULET_POS - 3 - 3*Dungeon.level.width();
+			v.map(frames(Dungeon.level,DungeonTileSheet.tileVariance),tileW);
+			return v;
+		}
 
-			int cell = tileX + tileY * Dungeon.level.width();
-			int[] map = Dungeon.level.map;
+		@Override public int[] frames(Level level, byte[] variance) {
+			int candlesStart = AMULET_POS - 3 - 3*level.width();
+
+			int cell = tileX + tileY * level.width();
+			int[] map = level.map;
 			int[] data = new int[tileW*tileH];
 			for (int i = 0; i < data.length; i++){
 				if (i % tileW == 0){
-					cell = tileX + (tileY + i / tileW) * Dungeon.level.width();
+					cell = tileX + (tileY + i / tileW) * level.width();
 				}
 				if (cell == candlesStart){
 					for (int candle : CANDLES) {
 						if (data[i] == 0) data[i] = candle;
 
-						if (data[i] == 46 && DungeonTileSheet.tileVariance[cell] >= 50){
+						if (data[i] == 46 && variance != null && variance[cell] >= 50){
 							data[i] ++;
 						}
 
@@ -294,14 +299,14 @@ public class LastLevel extends Level {
 							data[i] += 8;
 						}
 
-						if (map[cell] != Terrain.CHASM && map[cell+Dungeon.level.width] == Terrain.CHASM) {
+						if (map[cell] != Terrain.CHASM && map[cell+level.width] == Terrain.CHASM) {
 							data[i+tileW] = 6;
 						}
 
 						i++;
 						cell++;
 						if (i % tileW == 0){
-							cell = tileX + (tileY + i / tileW) * Dungeon.level.width();
+							cell = tileX + (tileY + i / tileW) * level.width();
 						}
 					}
 				}
@@ -318,13 +323,12 @@ public class LastLevel extends Level {
 				}
 				cell++;
 			}
-			v.map( data, tileW );
-			return v;
+			return data;
 		}
 
 	}
 
-	public static class CenterPieceVisuals extends CustomTilemap {
+	public static class CenterPieceVisuals extends HallsBossLevel.HallsOverlay {
 
 		{
 			texture = Assets.Environment.HALLS_SP;
@@ -349,12 +353,14 @@ public class LastLevel extends Level {
 		@Override
 		public Tilemap create() {
 			Tilemap v = super.create();
-			v.map(map, tileW);
+			v.map(frames(Dungeon.level,null), tileW);
 			return v;
 		}
+
+		@Override public int[] frames(Level level, byte[] variance) { return map; }
 	}
 
-	public static class CenterPieceWalls extends CustomTilemap {
+	public static class CenterPieceWalls extends HallsBossLevel.HallsOverlay {
 
 		{
 			texture = Assets.Environment.HALLS_SP;
@@ -378,8 +384,10 @@ public class LastLevel extends Level {
 		@Override
 		public Tilemap create() {
 			Tilemap v = super.create();
-			v.map(map, tileW);
+			v.map(frames(Dungeon.level,null), tileW);
 			return v;
 		}
+
+		@Override public int[] frames(Level level, byte[] variance) { return map; }
 	}
 }

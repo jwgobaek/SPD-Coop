@@ -465,6 +465,8 @@ public final class RestartClient {
             boolean mine=boundary.startsWith("mine-");
             boolean vault=boundary.startsWith("vault-");
             if (vault) travel=true;
+            boolean yog=boundary.startsWith("yog-");
+            if (yog) { verb=RestartHost.read(path,"yog-action");travel=verb.equals("TRAVEL"); }
             boolean king=boundary.startsWith("king-");
             if (king) { verb=RestartHost.read(path,"king-action");travel=verb.equals("TRAVEL"); }
             boolean city=boundary.startsWith("city-");
@@ -492,8 +494,13 @@ public final class RestartClient {
             int cell=Integer.parseInt(RestartHost.read(path,"tengu-target"));
             for (int i=0;i<40;i++) {
                 int seat=active();
+                if (yog && verb.equals("END_RUN")) {
+                    int owner=Integer.parseInt(state(0).rows.get("amuletowner"));
+                    seat=boundary.equals("yog-win")?1-owner:owner;
+                }
                 PublicDungeon view=new PublicDungeon(state(seat));
-                if (vault) assertEquals(boundary.matches("vault-(return|pick|full)") ? 1 : 0,view.branch);
+                if (yog) assertTrue(view.depth==25 || view.depth==26);
+                else if (vault) assertEquals(boundary.matches("vault-(return|pick|full)") ? 1 : 0,view.branch);
                 else if (king) assertEquals(boundary.endsWith("visit") ? 19 : 20,view.depth);
                 else if (city) assertEquals(travel ? Integer.parseInt(boundary.substring(5))-1 : 18,view.depth);
                 else if (mine) assertEquals(boundary.endsWith("enter") || boundary.endsWith("claim") || boundary.endsWith("order") || boundary.endsWith("upgrade") || boundary.endsWith("reforge") ? 0 : 1,view.branch);
@@ -533,6 +540,16 @@ public final class RestartClient {
             assertEquals(receipt,clients[seat].request(prior[2]));
             refresh();
             assertEquals(version,state(seat).version);
+            if (mode.equals("tengu-read-yog-win")) {
+                for (int i=0;i<2;i++) assertEquals("WON",state(i).rows.get("status"));
+                return;
+            }
+            if (mode.equals("tengu-read-yog-amulet") || mode.equals("tengu-read-yog-propose")) {
+                int owner=Integer.parseInt(state(0).rows.get("amuletowner"));
+                int voter=mode.endsWith("amulet") ? owner : 1-owner;
+                assertTrue(actions[voter].prepare(state(voter),"CONTINUE_RUN",0,0).submit(clients[voter]).endsWith(" APPLIED"));
+                refresh();
+            }
             if (RestartHost.measureBoundary(mode) || mode.equals("tengu-read-dm-devices")) {
                 for (int i=0;i<21;i++) act("WAIT",0,0);
                 Collections.sort(latency);

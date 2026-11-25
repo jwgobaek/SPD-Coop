@@ -12,6 +12,7 @@ import com.shatteredpixel.shatteredpixeldungeon.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.YogDzewa;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CrystalMimic;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GoldenMimic;
 import com.shatteredpixel.shatteredpixeldungeon.items.*;
@@ -26,6 +27,15 @@ final class SeatProjection {
     private static void writeExitTiles(Map<String,String> rows,Iterable<com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTilemap> tiles,
                                        FloorKnowledge sight, Level level, String prefix) {
         for (com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTilemap tile:tiles) {
+            if (tile instanceof HallsBossLevel.HallsOverlay) {
+                int[] frames=((HallsBossLevel.HallsOverlay)tile).frames(level,null);
+                for (int i=0;i<frames.length;i++) {
+                    int cell=(tile.tileY+i/tile.tileW)*level.width()+tile.tileX+i%tile.tileW;
+                    if (cell>=0 && cell<level.length() && frames[i]>=0 && sight.visible(cell))
+                        rows.put(prefix+cell,Integer.toString(frames[i]));
+                }
+                continue;
+            }
             if (tile instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel.CityOverlay) {
                 int[] frames=((com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel.CityOverlay)tile).frames();
                 for (int i=0;i<frames.length;i++)
@@ -81,6 +91,11 @@ final class SeatProjection {
     void capture(CoopSession game, long version, String status, Mob attacked,String receipt) {
         Map<String,String> rows = new TreeMap<>();
         Map<Long,Item> visibleItems = new HashMap<>();
+        if (game.ending()!=CoopSession.Ending.NONE) {
+            rows.put("ending",game.ending().name());
+            rows.put("amuletowner",Integer.toString(game.amuletOwner()));
+            if (game.ending()==CoopSession.Ending.WON && status.equals("IN_GAME")) status="WON";
+        }
         boolean playing=status.equals("IN_GAME");
         boolean defeated = status.equals("PARTY_DEFEATED");
         String floorId=Dungeon.branch+","+Dungeon.depth;
@@ -90,7 +105,7 @@ final class SeatProjection {
         if(changed) resetHandles(nextItem);
         rows.put("floor",floorId);
         if(Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.MiningLevel) rows.put("mine",Integer.toString(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.Quest.Type()));
-        rows.put("status",playing || defeated ? status : "PAUSED");
+        rows.put("status",playing || defeated || status.equals("WON") ? status : "PAUSED");
         if (epoch!=null) rows.put("epoch",epoch.toString());
         rows.put("life",game.life(seat).name());
         rows.put("revivable",game.life(seat) == CoopSession.Life.DOWNED ? "1" : "0");
@@ -121,7 +136,15 @@ final class SeatProjection {
                     for (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing.Summoning cast:resident.buffs(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing.Summoning.class))
                         if (sight.visible(cast.getPos())) rows.put("summon"+cast.getPos(),Integer.toString(cast.warningVisual()));
             }
-            if (level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel || level instanceof PrisonBossLevel || level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel) {
+            if (level instanceof HallsBossLevel) {
+                for (Mob mob:level.mobs) if (mob instanceof YogDzewa && sight.visible(mob.pos)) {
+                    for (int target:((YogDzewa)mob).aimedCells()) {
+                        com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica ray=new com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica(mob.pos,target,com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica.WONT_STOP);
+                        for (int cell:ray.path) if (sight.visible(cell)) rows.put("aim"+cell,"1");
+                    }
+                }
+            }
+            if (level instanceof HallsBossLevel || level instanceof LastLevel || level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel || level instanceof PrisonBossLevel || level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel) {
                 writeExitTiles(rows,level.customTiles,sight,level,"exitfloor");
                 writeExitTiles(rows,level.customWalls,sight,level,"exitwall");
             }

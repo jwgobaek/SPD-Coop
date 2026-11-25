@@ -297,8 +297,16 @@ final class CoopBoard extends Group {
                     case "VaultTokenDoor": sprite=new VaultTokenDoorSprite();break;
                     case "Eye": sprite=new EyeSprite();break;
                     case "DemonSpawner": sprite=new SpawnerSprite();break;
-                    case "RipperDemon": sprite=new RipperSprite();break;
+                    case "YogRipper": case "RipperDemon": sprite=new RipperSprite();break;
                     case "Scorpio": sprite=new ScorpioSprite();break;
+                    case "YogDzewa": sprite=new YogSprite();break;
+                    case "Larva": sprite=new LarvaSprite();break;
+                    case "BrightFist": sprite=new FistSprite.Bright();break;
+                    case "DarkFist": sprite=new FistSprite.Dark();break;
+                    case "RustedFist": sprite=new FistSprite.Rusted();break;
+                    case "RottingFist": sprite=new FistSprite.Rotting();break;
+                    case "SoiledFist": sprite=new FistSprite.Soiled();break;
+                    case "BurningFist": sprite=new FistSprite.Burning();break;
                     case "Succubus": sprite=new SuccubusSprite();break;
                     case "Crab": sprite=new CrabSprite();break;
                     case "HermitCrab": sprite=new HermitCrabSprite();break;

@@ -75,6 +75,10 @@ public class Amulet extends Item {
 			if (!Statistics.amuletObtained) {
 				Statistics.amuletObtained = true;
 				hero.spend(-hero.cooldown());
+				if (Dungeon.coop != null) {
+					Dungeon.coop.foundAmulet(hero);
+					return true;
+				}
 
 				//delay with an actor here so pickup behaviour can fully process.
 				Actor.add(new Actor(){

@@ -38,7 +38,7 @@ public class DungeonRenderMap {
     public DungeonRenderMap(PublicDungeon view) {
         solo=null;
         width=view.width; height=view.height; depth=view.depth; branch=view.branch;
-        mining=branch==1 && depth>=12 && depth<=14; hallsBoss=false; lastShop=false;
+        mining=branch==1 && depth>=12 && depth<=14; hallsBoss=depth==25 && branch==0; lastShop=false;
         int length=width*height;
         nest=new int[length]; exitWalls=new int[length];
         tiles=new int[length]; visible=new boolean[length]; visited=new boolean[length];
@@ -56,11 +56,12 @@ public class DungeonRenderMap {
         for (int i=0;i<tiles.length;i++) {
             int terrain=view.terrain(i);
             boolean seen=view.visible(i), mapOnly=!seen && terrain>=0 && view.source.mappedOnly(i);
-            String detail=view.source.rows.get(((depth==10 || depth==15 || depth==20) ? "exitfloor" : "nest")+i);
+            String detail=view.source.rows.get(((depth==10 || depth==15 || depth==20 || depth==25 || depth==26) ? "exitfloor" : "nest")+i);
             int frame=terrain>=0 && !mapOnly && detail!=null ? Integer.parseInt(detail) : -1;
+            if (depth==26 && (frame==46 || frame==54) && variance[i]>=50) frame++;
             String wall=view.source.rows.get("exitwall"+i);
-            int wallFrame=(depth==10 || depth==15 || depth==20) && terrain>=0 && !mapOnly && wall!=null ? Integer.parseInt(wall) : -1;
-            if (wallFrame < -1 || wallFrame>511 || frame < -1 || frame > (depth==20 ? 255 : depth==10 ? 175 : depth==15 ? 63 : 8)) throw new IllegalArgumentException("Nest frame");
+            int wallFrame=(depth==10 || depth==15 || depth==20 || depth==25 || depth==26) && terrain>=0 && !mapOnly && wall!=null ? Integer.parseInt(wall) : -1;
+            if (wallFrame < -1 || wallFrame>511 || frame < -1 || frame > (depth>=25 ? 63 : depth==20 ? 255 : depth==10 ? 175 : depth==15 ? 63 : 8)) throw new IllegalArgumentException("Nest frame");
             if (exitWalls[i]!=wallFrame || nest[i]!=frame || tiles[i]!=terrain || visible[i]!=seen || mapped[i]!=mapOnly
                     || feature(i)!=feature(view,i)) {
                 changed=true;
@@ -83,10 +84,10 @@ public class DungeonRenderMap {
     int feature(int cell) { return feature(seat,cell); }
     public int terrain(int cell) { return tiles[cell]; }
     public com.watabou.noosa.Tilemap nestLayer() {
-        return customLayer(depth==20 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.CITY_BOSS : depth==15 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.CAVES_BOSS : depth==10 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.PRISON_EXIT : com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.SEWER_BOSS,nest);
+        return customLayer(depth>=25 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.HALLS_SP : depth==20 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.CITY_BOSS : depth==15 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.CAVES_BOSS : depth==10 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.PRISON_EXIT : com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.SEWER_BOSS,nest);
     }
     public com.watabou.noosa.Tilemap exitWallsLayer() {
-        return customLayer(depth==20 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.CITY_BOSS : depth==15 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.CAVES_BOSS : com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.PRISON_EXIT,exitWalls);
+        return customLayer(depth>=25 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.HALLS_SP : depth==20 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.CITY_BOSS : depth==15 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.CAVES_BOSS : com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.PRISON_EXIT,exitWalls);
     }
     private com.watabou.noosa.Tilemap customLayer(String texture,int[] frames) {
         com.watabou.noosa.Tilemap layer=new com.watabou.noosa.Tilemap(texture,new com.watabou.noosa.TextureFilm(texture,16,16));

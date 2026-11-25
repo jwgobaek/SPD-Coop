@@ -1,0 +1,319 @@
+package com.shatteredpixel.shatteredpixeldungeon;
+
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.*;
+import com.shatteredpixel.shatteredpixeldungeon.levels.*;
+import com.watabou.utils.Bundle;
+import com.watabou.utils.PathFinder;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+/** Staged adventurers and positions. Native boss health, clocks, fist selection, damage and turn order. */
+public class YogArenaTest extends HeadlessDungeon {
+    static void arrive(CoopSession game) { arrive(game,578); }
+
+    static void arrive(CoopSession game, int arenaSeed) { arrive(game,arenaSeed,4); }
+
+    static void arrive(CoopSession game, int arenaSeed,int surviving) {
+        CityKingTest.prepareBoundary(game,"claim");
+        while (Dungeon.depth<24) {
+            SewerDepthTest.gate(game,true);
+            if (Dungeon.depth>=21 && Dungeon.depth<25-surviving) {
+                DemonSpawner spawner=resident(DemonSpawner.class);
+                assertNotNull(spawner);
+                for (int i=0;i<250 && spawner.isAlive();i++) CityKingTest.strike(game,spawner);
+                assertFalse(spawner.isAlive());
+            }
+        }
+        // Replay original arena seeds using the staged 578 approach; only the 578 route is continuous.
+        Dungeon.seed=arenaSeed;
+        for (int seat=0;seat<2;seat++) {
+            Hero fighter=game.hero(seat);
+            fighter.HTBoost += 4500;
+            fighter.updateHT(false);
+            fighter.HP=fighter.HT;
+            fighter.belongings.weapon.upgrade(6);
+        }
+        SewerDepthTest.gate(game,true);
+        assertEquals(HallsBossLevel.class,Dungeon.level.getClass());
+        assertFalse(Dungeon.level.locked);
+    }
+
+    static <T extends Mob> T resident(Class<T> type) {
+        for (Mob m:Dungeon.level.mobs) if (type.isInstance(m)) return type.cast(m);
+        return null;
+    }
+
+    static void start(CoopSession game) {
+        int spawn=Dungeon.level.exit()+3*Dungeon.level.width();
+        for (int dir:PathFinder.NEIGHBOURS8) {
+            int cell=spawn+dir;
+            if (Dungeon.level.passable[cell] && Actor.findChar(cell)==null) {
+                MiningBranchTest.standBeside(game,cell);
+                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.MOVE,cell,null));
+                break;
+            }
+        }
+        assertTrue(Dungeon.level.locked);
+        YogDzewa boss=resident(YogDzewa.class);
+        assertNotNull(boss);
+        assertEquals(1000,boss.HT);
+        for (int i=0;i<8 && boss.phase()==0;i++) TenguArenaTest.waitOne(game);
+        assertEquals(1,boss.phase());
+    }
+
+    @Test public void destroyedHallsSpawnersSetTheNativeSavedSummonRotation() {
+        for (int living=0;living<=4;living++) {
+            try (CoopSession game=CavesInteriorTest.open(578)) {
+                arrive(game,578,living);
+                start(game);
+                assertEquals(living,Statistics.spawnersAlive);
+                Bundle boss=new Bundle();
+                resident(YogDzewa.class).storeInBundle(boss);
+                Class[] rolls=boss.getClassArray("regular_summons");
+                assertEquals(4,rolls.length);
+                assertEquals(living,java.util.Arrays.stream(rolls).filter(YogDzewa.YogRipper.class::equals).count());
+                assertEquals(4-living,java.util.Arrays.stream(rolls).filter(YogDzewa.Larva.class::equals).count());
+            }
+        }
+    }
+
+    /** Emit actual staged saves for a Desktop fixture, keeping both rosters consistent. */
+    public static void main(String[] args) throws Exception {
+        YogArenaTest fixture=new YogArenaTest();
+        fixture.temporary.create();
+        fixture.startBackend();
+        try {
+            for (String name:new String[]{"yog-warning","yog-first","yog-amulet","yog-finish"}) {
+                try (CoopSession game=CoopSession.open(578,1,com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass.WARRIOR)) {
+                    game.join(2,com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass.MAGE);
+                    forScreen(game,name);
+                    try (java.io.OutputStream out=java.nio.file.Files.newOutputStream(java.nio.file.Paths.get(args[0],name))) {
+                        assertTrue(Bundle.write(game.checkpoint(),out,false));
+                    }
+                }
+            }
+        } finally {
+            fixture.stopBackend();
+            fixture.temporary.delete();
+        }
+    }
+
+    public static void forScreen(CoopSession game,String name) {
+        prepareBoundary(game,name.equals("yog-warning")?"warning":name.equals("yog-first")?"first":"propose");
+        if (name.equals("yog-finish")) {
+            int owner=game.amuletOwner();
+            assertTrue(game.chooseEnding(owner,true));
+            assertTrue(game.chooseEnding(1-owner,true));
+        }
+    }
+
+    @Test public void genuineRayWindupAndFirstFistRetainTheirIdentity() {
+        Bundle windup;
+        int id;
+        int[] cells;
+        try (CoopSession game=CavesInteriorTest.open(578)) {
+            arrive(game);
+            start(game);
+            YogDzewa boss=resident(YogDzewa.class);
+            for (int i=0;i<80 && boss.aimedCells().length==0;i++) TenguArenaTest.waitOne(game);
+            cells=boss.aimedCells();
+            assertTrue(cells.length>0);
+            id=boss.id();
+            windup=game.checkpoint();
+        }
+        Bundle first;
+        int fistID;
+        try (CoopSession game=CoopSession.restore(windup)) {
+            YogDzewa boss=(YogDzewa)Actor.findById(id);
+            assertArrayEquals(cells,boss.aimedCells());
+            for (int i=0;i<100 && boss.phase()==1;i++) CityKingTest.strike(game,boss);
+            assertEquals(2,boss.phase());
+            assertEquals(700,boss.HP);
+            YogFist fist=resident(YogFist.class);
+            assertNotNull(fist);
+            assertTrue(boss.isInvulnerable(Hero.class));
+            assertTrue(fist.isInvulnerable(Hero.class));
+            fistID=fist.id();
+            first=game.checkpoint();
+        }
+        try (CoopSession game=CoopSession.restore(first)) {
+            assertEquals(fistID,resident(YogFist.class).id());
+            assertEquals(id,resident(YogDzewa.class).id());
+            TenguArenaTest.waitOne(game);
+        }
+    }
+
+    static void fight(CoopSession game, java.util.List<String> defeated) {
+        fight(game,defeated,null);
+    }
+
+    static StagedInput fight(CoopSession game, java.util.List<String> defeated,String boundary) {
+        YogDzewa boss=resident(YogDzewa.class);
+        boolean phaseFive=false;
+        YogFist previous=null;
+        for (int step=0;step<900 && boss.isAlive();step++) {
+            YogFist fist=resident(YogFist.class);
+            if (fist!=previous && previous!=null) {
+                assertFalse(previous.isAlive());
+                defeated.add(previous.getClass().getSimpleName());
+            }
+            if (fist!=previous && fist!=null) {
+                assertTrue(boss.isInvulnerable(Hero.class));
+                SewerSpecialActorTest.atGate(game,Dungeon.level.entrance());
+            }
+            previous=fist;
+            phaseFive |= boss.phase()==5;
+            if (fist!=null && fist.isInvulnerable(Hero.class)) {
+                if (Dungeon.level.distance(game.hero(0).pos,boss.pos)<11 ||
+                        Dungeon.level.distance(game.hero(1).pos,boss.pos)<11) {
+                    SewerSpecialActorTest.atGate(game,Dungeon.level.entrance());
+                }
+                TenguArenaTest.waitOne(game);
+            } else {
+                Mob target=fist==null ? boss : fist;
+                MiningBranchTest.standBeside(game,target.pos);
+                boolean capture="kill".equals(boundary) && boss.phase()==5 && boss.HP<=100
+                        || "first".equals(boundary) && boss.phase()==1 && boss.HP<=800;
+                StagedInput before=capture ? new StagedInput(game,"ATTACK",target.pos) : null;
+                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ATTACK,target.pos,null));
+                if (before!=null && published(boundary)) return before;
+            }
+            assertFalse("party lost at "+boss.phase()+" HP "+boss.HP,game.defeated());
+        }
+        assertTrue("last phase missed, phase="+boss.phase()+" hp="+boss.HP+" fist="+resident(YogFist.class),phaseFive);
+        assertNull(resident(YogDzewa.class));
+        assertEquals(3,defeated.size());
+        assertFalse(Dungeon.level.locked);
+        assertEquals(Terrain.EXIT,Dungeon.level.map[Dungeon.level.exit()]);
+        return null;
+    }
+
+    static void awaitExit(CoopSession game) {
+        SewerSpecialActorTest.atGate(game,Dungeon.level.exit());
+        for (int i=0;i<100 && game.stairs.stair()!=Dungeon.level.exit();i++) TenguArenaTest.waitOne(game);
+        assertEquals("Both surviving heroes must see and reach the open exit",Dungeon.level.exit(),game.stairs.stair());
+    }
+
+    static int amuletCell() {
+        for (com.shatteredpixel.shatteredpixeldungeon.items.Heap heap:Dungeon.level.heaps.valueList())
+            if (heap.peek() instanceof com.shatteredpixel.shatteredpixeldungeon.items.Amulet) return heap.pos;
+        return -1;
+    }
+
+    static void positionAtAmulet(CoopSession game) {
+        int cell=amuletCell();
+        assertTrue(cell>=0);
+        SewerSpecialActorTest.atGate(game,cell);
+        game.hero(game.activeSeat()).pos=cell;
+        game.observe(0);
+        game.observe(1);
+    }
+
+    static void takeAmulet(CoopSession game) {
+        positionAtAmulet(game);
+        int seat=game.activeSeat(),cell=amuletCell();
+        assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,cell,Dungeon.level.heaps.get(cell).peek()));
+        assertEquals(seat,game.amuletOwner());
+        assertTrue(Statistics.amuletObtained);
+        assertEquals(CoopSession.Ending.OFFER,game.ending());
+    }
+
+    public static String signature(CoopSession game) {
+        YogDzewa boss=resident(YogDzewa.class);
+        StringBuilder result=new StringBuilder(MiningBranchTest.signature(game));
+        result.append('|').append(game.ending()).append('|').append(game.amuletOwner());
+        if (boss!=null) {
+            Bundle b=new Bundle();
+            boss.storeInBundle(b);
+            result.append('|').append(boss.id()).append('|').append(boss.phase()).append('|').append(boss.HP)
+                .append('|').append(java.util.Arrays.toString(boss.aimedCells())).append('|').append(b.getInt("beam_target"))
+                .append('|').append(java.util.Arrays.toString(b.getClassArray("fist_summons")))
+                .append('|').append(java.util.Arrays.toString(b.getClassArray("regular_summons")))
+                .append('|').append(b.getFloat("ability_cd")).append('|').append(b.getFloat("summon_cd"));
+        }
+        return result.toString();
+    }
+
+    public static boolean published(String boundary) {
+        CoopSession game=Dungeon.coop;
+        YogDzewa boss=resident(YogDzewa.class);
+        switch (boundary) {
+            case "warning":return boss!=null && boss.aimedCells().length>0;
+            case "ray":return boss!=null && boss.aimedCells().length==0;
+            case "first":return boss!=null && boss.phase()==2 && resident(YogFist.class)!=null;
+            case "kill":return Dungeon.depth==25 && boss==null && !Dungeon.level.locked && Dungeon.level.map[Dungeon.level.exit()]==Terrain.EXIT;
+            case "last":return Dungeon.depth==26 && amuletCell()>=0;
+            case "amulet":return game.ending()==CoopSession.Ending.OFFER;
+            case "propose":return game.ending()==CoopSession.Ending.PROPOSED;
+            case "win":return game.ending()==CoopSession.Ending.WON;
+            default:throw new IllegalArgumentException(boundary);
+        }
+    }
+
+    public static StagedInput prepareBoundary(CoopSession game,String boundary) {
+        arrive(game);
+        start(game);
+        if (boundary.equals("warning") || boundary.equals("ray")) {
+            if (boundary.equals("ray"))
+                for (int i=0;i<100 && !published("warning");i++) TenguArenaTest.waitOne(game);
+            for (int i=0;i<100;i++) {
+                StagedInput before=new StagedInput(game,"WAIT",0);
+                TenguArenaTest.waitOne(game);
+                if (published(boundary)) return before;
+            }
+            throw new AssertionError(boundary);
+        }
+        StagedInput combat=fight(game,new java.util.ArrayList<>(),boundary);
+        if (combat!=null) return combat;
+        awaitExit(game);
+        if (boundary.equals("last")) {
+            return new StagedInput(game,"TRAVEL",Dungeon.level.exit());
+        }
+        CoopFloorsTest.cross(game);
+        positionAtAmulet(game);
+        if (boundary.equals("amulet")) return new StagedInput(game,"PICK_UP",amuletCell());
+        takeAmulet(game);
+        if (boundary.equals("win")) assertTrue(game.chooseEnding(game.amuletOwner(),true));
+        return new StagedInput(game,"END_RUN",0);
+    }
+
+    @Test public void nativeThreeFistEncountersOpenTheRouteToOneAmulet() {
+        for (int seed:new int[]{578,570,572,573}) {
+            Bundle won;
+            int winner;
+            try (CoopSession game=CavesInteriorTest.open(578)) {
+                arrive(game,seed);
+                start(game);
+                java.util.ArrayList<String> defeated=new java.util.ArrayList<>();
+                fight(game,defeated);
+                System.out.println("YOG_VICTORY seed="+seed+" defeated="+defeated);
+                awaitExit(game);
+                CoopFloorsTest.cross(game);
+                assertEquals(LastLevel.class,Dungeon.level.getClass());
+                assertEquals(26,Dungeon.depth);
+                assertEquals(1,Dungeon.level.heaps.valueList().stream().flatMap(h -> h.items.stream())
+                        .filter(i -> i instanceof com.shatteredpixel.shatteredpixeldungeon.items.Amulet).count());
+                takeAmulet(game);
+                int owner=game.amuletOwner();
+                assertFalse(game.chooseEnding(1-owner,true));
+                assertTrue(game.chooseEnding(owner,true));
+                assertFalse(game.chooseEnding(owner,true));
+                assertTrue(game.chooseEnding(1-owner,false));
+                assertEquals(CoopSession.Ending.CONTINUING,game.ending());
+                TenguArenaTest.waitOne(game);
+                assertTrue(game.chooseEnding(owner,true));
+                assertTrue(game.chooseEnding(1-owner,true));
+                assertFalse(CoopFloorsTest.step(game,CoopSession.Action.WAIT,0,null));
+                assertFalse(game.chooseEnding(1-owner,true));
+                won=game.checkpoint();
+                winner=owner;
+            }
+            try (CoopSession again=CoopSession.restore(won)) {
+                    assertEquals(CoopSession.Ending.WON,again.ending());
+                    assertEquals(winner,again.amuletOwner());
+            }
+        }
+    }
+}

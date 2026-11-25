@@ -24,9 +24,9 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 /** One active floor; native generated-level keys distinguish equal depths across branches; only the active floor has registered actors. */
 public final class CoopFloors {
     private final CoopSession game;
-    public static final int LAST_SEWER = 5, FIRST_PRISON = 6, LAST_PLAYABLE = 24;
+    public static final int LAST_SEWER = 5, FIRST_PRISON = 6, LAST_PLAYABLE = 26;
     static int lastDepth(int schema) {
-        return schema>=13 ? LAST_PLAYABLE : schema>=11 ? 20 : schema==10 ? 19 : schema==9 ? 15 : schema==8 ? 14 : schema==7 ? 11 : schema==6 ? 9 : schema==5 ? 7 : schema==4 ? FIRST_PRISON : schema==3 ? LAST_SEWER : schema;
+        return schema>=14 ? LAST_PLAYABLE : schema==13 ? 24 : schema>=11 ? 20 : schema==10 ? 19 : schema==9 ? 15 : schema==8 ? 14 : schema==7 ? 11 : schema==6 ? 9 : schema==5 ? 7 : schema==4 ? FIRST_PRISON : schema==3 ? LAST_SEWER : schema;
     }
     private final java.util.Map<Integer,Bundle> dormant = new java.util.TreeMap<>();
     private long voteTurn;
@@ -95,6 +95,9 @@ public final class CoopFloors {
             if (Dungeon.depth==10 && t.destDepth==11 && ((com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel)l).state()!=com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel.State.WON) continue;
             if (Dungeon.depth==15 && t.destDepth>15 && !((com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel)l).exitOpen()) continue;
             if (Dungeon.depth==20 && t.destDepth==21 && !((com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel)l).exitOpen()) continue;
+            if (Dungeon.depth==25 && t.destDepth==26 && l.map[l.exit()]!=com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EXIT) continue;
+            // The native ascent curse begins at this stair. Keep it closed until the party ascent is implemented.
+            if (Dungeon.depth==25 && t.destDepth==24 && com.shatteredpixel.shatteredpixeldungeon.Statistics.amuletObtained) continue;
             if (inRange(l,t)) return t.cell();
         }
         return -1;
@@ -260,7 +263,7 @@ public final class CoopFloors {
     }
 
     static void checkLevelType(Bundle floor,int depth,int branch) {
-        Class<?> expected=branch==1 ? (vaultDepth(depth) ? VaultLevel.class : MiningLevel.class) : depth>=21 ? com.shatteredpixel.shatteredpixeldungeon.levels.HallsLevel.class : depth==20 ? com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel.class : depth>=16 ? com.shatteredpixel.shatteredpixeldungeon.levels.CityLevel.class : depth==15 ? com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel.class : depth>=11 ? com.shatteredpixel.shatteredpixeldungeon.levels.CavesLevel.class : depth==10 ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel.class : depth>=FIRST_PRISON ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel.class
+        Class<?> expected=branch==1 ? (vaultDepth(depth) ? VaultLevel.class : MiningLevel.class) : depth==26 ? com.shatteredpixel.shatteredpixeldungeon.levels.LastLevel.class : depth==25 ? com.shatteredpixel.shatteredpixeldungeon.levels.HallsBossLevel.class : depth>=21 ? com.shatteredpixel.shatteredpixeldungeon.levels.HallsLevel.class : depth==20 ? com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel.class : depth>=16 ? com.shatteredpixel.shatteredpixeldungeon.levels.CityLevel.class : depth==15 ? com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel.class : depth>=11 ? com.shatteredpixel.shatteredpixeldungeon.levels.CavesLevel.class : depth==10 ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel.class : depth>=FIRST_PRISON ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel.class
                 : depth==5 ? com.shatteredpixel.shatteredpixeldungeon.levels.SewerBossLevel.class
                 : com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel.class;
         if (!expected.getName().equals(floor.getString("__className")))
@@ -269,6 +272,50 @@ public final class CoopFloors {
         if (depth == 10) validateBoss(floor);
         if (depth == 15) validateCavesBoss(floor);
         if (depth == 20) validateCityBoss(floor);
+        if (depth == 25) validateYog(floor);
+    }
+
+    private static void validateYog(Bundle floor) {
+        String yog=com.shatteredpixel.shatteredpixeldungeon.actors.mobs.YogDzewa.class.getName();
+        String fist=com.shatteredpixel.shatteredpixeldungeon.actors.mobs.YogFist.class.getName()+"$";
+        int bosses=0, fists=0;
+        int phase=-1;
+        int cells=floor.getInt("width")*floor.getInt("height");
+        for (Bundle mob:floor.getBundleArray("mobs")) {
+            String type=mob.getString("__className");
+            if (type.startsWith(fist)) fists++;
+            if (!yog.equals(type)) continue;
+            bosses++;
+            phase=mob.getInt("phase");
+            if (phase<0 || phase>5 || mob.getInt("HP")<=0 || mob.getInt("HP")>1000
+                    || !Float.isFinite(mob.getFloat("ability_cd")) || !Float.isFinite(mob.getFloat("summon_cd")))
+                throw new IllegalArgumentException("Invalid Yog state");
+            int[] aims=mob.getIntArray("targeted_cells");
+            if (aims.length>0 && mob.getInt("beam_target")<=0) throw new IllegalArgumentException("Missing ray target");
+            for (int target:aims) if (target<0 || target>=cells) throw new IllegalArgumentException("Invalid ray cell");
+            String[] regular=mob.getStringArray("regular_summons");
+            if (regular.length!=4) throw new IllegalArgumentException("Invalid Yog summon rotation");
+            for (String kind:regular) {
+                String name=kind.replace("class ","");
+                if (!name.equals(yog+"$Larva") && !name.equals(yog+"$YogRipper")) throw new IllegalArgumentException("Invalid Yog summon");
+            }
+            String[] remaining=mob.getStringArray("fist_summons");
+            if (remaining.length!=Math.max(0,Math.min(3,4-phase))) throw new IllegalArgumentException("Invalid fist rotation");
+            java.util.HashSet<String> pairs=new java.util.HashSet<>();
+            for (String kind:remaining) {
+                String name=kind.replace("class ","");
+                if (!name.startsWith(fist)) throw new IllegalArgumentException("Invalid fist class");
+                switch (name.substring(fist.length())) {
+                    case "BurningFist":case "SoiledFist":name="earth";break;
+                    case "RottingFist":case "RustedFist":name="decay";break;
+                    case "BrightFist":case "DarkFist":name="light";break;
+                    default:throw new IllegalArgumentException("Invalid Yog fist");
+                }
+                if (!pairs.add(name)) throw new IllegalArgumentException("Duplicate Yog fist pair");
+            }
+        }
+        if (bosses!=(floor.getBoolean("locked")?1:0) || fists>1 || fists>0 && (phase<2 || phase>4))
+            throw new IllegalArgumentException("Inconsistent Yog arena");
     }
 
     private static void validateCityBoss(Bundle floor) {
@@ -419,6 +466,7 @@ public final class CoopFloors {
     }
 
     int schema() {
+        if (Dungeon.levelHasBeenGenerated(25,0)) return 14;
         if (Dungeon.levelHasBeenGenerated(21,0)) return 13;
         for (int d=17;d<=19;d++) if (Dungeon.levelHasBeenGenerated(d,1)) return 12;
         if (Dungeon.levelHasBeenGenerated(20,0)) return 11;
@@ -467,6 +515,7 @@ public final class CoopFloors {
         int mainCount=generated.size()-mineCount-vaultCount;
         int required = schema==8 ? 12 : schema==7 ? 10 : schema==6 ? 8 : bound;
         if (!generated.contains(active) || generated.size()!=Dungeon.generatedLevels.size() || mineCount>1
+                || (schema==14 && !generated.contains(25))
                 || (schema==13 && !generated.contains(21))
                 || (schema==11 && !generated.contains(20))
                 || (schema==10 && mineCount==0 && !generated.contains(16)) || (multi && !generated.contains(3))

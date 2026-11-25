@@ -304,7 +304,7 @@ public final class CoopController {
     }
 
     public boolean act(StateImage offered,String verb,int cell,long item) {
-        if(offered==null || frame.image!=offered || (!verb.equals("CONSENT") && !verb.equals("CANCEL_TRAVEL") && !Integer.toString(frame.seat).equals(offered.rows.get("active")))) return false;
+        if(offered==null || frame.image!=offered || (!SeatActions.offTurn(verb) && !Integer.toString(frame.seat).equals(offered.rows.get("active")))) return false;
         return enqueue(()->{
             if(image!=offered || page!=Page.GAME || ticket.pending!=0) return;
             SeatActions.Pending p=actions.prepare(image,verb,cell,item);

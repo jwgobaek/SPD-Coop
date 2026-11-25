@@ -242,7 +242,7 @@ public class HallsBossLevel extends Level {
 	@Override
 	public void occupyCell( Char ch ) {
 		if (map[entrance()] == Terrain.ENTRANCE && map[exit()] != Terrain.EXIT
-				&& ch == Dungeon.hero && Dungeon.level.distance(ch.pos, entrance()) >= 2) {
+				&& (ch == Dungeon.hero || Dungeon.coop != null && Dungeon.coop.playerOf(ch) != 0 && ch.isAlive()) && Dungeon.level.distance(ch.pos, entrance()) >= 2) {
 			seal();
 		}
 
@@ -256,9 +256,9 @@ public class HallsBossLevel extends Level {
 		int entrance = entrance();
 		set( entrance, Terrain.EMPTY_SP );
 		GameScene.updateMap( entrance );
-		CellEmitter.get( entrance ).start( FlameParticle.FACTORY, 0.1f, 10 );
+		if (Dungeon.coop == null) CellEmitter.get( entrance ).start( FlameParticle.FACTORY, 0.1f, 10 );
 
-		Dungeon.observe();
+		if (Dungeon.coop == null) Dungeon.observe();
 
 		YogDzewa boss = new YogDzewa();
 		boss.pos = exit() + width*3;
@@ -277,7 +277,7 @@ public class HallsBossLevel extends Level {
 			} else {
 				ch.pos = boss.pos+2*width;
 			}
-			Actor.add(new Pushing(ch, boss.pos, ch.pos));
+			if (Dungeon.coop == null) Actor.add(new Pushing(ch, boss.pos, ch.pos));
 		}
 
 		GameScene.add( boss );
@@ -292,23 +292,23 @@ public class HallsBossLevel extends Level {
 		set( exit(), Terrain.EXIT );
 		GameScene.updateMap( exit() );
 
-		CellEmitter.get(exit()-1).burst(ShadowParticle.UP, 25);
-		CellEmitter.get(exit()).burst(ShadowParticle.UP, 100);
-		CellEmitter.get(exit()+1).burst(ShadowParticle.UP, 25);
-		for( CustomTilemap t : customTiles){
+		if (Dungeon.coop == null) CellEmitter.get(exit()-1).burst(ShadowParticle.UP, 25);
+		if (Dungeon.coop == null) CellEmitter.get(exit()).burst(ShadowParticle.UP, 100);
+		if (Dungeon.coop == null) CellEmitter.get(exit()+1).burst(ShadowParticle.UP, 25);
+		if (Dungeon.coop == null) for( CustomTilemap t : customTiles){
 			if (t instanceof CenterPieceVisuals){
 				((CenterPieceVisuals) t).updateState();
 			}
 		}
-		for( CustomTilemap t : customWalls){
+		if (Dungeon.coop == null) for( CustomTilemap t : customWalls){
 			if (t instanceof CenterPieceWalls){
 				((CenterPieceWalls) t).updateState();
 			}
 		}
 
-		Dungeon.observe();
+		if (Dungeon.coop == null) Dungeon.observe();
 
-		Game.runOnRenderThread(new Callback() {
+		if (Dungeon.coop == null) Game.runOnRenderThread(new Callback() {
 			@Override
 			public void call() {
 				Music.INSTANCE.fadeOut(5f, new Callback() {
@@ -337,7 +337,7 @@ public class HallsBossLevel extends Level {
 				&& hero.belongings.getItem(Amulet.class) != null
 				&& hero.buff(AscensionChallenge.class) == null) {
 
-			Game.runOnRenderThread(new Callback() {
+			if (Dungeon.coop == null) Game.runOnRenderThread(new Callback() {
 				@Override
 				public void call() {
 					GameScene.show( new WndOptions( new ItemSprite(ItemSpriteSheet.AMULET),
@@ -408,7 +408,11 @@ public class HallsBossLevel extends Level {
 		return visuals;
 	}
 
-	public static class CenterPieceVisuals extends CustomTilemap {
+	public abstract static class HallsOverlay extends CustomTilemap {
+		public abstract int[] frames(Level level, byte[] variance);
+	}
+
+	public static class CenterPieceVisuals extends HallsOverlay {
 
 		{
 			texture = Assets.Environment.HALLS_SP;
@@ -436,18 +440,20 @@ public class HallsBossLevel extends Level {
 		}
 
 		private void updateState(){
-			if (vis != null){
-				int[] data = map.clone();
-				if (Dungeon.level.map[Dungeon.level.exit()] == Terrain.EXIT) {
-					data[4] = 19;
-					data[12] = data[14] = 31;
-				}
-				vis.map(data, tileW);
+			if (vis != null) vis.map(frames(Dungeon.level,null), tileW);
+		}
+
+		@Override public int[] frames(Level level, byte[] variance) {
+			int[] data = map.clone();
+			if (level.map[level.exit()] == Terrain.EXIT) {
+				data[4] = 19;
+				data[12] = data[14] = 31;
 			}
+			return data;
 		}
 	}
 
-	public static class CenterPieceWalls extends CustomTilemap {
+	public static class CenterPieceWalls extends HallsOverlay {
 
 		{
 			texture = Assets.Environment.HALLS_SP;
@@ -475,16 +481,18 @@ public class HallsBossLevel extends Level {
 		}
 
 		private void updateState(){
-			if (vis != null){
-				int[] data = map.clone();
-				if (Dungeon.level.map[Dungeon.level.exit()] == Terrain.EXIT) {
-					data[3] = 1;
-					data[4] = 0;
-					data[5] = 2;
-					data[13] = 23;
-				}
-				vis.map(data, tileW);
+			if (vis != null) vis.map(frames(Dungeon.level,null), tileW);
+		}
+
+		@Override public int[] frames(Level level, byte[] variance) {
+			int[] data = map.clone();
+			if (level.map[level.exit()] == Terrain.EXIT) {
+				data[3] = 1;
+				data[4] = 0;
+				data[5] = 2;
+				data[13] = 23;
 			}
+			return data;
 		}
 
 	}
