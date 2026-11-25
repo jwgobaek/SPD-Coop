@@ -103,7 +103,7 @@ public class CrystalWisp extends Mob{
 
 		} else {
 
-			if (sprite != null && (sprite.visible || enemy.sprite.visible)) {
+			if (Dungeon.coop == null && sprite != null && (sprite.visible || enemy.sprite.visible)) {
 				sprite.zap( enemy.pos );
 				return false;
 			} else {
@@ -132,7 +132,7 @@ public class CrystalWisp extends Mob{
 			int dmg = Random.NormalIntRange( 5, 10 );
 			enemy.damage( dmg, new LightBeam() );
 
-			if (!enemy.isAlive() && enemy == Dungeon.hero) {
+			if (Dungeon.coop == null && !enemy.isAlive() && enemy == Dungeon.hero) {
 				Badges.validateDeathFromEnemyMagic();
 				Dungeon.fail( this );
 				GLog.n( Messages.get(this, "beam_kill") );

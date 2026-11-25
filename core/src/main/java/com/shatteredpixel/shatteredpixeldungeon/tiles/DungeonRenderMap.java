@@ -37,8 +37,8 @@ public class DungeonRenderMap {
 
     public DungeonRenderMap(PublicDungeon view) {
         solo=null;
-        width=view.width; height=view.height; depth=view.depth; branch=0;
-        mining=false; hallsBoss=false; lastShop=false;
+        width=view.width; height=view.height; depth=view.depth; branch=view.branch;
+        mining=branch==1; hallsBoss=false; lastShop=false;
         int length=width*height;
         nest=new int[length]; exitWalls=new int[length];
         tiles=new int[length]; visible=new boolean[length]; visited=new boolean[length];
@@ -50,7 +50,7 @@ public class DungeonRenderMap {
     }
 
     public boolean apply(PublicDungeon view) {
-        if (view.width!=width || view.height!=height || view.depth!=depth) throw new IllegalArgumentException("Different floor");
+        if (view.width!=width || view.height!=height || view.depth!=depth || view.branch!=branch) throw new IllegalArgumentException("Different floor");
         boolean changed=false;
         changedCells.setEmpty();
         for (int i=0;i<tiles.length;i++) {
@@ -95,6 +95,10 @@ public class DungeonRenderMap {
     }
     String tilesTexture() {
         if (!isSeat()) return solo.tilesTex();
+        if (mining) return "1".equals(seat.source.rows.get("mine"))
+                ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_CAVES_CRYSTAL
+                : com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_CAVES_GNOLL;
+        if (depth>=16) return com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_CITY;
         return depth>=11 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_CAVES : depth>=6 ? com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_PRISON
                 : com.shatteredpixel.shatteredpixeldungeon.Assets.Environment.TILES_SEWERS;
     }

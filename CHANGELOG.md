@@ -1,5 +1,9 @@
 # 4.0.2 기반 개발 기준판
 
+## 광산·도시 체크포인트
+
+동일 깊이의 광산 분기, 대장장이 보상, 도시 16~19층 및 원본 Imp 의뢰 수락을 추가했다. [실행 기록](docs/coop/mines-city-results.md)
+
 ## 2026-11-25 · 동굴 본편
 
 Spinner, DM200·DM201, 대장장이 의뢰 수락, 12~15층 왕복, 원본 DM-300·Pylon과 MetalShard 복원을 추가했다. 스키마 8·9, SYNC21. [실행 결과와 범위](docs/coop/caves-dm300-results.md)

@@ -159,7 +159,7 @@ public class Ghoul extends Mob {
 				Actor.remove(this);
 				Dungeon.level.mobs.remove( this );
 				Buff.append(nearby, GhoulLifeLink.class).set(timesDowned*5, this);
-				((GhoulSprite)sprite).crumple();
+				if (sprite instanceof GhoulSprite) ((GhoulSprite)sprite).crumple();
 				return;
 			}
 		}
@@ -236,6 +236,7 @@ public class Ghoul extends Mob {
 
 		private Ghoul ghoul;
 		private int turnsToRevive;
+        public Ghoul downedGhoul() { return ghoul; }
 
 		@Override
 		public boolean act() {
@@ -292,6 +293,7 @@ public class Ghoul extends Mob {
 				ghoul.timeToNow();
 				Dungeon.level.mobs.add(ghoul);
 				Dungeon.level.occupyCell( ghoul );
+				if (Dungeon.coop != null) Dungeon.coop.attachSprite(ghoul);
 				ghoul.sprite.idle();
 				ghoul.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(Math.round(ghoul.HT/10f)), FloatingText.HEALING);
 				if (ghoul.enemy != null && ghoul.enemy.alignment == ghoul.alignment){
@@ -319,6 +321,7 @@ public class Ghoul extends Mob {
 		@Override
 		public void fx(boolean on) {
 			if (on && ghoul != null && ghoul.sprite == null){
+                if (Dungeon.coop != null) { Dungeon.coop.attachSprite(ghoul); return; }
 				GameScene.addSprite(ghoul);
 				((GhoulSprite)ghoul.sprite).crumple();
 			}

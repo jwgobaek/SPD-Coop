@@ -1,5 +1,9 @@
 # GB2 원격 Android 시험
 
+## 광산·도시 체크포인트
+
+Drive 미리보기에서 다운로드 버튼이 보이지 않을 때도 동일한 승인 파일 ID에 대한 공식 drive.usercontent.google.com/download 경로를 MuMu 안에서 확인한다. 설치 파일의 크기와 SHA-256을 확인한 뒤 Android 안에서 업데이트하고 이번 다운로드만 정리한다. [실행 기록](docs/coop/mines-city-results.md)
+
 Codex가 승인된 Remote Desktop Commander를 통해 필요한 변경 회귀를 직접 수행한다. Cloud에서 Git·Gradle·JUnit·장시간 시험·서명 검사·Drive 발행을 처리한다. GB2는 기존 MuMu와 로컬 ADB로 짧게 시험한다. 별도 Work 작업이나 사용자의 수동 설치 절차가 필요하지 않다.
 
 1. 지정된 GB2의 연결, 메모리 여유, 기존 인스턴스, 로컬 ADB 연결·매핑과 부팅 식별자를 확인한다. 기본 Device-2만 사용한다. 동일 부팅을 보고하는 포트는 한 기기다. 두 번째 인스턴스에는 별도 승인과 자원 확인이 필요하다. 자원 부족 징후가 나타나면 작업을 멈춘다.

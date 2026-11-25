@@ -420,6 +420,16 @@ public final class RestartClient {
                     : boundary.equals("enter") || boundary.equals("arena") ? "MOVE" : "ATTACK";
             boolean interior=boundary.startsWith("interior-");
             boolean dm=boundary.startsWith("dm-");
+            boolean mine=boundary.startsWith("mine-");
+            boolean city=boundary.startsWith("city-");
+            if (city) {
+                travel=!boundary.endsWith("imp");
+                verb="ACCEPT_IMP";
+            }
+            if (mine) {
+                travel=boundary.endsWith("enter") || boundary.endsWith("return");
+                verb=boundary.endsWith("order")?"SMITH_ORDER":boundary.endsWith("claim")?"SMITH_CLAIM":"MINE";
+            }
             if (dm) {
                 String name=boundary.substring(3);
                 travel=name.equals("visit") || name.equals("return") || name.equals("revisit");
@@ -435,7 +445,9 @@ public final class RestartClient {
             for (int i=0;i<40;i++) {
                 int seat=active();
                 PublicDungeon view=new PublicDungeon(state(seat));
-                if (dm) assertEquals(boundary.equals("dm-visit") || boundary.equals("dm-revisit") ? 14 : 15,view.depth);
+                if (city) assertEquals(travel ? Integer.parseInt(boundary.substring(5))-1 : 18,view.depth);
+                else if (mine) assertEquals(boundary.endsWith("enter") || boundary.endsWith("claim") || boundary.endsWith("order") ? 0 : 1,view.branch);
+                else if (dm) assertEquals(boundary.equals("dm-visit") || boundary.equals("dm-revisit") ? 14 : 15,view.depth);
                 else if (interior) assertEquals(travel ? Integer.parseInt(boundary.substring(9))-1 : boundary.contains("web")?12:13,view.depth);
                 else assertEquals(boundary.equals("ten") ? 9 : boundary.equals("return") ? 11 : 10,view.depth);
                 long handle=verb.equals("PICK_UP") ? view.floor.get(cell).id : 0;
@@ -467,7 +479,7 @@ public final class RestartClient {
             assertEquals(receipt,clients[seat].request(prior[2]));
             refresh();
             assertEquals(version,state(seat).version);
-            if (mode.equals("tengu-read-devices") || mode.equals("tengu-read-dm-devices")) {
+            if (mode.equals("tengu-read-devices") || mode.equals("tengu-read-city-19") || mode.equals("tengu-read-mine-crystal-ore") || mode.equals("tengu-read-dm-devices")) {
                 for (int i=0;i<21;i++) act("WAIT",0,0);
                 Collections.sort(latency);
                 System.out.println("tengu_tcp mode="+mode+" restored_arena_waits="+latency.size()+" median_us="+latency.get(10)+" p95_us="+latency.get(19));

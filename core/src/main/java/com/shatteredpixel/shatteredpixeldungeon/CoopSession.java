@@ -36,6 +36,12 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SentryRoom;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Gnoll;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CrystalGuardian;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CrystalSpire;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CrystalWisp;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GnollGeomancer;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GnollGuard;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GnollSapper;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Necromancer;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.SpectralNecromancer;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic;
@@ -120,9 +126,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
+    public enum Action { ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
         public boolean requiresItem() {
-            return this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
+            return this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -435,6 +441,16 @@ public final class CoopSession implements AutoCloseable {
 
     public static boolean basicMob(Actor actor) {
         Class<?> type = actor.getClass();
+        if (Dungeon.branch == 1) {
+            return type == CrystalGuardian.class || type == CrystalSpire.class || type == CrystalWisp.class
+                    || type == GnollGeomancer.class || type == GnollGuard.class || type == GnollSapper.class;
+        }
+        if (Dungeon.depth>=16 && Dungeon.depth<=19 && (type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Ghoul.class
+                || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Warlock.class
+                || type==Elemental.FrostElemental.class || type==Elemental.FireElemental.class || type==Elemental.ShockElemental.class
+                || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Monk.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Golem.class
+                || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp.class
+                || (Dungeon.depth==16 && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.class))) return true;
         if (type==ArmoredStatue.class) {
             ArmoredStatue statue=(ArmoredStatue)actor;
             Armor armor=statue.armor();
@@ -611,12 +627,40 @@ public final class CoopSession implements AutoCloseable {
         try {
             executing = true;
             switch (action) {
+                case SMITH_PICK: case SMITH_CASH: case SMITH_HARDEN: case SMITH_UPGRADE:
+                case SMITH_REFORGE: case SMITH_ORDER: case SMITH_CLAIM:
+                    if (!CoopSmith.apply(action,hero,item,cell)) return false;
+                    break;
+                case MINE: {
+                    if (!(level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.MiningLevel)
+                            || !level.insideMap(cell) || !level.adjacent(hero.pos, cell)
+                            || !knowledge(activeSeat).visible(cell)) return false;
+                    Item pick = hero.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe.class);
+                    if (pick == null || ownership.owner(pick) != player) return false;
+                    Char occupant = Actor.findChar(cell);
+                    if (occupant instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CrystalSpire
+                            || (occupant instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GnollGeomancer
+                            && occupant.buff(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GnollGeomancer.RockArmor.class) != null)) {
+                        occupant.interact(hero);
+                    } else {
+                        if (occupant != null || !Hero.mineableTerrain(level.map[cell])) return false;
+                        hero.checkVisibleMobs();
+                        hero.curAction = new HeroAction.Mine(cell);
+                        hero.act();
+                    }
+                    break;
+                }
                 case SEARCH:
                     if(cell!=hero.pos) return false;
                     hero.search(true);
                     break;
                 case TRAVEL:
                     if (!stairs.travel(activeSeat,cell)) return false;
+                    break;
+                case ACCEPT_IMP:
+                    if (Dungeon.branch!=0 || !level.insideMap(cell) || !level.adjacent(hero.pos,cell) || !knowledge(activeSeat).visible(cell)
+                            || !(Actor.findChar(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp)
+                            || !com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp.Quest.acceptCurrent()) return false;
                     break;
                 case ACCEPT_BLACKSMITH:
                     if (!level.insideMap(cell) || !level.adjacent(hero.pos,cell) || !knowledge(activeSeat).visible(cell)
@@ -956,6 +1000,14 @@ public final class CoopSession implements AutoCloseable {
             int index=0;
             for (Item item : heroes[seat].belongings) result.put("s"+seat+"_"+index++,item);
         }
+        if (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.Quest.completed()
+                && com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.Quest.pickaxe!=null)
+            result.put("smithPick",com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.Quest.pickaxe);
+        if (CoopSmith.pendingChoice()) {
+            int choice=0;
+            for (Item candidate:com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.Quest.smithRewards)
+                result.put("smithOffer"+choice++,candidate);
+        }
         result.putAll(floorItems(Dungeon.level));
         return result;
     }
@@ -1000,13 +1052,13 @@ public final class CoopSession implements AutoCloseable {
         if (Dungeon.coop!=null || Dungeon.hero!=null || Dungeon.level!=null) throw new IllegalStateException("Dungeon in use");
         Bundle world=b.getBundle("world"), floor=b.getBundle("floor");
         int schema=b.getInt("schema"),depth=world.getInt("depth");
-        if ((schema<1 || schema>9) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
-                (depth<1 || depth>CoopFloors.lastDepth(schema)) || world.getInt("branch")!=0 || world.getInt("challenges")!=0)
+        if ((schema<1 || schema>10) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
+                (depth<1 || depth>CoopFloors.lastDepth(schema)) || (world.getInt("branch")!=0 && !(schema>=10 && world.getInt("branch")==1 && CoopFloors.mineDepth(depth))) || world.getInt("challenges")!=0)
             throw new IllegalArgumentException("Unsupported world");
         int width=floor.getInt("width"), height=floor.getInt("height");
         if (width<3 || height<3 || width>256 || height>256 || floor.getIntArray("map").length!=width*height)
             throw new IllegalArgumentException("Invalid floor bounds");
-        CoopFloors.checkLevelType(floor,depth);
+        CoopFloors.checkLevelType(floor,depth,world.getInt("branch"));
         CoopSession s=new CoopSession();
         Dungeon.coop=s;
         s.restoring=true;

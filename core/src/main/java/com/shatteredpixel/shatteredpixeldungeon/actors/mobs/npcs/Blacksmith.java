@@ -22,6 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge;
@@ -455,23 +456,29 @@ public class Blacksmith extends NPC {
 		}
 
 		public static void complete(){
-			completed = true;
+            completeFor(Dungeon.hero,Dungeon.hero);
+        }
 
-			favor = 0;
-			DarkGold gold = Dungeon.hero.belongings.getItem(DarkGold.class);
-			if (gold != null){
-				favor += Math.min(2000, gold.quantity()*50);
-				gold.detachAll(Dungeon.hero.belongings.backpack);
-			}
+        public static void completeFor(Hero owner, Hero... party) {
+            if (owner==null || completed) throw new IllegalStateException("Invalid mine completion");
+            completed=true;
+            favor=0;
+            for (Hero hero:party) {
+                DarkGold gold=hero.belongings.getItem(DarkGold.class);
+                if (gold!=null) {
+                    favor=Math.min(2000,favor + Math.min(40,gold.quantity())*50);
+                    gold.detachAll(hero.belongings.backpack);
+                }
+            }
 
-			Pickaxe pick = Dungeon.hero.belongings.getItem(Pickaxe.class);
-			if (pick.isEquipped(Dungeon.hero)) {
+			Pickaxe pick = owner.belongings.getItem(Pickaxe.class);
+			if (pick.isEquipped(owner)) {
 				boolean wasCursed = pick.cursed;
 				pick.cursed = false; //so that it can always be removed
-				pick.doUnequip(Dungeon.hero, false);
+				pick.doUnequip(owner, false);
 				pick.cursed = wasCursed;
 			}
-			pick.detach(Dungeon.hero.belongings.backpack);
+			pick.detach(owner.belongings.backpack);
 			Quest.pickaxe = pick;
 
 			if (bossBeaten) favor += 1000;

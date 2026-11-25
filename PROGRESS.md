@@ -1,5 +1,9 @@
 # SPD-Coop 개발 진행 기록
 
+## 광산·도시 체크포인트
+
+GNOLL·CRYSTAL 광산을 실제 분기로 왕복하고 각 원본 보스를 격리 전투로 처치했다. 시드 572에서는 도시 16~19층에서 두 좌석의 재접속과 영수증 재전송을 검증했다. [실행 기록](docs/coop/mines-city-results.md)
+
 ## 동굴 15층과 DM-300
 
 최종 APK와 통합 ZIP의 파일 ID, 리비전, 원격 해시 및 MuMu 비로그인 시험을 기록했다. [최종 발행 확인](docs/coop/caves-dm300-delivery.md)

@@ -1314,15 +1314,17 @@ public class Hero extends Char {
 		}
 	}
 
+	public static boolean mineableTerrain(int terrain) {
+        return terrain == Terrain.WALL || terrain == Terrain.WALL_DECO
+                || terrain == Terrain.MINE_CRYSTAL || terrain == Terrain.MINE_BOULDER;
+    }
+
 	private boolean actMine(HeroAction.Mine action){
 		if (Dungeon.level.adjacent(pos, action.dst)){
 			path = null;
-			if ((Dungeon.level.map[action.dst] == Terrain.WALL
-					|| Dungeon.level.map[action.dst] == Terrain.WALL_DECO
-					|| Dungeon.level.map[action.dst] == Terrain.MINE_CRYSTAL
-					|| Dungeon.level.map[action.dst] == Terrain.MINE_BOULDER)
+			if (mineableTerrain(Dungeon.level.map[action.dst])
 				&& Dungeon.level.insideMap(action.dst)){
-				sprite.attack(action.dst, new Callback() {
+				Callback impact = new Callback() {
 					@Override
 					public void call() {
 
@@ -1337,8 +1339,9 @@ public class Hero extends Char {
 						//1 hunger spent total
 						if (Dungeon.level.map[action.dst] == Terrain.WALL_DECO){
 							DarkGold gold = new DarkGold();
-							if (gold.doPickUp( Dungeon.hero )) {
-								DarkGold existing = Dungeon.hero.belongings.getItem(DarkGold.class);
+							if (Dungeon.coop != null) Dungeon.coop.ownership.claim(gold, Dungeon.coop.playerOf(Hero.this));
+							if (gold.doPickUp( Hero.this )) {
+								DarkGold existing = Hero.this.belongings.getItem(DarkGold.class);
 								if (existing != null && existing.quantity()%5 == 0){
 									if (existing.quantity() >= 40) {
 										GLog.p(Messages.get(DarkGold.class, "you_now_have", existing.quantity()));
@@ -1348,11 +1351,12 @@ public class Hero extends Char {
 								}
 								spend(-Actor.TICK); //picking up the gold doesn't spend a turn here
 							} else {
-								Dungeon.level.drop( gold, pos ).sprite.drop();
+								Heap dropped = Dungeon.level.drop(gold, pos);
+								if (Dungeon.coop == null) dropped.sprite.drop();
 							}
-							PixelScene.shake(0.5f, 0.5f);
-							CellEmitter.center( action.dst ).burst( Speck.factory( Speck.STAR ), 7 );
-							Sample.INSTANCE.play( Assets.Sounds.EVOKE );
+							if (Dungeon.coop == null) PixelScene.shake(0.5f, 0.5f);
+							if (Dungeon.coop == null) CellEmitter.center( action.dst ).burst( Speck.factory( Speck.STAR ), 7 );
+							if (Dungeon.coop == null) Sample.INSTANCE.play( Assets.Sounds.EVOKE );
 							Level.set( action.dst, Terrain.EMPTY_DECO );
 
 							//mining gold doesn't break crystals
@@ -1361,21 +1365,21 @@ public class Hero extends Char {
 						//4 hunger spent total
 						} else if (Dungeon.level.map[action.dst] == Terrain.WALL){
 							buff(Hunger.class).affectHunger(-3);
-							PixelScene.shake(0.5f, 0.5f);
-							CellEmitter.get( action.dst ).burst( Speck.factory( Speck.ROCK ), 2 );
-							Sample.INSTANCE.play( Assets.Sounds.MINE );
+							if (Dungeon.coop == null) PixelScene.shake(0.5f, 0.5f);
+							if (Dungeon.coop == null) CellEmitter.get( action.dst ).burst( Speck.factory( Speck.ROCK ), 2 );
+							if (Dungeon.coop == null) Sample.INSTANCE.play( Assets.Sounds.MINE );
 							Level.set( action.dst, Terrain.EMPTY_DECO );
 
 						//1 hunger spent total
 						} else if (Dungeon.level.map[action.dst] == Terrain.MINE_CRYSTAL){
-							Splash.at(action.dst, 0xFFFFFF, 5);
-							Sample.INSTANCE.play( Assets.Sounds.SHATTER );
+							if (Dungeon.coop == null) Splash.at(action.dst, 0xFFFFFF, 5);
+							if (Dungeon.coop == null) Sample.INSTANCE.play( Assets.Sounds.SHATTER );
 							Level.set( action.dst, Terrain.EMPTY );
 
 						//1 hunger spent total
 						} else if (Dungeon.level.map[action.dst] == Terrain.MINE_BOULDER){
-							Splash.at(action.dst, 0x555555, 5);
-							Sample.INSTANCE.play( Assets.Sounds.MINE, 0.6f );
+							if (Dungeon.coop == null) Splash.at(action.dst, 0x555555, 5);
+							if (Dungeon.coop == null) Sample.INSTANCE.play( Assets.Sounds.MINE, 0.6f );
 							Level.set( action.dst, Terrain.EMPTY_DECO );
 						}
 
@@ -1387,19 +1391,17 @@ public class Hero extends Char {
 						}
 
 						if (crystalAdjacent){
-							sprite.parent.add(new Delayer(0.2f){
-								@Override
-								protected void onComplete() {
+							Runnable fracture = () -> {
 									boolean broke = false;
 									for (int i : PathFinder.NEIGHBOURS8) {
 										if (Dungeon.level.map[action.dst+i] == Terrain.MINE_CRYSTAL){
-											Splash.at(action.dst+i, 0xFFFFFF, 5);
+											if (Dungeon.coop == null) Splash.at(action.dst+i, 0xFFFFFF, 5);
 											Level.set( action.dst+i, Terrain.EMPTY );
 											broke = true;
 										}
 									}
 									if (broke){
-										Sample.INSTANCE.play( Assets.Sounds.SHATTER );
+										if (Dungeon.coop == null) Sample.INSTANCE.play( Assets.Sounds.SHATTER );
 									}
 
 									for (int i : PathFinder.NEIGHBOURS9) {
@@ -1407,16 +1409,21 @@ public class Hero extends Char {
 									}
 									spendAndNext(TICK);
 									ready();
-								}
+							};
+							if (Dungeon.coop != null) fracture.run();
+							else sprite.parent.add(new Delayer(0.2f) {
+								@Override protected void onComplete() { fracture.run(); }
 							});
 						} else {
 							spendAndNext(TICK);
 							ready();
 						}
 
-						Dungeon.observe();
+						if (Dungeon.coop == null) Dungeon.observe();
 					}
-				});
+				};
+				if (Dungeon.coop != null) impact.call();
+				else sprite.attack(action.dst, impact);
 			} else {
 				ready();
 			}

@@ -160,8 +160,7 @@ public class Imp extends NPC {
 							public void hide() {
 								super.hide();
 
-								Quest.given = true;
-								Quest.completed = false;
+								Quest.acceptCurrent();
 
 								tell(Messages.get(Imp.this, "quest_intro_2"));
 							}
@@ -356,7 +355,14 @@ public class Imp extends NPC {
 			return rooms;
 		}
 
-		public static boolean given(){
+		public static boolean acceptCurrent() {
+            if (!spawned || oldQuest || given || completed) return false;
+            given=true;
+            completed=false;
+            return true;
+        }
+
+        public static boolean given(){
 			return given;
 		}
 

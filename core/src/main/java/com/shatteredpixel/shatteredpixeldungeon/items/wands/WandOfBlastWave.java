@@ -167,7 +167,7 @@ public class WandOfBlastWave extends TargetedDamageWand {
 					return;
 				}
 				if (Dungeon.coop != null && !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(newPos))
-                    throw new UnsupportedOperationException("Unsupported forced landing");
+                    throw new UnsupportedOperationException("Unsupported forced landing at "+newPos+" terrain="+Dungeon.level.map[newPos]+" trap="+Dungeon.level.traps.get(newPos)+" actor="+ch.getClass().getSimpleName());
                 int oldPos = ch.pos;
 				ch.pos = newPos;
 				if (finalCollided && ch.isActive()) {

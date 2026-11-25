@@ -48,7 +48,9 @@ final class RenderEncounter {
         owner.setAccessible(true);
         ((ExecutorService)owner.get(room)).submit(()->{
             CoopSession game=Dungeon.coop;
-            if (destination.startsWith("DM_")) {
+            if(destination.startsWith("mine-") || destination.equals("city-market")) {
+                com.shatteredpixel.shatteredpixeldungeon.MiningBranchTest.forScreen(game,destination);
+            } else if (destination.startsWith("DM_")) {
                 com.shatteredpixel.shatteredpixeldungeon.CavesBossTest.forScreen(game,destination);
             } else if (destination.equals("FIGHT_START")) {
                 for (int seat=0;seat<2;seat++) {

@@ -18,6 +18,15 @@ public final class WndSeatInventory extends WndTabbed {
     private final CoopController client;
     private final int shortcut;
     private final PublicDungeon.Loot scroll;
+    public interface Selection {
+        boolean accepts(PublicDungeon.Loot item);
+        void select(PublicDungeon.Loot item);
+    }
+    private final Selection selection;
+
+    public static WndSeatInventory select(PublicDungeon view,CoopController client,Selection selection) {
+        return new WndSeatInventory(view,client,0,-1,null,selection);
+    }
 
     public WndSeatInventory(PublicDungeon view,CoopController client) { this(view,client,0,-1); }
 
@@ -35,13 +44,17 @@ public final class WndSeatInventory extends WndTabbed {
     }
 
     private WndSeatInventory(PublicDungeon view,CoopController client,int page,int shortcut,PublicDungeon.Loot scroll) {
+        this(view,client,page,shortcut,scroll,null);
+    }
+    private WndSeatInventory(PublicDungeon view,CoopController client,int page,int shortcut,PublicDungeon.Loot scroll,Selection selection) {
+        this.selection=selection;
         this.scroll=scroll;
         this.shortcut=shortcut;
         this.view=view;
         this.client=client;
         WndBag.Grid grid=WndBag.grid(chrome.marginTop(),chrome.marginHor());
         resize(grid.width,grid.height);
-        RenderedTextBlock title=PixelScene.renderTextBlock(scroll!=null ? msg("choose_equipment") : shortcut<0 ? msg("bag") : msg("choose_shortcut",shortcut+1),8);
+        RenderedTextBlock title=PixelScene.renderTextBlock(scroll!=null || selection!=null ? msg("choose_equipment") : shortcut<0 ? msg("bag") : msg("choose_shortcut",shortcut+1),8);
         title.hardlight(TITLE_COLOR);title.setPos(0,(WndBag.TITLE_HEIGHT-title.height())/2);add(title);
         List<PublicDungeon.Loot> pack=new ArrayList<>();
         PublicDungeon.Loot[] gear=new PublicDungeon.Loot[GEAR.length];
@@ -96,7 +109,7 @@ public final class WndSeatInventory extends WndTabbed {
 
     private void changePage(int from,int to) {
         if (from==to) return;
-        hide(); Game.scene().add(new WndSeatInventory(view,client,to,shortcut,scroll));
+        hide(); Game.scene().add(new WndSeatInventory(view,client,to,shortcut,scroll,selection));
     }
 
     public final class Slot extends InventorySlot {
@@ -109,14 +122,16 @@ public final class WndSeatInventory extends WndTabbed {
             String count=loot==null ? "" : loot.showsCharges() ? loot.charges+"/"+loot.capacity :
                     loot.quantity>1 ? String.valueOf(loot.quantity) : "";
             display(loot==null ? placeholder : loot.sprite,count,loot==null ? "NA" : loot.upgrade,
-                    equipped,loot!=null && (scroll!=null ? view.scrollTarget(loot,scroll.kind)>0 : shortcut<0 || selectable()));
+                    equipped,loot!=null && (selection!=null ? selection.accepts(loot) : scroll!=null ? view.scrollTarget(loot,scroll.kind)>0 : shortcut<0 || selectable()));
         }
         private boolean selectable() {
             return loot!=null && !loot.reference.isEmpty() && !PublicDungeon.shortcutAction(loot).isEmpty();
         }
         @Override protected void onClick() {
             if (loot==null) return;
-            if (scroll!=null) {
+            if (selection!=null) {
+                if (selection.accepts(loot)) { WndSeatInventory.this.hide();selection.select(loot); }
+            } else if (scroll!=null) {
                 int selection=view.scrollTarget(loot,scroll.kind);
                 if (selection>0 && client.act(view.source,scroll.kind,selection,scroll.id)) WndSeatInventory.this.hide();
             } else if (shortcut<0) inspect(loot);

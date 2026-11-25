@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -98,7 +99,7 @@ public class CrystalSpire extends Mob {
 		sprite.hideLost();
 
 		//mob logic
-		enemy = Dungeon.hero;
+		enemy = abilityTarget();
 
 		//crystal can still track an invisible hero
 		enemySeen = enemy.isAlive() && fieldOfView[enemy.pos];
@@ -118,7 +119,7 @@ public class CrystalSpire extends Mob {
 				Level.set(i, Terrain.MINE_CRYSTAL);
 				GameScene.updateMap(i);
 
-				Splash.at(i, 0xFFFFFF, 5);
+				if (Dungeon.coop == null) Splash.at(i, 0xFFFFFF, 5);
 			}
 
 			for (int i : cellsToAttack){
@@ -131,7 +132,7 @@ public class CrystalSpire extends Mob {
 					if (ch instanceof CrystalGuardian) {
 						dmg += 12; //18-27 damage
 						Buff.prolong(ch, Cripple.class, 30f);
-					} else if (ch == Dungeon.hero){
+					} else if (ch instanceof Hero){
 						Statistics.questScores[2] -= 100;
 					}
 					ch.damage(dmg, new SpireSpike());
@@ -141,7 +142,7 @@ public class CrystalSpire extends Mob {
 					if (ch instanceof CrystalGuardian){
 						for (int j : PathFinder.NEIGHBOURS8){
 							if (!Dungeon.level.solid[i+j] && Actor.findChar(i+j) == null &&
-									Dungeon.level.trueDistance(i+j, Dungeon.hero.pos) > Dungeon.level.trueDistance(movePos, Dungeon.hero.pos)){
+									Dungeon.level.trueDistance(i+j, enemy.pos) > Dungeon.level.trueDistance(movePos, enemy.pos)){
 								movePos = i+j;
 							}
 						}
@@ -160,19 +161,19 @@ public class CrystalSpire extends Mob {
 							ch.pos = movePos;
 							Dungeon.level.occupyCell(ch);
 						}
-					} else if (ch == Dungeon.hero){
+					} else if (ch instanceof Hero){
 						GLog.n( Messages.capitalize(Messages.get(Char.class, "kill", name())) );
-						Dungeon.fail(this);
+						if (Dungeon.coop == null) Dungeon.fail(this);
 					}
 				}
 			}
 
-			PixelScene.shake( 1, 0.7f );
+			if (Dungeon.coop == null) PixelScene.shake( 1, 0.7f );
 			Sample.INSTANCE.play( Assets.Sounds.SHATTER );
 
 			if (!targetedCells.isEmpty()){
 				for (int i : targetedCells.get(0)){
-					GameScene.targetedCell(i, TICK);
+					if (Dungeon.coop == null) GameScene.targetedCell(i, TICK);
 				}
 			}
 
@@ -191,16 +192,16 @@ public class CrystalSpire extends Mob {
 					lineAttack();
 				}
 
-				float delay = GameMath.gate(TICK, (int)Math.ceil(Dungeon.hero.cooldown()), 3*TICK);
+				float delay = GameMath.gate(TICK, (int)Math.ceil(enemy.cooldown()), 3*TICK);
 
 				for (int i : targetedCells.get(0)){
-					GameScene.targetedCell(i, delay);
+					if (Dungeon.coop == null) GameScene.targetedCell(i, delay);
 				}
 
 				abilityCooldown += ABILITY_CD;
 
 				spend(delay);
-				Dungeon.hero.interrupt();
+				((Hero)enemy).interrupt();
 			} else {
 				abilityCooldown -= 1;
 				spend(TICK);
@@ -217,7 +218,7 @@ public class CrystalSpire extends Mob {
 		targetedCells.clear();
 
 		ArrayList<Integer> aoeCells = new ArrayList<>();
-		aoeCells.add(Dungeon.hero.pos);
+		aoeCells.add(enemy.pos);
 		aoeCells.addAll(spreadDiamondAOE(aoeCells));
 		targetedCells.add(new ArrayList<>(aoeCells));
 
@@ -248,7 +249,7 @@ public class CrystalSpire extends Mob {
 		targetedCells.clear();
 
 		ArrayList<Integer> lineCells = new ArrayList<>();
-		Ballistica aim = new Ballistica(pos, Dungeon.hero.pos, Ballistica.WONT_STOP);
+		Ballistica aim = new Ballistica(pos, enemy.pos, Ballistica.WONT_STOP);
 		for (int i : aim.subPath(1, 7)){
 			if (!Dungeon.level.solid[i] || Dungeon.level.map[i] == Terrain.MINE_CRYSTAL){
 				lineCells.add(i);
@@ -313,14 +314,15 @@ public class CrystalSpire extends Mob {
 
 	@Override
 	public boolean interact(Char c) {
-		if (c == Dungeon.hero){
-			final Pickaxe p = Dungeon.hero.belongings.getItem(Pickaxe.class);
+		if (c instanceof Hero){
+			final Hero miner = (Hero)c;
+			final Pickaxe p = miner.belongings.getItem(Pickaxe.class);
 
 			if (p == null){
 				return true;
 			}
 
-			Dungeon.hero.sprite.attack(pos, new Callback() {
+			Callback strike = new Callback() {
 				@Override
 				public void call() {
 					//does its own special damage calculation that's only influenced by pickaxe level and augment
@@ -329,22 +331,22 @@ public class CrystalSpire extends Mob {
 
 					damage(dmg, p);
 					abilityCooldown -= dmg/10f;
-					sprite.bloodBurstA(Dungeon.hero.sprite.center(), dmg);
+					if (Dungeon.coop == null) sprite.bloodBurstA(miner.sprite.center(), dmg);
 					sprite.flash();
 
-					BossHealthBar.bleed(HP <= HT/3);
+					if (Dungeon.coop == null) BossHealthBar.bleed(HP <= HT/3);
 
 					if (isAlive()) {
 						Sample.INSTANCE.play(Assets.Sounds.SHATTER, 1f, Random.Float(1.15f, 1.25f));
-						((CrystalSpireSprite) sprite).updateIdle();
+						if (sprite instanceof CrystalSpireSprite) ((CrystalSpireSprite) sprite).updateIdle();
 					} else {
 						Sample.INSTANCE.play(Assets.Sounds.SHATTER);
 						Sample.INSTANCE.playDelayed(Assets.Sounds.ROCKS, 0.1f);
-						PixelScene.shake( 3, 0.7f );
+						if (Dungeon.coop == null) PixelScene.shake( 3, 0.7f );
 						Blacksmith.Quest.beatBoss();
 
-						GameScene.bossSlain();
-						Game.runOnRenderThread(new Callback() {
+						if (Dungeon.coop == null) GameScene.bossSlain();
+						if (Dungeon.coop == null) Game.runOnRenderThread(new Callback() {
 							@Override
 							public void call() {
 								Music.INSTANCE.fadeOut(5f, new Callback() {
@@ -356,8 +358,8 @@ public class CrystalSpire extends Mob {
 							}
 						});
 
-						Bestiary.setSeen(CrystalSpire.class);
-						Bestiary.countEncounter(CrystalSpire.class);
+						if (Dungeon.coop == null) Bestiary.setSeen(CrystalSpire.class);
+						if (Dungeon.coop == null) Bestiary.countEncounter(CrystalSpire.class);
 
 						if (fieldOfView == null || fieldOfView.length != Dungeon.level.length()){
 							fieldOfView = new boolean[Dungeon.level.length()];
@@ -368,7 +370,7 @@ public class CrystalSpire extends Mob {
 							if (fieldOfView[i] && Dungeon.level.map[i] == Terrain.MINE_CRYSTAL){
 								Level.set(i, Terrain.EMPTY);
 								GameScene.updateMap(i);
-								Splash.at(i, 0xFFFFFF, 5);
+								if (Dungeon.coop == null) Splash.at(i, 0xFFFFFF, 5);
 							}
 						}
 
@@ -391,15 +393,15 @@ public class CrystalSpire extends Mob {
 
 					if (hits == 1){
 						GLog.w(Messages.get(CrystalSpire.class, "warning"));
-						PixelScene.shake( 1, 0.7f );
+						if (Dungeon.coop == null) PixelScene.shake( 1, 0.7f );
 						Sample.INSTANCE.play( Assets.Sounds.MINE );
 					} else if (hits >= 3) {
 
 						if (hits == 3){
 							Sample.INSTANCE.play( Assets.Sounds.ROCKS );
-							PixelScene.shake( 3, 0.7f );
+							if (Dungeon.coop == null) PixelScene.shake( 3, 0.7f );
 							GLog.n(Messages.get(CrystalSpire.class, "alert"));
-							BossHealthBar.assignBoss(CrystalSpire.this);
+							if (Dungeon.coop == null) BossHealthBar.assignBoss(CrystalSpire.this);
 
 							abilityCooldown = 1; //delay first attack by 1 turn
 						}
@@ -436,7 +438,7 @@ public class CrystalSpire extends Mob {
 								if (ch instanceof CrystalGuardian){
 									if (((CrystalGuardian) ch).state == ((CrystalGuardian) ch).SLEEPING) {
 
-										((CrystalGuardian) ch).aggro(Dungeon.hero);
+										((CrystalGuardian) ch).aggro(miner);
 										((CrystalGuardian) ch).beckon(pos);
 
 										//delays sleeping guardians that happen to be near to the crystal
@@ -447,7 +449,7 @@ public class CrystalSpire extends Mob {
 									} else if (((CrystalGuardian) ch).state != ((CrystalGuardian) ch).HUNTING && ((CrystalGuardian) ch).target != pos){
 										((CrystalGuardian) ch).beckon(pos);
 										if (((CrystalGuardian) ch).state != HUNTING) {
-											((CrystalGuardian) ch).aggro(Dungeon.hero);
+											((CrystalGuardian) ch).aggro(miner);
 										}
 
 										//speeds up already woken guardians that aren't very close
@@ -460,10 +462,12 @@ public class CrystalSpire extends Mob {
 						}
 					}
 
-					Invisibility.dispel(Dungeon.hero);
-					Dungeon.hero.spendAndNext(p.delayFactor(CrystalSpire.this));
+					Invisibility.dispel(miner);
+					miner.spendAndNext(p.delayFactor(CrystalSpire.this));
 				}
-			});
+			};
+			if (Dungeon.coop != null) strike.call();
+			else miner.sprite.attack(pos, strike);
 			return false;
 
 		}
@@ -519,7 +523,7 @@ public class CrystalSpire extends Mob {
 		hits = bundle.getInt(HITS);
 
 		if (hits >= 3){
-			BossHealthBar.assignBoss(this);
+			if (Dungeon.coop == null) BossHealthBar.assignBoss(this);
 		}
 
 		abilityCooldown = bundle.getFloat(ABILITY_COOLDOWN);

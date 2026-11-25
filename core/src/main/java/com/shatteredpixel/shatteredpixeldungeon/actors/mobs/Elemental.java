@@ -149,7 +149,7 @@ public abstract class Elemental extends Mob {
 			
 		} else {
 			
-			if (sprite != null && (sprite.visible || enemy.sprite.visible)) {
+			if (Dungeon.coop == null && sprite != null && (sprite.visible || enemy.sprite.visible)) {
 				sprite.zap( enemy.pos );
 				return false;
 			} else {
@@ -531,7 +531,7 @@ public abstract class Elemental extends Mob {
 			
 			for (Char ch : affected) {
 				ch.damage( Math.round( damage * 0.4f ), new Shocking() );
-				if (ch == Dungeon.hero && !ch.isAlive()){
+				if (Dungeon.coop == null && ch == Dungeon.hero && !ch.isAlive()){
 					Badges.validateDeathFromEnemyMagic();
 					Dungeon.fail(this);
 					GLog.n( Messages.capitalize(Messages.get(Char.class, "kill", name())) );
@@ -543,7 +543,7 @@ public abstract class Elemental extends Mob {
 				if (ch.sprite.visible) visible = true;
 			}
 
-			if (visible) {
+			if (Dungeon.coop == null && visible) {
 				sprite.parent.addToFront(new Lightning(arcs, null));
 				Sample.INSTANCE.play(Assets.Sounds.LIGHTNING);
 			}
@@ -552,7 +552,7 @@ public abstract class Elemental extends Mob {
 		@Override
 		protected void rangedProc( Char enemy ) {
 			Buff.affect( enemy, Blindness.class, Blindness.DURATION/2f );
-			if (enemy == Dungeon.hero) {
+			if (Dungeon.coop == null && enemy == Dungeon.hero) {
 				GameScene.flash(0x80FFFFFF);
 			}
 		}

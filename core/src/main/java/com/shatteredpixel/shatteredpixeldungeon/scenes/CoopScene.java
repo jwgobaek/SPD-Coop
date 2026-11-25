@@ -55,16 +55,24 @@ public class CoopScene extends PixelScene {
     private void touchCell(PublicDungeon view,int cell) {
         if (hud!=null) hud.stopRest();
         if (targetView==null) {
-            if(view.visible(cell) && (((view.depth<5 || (view.depth>=6 && view.depth<com.shatteredpixel.shatteredpixeldungeon.CoopFloors.LAST_PLAYABLE)) && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EXIT)
+            if(view.visible(cell) && (view.stair==cell || ((view.depth<5 || (view.depth>=6 && view.depth<com.shatteredpixel.shatteredpixeldungeon.CoopFloors.LAST_PLAYABLE)) && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EXIT)
                     || (view.depth==5 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.UNLOCKED_EXIT)
                     || (view.depth>1 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.ENTRANCE))) {
-                if(view.stair!=cell) alert(msg("stairconditions"));
-                else if(view.offered && !view.consent) alert(msg("awaitvote"));
-                else controller.act(view.source,view.offered?"TRAVEL":view.consent?"CANCEL_TRAVEL":"CONSENT",cell,0);
+                offerStairs(view,cell);
             } else if (view.visible(cell) && view.source.rows.containsKey("sale"+cell)) {
                 WndSeatTrade.stock(this,view,cell,controller);
             } else if (view.source.rows.containsKey("merchant") && Integer.toString(cell).equals(view.source.rows.get("merchant"))) {
                 WndSeatTrade.merchant(this,view,cell,controller);
+            } else if ("Imp".equals(view.monsters.get(cell))) {
+                Class<?> imp=com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp.class;
+                String offer=view.source.rows.get("imp"+cell);
+                if("quest_intro_1".equals(offer) && view.offered) {
+                    add(new WndOptions(Messages.get(imp,"name"),Messages.get(imp,offer),msg("accept"),msg("cancel")) {
+                        @Override protected void onSelect(int index) {
+                            if(index==0) controller.act(view.source,"ACCEPT_IMP",cell,0);
+                        }
+                    });
+                } else if(offer!=null) alert(Messages.get(imp,offer));
             } else if ("Blacksmith".equals(view.monsters.get(cell))) {
                 String offer=view.source.rows.get("smith"+cell);
                 if (offer!=null) talkToSmith(view,cell,offer);
@@ -79,15 +87,27 @@ public class CoopScene extends PixelScene {
         }
         boolean bow=targetStaff.kind.equals("BOW");
         String actor=view.monsters.get(cell);
-        boolean enemy=actor!=null && !"Blacksmith".equals(actor) && !"Wandmaker".equals(actor) && !"Shopkeeper".equals(actor) && !"Sheep".equals(actor) && !"Sentry".equals(actor) && !"Ghost".equals(actor) && !"RatKing".equals(actor);
+        boolean enemy=actor!=null && !"Imp".equals(actor) && !"Blacksmith".equals(actor) && !"Wandmaker".equals(actor) && !"Shopkeeper".equals(actor) && !"Sheep".equals(actor) && !"Sentry".equals(actor) && !"Ghost".equals(actor) && !"RatKing".equals(actor);
         boolean missile=targetStaff.kind.equals("STONE") || targetStaff.kind.equals("KNIFE");
         boolean areaWand = targetStaff.kind.equals("WAND") && (targetStaff.sprite == ItemSpriteSheet.WAND_BLAST_WAVE
                 || targetStaff.sprite == ItemSpriteSheet.WAND_FIREBOLT);
         if (targetView==view && (enemy || ((missile || areaWand) && actor==null && view.visible(cell)) || (!missile && !bow && view.chest(cell)))
                 && controller.act(view.source,missile?"THROW":bow?"SHOOT":"ZAP",cell,targetStaff.id)) cancelAim();
     }
+    void offerStairs(PublicDungeon view,int cell) {
+        if(view.stair!=cell) alert(msg("stairconditions"));
+        else if(view.offered && !view.consent) alert(msg("awaitvote"));
+        else if (view.branch==1 && (view.offered || !view.consent)) {
+            add(new WndOptions(msg("mine_exit"),msg("mine_final_exit"),msg("accept"),msg("cancel")) {
+                @Override protected void onSelect(int index) {
+                    if(index==0) controller.act(view.source,view.offered?"TRAVEL":"CONSENT",cell,0);
+                }
+            });
+        } else controller.act(view.source,view.offered?"TRAVEL":view.consent?"CANCEL_TRAVEL":"CONSENT",cell,0);
+    }
     private void talkToSmith(PublicDungeon view,int cell,String offer) {
         Class<?> smith=com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.class;
+        if (offer.equals("services")) { smithServices(view); return; }
         String body=Messages.get(smith,offer);
         if (offer.startsWith("reminder_") || !view.offered) { alert(body); return; }
         body=Messages.get(smith,"intro_quest_"+view.heroClass.toLowerCase(java.util.Locale.ROOT))+"\n\n"
@@ -97,6 +117,53 @@ public class CoopScene extends PixelScene {
                 if (choice==0) controller.act(view.source,"ACCEPT_BLACKSMITH",cell,0);
             }
         });
+    }
+
+    private void smithServices(PublicDungeon view) {
+        java.util.List<String> labels=new java.util.ArrayList<>(), actions=new java.util.ArrayList<>();
+        boolean choose=view.source.rows.containsKey("smithoffer0");
+        if (choose) {
+            for(int i=0;view.source.rows.containsKey("smithoffer"+i);i++) {
+                String label=view.source.rows.get("smithoffer"+i);
+                labels.add(Messages.get(label+".name"));
+            }
+        } else {
+            for(String verb:new String[]{"PICK","REFORGE","HARDEN","UPGRADE","ORDER","CASH"}) {
+                String cost=view.source.rows.get("price"+verb.toLowerCase(java.util.Locale.ROOT));
+                if (cost!=null) { actions.add("SMITH_"+verb); labels.add(msg("service_"+verb.toLowerCase(java.util.Locale.ROOT),cost)); }
+            }
+        }
+        int options=labels.size();
+        labels.add(msg("cancel"));
+        add(new WndOptions(Messages.get(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.class,"name"),
+                Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndBlacksmith.class,"prompt",Integer.parseInt(view.source.rows.get("favor"))),
+                labels.toArray(new String[0])) {
+            @Override protected void onSelect(int index) {
+                if(!view.offered || index<0 || index>=options) return;
+                if(choose) {controller.act(view.source,"SMITH_CLAIM",index,0);return;}
+                String verb=actions.get(index);
+                if(verb.equals("SMITH_REFORGE") || verb.equals("SMITH_HARDEN") || verb.equals("SMITH_UPGRADE"))
+                    smithEquipment(view,verb,null);
+                else controller.act(view.source,verb,0,0);
+            }
+        });
+    }
+
+    private void smithEquipment(PublicDungeon view,String verb,PublicDungeon.Loot first) {
+        add(WndSeatInventory.select(view,controller,new WndSeatInventory.Selection() {
+            public boolean accepts(PublicDungeon.Loot item) {
+                String data=view.source.rows.get("forge"+item.id);
+                if(data==null || first==item) return false;
+                String[] fields=data.split(",");
+                if(first!=null) return java.util.Objects.equals(view.source.rows.get("label"+first.id),view.source.rows.get("label"+item.id));
+                return verb.equals("SMITH_REFORGE") || "1".equals(fields[verb.equals("SMITH_HARDEN")?1:2]);
+            }
+            public void select(PublicDungeon.Loot item) {
+                if(first!=null) controller.act(view.source,verb,Integer.parseInt(view.source.rows.get("forge"+item.id).split(",")[0]),first.id);
+                else if(verb.equals("SMITH_REFORGE")) smithEquipment(view,verb,item);
+                else controller.act(view.source,verb,0,item.id);
+            }
+        }));
     }
 
     private void talkToWandmaker(PublicDungeon view, int cell, String offer) {

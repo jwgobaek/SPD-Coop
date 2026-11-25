@@ -1,5 +1,9 @@
 # Android validation backlog
 
+## 광산·도시 체크포인트
+
+Device-2의 비로그인 Chromium에서 기존 동굴판을 내려받아 원래 앱 데이터 위에 업데이트했다. caves-dm300 설치본 해시와 기존 저장 목록을 확인했다. 신규 빌드의 결과는 별도 발행 기록을 따른다. [실행 기록](docs/coop/mines-city-results.md)
+
 ## 동굴 개발 중 확인한 GB2 기준 설치본
 
 Android 15 기본 Device-2에서 기존 prison-nine(41c3efd, 922)의 서명된 설치 파일 해시와 실행을 확인했다. 로그인하지 않은 Chromium에서 기존 Tengu APK 링크는 Google 로그인을 요구했다. Cloud의 Drive 커넥터는 수신자 이메일 또는 조직 도메인 공유만 제공하며, Cloud 브라우저에도 승인된 소유자 로그인 세션이 없었다. 신규 APK의 데이터 보존 업데이트·다층·보스·터치·무선 LAN 시험은 NOT RUN이다. 저장 목록과 좌석 자격도 새 앱에서 검사하지 못했다.

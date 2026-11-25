@@ -99,6 +99,7 @@ public abstract class Trap implements Bundlable {
 				|| type == ShockingTrap.class || type == ToxicTrap.class || type == ConfusionTrap.class
 				|| type == OozeTrap.class || type == AlarmTrap.class || type == FlockTrap.class
 				|| type == SummoningTrap.class || type == TeleportationTrap.class
+				|| (type == GnollRockfallTrap.class && Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.MiningLevel)
 				|| type == GatewayTrap.class || type == GrippingTrap.class || type == RockfallTrap.class;
 	}
 

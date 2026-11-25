@@ -58,6 +58,8 @@ def package(builds, evidence, out):
     assert (builds/'SHA256SUMS').read_text().split()[0]==digest
     inspection=(builds/'apk.txt').read_text()
     version=re.search(r"versionName='([^']+)'",inspection)[1]
+    mines = version.endswith('-INDEV-mines-city')
+    source_base = 'df645fc08d0b33dbd5e2d7a847f075dc26d4b020' if mines else SOURCE_BASE
     code=re.search(r"versionCode='(\d+)'",inspection)[1]
     assert "name='org.spdcoop.dungeon.indev'" in inspection
     assert f'certificate SHA-256 digest: {SIGNER}' in inspection
@@ -89,7 +91,7 @@ def package(builds, evidence, out):
                 raw=path.read_bytes()
                 scan(name,raw)
                 z.writestr(name,raw)
-            info=f"""SPD-Coop native caves / DM-300
+            info=f"""SPD-Coop {version}
 Application ID       org.spdcoop.dungeon.indev
 Version              {version}
 versionCode          {code}
@@ -101,16 +103,16 @@ APK SHA-256          {digest}
 Certificate SHA-256  {SIGNER}
 Signatures           v1 and v2 verified
 JUnit                {len(cases)} passed; no errors, failures or skipped cases
-Scope                Branch 0 through 15; save schemas 1–9, SYNC21, LAN v1.
-Caves                12/12 staged victories, 15 to 14 return and revisit. Mine branch and city 16 closed.
+Scope                {"Branch 0 through 19 and Blacksmith mines; save schemas 1–10, SYNC22, LAN v1." if mines else "Branch 0 through 15; save schemas 1–9, SYNC21, LAN v1."}
+Checkpoint           {"See documentation/docs/coop/mines-city-results.md for the fixture, seed and network test boundaries." if mines else "12/12 staged cave victories. Mine branch and city 16 closed."}
 Normal starts        581 and 1105 reached 6. No complete normal-start DM-300 victory.
 Platforms            Original JVM engine, separate TCP JVMs, real filesystem, KO/EN Desktop, Android package inspection.
-Android runtime      See evidence/android/result.txt. Device title is from the installed prison-nine baseline.
+Android runtime      See evidence/android/result.txt.
 Source               source/ is the APK tree. documentation/ contains subsequent reports and verification scripts.
 """
             z.writestr('BUILD-INFO.txt',info)
-            z.writestr('evidence/changed-files.txt',git('diff','--name-status',SOURCE_BASE,verification))
-            z.writestr('evidence/commits.txt',git('log','--reverse','--format=%H %s',SOURCE_BASE+'..'+verification))
+            z.writestr('evidence/changed-files.txt',git('diff','--name-status',source_base,verification))
+            z.writestr('evidence/commits.txt',git('log','--reverse','--format=%H %s',source_base+'..'+verification))
             lines=[digest+'  '+APK]+[sha(z.read(n))+'  '+n for n in sorted(z.namelist())]
             z.writestr('SHA256SUMS.txt','\n'.join(lines)+'\n')
         VERIFY['verify'](staging,build)

@@ -1,5 +1,9 @@
 # Cloud에서 빌드하기
 
+## 광산·도시 체크포인트
+
+실제 이전 동굴 소스 df645fc를 scripts/verify-mining-migration.py에 넘겨 스키마 8·9의 원래 세대와 행동 영수증을 확인한다. 패키징 시 검증된 APK 소스 커밋과 JUnit XML을 함께 사용한다. [실행 기록](docs/coop/mines-city-results.md)
+
 ## 동굴 빌드와 결과물 검증
 
 4.0.2-INDEV-caves-dm300의 versionCode는 922다. 현재 엔진이 저장 헤더와 Game.versionCode의 일치를 검사하므로 다음 코드 증가 전에는 기존 922 세대의 호환성을 먼저 시험한다. scripts/verify-android-build.sh가 출력한 디렉터리, 공개용으로 검사한 증거 디렉터리, 출력 디렉터리를 scripts/package-caves-checkpoint.py에 순서대로 전달한다. 스크립트는 APK 소스 Git 트리, Gradle Wrapper와 라이선스, 모든 체크섬, v1·v2 및 기존 인증서 지문을 검사한다.

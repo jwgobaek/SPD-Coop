@@ -24,6 +24,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -123,7 +124,8 @@ public class GnollGeomancer extends Mob {
 			throwingRockToPos = -1;
 
 			spend(TICK);
-			return !attacked;
+			if (Dungeon.coop != null) knockedChars.clear();
+			return Dungeon.coop != null || !attacked;
 		} else {
 			return super.act();
 		}
@@ -191,16 +193,17 @@ public class GnollGeomancer extends Mob {
 
 	@Override
 	public boolean interact(Char c) {
-		if (c != Dungeon.hero || buff(RockArmor.class) == null) {
+		if (!(c instanceof Hero) || buff(RockArmor.class) == null) {
 			return super.interact(c);
 		} else {
-			final Pickaxe p = Dungeon.hero.belongings.getItem(Pickaxe.class);
+			final Hero miner = (Hero)c;
+			final Pickaxe p = miner.belongings.getItem(Pickaxe.class);
 
 			if (p == null){
 				return true;
 			}
 
-			Dungeon.hero.sprite.attack(pos, new Callback() {
+			Callback strike = new Callback() {
 				@Override
 				public void call() {
 					//does its own special damage calculation that's only influenced by pickaxe level and augment
@@ -215,7 +218,7 @@ public class GnollGeomancer extends Mob {
 					dmg = Math.min(dmg, buff(RockArmor.class).shielding());
 
 					damage(dmg, p);
-					sprite.bloodBurstA(Dungeon.hero.sprite.center(), dmg);
+					if (Dungeon.coop == null) sprite.bloodBurstA(miner.sprite.center(), dmg);
 					sprite.flash();
 
 					hits++;
@@ -230,17 +233,17 @@ public class GnollGeomancer extends Mob {
 						carveRockAndDash();
 
 						state = HUNTING;
-						enemy = Dungeon.hero;
-						BossHealthBar.assignBoss(GnollGeomancer.this);
+						enemy = miner;
+						if (Dungeon.coop == null) BossHealthBar.assignBoss(GnollGeomancer.this);
 
 						for (Mob m : Dungeon.level.mobs){
 							if (m instanceof GnollGuard){
-								m.aggro(Dungeon.hero);
+								m.aggro(miner);
 								if (!((GnollGuard) m).hasSapper()){
 									m.beckon(pos);
 								}
 							} else if (m instanceof GnollSapper){
-								m.aggro(Dungeon.hero);
+								m.aggro(miner);
 							}
 						}
 					}
@@ -251,15 +254,17 @@ public class GnollGeomancer extends Mob {
 					}
 
 					if (buff(RockArmor.class) == null){
-						Splash.around(sprite, 0x555555, 30);
+						if (Dungeon.coop == null) Splash.around(sprite, 0x555555, 30);
 						sprite.idle();
 					}
 
 					Sample.INSTANCE.play(Assets.Sounds.MINE, 1f, Random.Float(0.85f, 1.15f));
-					Invisibility.dispel(Dungeon.hero);
-					Dungeon.hero.spendAndNext(p.delayFactor(GnollGeomancer.this));
+					Invisibility.dispel(miner);
+					miner.spendAndNext(p.delayFactor(GnollGeomancer.this));
 				}
-			});
+			};
+			if (Dungeon.coop != null) strike.call();
+			else miner.sprite.attack(pos, strike);
 
 			return false;
 		}
@@ -287,7 +292,7 @@ public class GnollGeomancer extends Mob {
 				HP = (curbracket-1)*hpBracket + 1;
 			}
 
-			BossHealthBar.bleed(newBracket <= 0);
+			if (Dungeon.coop == null) BossHealthBar.bleed(newBracket <= 0);
 
 			carveRockAndDash();
 			Buff.affect(this, RockArmor.class).setShield(25);
@@ -403,7 +408,8 @@ public class GnollGeomancer extends Mob {
 
 		for (int i : cells){
 			if (Dungeon.level.map[i] == Terrain.WALL_DECO){
-				Dungeon.level.drop(new DarkGold(), i).sprite.drop();
+				com.shatteredpixel.shatteredpixeldungeon.items.Heap heap = Dungeon.level.drop(new DarkGold(), i);
+				if (Dungeon.coop == null) heap.sprite.drop();
 				Dungeon.level.map[i] = Terrain.EMPTY_DECO;
 			} else if (Dungeon.level.solid[i]){
 				if (Random.Int(3) == 0){
@@ -414,7 +420,7 @@ public class GnollGeomancer extends Mob {
 			} else if (Dungeon.level.map[i] == Terrain.HIGH_GRASS || Dungeon.level.map[i] == Terrain.FURROWED_GRASS){
 				Dungeon.level.map[i] = Terrain.GRASS;
 			}
-			CellEmitter.get( i - Dungeon.level.width() ).start(Speck.factory(Speck.ROCK), 0.07f, 10);
+			if (Dungeon.coop == null) CellEmitter.get( i - Dungeon.level.width() ).start(Speck.factory(Speck.ROCK), 0.07f, 10);
 		}
 		for (int i : exteriorCells){
 			if (!Dungeon.level.solid[i]
@@ -434,9 +440,9 @@ public class GnollGeomancer extends Mob {
 		Dungeon.level.cleanWalls();
 		GameScene.updateMap();
 		GameScene.updateFog();
-		Dungeon.observe();
+		if (Dungeon.coop == null) Dungeon.observe();
 
-		PixelScene.shake(3, 0.7f);
+		if (Dungeon.coop == null) PixelScene.shake(3, 0.7f);
 		Sample.INSTANCE.play(Assets.Sounds.ROCKS);
 
 		int oldpos = pos;
@@ -518,10 +524,10 @@ public class GnollGeomancer extends Mob {
 		super.die(cause);
 		Blacksmith.Quest.beatBoss();
 		Sample.INSTANCE.playDelayed(Assets.Sounds.ROCKS, 0.1f);
-		PixelScene.shake( 3, 0.7f );
+		if (Dungeon.coop == null) PixelScene.shake( 3, 0.7f );
 
-		GameScene.bossSlain();
-		Game.runOnRenderThread(new Callback() {
+		if (Dungeon.coop == null) GameScene.bossSlain();
+		if (Dungeon.coop == null) Game.runOnRenderThread(new Callback() {
 			@Override
 			public void call() {
 				Music.INSTANCE.fadeOut(5f, new Callback() {
@@ -537,7 +543,7 @@ public class GnollGeomancer extends Mob {
 			if (Dungeon.level.map[i] == Terrain.MINE_BOULDER && Dungeon.level.trueDistance(i, pos) <= 6){
 				Level.set(i, Terrain.EMPTY_DECO);
 				GameScene.updateMap(i);
-				Splash.at(i, 0x555555, 15);
+				if (Dungeon.coop == null) Splash.at(i, 0x555555, 15);
 			}
 		}
 	}
@@ -625,19 +631,19 @@ public class GnollGeomancer extends Mob {
 
 							Ballistica warnPath = new Ballistica(aim.sourcePos, aim.collisionPos, Ballistica.STOP_SOLID);
 							for (int j : warnPath.subPath(0, warnPath.dist)){
-								GameScene.targetedCell(j, delay);
+								if (Dungeon.coop == null) GameScene.targetedCell(j, delay);
 							}
 
 							aim = GnollGeomancer.prepRockThrowAttack(enemy, GnollGeomancer.this);
 						}
 
-						Dungeon.hero.interrupt();
+						if (enemy instanceof Hero) ((Hero)enemy).interrupt();
 						abilityCooldown = Random.NormalIntRange(3, 5);
 						spend(delay);
 						return true;
 					} else if (GnollGeomancer.prepRockFallAttack(enemy, GnollGeomancer.this, 6-2*curbracket, true)) {
 						lastAbilityWasRockfall = true;
-						Dungeon.hero.interrupt();
+						if (enemy instanceof Hero) ((Hero)enemy).interrupt();
 						spend(GameMath.gate(TICK, (int)Math.ceil(enemy.cooldown()), 3*TICK));
 						abilityCooldown = Random.NormalIntRange(3, 5);
 						return true;
@@ -695,13 +701,14 @@ public class GnollGeomancer extends Mob {
 	}
 
 	private static int rocksInFlight = 0;
+	static void finishCoopVolley() { knockedChars.clear(); }
 	private static ArrayList<Char> knockedChars = new ArrayList<>();
 
 	public static void doRockThrowAttack( Char source, int from, int to ){
 
 		Level.set(from, Terrain.EMPTY);
 		GameScene.updateMap(from);
-		source.sprite.attack(from, new Callback() {
+		if (Dungeon.coop == null) source.sprite.attack(from, new Callback() {
 			@Override
 			public void call() {
 				source.sprite.idle();
@@ -712,32 +719,31 @@ public class GnollGeomancer extends Mob {
 		Ballistica rockPath = new Ballistica(from, to, Ballistica.MAGIC_BOLT);
 
 		Sample.INSTANCE.play(Assets.Sounds.MISS);
-		((MissileSprite)source.sprite.parent.recycle( MissileSprite.class )).
-				reset( from, rockPath.collisionPos, new GnollGeomancer.Boulder(), new Callback() {
+		Callback impact = new Callback() {
 					@Override
 					public void call() {
-						Splash.at(rockPath.collisionPos, 0x555555, 15);
+						if (Dungeon.coop == null) Splash.at(rockPath.collisionPos, 0x555555, 15);
 						Sample.INSTANCE.play(Assets.Sounds.ROCKS);
 
 						Char ch = Actor.findChar(rockPath.collisionPos);
-						if (ch == Dungeon.hero){
-							PixelScene.shake( 3, 0.7f );
+						if (ch instanceof Hero){
+							if (Dungeon.coop == null) PixelScene.shake( 3, 0.7f );
 						} else {
-							PixelScene.shake(0.5f, 0.5f);
+							if (Dungeon.coop == null) PixelScene.shake(0.5f, 0.5f);
 						}
 
 						if (ch != null && !(ch instanceof GnollGeomancer)){
 							ch.damage(Random.NormalIntRange(6, 12), new GnollGeomancer.Boulder());
 
-							if (ch == Dungeon.hero){
+							if (ch instanceof Hero){
 								Statistics.questScores[2] -= 100;
 							}
 
 							if (ch.isAlive()){
 								Buff.prolong( ch, Paralysis.class, ch instanceof GnollGuard ? 10 : 3 );
-							} else if (!ch.isAlive() && ch == Dungeon.hero) {
+							} else if (!ch.isAlive() && ch instanceof Hero) {
 								Badges.validateDeathFromEnemyMagic();
-								Dungeon.fail( source.getClass() );
+								if (Dungeon.coop == null) Dungeon.fail( source.getClass() );
 								GLog.n( Messages.get( GnollGeomancer.class, "rock_kill") );
 							}
 
@@ -750,6 +756,7 @@ public class GnollGeomancer extends Mob {
 							Dungeon.level.pressCell(rockPath.collisionPos);
 						}
 
+						if (Dungeon.coop != null) return;
 						rocksInFlight--;
 						if (rocksInFlight <= 0) {
 							rocksInFlight = 0;
@@ -757,8 +764,12 @@ public class GnollGeomancer extends Mob {
 							knockedChars.clear();
 						}
 					}
-				} );
-		rocksInFlight++;
+				};
+		if (Dungeon.coop != null) impact.call();
+		else {
+			rocksInFlight++;
+			((MissileSprite) source.sprite.parent.recycle(MissileSprite.class)).reset(from, rockPath.collisionPos, new Boulder(), impact);
+		}
 	}
 
 	public static class Boulder extends Item {
@@ -817,12 +828,12 @@ public class GnollGeomancer extends Mob {
 		//don't want to overly punish players with slow move or attack speed
 		float delay = GameMath.gate(TICK, (int)Math.ceil(target.cooldown()), 3*TICK);
 		for (int i : rockCells){
-			GameScene.targetedCell(i, delay);
+			if (Dungeon.coop == null) GameScene.targetedCell(i, delay);
 		}
 
 		Buff.append(source, GnollRockFall.class, delay).setRockPositions(rockCells);
 
-		source.sprite.attack(target.pos, new Callback() {
+		if (Dungeon.coop == null) source.sprite.attack(target.pos, new Callback() {
 			@Override
 			public void call() {
 				//do nothing
@@ -838,13 +849,13 @@ public class GnollGeomancer extends Mob {
 		@Override
 		public void affectChar(Char ch) {
 			ch.damage(Random.NormalIntRange(6, 12), this);
-			if (ch == Dungeon.hero){
+			if (ch instanceof Hero){
 				Statistics.questScores[2] -= 100;
 			}
 			if (ch.isAlive()) {
 				Buff.prolong(ch, Paralysis.class, ch instanceof GnollGuard ? 10 : 3);
-			} else if (ch == Dungeon.hero){
-				Dungeon.fail( target );
+			} else if (ch instanceof Hero){
+				if (Dungeon.coop == null) Dungeon.fail( target );
 				GLog.n( Messages.get( GnollGeomancer.class, "rockfall_kill") );
 			}
 		}
@@ -911,7 +922,7 @@ public class GnollGeomancer extends Mob {
 		}
 
 		if (hits >= 3){
-			BossHealthBar.assignBoss(this);
+			if (Dungeon.coop == null) BossHealthBar.assignBoss(this);
 		}
 	}
 }

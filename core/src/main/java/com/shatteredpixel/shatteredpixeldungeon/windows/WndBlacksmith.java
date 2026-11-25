@@ -204,6 +204,39 @@ public class WndBlacksmith extends Window {
 
 	}
 
+    /** Apply the native costs, seal handling and enchantment-preserving upgrade after validated selection. */
+    public static void reforgeEquipment(Hero hero, Item first, Item second) {
+        if (second.isEquipped( hero )) {
+            ((EquipableItem)second).doUnequip( hero, false );
+        }
+        second.detachAll( hero.belongings.backpack );
+
+        if (second instanceof Armor){
+            BrokenSeal seal = ((Armor) second).checkSeal();
+            if (seal != null){
+                if (Dungeon.coop != null) Dungeon.coop.ownership.claim(seal, Dungeon.coop.playerOf(hero));
+                Dungeon.level.drop( seal, hero.pos );
+            }
+        } else if (second instanceof MissileWeapon){
+            Buff.affect(hero, MissileWeapon.UpgradedSetTracker.class)
+            .levelThresholds.put(((MissileWeapon) second).setID, Integer.MAX_VALUE);
+        }
+
+        //preserves enchant/glyphs if present
+        if (first instanceof Weapon && ((Weapon) first).hasGoodEnchant()){
+            ((Weapon) first).upgrade(true);
+        } else if (first instanceof Armor && ((Armor) first).hasGoodGlyph()){
+            ((Armor) first).upgrade(true);
+        } else {
+            first.upgrade();
+        }
+        Badges.validateItemLevelAquired( first );
+        Item.updateQuickslot();
+
+        Blacksmith.Quest.favor -= 500 + 1000*Blacksmith.Quest.reforges;
+        Blacksmith.Quest.reforges++;
+    }
+
 	protected static class WndReforge extends Window {
 
 		private static final int WIDTH		= 120;
@@ -269,34 +302,7 @@ public class WndBlacksmith extends Window {
 					ScrollOfUpgrade.upgrade( Dungeon.hero );
 					Item.evoke( Dungeon.hero );
 
-					if (second.isEquipped( Dungeon.hero )) {
-						((EquipableItem)second).doUnequip( Dungeon.hero, false );
-					}
-					second.detachAll( Dungeon.hero.belongings.backpack );
-
-					if (second instanceof Armor){
-						BrokenSeal seal = ((Armor) second).checkSeal();
-						if (seal != null){
-							Dungeon.level.drop( seal, Dungeon.hero.pos );
-						}
-					} else if (second instanceof MissileWeapon){
-						Buff.affect(Dungeon.hero, MissileWeapon.UpgradedSetTracker.class)
-								.levelThresholds.put(((MissileWeapon) second).setID, Integer.MAX_VALUE);
-					}
-
-					//preserves enchant/glyphs if present
-					if (first instanceof Weapon && ((Weapon) first).hasGoodEnchant()){
-						((Weapon) first).upgrade(true);
-					} else if (first instanceof Armor && ((Armor) first).hasGoodGlyph()){
-						((Armor) first).upgrade(true);
-					} else {
-						first.upgrade();
-					}
-					Badges.validateItemLevelAquired( first );
-					Item.updateQuickslot();
-
-					Blacksmith.Quest.favor -= 500 + 1000*Blacksmith.Quest.reforges;
-					Blacksmith.Quest.reforges++;
+                    reforgeEquipment(Dungeon.hero, first, second);
 
 					if (!Blacksmith.Quest.rewardsAvailable()){
 						Notes.remove( Notes.Landmark.TROLL );

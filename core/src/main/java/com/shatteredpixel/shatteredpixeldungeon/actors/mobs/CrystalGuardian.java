@@ -124,7 +124,7 @@ public class CrystalGuardian extends Mob{
 	@Override
 	public boolean attack(Char enemy, float dmgMulti, float dmgBonus, float accMulti) {
 		//if enemy is hero, and they aren't currently fighting the spire, -100 points
-		if (enemy == Dungeon.hero){
+		if (enemy instanceof Hero){
 			boolean spireNear = false;
 			for (Mob m : Dungeon.level.mobs.toArray(new Mob[0])){
 				if (m instanceof CrystalSpire && m.HP != m.HT && Dungeon.level.distance(pos, m.pos) <= 8){
@@ -163,9 +163,9 @@ public class CrystalGuardian extends Mob{
 
 			if (!recovering) {
 				recovering = true;
-				Bestiary.setSeen(getClass());
-				Bestiary.countEncounter(getClass());
-				if (sprite != null) ((CrystalGuardianSprite) sprite).crumple();
+				if (Dungeon.coop == null) Bestiary.setSeen(getClass());
+				if (Dungeon.coop == null) Bestiary.countEncounter(getClass());
+				if (sprite instanceof CrystalGuardianSprite) ((CrystalGuardianSprite) sprite).crumple();
 			}
 		}
 		return super.isAlive();
@@ -217,7 +217,7 @@ public class CrystalGuardian extends Mob{
 			Level.set(pos, Terrain.EMPTY);
 			GameScene.updateMap(pos);
 			if (Dungeon.level.heroFOV[pos]){
-				Splash.at(pos, 0xFFFFFF, 5);
+				if (Dungeon.coop == null) Splash.at(pos, 0xFFFFFF, 5);
 				Sample.INSTANCE.play( Assets.Sounds.SHATTER );
 			}
 			//breaking a crystal costs an extra move, not affected by enclosed spaces though

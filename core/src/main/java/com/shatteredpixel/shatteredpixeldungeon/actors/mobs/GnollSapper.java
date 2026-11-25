@@ -22,6 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.effects.TargetedCell;
@@ -140,7 +141,8 @@ public class GnollSapper extends Mob {
 			throwingRockToPos = -1;
 
 			spend(TICK);
-			return !attacked;
+			if (Dungeon.coop != null) GnollGeomancer.finishCoopVolley();
+			return Dungeon.coop != null || !attacked;
 		} else {
 			return super.act();
 		}
@@ -200,16 +202,16 @@ public class GnollSapper extends Mob {
 						float delay = GameMath.gate(TICK, (int)Math.ceil(enemy.cooldown()), 3*TICK);
 						Ballistica warnPath = new Ballistica(aim.sourcePos, aim.collisionPos, Ballistica.STOP_SOLID);
 						for (int i : warnPath.subPath(0, warnPath.dist)){
-							GameScene.targetedCell(i, delay);
+							if (Dungeon.coop == null) GameScene.targetedCell(i, delay);
 						}
 
-						Dungeon.hero.interrupt();
+						if (enemy instanceof Hero) ((Hero)enemy).interrupt();
 						abilityCooldown = Random.NormalIntRange(4, 6);
 						spend(delay);
 						return true;
 					} else if (GnollGeomancer.prepRockFallAttack(enemy, GnollSapper.this, 2, true)) {
 						lastAbilityWasRockfall = true;
-						Dungeon.hero.interrupt();
+						if (enemy instanceof Hero) ((Hero)enemy).interrupt();
 						spend(GameMath.gate(TICK, (int)Math.ceil(enemy.cooldown()), 3*TICK));
 						abilityCooldown = Random.NormalIntRange(4, 6);
 						return true;

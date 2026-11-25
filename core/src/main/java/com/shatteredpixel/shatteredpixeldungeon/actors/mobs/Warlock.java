@@ -89,7 +89,7 @@ public class Warlock extends Mob {
 			
 		} else {
 			
-			if (sprite != null && (sprite.visible || enemy.sprite.visible)) {
+			if (Dungeon.coop == null && sprite != null && (sprite.visible || enemy.sprite.visible)) {
 				sprite.zap( enemy.pos );
 				return false;
 			} else {
@@ -109,7 +109,7 @@ public class Warlock extends Mob {
 		Char enemy = this.enemy;
 		if (hit( this, enemy, true )) {
 			//TODO would be nice for this to work on ghost/statues too
-			if (enemy == Dungeon.hero && Random.Int( 2 ) == 0) {
+			if (enemy instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero && Random.Int( 2 ) == 0) {
 				Buff.prolong( enemy, Degrade.class, Degrade.DURATION );
 				Sample.INSTANCE.play( Assets.Sounds.DEGRADE );
 			}
@@ -119,7 +119,7 @@ public class Warlock extends Mob {
 
 			enemy.damage( dmg, new DarkBolt() );
 			
-			if (enemy == Dungeon.hero && !enemy.isAlive()) {
+			if (Dungeon.coop == null && enemy == Dungeon.hero && !enemy.isAlive()) {
 				Badges.validateDeathFromEnemyMagic();
 				Dungeon.fail( this );
 				GLog.n( Messages.get(this, "bolt_kill") );

@@ -427,12 +427,12 @@ actors/mobs/Brute	actors/mobs	VERIFIED	floor 11, native rage at zero HP, restore
 actors/mobs/Brute.BruteRage	actors/mobs	VERIFIED	original shield and expiration across a save / CavesEntranceTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Brute.java
 actors/mobs/CausticSlime	actors/mobs	VERIFIED	native ooze applied to the struck seat / SewerResidentsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CausticSlime.java
 actors/mobs/Crab	actors/mobs	IMPLEMENTED	native basic AI in generated upper sewers, isolated per-seat case pending	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Crab.java
-actors/mobs/CrystalGuardian	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalGuardian.java
+actors/mobs/CrystalGuardian	actors/mobs	VERIFIED	Native mining residents in isolated two-seat GNOLL/CRYSTAL combat; MiningBranchTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalGuardian.java
 actors/mobs/CrystalGuardian.Sleeping	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalGuardian.java
 actors/mobs/CrystalMimic	actors/mobs	VERIFIED	seed 411 ambush, victim stack, escape or return on defeat, two process kills / SewerCrystalMimicTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalMimic.java
 actors/mobs/CrystalMimic.Fleeing	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalMimic.java
-actors/mobs/CrystalSpire	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalSpire.java
-actors/mobs/CrystalWisp	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalWisp.java
+actors/mobs/CrystalSpire	actors/mobs	VERIFIED	Native mining residents in isolated two-seat GNOLL/CRYSTAL combat; MiningBranchTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalSpire.java
+actors/mobs/CrystalWisp	actors/mobs	VERIFIED	Native mining residents in isolated two-seat GNOLL/CRYSTAL combat; MiningBranchTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/CrystalWisp.java
 actors/mobs/DM100	actors/mobs	VERIFIED	native aimed bolt hits each seat separately, cold restore and next turn / PrisonCombatChecks, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM100.java
 actors/mobs/DM200	actors/mobs	VERIFIED	native gas trajectory and concentrations on each seat, Actor identity and durable replay / CavesInteriorTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM200.java
 actors/mobs/DM200.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM200.java
@@ -466,7 +466,7 @@ actors/mobs/FungalCore	actors/mobs	UNSUPPORTED		core/src/main/java/com/shattered
 actors/mobs/FungalSentry	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/FungalSentry.java
 actors/mobs/FungalSentry.Waiting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/FungalSentry.java
 actors/mobs/FungalSpinner	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/FungalSpinner.java
-actors/mobs/Ghoul	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Ghoul.java
+actors/mobs/Ghoul	actors/mobs	VERIFIED	Original paired spawn, dormant body ID, life link, revival after restore; CityEntranceTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Ghoul.java
 actors/mobs/Ghoul.GhoulLifeLink	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Ghoul.java
 actors/mobs/Ghoul.Sleeping	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Ghoul.java
 actors/mobs/Ghoul.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Ghoul.java
@@ -474,15 +474,15 @@ actors/mobs/Gnoll	actors/mobs	IMPLEMENTED	basicMob allowlist	core/src/main/java/
 actors/mobs/GnollExile	actors/mobs	VERIFIED	seed 420 passive, attacked by both seats, native drops independent of Ghost quest / SewerGuardiansTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollExile.java
 actors/mobs/GnollExile.Passive	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollExile.java
 actors/mobs/GnollExile.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollExile.java
-actors/mobs/GnollGeomancer	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollGeomancer.java
+actors/mobs/GnollGeomancer	actors/mobs	VERIFIED	Native mining residents in isolated two-seat GNOLL/CRYSTAL combat; MiningBranchTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollGeomancer.java
 actors/mobs/GnollGeomancer.Boulder	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollGeomancer.java
 actors/mobs/GnollGeomancer.GnollRockFall	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollGeomancer.java
 actors/mobs/GnollGeomancer.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollGeomancer.java
 actors/mobs/GnollGeomancer.RockArmor	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollGeomancer.java
 actors/mobs/GnollGeomancer.Sleeping	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollGeomancer.java
-actors/mobs/GnollGuard	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollGuard.java
+actors/mobs/GnollGuard	actors/mobs	VERIFIED	Native mining residents in isolated two-seat GNOLL/CRYSTAL combat; MiningBranchTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollGuard.java
 actors/mobs/GnollGuard.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollGuard.java
-actors/mobs/GnollSapper	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollSapper.java
+actors/mobs/GnollSapper	actors/mobs	VERIFIED	Native mining residents in isolated two-seat GNOLL/CRYSTAL combat; MiningBranchTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollSapper.java
 actors/mobs/GnollSapper.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollSapper.java
 actors/mobs/GnollSapper.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollSapper.java
 actors/mobs/GnollTrickster	actors/mobs	VERIFIED	naturally offered depth 3 quest, native combat, defeat, restore and reward / SewerGhostTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/GnollTrickster.java
@@ -556,7 +556,7 @@ actors/mobs/Thief	actors/mobs	VERIFIED	steal one unit from either victim, flee, 
 actors/mobs/Thief.Fleeing	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Thief.java
 actors/mobs/Thief.Wandering	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Thief.java
 actors/mobs/TormentedSpirit	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/TormentedSpirit.java
-actors/mobs/Warlock	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Warlock.java
+actors/mobs/Warlock	actors/mobs	VERIFIED	Original dark bolt and Degrade applied to each target seat; CityEntranceTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Warlock.java
 actors/mobs/Wraith	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Wraith.java
 actors/mobs/YogDzewa	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/YogDzewa.java
 actors/mobs/YogDzewa.Larva	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/YogDzewa.java
@@ -570,13 +570,13 @@ actors/mobs/YogFist.DarkFist	actors/mobs	UNSUPPORTED		core/src/main/java/com/sha
 actors/mobs/YogFist.RottingFist	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/YogFist.java
 actors/mobs/YogFist.RustedFist	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/YogFist.java
 actors/mobs/YogFist.SoiledFist	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/YogFist.java
-actors/mobs/npcs/Blacksmith	NPC	VERIFIED	generated quest, original dialogue, one owned pick, no mine entry or services / CavesInteriorTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Blacksmith.java
+actors/mobs/npcs/Blacksmith	NPC	VERIFIED	Native quest, return and scoped services on own items; MiningBranchTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Blacksmith.java
 actors/mobs/npcs/DirectableAlly	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/DirectableAlly.java
 actors/mobs/npcs/DirectableAlly.Hunting	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/DirectableAlly.java
 actors/mobs/npcs/DirectableAlly.Wandering	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/DirectableAlly.java
 actors/mobs/npcs/Ghost	NPC	VERIFIED	depths 2–4 original shared quest, separate native opponents, one owned selection / SewerGhostTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Ghost.java
 actors/mobs/npcs/Ghost.Wandering	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Ghost.java
-actors/mobs/npcs/Imp	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Imp.java
+actors/mobs/npcs/Imp	NPC	VERIFIED	City vault introduction and acceptance only; vault entry/escape/reward pending; CityEntranceTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Imp.java
 actors/mobs/npcs/ImpShopkeeper	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/ImpShopkeeper.java
 actors/mobs/npcs/MirrorImage	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/MirrorImage.java
 actors/mobs/npcs/MirrorImage.MirrorInvis	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/MirrorImage.java
@@ -849,14 +849,14 @@ items/quest/CeremonialCandle	items/quest	VERIFIED	four native ritual cells with 
 items/quest/CorpseDust	items/quest	VERIFIED	haunted bones, pickup and return for either bearer / WandmakerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/CorpseDust.java
 items/quest/CorpseDust.DustGhostSpawner	items/quest	VERIFIED	bearer buff, native summoning and active-floor removal / WandmakerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/CorpseDust.java
 items/quest/CorpseDust.DustWraith	items/quest	VERIFIED	scheduled spawn and active-floor cleanup on turn-in / WandmakerTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/CorpseDust.java
-items/quest/DarkGold	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/DarkGold.java
+items/quest/DarkGold	items/quest	VERIFIED	Original extraction, physical ID and favor on return; MiningBranchTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/DarkGold.java
 items/quest/DwarfToken	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/DwarfToken.java
 items/quest/Embers	items/quest	VERIFIED	owner pickup and one-time reward exchange / WandmakerTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/Embers.java
 items/quest/EscapeCrystal	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/EscapeCrystal.java
 items/quest/GooBlob	items/quest	VERIFIED	original 2–4 quantity across host termination after HEAD / SewerDepthTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/GooBlob.java
 items/quest/ImpStatue	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/ImpStatue.java
 items/quest/MetalShard	items/quest	VERIFIED	two to four original shards, owned pickup and idempotent receipt / CavesBossTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/MetalShard.java
-items/quest/Pickaxe	items/quest	VERIFIED	original smith issue, one physical owner; mining and reforge excluded / CavesInteriorTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/Pickaxe.java
+items/quest/Pickaxe	items/quest	VERIFIED	Original issue, owner-authorized mining, quest escrow and buyback; MiningBranchTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/Pickaxe.java
 items/quest/VaultBeacon	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/VaultBeacon.java
 items/remains/BowFragment	items/remains	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/remains/BowFragment.java
 items/remains/BrokenHilt	items/remains	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/remains/BrokenHilt.java
@@ -1205,7 +1205,7 @@ levels/CityBossLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/s
 levels/CityBossLevel.CustomGroundVisuals	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityBossLevel.java
 levels/CityBossLevel.CustomTerrainVisuals	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityBossLevel.java
 levels/CityBossLevel.CustomWallVisuals	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityBossLevel.java
-levels/CityLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityLevel.java
+levels/CityLevel	levels	VERIFIED	Bounded 16–19 seeded stair routes; mines-city-stairs.tsv	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityLevel.java
 levels/CityLevel.GreenFlame	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityLevel.java
 levels/CityLevel.GreenFlameParticle	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityLevel.java
 levels/CityLevel.Smoke	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityLevel.java
@@ -1223,7 +1223,7 @@ levels/LastLevel.CenterPieceWalls	levels	UNSUPPORTED		core/src/main/java/com/sha
 levels/LastLevel.CustomFloor	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/LastLevel.java
 levels/LastShopLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/LastShopLevel.java
 levels/Level	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Level.java
-levels/MiningLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/MiningLevel.java
+levels/MiningLevel	levels	VERIFIED	Two seeded mine types, branch 1 same depth, native bosses and irreversible exit; MiningBranchTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/MiningLevel.java
 levels/MiningLevel.BorderTopDarken	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/MiningLevel.java
 levels/MiningLevel.BorderWallsDarken	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/MiningLevel.java
 levels/Patch	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/Patch.java

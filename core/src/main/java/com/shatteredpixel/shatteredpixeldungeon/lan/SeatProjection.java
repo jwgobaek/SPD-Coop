@@ -83,6 +83,7 @@ final class SeatProjection {
         boolean changed=current!=null && !floorId.equals(current.rows.get("floor"));
         if(changed) resetHandles(nextItem);
         rows.put("floor",floorId);
+        if(Dungeon.branch==1) rows.put("mine",Integer.toString(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.Quest.Type()));
         rows.put("status",playing || defeated ? status : "PAUSED");
         if (epoch!=null) rows.put("epoch",epoch.toString());
         rows.put("life",game.life(seat).name());
@@ -114,7 +115,10 @@ final class SeatProjection {
                 writeExitTiles(rows,level.customWalls,sight,level,"exitwall");
             }
             int stair=game.stairs.stair();
-            if(stair>=0) rows.put("stair",stair+","+(game.stairs.agreed()?1:0));
+            if(stair>=0) {
+                rows.put("stair",stair+","+(game.stairs.agreed()?1:0));
+                if (level.getTransition(stair).destBranch!=Dungeon.branch) rows.put("branchgate","1");
+            }
             for (BitSet area : CombatZones.calculate(game, sight)) {
                 for (int cell = area.nextSetBit(0); cell >= 0; cell = area.nextSetBit(cell+1)) {
                     int mask = CombatZones.edgeMask(area, cell, level.width());
@@ -204,6 +208,10 @@ final class SeatProjection {
                         rows.put("h"+mob.pos, chest.name());
                         continue;
                     }
+                    if (mob.buff(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GnollGeomancer.RockArmor.class) != null)
+                        rows.put("rockarmor"+mob.pos, "1");
+                    if (Dungeon.branch == 1 && mob.spriteClass != null)
+                        rows.put("minesprite"+mob.id(), mob.spriteClass.getSimpleName());
                     rows.put("m"+mob.id(),mob.pos+","+mob.getClass().getSimpleName()+","+mob.HP+","+mob.HT);
                     if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo && ((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo)mob).chargeStage()>0)
                         rows.put("charge"+mob.pos,Integer.toString(((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo)mob).chargeStage()));
@@ -215,9 +223,32 @@ final class SeatProjection {
                     if ((mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Pylon && mob.alignment==com.shatteredpixel.shatteredpixeldungeon.actors.Char.Alignment.ENEMY)
                             || (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300 && ((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300)mob).supercharged))
                         rows.put("charge"+mob.pos,"1");
+                    if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp && level.adjacent(hero.pos,mob.pos)
+                            && !com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp.Quest.isOld())
+                        rows.put("imp"+mob.pos,com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp.Quest.given() ? "quest_in_progress" : "quest_intro_1");
                     if (mob instanceof Blacksmith && level.adjacent(hero.pos,mob.pos)) {
                         String type = Blacksmith.Quest.Type()==Blacksmith.Quest.CRYSTAL ? "crystal" : "gnoll";
-                        rows.put("smith"+mob.pos, (Blacksmith.Quest.given() ? "reminder_" : "intro_quest_")+type);
+                        if (Blacksmith.Quest.completed()) {
+                            rows.put("smith"+mob.pos,"services");
+                            rows.put("favor",Integer.toString(Blacksmith.Quest.favor));
+                            if (CoopSmith.pendingChoice()) {
+                                int index=0;
+                                for(Item candidate:Blacksmith.Quest.smithRewards)
+                                    rows.put("smithoffer"+index++,com.shatteredpixel.shatteredpixeldungeon.CoopTrade.label(candidate));
+                            } else {
+                                int favor=Blacksmith.Quest.favor;
+                                int pickCost=Blacksmith.Quest.freePickaxe?0:250;
+                                if (Blacksmith.Quest.pickaxe!=null && game.ownership.owner(Blacksmith.Quest.pickaxe)==game.player(seat)
+                                        && favor>=pickCost) rows.put("pricepick",""+pickCost);
+                                int harden=500+1000*Blacksmith.Quest.hardens, reforge=500+1000*Blacksmith.Quest.reforges;
+                                int upgrade=1000+1000*Blacksmith.Quest.upgrades;
+                                if (favor>=harden) rows.put("priceharden",""+harden);
+                                if (favor>=reforge) rows.put("pricereforge",""+reforge);
+                                if (favor>=upgrade) rows.put("priceupgrade",""+upgrade);
+                                if (favor>=2000) rows.put("priceorder","2000");
+                                if (favor>0) rows.put("pricecash",""+favor);
+                            }
+                        } else rows.put("smith"+mob.pos, (Blacksmith.Quest.given() ? "reminder_" : "intro_quest_")+type);
                     }
                     if (mob instanceof Wandmaker && level.adjacent(hero.pos, mob.pos)) {
                         String offer = Wandmaker.Quest.offerFor(hero);
@@ -246,6 +277,9 @@ final class SeatProjection {
                         String family=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "knife" : "stone";
                         rows.put("family"+ids.get(item),family+"."+StateImage.hash(shortcutSalt+"/"+family+"/"+
                                 ((com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon)item).setID).substring(0,32));
+                    }
+                    if (rows.containsKey("favor") && CoopSmith.eligible(item) && CoopSession.equipmentForScroll(item)) {
+                        rows.put("forge"+ids.get(item),selection+","+(CoopSmith.canHarden(item)?1:0)+","+(item.level()<2?1:0));
                     }
                     if (CoopSession.equipmentForScroll(item))
                         rows.put("select"+ids.get(item),selection+","+(item.isUpgradable()?1:0)+","+(item.isIdentified()?0:1));

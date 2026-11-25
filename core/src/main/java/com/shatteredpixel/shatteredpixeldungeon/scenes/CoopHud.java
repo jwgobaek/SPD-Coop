@@ -66,7 +66,7 @@ final class CoopHud extends Group {
         nextRest-=Game.elapsed;
         if (client.busy() || frame.pending!=0 || nextRest>0 || view!=frame.dungeon || view.source.version==sentWait) return;
         if (view.source.version!=sentWait+1 || !"APPLIED".equals(frame.lastResult) || !"WAIT".equals(frame.pendingVerb)
-                || !canRest(view) || view.depth!=restStart.depth || view.pos!=restStart.pos || view.hp<restStart.hp
+                || !canRest(view) || (view.depth!=restStart.depth || view.branch!=restStart.branch) || view.pos!=restStart.pos || view.hp<restStart.hp
                 || !restStart.buffs.containsAll(view.buffs)) { stopRest(); return; }
         sendWait(view);
     }
@@ -116,7 +116,7 @@ final class CoopHud extends Group {
         pickup.setPos(x-22,bottom-24);
         float width=Math.min(180,right-left-8);
         stairs=new RedButton("") { @Override protected void onClick() {
-            client.act(view.source,view.offered ? "TRAVEL" : view.consent ? "CANCEL_TRAVEL" : "CONSENT",view.stair,0);
+            scene.offerStairs(view,view.stair);
         }};
         stairs.setRect((left+right-width)/2,top+38,width,16);add(stairs);
         cancel=new RedButton(CoopScene.msg("cancel")) { @Override protected void onClick(){scene.cancelAim();} };
@@ -198,8 +198,12 @@ final class CoopHud extends Group {
         stairs.enable(stairs.visible && confirmed && (!view.offered || view.consent));
         if (stairs.visible) {
             String key=view.offered ? (view.consent ? "travel" : "awaitvote") : (view.consent ? "canceltravel" : "vote");
-            int direction=view.terrain(view.stair)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.ENTRANCE ? -1 : 1;
-            stairs.text(CoopScene.msg(key,view.depth+direction));
+            if (view.source.rows.containsKey("branchgate") && (key.equals("travel") || key.equals("vote"))) {
+                stairs.text(CoopScene.msg(view.branch==1?"mine_exit":"mine_enter"));
+            } else {
+                int direction=view.terrain(view.stair)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.ENTRANCE ? -1 : 1;
+                stairs.text(CoopScene.msg(key,view.depth+direction));
+            }
         }
         cancel.visible=aiming;cancel.enable(aiming);
         boolean canAct=confirmed && view.offered && !aiming;

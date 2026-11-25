@@ -174,7 +174,7 @@ public class CavesInteriorTest extends HeadlessDungeon {
         }
     }
 
-    @Test public void smithGivesOneBoundPickAndBranchRemainsClosed() {
+    @Test public void smithGivesOneBoundPickAndEnablesTheOriginalBranch() {
         for(int seat=0;seat<2;seat++) {
             Bundle saved;long id;
             try(CoopSession g=open(571)) {
@@ -191,7 +191,7 @@ public class CavesInteriorTest extends HeadlessDungeon {
                 assertFalse(Blacksmith.Quest.acceptFor(g.hero(1-seat)));
                 LevelTransition mine=Dungeon.level.getTransition(LevelTransition.Type.BRANCH_EXIT);
                 assertNotNull(mine);SewerSpecialActorTest.atGate(g,mine.cell());
-                assertNotEquals(mine.cell(),g.stairs.stair());
+                assertEquals(mine.cell(),g.stairs.stair());
                 saved=g.checkpoint();
             }
             try(CoopSession g=CoopSession.restore(saved)) {

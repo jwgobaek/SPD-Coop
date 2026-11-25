@@ -17,6 +17,19 @@ public class HostRestartTest {
                 .redirectErrorStream(true).redirectOutput(dir.resolve(main.getSimpleName()+".log").toFile()).start();
     }
 
+    @Test(timeout=180000) public void cityStairsAndImpRestoreCommittedReceipts() throws Exception {
+        for (String stage : new String[]{"16","17","18","19","imp"}) {
+            String suffix="city-"+stage;
+            run(temp.newFolder().toPath(),new String[]{"tengu-setup-"+suffix,"tengu-commit-"+suffix,"tengu-read-"+suffix});
+        }
+    }
+    @Test(timeout=240000) public void miningBranchesRestoreCommittedReceiptsOnFreshHosts() throws Exception {
+        for(String quest:new String[]{"gnoll","crystal"}) for(String stage:new String[]{"enter","ore","return","order","claim"}) {
+            String suffix="mine-"+quest+"-"+stage;
+            run(temp.newFolder().toPath(),new String[]{"tengu-setup-"+suffix,"tengu-commit-"+suffix,"tengu-read-"+suffix});
+        }
+    }
+
     @Test(timeout=240000) public void caveBossBoundariesSurviveLostAcknowledgements() throws Exception {
         for(String name:new String[]{"visit","enter","charge","pylon","devices","down","revive","kill","reward","return","revisit"}) {
             Path dir=temp.newFolder().toPath();

@@ -37,7 +37,7 @@ final class CoopBoard extends Group {
         map = new DungeonRenderMap(view);
         float zoom = GameMath.gate(PixelScene.minZoom, PixelScene.defaultZoom + SPDSettings.zoom(), PixelScene.maxZoom);
         camera = Camera.add(Camera.createFullscreen(zoom));
-        water = new SkinnedBlock(view.width*TILE, view.height*TILE, view.depth>=11 ? Assets.Environment.WATER_CAVES : view.depth>=6 ? Assets.Environment.WATER_PRISON : Assets.Environment.WATER_SEWERS);
+        water = new SkinnedBlock(view.width*TILE, view.height*TILE, view.depth>=16 ? Assets.Environment.WATER_CITY : view.depth>=11 ? Assets.Environment.WATER_CAVES : view.depth>=6 ? Assets.Environment.WATER_PRISON : Assets.Environment.WATER_SEWERS);
         water.autoAdjust = true;
         add(water);
         layers = new Tilemap[]{
@@ -129,7 +129,7 @@ final class CoopBoard extends Group {
                 boolean charged=view.source.rows.containsKey("charge"+cell);
                 boolean bossForm=charged && ("Pylon".equals(mob[1]) || "DM300".equals(mob[1]));
                 Image sprite=object(keep, key+":"+mob[1]+(bossForm?":active":""),cell,()->{
-                    Image result=monster(mob[1]);
+                    Image result=monster(mob[1], view.source.rows.get("minesprite"+key.substring(1)));
                     if ("ArmoredStatue".equals(mob[1])) {
                         String tier=view.source.rows.get("mail"+key.substring(1));
                         if (tier!=null) ((StatueSprite)result).setArmor(Integer.parseInt(tier));
@@ -272,7 +272,7 @@ final class CoopBoard extends Group {
         super.destroy();
     }
 
-    private static Image monster(String monster) {
+    private static Image monster(String monster, String color) {
                 Image sprite;
                 switch(monster) {
                     case "Crab": sprite=new CrabSprite();break;
@@ -300,6 +300,20 @@ final class CoopBoard extends Group {
                     case "GreatCrab": sprite=new GreatCrabSprite();break;
                     case "Brute": sprite=new BruteSprite();break;
                     case "RedShaman": sprite=new ShamanSprite.Red();break;
+                    case "CrystalGuardian": sprite="Green".equals(color) ? new CrystalGuardianSprite.Green() : "Red".equals(color) ? new CrystalGuardianSprite.Red() : new CrystalGuardianSprite.Blue();break;
+                    case "CrystalSpire": sprite="Green".equals(color) ? new CrystalSpireSprite.Green() : "Red".equals(color) ? new CrystalSpireSprite.Red() : new CrystalSpireSprite.Blue();break;
+                    case "CrystalWisp": sprite="Green".equals(color) ? new CrystalWispSprite.Green() : "Red".equals(color) ? new CrystalWispSprite.Red() : new CrystalWispSprite.Blue();break;
+                    case "GnollGeomancer": sprite=new GnollGeomancerSprite();break;
+                    case "Monk": sprite=new MonkSprite();break;
+                    case "Golem": sprite=new GolemSprite();break;
+                    case "Imp": sprite=new ImpSprite();break;
+                    case "FireElemental": sprite=new ElementalSprite.Fire();break;
+                    case "ShockElemental": sprite=new ElementalSprite.Shock();break;
+                    case "Ghoul": sprite=new GhoulSprite();break;
+                    case "Warlock": sprite=new WarlockSprite();break;
+                    case "FrostElemental": sprite=new ElementalSprite.Frost();break;
+                    case "GnollGuard": sprite=new GnollGuardSprite();break;
+                    case "GnollSapper": sprite=new GnollSapperSprite();break;
                     case "Spinner": sprite=new SpinnerSprite();break;
                     case "Blacksmith": sprite=new BlacksmithSprite();break;
                     case "DM300": sprite=new DM300Sprite();break;

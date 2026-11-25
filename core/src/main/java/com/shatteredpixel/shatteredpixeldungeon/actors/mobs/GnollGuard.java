@@ -22,6 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Spear;
@@ -103,7 +104,7 @@ public class GnollGuard extends Mob {
 	@Override
 	public int attackProc(Char enemy, int damage) {
 		int dmg = super.attackProc(enemy, damage);
-		if (enemy == Dungeon.hero && !Dungeon.level.adjacent(pos, enemy.pos) && dmg > 12){
+		if (enemy instanceof Hero && !Dungeon.level.adjacent(pos, enemy.pos) && dmg > 12){
 			GLog.n(Messages.get(this, "spear_warn"));
 		}
 		return dmg;

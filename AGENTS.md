@@ -1,5 +1,9 @@
 # 작업 시작 순서
 
+## 광산·도시 체크포인트
+
+광산 변경 시 MiningBranchTest, CityEntranceTest, HostRestartTest와 실제 구버전 세대 마이그레이션을 실행한다. 계단 배치와 정상 출발 기록을 분리한다. [실행 기록](docs/coop/mines-city-results.md)
+
 ## 15층 체크포인트 회귀
 
 변경 범위에 따라 CavesInteriorTest, CavesRareTest, CavesTrapsTest, CavesBossTest와 HostRestartTest를 실행한다. 원본 광산·도시 생성과 실제 협동 승리를 분리해 기록한다. [현재 시험 결과](docs/coop/caves-dm300-results.md)

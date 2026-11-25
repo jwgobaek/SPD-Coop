@@ -1,5 +1,9 @@
 # 원본과 협동 던전 화면 대조
 
+## 광산·도시 체크포인트
+
+같은 깊이에서 광산으로 이동하면 지도·안개·카메라를 새로 설정한다. 원본 광산 타일, 도시 수면과 상인을 한국어·영어 Desktop에서 촬영했다. 위치는 시험용 배치다. [실행 기록](docs/coop/mines-city-results.md)
+
 ## 동굴과 DM-300 · Desktop 실측
 
 원본 Spinner, Blacksmith, DM-200, DM-300과 Pylon 스프라이트 및 동굴 보스방 atlas를 사용한다. 수신자에게 보이는 거미줄·전격과 원본 벽 위 장식은 현재 좌석 투영에서 그린다. 영어·한국어 화면은 seed 570, 시험용 위치와 장비·체력, 소프트웨어 OpenGL 실행 결과다. 숨은 필드의 연출, 전체 원본 음향과 Android 동굴 렌더링은 미검증이다. [한국어](docs/coop/caves-dm300/ko/dm_charge.png) · [영어](docs/coop/caves-dm300/en/dm_won.png)
