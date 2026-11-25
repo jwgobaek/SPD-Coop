@@ -31,11 +31,16 @@ public class SewerJourney extends HeadlessDungeon {
             java.nio.file.Files.write(java.nio.file.Paths.get(System.getProperty("journey.trace")),run.route);
     }
     private final boolean coverAlly=Boolean.getBoolean("journey.coverAlly");
+    private final boolean prisonSupplies=Boolean.getBoolean("journey.prisonSupplies");
+    private final boolean prisonTrace=Boolean.getBoolean("journey.prisonTrace");
     private final List<String> route=new ArrayList<>();
     private final Map<String,Integer> counts=new TreeMap<>();
     private boolean act(CoopSession game,CoopSession.Action verb,int cell,Item item) {
         int seat=game.activeSeat(), depth=Dungeon.depth, from=game.hero(seat).pos;
+        String resources=prisonTrace && depth>=6 ? prisonResources(game,seat) : null;
         if (!CoopFloorsTest.step(game,verb,cell,item)) return false;
+        if (resources!=null) System.out.println("PRISON_INPUT "+resources+" choice="+verb+" cell="+cell
+                +" result_hp="+game.hero(seat).HP+" ally_hp="+game.hero(1-seat).HP);
         if(System.getProperty("journey.trace")!=null) {
             String state=seat+" "+depth+" "+from+" "+verb+" "+cell+" "+Dungeon.depth+" "+game.hero(seat).pos+" "+game.hero(seat).HP;
             if (Boolean.getBoolean("journey.traceActors")) {
@@ -56,6 +61,54 @@ public class SewerJourney extends HeadlessDungeon {
         counts.merge(verb.name(),1,Integer::sum);
         return true;
     }
+    private String prisonResources(CoopSession game, int seat) {
+        Hero hero=game.hero(seat);
+        List<String> pack=new ArrayList<>(), stock=new ArrayList<>(), enemies=new ArrayList<>();
+        for(Item item:hero.belongings) {
+            String known=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion
+                    ? (((com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion)item).isKnown() ? "(known)" : "(unknown)") : "";
+            pack.add(item.getClass().getSimpleName()+known+"x"+item.quantity());
+        }
+        for(Heap heap:Dungeon.level.heaps.valueList())
+            if(heap.type==Heap.Type.FOR_SALE && game.knowledge(hero).visible(heap.pos) && !heap.hidden)
+                stock.add(CoopTrade.label(heap.peek())+"@"+com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.sellPrice(heap.peek()));
+        for(Mob mob:Dungeon.level.mobs) if(mob.alignment==Char.Alignment.ENEMY && mob.invisible==0 && game.knowledge(hero).visible(mob.pos)) {
+            com.watabou.utils.Bundle b=new com.watabou.utils.Bundle();
+            mob.storeInBundle(b);
+            enemies.add(mob.getClass().getSimpleName()+"@"+mob.pos+"/target="+b.getInt("enemy_id"));
+        }
+        Collections.sort(stock); Collections.sort(enemies);
+        return "depth="+Dungeon.depth+" seat="+seat+" actor="+hero.id()+" hp="+hero.HP+"/"+hero.HT+
+                " ally="+game.hero(1-seat).id()+"/"+game.hero(1-seat).HP+" gold="+Dungeon.gold+
+                " armor="+(hero.belongings.armor()==null ? "none" : hero.belongings.armor().getClass().getSimpleName())+" inventory="+pack+" visible_stock="+stock+
+                " visible_enemies="+enemies+" quickslots=headless";
+    }
+
+    private boolean seekPrisonSupplies(CoopSession game,Hero hero) {
+        Heap best=null;
+        int bestScore=Integer.MAX_VALUE;
+        for(Heap stock:Dungeon.level.heaps.valueList()) {
+            if (stock.type!=Heap.Type.FOR_SALE || stock.size()!=1 || stock.hidden || !game.knowledge(hero).visible(stock.pos)) continue;
+            Item item=stock.peek();
+            boolean healing=item instanceof PotionOfHealing && ((PotionOfHealing)item).isKnown() && hero.belongings.getItem(PotionOfHealing.class)==null;
+            boolean food=CoopSession.basicFood(item) && hero.belongings.getItem(Food.class)==null;
+            boolean armor=false;
+            if (CoopSession.basicArmorType(item)) {
+                com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor candidate=(com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor)item;
+                armor=candidate.glyph==null && candidate.STRReq()<=hero.STR() && (hero.belongings.armor()==null || candidate.tier>hero.belongings.armor().tier)
+                        && hero.belongings.getItem(candidate.getClass())==null;
+            }
+            if (!(healing || food || armor) || !CoopTrade.roomFor(hero,item)
+                    || com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.sellPrice(item)>Dungeon.gold) continue;
+            int score=(healing ? 0 : armor ? 100 : 200)+Dungeon.level.distance(hero.pos,stock.pos);
+            if(score<bestScore || score==bestScore && stock.pos<best.pos) {best=stock;bestScore=score;}
+        }
+        if (best==null) return false;
+        if (best.pos==hero.pos) return act(game,CoopSession.Action.BUY,best.pos,best.peek());
+        int step=CoopFloorsTest.nextStep(game,best.pos,true,true);
+        return step>=0 && step!=hero.pos && act(game,CoopSession.Action.MOVE,step,null);
+    }
+
     private int retreat(Hero actor,Hero ally,Goo goo,boolean rinse) {
         Level level=Dungeon.level;
         int best=-1,score=Integer.MIN_VALUE;
@@ -164,6 +217,8 @@ public class SewerJourney extends HeadlessDungeon {
                 ArrayList<Mob> enemies=new ArrayList<>();
                 for(Mob m:l.mobs) if(m.alignment==Char.Alignment.ENEMY && m.invisible<=0 && g.observe(s).visible(m.pos)) enemies.add(m);
                 enemies.sort(Comparator.comparingInt((Mob m)->l.distance(h.pos,m.pos)).thenComparingInt(Actor::id));
+                boolean prisonPolicy=prisonSupplies && Dungeon.depth>=6;
+                if (prisonPolicy && enemies.isEmpty() && seekPrisonSupplies(g,h)) continue;
                 boolean acted=false;
                 for(Mob m:enemies) if(m instanceof Goo) {
                     Goo goo=(Goo)m;
@@ -193,6 +248,10 @@ public class SewerJourney extends HeadlessDungeon {
                     if(best>=0 && act(g,CoopSession.Action.MOVE,best,null)) continue;
                 }
                 for(Mob m:enemies) {
+                    if (prisonPolicy && !l.adjacent(h.pos,m.pos)) {
+                        Item knife=h.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife.class);
+                        if(knife!=null && act(g,CoopSession.Action.THROW,m.pos,knife)) {acted=true;break;}
+                    }
                     if(h.heroClass==HeroClass.MAGE && act(g,CoopSession.Action.ZAP,m.pos,h.belongings.weapon())) {acted=true;break;}
                     if(h.heroClass==HeroClass.HUNTRESS && act(g,CoopSession.Action.SHOOT,m.pos,h.belongings.getItem(SpiritBow.class))) {acted=true;break;}
                     if(l.adjacent(h.pos,m.pos) && act(g,CoopSession.Action.ATTACK,m.pos,null)) {acted=true;break;}
@@ -200,7 +259,7 @@ public class SewerJourney extends HeadlessDungeon {
                 if(acted) continue;
                 if(Dungeon.depth==5 && s==0 && !enemies.isEmpty() && enemies.get(0) instanceof Goo
                         && l.distance(h.pos,enemies.get(0).pos)>=2 && act(g,CoopSession.Action.WAIT,0,null)) continue;
-                if(h.heroClass==HeroClass.WARRIOR || h.heroClass==HeroClass.HUNTRESS) {
+                if(prisonPolicy || h.heroClass==HeroClass.WARRIOR || h.heroClass==HeroClass.HUNTRESS) {
                     com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor current=h.belongings.armor;
                     boolean changed=false;
                     for(Item bag:h.belongings.backpack.items.toArray(new Item[0])) {
