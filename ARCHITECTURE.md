@@ -1,5 +1,7 @@
 # 엔진 분석 — v4.0.2
 
+좌석별 UI 배치는 SeatTickets에 저장하고 권위 있는 아이템·영수증은 같은 호스트 저장 세대에 넣는다. SYNC14의 공개 행으로 현재 인벤토리와 퀵슬롯을 연결한다. 원본 PrisonLevel을 처음 방문한 방은 최대 다섯 휴면 층을 가진 스키마 4로 이어진다. [표시 경계](UI-ARCHITECTURE.md) · [상태 동기화](docs/coop/state-sync.md) · [저장 형식](docs/coop/save-format.md)
+
 현재 협동 저장은 이후 원본 층 생성에 관여하는 안내서의 미발견 항목, 원본 다리 방의 배치 제한, 몬스터의 추격 경로와 경계 상태를 호스트 소유 데이터로 보존한다. 클라이언트가 사용하는 표시 행에는 직접 보이는 식물의 원본 타일 번호만 추가했다. [저장 명세](docs/coop/save-format.md) · [동기화 명세](docs/coop/state-sync.md)
 
 

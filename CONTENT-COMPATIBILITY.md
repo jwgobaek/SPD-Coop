@@ -1,10 +1,12 @@
 # 협동 콘텐츠 지원표
 
-## 현재 범위 · 하수도 1–5층
+시드 716과 446의 갑옷 석상, 이미 종류가 알려진 강화·감정 주문서의 기본 장비 선택, 강화·마법 부여가 없는 던지는 돌, 감옥 6층의 진입·복원을 추가했다. 돌의 회수와 파괴는 두 좌석 모두 원본 명중·내구도 경로에서 검사했다. 감옥 해골의 원본 인접 사망 피해는 양쪽 영웅에서 검사했다. 감옥 상인은 생성되며 상점 상품은 보이는 칸에 표시된다. 구매·판매·환매, 다른 투척물, 7층과 Tengu는 후속 범위다.
 
-공식 태그에서 다시 생성한 TSV는 총 1,580행이다. VERIFIED 107행, IMPLEMENTED 13행, UNSUPPORTED 1,460행이다. 행마다 검증한 행동과 시험명이 있다. 선언에는 공통 클래스, 중첩 효과와 열거값도 포함된다.
+## 현재 범위 · 하수도 1–5층과 첫 감옥 층
 
-식별된 회복 물약, 사냥꾼의 기본 영혼의 활, 가죽 갑옷 교체, 새 함정 세 종류와 Fadeleaf·Earthroot·Starflower·Sorrowmoss 네 식물, 3·4층 유령 의뢰, 네 개의 휴면 층, Goo 전투와 보상 복원을 검증했다. 특정 석상 장비, 미지원 복합 효과 및 감옥 진입이 남았다. [실행 경로와 시드 결과](docs/coop/sewer-depths.md) · [현재 TSV](docs/coop/content-v4.0.2.tsv)
+공식 태그에서 다시 생성한 TSV는 총 1,580행이다. VERIFIED 115행, IMPLEMENTED 14행, UNSUPPORTED 1,451행이다. 행마다 검증한 행동과 시험명이 있다. 선언에는 공통 클래스, 중첩 효과와 열거값도 포함된다.
+
+식별된 회복 물약, 사냥꾼의 기본 영혼의 활, 가죽 갑옷 교체, 새 함정 세 종류와 Fadeleaf·Earthroot·Starflower·Sorrowmoss 네 식물, 3·4층 유령 의뢰, 네 개의 휴면 층, Goo 전투와 보상 복원을 검증했다. 검증 범위 밖의 석상 장비와 복합 효과는 남아 있다. [실행 경로와 시드 결과](docs/coop/sewer-depths.md) · [현재 TSV](docs/coop/content-v4.0.2.tsv)
 
 추가로 Sungrass, Swiftthistle, Blindweed, Mageroyal, Stormvine, Icecap, Firebloom의 실제 양 좌석 기본 발동을 검증했다. Sungrass.Health의 자리 유지와 Swiftthistle.TimeBubble의 지연된 셀 발동을 별도 행으로 집계한다. 직접 시야에 있는 식물의 원본 atlas 표시와 관측 상실을 검사했다. 다섯 기본 물약의 빙결 파괴 범위는 [하수도 시험](docs/coop/sewer-plants.md)에 있다.
 

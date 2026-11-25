@@ -1,5 +1,7 @@
 # 저장 가능한 SYNC1 방과 좌석 재접속
 
+새 연결은 인증·epoch 확인과 전체 공개 모델 검증 후 퀵슬롯을 현재 자기 가방에 다시 연결한다. 서버가 재시작되거나 층이 바뀌면 과거 네트워크 핸들 대신 새 핸들로 행동을 요청한다. 되돌림을 승인하면 과거 배치를 초기화한다. 기존 개인 키 저장소와 단조 Action ID 정책은 유지한다.
+
 ## 식물 발동 직후 재접속
 
 두 좌석을 번갈아 Swiftthistle·Sungrass·Blindweed·Mageroyal·Stormvine·Icecap·Firebloom에 이동시켰다. 14회 모두 HEAD 발행 직후 MOVE 응답 전에 호스트 JVM을 종료했다. 새 호스트에서 기존 두 좌석이 인증하고 새 공개 이미지를 받고 원본 Action ID로 결과를 재조회·재전송했다. 발동, State Version, 소유자의 효과와 다음 정상 행동을 검사했다. [증거](sewer-plants-evidence.zip)

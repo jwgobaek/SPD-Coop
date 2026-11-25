@@ -419,7 +419,7 @@ actors/mobs/Acidic	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixe
 actors/mobs/Albino	actors/mobs	IMPLEMENTED	basicMob allowlist	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Albino.java
 actors/mobs/ArmoredBrute	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/ArmoredBrute.java
 actors/mobs/ArmoredBrute.ArmoredRage	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/ArmoredBrute.java
-actors/mobs/ArmoredStatue	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/ArmoredStatue.java
+actors/mobs/ArmoredStatue	actors/mobs	VERIFIED	716 Mail/Potential and 446 Leather/Repulsion; two seats, parked equipment IDs, loot and confirmed strike after restart / SewerGuardiansTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/ArmoredStatue.java
 actors/mobs/Bandit	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bandit.java
 actors/mobs/Bat	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bat.java
 actors/mobs/Bee	actors/mobs	VERIFIED	host and guest, guarding a pot or holder, parked and active targets / SewerBeeTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bee.java
@@ -533,7 +533,7 @@ actors/mobs/Shaman	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixe
 actors/mobs/Shaman.BlueShaman	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Shaman.java
 actors/mobs/Shaman.PurpleShaman	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Shaman.java
 actors/mobs/Shaman.RedShaman	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Shaman.java
-actors/mobs/Skeleton	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Skeleton.java
+actors/mobs/Skeleton	actors/mobs	VERIFIED	floor six generation, native melee and death burst hitting adjacent heroes / SewerDepthTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Skeleton.java
 actors/mobs/Slime	actors/mobs	IMPLEMENTED	native basic AI in generated upper sewers, isolated per-seat case pending	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Slime.java
 actors/mobs/Snake	actors/mobs	IMPLEMENTED	basicMob allowlist	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Snake.java
 actors/mobs/SpectralNecromancer	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/SpectralNecromancer.java
@@ -585,7 +585,7 @@ actors/mobs/npcs/PrismaticImage	NPC	UNSUPPORTED		core/src/main/java/com/shattere
 actors/mobs/npcs/PrismaticImage.Wandering	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/PrismaticImage.java
 actors/mobs/npcs/RatKing	NPC	IMPLEMENTED	resident on the fifth floor, audience and crown quest unavailable	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/RatKing.java
 actors/mobs/npcs/Sheep	NPC	VERIFIED	FlockTrap spawn, actor identity across restore and native expiry / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Sheep.java
-actors/mobs/npcs/Shopkeeper	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Shopkeeper.java
+actors/mobs/npcs/Shopkeeper	NPC	IMPLEMENTED	floor six native generation and saved resident; visible sale sprite, no purchase, sale or buyback UI	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Shopkeeper.java
 actors/mobs/npcs/VaultLaser	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultLaser.java
 actors/mobs/npcs/VaultMirror	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultMirror.java
 actors/mobs/npcs/VaultMirror.MirrorSword	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultMirror.java
@@ -669,8 +669,8 @@ items/armor/glyphs/Camouflage	items/armor/glyphs	UNSUPPORTED		core/src/main/java
 items/armor/glyphs/Entanglement	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Entanglement.java
 items/armor/glyphs/Flow	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Flow.java
 items/armor/glyphs/Obfuscation	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Obfuscation.java
-items/armor/glyphs/Potential	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Potential.java
-items/armor/glyphs/Repulsion	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Repulsion.java
+items/armor/glyphs/Potential	items/armor/glyphs	VERIFIED	armored statue defends; native non-Hero wearer does not charge the attacking mage's wand / SewerGuardiansTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Potential.java
+items/armor/glyphs/Repulsion	items/armor/glyphs	VERIFIED	native statue proc queues one push with landing on the authoritative scheduler / SewerGuardiansTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Repulsion.java
 items/armor/glyphs/Stone	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Stone.java
 items/armor/glyphs/Swiftness	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Swiftness.java
 items/armor/glyphs/Thorns	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Thorns.java
@@ -899,7 +899,7 @@ items/scrolls/InventoryScroll.WndConfirmCancel	items/scrolls	UNSUPPORTED		core/s
 items/scrolls/Scroll	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/Scroll.java
 items/scrolls/Scroll.PlaceHolder	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/Scroll.java
 items/scrolls/Scroll.ScrollToStone	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/Scroll.java
-items/scrolls/ScrollOfIdentify	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfIdentify.java
+items/scrolls/ScrollOfIdentify	items/scrolls	VERIFIED	known scroll, privately select owned supported equipment, identify once, reconnect / HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfIdentify.java
 items/scrolls/ScrollOfLullaby	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfLullaby.java
 items/scrolls/ScrollOfMagicMapping	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfMagicMapping.java
 items/scrolls/ScrollOfMirrorImage	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfMirrorImage.java
@@ -910,7 +910,7 @@ items/scrolls/ScrollOfRetribution	items/scrolls	UNSUPPORTED		core/src/main/java/
 items/scrolls/ScrollOfTeleportation	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTeleportation.java
 items/scrolls/ScrollOfTerror	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTerror.java
 items/scrolls/ScrollOfTransmutation	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTransmutation.java
-items/scrolls/ScrollOfUpgrade	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfUpgrade.java
+items/scrolls/ScrollOfUpgrade	items/scrolls	VERIFIED	known scroll, upgrade owned supported equipment; committed use survives response loss and cold restart / HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfUpgrade.java
 items/scrolls/exotic/ExoticScroll	items/scrolls/exotic	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ExoticScroll.java
 items/scrolls/exotic/ExoticScroll.ScrollToExotic	items/scrolls/exotic	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ExoticScroll.java
 items/scrolls/exotic/ScrollOfAntiMagic	items/scrolls/exotic	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/exotic/ScrollOfAntiMagic.java
@@ -1175,7 +1175,7 @@ items/weapon/missiles/ThrowingHammer	items/weapon/missiles	UNSUPPORTED		core/src
 items/weapon/missiles/ThrowingKnife	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingKnife.java
 items/weapon/missiles/ThrowingSpear	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingSpear.java
 items/weapon/missiles/ThrowingSpike	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingSpike.java
-items/weapon/missiles/ThrowingStone	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingStone.java
+items/weapon/missiles/ThrowingStone	items/weapon/missiles	VERIFIED	plain unupgraded stone, native hit, wear, break, pickup, own-only stack and shortcut / CoopPlayInputTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingStone.java
 items/weapon/missiles/Tomahawk	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/Tomahawk.java
 items/weapon/missiles/Trident	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/Trident.java
 items/weapon/missiles/darts/AdrenalineDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/AdrenalineDart.java
@@ -1231,7 +1231,7 @@ levels/PrisonBossLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel
 levels/PrisonBossLevel.ExitVisual	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonBossLevel.java
 levels/PrisonBossLevel.ExitVisualWalls	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonBossLevel.java
 levels/PrisonBossLevel.FadingTraps	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonBossLevel.java
-levels/PrisonLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonLevel.java
+levels/PrisonLevel	levels	VERIFIED	original floor 6 after unlocked Goo gate, cold restart, shopkeeper presence, return to 5 / HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonLevel.java
 levels/PrisonLevel.Torch	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/PrisonLevel.java
 levels/RegularLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/RegularLevel.java
 levels/SewerBossLevel	levels	VERIFIED	original fifth floor, both seat locks, dry combat fixture and reopened exit / SewerDepthTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/SewerBossLevel.java

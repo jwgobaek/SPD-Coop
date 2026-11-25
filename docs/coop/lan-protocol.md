@@ -1,6 +1,10 @@
 # LAN 프로토콜 v1 및 로비
 
-## 현재 모드 SYNC11
+## 현재 플레이 모드 SYNC14
+
+호스트와 게스트는 HELLO 뒤에 MODE SYNC14를 요청한다. SYNC13 클라이언트는 감옥 지형과 새 입력을 해석할 수 없으므로 호스트가 좌석 배정 전에 VERSION으로 거부한다. UI 전용 퀵슬롯 편집은 네트워크 게임 행동을 만들지 않는다. THROW는 지도 셀, UPGRADE와 IDENTIFY는 현재 좌석에 제공된 장비 선택 순번을 받는다. 이전 게임 저장본은 새 클라이언트로 복원한다. [공개 행과 입력](state-sync.md) · [저장 스키마](save-format.md)
+
+## 이전 모드 SYNC11
 
 두 클라이언트는 HELLO 다음 MODE SYNC11을 요청한다. 이전 모드는 ERROR VERSION으로 거부한다. UNLOCK은 현재 차례의 인접 잠긴 문·현재 층 철 열쇠를 다시 확인한다. GREET는 인접한 원본 Sheep 상호작용이다. 공개 속성은 state-sync.md를 따른다. 같은 epoch·좌석·Action ID 요청의 영수증은 HEAD 발행 후 조회할 수 있다.
 

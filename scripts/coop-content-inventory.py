@@ -13,6 +13,14 @@ PREFIXES = ("items/", "actors/mobs/", "actors/buffs/", "actors/blobs/", "actors/
             "actors/hero/spells/", "levels/", "plants/", "mechanics/")
 ENUMS = {"HeroClass", "HeroSubClass", "Talent"}
 VERIFIED = {
+    "actors/mobs/Skeleton": "floor six generation, native melee and death burst hitting adjacent heroes / SewerDepthTest, HostRestartTest",
+    "actors/mobs/ArmoredStatue": "716 Mail/Potential and 446 Leather/Repulsion; two seats, parked equipment IDs, loot and confirmed strike after restart / SewerGuardiansTest, HostRestartTest",
+    "items/armor/glyphs/Potential": "armored statue defends; native non-Hero wearer does not charge the attacking mage's wand / SewerGuardiansTest",
+    "items/armor/glyphs/Repulsion": "native statue proc queues one push with landing on the authoritative scheduler / SewerGuardiansTest",
+    "items/scrolls/ScrollOfIdentify": "known scroll, privately select owned supported equipment, identify once, reconnect / HostRestartTest",
+    "items/scrolls/ScrollOfUpgrade": "known scroll, upgrade owned supported equipment; committed use survives response loss and cold restart / HostRestartTest",
+    "items/weapon/missiles/ThrowingStone": "plain unupgraded stone, native hit, wear, break, pickup, own-only stack and shortcut / CoopPlayInputTest, HostRestartTest",
+    "levels/PrisonLevel": "original floor 6 after unlocked Goo gate, cold restart, shopkeeper presence, return to 5 / HostRestartTest",
     "actors/mobs/Mimic": "seed 408 native disguise, opener, melee, missile, gold, parked floor, receipt / SewerMimicTest, HostRestartTest",
     "actors/mobs/CrystalMimic": "seed 411 ambush, victim stack, escape or return on defeat, two process kills / SewerCrystalMimicTest, HostRestartTest",
     "actors/mobs/Statue": "seeds 416/420/421/428/434/435/437/444; passive base statistics, native on-hit effect, held identity and drop / SewerGuardiansTest, HostRestartTest",
@@ -115,6 +123,7 @@ VERIFIED.update({
 for trap in ("GrippingTrap","RockfallTrap","GatewayTrap"):
     VERIFIED["levels/traps/"+trap]="native effect on either seat, same-floor checkpoint, original gateway destination / SewerTravelGearTest"
 IMPLEMENTED = {
+    "actors/mobs/npcs/Shopkeeper": "floor six native generation and saved resident; visible sale sprite, no purchase, sale or buyback UI",
     "items/armor/MailArmor": "plain unglyphed armor ownership and equipment path, separate item-specific trial pending",
     "actors/mobs/Crab": "native basic AI in generated upper sewers, isolated per-seat case pending",
     "actors/mobs/Slime": "native basic AI in generated upper sewers, isolated per-seat case pending",

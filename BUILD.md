@@ -1,5 +1,10 @@
 # Cloud에서 빌드하기
 
+이번 알파의 Application ID는 `org.spdcoop.dungeon.indev`다. V4 중간 APK 버전은 `4.0.2-INDEV-quickslots`, 감옥 진입 APK 버전은 `4.0.2-INDEV-prison-entry`다. 빌드 커밋·APK 해시·클라우드 서명 검사는 [실행 보고](TEST_REPORT.md)를 참조한다. 개발 인증서가 다르면 같은 패키지 위에 업데이트 설치할 수 없다.
+
+
+이전 알파의 실제 저장 호환성은 각각 `python3 scripts/verify-alpha-migration.py <92ebf94 worktree>`, `python3 scripts/verify-sewer-migration.py <9b6f58a worktree>`, `python3 scripts/verify-prison-migration.py <2dafb4e worktree>`로 검사한다. 각 명령은 임시 비공개 프로필을 만들고 원래 저장 세대를 다시 대조한다. [저장 규격](docs/coop/save-format.md)
+
 ## 그래픽 대조 실행
 
 JDK 21, 기존 Android SDK 및 실행 중인 Cloud X11 디스플레이를 사용한다. `scripts/capture-graphics-desktop.sh <공식 worktree> <변경 전 worktree> <출력 경로>`가 공식 Desktop JAR에 외부 드라이버를 컴파일하고 분리된 앱 프로필에서 원본·협동 장면을 촬영한다. 실제 그래픽 APK와 전체 JVM 회귀는 기존 `scripts/verify-android-build.sh <새 출력 경로>`로 검증한다. [비교 조건](GRAPHICS-PARITY.md)
