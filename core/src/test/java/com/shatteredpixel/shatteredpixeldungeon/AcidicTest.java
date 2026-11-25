@@ -29,6 +29,12 @@ public class AcidicTest extends HeadlessDungeon {
                 SewerDepthTest.gate(game, true);
                 Acidic acidic = CavesInteriorTest.stage(game, Acidic.class, seat);
                 assertEquals(id, acidic.id());
+                int shootingPos=game.hero(seat).pos;
+                game.hero(seat).pos=acidic.pos+1;
+                game.observe(seat);
+                assertEquals("Acidic", com.shatteredpixel.shatteredpixeldungeon.lan.ProjectionChecks.seatImage(game,seat).monsters.get(acidic.pos));
+                game.hero(seat).pos=shootingPos;
+                game.observe(seat);
                 Hero victim = game.hero(seat);
                 int before = victim.HP;
                 for (int turn = 0; turn < 32 && victim.buff(Ooze.class) == null; turn++) {
@@ -42,6 +48,12 @@ public class AcidicTest extends HeadlessDungeon {
 
             try (CoopSession game = CoopSession.restore(active)) {
                 Acidic acidic = (Acidic)Actor.findById(id);
+                int shootingPos=game.hero(seat).pos;
+                game.hero(seat).pos=acidic.pos+1;
+                game.observe(seat);
+                assertEquals("Acidic", com.shatteredpixel.shatteredpixeldungeon.lan.ProjectionChecks.seatImage(game,seat).monsters.get(acidic.pos));
+                game.hero(seat).pos=shootingPos;
+                game.observe(seat);
                 Hero victim = game.hero(seat);
                 Ooze ooze = victim.buff(Ooze.class);
                 assertNotNull(ooze);

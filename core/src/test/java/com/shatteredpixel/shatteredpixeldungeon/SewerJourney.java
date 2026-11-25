@@ -328,7 +328,12 @@ public class SewerJourney extends HeadlessDungeon {
                     if(changed) continue;
                 }
                 Heap heap=l.heaps.get(h.pos);
-                if(heap!=null && heap.type==Heap.Type.HEAP && !heap.hidden && act(g,CoopSession.Action.PICK_UP,h.pos,heap.peek())) continue;
+                // Preserve the historical input policy for the cold-restart and recorded TCP routes.
+                // The public play guide exercises dew pickup and the newly admitted sickle.
+                if (heap!=null && heap.type==Heap.Type.HEAP && !heap.hidden
+                        && !(heap.peek() instanceof com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop)
+                        && !(heap.peek() instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sickle)
+                        && act(g,CoopSession.Action.PICK_UP,h.pos,heap.peek())) continue;
                 Hunger hunger=h.buff(Hunger.class);
                 if(hunger!=null && hunger.isStarving()) {
                     Food meal=h.belongings.getItem(Food.class);
