@@ -39,7 +39,7 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
-public class WandOfMagicMissile extends DamageWand {
+public class WandOfMagicMissile extends TargetedDamageWand {
 
 	{
 		image = ItemSpriteSheet.WAND_MAGIC_MISSILE;
@@ -54,25 +54,7 @@ public class WandOfMagicMissile extends DamageWand {
 	}
 	
 	@Override
-	public void onZap(Ballistica bolt) {
-		onZap(curUser, bolt);
-	}
-
-	public Hero chargingHero() {
-		return charger != null && charger.target instanceof Hero ? (Hero)charger.target : null;
-	}
-
-	public boolean cast(Hero caster, Ballistica bolt) {
-		if (caster != chargingHero() || !tryToZap(caster, bolt.collisionPos)) return false;
-		caster.busy();
-		applyBackupBarrier(caster);
-		onZap(caster, bolt);
-		wandUsed(caster);
-		cursedKnown = true;
-		return true;
-	}
-
-	private void onZap(Hero caster, Ballistica bolt) {
+	protected void onZap(Hero caster, Ballistica bolt) {
 				
 		Char ch = Actor.findChar( bolt.collisionPos );
 		if (ch != null) {

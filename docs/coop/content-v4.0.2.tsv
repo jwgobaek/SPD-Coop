@@ -1047,7 +1047,7 @@ items/wands/DamageWand	items/wands	UNSUPPORTED		core/src/main/java/com/shattered
 items/wands/Wand	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/Wand.java
 items/wands/Wand.Charger	items/wands	VERIFIED	staff charge recovery, owner, actor ID and partial charge restore / CoopMageTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/Wand.java
 items/wands/Wand.PlaceHolder	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/Wand.java
-items/wands/WandOfBlastWave	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfBlastWave.java
+items/wands/WandOfBlastWave	items/wands	VERIFIED	identified uncursed handheld, both owners, native hit and displacement, lost reply and reauthentication / HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfBlastWave.java
 items/wands/WandOfBlastWave.BWaveOnHitTracker	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfBlastWave.java
 items/wands/WandOfBlastWave.BlastWave	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfBlastWave.java
 items/wands/WandOfCorrosion	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfCorrosion.java

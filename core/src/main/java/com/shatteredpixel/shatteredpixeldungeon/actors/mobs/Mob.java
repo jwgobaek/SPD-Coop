@@ -979,8 +979,8 @@ public abstract class Mob extends Char {
 			Hero magicUser = null;
 			if (Dungeon.coop == null && (src instanceof Wand || src instanceof ClericSpell || src instanceof ArmorAbility))
 				magicUser = Dungeon.hero;
-			else if (Dungeon.coop != null && src instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)
-				magicUser = ((com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)src).chargingHero();
+			else if (Dungeon.coop != null && src instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand)
+				magicUser = ((com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand)src).chargingHero();
 			if (!(src instanceof Corruption) && state != FLEEING) {
 				if (state != HUNTING) {
 					alerted = true;
@@ -1068,8 +1068,8 @@ public abstract class Mob extends Char {
 	public void die( Object cause ) {
 		if (Dungeon.coop != null) {
 			rewardOwner = cause instanceof Hero ? (Hero)cause : null;
-			if (cause instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)
-				rewardOwner = ((com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)cause).chargingHero();
+			if (cause instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand)
+				rewardOwner = ((com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand)cause).chargingHero();
 		}
 
 		if (cause == Chasm.class){

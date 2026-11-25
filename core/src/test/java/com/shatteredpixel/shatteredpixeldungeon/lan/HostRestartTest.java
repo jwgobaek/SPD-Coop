@@ -70,6 +70,10 @@ public class HostRestartTest {
         run(temp.newFolder().toPath(),new String[]{"poison-dart","poison-dart-receipt"});
     }
 
+    @Test(timeout=100000) public void blastWaveDamageAndLandingSurviveLostReplyForEitherSeat() throws Exception {
+        for(int seat=0;seat<2;seat++) run(temp.newFolder().toPath(),new String[]{"cast-hand-blast"+seat,"readcast-hand-blast"+seat});
+    }
+
     @Test(timeout=100000) public void handheldWandSurvivesLostReplyAndRestartForEitherSeat() throws Exception {
         for (int seat=0; seat<2; seat++) run(temp.newFolder().toPath(),
                 new String[]{"cast-hand"+seat,"readcast-hand"+seat});

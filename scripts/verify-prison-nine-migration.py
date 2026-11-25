@@ -28,7 +28,10 @@ def main(previous):
         shutil.copytree(original, resumed)
         (resumed / "kill-before-reply").unlink(missing_ok=True)
         new_classes = runtime["classpath"](current, work)
-        runtime["run"](current, new_classes, resumed, "seven-resume", client_timeout=120)
+        # The legacy receipt scenario finishes with an ascent. Exercise it on a separate copy.
+        replay = work / "old-receipt"
+        shutil.copytree(resumed, replay)
+        runtime["run"](current, new_classes, replay, "seven-resume", client_timeout=120)
         runtime["run"](current, new_classes, resumed, "late-down7")
         runtime["run"](current, new_classes, resumed, "late-down8", expected_exit=78)
         (resumed / "kill-before-reply").unlink()

@@ -53,7 +53,7 @@ import com.watabou.utils.PathFinder;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
 
-public class WandOfBlastWave extends DamageWand {
+public class WandOfBlastWave extends TargetedDamageWand {
 
 	{
 		image = ItemSpriteSheet.WAND_BLAST_WAVE;
@@ -70,9 +70,11 @@ public class WandOfBlastWave extends DamageWand {
 	}
 
 	@Override
-	public void onZap(Ballistica bolt) {
-		Sample.INSTANCE.play( Assets.Sounds.BLAST );
-		BlastWave.blast(bolt.collisionPos);
+	protected void onZap(Hero caster, Ballistica bolt) {
+		if (Dungeon.coop == null) {
+			Sample.INSTANCE.play(Assets.Sounds.BLAST);
+			BlastWave.blast(bolt.collisionPos);
+		}
 
 		//presses all tiles in the AOE first, with the exception of tengu dart traps
 		for (int i : PathFinder.NEIGHBOURS9){
@@ -86,8 +88,8 @@ public class WandOfBlastWave extends DamageWand {
 			Char ch = Actor.findChar(bolt.collisionPos + i);
 
 			if (ch != null){
-				wandProc(ch, chargesPerCast());
-				if (ch.alignment != Char.Alignment.ALLY) ch.damage(damageRoll(), this);
+				wandProc(caster, ch, buffedLvl(), chargesPerCast());
+				if (ch.alignment != Char.Alignment.ALLY) ch.damage(damageRoll(caster, buffedLvl()), this);
 
 				//do not push chars that are dieing over a pit, or that move due to the damage
 				if ((ch.isAlive() || ch.flying || !Dungeon.level.pit[ch.pos])
@@ -103,8 +105,8 @@ public class WandOfBlastWave extends DamageWand {
 		//throws the char at the center of the blast
 		Char ch = Actor.findChar(bolt.collisionPos);
 		if (ch != null){
-			wandProc(ch, chargesPerCast());
-			ch.damage(damageRoll(), this);
+			wandProc(caster, ch, buffedLvl(), chargesPerCast());
+			ch.damage(damageRoll(caster, buffedLvl()), this);
 
 			//do not push chars that are dieing over a pit, or that move due to the damage
 			if ((ch.isAlive() || ch.flying || !Dungeon.level.pit[ch.pos])

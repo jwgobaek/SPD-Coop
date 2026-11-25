@@ -93,6 +93,8 @@ import com.watabou.utils.FileUtils;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
@@ -525,16 +527,16 @@ public final class CoopSession implements AutoCloseable {
         return basicArmorType(item) && ((Armor)item).glyph==null;
     }
 
-    public static boolean handheldMagicMissile(Item item) {
-        return item != null && item.getClass() == WandOfMagicMissile.class
+    public static boolean supportedHandheldWand(Item item) {
+        return item != null && (item.getClass() == WandOfMagicMissile.class || item.getClass() == WandOfBlastWave.class)
                 && item.isIdentified() && !item.cursed;
     }
 
-    private static WandOfMagicMissile missileFor(Hero hero, Item item) {
+    private static TargetedDamageWand wandFor(Hero hero, Item item) {
         if (item instanceof MagesStaff && hero.belongings.weapon() == item)
             return ((MagesStaff)item).starterWand();
-        if (handheldMagicMissile(item) && hero.belongings.backpack.contains(item))
-            return (WandOfMagicMissile)item;
+        if (supportedHandheldWand(item) && hero.belongings.backpack.contains(item))
+            return (TargetedDamageWand)item;
         return null;
     }
 
@@ -657,14 +659,15 @@ public final class CoopSession implements AutoCloseable {
                     break;
                 case ZAP:
                     if (cell<0 || cell>=level.length() || !level.insideMap(cell) || !knowledge(activeSeat).visible(cell)) return false;
-                    WandOfMagicMissile wand=missileFor(hero,item);
+                    TargetedDamageWand wand=wandFor(hero,item);
                     Char victim=Actor.findChar(cell);
                     Heap targetHeap=level.heaps.get(cell);
                     boolean chestTarget=victim==null && targetHeap!=null && !targetHeap.hidden
                             && (targetHeap.type==Heap.Type.CHEST || targetHeap.type==Heap.Type.CRYSTAL_CHEST || targetHeap.type==Heap.Type.LOCKED_CHEST)
                             && level.traps.get(cell)==null && level.plants.get(cell)==null && !level.pit[cell];
                     if (wand==null || level.distance(hero.pos,cell)>hero.viewDistance) return false;
-                    if (!chestTarget && (!(victim instanceof Mob) || !basicMob(victim) || !victim.isAlive()
+                    boolean groundTarget = wand instanceof WandOfBlastWave && victim == null && !level.solid[cell];
+                    if (!groundTarget && !chestTarget && (!(victim instanceof Mob) || !basicMob(victim) || !victim.isAlive()
                             || (!disguised(victim) && victim.alignment!=Char.Alignment.ENEMY)
                             || victim.invisible>0 || hero.isCharmedBy(victim))) return false;
                     Ballistica bolt=new Ballistica(hero.pos,cell,wand.collisionProperties(cell));
