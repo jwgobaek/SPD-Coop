@@ -12,7 +12,7 @@ fixture = runpy.run_path(str(root / "scripts/verify-alpha-migration.py"))
 with TemporaryDirectory() as tmp:
     work = Path(tmp)
     cp = fixture["classpath"](root, work)
-    stages = sys.argv[1:] or ["replay", "spawn", "FIRE", "FROST", "SHOCK", "environment", "warning", "kill", "statue", "escape",
+    stages = sys.argv[1:] or ["replay", "beacon-host", "beacon-guest", "spawn", "FIRE", "FROST", "SHOCK", "environment", "warning", "kill", "statue", "escape",
                                "ascent-offer", "ascent-agree", "ascent-24", "ascent-damage", "ascent-kill", "ascent-down", "ascent-revive", "ascent-20", "ascent-1", "ascent-surface"]
     for stage in stages:
         if stage == "replay":

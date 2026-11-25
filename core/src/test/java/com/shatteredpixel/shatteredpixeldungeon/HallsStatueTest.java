@@ -7,7 +7,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue;
-import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Brimstone;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Viscosity;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
@@ -90,14 +90,37 @@ public class HallsStatueTest extends HeadlessDungeon {
             Statue statue = (Statue)Actor.findById(id);
             assertEquals(weaponId, game.ownership.identity(statue.weapon()));
             if (armorId != 0) assertEquals(armorId, game.ownership.identity(((ArmoredStatue)statue).armor()));
-            int cell = statue.pos;
-            for (int i = 0; i < 250 && statue.isAlive(); i++) CityKingTest.strike(game, statue);
+            // One isolated native fight, after checking the generated actor and equipment across travel.
+            // Other inhabitants and pits on the generated floor can otherwise end the fixture first.
+            for (Mob m : new java.util.ArrayList<>(Dungeon.level.mobs)) {
+                if (m == statue) continue;
+                Dungeon.level.mobs.remove(m);
+                Actor.remove(m);
+            }
+            for (int seat=0;seat<2;seat++) {
+                Hero fighter=game.hero(seat);
+                while (fighter.lvl<20) fighter.earnExp(fighter.maxExp(),HallsStatueTest.class);
+                fighter.STR=18;
+                fighter.HTBoost=1500-20-5*(fighter.lvl-1);
+                fighter.updateHT(false);
+                fighter.HP=fighter.HT;
+            }
+            Random.pushGenerator(seed);
+            try {
+                for (int i = 0; i < 250 && statue.isAlive(); i++) {
+                    assertTrue("Isolated encounter stopped: "+game.stopReason()+" "+game.life(0)+"/"+game.life(1),game.activeSeat()>=0);
+                    CityKingTest.strike(game,statue);
+                }
+            } finally {
+                Random.popGenerator();
+            }
             assertFalse(statue.isAlive());
-            Heap heap = Dungeon.level.heaps.get(cell);
-            assertTrue(heap.items.stream().anyMatch(item -> game.ownership.identity(item) == weaponId));
+            assertEquals(1,Dungeon.level.heaps.valueList().stream().flatMap(h -> h.items.stream())
+                    .filter(item -> game.ownership.identity(item)==weaponId).count());
             if (armorId != 0) {
                 long expected = armorId;
-                assertTrue(heap.items.stream().anyMatch(item -> game.ownership.identity(item) == expected));
+                assertEquals(1,Dungeon.level.heaps.valueList().stream().flatMap(h -> h.items.stream())
+                        .filter(item -> game.ownership.identity(item)==expected).count());
             }
         }
     }

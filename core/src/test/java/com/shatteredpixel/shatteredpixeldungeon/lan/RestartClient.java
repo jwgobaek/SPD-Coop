@@ -518,6 +518,10 @@ public final class RestartClient {
                 else if (interior) assertEquals(travel ? Integer.parseInt(boundary.substring(9))-1 : boundary.contains("web")?12:13,view.depth);
                 else assertEquals(boundary.equals("ten") ? 9 : boundary.equals("return") ? 11 : 10,view.depth);
                 long handle=verb.equals("PICK_UP") ? view.floor.get(cell).id : 0;
+                if (verb.equals("VAULT_RECALL")) {
+                    handle=view.belongings.stream().filter(item -> view.actions(item).contains("VAULT_RECALL"))
+                            .findFirst().orElseThrow(AssertionError::new).id;
+                }
                 if(equipmentOrBoss && !boundary.endsWith("boss")) {
                     String index=RestartHost.read(path,"mine-index")+",";
                     handle=view.belongings.stream().filter(item->view.source.rows.getOrDefault("forge"+item.id,"").startsWith(index)).findFirst().get().id;

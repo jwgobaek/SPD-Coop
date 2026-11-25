@@ -8,7 +8,7 @@ import java.util.*;
 
 /** Bounded vault entrance trial. The decision function receives only one player's public image and memory. */
 public final class VaultPublicRoute {
-    private static final class Input {
+    static final class Input {
         final String action;
         final int cell;
         final long item;
@@ -19,12 +19,25 @@ public final class VaultPublicRoute {
         return Math.abs(from%width-to%width)<=1 && Math.abs(from/width-to/width)<=1;
     }
 
-    private static final class Guide {
+    static final class Guide {
         final Map<Integer,Integer> visits = new HashMap<>();
         final Set<Long> rejectedItems = new HashSet<>();
         final Set<Integer> blocked = new HashSet<>();
         final Set<Integer> rejectedChests = new HashSet<>();
         boolean reviveDenied;
+        final Set<Integer> investigated = new HashSet<>();
+        private boolean investigateWalls(PublicDungeon v) {
+            if (v.branch!=0 || !v.monsters.isEmpty()) return false;
+            List<Integer> walls=new ArrayList<>();
+            for (int dy=-1;dy<=1;dy++) for (int dx=-1;dx<=1;dx++) {
+                int x=v.pos%v.width+dx,y=v.pos/v.width+dy;
+                if (x<0 || x>=v.width || y<0 || y>=v.height) continue;
+                int c=y*v.width+x,t=v.terrain(c);
+                if (v.visible(c) && (t==Terrain.WALL || t==Terrain.WALL_DECO) && !investigated.contains(c)) walls.add(c);
+            }
+            investigated.addAll(walls);
+            return !walls.isEmpty();
+        }
         Input choose(PublicDungeon v) {
             visits.merge(v.pos, 1, Integer::sum);
             if (!reviveDenied && v.ally>=0 && adjacent(v.pos,v.ally,v.width) && "DOWNED".equals(v.source.rows.get("allylife"))) {
@@ -53,7 +66,7 @@ public final class VaultPublicRoute {
             }
             for (Map.Entry<Integer,String> monster : new TreeMap<>(v.monsters).entrySet()) {
                 String kind=monster.getValue();
-                if (kind.equals("VaultLaser") || kind.equals("VaultSentry") || kind.equals("VaultMirror") || kind.equals("VaultTokenDoor")) continue;
+                if (kind.equals("Ghost") || kind.equals("Shopkeeper") || kind.equals("Sheep") || kind.equals("VaultLaser") || kind.equals("VaultSentry") || kind.equals("VaultMirror") || kind.equals("VaultTokenDoor")) continue;
                 int cell=monster.getKey();
                 if (adjacent(v.pos,cell,v.width) && !v.source.rows.containsKey("aim"+v.pos)) return new Input("ATTACK",cell,0);
                 for (PublicDungeon.Loot item : v.belongings) {
@@ -62,6 +75,7 @@ public final class VaultPublicRoute {
                     }
                 }
             }
+            if (investigateWalls(v)) return new Input("SEARCH",v.pos,0);
             int n=v.width*v.height;
             int[] first=new int[n], dist=new int[n], queue=new int[n];
             Arrays.fill(first,-1); queue[0]=v.pos; first[v.pos]=v.pos;
@@ -82,6 +96,7 @@ public final class VaultPublicRoute {
                     for (int neighbor : new int[]{c-1,c+1,c-v.width,c+v.width}) {
                         if (neighbor>=0 && neighbor<n && v.terrain(neighbor)<0) value+=8;
                     }
+                    if (v.branch==0 && tile==Terrain.EXIT) value+=220;
                     if (v.ally>=0) value-=2*Math.max(Math.abs(c%v.width-v.ally%v.width), Math.abs(c/v.width-v.ally/v.width));
                     PublicDungeon.Loot item=v.floor.get(c);
                     if (item!=null && !rejectedItems.contains(item.id)) value+=150;

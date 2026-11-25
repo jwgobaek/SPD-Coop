@@ -9,6 +9,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.EscapeCrystal;
+import com.shatteredpixel.shatteredpixeldungeon.items.quest.VaultBeacon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.ImpStatue;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Longsword;
@@ -162,6 +163,11 @@ public class VaultElementalTest extends HeadlessDungeon {
         if (stage.equals("escape")) return Dungeon.branch==0 && Dungeon.depth==18 && Imp.Quest.isCompleted()
                 && Imp.Quest.earnedShop() && Dungeon.gold==137 && Dungeon.energy==9;
         if (Dungeon.branch!=1 || !(Dungeon.level instanceof VaultLevel)) return false;
+        if (stage.startsWith("beacon-")) {
+            int seat=stage.equals("beacon-host")?0:1;
+            return Dungeon.coop.hero(seat).pos==Dungeon.level.entrance()
+                    && Dungeon.coop.hero(seat).belongings.getItem(VaultBeacon.class)==null;
+        }
         VaultBossElemental elemental=boss();
         if (stage.equals("kill")) return elemental==null && ((VaultLevel)Dungeon.level).finalTreasureOpen() && treasure()==696;
         if (stage.equals("statue")) return treasure()<0 && Dungeon.coop.stairs.vaultScore()==4000;
@@ -174,6 +180,20 @@ public class VaultElementalTest extends HeadlessDungeon {
     }
 
     public static StagedInput prepareBoundary(CoopSession game,String stage) {
+        if (stage.startsWith("beacon-")) {
+            int seat=stage.equals("beacon-host")?0:1;
+            ImpVaultTest.forScreen(game,"imp-vault");
+            Heap pile=Dungeon.level.heaps.valueList().stream().filter(h -> h.peek() instanceof VaultBeacon)
+                    .findFirst().orElseThrow(AssertionError::new);
+            while (game.activeSeat()!=seat) waitTurn(game);
+            game.hero(seat).pos=pile.pos;
+            CavesBossTest.beside(game,1-seat,Dungeon.level.entrance());
+            game.observe(seat);
+            assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,pile.pos,pile.peek()));
+            while (game.activeSeat()!=seat) waitTurn(game);
+            assertNotNull(game.hero(seat).belongings.getItem(VaultBeacon.class));
+            return new StagedInput(game,"VAULT_RECALL",0);
+        }
         int entry=enter(game);
         if (stage.equals("spawn")) return new StagedInput(game,"MOVE",entry);
         move(game,entry);
