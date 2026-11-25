@@ -1,6 +1,6 @@
 # 작업 시작 순서
 
-주요 기능·APK·원격 체크포인트 및 작업 종료 시 지정 계정의 비공개 Drive 백업과 검증 상태를 기록한다. [백업 절차](BACKUP-AND-DELIVERABLES.md)
+Drive 발행은 전체 회귀·APK 서명·GitHub 원격 확인 후 세션 마지막에 한 번 수행한다. 기존 01_Latest에서 SPD-Coop-latest.apk와 APK를 제외한 SPD-Coop-latest-backup.zip만 관리한다. 세션당 전송 상한은 각각 한 개다. [백업 절차](BACKUP-AND-DELIVERABLES.md)
 
 ## 감옥 7층 회귀
 

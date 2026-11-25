@@ -1,6 +1,6 @@
 # SPD-Coop 개발 기준
 
-주요 검증판은 GitHub의 개발 이력과 Google Drive의 APK·대응 소스·증거를 함께 인수한다. [백업 절차](BACKUP-AND-DELIVERABLES.md)
+Drive 발행은 전체 회귀·APK 서명·GitHub 원격 확인 후 세션 마지막에 한 번 수행한다. 기존 01_Latest에서 SPD-Coop-latest.apk와 APK를 제외한 SPD-Coop-latest-backup.zip만 관리한다. 세션당 전송 상한은 각각 한 개다. [백업 절차](BACKUP-AND-DELIVERABLES.md)
 
 ## 감옥 개발 순서
 

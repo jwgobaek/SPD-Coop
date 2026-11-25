@@ -1,6 +1,6 @@
 # Cloud에서 빌드하기
 
-빌드 커밋과 원격 보고 커밋을 분리해 기록하고 최신 APK·증거·대응 소스의 해시와 비공개 Drive 파일을 확인한다. [백업 절차](BACKUP-AND-DELIVERABLES.md)
+Drive 발행은 전체 회귀·APK 서명·GitHub 원격 확인 후 세션 마지막에 한 번 수행한다. 기존 01_Latest에서 SPD-Coop-latest.apk와 APK를 제외한 SPD-Coop-latest-backup.zip만 관리한다. 세션당 전송 상한은 각각 한 개다. [백업 절차](BACKUP-AND-DELIVERABLES.md)
 
 ## 감옥 7층 의뢰와 독 다트 개발판
 
