@@ -35,6 +35,70 @@ public class SewerHazardsTest extends HeadlessDungeon {
         throw new AssertionError("Missing native terrain, dart="+dart);
     }
 
+    @Test public void nativePoisonDartWalkAndKnockbackPersistForBothSeats() {
+        for (int seat=0; seat<2; seat++) for (boolean forced : new boolean[]{false,true}) {
+            Bundle save;
+            int cell;
+            float left;
+            try (CoopSession game=CoopSession.open(402,11,HeroClass.WARRIOR)) {
+                game.join(12,HeroClass.MAGE);
+                SewerBeeTest.offer(game,seat);
+                cell=approach(game,seat,true);
+                PoisonDartTrap trap=new PoisonDartTrap();
+                Dungeon.level.setTrap(trap,cell);
+                trap.reveal();
+                Hero hero=game.hero(seat);
+                hero.HP=hero.HT=100;
+                if (forced) {
+                    WandOfBlastWave.throwChar(hero,new Ballistica(hero.pos,cell,Ballistica.STOP_TARGET),1,false,false,trap);
+                    assertTrue(CoopFloorsTest.step(game,CoopSession.Action.WAIT,0,null));
+                } else assertTrue(CoopFloorsTest.step(game,CoopSession.Action.MOVE,cell,null));
+                assertEquals(cell,hero.pos);
+                assertTrue(hero.HP<100);
+                assertFalse(trap.active);
+                com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison poison =
+                        hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison.class);
+                assertNotNull(poison);
+                assertNull(game.hero(1-seat).buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison.class));
+                left=poison.cooldown();
+                save=game.checkpoint();
+            }
+            try (CoopSession game=CoopSession.restore(save)) {
+                assertEquals(Terrain.INACTIVE_TRAP,Dungeon.level.map[cell]);
+                assertEquals(left,game.hero(seat).buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison.class).cooldown(),0.001f);
+                SewerSpecialActorTest.waitOne(game);
+            }
+        }
+    }
+
+    @Test public void nativeVentRegeneratesGasAndSurvivesParking() {
+        try (CoopSession game=CoopSession.open(581,11,HeroClass.WARRIOR)) {
+            game.join(12,HeroClass.MAGE);
+            WandmakerTest.enterPrison(game);
+            SewerDepthTest.gate(game,false);
+            int cell=-1;
+            for (Trap trap : Dungeon.level.traps.valueList()) {
+                if (trap instanceof com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.ToxicGasRoom.ToxicVent) {
+                    assertFalse(trap.active);
+                    cell=trap.pos;
+                    break;
+                }
+            }
+            assertTrue(cell>=0);
+            Class<? extends Blob> emitter=com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.ToxicGasRoom.ToxicGasSeed.class;
+            assertTrue(Dungeon.level.blobs.get(emitter).cur[cell]>0);
+            int id=Dungeon.level.blobs.get(emitter).id();
+            SewerDepthTest.gate(game,true);
+            assertNull(Actor.findById(id));
+            SewerDepthTest.gate(game,false);
+            assertSame(Actor.findById(id),Dungeon.level.blobs.get(emitter));
+            assertEquals(Terrain.INACTIVE_TRAP,Dungeon.level.map[cell]);
+            for(int i=0;i<4;i++) SewerSpecialActorTest.waitOne(game);
+            assertTrue(Dungeon.level.blobs.get(ToxicGas.class).cur[cell]>0);
+            game.checkpoint();
+        }
+    }
+
     @Test public void nativeAreaTrapsPersistTheirEffectsForEitherTriggeringHero() {
         for(int seat=0;seat<2;seat++) for(Trap trap:new Trap[]{
                 new BurningTrap(),new ChillingTrap(),new ShockingTrap(),new ToxicTrap(),

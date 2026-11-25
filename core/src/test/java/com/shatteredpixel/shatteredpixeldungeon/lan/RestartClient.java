@@ -254,7 +254,7 @@ public final class RestartClient {
             if (RestartHost.hazard(mode)) {
                 offer(1);
                 int cell=Integer.parseInt(RestartHost.read(path,"hazard-cell"));
-                boolean dart=mode.equals("dart");
+                boolean dart=!mode.equals("iron-door");
                 if (dart) assertTrue(state(1).rows.containsKey("trap"+cell));
                 else {
                     assertEquals("0",state(1).rows.get("keys"));
@@ -566,14 +566,14 @@ public final class RestartClient {
             act("WAIT",0,0);
             return;
         }
-        if (mode.equals("dart-receipt") || mode.equals("door-receipt")) {
+        if (mode.equals("dart-receipt") || mode.equals("poison-dart-receipt") || mode.equals("door-receipt")) {
             String[] saved=RestartHost.read(path,"hazard-receipt").split(" ",3);
             int cell=Integer.parseInt(RestartHost.read(path,"hazard-cell"));
             String reply=clients[1].request("LOOKUP "+epoch+" "+saved[0]);
             assertTrue(reply,reply.endsWith(" APPLIED"));
             assertEquals(reply,clients[1].request(saved[2]));
             PublicDungeon guest=new PublicDungeon(state(1));
-            if (mode.equals("dart-receipt")) {
+            if (!mode.equals("door-receipt")) {
                 assertEquals(cell,guest.pos);
                 assertTrue(guest.hp<Integer.parseInt(saved[1]));
                 assertEquals(com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.INACTIVE_TRAP,guest.terrain(cell));

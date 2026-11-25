@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 /** Fresh host process for every invocation. Control files are confined to a test-private directory. */
 public final class RestartHost {
     static boolean hazard(String mode) {
-        return mode.equals("dart") || mode.equals("iron-door");
+        return mode.equals("dart") || mode.equals("poison-dart") || mode.equals("iron-door");
     }
     static boolean plant(String mode) { return mode.startsWith("plant-") && !mode.equals("plant-receipt"); }
 
@@ -271,7 +271,13 @@ public final class RestartHost {
                         write(path,"landing",parts[1]+" "+seat+" "+cell+" "+Dungeon.level.plants.get(cell).image);
                     } else if (hazard(mode)) {
                         CoopSession game = Dungeon.coop;
-                        int cell = com.shatteredpixel.shatteredpixeldungeon.SewerHazardsTest.approach(game,1,mode.equals("dart"));
+                        int cell = com.shatteredpixel.shatteredpixeldungeon.SewerHazardsTest.approach(game,1,!mode.equals("iron-door"));
+                        if (mode.equals("poison-dart")) {
+                            com.shatteredpixel.shatteredpixeldungeon.levels.traps.PoisonDartTrap trap =
+                                    new com.shatteredpixel.shatteredpixeldungeon.levels.traps.PoisonDartTrap();
+                            Dungeon.level.setTrap(trap,cell);
+                            trap.reveal();
+                        }
                         if (mode.equals("iron-door")) Dungeon.level.drop(new com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey(1),game.hero(1).pos);
                         write(path,"hazard-cell",Integer.toString(cell));
                     } else if (arrangedDepth==1) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
