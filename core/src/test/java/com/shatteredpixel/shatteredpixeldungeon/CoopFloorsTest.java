@@ -81,8 +81,8 @@ public class CoopFloorsTest extends HeadlessDungeon {
     }
 
     @Test public void inaccessibleSpecialRoomRetainsLastPlayableFloor() {
-        // Seed 446 contains an unverified ArmoredStatue.
-        try(CoopSession game=CoopSession.open(446,1,HeroClass.MAGE)) {
+        // Seed 530 still generates an unverified Whip/Vorpal armored statue on floor two.
+        try(CoopSession game=CoopSession.open(530,1,HeroClass.MAGE)) {
             game.join(2,HeroClass.WARRIOR);
             Level l=Dungeon.level;
             int gate=l.exit(),seat=0;

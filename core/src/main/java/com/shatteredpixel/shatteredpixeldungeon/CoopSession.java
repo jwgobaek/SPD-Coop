@@ -24,6 +24,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Gnoll;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Potential;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Repulsion;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GnollExile;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.PhantomPiranha;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
@@ -392,6 +395,12 @@ public final class CoopSession implements AutoCloseable {
 
     public static boolean basicMob(Actor actor) {
         Class<?> type = actor.getClass();
+        if (type==ArmoredStatue.class) {
+            ArmoredStatue statue=(ArmoredStatue)actor;
+            Armor armor=statue.armor();
+            return statueWeapon(statue.weapon()) && basicArmorType(armor)
+                    && (armor.glyph instanceof Potential || armor.glyph instanceof Repulsion);
+        }
         if (type==Statue.class) return statueWeapon(((Statue)actor).weapon());
         return type == GnollExile.class || type == PhantomPiranha.class || type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
                 || type == Mimic.class || type == CrystalMimic.class || type == GoldenMimic.class || type == Sheep.class || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
@@ -410,7 +419,7 @@ public final class CoopSession implements AutoCloseable {
         Weapon.Enchantment effect = ((Weapon)item).enchantment;
         if (effect == null) return false;
         Class<?> type = effect.getClass();
-        return type == Kinetic.class || type == Venomous.class || type == Vampiric.class || type == Projecting.class || type == Unstable.class;
+        return type == com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling.class || type == Kinetic.class || type == Venomous.class || type == Vampiric.class || type == Projecting.class || type == Unstable.class;
     }
 
     public static boolean disguised(Char actor) {
@@ -799,6 +808,7 @@ public final class CoopSession implements AutoCloseable {
         Map<String,Item> result=new TreeMap<>();
         for (Mob mob : level.mobs) {
             if (mob instanceof Thief && ((Thief)mob).item!=null) result.put("th"+mob.id(),((Thief)mob).item);
+            if (mob instanceof ArmoredStatue) result.put("arm"+mob.id(),((ArmoredStatue)mob).armor());
             if (mob instanceof Statue) result.put("w"+mob.id(),((Statue)mob).weapon());
             if (mob instanceof Mimic && ((Mimic)mob).items!=null) {
                 int index=0;

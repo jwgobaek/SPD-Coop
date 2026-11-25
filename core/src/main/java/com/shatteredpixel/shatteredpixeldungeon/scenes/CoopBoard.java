@@ -117,7 +117,14 @@ final class CoopBoard extends Group {
             if (key.charAt(0)=='m' && Character.isDigit(key.charAt(1))) {
                 String[] mob = value.split(",");
                 int cell = Integer.parseInt(mob[0]);
-                Image sprite=object(keep, key+":"+mob[1], cell, ()->monster(mob[1]));
+                Image sprite=object(keep, key+":"+mob[1],cell,()->{
+                    Image result=monster(mob[1]);
+                    if ("ArmoredStatue".equals(mob[1])) {
+                        String tier=view.source.rows.get("mail"+key.substring(1));
+                        if (tier!=null) ((StatueSprite)result).setArmor(Integer.parseInt(tier));
+                    }
+                    return result;
+                });
                 boolean charging=view.source.rows.containsKey("charge"+cell);
                 if (sprite instanceof GooSprite) ((GooSprite)sprite).displayCharge(charging);
                 else if (sprite instanceof SentrySprite) {
@@ -161,8 +168,11 @@ final class CoopBoard extends Group {
         int facing=view.pos;
         String receipt=view.source.rows.get("receipt");
         if (advanced && receipt!=null && (cue.equals("ZAP") || cue.equals("SHOOT") || cue.equals("ATTACK"))) {
-            int target=Integer.parseInt(receipt.split(",")[2]);
-            if (view.visible(target)) facing=target;
+            String[] fields=receipt.split(",");
+            if (fields.length==4) {
+                int target=Integer.parseInt(fields[2]);
+                if (view.visible(target)) facing=target;
+            }
         }
         avatar(keep,"self",view.pos,view.heroClass,cue,advanced ? previous.pos : view.pos,facing);
         Iterator<Map.Entry<String,Image>> it=sprites.entrySet().iterator();
@@ -245,7 +255,7 @@ final class CoopBoard extends Group {
                         sprite=new GooSprite();
 
                         break;
-                    case "Statue": sprite=new StatueSprite();break;
+                    case "ArmoredStatue": case "Statue": sprite=new StatueSprite();break;
                     case "GnollExile": sprite=new GnollExileSprite();break;
                     case "PhantomPiranha": sprite=new PhantomPiranhaSprite();break;
                     case "Sheep": sprite=new SheepSprite();break;

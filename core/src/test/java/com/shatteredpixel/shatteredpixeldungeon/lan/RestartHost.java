@@ -43,7 +43,7 @@ public final class RestartHost {
         }
     }
     static boolean guardian(String mode) {
-        return mode.equals("statue") || mode.equals("unstable") || mode.equals("phantom") || mode.equals("exile");
+        return mode.equals("armored") || mode.equals("statue") || mode.equals("unstable") || mode.equals("phantom") || mode.equals("exile");
     }
     static boolean kit(String mode) { return mode.equals("kit0") || mode.equals("kit1"); }
     static boolean newCampaign(String mode) {
@@ -51,7 +51,8 @@ public final class RestartHost {
     }
     private static long seedFor(String mode) {
         switch (mode) {
-            case "blocked-start": return 716; // ArmoredStatue with RoundShield and Chilling
+            case "blocked-start": return 452; // Original Spear/Projecting statue remains unsupported.
+            case "armored": return 446;
             case "phantom": return 479;
             case "exile": return 420;
             case "statue": return 416;
@@ -92,7 +93,7 @@ public final class RestartHost {
                 verifyBossLoot(path);
                 Runtime.getRuntime().halt(78);
             }
-            if (stage.equals("AFTER_HEAD") && mode.equals("unstable") && java.nio.file.Files.exists(path.resolve("watch-hit"))) {
+            if (stage.equals("AFTER_HEAD") && (mode.equals("armored") || mode.equals("unstable")) && java.nio.file.Files.exists(path.resolve("watch-hit"))) {
                 int before=Integer.parseInt(read(path,"watch-hit"));
                 if (Dungeon.coop.hero(1).HP < before) {
                     write(path,"committed-hit",Dungeon.coop.hero(1).HP+" "+Dungeon.coop.turn());
@@ -214,9 +215,10 @@ public final class RestartHost {
                             SewerGuardiansTest.approachPool(Dungeon.coop,1,fish);
                             resident=fish;
                         } else {
-                            resident=(mode.equals("statue") || mode.equals("unstable")) ? SewerSpecialActorTest.actor(Statue.class)
+                            resident=mode.equals("armored") ? SewerSpecialActorTest.actor(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue.class) : (mode.equals("statue") || mode.equals("unstable")) ? SewerSpecialActorTest.actor(Statue.class)
                                     : SewerSpecialActorTest.actor(GnollExile.class);
                             SewerGhostTest.meet(Dungeon.coop,1,resident);
+                            if (mode.equals("armored")) Dungeon.coop.hero(1).HP=Dungeon.coop.hero(1).HT=120;
                             if (mode.equals("unstable")) {
                                 assertTrue(((Statue)resident).weapon().enchantment instanceof
                                         com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Unstable);

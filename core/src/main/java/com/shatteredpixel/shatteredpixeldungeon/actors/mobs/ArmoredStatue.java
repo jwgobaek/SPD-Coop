@@ -116,7 +116,7 @@ public class ArmoredStatue extends Statue {
 		//silently duplicated in this case, so don't drop original armor
 		if (buff(Corrupting.CorruptingTracker.class) == null) {
 			armor.identify(false);
-			Dungeon.level.drop(armor, pos).sprite.drop();
+			Dungeon.level.drop(armor, pos).animateDrop();
 		}
 		super.die( cause );
 	}

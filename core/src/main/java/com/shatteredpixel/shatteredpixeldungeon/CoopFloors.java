@@ -244,7 +244,12 @@ public final class CoopFloors {
             }
         }
         for(Bundle mob:floor.getBundleArray("mobs")) {
-            if (mob.getString("__className").equals(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue.class.getName())) {
+            boolean armored=mob.getString("__className").equals(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue.class.getName());
+            if (armored) {
+                inspectItem(mob.getBundle("armor"),entries.getBundle("arm"+mob.getInt("id")));
+                count++;
+            }
+            if (armored || mob.getString("__className").equals(Statue.class.getName())) {
                 inspectItem(mob.getBundle("weapon"),entries.getBundle("w"+mob.getInt("id")));
                 count++;
             }

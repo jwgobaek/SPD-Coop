@@ -216,10 +216,10 @@ public final class RestartClient {
                 refresh(); act("WAIT",0,0); offer(1);
                 String key="m"+RestartHost.read(path,"resident-id");
                 String[] mob=state(1).rows.get(key).split(",");
-                assertEquals((mode.equals("statue") || mode.equals("unstable")) ? "Statue" : mode.equals("exile") ? "GnollExile" : "PhantomPiranha",mob[1]);
+                assertEquals(mode.equals("armored") ? "ArmoredStatue" : (mode.equals("statue") || mode.equals("unstable")) ? "Statue" : mode.equals("exile") ? "GnollExile" : "PhantomPiranha",mob[1]);
                 verifyAfterReconnect(act("ZAP",Integer.parseInt(mob[0]),item(1,"WEAPON","STAFF")),1);
                 assertTrue(Integer.parseInt(state(1).rows.get(key).split(",")[2])<Integer.parseInt(mob[2]));
-                if (mode.equals("unstable")) {
+                if (mode.equals("unstable") || mode.equals("armored")) {
                     for (int i=0;i<40;i++) {
                         int owner=active();
                         SeatActions.Pending wait=actions[owner].prepare(state(owner),"WAIT",0,0);
@@ -380,7 +380,7 @@ public final class RestartClient {
             crystalResume(mode);
             return;
         }
-        if (mode.equals("unstable-receipt")) {
+        if (mode.equals("unstable-receipt") || mode.equals("armored-receipt")) {
             String[] saved=RestartHost.read(path,"last-strike").split(" ",3);
             String[] expected=RestartHost.read(path,"committed-hit").split(" ");
             int owner=Integer.parseInt(saved[0]);

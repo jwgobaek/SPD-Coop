@@ -228,7 +228,7 @@ final class RoomSync {
                 return "APPLIED_STOPPED";
             }
             Mob defeated=target instanceof Mob && ((Mob)target).wasDefeatedBy(game.hero(seat)) ? (Mob)target : null;
-            String detail=action==CoopSession.Action.ZAP ? verb+","+cell : verb;
+            String detail=targeted ? verb+","+cell : verb;
             commit(defeated,seat,id+","+detail+",APPLIED","IN_GAME");
             return "APPLIED";
         } catch (RuntimeException failure) {

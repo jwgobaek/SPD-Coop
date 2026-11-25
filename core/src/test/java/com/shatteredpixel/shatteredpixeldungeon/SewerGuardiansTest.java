@@ -17,6 +17,73 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class SewerGuardiansTest extends HeadlessDungeon {
+    @Test public void armoredStatuesPreserveBothPhysicalItemsAndApplyTheirNativeGlyphs() {
+        for (int seed:new int[]{716,446}) for (int seat=0;seat<2;seat++) {
+            long mail,weapon; int id;
+            Bundle saved;
+            try (CoopSession game=CoopSession.open(seed,1,HeroClass.MAGE)) {
+                game.join(2,HeroClass.MAGE);
+                if (seed==446) SewerBeeTest.cross(game,Dungeon.level.exit());
+                ArmoredStatue mob=SewerSpecialActorTest.actor(ArmoredStatue.class);
+                id=mob.id(); mail=game.ownership.identity(mob.armor()); weapon=game.ownership.identity(mob.weapon());
+                assertNotEquals(mail,weapon); assertEquals(1,mob.armor().level());
+                assertTrue(mob.weapon() instanceof RoundShield);
+                assertEquals(seed==446 ? "Repulsion" : "Potential",mob.armor().glyph.getClass().getSimpleName());
+                assertEquals(seed==446 ? "Projecting" : "Chilling",mob.weapon().enchantment.getClass().getSimpleName());
+                SewerBeeTest.cross(game,seed==446 ? Dungeon.level.entrance() : Dungeon.level.exit());
+                assertNull(Actor.findById(id)); saved=game.checkpoint();
+            }
+            try (CoopSession game=CoopSession.restore(saved)) {
+                SewerBeeTest.cross(game,seed==446 ? Dungeon.level.exit() : Dungeon.level.entrance());
+                ArmoredStatue mob=(ArmoredStatue)Actor.findById(id);
+                assertEquals(mail,game.ownership.identity(mob.armor())); assertEquals(weapon,game.ownership.identity(mob.weapon()));
+                for (int s=0;s<2;s++) {
+                    Hero prepared=game.hero(s);
+                    prepared.HP=prepared.HT=250;
+                    // Isolated loot fixture. Keep the original statue's HP and armor and use real zaps.
+                    prepared.belongings.weapon().upgrade(6);
+                }
+                Hero actor=game.hero(seat);
+                SewerGhostTest.meet(game,seat,mob);
+                int start=actor.pos, allyHp=game.hero(1-seat).HP;
+                if (seed==446) {
+                    // Put the isolated fight in an open area so native pushback can land.
+                    int center=Dungeon.level.width()*(Dungeon.level.height()/2)+Dungeon.level.width()/2;
+                    for(int dy=-2;dy<=2;dy++) for(int dx=-3;dx<=3;dx++)
+                        Level.set(center+dy*Dungeon.level.width()+dx,com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EMPTY);
+                    mob.pos=center; actor.pos=center+1; start=actor.pos;
+                    for (int n=0;n<200 && !com.shatteredpixel.shatteredpixeldungeon.effects.Pushing.pushingExistsForChar(actor);n++) mob.defenseProc(actor,2);
+                    assertTrue(com.shatteredpixel.shatteredpixeldungeon.effects.Pushing.pushingExistsForChar(actor));
+                    SewerSpecialActorTest.waitOne(game);
+                    assertNotEquals(start,actor.pos);
+                } else {
+                    int charge=((com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff)actor.belongings.weapon()).starterWand().curCharges;
+                    for(int n=0;n<100;n++) { mob.defenseProc(actor,2); assertTrue(mob.drRoll()>=0); }
+                    assertEquals(charge,((com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff)actor.belongings.weapon()).starterWand().curCharges);
+                    for(int n=0;n<150 && actor.buff(Chill.class)==null;n++) mob.attackProc(actor,2);
+                    assertNotNull(actor.buff(Chill.class));
+                }
+                assertEquals(allyHp,game.hero(1-seat).HP);
+                for(int n=0;n<150 && mob.isAlive();n++) {
+                    assertFalse(game.stopReason(),game.stopped()); assertFalse(game.defeated());
+                    int acting=game.activeSeat(); SewerGhostTest.meet(game,acting,mob);
+                    assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ZAP,mob.pos,game.hero(acting).belongings.weapon())
+                            || CoopFloorsTest.step(game,CoopSession.Action.ATTACK,mob.pos,null));
+                }
+                assertFalse(mob.isAlive());
+                java.util.Set<Long> drops=new java.util.HashSet<>();
+                for(Item item:Dungeon.level.heaps.get(mob.pos).items) drops.add(game.ownership.identity(item));
+                assertTrue(drops.contains(mail)); assertTrue(drops.contains(weapon));
+                for(int n=0;n<2;n++) {
+                    Hero h=game.hero(game.activeSeat()); h.pos=mob.pos;
+                    Item item=Dungeon.level.heaps.get(mob.pos).peek();
+                    assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,mob.pos,item));
+                    assertEquals(game.playerOf(h),game.ownership.owner(item));
+                    h.pos=Dungeon.level.entrance();
+                }
+            }
+        }
+    }
     @Test public void statuesKeepTheirNativeWeaponsAcrossBothFloorsAndDropOneOnDefeat() {
         for(int seed:new int[]{416,420}) for(int seat=0;seat<2;seat++) {
             Bundle saved;
