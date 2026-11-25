@@ -33,11 +33,35 @@ public class ImpVaultSurvey extends HeadlessDungeon {
             for (Trap trap:vault.traps.valueList()) traps.add(trap.getClass().getSimpleName());
             assertTrue(rooms.contains("VaultEntranceRoom"));
             assertTrue(rooms.contains("VaultFinalRoom"));
+            if(seed==572) nativeEscrow();
             System.out.println("VAULT\t"+seed+"\t"+depth+"\t"+entrance.cell()+"\t"+vault.width()+"x"+vault.height()
                     +"\t"+rooms+"\t"+mobs+"\t"+traps+"\t"+vault.heaps.valueList().size());
             return;
         }
         throw new AssertionError("Missing native imp on seed "+seed);
+    }
+    private static void nativeEscrow() {
+        com.shatteredpixel.shatteredpixeldungeon.items.quest.EscapeCrystal crystal=
+                new com.shatteredpixel.shatteredpixeldungeon.items.quest.EscapeCrystal();
+        com.shatteredpixel.shatteredpixeldungeon.items.Item original=Dungeon.hero.belongings.weapon;
+        assertNotNull(original);
+        Dungeon.gold=137;
+        Dungeon.energy=9;
+        crystal.storeHeroBelongings(Dungeon.hero);
+        assertNull(Dungeon.hero.belongings.weapon);
+        assertEquals(0,Dungeon.gold);
+        assertEquals(0,Dungeon.energy);
+        com.watabou.utils.Bundle persisted=new com.watabou.utils.Bundle();
+        persisted.put("crystal",crystal);
+        crystal=(com.shatteredpixel.shatteredpixeldungeon.items.quest.EscapeCrystal)persisted.get("crystal");
+        crystal.restoreHeroBelongings(Dungeon.hero,null);
+        assertEquals(original.getClass(),Dungeon.hero.belongings.weapon.getClass());
+        assertEquals(original.level(),Dungeon.hero.belongings.weapon.level());
+        assertNotSame(original,Dungeon.hero.belongings.weapon);
+        assertEquals(137,Dungeon.gold);
+        assertEquals(9,Dungeon.energy);
+        assertNull(crystal.storedItems);
+        System.out.println("PASS original single-hero EscapeCrystal serialized equipment, shared resources and one restore, regenerated weapon object");
     }
     public static void main(String[] args) throws Exception {
         ImpVaultSurvey test=new ImpVaultSurvey();test.temporary.create();test.startBackend();
