@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 /** Fresh host process for every invocation. Control files are confined to a test-private directory. */
 public final class RestartHost {
     static boolean hazard(String mode) {
-        return mode.equals("dart") || mode.equals("poison-dart") || mode.equals("iron-door");
+        return mode.equals("dart") || mode.equals("geyser") || mode.equals("poison-dart") || mode.equals("iron-door");
     }
     static boolean plant(String mode) { return mode.startsWith("plant-") && !mode.equals("plant-receipt"); }
 
@@ -294,8 +294,9 @@ public final class RestartHost {
                     } else if (hazard(mode)) {
                         CoopSession game = Dungeon.coop;
                         int cell = com.shatteredpixel.shatteredpixeldungeon.SewerHazardsTest.approach(game,1,!mode.equals("iron-door"));
-                        if (mode.equals("poison-dart")) {
-                            com.shatteredpixel.shatteredpixeldungeon.levels.traps.PoisonDartTrap trap =
+                        if (mode.equals("poison-dart") || mode.equals("geyser")) {
+                            com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap trap = mode.equals("geyser")
+                                    ? new com.shatteredpixel.shatteredpixeldungeon.levels.traps.GeyserTrap() :
                                     new com.shatteredpixel.shatteredpixeldungeon.levels.traps.PoisonDartTrap();
                             Dungeon.level.setTrap(trap,cell);
                             trap.reveal();

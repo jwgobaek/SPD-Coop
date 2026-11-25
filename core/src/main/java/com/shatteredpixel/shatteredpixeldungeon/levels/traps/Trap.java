@@ -94,7 +94,7 @@ public abstract class Trap implements Bundlable {
 	/** Exact effects supported by the authority, including traps chained by summoned actors. */
 	public final boolean supportedInCoop() {
 		Class<?> type = getClass();
-		return type == WornDartTrap.class || type == PoisonDartTrap.class || type == BurningTrap.class || type == ChillingTrap.class
+		return type == GeyserTrap.class || type == WornDartTrap.class || type == PoisonDartTrap.class || type == BurningTrap.class || type == ChillingTrap.class
 				|| type == ShockingTrap.class || type == ToxicTrap.class || type == ConfusionTrap.class
 				|| type == OozeTrap.class || type == AlarmTrap.class || type == FlockTrap.class
 				|| type == SummoningTrap.class || type == TeleportationTrap.class

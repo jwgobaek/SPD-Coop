@@ -53,8 +53,10 @@ public class GeyserTrap extends Trap {
 
 	@Override
 	public void activate() {
-		Splash.at( DungeonTilemap.tileCenterToWorld( pos ), -PointF.PI/2, PointF.PI/2, 0x5bc1e3, 100, 0.01f);
-		Sample.INSTANCE.play(Assets.Sounds.GAS, 1f, 0.75f);
+		if (Dungeon.coop == null) {
+			Splash.at( DungeonTilemap.tileCenterToWorld( pos ), -PointF.PI/2, PointF.PI/2, 0x5bc1e3, 100, 0.01f);
+			Sample.INSTANCE.play(Assets.Sounds.GAS, 1f, 0.75f);
+		}
 
 		Fire fire = (Fire) Dungeon.level.blobs.get(Fire.class);
 		PathFinder.buildDistanceMap( pos, BArray.not( Dungeon.level.solid, null ), 2 );
@@ -112,12 +114,13 @@ public class GeyserTrap extends Trap {
 			int targetpos = -1;
 			if (centerKnockBackDirection != -1){
 				targetpos = centerKnockBackDirection;
-			} else if (ch == Dungeon.hero){
+			} else if (ch == Dungeon.hero || Dungeon.coop != null && ch instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero){
 				//if it is the hero, random direction that isn't into a hazard
 				ArrayList<Integer> candidates = new ArrayList<>();
 				for (int i : PathFinder.NEIGHBOURS8){
 					//add as a candidate if both cells on the trajectory are safe
-					if (!Dungeon.level.avoid[pos + i] && !Dungeon.level.avoid[pos + i + i]){
+					if (pos + 2*i >= 0 && pos + 2*i < Dungeon.level.length()
+							&& !Dungeon.level.avoid[pos + i] && !Dungeon.level.avoid[pos + 2*i]){
 						candidates.add(pos + i);
 					}
 				}

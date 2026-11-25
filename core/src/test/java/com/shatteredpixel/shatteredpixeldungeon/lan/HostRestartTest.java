@@ -62,6 +62,10 @@ public class HostRestartTest {
                 "kill_BEFORE_HEAD","kill_AFTER_HEAD","recover_last","backup"});
     }
 
+    @Test(timeout=100000) public void geyserFloodPersistsAcrossLostReply() throws Exception {
+        run(temp.newFolder().toPath(),new String[]{"geyser","geyser-receipt"});
+    }
+
     @Test(timeout=100000) public void prisonPoisonDartPersistsAcrossLostReply() throws Exception {
         run(temp.newFolder().toPath(),new String[]{"poison-dart","poison-dart-receipt"});
     }

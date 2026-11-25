@@ -1521,7 +1521,7 @@ levels/traps/FlashingTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatt
 levels/traps/FlockTrap	levels/traps	VERIFIED	exact native trap, either seat, active-floor checkpoint and subsequent action / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FlockTrap.java
 levels/traps/FrostTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/FrostTrap.java
 levels/traps/GatewayTrap	levels/traps	VERIFIED	native effect on either seat, same-floor checkpoint, original gateway destination / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GatewayTrap.java
-levels/traps/GeyserTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GeyserTrap.java
+levels/traps/GeyserTrap	levels/traps	VERIFIED	native water field, random center push, walked and forced landing on both seats, disk receipt / SewerHazardsTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GeyserTrap.java
 levels/traps/GnollRockfallTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GnollRockfallTrap.java
 levels/traps/GrimTrap	levels/traps	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GrimTrap.java
 levels/traps/GrippingTrap	levels/traps	VERIFIED	native effect on either seat, same-floor checkpoint, original gateway destination / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/traps/GrippingTrap.java

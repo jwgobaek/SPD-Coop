@@ -138,6 +138,7 @@ VERIFIED.update({
     "items/quest/CorpseDust.DustWraith": "scheduled spawn and active-floor cleanup on turn-in / WandmakerTest",
     "items/quest/CeremonialCandle": "four native ritual cells with alternating owners / WandmakerTest",
     "actors/mobs/Elemental.NewbornFireElemental": "ritual summon, original combat and Embers drop / WandmakerTest",
+    "levels/traps/GeyserTrap": "native water field, random center push, walked and forced landing on both seats, disk receipt / SewerHazardsTest, HostRestartTest",
     "levels/traps/PoisonDartTrap": "native VFX priority actor, poison, movement, knockback and guest crash receipt / SewerHazardsTest, HostRestartTest",
     "levels/rooms/special/ToxicGasRoom.ToxicVent": "original permanently disarmed vent in generated floor 6; persistent emitter after 6-7-6 / SewerHazardsTest",
     "levels/rooms/special/ToxicGasRoom.ToxicGasSeed": "parked emitter ID resumes native gas production / SewerHazardsTest",

@@ -71,6 +71,38 @@ public class SewerHazardsTest extends HeadlessDungeon {
         }
     }
 
+    @Test public void geyserFloodAndKnockbackSurviveRestoreForEachSeat() {
+        for (int seat = 0; seat < 2; seat++) for (boolean forced : new boolean[]{false, true}) {
+            Bundle saved;
+            int cell, destination;
+            try (CoopSession game = CoopSession.open(402, 11, HeroClass.WARRIOR)) {
+                game.join(12, HeroClass.MAGE);
+                SewerBeeTest.offer(game, seat);
+                cell = approach(game, seat, true);
+                Hero hero = game.hero(seat);
+                GeyserTrap trap = new GeyserTrap();
+                Dungeon.level.setTrap(trap, cell);
+                trap.reveal();
+                if (forced) {
+                    WandOfBlastWave.throwChar(hero, new Ballistica(hero.pos, cell, Ballistica.STOP_TARGET), 1, false, false, trap);
+                    SewerSpecialActorTest.waitOne(game);
+                } else assertTrue(CoopFloorsTest.step(game, CoopSession.Action.MOVE, cell, null));
+                assertNull(Dungeon.level.traps.get(cell));
+                assertEquals(Terrain.WATER, Dungeon.level.map[cell]);
+                destination = hero.pos;
+                assertNotEquals(cell, destination);
+                assertTrue(Dungeon.level.distance(cell,destination) <= 2);
+                saved = game.checkpoint();
+            }
+            try (CoopSession game = CoopSession.restore(saved)) {
+                assertEquals(destination, game.hero(seat).pos);
+                assertEquals(Terrain.WATER, Dungeon.level.map[cell]);
+                assertNull(Dungeon.level.traps.get(cell));
+                SewerSpecialActorTest.waitOne(game);
+            }
+        }
+    }
+
     @Test public void nativeVentRegeneratesGasAndSurvivesParking() {
         try (CoopSession game=CoopSession.open(581,11,HeroClass.WARRIOR)) {
             game.join(12,HeroClass.MAGE);
