@@ -8,6 +8,8 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.*;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndSeatInventory;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.*;
+import java.util.Arrays;
 import com.watabou.input.PointerEvent;
 import com.watabou.noosa.*;
 import com.watabou.utils.Point;
@@ -170,6 +172,25 @@ public final class CoopRenderSmoke {
     }
     private static PublicDungeon.Loot staff(PublicDungeon view) {
         return view.belongings.stream().filter(i->i.kind.equals("STAFF") && i.slot.equals("WEAPON")).findFirst().get();
+    }
+    /** Compare the live incremental result with fresh original tilemaps for the exact retained seat image. */
+    private static void verifyLayerUpdate(Group board) throws Exception {
+        Field field=board.getClass().getDeclaredField("view"); field.setAccessible(true);
+        com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonRenderMap map=
+                new com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonRenderMap((PublicDungeon)field.get(board));
+        field=board.getClass().getDeclaredField("layers"); field.setAccessible(true);
+        Tilemap[] actual=(Tilemap[])field.get(board);
+        Tilemap[] expected={new DungeonTerrainTilemap(map),map.nestLayer(),new WallOcclusionTilemap(map),
+                new TerrainFeaturesTilemap(map),new RaisedTerrainTilemap(map),new DungeonWallsTilemap(map),
+                new WallBlockingTilemap(map)};
+        field=Tilemap.class.getDeclaredField("data"); field.setAccessible(true);
+        try {
+            for (int i=0;i<actual.length;i++) {
+                if (!Arrays.equals((int[])field.get(actual[i]),(int[])field.get(expected[i])))
+                    throw new AssertionError("Incremental layer differs from full rebuild: "+actual[i].getClass().getSimpleName());
+            }
+        } finally {for (Tilemap layer:expected) layer.destroy();}
+        System.out.println("PASS incremental native layers equal full rebuild after movement");
     }
     private static Point inventoryPoint(String kind) throws Exception {
         long id=frame().dungeon.belongings.stream().filter(item->item.kind.equals(kind)).findFirst().get().id;
@@ -448,6 +469,7 @@ public final class CoopRenderSmoke {
             Gizmo hudBefore=render(()->find(Game.scene(),g->g.getClass().getSimpleName().equals("CoopHud")));
             Gizmo inputBefore=render(()->find(boardBefore,g->g instanceof PointerArea));
             press(mapPoint(before,target)); await(()->frame().dungeon.pos==target); await(()->frame().dungeon.offered);
+            render(()->{ verifyLayerUpdate((Group)boardBefore); return null; });
             if (!render(()->find(Game.scene(),g->g==boardBefore)==boardBefore && find(Game.scene(),g->g==hudBefore)==hudBefore
                     && find(boardBefore,g->g==inputBefore)==inputBefore))
                 throw new AssertionError("An ordinary move recreated the floor, HUD or touch listener");

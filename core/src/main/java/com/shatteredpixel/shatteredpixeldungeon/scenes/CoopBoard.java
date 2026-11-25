@@ -68,12 +68,20 @@ final class CoopBoard extends Group {
     void refresh(PublicDungeon next, String cue) {
         if (view==next && cue.isEmpty() && !sprites.isEmpty()) return;
         if (view.source != next.source && map.apply(next)) {
-            for (Tilemap layer : layers) layer.updateMap();
-            fog.updateFog();
+            com.watabou.utils.Rect area=map.changedArea();
+            for (int y=area.top; y<area.bottom; y++) for (int x=area.left; x<area.right; x++) {
+                int cell=y*next.width+x;
+                for (Tilemap layer:layers) {
+                    if (layer instanceof DungeonTilemap) ((DungeonTilemap)layer).updateVisualCell(cell);
+                    else layer.updateMapCell(cell);
+                }
+            }
+            fog.updateFog(area);
         }
+        boolean follow=sprites.isEmpty() || view.pos!=next.pos;
         view = next;
         PointF center = center(view.pos);
-        camera.snapTo(center);
+        if (follow) camera.snapTo(center);
         inputArea.x = center.x - inputArea.width()/2;
         inputArea.y = center.y - inputArea.height()/2;
 

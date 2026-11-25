@@ -72,8 +72,27 @@ public class UpstreamGraphicsReference {
         if (!boss) {
             Window bag=render(()->{Window w=new WndBag(Dungeon.hero.belongings.backpack);GameScene.show(w);return w;});
             shot("inventory");
-            render(()->{bag.hide();GameScene.show(new WndHero());return null;});
+            Window hero=render(()->{bag.hide();Window w=new WndHero();GameScene.show(w);return w;});
             shot("character");
+            render(()->{
+                hero.hide();
+                Level level=Dungeon.level;
+                for (int door=0;door<level.length();door++) {
+                    if (level.map[door]!=com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.LOCKED_DOOR) continue;
+                    for (int delta:com.watabou.utils.PathFinder.NEIGHBOURS8) {
+                        int cell=door+delta;
+                        if (!level.passable[cell] || level.findMob(cell)!=null || level.heaps.get(cell)!=null) continue;
+                        Dungeon.hero.pos=cell;
+                        Dungeon.hero.sprite.place(cell);
+                        Dungeon.observe();
+                        GameScene.updateMap();
+                        com.watabou.noosa.Camera.main.snapTo(Dungeon.hero.sprite.center());
+                        return null;
+                    }
+                }
+                throw new AssertionError("Seed 402 locked door missing");
+            });
+            shot("locked-door");
         }
     }
     public static void main(String[] args) throws Exception {

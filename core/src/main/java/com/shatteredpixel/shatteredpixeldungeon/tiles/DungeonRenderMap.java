@@ -15,6 +15,14 @@ public class DungeonRenderMap {
     private final int[] nest;
     private final Level solo;
     private PublicDungeon seat;
+    private final com.watabou.utils.Rect changedCells = new com.watabou.utils.Rect();
+
+    /** Native tile stitching, wall masking and fog sample neighbouring cells. */
+    public com.watabou.utils.Rect changedArea() {
+        return new com.watabou.utils.Rect(
+                Math.max(0,changedCells.left-2),Math.max(0,changedCells.top-2),
+                Math.min(width,changedCells.right+2),Math.min(height,changedCells.bottom+2));
+    }
 
     private DungeonRenderMap(Level level) {
         solo=level; nest=null;
@@ -44,15 +52,19 @@ public class DungeonRenderMap {
     public boolean apply(PublicDungeon view) {
         if (view.width!=width || view.height!=height || view.depth!=depth) throw new IllegalArgumentException("Different floor");
         boolean changed=false;
+        changedCells.setEmpty();
         for (int i=0;i<tiles.length;i++) {
             int terrain=view.terrain(i);
             boolean seen=view.visible(i), mapOnly=!seen && terrain>=0 && view.source.mappedOnly(i);
             String detail=view.source.rows.get("nest"+i);
             int frame=terrain>=0 && !mapOnly && detail!=null ? Integer.parseInt(detail) : -1;
             if (frame < -1 || frame > 8) throw new IllegalArgumentException("Nest frame");
-            if (nest[i]!=frame) changed=true;
+            if (nest[i]!=frame || tiles[i]!=terrain || visible[i]!=seen || mapped[i]!=mapOnly
+                    || feature(i)!=feature(view,i)) {
+                changed=true;
+                changedCells.union(i%width,i/width);
+            }
             nest[i]=frame;
-            if (tiles[i]!=terrain || visible[i]!=seen || mapped[i]!=mapOnly || feature(i)!=feature(view,i)) changed=true;
             tiles[i]=terrain; visible[i]=seen; mapped[i]=mapOnly;
             visited[i]=terrain>=0 && !mapOnly; discoverable[i]=terrain>=0;
         }
