@@ -1,5 +1,9 @@
 # Cloud에서 빌드하기
 
+## 감옥 9층 개발판
+
+APK 빌드 커밋은 41c3efd다. 전체 JUnit과 Android APK는 `scripts/verify-android-build.sh <새 디렉터리>`로 검사한다. 검증 커밋의 `python3 scripts/verify-prison-nine-surveys.py <APK 소스 작업 트리>`는 연속 시드와 네 보스방 번들을 확인한다. `python3 scripts/verify-summon-latency.py <APK 소스 작업 트리>`는 독립 클라이언트의 실제 소환 확정 지연을 측정한다. Java 및 Android 도구 경로는 아래 Cloud 빌드 설정을 따른다. [빌드와 결과](docs/coop/prison-nine-results.md)
+
 Drive 발행은 전체 회귀·APK 서명·GitHub 원격 확인 후 세션 마지막에 한 번 수행한다. 기존 01_Latest에서 SPD-Coop-latest.apk와 APK를 제외한 SPD-Coop-latest-backup.zip만 관리한다. 세션당 전송 상한은 각각 한 개다. [백업 절차](BACKUP-AND-DELIVERABLES.md)
 
 ## 감옥 7층 의뢰와 독 다트 개발판

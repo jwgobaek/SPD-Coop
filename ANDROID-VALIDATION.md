@@ -1,5 +1,9 @@
 # Android validation backlog
 
+## 감옥 9층 빌드
+
+Android 기기·에뮬레이터 시험은 NOT RUN이다. 설치·실행, 실제 화면·터치·핀치·회전, 백그라운드 복귀, Keystore, 무선 LAN·핫스팟, 오프라인 무선망, 저장 내구성과 기기 발열·성능이 남아 있다. Cloud APK 패키지 검사와 Desktop 화면 증거는 별도로 집계한다.
+
 ## Prison quest checkpoint
 
 NOT RUN on Android for quest dialog touch, orientation and lifecycle, install/launch, Keystore, LAN/hotspot, storage durability and mobile performance. Korean and English desktop input use the same cooperative dialogue controller.

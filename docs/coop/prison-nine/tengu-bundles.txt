@@ -1,0 +1,4 @@
+NATIVE_BOSS_BUNDLE START id=18 scheduled_resident=false stored_items=0 locked=false
+NATIVE_BOSS_BUNDLE FIGHT_START id=18 scheduled_resident=true stored_items=0 locked=true
+NATIVE_BOSS_BUNDLE FIGHT_PAUSE id=18 scheduled_resident=false stored_items=2 locked=true
+NATIVE_BOSS_BUNDLE FIGHT_ARENA id=18 scheduled_resident=true stored_items=2 locked=true

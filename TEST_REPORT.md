@@ -1,6 +1,10 @@
 # SPD-Coop 클라우드 실행 보고
 
-## 현재 검증판 · 5e22a74
+## 감옥 9층 · 41c3efd
+
+기준 커밋 b3579c7의 JUnit 153/153 PASS. 최종 APK 소스 41c3efd는 168/168 PASS이며 이전 153건이 모두 포함된다. 신규 15건, 실패·오류·건너뜀 0건이다. 계단 배치 12/12, 실제 구버전 저장 1~5와 새 9층 저장, 강제 종료 후 소환·시전·함정·계단 영수증 복원, 한국어·영어 Desktop, 기존 개발 인증서 v1·v2 검사에 통과했다. 정상 출발 두 시드의 감옥 완주는 FAIL이며 Tengu 처치·10층 운영 진입·11층·Android 실행은 NOT RUN이다. [원자료·성능·미완료 상태](docs/coop/prison-nine-results.md)
+
+## 이전 검증판 · 5e22a74
 
 APK 빌드 152/152 PASS, 먼지 소지자의 전투 불능·부활 시험을 포함한 전체 회귀 153/153 PASS. 세 의뢰, 휴대 마력탄·독 다트의 원격 장애 시험, 한국어·영어 Desktop 입력을 실행했다. [시드와 측정 결과](docs/coop/wandmaker-results.md) · [JUnit·장애 복구·서명·화면 ZIP](docs/coop/prison-wandmaker-evidence.zip)
 

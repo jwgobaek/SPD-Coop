@@ -1,5 +1,9 @@
 # 작업 시작 순서
 
+## 9층 회귀 및 다음 실행
+
+coop/phase8 원격 HEAD에서 시작한다. 시험 배치 12개 시드, 정상 출발 두 시드, Tengu 원본 Level 번들 시험을 구분한다. APK 소스 체크아웃을 인자로 scripts/verify-prison-nine-surveys.py를 실행하면 계단 및 별도 JVM 보스방 검사 결과를 재현할 수 있다. [기록](docs/coop/prison-nine-results.md)
+
 Drive 발행은 전체 회귀·APK 서명·GitHub 원격 확인 후 세션 마지막에 한 번 수행한다. 기존 01_Latest에서 SPD-Coop-latest.apk와 APK를 제외한 SPD-Coop-latest-backup.zip만 관리한다. 세션당 전송 상한은 각각 한 개다. [백업 절차](BACKUP-AND-DELIVERABLES.md)
 
 ## 감옥 7층 회귀

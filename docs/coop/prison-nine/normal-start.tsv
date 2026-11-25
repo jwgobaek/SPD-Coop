@@ -1,0 +1,5 @@
+seed	prison_supplies	depth6_actions	starting_hp_acting_ally	gold	inputs_with_visible_stock	visible_enemies	depth6_verbs	outcome
+581	false	78	30/7	0	0	Skeleton,Thief	MOVE=18,SEARCH=2,SHOOT=8,WAIT=46,ZAP=4	PARTY_DEFEATED_6
+581	true	78	30/7	0	0	Skeleton,Thief	MOVE=18,SEARCH=2,SHOOT=8,WAIT=46,ZAP=4	PARTY_DEFEATED_6
+1105	false	33	20/30	92	0	Skeleton	ATTACK=2,MOVE=16,SEARCH=2,SHOOT=9,ZAP=4	PARTY_DEFEATED_6
+1105	true	33	20/30	92	0	Skeleton	ATTACK=2,MOVE=16,SEARCH=2,SHOOT=9,ZAP=4	PARTY_DEFEATED_6
