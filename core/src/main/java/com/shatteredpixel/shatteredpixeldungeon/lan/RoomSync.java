@@ -230,7 +230,8 @@ final class RoomSync {
                 return "APPLIED_STOPPED";
             }
             Mob defeated=target instanceof Mob && ((Mob)target).wasDefeatedBy(game.hero(seat)) ? (Mob)target : null;
-            String detail=targeted || action==CoopSession.Action.THROW ? verb+","+cell : verb;
+            String displayVerb=action==CoopSession.Action.THROW && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "KNIFE" : verb;
+            String detail=targeted || action==CoopSession.Action.THROW ? displayVerb+","+cell : verb;
             commit(defeated,seat,id+","+detail+",APPLIED","IN_GAME");
             return "APPLIED";
         } catch (RuntimeException failure) {

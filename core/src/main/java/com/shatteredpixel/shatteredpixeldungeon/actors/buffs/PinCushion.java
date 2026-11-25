@@ -39,7 +39,7 @@ public class PinCushion extends Buff {
 
 	public void stick(MissileWeapon projectile){
 		for (int i = 0; i < items.size(); i++) {
-			if (projectile.isSimilar(items.get(i))) {
+			if (Dungeon.coop == null ? projectile.isSimilar(items.get(i)) : projectile.canStackWith(items.get(i))) {
 				projectile.merge(items.get(i));
 				items.set(i, projectile);
 				if (TippedDart.lostDarts > 0) {
@@ -69,7 +69,7 @@ public class PinCushion extends Buff {
 	@Override
 	public void detach() {
 		for (Item item : items)
-			Dungeon.level.drop( item, target.pos).sprite.drop();
+			Dungeon.level.drop( item, target.pos).animateDrop();
 		super.detach();
 	}
 

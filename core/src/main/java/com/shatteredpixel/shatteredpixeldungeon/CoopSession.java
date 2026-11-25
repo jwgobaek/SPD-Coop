@@ -467,8 +467,9 @@ public final class CoopSession implements AutoCloseable {
         return basicArmorType(item) || basicWeaponType(item);
     }
 
-    public static boolean basicStone(Item item) {
-        return item!=null && item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone.class
+    public static boolean basicMissile(Item item) {
+        return item!=null && (item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone.class
+                || item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife.class)
                 && !item.cursed && ((Weapon)item).enchantment==null && item.trueLevel()==0;
     }
 
@@ -634,7 +635,7 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && item.getClass()!=GooBlob.class && !(item instanceof Potion) && !supportedScroll(item) && !basicStone(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && item.getClass()!=GooBlob.class && !(item instanceof Potion) && !supportedScroll(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
                             || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !hero.belongings.backpack.canHold(item))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
@@ -653,12 +654,12 @@ public final class CoopSession implements AutoCloseable {
                     item.execute(hero, Potion.AC_DRINK);
                     break;
                 case THROW:
-                    if (!basicStone(item) || !level.insideMap(cell) || !knowledge(activeSeat).visible(cell)
+                    if (!basicMissile(item) || !level.insideMap(cell) || !knowledge(activeSeat).visible(cell)
                             || cell==hero.pos || level.solid[cell] || !supportedLanding(cell) || level.getTransition(cell)!=null) return false;
                     Char hit=Actor.findChar(cell);
                     if (hit!=null && (!(hit instanceof Mob) || hit.alignment!=Char.Alignment.ENEMY || !basicMob(hit)
                             || !hit.isAlive() || hit.invisible>0 || hero.isCharmedBy(hit))) return false;
-                    if (!((com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon)item).throwStoneInCoop(hero,cell)) return false;
+                    if (!((com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon)item).throwInCoop(hero,cell)) return false;
                     if (hit!=null) { lastOpponent[activeSeat]=(Mob)hit; attackTurn[activeSeat]=turn; }
                     break;
                 case SHOOT:
@@ -865,6 +866,11 @@ public final class CoopSession implements AutoCloseable {
     static Map<String,Item> floorItems(Level level) {
         Map<String,Item> result=new TreeMap<>();
         for (Mob mob : level.mobs) {
+            com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PinCushion pins=mob.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PinCushion.class);
+            if (pins!=null) {
+                int index=0;
+                for (Item stuck:pins.getStuckItems()) result.put("pin"+mob.id()+"_"+index++,stuck);
+            }
             if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper) {
                 int index=0;
                 com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper keeper=(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper)mob;

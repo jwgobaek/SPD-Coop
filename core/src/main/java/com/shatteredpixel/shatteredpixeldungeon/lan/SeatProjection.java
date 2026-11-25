@@ -190,9 +190,11 @@ final class SeatProjection {
                 if (game.ownership.owner(item)==game.player(seat)) {
                     if (shop!=null && com.shatteredpixel.shatteredpixeldungeon.CoopTrade.maySell(hero,item))
                         rows.put("sell"+ids.get(item),item.value()+","+(com.shatteredpixel.shatteredpixeldungeon.CoopTrade.sellOne(item) ? 1 : 0));
-                    if (CoopSession.basicStone(item) && item.isIdentified())
-                        rows.put("family"+ids.get(item),"stone."+StateImage.hash(shortcutSalt+"/stone/"+
-                                ((com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone)item).setID).substring(0,32));
+                    if (CoopSession.basicMissile(item) && item.isIdentified()) {
+                        String family=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "knife" : "stone";
+                        rows.put("family"+ids.get(item),family+"."+StateImage.hash(shortcutSalt+"/"+family+"/"+
+                                ((com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon)item).setID).substring(0,32));
+                    }
                     if (CoopSession.equipmentForScroll(item))
                         rows.put("select"+ids.get(item),selection+","+(item.isUpgradable()?1:0)+","+(item.isIdentified()?0:1));
                     // Only an owned item in this seat's actual inventory gets a shortcut reference.
@@ -267,7 +269,8 @@ final class SeatProjection {
         if (!slot.startsWith("F") && CoopSession.supportedScroll(item)
                 && ((com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll)item).isKnown())
             kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade ? "UPGRADE" : "IDENTIFY";
-        if (!slot.startsWith("F") && CoopSession.basicStone(item) && item.isIdentified()) kind="STONE";
+        if (!slot.startsWith("F") && CoopSession.basicMissile(item) && item.isIdentified())
+            kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "KNIFE" : "STONE";
         String charges="";
         if (!slot.startsWith("F") && item instanceof MagesStaff) {
             WandOfMagicMissile wand=((MagesStaff)item).starterWand();

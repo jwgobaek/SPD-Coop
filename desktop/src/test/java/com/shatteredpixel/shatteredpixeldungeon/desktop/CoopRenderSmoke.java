@@ -26,11 +26,12 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean market,armored,scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
+    private static boolean knife,market,armored,scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        scribe=args.length>1 && args[1].equals("scrolls");
+        knife=args.length>1 && args[1].equals("knife");
+        scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
         prison=market || args.length>1 && args[1].equals("prison");
         controls=args.length>1 && args[1].equals("controls");
@@ -603,6 +604,20 @@ public final class CoopRenderSmoke {
                 return;
             }
             if (scribe) {
+                if (knife) {
+                    RenderEncounter.arrange(hostController());
+                    RenderEncounter.knives(hostController()); waitAndRegainTurn();
+                    PublicDungeon initial=frame().dungeon;
+                    PublicDungeon.Loot item=initial.belongings.stream().filter(i->i.kind.equals("KNIFE")).findFirst().get();
+                    hold("slot4"); press(inventoryPoint(item.id));
+                    await(()->frame().quickslots.item(3,frame().dungeon)!=null && frame().quickslots.item(3,frame().dungeon).kind.equals("KNIFE"));
+                    click("slot4"); await(()->button("cancel")!=null); shot("knife-aim");
+                    int rat=initial.monsters.entrySet().stream().filter(e->e.getValue().equals("Rat")).findFirst().get().getKey();
+                    press(mapPoint(initial,rat));
+                    await(()->frame().dungeon.belongings.stream().anyMatch(i->i.kind.equals("KNIFE") && i.quantity==item.quantity-1));
+                    shot("knife-after-throw");
+                    return;
+                }
                 RenderEncounter.scrolls(hostController()); click("wait");
                 await(()->frame().dungeon.offered && frame().dungeon.belongings.stream().anyMatch(x->x.kind.equals("IDENTIFY")));
                 for (String verb:new String[]{"IDENTIFY","UPGRADE"}) {

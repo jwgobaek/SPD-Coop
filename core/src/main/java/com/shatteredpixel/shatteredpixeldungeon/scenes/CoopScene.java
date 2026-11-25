@@ -72,9 +72,9 @@ public class CoopScene extends PixelScene {
         boolean bow=targetStaff.kind.equals("BOW");
         String actor=view.monsters.get(cell);
         boolean enemy=actor!=null && !"Shopkeeper".equals(actor) && !"Sheep".equals(actor) && !"Sentry".equals(actor) && !"Ghost".equals(actor) && !"RatKing".equals(actor);
-        boolean stone=targetStaff.kind.equals("STONE");
-        if (targetView==view && (enemy || (stone && actor==null && view.visible(cell)) || (!stone && !bow && view.chest(cell)))
-                && controller.act(view.source,stone?"THROW":bow?"SHOOT":"ZAP",cell,targetStaff.id)) cancelAim();
+        boolean missile=targetStaff.kind.equals("STONE") || targetStaff.kind.equals("KNIFE");
+        if (targetView==view && (enemy || (missile && actor==null && view.visible(cell)) || (!missile && !bow && view.chest(cell)))
+                && controller.act(view.source,missile?"THROW":bow?"SHOOT":"ZAP",cell,targetStaff.id)) cancelAim();
     }
     private void talkToGhost(PublicDungeon view,int cell,String offer) {
         Class<?> ghost=com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost.class;

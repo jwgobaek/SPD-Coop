@@ -89,3 +89,7 @@ Linux JVM 테스트는 파일 기록, 검증, HEAD 교체 전후에서 자식 �
 ### Prison merchant custody
 
 Schema 4 keeps the shared gold in the native world bundle and the latest three sold objects in Shopkeeper.buyback_items. Each physical object there has an ownership entry keyed by shop, the keeper's Actor ID and its list index. On load the item class, quantity, original owner and unique physical ID are checked against that same generation. Dormant records use the same location convention. New code can read earlier schema 4 worlds with empty merchant histories.
+
+### Projectiles held by monsters
+
+A supported knife in PinCushion stays in the original buff's items array. Its owner and physical ID are recorded as pin<monster ID>_<array index>. Both active and dormant object walks use that ordering. A surviving missile may merge only with a compatible stack belonging to the same owner. Native death/drop and native durability decide whether a floor object exists. The renderer receives no list of projectiles hidden in monsters.

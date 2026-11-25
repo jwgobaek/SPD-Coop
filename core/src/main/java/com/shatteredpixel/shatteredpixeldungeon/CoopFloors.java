@@ -252,6 +252,15 @@ public final class CoopFloors {
             }
         }
         for(Bundle mob:floor.getBundleArray("mobs")) {
+            for (Bundle buff:mob.getBundleArray("buffs")) {
+                if (!buff.getString("__className").equals(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PinCushion.class.getName())) continue;
+                int index=0;
+                for (Bundle item:buff.getBundleArray("items")) {
+                    Bundle entry=entries.getBundle("pin"+mob.getInt("id")+"_"+index++);
+                    inspectItem(item,entry);
+                    count++;
+                }
+            }
             if (mob.getString("__className").equals(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.class.getName())) {
                 int index=0;
                 for (Bundle item:mob.getBundleArray("buyback_items")) {

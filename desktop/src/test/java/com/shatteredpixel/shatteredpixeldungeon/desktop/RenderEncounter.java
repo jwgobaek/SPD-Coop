@@ -93,6 +93,16 @@ final class RenderEncounter {
         }).get(5,TimeUnit.SECONDS);
     }
 
+    static void knives(CoopController client) throws Exception {
+        Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
+        Object room=host.get(client);
+        Field executor=room.getClass().getDeclaredField("owner"); executor.setAccessible(true);
+        ((ExecutorService)executor.get(room)).submit(()->{
+            if (!new com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife().identify(false)
+                    .collect(Dungeon.coop.hero(0).belongings.backpack)) throw new AssertionError("Test bag full");
+        }).get(5,TimeUnit.SECONDS);
+    }
+
     static void scrolls(CoopController client) throws Exception {
         Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
         Object room=host.get(client);

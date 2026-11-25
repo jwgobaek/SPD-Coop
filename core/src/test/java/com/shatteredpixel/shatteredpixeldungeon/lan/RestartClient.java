@@ -144,7 +144,7 @@ public final class RestartClient {
                 assertEquals("ERROR VERSION", old.request("MODE SYNC12"));
             }
         }
-        if (special || mode.startsWith("scribe") || RestartHost.kit(mode) || RestartHost.newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
+        if (special || mode.startsWith("scribe") || RestartHost.kit(mode) || RestartHost.knife(mode) || RestartHost.newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
             for(int i=0;i<2;i++) {
                 assertTrue(clients[i].request(i==0 ? RestartHost.read(path,"endpoint").split("\n")[1] : "JOIN").startsWith("JOINED"));
                 keys[i]=SeatCredential.generate();
@@ -195,6 +195,20 @@ public final class RestartClient {
                 RestartHost.write(path,"kill-before-reply","1");
                 assertThrows(IOException.class,()->read.submit(clients[seat]));
                 return;
+            }
+            if (RestartHost.knife(mode)) {
+                int seat=mode.charAt(5)-'0';
+                int cell=Integer.parseInt(RestartHost.read(path,"pin-target").split(" ")[1]);
+                for (int n=0;n<7;n++) {
+                    offer(seat);
+                    long handle=item(seat,"BAG","KNIFE"); assertTrue(handle>0);
+                    SeatActions.Pending shot=actions[seat].prepare(state(seat),"THROW",cell,handle);
+                    RestartHost.write(path,"pin-pending",seat+" "+shot.id+" "+shot.command);
+                    try { String result=shot.submit(clients[seat]); assertTrue(result,result.endsWith(" APPLIED")); }
+                    catch (IOException lost) { return; }
+                    refresh();
+                }
+                fail("No native knife lodged in the target");
             }
             if (RestartHost.kit(mode)) {
                 int seat=mode.charAt(3)-'0'; offer(seat);
@@ -381,6 +395,16 @@ public final class RestartClient {
             assertEquals(before,state(seat).version);
             act("WAIT",0,0);
             return;
+        }
+        if (mode.equals("pin-receipt")) {
+            String[] old=RestartHost.read(path,"pin-pending").split(" ",3);
+            int seat=Integer.parseInt(old[0]); long version=state(seat).version;
+            String receipt=clients[seat].request("LOOKUP "+epoch+" "+old[1]);
+            assertTrue(receipt,receipt.endsWith(" APPLIED"));
+            assertEquals(receipt,clients[seat].request(old[2])); refresh();
+            assertEquals(version,state(seat).version);
+            assertTrue(new PublicDungeon(state(seat)).belongings.stream().anyMatch(i->i.kind.equals("KNIFE") && i.quantity<3));
+            act("WAIT",0,0); return;
         }
         if (mode.equals("kit-receipt")) {
             String[] old=RestartHost.read(path,"bow-action").split(" ",3);

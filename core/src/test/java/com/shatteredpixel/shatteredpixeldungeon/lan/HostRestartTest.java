@@ -26,6 +26,10 @@ public class HostRestartTest {
                 "market-buy1","market-sell1","market-reclaim1","market-finish1"});
     }
 
+    @Test(timeout=80000) public void nativeStuckKnifeSurvivesProcessDeathOnEachSeat() throws Exception {
+        for (int seat=0;seat<2;seat++) run(temp.newFolder().toPath(),new String[]{"knife"+seat,"pin-receipt"});
+    }
+
     @Test(timeout=100000) public void selectedScrollTargetAndSpentScrollShareOneDurableReceipt() throws Exception {
         for (int seat=0;seat<2;seat++) run(temp.newFolder().toPath(),new String[]{"scribe"+seat,"readscroll"});
     }
@@ -150,7 +154,7 @@ public class HostRestartTest {
                 }
                 RestartHost.write(dir,"stop","1");
                 assertTrue(host.waitFor(10,TimeUnit.SECONDS));
-                assertEquals(RestartHost.read(dir,"RestartHost.log"),(mode.startsWith("kill_") || mode.equals("ascendfault"))?80:(mode.startsWith("market-") && !mode.startsWith("market-finish") || RestartHost.plant(mode) || RestartHost.kit(mode) || mode.equals("goo") || RestartHost.hazard(mode) || mode.equals("unstable") || mode.equals("armored") || mode.startsWith("scribe") || mode.equals("revive") || mode.equals("walk") || mode.equals("quest") || (mode.equals("mimic") || mode.equals("golden")) || mode.equals("crystal-open") || mode.equals("crystal-fight") || mode.startsWith("cast"))?78:mode.equals("soak")?79:0,host.exitValue());
+                assertEquals(RestartHost.read(dir,"RestartHost.log"),(mode.startsWith("kill_") || mode.equals("ascendfault"))?80:(mode.startsWith("market-") && !mode.startsWith("market-finish") || RestartHost.knife(mode) || RestartHost.plant(mode) || RestartHost.kit(mode) || mode.equals("goo") || RestartHost.hazard(mode) || mode.equals("unstable") || mode.equals("armored") || mode.startsWith("scribe") || mode.equals("revive") || mode.equals("walk") || mode.equals("quest") || (mode.equals("mimic") || mode.equals("golden")) || mode.equals("crystal-open") || mode.equals("crystal-fight") || mode.startsWith("cast"))?78:mode.equals("soak")?79:0,host.exitValue());
                 if (mode.startsWith("market-")) for (String line:RestartHost.read(dir,"RestartHost.log").split("\\R"))
                     if (line.startsWith("trade publication ")) System.out.println(line);
                 if(mode.equals("verifyfloor")) for(String metric:new String[]{"perf1","perf2","perf-travel"})

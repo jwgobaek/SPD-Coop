@@ -273,8 +273,8 @@ abstract public class MissileWeapon extends Weapon {
 		resolveThrow(curUser,cell);
 	}
 
-	public boolean throwStoneInCoop(Hero user,int cell) {
-		if (!com.shatteredpixel.shatteredpixeldungeon.CoopSession.basicStone(this)
+	public boolean throwInCoop(Hero user,int cell) {
+		if (!com.shatteredpixel.shatteredpixeldungeon.CoopSession.basicMissile(this)
 				|| !user.belongings.backpack.contains(this)
 				|| new com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica(user.pos,cell,
 					com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica.PROJECTILE).collisionPos!=cell) return false;
@@ -284,10 +284,10 @@ abstract public class MissileWeapon extends Weapon {
 		MissileWeapon unit=null;
 		try {
 			// Preserve the ordinary trajectory roll on accepted throws.
-			if (throwPos(user,cell)!=cell) throw new IllegalStateException("Unexpected stone trajectory");
+			if (throwPos(user,cell)!=cell) throw new IllegalStateException("Unexpected missile trajectory");
 			parent=null;
 			unit=(MissileWeapon)detach(user.belongings.backpack);
-			if (unit==null) throw new IllegalStateException("Missing thrown stone");
+			if (unit==null) throw new IllegalStateException("Missing thrown missile");
 			unit.coopThrower=user;
 			if (!occupied) user.spend(delay);
 			unit.resolveThrow(user,cell);

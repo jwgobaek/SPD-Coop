@@ -104,7 +104,7 @@ actors/buffs/Ooze	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixe
 actors/buffs/Paralysis	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Paralysis.java
 actors/buffs/Paralysis.ParalysisResist	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Paralysis.java
 actors/buffs/PhysicalEmpower	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/PhysicalEmpower.java
-actors/buffs/PinCushion	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/PinCushion.java
+actors/buffs/PinCushion	actors/buffs	VERIFIED	two owners, native death/drop, dormant and active physical IDs / PrisonProjectileTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/PinCushion.java
 actors/buffs/Poison	actors/buffs	VERIFIED	lethal damage and pre-death HP from a damage tick / CoopSessionTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Poison.java
 actors/buffs/Preparation	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Preparation.java
 actors/buffs/PrismaticGuard	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/PrismaticGuard.java
@@ -1172,7 +1172,7 @@ items/weapon/missiles/Shuriken	items/weapon/missiles	UNSUPPORTED		core/src/main/
 items/weapon/missiles/Shuriken.ShurikenInstantTracker	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/Shuriken.java
 items/weapon/missiles/ThrowingClub	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingClub.java
 items/weapon/missiles/ThrowingHammer	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingHammer.java
-items/weapon/missiles/ThrowingKnife	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingKnife.java
+items/weapon/missiles/ThrowingKnife	items/weapon/missiles	VERIFIED	plain unmodified native projectile, both seats, lodging and durable receipt after host death / PrisonProjectileTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingKnife.java
 items/weapon/missiles/ThrowingSpear	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingSpear.java
 items/weapon/missiles/ThrowingSpike	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingSpike.java
 items/weapon/missiles/ThrowingStone	items/weapon/missiles	VERIFIED	plain unupgraded stone, native hit, wear, break, pickup, own-only stack and shortcut / CoopPlayInputTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingStone.java
