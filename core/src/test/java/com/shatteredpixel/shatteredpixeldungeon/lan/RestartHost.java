@@ -171,7 +171,19 @@ public final class RestartHost {
                 if (boundary.equals("revive") || boundary.equals("down")) {
                     int seat=1-Integer.parseInt(read(path,"boss-command").split(" ")[0]);
                     assertEquals(boundary.equals("revive") ? CoopSession.Life.ALIVE : CoopSession.Life.DOWNED,Dungeon.coop.life(seat));
-                    if (boundary.equals("revive")) assertEquals(5,Dungeon.coop.hero(seat).HP);
+                    assertEquals(17,Dungeon.coop.preDeathHP(seat));
+                    Hero victim = Dungeon.coop.hero(seat);
+                    if (boundary.equals("revive")) {
+                        // The published signature above fixes the exact HP after the arena's next actors.
+                        // The isolated room-entry test also checks 5 HP at an undamaged revival.
+                        int revivedHP = CoopSession.reviveHP(17,victim.HT);
+                        assertEquals(5,revivedHP);
+                        assertTrue(victim.HP > 0 && victim.HP <= revivedHP);
+                        assertNull(victim.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.Ankh.class));
+                    } else {
+                        assertEquals(0,victim.HP);
+                        assertNotNull(victim.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.Ankh.class));
+                    }
                 }
                 if (boundary.equals("devices")) {
                     Tengu boss=TenguArenaTest.boss();
