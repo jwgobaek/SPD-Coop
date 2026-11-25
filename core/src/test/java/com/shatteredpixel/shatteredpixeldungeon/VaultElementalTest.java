@@ -230,6 +230,68 @@ public class VaultElementalTest extends HeadlessDungeon {
         assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,cell,Dungeon.level.heaps.get(cell).peek()));
     }
 
+    static void earnVaultTokenAndEscape(CoopSession game) {
+        com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultShaman shaman=
+                SewerSpecialActorTest.actor(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultShaman.class);
+        int id=shaman.id();
+        for (int i=0;i<200 && shaman.isAlive();i++) CityKingTest.strike(game,shaman);
+        assertFalse(shaman.isAlive());
+        int drop=-1;
+        for (Heap heap:Dungeon.level.heaps.valueList())
+            if (heap.pos==shaman.pos && heap.peek() instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.DwarfToken) drop=heap.pos;
+        assertTrue("native shaman token at "+shaman.pos,drop>=0);
+        claimAt(game,drop);
+        MiningBranchTest.standBeside(game,game.hero(1-game.activeSeat()).pos);
+        game.observe(0); game.observe(1);
+        assertTrue(game.stairs.vaultScore()>=50 && game.stairs.vaultScore()<500);
+        CoopFloorsTest.cross(game);
+        assertNull(Actor.findById(id));
+    }
+
+    @Test public void seed578NativeVaultVariantsKeepTargetsSpellsAndTokenLoot() {
+        for(int seat=0;seat<2;seat++) {
+            try(CoopSession game=CavesInteriorTest.open(578)) {
+                ImpVaultTest.entrance(game);
+                CoopFloorsTest.cross(game);
+                assertTrue(Dungeon.level instanceof VaultLevel);
+                int[] types=new int[3];
+                for(Mob mob:Dungeon.level.mobs) {
+                    if(mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultElemental.Fire) types[0]++;
+                    if(mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultElemental.Frost) types[1]++;
+                    if(mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultShaman) types[2]++;
+                }
+                for(int n:types) assertTrue(n>0);
+                Mob shaman=CavesInteriorTest.stage(game,com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultShaman.class,seat);
+                int hp=game.hero(seat).HP, other=game.hero(1-seat).HP;
+                for(int i=0;i<18 && game.hero(seat).HP==hp;i++) waitTurn(game);
+                assertTrue(game.hero(seat).HP<hp);
+                assertEquals(other,game.hero(1-seat).HP);
+                assertTrue(shaman.createLoot() instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.DwarfToken);
+            }
+        }
+    }
+
+    @Test public void seed578FireAndFrostUseNativeMagicForEitherSeat() {
+        for (int seat=0; seat<2; seat++) for (boolean fire : new boolean[]{true,false}) {
+            try (CoopSession game=CavesInteriorTest.open(578)) {
+                ImpVaultTest.entrance(game);
+                CoopFloorsTest.cross(game);
+                Class<? extends Mob> type=fire
+                        ? com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultElemental.Fire.class
+                        : com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultElemental.Frost.class;
+                Class<? extends com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff> effect=fire
+                        ? com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning.class
+                        : com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Chill.class;
+                Mob elemental=CavesInteriorTest.stage(game,type,seat);
+                for (int i=0; i<24 && game.hero(seat).buff(effect)==null; i++) waitTurn(game);
+                assertNotNull(type.getSimpleName(),game.hero(seat).buff(effect));
+                assertNull(game.hero(1-seat).buff(effect));
+                assertTrue(elemental.createLoot() instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.DwarfToken);
+                game.checkpoint();
+            }
+        }
+    }
+
     public static void forScreen(CoopSession game) {
         move(game,enter(game));
         for(int i=0;i<35 && boss().warnedCells().isEmpty();i++) waitTurn(game);

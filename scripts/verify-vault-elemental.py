@@ -12,7 +12,8 @@ fixture = runpy.run_path(str(root / "scripts/verify-alpha-migration.py"))
 with TemporaryDirectory() as tmp:
     work = Path(tmp)
     cp = fixture["classpath"](root, work)
-    stages = sys.argv[1:] or ["replay", "spawn", "FIRE", "FROST", "SHOCK", "environment", "warning", "kill", "statue", "escape"]
+    stages = sys.argv[1:] or ["replay", "spawn", "FIRE", "FROST", "SHOCK", "environment", "warning", "kill", "statue", "escape",
+                               "ascent-offer", "ascent-agree", "ascent-24", "ascent-damage", "ascent-kill", "ascent-down", "ascent-revive", "ascent-20", "ascent-1", "ascent-surface"]
     for stage in stages:
         if stage == "replay":
             for form in ("write", "FIRE", "FROST", "SHOCK"):
@@ -24,9 +25,11 @@ with TemporaryDirectory() as tmp:
         room.mkdir()
         for op, code in (("setup", 0), ("commit", 78), ("read", 0)):
             try:
-                fixture["run"](root, cp, room, "tengu-"+op+"-elemental-"+stage, expected_exit=code)
+                fixture["run"](root, cp, room, "tengu-"+op+"-"+(stage if stage.startswith("ascent-") else "elemental-"+stage), expected_exit=code)
             except Exception:
                 print((room/"host.log").read_text()[-4000:], file=sys.stderr)
                 raise
+        for perf in room.glob("perf*"):
+            print(perf.read_text(), flush=True)
         size = max(p.stat().st_size for p in room.glob("coop-saves-v1/*/g*") if p.is_file())
         print("PASS", stage, "durable HEAD, reply lost, both seats authenticated and identical receipt; generation bytes", size, flush=True)

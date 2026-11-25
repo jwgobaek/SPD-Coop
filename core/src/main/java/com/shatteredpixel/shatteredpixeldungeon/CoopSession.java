@@ -189,7 +189,29 @@ public final class CoopSession implements AutoCloseable {
     private boolean partyDefeated;
 
     public Life life(int seat) { return lives[seat]; }
-    public enum Ending { NONE, OFFER, CONTINUING, PROPOSED, WON }
+    public enum Ending { NONE, OFFER, CONTINUING, PROPOSED, WON, ASCENT_PROPOSED, ASCENT_READY, ASCENDING, ASCENDED }
+    public boolean ascentHistory() { return ending==Ending.ASCENT_PROPOSED || ending==Ending.ASCENT_READY || ending==Ending.ASCENDING || ending==Ending.ASCENDED; }
+    public boolean won() { return ending==Ending.WON || ending==Ending.ASCENDED; }
+    public boolean chooseAscent(int seat) {
+        checkExecutor();
+        if (seat<0 || seat>1 || stairs.ascentGate()<0) return false;
+        if (ending==Ending.CONTINUING && seat==amuletOwner()) ending=Ending.ASCENT_PROPOSED;
+        else if (ending==Ending.ASCENT_PROPOSED && seat!=amuletOwner()) ending=Ending.ASCENT_READY;
+        else return false;
+        return true;
+    }
+    void startAscent() {
+        if (ending!=Ending.ASCENT_READY) throw new IllegalStateException("Missing ascent assent");
+        com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff.affect(hero(amuletOwner()),com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge.class);
+        Statistics.highestAscent=25;
+        ending=Ending.ASCENDING;
+    }
+    void reachSurface() {
+        if (ending!=Ending.ASCENDING || Dungeon.depth!=1 || amuletOwner()<0 || Statistics.highestAscent!=1)
+            throw new IllegalStateException("Missing surface conditions");
+        Statistics.ascended=true;
+        ending=Ending.ASCENDED;
+    }
     private Ending ending = Ending.NONE;
     public Ending ending() { return ending; }
 
@@ -212,7 +234,7 @@ public final class CoopSession implements AutoCloseable {
         int owner=amuletOwner();
         if (owner<0 || seat<0 || seat>1 || ending==Ending.NONE || ending==Ending.WON) return false;
         if (!accept) {
-            if (ending!=Ending.PROPOSED && !(ending==Ending.OFFER && seat==owner)) return false;
+            if (ending!=Ending.PROPOSED && ending!=Ending.ASCENT_PROPOSED && ending!=Ending.ASCENT_READY && !(ending==Ending.OFFER && seat==owner)) return false;
             ending=Ending.CONTINUING;
         } else if (ending==Ending.PROPOSED && seat!=owner) {
             ending=Ending.WON;
@@ -223,7 +245,7 @@ public final class CoopSession implements AutoCloseable {
     }
 
     public boolean awaitingEnding() {
-        return ending==Ending.OFFER || ending==Ending.PROPOSED || ending==Ending.WON;
+        return ending==Ending.OFFER || ending==Ending.PROPOSED || ending==Ending.ASCENT_PROPOSED || won();
     }
 
     public boolean defeated() { return partyDefeated; }
@@ -565,15 +587,19 @@ public final class CoopSession implements AutoCloseable {
     public static boolean statueWeapon(Item item) {
         if (!(item instanceof MeleeWeapon)) return false;
         Class<?> base = item.getClass();
+        Weapon.Enchantment enchantment=((Weapon)item).enchantment;
         if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WarScythe.class)
-            return ((Weapon)item).enchantment instanceof Projecting;
+            return enchantment instanceof Projecting || enchantment instanceof Shocking;
+        if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Glaive.class) return enchantment instanceof Venomous;
+        if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Greataxe.class) return enchantment instanceof Projecting;
         if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Quarterstaff.class) return ((MeleeWeapon)item).enchantment instanceof Venomous;
         // Runic Slash is a hero ability. A statue uses the blade's tier-four passive damage curve.
         if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.RunicBlade.class)
             return ((Weapon)item).enchantment instanceof Shocking;
-        if (base==com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.AssassinsBlade.class
-                || base==com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Longsword.class)
-            return ((Weapon)item).enchantment instanceof Kinetic;
+        if (base==com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.AssassinsBlade.class)
+            return enchantment instanceof Kinetic || enchantment instanceof Shocking;
+        if (base==com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Longsword.class)
+            return enchantment instanceof Kinetic || enchantment instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling;
         if (base==Scimitar.class && ((Weapon)item).enchantment instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Elastic) return true;
         boolean extendedReach = base == Spear.class || base == Whip.class;
         // Innate reach and Projecting both use the original Weapon.reachFactor.
@@ -698,7 +724,7 @@ public final class CoopSession implements AutoCloseable {
     public boolean act(long player, long offeredTurn, Action action, int cell, Item item) {
         checkExecutor();
         restoredAfterTravel=false;
-        if (awaitingEnding()) return false;
+        if (awaitingEnding() || ending==Ending.ASCENT_READY && action!=Action.TRAVEL) return false;
         destinationBlocker=null;
         if (activeSeat < 0 || lives[activeSeat] != Life.ALIVE || players[activeSeat] != player || offeredTurn != turn || action == null) return false;
         if (action.requiresItem() && (item == null || !ownership.allowed(item, player))) return false;
@@ -961,7 +987,7 @@ public final class CoopSession implements AutoCloseable {
             }
             stairs.cancel();
             hero.curAction = null;
-            if (!stopped() && !partyDefeated) advance();
+            if (!stopped() && !partyDefeated && !won()) advance();
             return true;
         } catch (CoopFloors.UnsupportedDestination unsupported) {
             // Only a known destination admission failure can use this pre-action checkpoint.
@@ -1173,7 +1199,7 @@ public final class CoopSession implements AutoCloseable {
         if (Dungeon.coop!=null || Dungeon.hero!=null || Dungeon.level!=null) throw new IllegalStateException("Dungeon in use");
         Bundle world=b.getBundle("world"), floor=b.getBundle("floor");
         int schema=b.getInt("schema"),depth=world.getInt("depth");
-        if ((schema<1 || schema>14) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
+        if ((schema<1 || schema>15) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
                 (depth<1 || depth>CoopFloors.lastDepth(schema)) || (world.getInt("branch")!=0 && !(schema>=10 && world.getInt("branch")==1 && (CoopFloors.mineDepth(depth) || schema>=12 && CoopFloors.vaultDepth(depth)))) || world.getInt("challenges")!=0)
             throw new IllegalArgumentException("Unsupported world");
         int width=floor.getInt("width"), height=floor.getInt("height");
@@ -1242,6 +1268,21 @@ public final class CoopSession implements AutoCloseable {
         stairs.restore(b,ids);
         int schema=b.getInt("schema");
         ending=schema>=14 ? Ending.valueOf(b.getString("ending")) : Ending.NONE;
+        if ((ascentHistory() || stairs.hasVaultEncounter())!=(schema==15)) throw new IllegalArgumentException("Invalid ascent version");
+        int curses=0;
+        for (int seat=0;seat<2;seat++) {
+            if (heroes[seat].buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge.class)!=null) {
+                if (amuletOwner()!=seat) throw new IllegalArgumentException("Invalid curse carrier");
+                curses++;
+            }
+        }
+        boolean ascending=ending==Ending.ASCENDING || ending==Ending.ASCENDED;
+        if (curses!=(ascending?1:0) || Statistics.ascended!=(ending==Ending.ASCENDED)
+                || !ascending && Statistics.highestAscent!=0
+                || ascending && (Statistics.highestAscent<1 || Statistics.highestAscent>Dungeon.depth || Statistics.highestAscent>24)
+                || ending==Ending.ASCENDED && Dungeon.depth!=1
+                || (ending==Ending.ASCENT_PROPOSED || ending==Ending.ASCENT_READY) && (Dungeon.depth!=25 || Dungeon.branch!=0))
+            throw new IllegalArgumentException("Invalid party ascent");
         if (schema>=14) {
             int count=0;
             for (int seat=0;seat<2;seat++) for (Item item:hero(seat).belongings)
@@ -1259,7 +1300,7 @@ public final class CoopSession implements AutoCloseable {
             if (h.frozenInCoop()!=(lives[i]!=Life.ALIVE) ||
                     (lives[i]==Life.DOWNED && (resource(i)==null || preDeath[i]<=0)))
                 throw new IllegalArgumentException("Invalid casualty");
-            for (Actor buff : h.buffs()) if (buff.frozenInCoop()!=h.frozenInCoop()) throw new IllegalArgumentException("Buff clock");
+            for (Actor buff : h.buffs()) if (buff.frozenInCoop()!=(h.frozenInCoop() && !(buff instanceof com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge))) throw new IllegalArgumentException("Buff clock");
             if (b.contains("enemy"+i)) {
                 lastOpponent[i]=(Mob)Actor.findById(b.getInt("enemy"+i));
                 attackTurn[i]=b.getLong("hit"+i);

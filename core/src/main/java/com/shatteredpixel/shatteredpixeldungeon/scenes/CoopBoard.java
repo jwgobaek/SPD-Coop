@@ -336,6 +336,7 @@ final class CoopBoard extends Group {
                     case "GnollTrickster": sprite=new GnollTricksterSprite();break;
                     case "GreatCrab": sprite=new GreatCrabSprite();break;
                     case "Brute": sprite=new BruteSprite();break;
+                    case "VaultShaman": sprite=new ShamanSprite.Vault();break;
                     case "RedShaman": sprite=new ShamanSprite.Red();break;
                     case "CrystalGuardian": sprite="Green".equals(color) ? new CrystalGuardianSprite.Green() : "Red".equals(color) ? new CrystalGuardianSprite.Red() : new CrystalGuardianSprite.Blue();break;
                     case "CrystalSpire": sprite="Green".equals(color) ? new CrystalSpireSprite.Green() : "Red".equals(color) ? new CrystalSpireSprite.Red() : new CrystalSpireSprite.Blue();break;
@@ -345,11 +346,11 @@ final class CoopBoard extends Group {
                     case "DKMonk": case "Monk": sprite=new MonkSprite();break;
                     case "DKGolem": case "Golem": sprite=new GolemSprite();break;
                     case "Imp": sprite=new ImpSprite();break;
-                    case "FireElemental": sprite=new ElementalSprite.Fire();break;
+                    case "VaultFire": case "FireElemental": sprite=new ElementalSprite.Fire();break;
                     case "ShockElemental": sprite=new ElementalSprite.Shock();break;
                     case "DKGhoul": case "Ghoul": sprite=new GhoulSprite();break;
                     case "DKWarlock": case "Warlock": sprite=new WarlockSprite();break;
-                    case "FrostElemental": sprite=new ElementalSprite.Frost();break;
+                    case "VaultFrost": case "FrostElemental": sprite=new ElementalSprite.Frost();break;
                     case "GnollGuard": sprite=new GnollGuardSprite();break;
                     case "GnollSapper": sprite=new GnollSapperSprite();break;
                     case "Spinner": sprite=new SpinnerSprite();break;

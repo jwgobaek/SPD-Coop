@@ -24,7 +24,8 @@ final class CoopVault {
     private CoopVault() {}
 
     static boolean resident(Class<?> type) {
-        return type==VaultBossElemental.class || type==VaultDM100.class || type==VaultDM200.class || type==VaultGhoul.class || type==VaultGolem.class
+        return type==VaultElemental.Fire.class || type==VaultElemental.Frost.class || type==VaultShaman.class
+                || type==VaultBossElemental.class || type==VaultDM100.class || type==VaultDM200.class || type==VaultGhoul.class || type==VaultGolem.class
                 || type==VaultSkeleton.class || type==VaultLaser.class || type==VaultMirror.class
                 || type==VaultSentry.class || type==VaultTokenDoor.class;
     }

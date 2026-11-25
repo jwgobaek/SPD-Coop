@@ -102,8 +102,18 @@ public class AscensionChallenge extends Buff {
 		modifiers.put(Scorpio.class,        1.1f);
 	}
 
+	/** Solo has one carrier. A co-op party also has just one native curse. */
+	public static AscensionChallenge current() {
+		if (Dungeon.hero == null) return null;
+		AscensionChallenge curse=Dungeon.hero.buff(AscensionChallenge.class);
+		if (curse!=null || Dungeon.coop==null || Dungeon.coop.hero(1)==null) return curse;
+		return Dungeon.coop.hero(1).buff(AscensionChallenge.class);
+	}
+
+	public float stacks() { return stacks; }
+
 	public static float statModifier(Char ch){
-		if (Dungeon.hero == null || Dungeon.hero.buff(AscensionChallenge.class) == null){
+		if (Dungeon.hero == null || current() == null){
 			return 1;
 		}
 
@@ -126,11 +136,12 @@ public class AscensionChallenge extends Buff {
 
 	//distant mobs get constantly beckoned to the hero at 2+ stacks
 	public static void beckonEnemies(){
-		if (Dungeon.hero.buff(AscensionChallenge.class) != null
-				&& Dungeon.hero.buff(AscensionChallenge.class).stacks >= 2f){
+		if (current() != null
+				&& current().stacks >= 2f){
 			for (Mob m : Dungeon.level.mobs){
-				if (m.alignment == Char.Alignment.ENEMY && m.distance(Dungeon.hero) > 8) {
-					m.beckon(Dungeon.hero.pos);
+				Hero beacon = Dungeon.coop == null ? Dungeon.hero : Dungeon.coop.bossTarget(null,m.pos);
+				if (beacon != null && m.alignment == Char.Alignment.ENEMY && m.distance(beacon) > 8) {
+					m.beckon(beacon.pos);
 				}
 			}
 		}
@@ -138,9 +149,9 @@ public class AscensionChallenge extends Buff {
 
 	//mobs move at 2x speed when not hunting/fleeing at 4 stacks or higher
 	public static float enemySpeedModifier(Mob m){
-		if (Dungeon.hero.buff(AscensionChallenge.class) != null
+		if (current() != null
 				&& m.alignment == Char.Alignment.ENEMY
-				&& Dungeon.hero.buff(AscensionChallenge.class).stacks >= 4f
+				&& current().stacks >= 4f
 				&& m.state != m.HUNTING && m.state != m.FLEEING){
 			return 2;
 		}
@@ -150,8 +161,8 @@ public class AscensionChallenge extends Buff {
 
 	//hero speed is halved and capped at 1x at 6+ stacks
 	public static float modifyHeroSpeed(float speed){
-		if (Dungeon.hero.buff(AscensionChallenge.class) != null
-				&& Dungeon.hero.buff(AscensionChallenge.class).stacks >= 6f){
+		if (current() != null
+				&& current().stacks >= 6f){
 			return Math.min(speed/2f, 1f);
 		}
 
@@ -159,14 +170,18 @@ public class AscensionChallenge extends Buff {
 	}
 
 	public static boolean qualifiedForPacifist(){
-		if (Dungeon.hero.buff(AscensionChallenge.class) != null){
-			return !Dungeon.hero.buff(AscensionChallenge.class).stacksLowered;
+		if (current() != null){
+			return !current().stacksLowered;
 		}
 		return false;
 	}
 
-	public static void processEnemyKill(Char enemy){
-		AscensionChallenge chal = Dungeon.hero.buff(AscensionChallenge.class);
+	public static void processEnemyKill(Char enemy) {
+		processEnemyKill(enemy, Dungeon.coop==null ? Dungeon.hero : null);
+	}
+
+	public static void processEnemyKill(Char enemy, Hero recipient){
+		AscensionChallenge chal = current();
 		if (chal == null) return;
 
 		if (enemy instanceof Ratmogrify.TransmogRat){
@@ -204,8 +219,8 @@ public class AscensionChallenge extends Buff {
 
 		//if the hero is at the max level, grant them 10 effective xp per stack cleared
 		// for the purposes of on-xp gain effects
-		if (oldStacks > chal.stacks && Dungeon.hero.lvl == Hero.MAX_LEVEL){
-			Dungeon.hero.earnExp(Math.round(10*(oldStacks - chal.stacks)), chal.getClass());
+		if (oldStacks > chal.stacks && recipient != null && recipient.lvl == Hero.MAX_LEVEL){
+			recipient.earnExp(Math.round(10*(oldStacks - chal.stacks)), chal.getClass());
 		}
 
 		BuffIndicator.refreshHero();
@@ -213,7 +228,7 @@ public class AscensionChallenge extends Buff {
 
 	public static int AscensionCorruptResist(Mob m){
 		//default to just using their EXP value if no ascent challenge is happening
-		if (Dungeon.hero.buff(AscensionChallenge.class) == null){
+		if (current() == null){
 			return m.EXP;
 		}
 
@@ -253,8 +268,11 @@ public class AscensionChallenge extends Buff {
 			Statistics.highestAscent = Dungeon.depth;
 			justAscended = true;
 			if (Dungeon.bossLevel()){
-				Dungeon.hero.buff(Hunger.class).satisfy(Hunger.STARVING);
-				Buff.affect(Dungeon.hero, Healing.class).setHeal(Dungeon.hero.HT, 0, 20);
+				for (int seat=0;seat<(Dungeon.coop==null?1:2);seat++) {
+					Hero hero=Dungeon.coop==null?Dungeon.hero:Dungeon.coop.hero(seat);
+					hero.buff(Hunger.class).satisfy(Hunger.STARVING);
+					Buff.affect(hero, Healing.class).setHeal(hero.HT, 0, 20);
+				}
 			} else {
 				stacks += 2f;
 
@@ -329,10 +347,14 @@ public class AscensionChallenge extends Buff {
 		if (stacks >= 8 && !Dungeon.bossLevel()){
 			damageInc += (stacks-4)/4f;
 			if (damageInc >= 1){
-				target.damage((int)damageInc, this);
+				if (Dungeon.coop==null) target.damage((int)damageInc,this);
+				else for (int seat=0;seat<2;seat++) {
+					if (Dungeon.coop.life(seat)==com.shatteredpixel.shatteredpixeldungeon.CoopSession.Life.ALIVE)
+						Dungeon.coop.hero(seat).damage((int)damageInc,this);
+				}
 				damageInc -= (int)damageInc;
 
-				if (target == Dungeon.hero && !target.isAlive()){
+				if (Dungeon.coop == null && target == Dungeon.hero && !target.isAlive()){
 					Badges.validateDeathFromFriendlyMagic();
 					GLog.n(Messages.get(this, "on_kill"));
 					Dungeon.fail(Amulet.class);
@@ -397,6 +419,7 @@ public class AscensionChallenge extends Buff {
 		bundle.put(STACKS, stacks);
 		bundle.put(DAMAGE, damageInc);
 		bundle.put(STACKS_LOWERED, stacksLowered);
+		bundle.put("just_ascended",justAscended);
 	}
 
 	@Override
@@ -405,6 +428,9 @@ public class AscensionChallenge extends Buff {
 		stacks = bundle.getFloat(STACKS);
 		damageInc = bundle.getFloat(DAMAGE);
 		stacksLowered = bundle.getBoolean(STACKS_LOWERED);
+		justAscended = bundle.getBoolean("just_ascended");
+		if (Dungeon.coop!=null && (!(stacks>=0 && stacks<=48 && stacks*2==(int)(stacks*2))
+				|| !(damageInc>=0 && damageInc<1))) throw new IllegalArgumentException("Invalid ascent curse");
 	}
 
 	//chars with this buff are not boosted by the ascension challenge

@@ -767,7 +767,7 @@ public abstract class Mob extends Char {
 	public void move(int step, boolean travelling) {
 		int from = pos;
 		super.move(step, travelling);
-		if (usingStealthGamePlay
+		if (Dungeon.coop == null && usingStealthGamePlay
 				&& travelling
 				&& sprite != null
 				&& !sprite.visible
@@ -1029,6 +1029,7 @@ public abstract class Mob extends Char {
 		}
 
 		Hero recipient = Dungeon.coop == null ? Dungeon.hero : rewardOwner;
+		if (Dungeon.coop!=null && recipient==null && alignment==Alignment.ENEMY) AscensionChallenge.processEnemyKill(this,null);
 		if (recipient != null && recipient.isAlive()) {
 			
 			if (alignment == Alignment.ENEMY) {
@@ -1038,14 +1039,14 @@ public abstract class Mob extends Char {
 				Bestiary.setSeen(getClass());
 				Bestiary.countEncounter(getClass());
 
-				AscensionChallenge.processEnemyKill(this);
+				AscensionChallenge.processEnemyKill(this,recipient);
 				
 				int exp = recipient.lvl <= maxLvl ? EXP : 0;
 
 				//during ascent, under-levelled enemies grant 10 xp each until level 30
 				// after this enemy kills which reduce the amulet curse still grant 10 effective xp
 				// for the purposes of on-exp effects, see AscensionChallenge.processEnemyKill
-				if (recipient.buff(AscensionChallenge.class) != null &&
+				if (AscensionChallenge.current() != null &&
 						exp == 0 && maxLvl > 0 && EXP > 0 && recipient.lvl < Hero.MAX_LEVEL){
 					exp = Math.round(10 * spawningWeight());
 				}

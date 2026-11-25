@@ -30,13 +30,13 @@ public final class SeatActions {
 
     static boolean offTurn(String action) {
         return "CONSENT".equals(action) || "CANCEL_TRAVEL".equals(action)
-                || "END_RUN".equals(action) || "CONTINUE_RUN".equals(action);
+                || "START_ASCENT".equals(action) || "END_RUN".equals(action) || "CONTINUE_RUN".equals(action);
     }
 
     public Pending prepare(StateImage image,String action,int cell,long item) {
         if (!session.equals(image.session) || seat!=image.seat || !"IN_GAME".equals(image.rows.get("status"))
                 || (!offTurn(action) && !Integer.toString(seat).equals(image.rows.get("active")))) throw new IllegalStateException("No input offer");
-        if (!action.matches("END_RUN|CONTINUE_RUN|VAULT_INTERACT|VAULT_REWARD|ACCEPT_IMP|SMITH_PICK|SMITH_CASH|SMITH_HARDEN|SMITH_UPGRADE|SMITH_REFORGE|SMITH_ORDER|SMITH_CLAIM|MINE|WAIT|MOVE|ATTACK|PICK_UP|EQUIP|EAT|DROP|UNEQUIP|REVIVE|ZAP|SEARCH|CONSENT|CANCEL_TRAVEL|TRAVEL|ACCEPT_BLACKSMITH|ACCEPT_WANDMAKER|WAND_FIRST|WAND_SECOND|ACCEPT_GHOST|GHOST_WEAPON|GHOST_ARMOR|SHATTER|OPEN|UNLOCK|GREET|DRINK|SHOOT|UPGRADE|IDENTIFY|THROW|BUY|SELL|SELL_ONE|BUYBACK")) throw new IllegalArgumentException("Action");
+        if (!action.matches("START_ASCENT|END_RUN|CONTINUE_RUN|VAULT_INTERACT|VAULT_REWARD|ACCEPT_IMP|SMITH_PICK|SMITH_CASH|SMITH_HARDEN|SMITH_UPGRADE|SMITH_REFORGE|SMITH_ORDER|SMITH_CLAIM|MINE|WAIT|MOVE|ATTACK|PICK_UP|EQUIP|EAT|DROP|UNEQUIP|REVIVE|ZAP|SEARCH|CONSENT|CANCEL_TRAVEL|TRAVEL|ACCEPT_BLACKSMITH|ACCEPT_WANDMAKER|WAND_FIRST|WAND_SECOND|ACCEPT_GHOST|GHOST_WEAPON|GHOST_ARMOR|SHATTER|OPEN|UNLOCK|GREET|DRINK|SHOOT|UPGRADE|IDENTIFY|THROW|BUY|SELL|SELL_ONE|BUYBACK")) throw new IllegalArgumentException("Action");
         long id=allocate();
         String actor=image.rows.get("self").split(",",2)[0];
         String epoch=image.rows.get("epoch");

@@ -92,7 +92,9 @@ public abstract class Actor implements Bundlable {
     /** Keep the body, actor ID and buff target links; store remaining time relative to suspension. */
     public static void freezeCoop(Char ch, boolean freeze) {
         ch.setCoopFrozen(freeze);
-        for (Buff buff : ch.buffs()) ((Actor)buff).setCoopFrozen(freeze);
+        for (Buff buff : ch.buffs())
+            if (!(buff instanceof com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge))
+                ((Actor)buff).setCoopFrozen(freeze);
     }
 
     final void setCoopFrozen(boolean freeze) {

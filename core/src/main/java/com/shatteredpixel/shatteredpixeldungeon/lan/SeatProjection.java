@@ -94,7 +94,7 @@ final class SeatProjection {
         if (game.ending()!=CoopSession.Ending.NONE) {
             rows.put("ending",game.ending().name());
             rows.put("amuletowner",Integer.toString(game.amuletOwner()));
-            if (game.ending()==CoopSession.Ending.WON && status.equals("IN_GAME")) status="WON";
+            if (game.won() && status.equals("IN_GAME")) status="WON";
         }
         boolean playing=status.equals("IN_GAME");
         boolean defeated = status.equals("PARTY_DEFEATED");
@@ -163,6 +163,10 @@ final class SeatProjection {
             if (level instanceof HallsBossLevel || level instanceof LastLevel || level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel || level instanceof PrisonBossLevel || level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel) {
                 writeExitTiles(rows,level.customTiles,sight,level,"exitfloor");
                 writeExitTiles(rows,level.customWalls,sight,level,"exitwall");
+            }
+            if (game.ending()==CoopSession.Ending.CONTINUING && game.amuletOwner()==seat) {
+                int ascentGate=game.stairs.ascentGate();
+                if (ascentGate>=0) rows.put("ascentgate",Integer.toString(ascentGate));
             }
             int stair=game.stairs.stair();
             if(stair>=0) {
@@ -263,7 +267,10 @@ final class SeatProjection {
                         rows.put("rockarmor"+mob.pos, "1");
                     if (Dungeon.branch == 1 && mob.spriteClass != null)
                         rows.put("minesprite"+mob.id(), mob.spriteClass.getSimpleName());
-                    rows.put("m"+mob.id(),mob.pos+","+mob.getClass().getSimpleName()+","+mob.HP+","+mob.HT);
+                    String kind=mob.getClass().getSimpleName();
+                    if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultElemental.Fire
+                            || mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultElemental.Frost) kind="Vault"+kind;
+                    rows.put("m"+mob.id(),mob.pos+","+kind+","+mob.HP+","+mob.HT);
                     if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Eye && ((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Eye)mob).beamCharged)
                         rows.put("charge"+mob.pos,"1");
                     if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RipperDemon) {

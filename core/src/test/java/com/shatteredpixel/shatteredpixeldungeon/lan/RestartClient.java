@@ -465,6 +465,8 @@ public final class RestartClient {
             boolean mine=boundary.startsWith("mine-");
             boolean vault=boundary.startsWith("vault-");
             if (vault) travel=true;
+            boolean ascent=boundary.startsWith("ascent-");
+            if (ascent) { verb=RestartHost.read(path,"ascent-action"); travel=verb.equals("TRAVEL"); }
             boolean elemental=boundary.startsWith("elemental-");
             if (elemental) { verb=RestartHost.read(path,"elemental-action"); travel=verb.equals("VAULT_REWARD"); }
             boolean yog=boundary.startsWith("yog-");
@@ -496,12 +498,17 @@ public final class RestartClient {
             int cell=Integer.parseInt(RestartHost.read(path,"tengu-target"));
             for (int i=0;i<40;i++) {
                 int seat=active();
+                if (ascent && verb.equals("START_ASCENT")) {
+                    int owner=Integer.parseInt(state(0).rows.get("amuletowner"));
+                    seat=boundary.equals("ascent-offer") ? owner : 1-owner;
+                }
                 if (yog && verb.equals("END_RUN")) {
                     int owner=Integer.parseInt(state(0).rows.get("amuletowner"));
                     seat=boundary.equals("yog-win")?1-owner:owner;
                 }
                 PublicDungeon view=new PublicDungeon(state(seat));
-                if (elemental) { assertEquals(18,view.depth); assertEquals(1,view.branch); }
+                if (ascent) assertEquals(0,view.branch);
+                else if (elemental) { assertEquals(18,view.depth); assertEquals(1,view.branch); }
                 else if (yog) assertTrue(view.depth==25 || view.depth==26);
                 else if (vault) assertEquals(boundary.matches("vault-(return|pick|full)") ? 1 : 0,view.branch);
                 else if (king) assertEquals(boundary.endsWith("visit") ? 19 : 20,view.depth);
@@ -544,7 +551,7 @@ public final class RestartClient {
             assertEquals(receipt,clients[seat].request(prior[2]));
             refresh();
             assertEquals(version,state(seat).version);
-            if (mode.equals("tengu-read-yog-win")) {
+            if (mode.equals("tengu-read-yog-win") || mode.equals("tengu-read-ascent-surface")) {
                 for (int i=0;i<2;i++) assertEquals("WON",state(i).rows.get("status"));
                 String[] closed=prior[2].split(" ");
                 closed[4]=Long.toString(Long.parseLong(prior[1])+1);
@@ -553,6 +560,11 @@ public final class RestartClient {
                 closed[7]="WAIT";
                 String rejected=clients[seat].request(String.join(" ",closed));
                 assertTrue(rejected,rejected.endsWith(" REJECT_ENDING"));
+                return;
+            }
+            if (mode.equals("tengu-read-ascent-offer") || mode.equals("tengu-read-ascent-agree")) {
+                int owner=Integer.parseInt(state(0).rows.get("amuletowner"));
+                assertTrue(actions[owner].prepare(state(owner),"CONTINUE_RUN",0,0).submit(clients[owner]).endsWith(" APPLIED"));
                 return;
             }
             if (mode.equals("tengu-read-yog-amulet") || mode.equals("tengu-read-yog-mine-return") || mode.equals("tengu-read-yog-branch-capacity") || mode.equals("tengu-read-yog-propose")) {

@@ -75,6 +75,12 @@ public final class CoopFloors {
                 && gate.destBranch == 0 && Blacksmith.Quest.started();
     }
 
+    public int ascentGate() {
+        if (Dungeon.depth!=25 || Dungeon.branch!=0 || Dungeon.level.locked || game.amuletOwner()<0) return -1;
+        LevelTransition gate=Dungeon.level.getTransition(LevelTransition.Type.REGULAR_ENTRANCE);
+        return gate!=null && gate.destDepth==24 && inRange(Dungeon.level,gate) ? gate.cell() : -1;
+    }
+
     public int stair() {
         Level l=Dungeon.level;
         if (l instanceof VaultLevel) {
@@ -87,6 +93,8 @@ public final class CoopFloors {
         }
         if (l.locked || Dungeon.depth<1 || Dungeon.depth>LAST_PLAYABLE) return -1;
         for (LevelTransition t : l.transitions) {
+            if (t.type==LevelTransition.Type.SURFACE && Dungeon.depth==1 && game.ending()==CoopSession.Ending.ASCENDING && inRange(l,t))
+                return t.cell();
             if ((mineGate(t) || vaultEntrance(t)) && inRange(l,t)) return t.cell();
             if (Dungeon.branch!=0 || (t.type!=LevelTransition.Type.REGULAR_EXIT && t.type!=LevelTransition.Type.REGULAR_ENTRANCE)
                     || t.destBranch!=0 || t.destDepth<1 || t.destDepth>LAST_PLAYABLE || Math.abs(t.destDepth-Dungeon.depth)!=1) continue;
@@ -96,8 +104,9 @@ public final class CoopFloors {
             if (Dungeon.depth==15 && t.destDepth>15 && !((com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel)l).exitOpen()) continue;
             if (Dungeon.depth==20 && t.destDepth==21 && !((com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel)l).exitOpen()) continue;
             if (Dungeon.depth==25 && t.destDepth==26 && l.map[l.exit()]!=com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EXIT) continue;
-            // The native ascent curse begins at this stair. Keep it closed until the party ascent is implemented.
-            if (Dungeon.depth==25 && t.destDepth==24 && com.shatteredpixel.shatteredpixeldungeon.Statistics.amuletObtained) continue;
+            if (Dungeon.depth==25 && t.destDepth==24 && com.shatteredpixel.shatteredpixeldungeon.Statistics.amuletObtained
+                    && game.ending()!=CoopSession.Ending.ASCENDING && game.ending()!=CoopSession.Ending.ASCENT_READY) continue;
+            if (game.ending()==CoopSession.Ending.ASCENT_READY && t.destDepth!=24) continue;
             if (inRange(l,t)) return t.cell();
         }
         return -1;
@@ -191,6 +200,12 @@ public final class CoopFloors {
             if (chosen!=null) return false;
             transition=old.getTransition(cell);
         }
+        if (transition.type==LevelTransition.Type.SURFACE) {
+            game.reachSurface();
+            cancel();
+            return true;
+        }
+        if (game.ending()==CoopSession.Ending.ASCENT_READY) game.startAscent();
         boolean branchChange=transition.destBranch!=Dungeon.branch;
         if (!escaping && vaultEntrance(transition)) {
             CoopVault.enter(game,seat);
@@ -252,6 +267,12 @@ public final class CoopFloors {
         if (reward!=null && !reward.collect(game.hero(seat).belongings.backpack)) {
             Imp.Quest.reward=reward;
         }
+        if (game.ending()==CoopSession.Ending.ASCENDING) {
+            AscensionChallenge curse=AscensionChallenge.current();
+            if (curse==null) throw new IllegalStateException("Missing ascent curse");
+            curse.onLevelSwitch();
+            requireSupportedResidents(next);
+        }
         Actor.add(game.hero(1));
         Actor.init();
         if (next.respawner()==null) next.addRespawner(); else Actor.add(next.respawner());
@@ -277,7 +298,8 @@ public final class CoopFloors {
                     count++;
                 }
             }
-            if (count>1 || count==1 && !floor.getBoolean("locked")) throw new IllegalArgumentException("Invalid vault boss lock");
+            if (count>1 || count==1 && (!floor.getBoolean("locked") || !recordedVaultEncounter(floor))
+                    || count==0 && floor.getBoolean("locked") && recordedVaultEncounter(floor)) throw new IllegalArgumentException("Invalid vault boss lock");
         }
         if (depth == 10) validateBoss(floor);
         if (depth == 15) validateCavesBoss(floor);
@@ -496,7 +518,29 @@ public final class CoopFloors {
         return count;
     }
 
+    private static boolean recordedVaultEncounter(Bundle level) {
+        for (Bundle room:level.getBundleArray("rooms"))
+            if (room.getString("__className").equals(com.shatteredpixel.shatteredpixeldungeon.levels.rooms.quest.vault.VaultFinalRoom.class.getName()))
+                return room.getBoolean("lock_triggered");
+        return false;
+    }
+
+    boolean hasVaultEncounter() {
+        if (Dungeon.level instanceof VaultLevel) {
+            com.shatteredpixel.shatteredpixeldungeon.levels.rooms.quest.vault.VaultFinalRoom room =
+                    (com.shatteredpixel.shatteredpixeldungeon.levels.rooms.quest.vault.VaultFinalRoom)((VaultLevel)Dungeon.level)
+                            .room(com.shatteredpixel.shatteredpixeldungeon.levels.rooms.quest.vault.VaultFinalRoom.class);
+            if (room!=null && room.elementalWasSummoned()) return true;
+        }
+        for (int d=17;d<=19;d++) {
+            Bundle entry=dormant.get(floorKey(d,1));
+            if (entry!=null && recordedVaultEncounter(entry.getBundle("level"))) return true;
+        }
+        return false;
+    }
+
     int schema() {
+        if (game.ascentHistory() || hasVaultEncounter()) return 15;
         if (Dungeon.levelHasBeenGenerated(25,0)) return 14;
         if (Dungeon.levelHasBeenGenerated(21,0)) return 13;
         for (int d=17;d<=19;d++) if (Dungeon.levelHasBeenGenerated(d,1)) return 12;

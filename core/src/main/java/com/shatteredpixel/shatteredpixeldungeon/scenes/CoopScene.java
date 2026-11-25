@@ -78,6 +78,8 @@ public class CoopScene extends PixelScene {
                         }
                     });
                 } else alert(Messages.get(npc,option));
+            } else if (Integer.toString(cell).equals(view.source.rows.get("ascentgate"))) {
+                ascentWindow(shown);
             } else if ("Imp".equals(view.monsters.get(cell))) {
                 Class<?> imp=com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp.class;
                 String offer=view.source.rows.get("imp"+cell);
@@ -110,6 +112,7 @@ public class CoopScene extends PixelScene {
                 && controller.act(view.source,missile?"THROW":bow?"SHOOT":"ZAP",cell,targetStaff.id)) cancelAim();
     }
     void offerStairs(PublicDungeon view,int cell) {
+        if (Integer.toString(cell).equals(view.source.rows.get("ascentgate"))) { ascentWindow(shown); return; }
         if(view.stair!=cell) alert(msg("stairconditions"));
         else if(view.offered && !view.consent) alert(msg("awaitvote"));
         else if (view.source.rows.containsKey("vaultscore") && (view.offered || !view.consent)) {
@@ -429,8 +432,20 @@ public class CoopScene extends PixelScene {
     }
     private String lastEnding = "";
 
+    private void ascentWindow(CoopController.Frame f) {
+        Class<?> amulet=com.shatteredpixel.shatteredpixeldungeon.items.Amulet.class;
+        boolean proposed="ASCENT_PROPOSED".equals(f.image.rows.get("ending"));
+        add(new WndOptions(Messages.get(amulet,"ascent_title"), Messages.get(amulet,"ascent_desc"),
+                Messages.get(amulet,"ascent_yes"),Messages.get(amulet,"ascent_no")) {
+            protected void onSelect(int index) {
+                if (index==0 || proposed) controller.act(f.image,index==0?"START_ASCENT":"CONTINUE_RUN",0,0);
+            }
+        });
+    }
+
     private void endingWindow(CoopController.Frame f) {
         String phase=f.image.rows.get("ending");
+        if ("ASCENT_PROPOSED".equals(phase) || f.image.rows.containsKey("ascentgate")) { ascentWindow(f); return; }
         boolean owner=Integer.toString(f.seat).equals(f.image.rows.get("amuletowner"));
         boolean canAccept=phase.equals("PROPOSED") ? !owner : owner;
         String[] options=canAccept ? new String[]{msg("end_vote"),msg("end_continue")} : new String[]{msg("end_continue")};
@@ -463,7 +478,7 @@ public class CoopScene extends PixelScene {
     private void game(CoopController.Frame f) {
         PublicDungeon v=f.dungeon;
         if(v==null && "WON".equals(f.image.rows.get("status"))) {
-            label(msg("end_won"),12,Window.TITLE_COLOR);
+            label(msg("ASCENDED".equals(f.image.rows.get("ending"))?"ascent_won":"end_won"),12,Window.TITLE_COLOR);
             Image amulet=new Image(com.shatteredpixel.shatteredpixeldungeon.Assets.Sprites.AMULET);
             amulet.x=center-amulet.width()/2; amulet.y=top; panel.add(amulet); top+=amulet.height()+4;
             button(msg("menu"),this::gameMenu);
@@ -475,9 +490,9 @@ public class CoopScene extends PixelScene {
             button(msg("menu"),this::gameMenu); return;
         }
         String ending=f.image.rows.get("ending");
-        if (ending!=null && ("OFFER".equals(ending) || "PROPOSED".equals(ending))
+        if (ending!=null && ("OFFER".equals(ending) || "PROPOSED".equals(ending) || "ASCENT_PROPOSED".equals(ending))
                 && !ending.equals(lastEnding) && "IN_GAME".equals(f.image.rows.get("status"))
-                && ("PROPOSED".equals(ending) || Integer.toString(f.seat).equals(f.image.rows.get("amuletowner")))) {
+                && ("ASCENT_PROPOSED".equals(ending) && !Integer.toString(f.seat).equals(f.image.rows.get("amuletowner")) || "PROPOSED".equals(ending) || Integer.toString(f.seat).equals(f.image.rows.get("amuletowner")))) {
             endingWindow(f);
         }
         lastEnding=ending==null ? "" : ending;

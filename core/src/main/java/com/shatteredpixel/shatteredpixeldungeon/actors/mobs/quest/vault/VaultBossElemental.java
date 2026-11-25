@@ -551,7 +551,8 @@ public class VaultBossElemental extends Mob {
 		}
 		int[] weights = bundle.getBoundedIntArray(FORM_CHANCES, 3, 0, 2);
 		int left = weights[0] + weights[1] + weights[2];
-		if (current == ElementalForm.UNSTABLE || weights[current.ordinal()] > 1 || left < 1 || left > 5) {
+		if (current == ElementalForm.UNSTABLE || weights[current.ordinal()] > 1 || left < 1 || left > 5
+				|| left == weights[current.ordinal()] && bundle.getInt("HP") > 120) {
 			throw new IllegalArgumentException("Invalid vault elemental form history");
 		}
 		return weights;

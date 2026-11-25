@@ -272,10 +272,8 @@ public class YogArenaTest extends HeadlessDungeon {
 
     public static boolean published(String boundary) {
         if (boundary.equals("mine-return") || boundary.equals("branch-capacity")) {
-            boolean combined=boundary.equals("branch-capacity");
             Bundle dormant=Dungeon.coop.checkpoint().getBundle("dormant");
-            return published("amulet") && dormant.contains("1013") && dormant.contains("1018")==combined
-                    && dormant.getKeys().size()==(combined?27:26);
+            return published("amulet") && dormant.contains("1013") && dormant.contains("1018") && dormant.getKeys().size()==27;
         }
         CoopSession game=Dungeon.coop;
         YogDzewa boss=resident(YogDzewa.class);
@@ -330,20 +328,16 @@ public class YogArenaTest extends HeadlessDungeon {
             CoopFloorsTest.cross(game);
             assertEquals(0,Dungeon.branch);
         } else {
-            long turn=game.turn();
-            assertTrue(game.stairs.consent(1-game.activeSeat(),turn,gate,false));
             assertFalse(CoopFloorsTest.step(game,CoopSession.Action.TRAVEL,gate,null));
-            assertEquals(18,Dungeon.depth);
+            CoopFloorsTest.cross(game);
+            assertTrue(Dungeon.level instanceof VaultLevel);
+            assertEquals(578,Dungeon.seed);
+            VaultElementalTest.earnVaultTokenAndEscape(game);
             assertEquals(0,Dungeon.branch);
-            assertEquals(turn,game.turn());
-            assertTrue(game.restoredAfterTravel());
-            assertTrue(game.destinationBlocker,game.destinationBlocker.contains("VaultShaman"));
-            assertFalse(game.checkpoint().getBundle("dormant").contains("1018"));
-            System.out.println("SEED578_VAULT_REFUSED "+game.destinationBlocker);
         }
         while (Dungeon.depth<26) SewerDepthTest.gate(game,true);
         Bundle dormant=game.checkpoint().getBundle("dormant");
-        assertEquals(combinedCapacity?27:26,dormant.getKeys().size());
+        assertEquals(27,dormant.getKeys().size());
         if (combinedCapacity) assertTrue(dormant.getBundle("1018").getBundle("level").getString("__className").endsWith("VaultLevel"));
         assertTrue(dormant.getBundle("1013").getBundle("level").getString("__className").endsWith("MiningLevel"));
         positionAtAmulet(game);

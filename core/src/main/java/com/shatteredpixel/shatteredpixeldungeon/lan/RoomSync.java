@@ -123,7 +123,7 @@ final class RoomSync {
                 long base=Long.parseLong(args[0]), turn=Long.parseLong(args[1]), after=Long.parseLong(f[6]);
                 Integer.parseInt(args[3]); Long.parseLong(args[4]);
                 if (f[7].equals("APPLIED") || f[7].equals("PARTY_DEFEATED")) {
-                    if (!args[2].equals("END_RUN") && !args[2].equals("CONTINUE_RUN")) CoopSession.Action.valueOf(args[2]);
+                    if (!args[2].equals("START_ASCENT") && !args[2].equals("END_RUN") && !args[2].equals("CONTINUE_RUN")) CoopSession.Action.valueOf(args[2]);
                     else if (Integer.parseInt(args[3])!=0 || Long.parseLong(args[4])!=0 || game.ending()==CoopSession.Ending.NONE)
                         throw new IllegalArgumentException("Invalid ending receipt");
                     if (turn<1 || turn>game.turn() || base<1 || base!=after-1)
@@ -192,8 +192,8 @@ final class RoomSync {
         if (paused) return "REJECT_PAUSED";
         if (base!=version) return "REJECT_VERSION";
         if (turn!=game.turn()) return "REJECT_TURN";
-        if (verb.equals("END_RUN") || verb.equals("CONTINUE_RUN")) {
-            if (cell!=0 || handle!=0 || !game.chooseEnding(seat,verb.equals("END_RUN"))) return "REJECT_INVALID";
+        if (verb.equals("START_ASCENT") || verb.equals("END_RUN") || verb.equals("CONTINUE_RUN")) {
+            if (cell!=0 || handle!=0 || !(verb.equals("START_ASCENT") ? game.chooseAscent(seat) : game.chooseEnding(seat,verb.equals("END_RUN")))) return "REJECT_INVALID";
             commit(null,seat,id+","+verb+",APPLIED","IN_GAME");
             return "APPLIED";
         }
