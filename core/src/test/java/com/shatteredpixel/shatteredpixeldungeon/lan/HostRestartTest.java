@@ -18,7 +18,7 @@ public class HostRestartTest {
     }
 
     @Test(timeout=330000) public void nativeSewerSurvivorsEnterPrisonAndReturnOnANewHost() throws Exception {
-        run(temp.getRoot().toPath(),new String[]{"prison","prison-resume"});
+        run(temp.getRoot().toPath(),new String[]{"prison","prison-resume","prison-backup"});
     }
 
     @Test(timeout=100000) public void selectedScrollTargetAndSpentScrollShareOneDurableReceipt() throws Exception {
@@ -122,7 +122,7 @@ public class HostRestartTest {
             Files.deleteIfExists(dir.resolve("fault-armed"));
             Files.deleteIfExists(dir.resolve("endpoint")); Files.deleteIfExists(dir.resolve("stop"));
             Files.deleteIfExists(dir.resolve("kill-before-reply")); Files.deleteIfExists(dir.resolve("fail-write"));
-            if(mode.equals("backup") || mode.equals("floorbackup")) {
+            if(mode.equals("backup") || mode.equals("floorbackup") || mode.equals("prison-backup")) {
                 CoopSaves saves=new CoopSaves(dir.toFile());
                 UUID session=saves.sessions().get(0);
                 long current=saves.inspect(session,false).generation;

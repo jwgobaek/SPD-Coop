@@ -329,7 +329,7 @@ public final class RestartClient {
         for(int i=0;i<2;i++) {
             try(InputStream in=Files.newInputStream(path.resolve("private"+i))) { keys[i]=SeatCredential.readPrivate(in); }
         }
-        if (mode.equals("backup") || mode.equals("floorbackup") || mode.equals("schema3-backup")) {
+        if (mode.equals("backup") || mode.equals("floorbackup") || mode.equals("schema3-backup") || mode.equals("prison-backup")) {
             String warning=keys[0].reconnect(clients[0],epoch,0,1);
             assertTrue(warning,warning.startsWith("RECOVERY_EPOCH "));
             epoch=UUID.fromString(warning.split(" ")[1]);
@@ -347,9 +347,10 @@ public final class RestartClient {
             return;
         }
         if (mode.equals("campaign-resume")) { campaign(mode); return; }
-        if (mode.equals("schema3-backup")) {
-            assertEquals(3,new PublicDungeon(state(0)).depth);
-            assertEquals(3,new PublicDungeon(state(1)).depth);
+        if (mode.equals("schema3-backup") || mode.equals("prison-backup")) {
+            int expectedDepth=mode.equals("prison-backup") ? 5 : 3;
+            assertEquals(expectedDepth,new PublicDungeon(state(0)).depth);
+            assertEquals(expectedDepth,new PublicDungeon(state(1)).depth);
             assertNotEquals(RestartHost.read(path,"epoch"),epoch.toString());
             assertEquals("ERROR EPOCH",clients[0].request("LOOKUP "+RestartHost.read(path,"epoch")+" 1"));
             act("WAIT",0,0);
