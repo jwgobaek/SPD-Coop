@@ -207,10 +207,14 @@ public class Shopkeeper extends NPC {
 	}
 
 	public static boolean canSell(Item item){
+		return canSell(Dungeon.hero, item);
+	}
+
+	public static boolean canSell(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero hero, Item item){
 		if (item.value() <= 0)                                              return false;
 		if (item.unique && !item.stackable)                                 return false;
 		if (item instanceof Armor && ((Armor) item).checkSeal() != null)    return false;
-		if (item.isEquipped(Dungeon.hero) && item.cursed)                   return false;
+		if (item.isEquipped(hero) && item.cursed)                   return false;
 		return true;
 	}
 
@@ -263,15 +267,7 @@ public class Shopkeeper extends NPC {
 							GameScene.show(new WndTitledMessage(sprite(), Messages.titleCase(name()), chatText()));
 						} else if (index > 1){
 							GLog.i(Messages.get(Shopkeeper.this, "buyback"));
-							Item returned = buybackItems.remove(index-2);
-							Dungeon.gold -= returned.value();
-							Statistics.goldCollected -= returned.value();
-							if (returned instanceof MissileWeapon && returned.isUpgradable()){
-								Buff.affect(Dungeon.hero, MissileWeapon.UpgradedSetTracker.class).levelThresholds.put(((MissileWeapon) returned).setID, returned.level());
-							}
-							if (!returned.doPickUp(Dungeon.hero)){
-								Dungeon.level.drop(returned, Dungeon.hero.pos);
-							}
+							buyBack(Dungeon.hero, buybackItems.get(index-2));
 						}
 					}
 
@@ -323,6 +319,16 @@ public class Shopkeeper extends NPC {
 				return Messages.get(this, "talk_halls");
 		}
 	}
+
+    public void buyBack(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero hero, Item returned) {
+        if (!buybackItems.remove(returned)) throw new IllegalStateException("Missing buyback item");
+        Dungeon.gold -= returned.value();
+        Statistics.goldCollected -= returned.value();
+        if (returned instanceof MissileWeapon && returned.isUpgradable()){
+            Buff.affect(hero, MissileWeapon.UpgradedSetTracker.class).levelThresholds.put(((MissileWeapon)returned).setID, returned.level());
+        }
+        if (!returned.doPickUp(hero)) Dungeon.level.drop(returned,hero.pos);
+    }
 
 	public static String BUYBACK_ITEMS = "buyback_items";
 

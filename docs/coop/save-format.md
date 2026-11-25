@@ -85,3 +85,7 @@ Linux JVM 테스트는 파일 기록, 검증, HEAD 교체 전후에서 자식 �
 ## 석상 장비와 세대 무결성
 
 스키마 2 안에서 w<ActorID>는 석상이 보유한 원본 무기 한 개를 가리킨다. 실제 무기·강화·저주·인챈트는 원본 Statue Bundle에, 내부 ID·소유자·수량·클래스는 같은 세대의 물리적 위치 목록에 기록한다. 활성 층·휴면 층 양쪽의 Actor/아이템 ID 범위와 중복을 확인한다. 처치 후에는 같은 무기가 바닥 위치로 이동한다. 지원했던 스키마 1·2의 기존 저장 회귀를 유지한다. 층 한도와 세대 크기 제한은 기존 값이다.
+
+### Prison merchant custody
+
+Schema 4 keeps the shared gold in the native world bundle and the latest three sold objects in Shopkeeper.buyback_items. Each physical object there has an ownership entry keyed by shop, the keeper's Actor ID and its list index. On load the item class, quantity, original owner and unique physical ID are checked against that same generation. Dormant records use the same location convention. New code can read earlier schema 4 worlds with empty merchant histories.

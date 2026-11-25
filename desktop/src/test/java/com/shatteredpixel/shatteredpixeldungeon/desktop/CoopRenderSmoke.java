@@ -26,12 +26,13 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean armored,scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
+    private static boolean market,armored,scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
         scribe=args.length>1 && args[1].equals("scrolls");
-        prison=args.length>1 && args[1].equals("prison");
+        market=args.length>1 && args[1].equals("market");
+        prison=market || args.length>1 && args[1].equals("prison");
         controls=args.length>1 && args[1].equals("controls");
         shortcuts=args.length>1 && args[1].equals("shortcuts");
         sentry=args.length>1 && args[1].equals("sentry");
@@ -319,6 +320,37 @@ public final class CoopRenderSmoke {
         bagAction("STAFF","zap");
         await(()->button("cancel")!=null);
     }
+    private static void marketScreens() throws Exception {
+        await(()->frame().dungeon.offered);
+        int stock=RenderEncounter.market(hostController(),true,0);
+        waitAndRegainTurn();
+        PublicDungeon before=frame().dungeon;
+        press(mapPoint(before,stock)); waitForButton("cancel"); shot("shop-insufficient"); click("cancel");
+        if (before.source.version!=frame().image.version) throw new AssertionError("Cancel consumed a turn");
+        RenderEncounter.market(hostController(),true,10000); waitAndRegainTurn();
+        PublicDungeon rich=frame().dungeon;
+        String price=rich.source.rows.get("quote"+stock).split(",")[1];
+        press(mapPoint(rich,stock)); waitForButton("cancel"); shot("shop-buy");
+        click("#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndTradeItem.class,"buy",Integer.parseInt(price)));
+        await(()->frame().dungeon.offered && !frame().image.rows.containsKey("sale"+stock));
+        int merchant=RenderEncounter.market(hostController(),false,0); waitAndRegainTurn();
+        PublicDungeon owned=frame().dungeon;
+        PublicDungeon.Loot armor=owned.belongings.stream().filter(i->i.slot.equals("BAG") &&
+                !rich.belongings.stream().anyMatch(old->old.reference.equals(i.reference))).findFirst().get();
+        int value=Integer.parseInt(owned.source.rows.get("sell"+armor.id).split(",")[0]);
+        press(mapPoint(owned,merchant));
+        click("#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.class,"sell"));
+        press(inventoryPoint(armor.id)); click("sell"); waitForButton("cancel"); shot("shop-sell");
+        click("#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndTradeItem.class,"sell",value));
+        await(()->frame().dungeon.offered && frame().image.rows.keySet().stream().anyMatch(k->k.startsWith("refund")));
+        PublicDungeon sold=frame().dungeon;
+        press(mapPoint(sold,merchant)); waitForButton("cancel"); shot("shop-buyback");
+        String redeem="#"+Messages.get(CoopScene.class,"shop_buyback",value,1);
+        click(redeem); click(redeem);
+        await(()->frame().dungeon.offered && frame().image.rows.keySet().stream().noneMatch(k->k.startsWith("refund")));
+        shot("shop-restored-stock");
+    }
+
     private static void floorScreens(File root,Process oldGuest) throws Exception {
         await(()->frame().dungeon.offered);
         PublicDungeon.Loot first=frame().quickslots.item(0,frame().dungeon);
@@ -398,6 +430,7 @@ public final class CoopRenderSmoke {
                     await(()->frame().dungeon.consent);
                     click("#"+Messages.get(CoopScene.class,"travel",6)); await(()->frame().dungeon.depth==6);
                     shot("prison-arrival");
+                    if (market) marketScreens();
                 }
                 click("menu");click("saveexit");await(()->button("host")!=null);
             } finally { returning.destroy(); if(!returning.waitFor(5,TimeUnit.SECONDS)) returning.destroyForcibly(); }

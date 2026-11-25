@@ -585,7 +585,7 @@ actors/mobs/npcs/PrismaticImage	NPC	UNSUPPORTED		core/src/main/java/com/shattere
 actors/mobs/npcs/PrismaticImage.Wandering	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/PrismaticImage.java
 actors/mobs/npcs/RatKing	NPC	IMPLEMENTED	resident on the fifth floor, audience and crown quest unavailable	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/RatKing.java
 actors/mobs/npcs/Sheep	NPC	VERIFIED	FlockTrap spawn, actor identity across restore and native expiry / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Sheep.java
-actors/mobs/npcs/Shopkeeper	NPC	IMPLEMENTED	floor six native generation and saved resident; visible sale sprite, no purchase, sale or buyback UI	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Shopkeeper.java
+actors/mobs/npcs/Shopkeeper	NPC	VERIFIED	floor six native stock, price, sale and seller-bound buyback on both seats after process death / HostRestartTest; special merchandise and theft remain gated	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Shopkeeper.java
 actors/mobs/npcs/VaultLaser	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultLaser.java
 actors/mobs/npcs/VaultMirror	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultMirror.java
 actors/mobs/npcs/VaultMirror.MirrorSword	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultMirror.java

@@ -113,6 +113,11 @@ public final class PublicDungeon {
     public List<String> actions(Loot item) {
         List<String> verbs=new ArrayList<>();
         if(!offered || !belongings.contains(item)) return verbs;
+        String quote=source.rows.get("sell"+item.id);
+        if (quote!=null) {
+            verbs.add("SELL");
+            if (quote.endsWith(",1")) verbs.add("SELL_ONE");
+        }
         boolean weapon=item.kind.equals("MELEE") || item.kind.equals("STAFF");
         if(item.slot.equals("WEAPON") && item.charges>0) verbs.add("ZAP");
         if(item.slot.equals("BAG")) {

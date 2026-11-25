@@ -139,6 +139,7 @@ public final class RestartClient {
         if (special) {
             try (LanClient old = new LanClient(address)) {
                 assertEquals("ERROR VERSION",old.request("MODE SYNC13"));
+                assertEquals("ERROR VERSION",old.request("MODE SYNC14"));
                 assertEquals("ERROR VERSION", old.request("MODE SYNC3"));
                 assertEquals("ERROR VERSION", old.request("MODE SYNC12"));
             }
@@ -336,6 +337,7 @@ public final class RestartClient {
         }
         for(int i=0;i<2;i++) bind(i);
         barrier();
+        if (mode.startsWith("market-")) { trade(mode); return; }
         if (mode.equals("legacy-sewer")) {
             for (int seat=0; seat<2; seat++) {
                 PublicDungeon view=new PublicDungeon(state(seat));
@@ -625,6 +627,65 @@ public final class RestartClient {
         refresh();
         assertTrue(new PublicDungeon(state(mover)).consent);
         return stairAction(mover,"TRAVEL",cell);
+    }
+
+    private void trade(String mode) throws Exception {
+        int seat=Integer.parseInt(mode.substring(mode.length()-1));
+        String[] stock=RestartHost.read(path,"stock"+seat).split(" ");
+        int cell=Integer.parseInt(stock[0]),sprite=Integer.parseInt(stock[2]),value=Integer.parseInt(stock[3]);
+        String verb=mode.startsWith("market-buy") ? "BUY" : mode.startsWith("market-sell") ? "SELL" : "BUYBACK";
+        if (!verb.equals("BUY")) {
+            String[] old=RestartHost.read(path,"trade-action").split(" ",3);
+            String receipt=clients[seat].request("LOOKUP "+epoch+" "+old[1]);
+            assertTrue(receipt,receipt.endsWith(" APPLIED"));
+            assertEquals(receipt,clients[seat].request(old[2]));
+        }
+        if (mode.startsWith("market-finish")) {
+            offer(seat);
+            assertFalse(state(seat).rows.keySet().stream().anyMatch(k->k.startsWith("refund")));
+            PublicDungeon view=new PublicDungeon(state(seat));
+            PublicDungeon.Loot goods=view.belongings.stream().filter(i->i.sprite==sprite && i.slot.equals("BAG")).findFirst().get();
+            assertFalse(goods.reference.isEmpty());
+            int partner=1-seat;
+            offer(partner);
+            int shop=Integer.parseInt(state(partner).rows.get("merchant"));
+            assertTrue(actions[partner].prepare(state(partner),"SELL",shop,goods.id).submit(clients[partner]).endsWith(" REJECT_ITEM"));
+            assertTrue(actions[partner].prepare(state(partner),"BUYBACK",shop,goods.id).submit(clients[partner]).endsWith(" REJECT_ITEM"));
+            act("WAIT",0,0);
+            return;
+        }
+        offer(seat);
+        PublicDungeon view=new PublicDungeon(state(seat));
+        int gold=Integer.parseInt(view.source.rows.get("gold"));
+        assertEquals(view.source.rows.get("gold"),state(1-seat).rows.get("gold"));
+        long handle;
+        int change;
+        if (verb.equals("BUY")) {
+            String[] quote=view.source.rows.get("quote"+cell).split(",");
+            assertTrue(state(1-seat).rows.containsKey("quote"+cell));
+            int other=1-seat;
+            SeatActions.Pending race=actions[other].prepare(state(other),"CONSENT",cell,Long.parseLong(state(other).rows.get("quote"+cell).split(",")[0]));
+            assertTrue(clients[other].request(race.command.replace(" CONSENT "," BUY ")).endsWith(" REJECT_TURN"));
+            handle=Long.parseLong(quote[0]); change=-Integer.parseInt(quote[1]);
+        } else {
+            assertFalse(state(1-seat).rows.containsKey("quote"+cell));
+            cell=Integer.parseInt(view.source.rows.get("merchant"));
+            if (verb.equals("SELL")) {
+                PublicDungeon.Loot bought=view.belongings.stream().filter(i->i.sprite==sprite && i.slot.equals("BAG")
+                        && view.source.rows.containsKey("sell"+i.id) && view.source.rows.get("sell"+i.id).startsWith(value+",")).findFirst().get();
+                handle=bought.id; change=value;
+            } else {
+                String key=view.source.rows.keySet().stream().filter(k->k.startsWith("refund")).findFirst().get();
+                assertFalse(state(1-seat).rows.keySet().stream().anyMatch(k->k.startsWith("refund")));
+                handle=Long.parseLong(key.substring(6)); change=-value;
+            }
+        }
+        SeatActions.Pending pending=actions[seat].prepare(view.source,verb,cell,handle);
+        RestartHost.write(path,"trade-action",seat+" "+pending.id+" "+pending.command);
+        RestartHost.write(path,"expected-gold",Integer.toString(gold+change));
+        RestartHost.write(path,"trade-start",Long.toString(System.currentTimeMillis()));
+        RestartHost.write(path,"kill-before-reply","1");
+        assertThrows(IOException.class,()->pending.submit(clients[seat]));
     }
 
     private static final int CAMPAIGN_RESTART_STEP = 400;

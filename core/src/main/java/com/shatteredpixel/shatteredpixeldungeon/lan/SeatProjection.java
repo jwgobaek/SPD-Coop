@@ -114,6 +114,17 @@ final class SeatProjection {
                 if (buff.icon() != BuffIndicator.NONE) rows.put("b"+buff.id(),buff.icon()+","+
                         (buff instanceof FlavourBuff ? Float.toString(buff.visualcooldown()) : "NA"));
             }
+            com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper shop =
+                    com.shatteredpixel.shatteredpixeldungeon.CoopTrade.merchant(hero,true);
+            if (shop!=null && !sight.visible(shop.pos)) shop=null;
+            if (Dungeon.depth>=6) rows.put("gold",Integer.toString(Dungeon.gold));
+            if (shop!=null) {
+                rows.put("merchant",Integer.toString(shop.pos));
+                for (Item sold:shop.buybackItems) if (game.ownership.owner(sold)==game.player(seat)) {
+                    long handle=tradeHandle(rows,visibleItems,sold);
+                    rows.put("refund"+handle,sold.image()+","+sold.quantity()+","+sold.value()+","+(com.shatteredpixel.shatteredpixeldungeon.CoopTrade.roomFor(hero,sold)?1:0));
+                }
+            }
             StenchGas stench = (StenchGas)level.blobs.get(StenchGas.class);
             for (int cell=0;cell<sight.length();cell++) {
                 if (!sight.visible(cell)) continue;
@@ -137,7 +148,12 @@ final class SeatProjection {
                 if (heap != null && heap.type == Heap.Type.HEAP && heap.peek()!=null) {
                     putItem(rows,visibleItems,heap.peek(),"F"+cell);
                 } else if (heap!=null && heap.type==Heap.Type.FOR_SALE && heap.peek()!=null) {
-                    rows.put("sale"+cell,Integer.toString(heap.peek().image()));
+                    Item stock=heap.peek();
+                    rows.put("sale"+cell,Integer.toString(stock.image()));
+                    if (com.shatteredpixel.shatteredpixeldungeon.CoopTrade.supported(stock) && heap.size()==1) {
+                        long handle=tradeHandle(rows,visibleItems,stock);
+                        rows.put("quote"+cell,handle+","+com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.sellPrice(stock)+","+stock.quantity()+","+(com.shatteredpixel.shatteredpixeldungeon.CoopTrade.roomFor(hero,stock)?1:0));
+                    }
                 } else if (heap != null) rows.put("h"+cell,
                         heap.type==Heap.Type.CHEST || heap.type==Heap.Type.CRYSTAL_CHEST || heap.type==Heap.Type.LOCKED_CHEST ? heap.type.name() : "CONTAINER");
             }
@@ -172,6 +188,8 @@ final class SeatProjection {
                 selection++;
                 putItem(rows,visibleItems,item,slot(hero.belongings,item));
                 if (game.ownership.owner(item)==game.player(seat)) {
+                    if (shop!=null && com.shatteredpixel.shatteredpixeldungeon.CoopTrade.maySell(hero,item))
+                        rows.put("sell"+ids.get(item),item.value()+","+(com.shatteredpixel.shatteredpixeldungeon.CoopTrade.sellOne(item) ? 1 : 0));
                     if (CoopSession.basicStone(item) && item.isIdentified())
                         rows.put("family"+ids.get(item),"stone."+StateImage.hash(shortcutSalt+"/stone/"+
                                 ((com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone)item).setID).substring(0,32));
@@ -218,7 +236,14 @@ final class SeatProjection {
         }
     }
 
-    private void putItem(Map<String,String> rows, Map<Long,Item> visible, Item item,String slot) {
+    private long tradeHandle(Map<String,String> rows,Map<Long,Item> visible,Item item) {
+        long id=handle(visible,item);
+        String label=com.shatteredpixel.shatteredpixeldungeon.CoopTrade.label(item);
+        if (!label.isEmpty()) rows.put("tradelabel"+id,label);
+        return id;
+    }
+
+    private long handle(Map<Long,Item> visible, Item item) {
         Long id = ids.get(item);
         if (id == null) {
             id = nextItem;
@@ -227,6 +252,11 @@ final class SeatProjection {
             ids.put(item,id);
         }
         visible.put(id,item);
+        return id;
+    }
+
+    private void putItem(Map<String,String> rows, Map<Long,Item> visible, Item item,String slot) {
+        long id=handle(visible,item);
         String kind = item instanceof com.shatteredpixel.shatteredpixeldungeon.items.Honeypot ? "HONEYPOT"
                 : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.Honeypot.ShatteredPot ? "SHELL"
                 : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow ? "BOW"

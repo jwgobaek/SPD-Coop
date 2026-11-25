@@ -14,6 +14,7 @@ PREFIXES = ("items/", "actors/mobs/", "actors/buffs/", "actors/blobs/", "actors/
 ENUMS = {"HeroClass", "HeroSubClass", "Talent"}
 VERIFIED = {
     "actors/mobs/Skeleton": "floor six generation, native melee and death burst hitting adjacent heroes / SewerDepthTest, HostRestartTest",
+    "actors/mobs/npcs/Shopkeeper": "floor six native stock, price, sale and seller-bound buyback on both seats after process death / HostRestartTest; special merchandise and theft remain gated",
     "actors/mobs/ArmoredStatue": "716 Mail/Potential and 446 Leather/Repulsion; two seats, parked equipment IDs, loot and confirmed strike after restart / SewerGuardiansTest, HostRestartTest",
     "items/armor/glyphs/Potential": "armored statue defends; native non-Hero wearer does not charge the attacking mage's wand / SewerGuardiansTest",
     "items/armor/glyphs/Repulsion": "native statue proc queues one push with landing on the authoritative scheduler / SewerGuardiansTest",
@@ -123,7 +124,6 @@ VERIFIED.update({
 for trap in ("GrippingTrap","RockfallTrap","GatewayTrap"):
     VERIFIED["levels/traps/"+trap]="native effect on either seat, same-floor checkpoint, original gateway destination / SewerTravelGearTest"
 IMPLEMENTED = {
-    "actors/mobs/npcs/Shopkeeper": "floor six native generation and saved resident; visible sale sprite, no purchase, sale or buyback UI",
     "items/armor/MailArmor": "plain unglyphed armor ownership and equipment path, separate item-specific trial pending",
     "actors/mobs/Crab": "native basic AI in generated upper sewers, isolated per-seat case pending",
     "actors/mobs/Slime": "native basic AI in generated upper sewers, isolated per-seat case pending",

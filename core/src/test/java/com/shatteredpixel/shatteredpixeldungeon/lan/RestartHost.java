@@ -102,8 +102,14 @@ public final class RestartHost {
             }
             if (stage.equals("AFTER_HEAD") && mode.equals("crystal-fight") && java.nio.file.Files.exists(path.resolve("strike"))
                     && Actor.findById(Integer.parseInt(read(path,"crystal-id")))==null) Runtime.getRuntime().halt(78);
-            if (stage.equals("AFTER_HEAD") && java.nio.file.Files.exists(path.resolve("kill-before-reply")))
+            if (stage.equals("AFTER_HEAD") && java.nio.file.Files.exists(path.resolve("kill-before-reply"))) {
+                if (mode.startsWith("market-")) {
+                    long start=Long.parseLong(read(path,"trade-start"));
+                    System.out.println("trade publication "+mode+" elapsed_us="+(System.currentTimeMillis()-start)*1000
+                            +" active_actors="+Actor.all().size()+" used_heap_bytes="+(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()));
+                }
                 Runtime.getRuntime().halt(78);
+            }
         });
         if (mode.equals("schema3-backup") || mode.equals("prison-backup")) {
             UUID id=saves.sessions().get(0);
@@ -119,6 +125,7 @@ public final class RestartHost {
                 assertEquals(5,Dungeon.depth);
                 assertEquals(5,Dungeon.coop.checkpoint().getBundle("dormant").getKeys().size());
             }
+            if (mode.startsWith("market-")) arrangeMarket(path,mode);
             if (mode.equals("prison-resume")) {
                 assertEquals(6,Dungeon.depth);
                 assertTrue(Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel);
@@ -339,6 +346,43 @@ public final class RestartHost {
                 assertThrows(IOException.class,room::saveAndClose);
             } else { if (mode.equals("goo-receipt")) verifyBossLoot(path); room.saveAndClose(); }
         }
+    }
+
+    // Only position and spending money are arranged. Stock, shopkeeper, price and receipts are native.
+    private static void arrangeMarket(Path path,String mode) throws IOException {
+        CoopSession game=Dungeon.coop;
+        assertEquals(6,Dungeon.depth);
+        com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper shop=CoopTrade.merchant(game.hero(0),false);
+        assertNotNull(shop);
+        int seat=Integer.parseInt(mode.substring(mode.length()-1));
+        Hero buyer=game.hero(seat);
+        String suffix=Integer.toString(seat);
+        if (mode.startsWith("market-buy")) {
+            Heap stock=Dungeon.level.heaps.valueList().stream()
+                    .filter(h->h.type==Heap.Type.FOR_SALE && !h.peek().stackable && CoopTrade.supported(h.peek())
+                              && com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.canSell(buyer,h.peek()))
+                    .findFirst().get();
+            SewerSpecialActorTest.atGate(game,stock.pos);
+            buyer.pos=stock.pos;
+            Dungeon.gold=10000;
+            write(path,"stock"+suffix,stock.pos+" "+game.ownership.identity(stock.peek())+" "+stock.peek().image()+" "+stock.peek().value());
+        } else {
+            String[] stock=read(path,"stock"+suffix).split(" ");
+            long id=Long.parseLong(stock[1]);
+            assertNull(Dungeon.level.heaps.get(Integer.parseInt(stock[0])));
+            int held=0,returned=0;
+            for (Item item:buyer.belongings) if (game.ownership.identity(item)==id) {
+                held++; assertEquals(game.player(seat),game.ownership.owner(item));
+            }
+            for (Item item:shop.buybackItems) if (game.ownership.identity(item)==id) {
+                returned++; assertEquals(game.player(seat),game.ownership.owner(item));
+            }
+            assertEquals(1,held+returned);
+            assertEquals(mode.startsWith("market-reclaim") ? 1 : 0,returned);
+            assertEquals(Integer.parseInt(read(path,"expected-gold")),Dungeon.gold);
+            SewerSpecialActorTest.atGate(game,shop.pos);
+        }
+        for (int i=0;i<2;i++) game.observe(i);
     }
 
     private static void crystalResumeFixture(Path path,String mode) throws IOException {

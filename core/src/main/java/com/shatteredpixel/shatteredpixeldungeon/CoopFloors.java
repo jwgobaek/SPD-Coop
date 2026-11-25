@@ -252,6 +252,16 @@ public final class CoopFloors {
             }
         }
         for(Bundle mob:floor.getBundleArray("mobs")) {
+            if (mob.getString("__className").equals(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.class.getName())) {
+                int index=0;
+                for (Bundle item:mob.getBundleArray("buyback_items")) {
+                    Bundle entry=entries.getBundle("shop"+mob.getInt("id")+"_"+index++);
+                    if (index>com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.MAX_BUYBACK_HISTORY || entry.getLong("owner")==0)
+                        throw new IllegalArgumentException("Buyback history");
+                    inspectItem(item,entry);
+                    count++;
+                }
+            }
             boolean armored=mob.getString("__className").equals(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue.class.getName());
             if (armored) {
                 inspectItem(mob.getBundle("armor"),entries.getBundle("arm"+mob.getInt("id")));

@@ -56,6 +56,30 @@ final class RenderEncounter {
             throw new AssertionError("Missing adjacent plant cell");
         }).get(5,TimeUnit.SECONDS);
     }
+    static int market(CoopController client, boolean stock, int gold) throws Exception {
+        Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
+        Object room=host.get(client);
+        Field executor=room.getClass().getDeclaredField("owner"); executor.setAccessible(true);
+        return ((ExecutorService)executor.get(room)).submit(()->{
+            CoopSession game=Dungeon.coop;
+            Hero buyer=game.hero(0);
+            if (stock) {
+                com.shatteredpixel.shatteredpixeldungeon.items.Heap heap=Dungeon.level.heaps.valueList().stream()
+                        .filter(h->h.type==com.shatteredpixel.shatteredpixeldungeon.items.Heap.Type.FOR_SALE
+                                && h.peek() instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor).findFirst().get();
+                buyer.pos=heap.pos;
+                Dungeon.gold=gold;
+                return heap.pos;
+            }
+            com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper keeper=CoopTrade.merchant(buyer,false);
+            for (int off:com.watabou.utils.PathFinder.NEIGHBOURS8) {
+                int pos=keeper.pos+off;
+                if (Dungeon.level.passable[pos] && Actor.findChar(pos)==null) { buyer.pos=pos; return keeper.pos; }
+            }
+            throw new AssertionError("Shopkeeper has no adjacent floor");
+        }).get(5,TimeUnit.SECONDS);
+    }
+
     static void atBossKey(CoopController client) throws Exception {
         Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
         Object room=host.get(client);

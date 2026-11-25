@@ -1,5 +1,9 @@
 # Cloud에서 빌드하기
 
+## 감옥 6층 상점 · P1-A
+
+감옥 상점 APK는 기존 org.spdcoop.dungeon.indev의 디버그 빌드다. scripts/verify-android-build.sh로 전체 JUnit, 패키지, 서명 및 SHA-256을 확인한다. 실제 Android 설치와 사용 검증 항목은 ANDROID-VALIDATION.md에서 추적한다.
+
 이번 알파의 Application ID는 `org.spdcoop.dungeon.indev`다. V4 중간 APK 버전은 `4.0.2-INDEV-quickslots`, 감옥 진입 APK 버전은 `4.0.2-INDEV-prison-entry`다. 빌드 커밋·APK 해시·클라우드 서명 검사는 [실행 보고](TEST_REPORT.md)를 참조한다. 개발 인증서가 다르면 같은 패키지 위에 업데이트 설치할 수 없다.
 
 

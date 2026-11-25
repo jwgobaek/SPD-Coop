@@ -9,6 +9,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.*;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndSeatInventory;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndSeatTrade;
 import com.watabou.noosa.*;
 import java.util.UUID;
 
@@ -33,6 +34,9 @@ public class CoopScene extends PixelScene {
             case "ZAP": case "SHOOT": case "THROW":
                 aim(view,item);
                 break;
+            case "SELL": case "SELL_ONE":
+                WndSeatTrade.sell(this,view,item,action,controller);
+                break;
             case "UPGRADE": case "IDENTIFY":
                 add(WndSeatInventory.chooseEquipment(view,controller,item));
                 break;
@@ -55,6 +59,10 @@ public class CoopScene extends PixelScene {
                 if(view.stair!=cell) alert(msg("stairconditions"));
                 else if(view.offered && !view.consent) alert(msg("awaitvote"));
                 else controller.act(view.source,view.offered?"TRAVEL":view.consent?"CANCEL_TRAVEL":"CONSENT",cell,0);
+            } else if (view.visible(cell) && view.source.rows.containsKey("sale"+cell)) {
+                WndSeatTrade.stock(this,view,cell,controller);
+            } else if (view.source.rows.containsKey("merchant") && Integer.toString(cell).equals(view.source.rows.get("merchant"))) {
+                WndSeatTrade.merchant(this,view,cell,controller);
             } else if ("Ghost".equals(view.monsters.get(cell))) {
                 String offer=view.source.rows.get("quest"+cell);
                 if (offer!=null) talkToGhost(view,cell,offer);
@@ -86,7 +94,7 @@ public class CoopScene extends PixelScene {
         });
     }
 
-    static String msg(String key,Object... args) { return Messages.get(CoopScene.class,key,args); }
+    public static String msg(String key,Object... args) { return Messages.get(CoopScene.class,key,args); }
 
     @Override public void create() {
         super.create();

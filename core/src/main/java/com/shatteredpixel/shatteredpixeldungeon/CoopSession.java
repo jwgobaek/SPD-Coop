@@ -94,9 +94,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
+    public enum Action { BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
         public boolean requiresItem() {
-            return this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
+            return this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -559,7 +559,7 @@ public final class CoopSession implements AutoCloseable {
                     if (cell < 0 || cell >= level.length() || !level.adjacent(hero.pos, cell)
                             || !safeFloor(cell,true) || Actor.findChar(cell) != null || hero.rooted) return false;
                     Heap destination = level.heaps.get(cell);
-                    if (destination != null && destination.type != Heap.Type.HEAP) return false;
+                    if (destination != null && destination.type != Heap.Type.HEAP && destination.type != Heap.Type.FOR_SALE) return false;
                     hero.checkVisibleMobs();
                     boolean unsteady = hero.buff(Vertigo.class) != null;
                     boolean teleport = (level.traps.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.levels.traps.TeleportationTrap
@@ -567,7 +567,7 @@ public final class CoopSession implements AutoCloseable {
                             && level.traps.get(cell).active;
                     teleport |= level.plants.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.plants.Fadeleaf;
                     hero.handle(cell);
-                    if (hero.curAction instanceof HeroAction.PickUp) hero.curAction = new HeroAction.Move(cell);
+                    if (hero.curAction instanceof HeroAction.PickUp || hero.curAction instanceof HeroAction.Buy) hero.curAction = new HeroAction.Move(cell);
                     if (!(hero.curAction instanceof HeroAction.Move)) throw new IllegalStateException("Unexpected move action");
                     hero.act();
                     if (!unsteady && !teleport && hero.pos != cell) throw new IllegalStateException("Move was interrupted");
@@ -639,6 +639,9 @@ public final class CoopSession implements AutoCloseable {
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
                     hero.act();
+                    break;
+                case BUY: case SELL: case SELL_ONE: case BUYBACK:
+                    if (!CoopTrade.execute(this,hero,action,cell,item)) return false;
                     break;
                 case IDENTIFY:
                 case UPGRADE:
@@ -862,6 +865,14 @@ public final class CoopSession implements AutoCloseable {
     static Map<String,Item> floorItems(Level level) {
         Map<String,Item> result=new TreeMap<>();
         for (Mob mob : level.mobs) {
+            if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper) {
+                int index=0;
+                com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper keeper=(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper)mob;
+                if (keeper.buybackItems.size()>com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.MAX_BUYBACK_HISTORY)
+                    throw new IllegalArgumentException("Buyback history limit");
+                for (Item sold:keeper.buybackItems)
+                    result.put("shop"+mob.id()+"_"+index++,sold);
+            }
             if (mob instanceof Thief && ((Thief)mob).item!=null) result.put("th"+mob.id(),((Thief)mob).item);
             if (mob instanceof ArmoredStatue) result.put("arm"+mob.id(),((ArmoredStatue)mob).armor());
             if (mob instanceof Statue) result.put("w"+mob.id(),((Statue)mob).weapon());
@@ -970,7 +981,8 @@ public final class CoopSession implements AutoCloseable {
             if (!ids.add(id) || !entry.getString("type").equals(item.getClass().getName()) ||
                     entry.getInt("quantity")!=item.quantity() || item.quantity()<=0 ||
                     (owner!=0 && owner!=players[0] && owner!=players[1]) ||
-                    (e.getKey().startsWith("s") && owner!=players[e.getKey().charAt(1)-'0']))
+                    (e.getKey().startsWith("shop") && owner==0) ||
+                    ((e.getKey().startsWith("s0_") || e.getKey().startsWith("s1_")) && owner!=players[e.getKey().charAt(1)-'0']))
                 throw new IllegalArgumentException("Item owner or object mismatch");
             ownership.restored(item,id,owner,ceiling);
         }

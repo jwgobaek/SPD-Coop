@@ -88,3 +88,7 @@ TCP 47821과 UDP 47820을 기본값으로 채택했다. v1은 최대 두 좌석,
 ## 미믹 도주와 원소유권
 
 수정 미믹은 원본 한 단위 탈취·도주·사망 행동을 사용한다. 협동에서 도주 판정은 생존한 두 좌석의 직접 시야와 거리를 모두 고려한다. 도주 성공은 영구 소실이며 강제 반환하지 않는다. 바닥으로 반환된 탈취물과 미믹이 원래 가지고 있던 보상은 각각 기존 소유자와 미귀속 상태를 유지한다. 하수도 임시 유령 보상 및 부활·층 이동 정책은 기존 결정대로 적용한다.
+
+## P1-A provisional shop rules
+
+Both authenticated heroes spend the original shared Dungeon.gold on their offered turn. The original Shopkeeper sells stock at sellPrice and buys equipment at item.value(). His three most recent sales form a shop-wide FIFO. Each retained object keeps its seller as owner, and only that seller sees it and can buy it back at its native value. An evicted object exits circulation as in single-player. Purchases and buybacks require capacity before committing. This prevents an item paid for with shared gold being dropped into the other hero's possession. Opening a quote or cancelling it is local. This policy remains provisional.
