@@ -2,9 +2,13 @@
 
 ## 현재 범위 · 하수도 1–5층
 
-공식 태그에서 다시 생성한 TSV는 총 1,580행이다. VERIFIED 98행, IMPLEMENTED 13행, UNSUPPORTED 1,469행이다. 행마다 검증한 행동과 시험명이 있다. 선언에는 공통 클래스, 중첩 효과와 열거값도 포함된다.
+공식 태그에서 다시 생성한 TSV는 총 1,580행이다. VERIFIED 107행, IMPLEMENTED 13행, UNSUPPORTED 1,460행이다. 행마다 검증한 행동과 시험명이 있다. 선언에는 공통 클래스, 중첩 효과와 열거값도 포함된다.
 
 식별된 회복 물약, 사냥꾼의 기본 영혼의 활, 가죽 갑옷 교체, 새 함정 세 종류와 Fadeleaf·Earthroot·Starflower·Sorrowmoss 네 식물, 3·4층 유령 의뢰, 네 개의 휴면 층, Goo 전투와 보상 복원을 검증했다. 특정 석상 장비, 미지원 복합 효과 및 감옥 진입이 남았다. [실행 경로와 시드 결과](docs/coop/sewer-depths.md) · [현재 TSV](docs/coop/content-v4.0.2.tsv)
+
+추가로 Sungrass, Swiftthistle, Blindweed, Mageroyal, Stormvine, Icecap, Firebloom의 실제 양 좌석 기본 발동을 검증했다. Sungrass.Health의 자리 유지와 Swiftthistle.TimeBubble의 지연된 셀 발동을 별도 행으로 집계한다. 직접 시야에 있는 식물의 원본 atlas 표시와 관측 상실을 검사했다. 다섯 기본 물약의 빙결 파괴 범위는 [하수도 시험](docs/coop/sewer-plants.md)에 있다.
+
+시드 581과 1105에서는 1층부터 두 영웅이 생존한 채 Goo 전리품과 열린 출구까지 실제 게임 행동을 확인했다.
 
 아래 표와 설명의 수치는 각 이전 체크포인트에 해당한다.
 

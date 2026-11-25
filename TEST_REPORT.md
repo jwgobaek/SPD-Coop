@@ -1,6 +1,28 @@
-# 2026-11-24 클라우드 실행 보고
+# SPD-Coop 클라우드 실행 보고
 
-## 하수도 1–5층과 Goo · 현재 실행
+## 2026-11-25 · 협동 식물, 냉간 복원, 두 번째 정상 완주
+
+| 시험 | 판정 | 실제 결과 |
+| --- | --- | --- |
+| 시작 원격 `28a0306` | PASS | 클린 checkout에서 117/117, 36개 suite |
+| 중간 검증 | PASS | 식물 `627ed21`에서 125/125, 안내서 복원 `227e33f`에서 126/126, 경로 복원 `8898cdf`에서 128/128. 각 커밋에서 별도 Android 빌드·서명 검사 |
+| 최종 회귀 `04e6228` | PASS | 129/129, 38개 suite, 실패·오류·건너뜀 0. 기존 117건 보존 |
+| 양 좌석 식물·인벤토리 | PASS | 7종 원본 발동, 치료·시야·시간·Frost 복원 및 바닥 기본 물약 다섯 종류. 경로별 양 좌석 주체·소유자를 확인 |
+| 응답 유실 후 복구 | PASS | 7종 × 2좌석. 실제 호스트 14회 강제 종료, 14회 새 JVM 재개, 기존 좌석 인증 28회, 같은 MOVE 영수증 재조회·재전송 및 다음 정상 행동 |
+| 시드 581 냉간 AI 비교 | PASS | 0·400·1,040번째 행동 경계에서 실제 파일로 복원. 새 JVM의 남은 1,121·721·81회 행동 및 행동별 몬스터 상태가 정상 시작 대조군과 일치 |
+| 정상 시작과 실제 TCP | PASS | 581 기존 1,121회, 581 재시작 400+721회, 1105 신규 1,018회. 합계 3,260회, 별도 계단 동의 12회. 각각 원본 Goo 전리품 1·1·2개, 양 좌석 생존·출구 개방 확인 |
+| 정상 시작 경로 확대 | PASS | 과거 식물 중단 경로 19개 모두 원래 실패 지점을 통과. 동료 엄호 경로 17개 중 양쪽 생존 1, 한 명 생존 2, 전멸 11, 행동 한도 3. 정상 완주 기준 FAIL인 시도도 TSV에 보존 |
+| 시드 415 정상 완주 | FAIL | 시작 조합 세 개에서 342·610·690회 실제 행동, 3·4·4층에서 각각 한 좌석 사망 |
+| Desktop LWJGL/X11 | PASS | 영어·한국어 garden 및 deep 4회. 지정 시험 배치의 Sungrass, 3–5층, Goo 충전·재접속·보상 16개 원본 스크린샷 포함 |
+| Android APK | PASS | `org.spdcoop.dungeon.indev`, `4.0.2-INDEV-sewer-plants` (922), 35,250,694바이트. v1/v2, 서명자 1명, 이전 `14cd572`와 같은 개발 인증서 |
+| GitHub Actions · Android 실기기 | NOT RUN | 호스팅 실행 0건 조회. 실제 설치·화면·터치·수명주기·Wi-Fi·핫스팟 측정 없음 |
+
+APK SHA-256은 `10366a1217508a3abad4832de0d6c434bf6b2924d9c1db0136b8ae2f0d63fce7`이다. 빌드 커밋은 `04e622852fc1eadccb7007c3d0b156667f6ee0fd`이다. 시드 1105의 실제 TCP 일반 행동 응답 지연은 최종 실행에서 중앙값 17.56ms, 95백분위 25.45ms였다. 동시 클라우드 작업의 부하를 포함한다. 정상 탐험에서는 안내기가 지형을 읽어 입력을 선택한다. 영웅이나 적 배치·체력·능력치는 원본 생성 상태에서 시작한다.
+
+실행한 명령은 `git ls-remote coop refs/heads/coop/phase8`, `./gradlew --offline --no-daemon :core:cleanTest :core:test`, 각 격리 checkout에서 `bash scripts/verify-android-build.sh <출력>`, `./gradlew --offline :desktop:compileTestJava :desktop:release`, X11의 `CoopRenderSmoke <출력> garden` 및 `deep`이다. 재시험 중 발견한 오류와 다음 시작점은 [상세 검증](docs/coop/sewer-plants.md)에 있다. [빌드 로그·JUnit XML·스크린샷·시드 목록 ZIP](docs/coop/sewer-plants-evidence.zip)
+
+
+## 이전 실행 · 하수도 1–5층과 Goo
 
 | 시험 | 판정 | 실제 결과 |
 |---|---|---|

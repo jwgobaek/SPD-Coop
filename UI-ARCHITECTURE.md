@@ -1,5 +1,8 @@
 # 협동 화면과 실행 스레드
 
+협동 보드의 식물은 SeatProjection이 수신 좌석의 직접 시야로 제한한 `plant<cell>` 행에서 읽는다. PublicDungeon과 CoopBoard가 원본 terrain features atlas의 식물 이미지를 표시하며, 시야를 잃거나 식물이 시들면 그 이미지를 지운다. 두 언어의 Sungrass 화면은 [검증 ZIP](docs/coop/sewer-plants-evidence.zip)에 있다.
+
+
 ## 하수도 효과 표시
 
 CoopBoard는 검증된 공개 상태에서 원본 함정 아틀라스, 보이는 블롭의 색, 공개된 석상·황금 미믹·양의 스프라이트를 그린다. PublicDungeon은 인접 잠긴 문을 UNLOCK으로, 양과의 상호작용을 GREET로 변환한다. 지연 피해와 밀치기의 게임 시간은 호스트 Actor가 소유한다.

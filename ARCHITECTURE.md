@@ -1,5 +1,8 @@
 # 엔진 분석 — v4.0.2
 
+현재 협동 저장은 이후 원본 층 생성에 관여하는 안내서의 미발견 항목, 원본 다리 방의 배치 제한, 몬스터의 추격 경로와 경계 상태를 호스트 소유 데이터로 보존한다. 클라이언트가 사용하는 표시 행에는 직접 보이는 식물의 원본 타일 번호만 추가했다. [저장 명세](docs/coop/save-format.md) · [동기화 명세](docs/coop/state-sync.md)
+
+
 ## 하수도 층과 보스전
 
 CoopFloors가 branch 0의 현재 층과 최대 네 개 휴면 층을 관리한다. CoopSession은 같은 두 Hero를 이동시키고 실제 Actor 스케줄러는 활성 층만 실행한다. CoopSaves는 이동·몬스터 전리품·상태 버전·영수증을 같은 세대로 발행한다. 수신 좌석의 SeatProjection에서 볼 수 있는 Goo 충전 단계만 표시한다. [현재 저장 구조](docs/coop/save-format.md) · [검증 경계](docs/coop/sewer-depths.md)

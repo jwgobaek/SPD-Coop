@@ -1549,18 +1549,18 @@ mechanics/ConeAOE	mechanics	UNSUPPORTED		core/src/main/java/com/shatteredpixel/s
 mechanics/ShadowCaster	mechanics	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/mechanics/ShadowCaster.java
 plants/BlandfruitBush	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/BlandfruitBush.java
 plants/BlandfruitBush.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/BlandfruitBush.java
-plants/Blindweed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Blindweed.java
+plants/Blindweed	plants	VERIFIED	landing blindness and cripple / SewerPlantTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Blindweed.java
 plants/Blindweed.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Blindweed.java
 plants/Earthroot	plants	VERIFIED	native Armor buff on the occupant of either seat, persists on restore / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Earthroot.java
 plants/Earthroot.Armor	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Earthroot.java
 plants/Earthroot.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Earthroot.java
 plants/Fadeleaf	plants	VERIFIED	original same-floor teleport, both basic hero seats, withering persists / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Fadeleaf.java
 plants/Fadeleaf.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Fadeleaf.java
-plants/Firebloom	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Firebloom.java
+plants/Firebloom	plants	VERIFIED	native fire blob, occupant burning and withering / SewerPlantTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Firebloom.java
 plants/Firebloom.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Firebloom.java
-plants/Icecap	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Icecap.java
+plants/Icecap	plants	VERIFIED	native frost, one-shot carried shatter, adjacent floor splash / SewerPlantTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Icecap.java
 plants/Icecap.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Icecap.java
-plants/Mageroyal	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Mageroyal.java
+plants/Mageroyal	plants	VERIFIED	cleansing the occupant / SewerPlantTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Mageroyal.java
 plants/Mageroyal.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Mageroyal.java
 plants/Plant	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Plant.java
 plants/Plant.PlaceHolder	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Plant.java
@@ -1571,11 +1571,11 @@ plants/Sorrowmoss	plants	VERIFIED	native Poison on either occupant, restored wit
 plants/Sorrowmoss.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Sorrowmoss.java
 plants/Starflower	plants	VERIFIED	native Bless buff on the occupant of either seat, persists on restore / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Starflower.java
 plants/Starflower.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Starflower.java
-plants/Stormvine	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Stormvine.java
+plants/Stormvine	plants	VERIFIED	landing vertigo / SewerPlantTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Stormvine.java
 plants/Stormvine.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Stormvine.java
-plants/Sungrass	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Sungrass.java
-plants/Sungrass.Health	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Sungrass.java
+plants/Sungrass	plants	VERIFIED	stationary healing at the landing / SewerPlantTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Sungrass.java
+plants/Sungrass.Health	plants	VERIFIED	partial stationary healing on the original cell, expiry after leaving / SewerPlantTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Sungrass.java
 plants/Sungrass.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Sungrass.java
-plants/Swiftthistle	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Swiftthistle.java
+plants/Swiftthistle	plants	VERIFIED	time bubble on the occupant / SewerPlantTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Swiftthistle.java
 plants/Swiftthistle.Seed	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Swiftthistle.java
-plants/Swiftthistle.TimeBubble	plants	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Swiftthistle.java
+plants/Swiftthistle.TimeBubble	plants	VERIFIED	private delayed terrain press, expiry and resumed turn / SewerPlantTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/plants/Swiftthistle.java

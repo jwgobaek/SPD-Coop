@@ -1,5 +1,10 @@
 # Cloud에서 빌드하기
 
+## 현재 하수도 식물·복원 빌드
+
+JDK 21과 기존 Android SDK, Gradle Wrapper를 사용한다. 브랜치의 검증 대상 커밋을 별도 worktree에 체크아웃한 뒤 `bash scripts/verify-android-build.sh <새 출력 디렉터리>`를 실행했다. 해당 디렉터리에 APK, 패키지·서명 확인, SHA-256, 커밋, 빌드 로그와 JUnit XML이 생성된다. 버전은 `4.0.2-INDEV-sewer-plants`, versionCode는 922다. Desktop에서는 `:desktop:compileTestJava :desktop:release` 후 X11에서 `CoopRenderSmoke`의 garden 시나리오를 양 언어로 실행한다. [검증 자료](docs/coop/sewer-plants-evidence.zip)
+
+
 ## 하수도 1–5층 빌드
 
 독립 checkout에서 scripts/verify-android-build.sh를 실행하면 현재 커밋의 기존·신규 JUnit, APK, 패키지·서명·SHA-256 검사를 함께 기록한다. 이전 스키마 호환성은 각각 92ebf94와 9b6f58a checkout을 대상으로 scripts/verify-alpha-migration.py와 scripts/verify-sewer-migration.py로 검증한다. Desktop 검증기는 CoopRenderSmoke의 deep, kit 모드를 분리된 앱 프로필에서 실행한다. 셸에서 여러 빌드를 동시에 돌릴 때에는 각 빌드에 별도 Git worktree와 출력을 사용한다. [실행 결과](docs/coop/sewer-depths.md)

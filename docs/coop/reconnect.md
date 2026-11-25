@@ -1,5 +1,10 @@
 # 저장 가능한 SYNC1 방과 좌석 재접속
 
+## 식물 발동 직후 재접속
+
+두 좌석을 번갈아 Swiftthistle·Sungrass·Blindweed·Mageroyal·Stormvine·Icecap·Firebloom에 이동시켰다. 14회 모두 HEAD 발행 직후 MOVE 응답 전에 호스트 JVM을 종료했다. 새 호스트에서 기존 두 좌석이 인증하고 새 공개 이미지를 받고 원본 Action ID로 결과를 재조회·재전송했다. 발동, State Version, 소유자의 효과와 다음 정상 행동을 검사했다. [증거](sewer-plants-evidence.zip)
+
+
 ## 하수도 영수증
 
 독립 JVM의 황금 미믹 기습, 원본 불안정 무기 석상의 공격, 다트 착지와 철문 해제 시험에서 HEAD 발행 직후 응답 전에 호스트가 종료된다. 새 호스트가 디스크를 읽고 양쪽 기존 좌석이 재인증한 뒤 LOOKUP과 동일 Action ID 재전송의 결과 및 공개 상태를 비교한다.

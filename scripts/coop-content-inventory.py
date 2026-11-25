@@ -101,6 +101,17 @@ VERIFIED.update({
     "plants/Starflower": "native Bless buff on the occupant of either seat, persists on restore / SewerTravelGearTest",
     "plants/Fadeleaf": "original same-floor teleport, both basic hero seats, withering persists / SewerTravelGearTest",
 })
+VERIFIED.update({
+    "plants/Blindweed": "landing blindness and cripple / SewerPlantTest, HostRestartTest",
+    "plants/Stormvine": "landing vertigo / SewerPlantTest, HostRestartTest",
+    "plants/Mageroyal": "cleansing the occupant / SewerPlantTest, HostRestartTest",
+    "plants/Sungrass": "stationary healing at the landing / SewerPlantTest, HostRestartTest",
+    "plants/Sungrass.Health": "partial stationary healing on the original cell, expiry after leaving / SewerPlantTest, HostRestartTest",
+    "plants/Swiftthistle": "time bubble on the occupant / SewerPlantTest, HostRestartTest",
+    "plants/Swiftthistle.TimeBubble": "private delayed terrain press, expiry and resumed turn / SewerPlantTest, HostRestartTest",
+    "plants/Firebloom": "native fire blob, occupant burning and withering / SewerPlantTest, HostRestartTest",
+    "plants/Icecap": "native frost, one-shot carried shatter, adjacent floor splash / SewerPlantTest, HostRestartTest",
+})
 for trap in ("GrippingTrap","RockfallTrap","GatewayTrap"):
     VERIFIED["levels/traps/"+trap]="native effect on either seat, same-floor checkpoint, original gateway destination / SewerTravelGearTest"
 IMPLEMENTED = {
