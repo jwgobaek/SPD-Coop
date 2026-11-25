@@ -302,6 +302,7 @@ final class CoopBoard extends Group {
                     case "DemonSpawner": sprite=new SpawnerSprite();break;
                     case "YogRipper": case "RipperDemon": sprite=new RipperSprite();break;
                     case "Scorpio": sprite=new ScorpioSprite();break;
+                    case "Acidic": sprite=new AcidicSprite();break;
                     case "YogDzewa": sprite=new YogSprite();break;
                     case "Larva": sprite=new LarvaSprite();break;
                     case "BrightFist": sprite=new FistSprite.Bright();break;

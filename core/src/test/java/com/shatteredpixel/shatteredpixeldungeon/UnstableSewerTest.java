@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 public class UnstableSewerTest extends HeadlessDungeon {
     // Choose a reproducible first draw and on-hit roll on a private test RNG stack.
     // Unstable.proc still performs the actual uniform draw from its production list.
-    private static long seedFor(int index) {
+    static long seedFor(int index) {
         for(long seed=0;seed<100000;seed++) {
             Random.pushGenerator(seed);
             boolean selected = Random.Int(14)==index && Random.Float()<0.01f;

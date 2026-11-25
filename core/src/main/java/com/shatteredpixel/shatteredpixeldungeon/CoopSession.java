@@ -3,6 +3,15 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Succubus;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DemonSpawner;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RipperDemon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Eye;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.ScaleArmor;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.PlateArmor;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Viscosity;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Brimstone;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Corrupting;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gauntlet;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Greatshield;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Acidic;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Scorpio;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.YogDzewa;
@@ -544,7 +553,7 @@ public final class CoopSession implements AutoCloseable {
                     || type == GnollGeomancer.class || type == GnollGuard.class || type == GnollSapper.class;
         }
         if ((Dungeon.depth==19 || Dungeon.depth>=21 && Dungeon.depth<=24) && type==Succubus.class) return true;
-        if (Dungeon.depth>=21 && Dungeon.depth<=24 && (type==DemonSpawner.class || type==RipperDemon.class || type==Eye.class || type==Scorpio.class)) return true;
+        if (Dungeon.depth>=21 && Dungeon.depth<=24 && (type==DemonSpawner.class || type==RipperDemon.class || type==Eye.class || type==Scorpio.class || type==Acidic.class)) return true;
         if (Dungeon.depth==25 && (type==YogDzewa.class || type==YogDzewa.Larva.class || type==YogDzewa.YogRipper.class
                 || type==YogFist.BurningFist.class || type==YogFist.SoiledFist.class || type==YogFist.RottingFist.class
                 || type==YogFist.RustedFist.class || type==YogFist.BrightFist.class || type==YogFist.DarkFist.class)) return true;
@@ -558,6 +567,10 @@ public final class CoopSession implements AutoCloseable {
         if (type==ArmoredStatue.class) {
             ArmoredStatue statue=(ArmoredStatue)actor;
             Armor armor=statue.armor();
+            if (armor instanceof ScaleArmor && armor.glyph instanceof Viscosity)
+                return statue.weapon() instanceof Gauntlet && statue.weapon().enchantment instanceof Blazing;
+            if (armor instanceof PlateArmor && armor.glyph instanceof Brimstone)
+                return statue.weapon() instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Glaive && statue.weapon().enchantment instanceof Corrupting;
             return statueWeapon(statue.weapon()) && basicArmorType(armor)
                     && (armor.glyph instanceof Potential || armor.glyph instanceof Repulsion
                     || armor.glyph instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic
@@ -589,8 +602,10 @@ public final class CoopSession implements AutoCloseable {
         Class<?> base = item.getClass();
         Weapon.Enchantment enchantment=((Weapon)item).enchantment;
         if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WarScythe.class)
-            return enchantment instanceof Projecting || enchantment instanceof Shocking;
-        if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Glaive.class) return enchantment instanceof Venomous;
+            return enchantment instanceof Projecting || enchantment instanceof Shocking || enchantment instanceof Corrupting;
+        if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Glaive.class) return enchantment instanceof Venomous || enchantment instanceof Corrupting;
+        if (base == Greatshield.class) return enchantment instanceof Kinetic;
+        if (base == Gauntlet.class) return enchantment instanceof Unstable || enchantment instanceof Blazing;
         if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Greataxe.class) return enchantment instanceof Projecting;
         if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Quarterstaff.class) return ((MeleeWeapon)item).enchantment instanceof Venomous;
         // Runic Slash is a hero ability. A statue uses the blade's tier-four passive damage curve.
