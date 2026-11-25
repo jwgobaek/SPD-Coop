@@ -7,6 +7,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel;
+import com.watabou.noosa.Camera;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.*;
 import com.shatteredpixel.shatteredpixeldungeon.windows.*;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
@@ -36,7 +38,7 @@ public class UpstreamGraphicsReference {
         ImageIO.write(new Robot().createScreenCapture(bounds),"png",new File(out,name+".png"));
     }
     private static void capture(String mode) throws Exception {
-        boolean boss=mode.equals("goo"), prison=mode.equals("prison");
+        boolean boss=mode.equals("goo"), prison=mode.equals("prison"), tengu=mode.equals("tengu-reference");
         long until=System.nanoTime()+TimeUnit.SECONDS.toNanos(30);
         while (Gdx.app==null || !render(()->Game.scene() instanceof PixelScene)) {
             if (System.nanoTime()>until) throw new AssertionError("Startup timeout");
@@ -54,6 +56,7 @@ public class UpstreamGraphicsReference {
             Dungeon.init();
             if (boss) Dungeon.depth=5;
             if (prison) Dungeon.depth=6;
+            if (tengu) Dungeon.depth=10;
             Level level=Dungeon.newLevel();
             int start=level.entrance();
             if (prison) for (com.shatteredpixel.shatteredpixeldungeon.items.Heap heap:level.heaps.valueList()) {
@@ -74,6 +77,30 @@ public class UpstreamGraphicsReference {
         while (!render(()->Game.scene() instanceof GameScene)) {
             if (System.nanoTime()>until) throw new AssertionError("Scene timeout");
             Thread.sleep(50);
+        }
+        if (tengu) {
+            // Render the original staged geometry as a visual reference. These are fixture frames.
+            render(()->{
+                PrisonBossLevel level=(PrisonBossLevel)Dungeon.level;
+                viewAt(level,10+25*level.width());
+                level.occupyCell(Dungeon.hero);
+                if (level.state()!=PrisonBossLevel.State.FIGHT_START || !level.locked)
+                    throw new AssertionError("Original cell phase");
+                return null;
+            });
+            shot("tengu-cell-fixture");
+            render(()->{
+                PrisonBossLevel level=(PrisonBossLevel)Dungeon.level;
+                level.progress();
+                if (level.state()!=PrisonBossLevel.State.FIGHT_PAUSE) throw new AssertionError("Original intermission");
+                viewAt(level,10+7*level.width());
+                level.occupyCell(Dungeon.hero);
+                if (level.state()!=PrisonBossLevel.State.FIGHT_ARENA || !level.locked)
+                    throw new AssertionError("Original arena");
+                return null;
+            });
+            shot("tengu-arena-fixture");
+            return;
         }
         if (prison) {
             shot("prison-shop");
@@ -113,6 +140,14 @@ public class UpstreamGraphicsReference {
             });
             shot("locked-door");
         }
+    }
+    private static void viewAt(Level level,int cell) {
+        if (!level.passable[cell]) throw new AssertionError("Expected passable fixture cell");
+        Dungeon.hero.pos=cell;
+        Dungeon.hero.sprite.place(cell);
+        Dungeon.observe();
+        GameScene.updateMap();
+        Camera.main.snapTo(Dungeon.hero.sprite.center());
     }
     public static void main(String[] args) throws Exception {
         out=new File(args[0]); out.mkdirs();

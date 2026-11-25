@@ -23,6 +23,9 @@ public final class PrisonShopChecks {
                 SewerBeeTest.offer(game,seat);
                 hero.pos=stock.pos; game.observe(seat);
                 Item armor=stock.peek(); long turn=game.turn(); int price=Shopkeeper.sellPrice(armor);
+                assertFalse(CoopFloorsTest.step(game,CoopSession.Action.BUY,stock.pos,null));
+                assertEquals(turn,game.turn());
+                assertFalse(game.stopped());
                 Dungeon.gold=price-1;
                 assertFalse(CoopFloorsTest.step(game,CoopSession.Action.BUY,stock.pos,armor));
                 assertEquals(price-1,Dungeon.gold); assertSame(armor,stock.peek()); assertEquals(turn,game.turn());
@@ -63,6 +66,24 @@ public final class PrisonShopChecks {
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.BUYBACK,shop.pos,retained));
                 assertEquals(2,shop.buybackItems.size()); assertEquals(originalCount-3,carried.quantity());
                 assertEquals(money+3*value,Dungeon.gold);
+            }
+            // A sale marker is not authority to buy an item already bound to the other seat.
+            try (CoopSession game=CoopSession.restore(original)) {
+                Hero hero=game.hero(seat);
+                Heap heap=Dungeon.level.heaps.valueList().stream().filter(h->h.type==Heap.Type.FOR_SALE
+                        && h.peek() instanceof Armor).findFirst().get();
+                SewerBeeTest.offer(game,seat);
+                hero.pos=heap.pos;
+                game.observe(seat);
+                Item armor=heap.peek();
+                game.ownership.claim(armor,game.playerOf(game.hero(1-seat)));
+                int balance=Shopkeeper.sellPrice(armor);
+                Dungeon.gold=balance;
+                long turn=game.turn();
+                assertFalse(CoopFloorsTest.step(game,CoopSession.Action.BUY,heap.pos,armor));
+                assertEquals(balance,Dungeon.gold);
+                assertEquals(turn,game.turn());
+                assertSame(armor,heap.peek());
             }
         }
     }

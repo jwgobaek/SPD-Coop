@@ -26,7 +26,7 @@ capture() {
     export XDG_DATA_HOME
     java -Duser.language="$lang" -cp "$classes" "$package.$launcher" "$out/$folder" "$mode" >"$out/$folder-$mode.log" 2>&1
 }
-for mode in sewer goo prison; do
+for mode in sewer goo prison tengu-reference; do
     capture "$work/driver:$original/$jar" UpstreamGraphicsReference official "$mode" en
 done
 for mode in base hazards deep; do
@@ -35,6 +35,6 @@ for mode in base hazards deep; do
         capture "$repo/desktop/build/classes/java/test:$repo/$jar" CoopRenderSmoke "coop-$lang-$mode" "$mode" "$lang"
     done
 done
-for mode in sewer goo prison; do
+for mode in sewer goo prison tengu-reference; do
     capture "$repo/desktop/build/classes/java/test:$repo/$jar" UpstreamGraphicsReference singleplayer "$mode" en
 done

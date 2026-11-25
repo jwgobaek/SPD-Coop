@@ -2,7 +2,7 @@
 
 ## 감옥 7층 개발판
 
-4.0.2-INDEV-prison-seven은 기존 verify-android-build.sh로 전체 코어 테스트 및 디버그 APK를 빌드한다. scripts/verify-prison-seven-migration.py는 현재 트리와 9b6130f 기준 트리의 test classpath를 인자로 사용한다. 기기 설치와 무선 LAN은 ANDROID-VALIDATION.md에서 추적한다.
+4.0.2-INDEV-prison-seven은 기존 verify-android-build.sh로 전체 코어 테스트 및 디버그 APK를 빌드한다. scripts/verify-prison-seven-migration.py는 9b6130f 기준 Git 작업 트리 경로 하나를 인자로 받아 각 트리의 테스트 classpath를 구한다. 기기 설치와 무선 LAN은 ANDROID-VALIDATION.md에서 추적한다.
 
 ## 감옥 6층 상점 · P1-A
 

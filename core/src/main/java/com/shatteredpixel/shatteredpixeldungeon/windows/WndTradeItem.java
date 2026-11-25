@@ -240,9 +240,9 @@ public class WndTradeItem extends WndInfoItem {
 		sell(Dungeon.hero,item,shop);
 	}
 
-	public static void sell(Hero hero, Item item, Shopkeeper shop) {
+	public static boolean sell(Hero hero, Item item, Shopkeeper shop) {
 		if (item.isEquipped( hero ) && !((EquipableItem)item).doUnequip( hero, false )) {
-			return;
+			return false;
 		}
 		item.detachAll( hero.belongings.backpack );
 
@@ -261,6 +261,7 @@ public class WndTradeItem extends WndInfoItem {
 				shop.buybackItems.remove(0);
 			}
 		}
+		return true;
 	}
 
 	public static void sellOne( Item item ) {

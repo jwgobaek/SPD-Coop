@@ -11,6 +11,7 @@ import com.watabou.utils.Bundle;
 import java.nio.charset.StandardCharsets;
 import java.util.TreeSet;
 import org.junit.Test;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import static org.junit.Assert.*;
 
 /** Vanilla generation only. No hero is moved or credited with completing these floors. */
@@ -41,11 +42,24 @@ public class PrisonGenerationTest extends HeadlessDungeon {
                 }
                 for (Heap h:level.heaps.valueList()) for (Item item:h.items)
                     (h.type==Heap.Type.FOR_SALE ? stock : loot).add(item.getClass().getSimpleName());
+                String gate="DEPTH_LIMIT", rewards="-";
+                if (depth<=CoopFloors.LAST_PLAYABLE) {
+                    try {
+                        CoopFloors.requireSupportedResidents(level);
+                        gate="SUPPORTED_RESIDENTS";
+                    } catch (CoopFloors.UnsupportedDestination blocked) {
+                        gate=blocked.getMessage();
+                    }
+                }
+                if (mobs.contains("Wandmaker")) {
+                    rewards=Wandmaker.Quest.wand1.getClass().getSimpleName()+","
+                            +Wandmaker.Quest.wand2.getClass().getSimpleName();
+                }
                 Bundle save=new Bundle(); save.put("level",level);
                 System.out.println(String.join("\t","PRISON_GENERATION",Integer.toString(seed),Integer.toString(depth),
                         level.getClass().getSimpleName(),Integer.toString(level.mobs.size()),String.join(",",mobs),
                         String.join(",",rooms),String.join(",",traps),String.join(",",plants),String.join(",",stock),
-                        String.join(",",loot),Integer.toString(save.toString().getBytes(StandardCharsets.UTF_8).length)));
+                        String.join(",",loot),Integer.toString(save.toString().getBytes(StandardCharsets.UTF_8).length),gate,rewards));
             }
         }
         assertEquals(3,questRooms.size());

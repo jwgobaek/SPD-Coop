@@ -27,6 +27,7 @@ public final class CoopTrade {
     }
 
     public static boolean supported(Item item) {
+        if (item == null) return false;
         return item instanceof Food || item instanceof Potion || item instanceof Scroll || item instanceof Armor
                 || item instanceof Weapon || item instanceof Ankh || item instanceof Runestone
                 || item instanceof Ring || item instanceof Wand || item.getClass()==Honeypot.class;
@@ -62,7 +63,7 @@ public final class CoopTrade {
         if (shop==null) return false;
         if (buy) {
             Heap heap=Dungeon.level.heaps.get(cell);
-            if (hero.pos!=cell || heap==null || heap.hidden || heap.type!=Heap.Type.FOR_SALE || heap.size()!=1
+            if (!game.ownership.allowed(item,game.playerOf(hero)) || hero.pos!=cell || heap==null || heap.hidden || heap.type!=Heap.Type.FOR_SALE || heap.size()!=1
                     || heap.peek()!=item || Shopkeeper.sellPrice(item)>Dungeon.gold || !roomFor(hero,item)) return false;
             WndTradeItem.buy(hero,heap);
         } else {
@@ -75,7 +76,7 @@ public final class CoopTrade {
                 if (action==CoopSession.Action.SELL_ONE) {
                     if (!sellOne(item)) return false;
                     WndTradeItem.sellOne(hero,item,shop);
-                } else WndTradeItem.sell(hero,item,shop);
+                } else return WndTradeItem.sell(hero,item,shop);
             }
         }
         return true;

@@ -32,7 +32,8 @@ public final class RestartClient {
         finally { for(LanClient socket:c.clients) if(socket!=null) socket.close(); }
         System.out.println("mode="+args[1]+" acknowledged="+c.applied+" authenticated="+c.reconnections);
         if (c.state(0)!=null && c.state(1)!=null)
-            System.out.println("public_snapshot mode="+args[1]+" seat0_bytes="+c.state(0).snapshotBytes()
+            System.out.println("public_snapshot mode="+args[1]+" seated_tcp_bytes="+Arrays.stream(c.clients).filter(Objects::nonNull).mapToLong(LanClient::transferredBytes).sum()
+                    +" seat0_bytes="+c.state(0).snapshotBytes()
                     +" seat1_bytes="+c.state(1).snapshotBytes());
     }
 
@@ -48,12 +49,16 @@ public final class RestartClient {
     }
 
     private SeatActions.Pending act(String name,int cell,long item) throws Exception {
+        return act(name,cell,item,"APPLIED");
+    }
+
+    private SeatActions.Pending act(String name,int cell,long item,String expected) throws Exception {
         int seat=active();
         SeatActions.Pending p=actions[seat].prepare(state(seat),name,cell,item);
         long started=System.nanoTime();
         String reply=p.submit(clients[seat]);
         latency.add((System.nanoTime()-started)/1000);
-        assertTrue(name+" "+reply,reply.endsWith(" APPLIED"));
+        assertTrue(name+" "+reply,reply.endsWith(" "+expected));
         applied++;
         refresh();
         return p;
@@ -754,24 +759,28 @@ public final class RestartClient {
         // A separate native-engine process prepares a map-aware list of ordinary player inputs.
         // Each authenticated socket step below checks the independent host's resulting position and HP.
         Path dir=path;
-        boolean coverAlly=mode.equals("campaign-team");
+        boolean extended=mode.startsWith("journey-seven-");
+        boolean coverAlly=mode.equals("campaign-team") || mode.equals("journey-seven-1105");
         String seed=coverAlly ? "1105" : "581";
         Process guide=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-Xmx256m",
-                "-Djourney.front=MAGE","-Djourney.prison="+mode.equals("prison"),"-Djourney.coverAlly="+coverAlly,"-Djourney.trace="+dir.resolve("route"),"-cp",System.getProperty("java.class.path"),
+                "-Djourney.front=MAGE","-Djourney.goalDepth="+(extended ? 7 : mode.equals("prison") ? 6 : 5),"-Djourney.coverAlly="+coverAlly,"-Djourney.trace="+dir.resolve("route"),"-cp",System.getProperty("java.class.path"),
                 "com.shatteredpixel.shatteredpixeldungeon.SewerJourney",seed)
                 .redirectErrorStream(true).redirectOutput(dir.resolve("guide.log").toFile()).start();
+        boolean defeated;
         try {
             assertTrue(guide.waitFor(30,java.util.concurrent.TimeUnit.SECONDS));
             assertEquals(0,guide.exitValue());
             String outcome=RestartHost.read(dir,"guide.log");
-            assertTrue(outcome.substring(Math.max(0,outcome.length()-500)),outcome.contains("both alive, exit unlocked"));
+            defeated=extended && outcome.contains("highest=6 result=casualty/halt DEAD/DEAD stops=null");
+            assertTrue(outcome.substring(Math.max(0,outcome.length()-500)),defeated || outcome.contains("both alive, exit unlocked"));
         } finally { guide.destroyForcibly(); }
 
         boolean resumed=mode.equals("campaign-resume");
         int steps=0, crossings=0, exitsOpened=0;
         int priorCrossings=0;
         List<Long> crossingMicros=new ArrayList<>(),bossMicros=new ArrayList<>();
-        for(String line:Files.readAllLines(path.resolve("route"))) {
+        List<String> route=Files.readAllLines(path.resolve("route"));
+        for(String line:route) {
             String[] row=line.split(" ");
             int seat=Integer.parseInt(row[0]), cell=Integer.parseInt(row[4]);
             String verb=row[3], where="step "+steps+" "+line;
@@ -798,8 +807,15 @@ public final class RestartClient {
                     case "EAT": handle=item(seat,"BAG","FOOD"); break;
                     default: break;
                 }
-                act(verb,cell,handle);
+                act(verb,cell,handle,defeated && steps==route.size()-1 ? "PARTY_DEFEATED" : "APPLIED");
                 if(before.depth==5 && before.monsters.containsValue("Goo")) bossMicros.add(latency.get(latency.size()-1));
+            }
+            if (defeated && steps==route.size()-1) {
+                // The terminal image deliberately withdraws both map and inventory.
+                assertEquals(where,"0,"+row[5],state(seat).rows.get("floor"));
+                assertEquals(where,0,Integer.parseInt(row[7]));
+                steps++;
+                break;
             }
             PublicDungeon after=new PublicDungeon(state(seat));
             assertEquals(where,Integer.parseInt(row[5]),after.depth);
@@ -815,7 +831,20 @@ public final class RestartClient {
             }
             Thread.sleep(30);
         }
-        assertEquals(mode.equals("prison")?5:4,priorCrossings+crossings); assertEquals(1,exitsOpened);
+        assertEquals(extended ? (defeated ? 5 : 6) : mode.equals("prison") ? 5 : 4,priorCrossings+crossings);
+        assertEquals(1,exitsOpened);
+        if (defeated) {
+            for (int i=0;i<2;i++) {
+                assertEquals("0,6",state(i).rows.get("floor"));
+                assertEquals("DEAD",state(i).rows.get("life"));
+                assertEquals("PARTY_DEFEATED",state(i).rows.get("status"));
+                assertFalse(state(i).rows.containsKey("self"));
+            }
+            assertEquals(-1,active());
+            System.out.println("native socket route normal-start seed="+seed+" inputs="+steps+" consents="+crossings
+                    +" highest=6 outcome=PARTY_DEFEATED no_position_fixture=true");
+            return;
+        }
         if (mode.equals("prison")) {
             for (int i=0;i<2;i++) {
                 PublicDungeon view=new PublicDungeon(state(i)); assertEquals(6,view.depth);

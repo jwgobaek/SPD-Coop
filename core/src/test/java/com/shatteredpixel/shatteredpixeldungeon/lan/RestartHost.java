@@ -48,7 +48,7 @@ public final class RestartHost {
     static boolean knife(String mode) { return mode.equals("knife0") || mode.equals("knife1"); }
     static boolean kit(String mode) { return mode.equals("kit0") || mode.equals("kit1"); }
     static boolean newCampaign(String mode) {
-        return mode.equals("prison") || mode.equals("campaign") || mode.equals("campaign-start") || mode.equals("campaign-team");
+        return mode.startsWith("journey-seven-") || mode.equals("prison") || mode.equals("campaign") || mode.equals("campaign-start") || mode.equals("campaign-team");
     }
     private static long seedFor(String mode) {
         switch (mode) {
@@ -65,8 +65,8 @@ public final class RestartHost {
             case "quest": return 403;
             case "piranha": return 406;
             case "walk": return 415;
-            case "prison": case "campaign": case "campaign-start": return 581;
-            case "campaign-team": return 1105;
+            case "journey-seven-581": case "prison": case "campaign": case "campaign-start": return 581;
+            case "journey-seven-1105": case "campaign-team": return 1105;
             default: return 402;
         }
     }

@@ -150,7 +150,7 @@ final class SeatProjection {
                 } else if (heap!=null && heap.type==Heap.Type.FOR_SALE && heap.peek()!=null) {
                     Item stock=heap.peek();
                     rows.put("sale"+cell,Integer.toString(stock.image()));
-                    if (com.shatteredpixel.shatteredpixeldungeon.CoopTrade.supported(stock) && heap.size()==1) {
+                    if (com.shatteredpixel.shatteredpixeldungeon.CoopTrade.supported(stock) && heap.size()==1 && game.ownership.allowed(stock,game.playerOf(hero))) {
                         long handle=tradeHandle(rows,visibleItems,stock);
                         rows.put("quote"+cell,handle+","+com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.sellPrice(stock)+","+stock.quantity()+","+(com.shatteredpixel.shatteredpixeldungeon.CoopTrade.roomFor(hero,stock)?1:0));
                     }

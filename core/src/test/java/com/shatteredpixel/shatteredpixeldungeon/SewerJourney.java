@@ -81,6 +81,8 @@ public class SewerJourney extends HeadlessDungeon {
 
     private void travel(long seed) throws java.io.IOException {
         counts.clear();
+        int goalDepth=Integer.getInteger("journey.goalDepth",Boolean.getBoolean("journey.prison") ? 6 : 5);
+        if (goalDepth<5 || goalDepth>CoopFloors.LAST_PLAYABLE) throw new IllegalArgumentException("Journey depth");
         String result="action budget"; int highest=1;
         HeroClass front=HeroClass.valueOf(System.getProperty("journey.front","WARRIOR"));
         HeroClass back=HeroClass.valueOf(System.getProperty("journey.back","HUNTRESS"));
@@ -119,18 +121,21 @@ public class SewerJourney extends HeadlessDungeon {
                     }
                 }
                 highest=Math.max(highest,Dungeon.depth);
+                if (goalDepth>5 && Dungeon.depth==goalDepth) {
+                    result="both alive, exit unlocked, entered prison "+goalDepth; break;
+                }
                 int s=g.activeSeat();
                 if(s<0 || g.stopped() || (Dungeon.depth<5 && (g.life(0)==CoopSession.Life.DEAD || g.life(1)==CoopSession.Life.DEAD))) {result="casualty/halt "+g.life(0)+"/"+g.life(1)+" stops="+g.stopReason();break;}
                 Hero h=g.hero(s); Level l=Dungeon.level;
                 int visitsHere=visits.merge(Dungeon.depth*200000+s*100000+h.pos,1,Integer::sum);
                 if(Dungeon.depth==5 && l.map[l.exit()]==Terrain.UNLOCKED_EXIT &&
                         (g.hero(0).belongings.getItem(GooBlob.class)!=null || g.hero(1).belongings.getItem(GooBlob.class)!=null)) {
-                    if (Boolean.getBoolean("journey.prison") && g.hero(0).isAlive() && g.hero(1).isAlive()) {
+                    if (goalDepth>5 && g.hero(0).isAlive() && g.hero(1).isAlive()) {
                         if (g.stairs.stair()==l.exit()) {
                             if (!g.stairs.consent(1-s,g.turn(),l.exit(),false) || !act(g,CoopSession.Action.TRAVEL,l.exit(),null)) {
                                 result="prison refused "+g.destinationBlocker; break;
                             }
-                            result="both alive, exit unlocked, entered prison"; highest=Dungeon.depth; break;
+                            continue;
                         }
                         int step=CoopFloorsTest.nextStep(g,l.exit(),true,true);
                         if (step>=0 && step!=h.pos && act(g,CoopSession.Action.MOVE,step,null)) continue;
@@ -145,7 +150,7 @@ public class SewerJourney extends HeadlessDungeon {
                     int toward=CoopFloorsTest.nextStep(g,ally,true,true);
                     if(toward>=0 && act(g,CoopSession.Action.MOVE,toward,null)) continue;
                 }
-                if(Dungeon.depth<5 && g.stairs.stair()==l.exit()) {
+                if(Dungeon.depth!=5 && g.stairs.stair()==l.exit()) {
                     if(Dungeon.depth==4 && (g.hero(0).HP<g.hero(0).HT-1 || g.hero(1).HP<g.hero(1).HT-1)
                             && !g.hero(0).buff(Hunger.class).isStarving() && !g.hero(1).buff(Hunger.class).isStarving() && h.getVisibleEnemies().isEmpty()
                             && act(g,CoopSession.Action.WAIT,0,null)) continue;
@@ -245,7 +250,7 @@ public class SewerJourney extends HeadlessDungeon {
                     if(l.adjacent(h.pos,l.exit()) && act(g,CoopSession.Action.UNLOCK,l.exit(),null)) continue;
                     if(l.adjacent(h.pos,goal) && l.heaps.get(goal)!=null && act(g,CoopSession.Action.MOVE,goal,null)) continue;
                 }
-                if(Dungeon.depth<5 && goal==l.exit() && l.distance(h.pos,goal)<=1 && g.stairs.stair()<0) {
+                if(Dungeon.depth!=5 && goal==l.exit() && l.distance(h.pos,goal)<=1 && g.stairs.stair()<0) {
                     // Yield a one-cell doorway to the companion who still needs to approach.
                     int partner=g.hero(1-s).pos, best=-1;
                     for(int off:PathFinder.NEIGHBOURS8) {

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Read the approved six-floor host's real schema-4 generation, then persist a seventh floor."""
+import json
+import struct
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import runpy
@@ -25,6 +27,20 @@ def boundary(old, new):
                 assert value == b["sync"][seat][key], key
 
 
+def report_size(base):
+    directory, = (base / "coop-saves-v1").iterdir()
+    current = struct.unpack(">q", (directory / "HEAD").read_bytes()[:8])[0]
+    generation = (directory / f"g{current}").stat().st_size
+    total = sum(f.stat().st_size for f in directory.iterdir() if f.is_file())
+    engine = helper["generation"](base)["state"]["engine"]
+    dormant = engine["dormant"]
+    sizes = {depth: len(json.dumps(record, ensure_ascii=False, separators=(",", ":")).encode("utf8"))
+             for depth, record in sorted(dormant.items())}
+    print(f"storage depth={engine['world']['depth']} schema={engine['schema']} "
+          f"generation_bytes={generation} directory_bytes={total} "
+          f"dormant_compact_json_bytes={sizes}", flush=True)
+
+
 def main(old):
     old = Path(old).resolve()
     new = Path(__file__).resolve().parents[1]
@@ -37,6 +53,7 @@ def main(old):
         original.mkdir()
         helper["run"](old, helper["classpath"](old, temp), original, "prison", client_timeout=240)
         saved = helper["generation"](original)
+        report_size(original)
         resumed = temp / "resumed"
         shutil.copytree(original, resumed)
         cp = helper["classpath"](new, temp)
@@ -44,9 +61,11 @@ def main(old):
         helper["run"](new, cp, resumed, "legacy-prison", previous=saved, verify_boundary=boundary)
         helper["run"](new, cp, resumed, "seven-travel", expected_exit=78)
         assert helper["generation"](resumed)["schema"] == 5
+        report_size(resumed)
         (resumed / "kill-before-reply").unlink()
         helper["run"](new, cp, resumed, "seven-resume")
         helper["run"](new, cp, resumed, "seven-return")
+        report_size(resumed)
         assert helper["generation"](original) == saved
         print("PASS original H6 schema 4, both credentials, world, RNG, all parked floors and receipts; schema 5 on travel, lost reply and return")
 
