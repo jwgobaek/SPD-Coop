@@ -25,7 +25,7 @@ VERIFIED = {
     "actors/mobs/npcs/Shopkeeper": "floor six native stock, price, sale and seller-bound buyback on both seats after process death / HostRestartTest; special merchandise and theft remain gated",
     "items/weapon/missiles/ThrowingKnife": "plain unmodified native projectile, both seats, lodging and durable receipt after host death / PrisonProjectileTest, HostRestartTest",
     "actors/buffs/PinCushion": "two owners, native death/drop, dormant and active physical IDs / PrisonProjectileTest",
-    "actors/mobs/ArmoredStatue": "716 Mail/Potential and 446 Leather/Repulsion; two seats, parked equipment IDs, loot and confirmed strike after restart / SewerGuardiansTest, HostRestartTest",
+    "actors/mobs/ArmoredStatue": "716 Mail/Potential, 446 Leather/Repulsion, 571 Leather/AntiMagic and 578 Leather/Swiftness; two seats, parked equipment IDs, loot and confirmed strike after restart / SewerGuardiansTest, HostRestartTest",
     "items/armor/glyphs/Potential": "armored statue defends; native non-Hero wearer does not charge the attacking mage's wand / SewerGuardiansTest",
     "items/armor/glyphs/Repulsion": "native statue proc queues one push with landing on the authoritative scheduler / SewerGuardiansTest",
     "items/scrolls/ScrollOfIdentify": "known scroll, privately select owned supported equipment, identify once, reconnect / HostRestartTest",

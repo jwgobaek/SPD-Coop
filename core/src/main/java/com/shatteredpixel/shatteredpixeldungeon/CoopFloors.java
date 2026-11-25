@@ -62,6 +62,12 @@ public final class CoopFloors {
                     detail+="/"+weapon.getClass().getSimpleName()+"/"+
                             (weapon.enchantment==null ? "plain" : weapon.enchantment.getClass().getSimpleName());
                 }
+                if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue) {
+                    com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor armor =
+                            ((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue) mob).armor();
+                    detail += "/" + armor.getClass().getSimpleName() + "/" +
+                            (armor.glyph == null ? "plain" : armor.glyph.getClass().getSimpleName());
+                }
                 blockers.add(detail);
             }
         }

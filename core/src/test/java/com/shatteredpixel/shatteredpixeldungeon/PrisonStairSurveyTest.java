@@ -48,7 +48,7 @@ public class PrisonStairSurveyTest extends HeadlessDungeon {
                 assertEquals(6,Dungeon.depth);
                 SewerSpecialActorTest.waitOne(game);
             }
-            if (seed==572 || seed==575 || seed==577 || seed==581) assertEquals(7,reached);
+            assertEquals("staged seven-floor regression for seed "+seed,7,reached);
             System.out.println("QUEST_STAIRS\t"+seed+"\t"+reached+"\t"+(onSeven!=null)+"\t"+(blocker==null?"-":blocker));
         }
     }

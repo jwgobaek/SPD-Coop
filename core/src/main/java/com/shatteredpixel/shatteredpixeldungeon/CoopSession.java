@@ -45,6 +45,13 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Venomous;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampiric;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Spear;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.HandAxe;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Whip;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sword;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shocking;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Lucky;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vorpal;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sickle;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.BattleAxe;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CrystalMimic;
@@ -417,7 +424,9 @@ public final class CoopSession implements AutoCloseable {
             ArmoredStatue statue=(ArmoredStatue)actor;
             Armor armor=statue.armor();
             return statueWeapon(statue.weapon()) && basicArmorType(armor)
-                    && (armor.glyph instanceof Potential || armor.glyph instanceof Repulsion);
+                    && (armor.glyph instanceof Potential || armor.glyph instanceof Repulsion
+                    || armor.glyph instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic
+                    || armor.glyph instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Swiftness);
         }
         if (type==Statue.class) return statueWeapon(((Statue)actor).weapon());
         return (Dungeon.depth>=CoopFloors.FIRST_PRISON && Dungeon.depth<=CoopFloors.LAST_PLAYABLE && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Skeleton.class)
@@ -440,12 +449,17 @@ public final class CoopSession implements AutoCloseable {
         if (!(item instanceof MeleeWeapon)) return false;
         Class<?> base = item.getClass();
         if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Quarterstaff.class) return ((MeleeWeapon)item).enchantment instanceof Venomous;
-        if (base != Sickle.class && base != BattleAxe.class && base != Shortsword.class
+        boolean extendedReach = base == Spear.class || base == Whip.class;
+        // Innate reach and Projecting both use the original Weapon.reachFactor.
+        if (base == Whip.class && ((Weapon)item).enchantment instanceof Projecting) return false;
+        if (!extendedReach && base != Sword.class && base != HandAxe.class && base != Sickle.class && base != BattleAxe.class && base != Shortsword.class
                 && base != Dirk.class && base != RoundShield.class && base != Scimitar.class) return false;
         Weapon.Enchantment effect = ((Weapon)item).enchantment;
         if (effect == null) return false;
         Class<?> type = effect.getClass();
-        return type == com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling.class || type == Kinetic.class || type == Venomous.class || type == Vampiric.class || type == Projecting.class || type == Unstable.class;
+        return type == com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling.class || type == Kinetic.class || type == Venomous.class || type == Vampiric.class || type == Projecting.class || type == Unstable.class
+                || type == Shocking.class || type == Lucky.class || type == Vorpal.class
+                || type == com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Corrupting.class;
     }
 
     public static boolean disguised(Char actor) {

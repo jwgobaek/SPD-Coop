@@ -205,6 +205,101 @@ public class SewerGuardiansTest extends HeadlessDungeon {
         }
     }
 
+    @Test public void armoredSpearUsesNativeDefensesAndKeepsBothItemsAcrossDormancy() {
+        for (int seed : new int[]{571,578}) for (int seat=0;seat<2;seat++) {
+            Bundle saved;
+            int statueId;
+            long spearId, armorId;
+            try (CoopSession game=CoopSession.open(seed,11,HeroClass.WARRIOR)) {
+                game.join(22,HeroClass.MAGE);
+                SewerDepthTest.gate(game,true);
+                ArmoredStatue statue=SewerSpecialActorTest.actor(ArmoredStatue.class);
+                assertEquals(Spear.class,statue.weapon().getClass());
+                assertEquals("LeatherArmor",statue.armor().getClass().getSimpleName());
+                Hero victim=game.hero(seat);
+                SewerGhostTest.meet(game,seat,statue);
+                assertEquals(statue.weapon().delayFactor(statue),statue.attackDelay(),0.001f);
+                if(seed==571) {
+                    assertEquals(Corrupting.class,statue.weapon().enchantment.getClass());
+                    assertEquals("AntiMagic",statue.armor().glyph.getClass().getSimpleName());
+                    for(int hit=0;hit<32;hit++) statue.attackProc(victim,3);
+                    assertNull(victim.buff(Corrupting.CorruptingTracker.class));
+                    int hp=statue.HP;
+                    statue.damage(8,new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile());
+                    assertTrue(statue.HP>hp-8);
+                } else {
+                    assertEquals("Swiftness",statue.armor().glyph.getClass().getSimpleName());
+                    assertEquals(Projecting.class,statue.weapon().enchantment.getClass());
+                    assertTrue(statue.weapon().reachFactor(statue)>2);
+                    int level=statue.glyphLevel(com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Swiftness.class);
+                    assertTrue(level>=0);
+                    assertEquals(com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Swiftness.speedBoost(statue,level),statue.speed(),0.001f);
+                }
+                statueId=statue.id(); spearId=game.ownership.identity(statue.weapon()); armorId=game.ownership.identity(statue.armor());
+                SewerDepthTest.gate(game,false); assertNull(Actor.findById(statueId));
+                saved=game.checkpoint();
+            }
+            try (CoopSession game=CoopSession.restore(saved)) {
+                SewerDepthTest.gate(game,true);
+                ArmoredStatue statue=(ArmoredStatue)Actor.findById(statueId);
+                assertEquals(spearId,game.ownership.identity(statue.weapon()));
+                assertEquals(armorId,game.ownership.identity(statue.armor()));
+                statue.die(game.hero(seat));
+                assertTrue(CoopSession.floorItems(Dungeon.level).containsValue(statue.armor()));
+                assertTrue(CoopSession.floorItems(Dungeon.level).containsValue(statue.weapon()));
+            }
+        }
+    }
+
+    @Test public void naturallyGeneratedPrisonRouteStatuesUseOriginalWeaponAndDropItOnce() {
+        int[] seeds = {574,576,579,580,577};
+        int[] depths = {3,1,3,3,8};
+        Class<?>[] types = {Spear.class,HandAxe.class,HandAxe.class,Whip.class,Sword.class};
+        Class<?>[] effects = {Shocking.class,Vorpal.class,Lucky.class,Chilling.class,Vorpal.class};
+        for (int i=0;i<seeds.length;i++) for (int seat=0;seat<2;seat++) {
+            Bundle saved;
+            int id;
+            long weaponId;
+            try (CoopSession game=CoopSession.open(seeds[i],11,HeroClass.WARRIOR)) {
+                game.join(22,HeroClass.MAGE);
+                for(int j=0;j<2;j++) game.hero(j).HT=game.hero(j).HP=500;
+                while(Dungeon.depth<depths[i]) {
+                    if (Dungeon.depth==5) Level.set(Dungeon.level.exit(),com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.UNLOCKED_EXIT);
+                    SewerDepthTest.gate(game,true);
+                }
+                Statue statue=SewerSpecialActorTest.actor(Statue.class);
+                Weapon w=statue.weapon();
+                assertEquals(types[i],w.getClass());
+                assertEquals(effects[i],w.enchantment.getClass());
+                id=statue.id(); weaponId=game.ownership.identity(w);
+                Hero victim=game.hero(seat),other=game.hero(1-seat);
+                SewerGhostTest.meet(game,seat,statue);
+                SewerGhostTest.meet(game,1-seat,statue);
+                assertEquals(w.delayFactor(statue),statue.attackDelay(),0.001f);
+                if(w instanceof Spear || w instanceof Whip) assertTrue(w.reachFactor(statue)>1);
+                int initial=other.HP;
+                boolean triggered=false;
+                for(int step=0;step<200 && !triggered;step++){
+                    statue.attackProc(victim,8);
+                    triggered= w.enchantment instanceof Shocking ? other.HP<initial :
+                            w.enchantment instanceof Vorpal ? statue.buff(Vorpal.VorpalTracker.class)!=null :
+                            w.enchantment instanceof Lucky ? victim.buff(Lucky.LuckProc.class)!=null : victim.buff(Chill.class)!=null;
+                }
+                assertTrue(triggered);
+                victim.damage(8,statue);
+                if(w.enchantment instanceof Vorpal) assertNotNull(victim.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding.class));
+                saved=game.checkpoint();
+            }
+            try (CoopSession game=CoopSession.restore(saved)) {
+                Statue statue=(Statue)Actor.findById(id);
+                assertEquals(weaponId,game.ownership.identity(statue.weapon()));
+                statue.die(game.hero(seat));
+                assertTrue(CoopSession.floorItems(Dungeon.level).containsValue(statue.weapon()));
+                assertEquals(weaponId,game.ownership.identity(statue.weapon()));
+            }
+        }
+    }
+
     @Test public void generatedStatueModifiersUseTheWielderAndSurviveParking() {
         int[] seeds = {428,434,435,437};
         Class<?>[] bases = {Dirk.class,RoundShield.class,Shortsword.class,Shortsword.class};

@@ -54,7 +54,7 @@ public final class RestartHost {
         if (mode.startsWith("necro-setup-") || mode.equals("late-setup")) return 570;
         if (mode.startsWith("wand-setup-")) return Integer.parseInt(mode.split("-")[2]);
         switch (mode) {
-            case "blocked-start": return 452; // Original Spear/Projecting statue remains unsupported.
+            case "blocked-start": return 457; // Native HandAxe/Elastic remains outside the audited standalone effect set.
             case "armored": return 446;
             case "phantom": return 479;
             case "exile": return 420;

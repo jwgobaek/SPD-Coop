@@ -419,7 +419,7 @@ actors/mobs/Acidic	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixe
 actors/mobs/Albino	actors/mobs	IMPLEMENTED	basicMob allowlist	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Albino.java
 actors/mobs/ArmoredBrute	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/ArmoredBrute.java
 actors/mobs/ArmoredBrute.ArmoredRage	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/ArmoredBrute.java
-actors/mobs/ArmoredStatue	actors/mobs	VERIFIED	716 Mail/Potential and 446 Leather/Repulsion; two seats, parked equipment IDs, loot and confirmed strike after restart / SewerGuardiansTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/ArmoredStatue.java
+actors/mobs/ArmoredStatue	actors/mobs	VERIFIED	716 Mail/Potential, 446 Leather/Repulsion, 571 Leather/AntiMagic and 578 Leather/Swiftness; two seats, parked equipment IDs, loot and confirmed strike after restart / SewerGuardiansTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/ArmoredStatue.java
 actors/mobs/Bandit	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bandit.java
 actors/mobs/Bat	actors/mobs	VERIFIED	native prison 9 generation and life-steal proc against both seats / LatePrisonTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bat.java
 actors/mobs/Bee	actors/mobs	VERIFIED	host and guest, guarding a pot or holder, parked and active targets / SewerBeeTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bee.java
