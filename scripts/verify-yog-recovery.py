@@ -10,7 +10,7 @@ fixture = runpy.run_path(str(root / "scripts/verify-alpha-migration.py"))
 with TemporaryDirectory() as work:
     parent = Path(work)
     cp = fixture["classpath"](root, parent)
-    for boundary in sys.argv[1:] or ("warning", "first", "ray", "kill", "last", "amulet", "propose", "win"):
+    for boundary in sys.argv[1:] or ("warning", "first", "ray", "regular", "first-death", "second", "second-death", "third", "phase5", "down", "revive", "kill", "last", "amulet", "propose", "win"):
         room = parent / boundary
         room.mkdir()
         try:
@@ -20,6 +20,8 @@ with TemporaryDirectory() as work:
                     image = fixture["generation"](room)
                     assert image["schema"] == 14
                     generation_size = max(f.stat().st_size for f in room.glob("coop-saves-v1/*/g*") if f.is_file())
+            for report in room.glob("perf*"):
+                print(report.read_text(), flush=True)
             print("PASS", boundary, "HEAD published, reply lost, two seats reauthenticated, identical receipt; generation bytes", generation_size, flush=True)
         except Exception:
             print((room / "host.log").read_text()[-2000:], file=sys.stderr)

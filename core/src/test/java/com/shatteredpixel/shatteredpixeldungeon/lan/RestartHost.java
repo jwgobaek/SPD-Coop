@@ -26,7 +26,8 @@ import static org.junit.Assert.*;
 /** Fresh host process for every invocation. Control files are confined to a test-private directory. */
 public final class RestartHost {
     static boolean measureBoundary(String mode) {
-        return Boolean.getBoolean("spd.measureVault") && (mode.equals("tengu-read-vault-enter") || mode.equals("tengu-read-vault-hall24"))
+        return mode.equals("tengu-read-yog-warning")
+                || Boolean.getBoolean("spd.measureVault") && (mode.equals("tengu-read-vault-enter") || mode.equals("tengu-read-vault-hall24"))
                 || mode.equals("tengu-read-devices") || mode.equals("tengu-read-city-19")
                 || mode.equals("tengu-read-mine-crystal-ore")
                 || Boolean.getBoolean("spd.measureKing") && mode.equals("tengu-read-king-shield");
@@ -269,6 +270,8 @@ public final class RestartHost {
                     case 11: expectedSchema=7; break;
                     case 19: expectedSchema=10; break;
                     case 20: expectedSchema=11; break;
+                    case 24: expectedSchema=13; break;
+                    case 25:case 26: expectedSchema=14; break;
                     default: expectedSchema=6;
                 }
                 assertEquals(expectedSchema,Dungeon.coop.checkpoint().getInt("schema"));

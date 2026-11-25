@@ -465,6 +465,27 @@ public final class CoopFloors {
             throw new IllegalArgumentException("Parked physical item mismatch");
     }
 
+    int groundAmulets() {
+        int count=0;
+        for (com.shatteredpixel.shatteredpixeldungeon.items.Heap heap:Dungeon.level.heaps.valueList()) {
+            for (Item item:heap.items) if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.Amulet) {
+                if (Dungeon.depth!=26 || Dungeon.branch!=0 || item.quantity()!=1)
+                    throw new IllegalArgumentException("Unexpected amulet heap");
+                count++;
+            }
+        }
+        String type=com.shatteredpixel.shatteredpixeldungeon.items.Amulet.class.getName();
+        for (Bundle floor:dormant.values()) {
+            for (Bundle entry:floor.getBundle("level").getBundleArray("heaps"))
+                for (Bundle item:entry.getBundleArray("items")) if (type.equals(item.getString("__className"))) {
+                    if (floor.getInt("depth")!=26 || floor.getInt("branch")!=0 || item.getInt("quantity")!=1)
+                        throw new IllegalArgumentException("Unexpected stored amulet");
+                    count++;
+                }
+        }
+        return count;
+    }
+
     int schema() {
         if (Dungeon.levelHasBeenGenerated(25,0)) return 14;
         if (Dungeon.levelHasBeenGenerated(21,0)) return 13;

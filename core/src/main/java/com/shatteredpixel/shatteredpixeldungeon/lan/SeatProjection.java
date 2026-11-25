@@ -137,7 +137,7 @@ final class SeatProjection {
                         if (sight.visible(cast.getPos())) rows.put("summon"+cast.getPos(),Integer.toString(cast.warningVisual()));
             }
             if (level instanceof HallsBossLevel) {
-                for (Mob mob:level.mobs) if (mob instanceof YogDzewa && sight.visible(mob.pos)) {
+                for (Mob mob:level.mobs) if (mob instanceof YogDzewa) {
                     for (int target:((YogDzewa)mob).aimedCells()) {
                         com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica ray=new com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica(mob.pos,target,com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica.WONT_STOP);
                         for (int cell:ray.path) if (sight.visible(cell)) rows.put("aim"+cell,"1");

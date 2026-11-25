@@ -1251,7 +1251,8 @@ public final class CoopSession implements AutoCloseable {
                     if (ownership.owner(item)!=player(seat) || item.quantity()!=1) throw new IllegalArgumentException("Invalid amulet owner");
                     count++;
                 }
-            if (count!=(Statistics.amuletObtained?1:0) || Statistics.amuletObtained!=(ending!=Ending.NONE)
+            if (count+stairs.groundAmulets()!=(Dungeon.levelHasBeenGenerated(26,0)?1:0)
+                    || count!=(Statistics.amuletObtained?1:0) || Statistics.amuletObtained!=(ending!=Ending.NONE)
                     || ending!=Ending.NONE && !Dungeon.levelHasBeenGenerated(26,0))
                 throw new IllegalArgumentException("Invalid party ending");
         }

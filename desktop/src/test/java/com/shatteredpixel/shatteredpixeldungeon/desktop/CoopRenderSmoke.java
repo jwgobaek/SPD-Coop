@@ -79,7 +79,7 @@ public final class CoopRenderSmoke {
             } else {
             c.join(endpoint,null);
             await(()->!c.busy() && c.frame().page==CoopController.Page.LOBBY);
-            String character=(new File(root,"stairs").isFile() || new File(root,"kit").isFile())?"WARRIOR":"HUNTRESS";
+            String character=new File(root,"yog-room").isFile()?"MAGE":(new File(root,"stairs").isFile() || new File(root,"kit").isFile())?"WARRIOR":"HUNTRESS";
             c.select(character); await(()->!c.busy() && c.frame().roster.contains(character));
             c.ready(true);
             }
@@ -88,7 +88,9 @@ public final class CoopRenderSmoke {
             while(System.nanoTime()<end && c.frame().page==CoopController.Page.GAME) {
                 CoopController.Frame f=c.frame();
                 if(!c.busy() && f.dungeon!=null) {
-                    if(f.dungeon.offered && !new File(root,"hold-guest").exists()) {
+                    if (new File(root,"yog-room").isFile() && "OFFER".equals(f.image.rows.get("ending")) && "1".equals(f.image.rows.get("amuletowner"))) {
+                        c.act(f.image,"END_RUN",0,0);
+                    } else if(f.dungeon.offered && !new File(root,"hold-guest").exists() && !f.image.rows.containsKey("ending")) {
                         Integer target=null;
                         if(resume && f.dungeon.depth==5)
                             for(java.util.Map.Entry<Integer,String> enemy:f.dungeon.monsters.entrySet())
@@ -665,6 +667,7 @@ public final class CoopRenderSmoke {
         if(mage) shot("mage-selected");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
         java.nio.file.Files.writeString(new File(root,"port").toPath(),Integer.toString(testPort));
+        if(regionShot.startsWith("yog-")) java.nio.file.Files.createFile(new File(root,"yog-room").toPath());
         if(kit) java.nio.file.Files.createFile(new File(root,"kit").toPath());
         if(floors) java.nio.file.Files.createFile(new File(root,"stairs").toPath());
         Process child=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-cp",System.getProperty("java.class.path"),
@@ -698,7 +701,13 @@ public final class CoopRenderSmoke {
                     await(()->"WON".equals(frame().image.rows.get("status")));
                 } else await(()->frame().dungeon!=null && (regionShot.startsWith("yog-") ? frame().dungeon.depth==(regionShot.equals("yog-amulet")?26:25) : regionShot.equals("halls-21") ? frame().dungeon.depth==21 : regionShot.startsWith("king-") ? frame().dungeon.depth==20 : regionShot.equals("city-market") ? frame().dungeon.depth==16
                         : frame().dungeon.branch==1));
-                shot(regionShot);
+                if (regionShot.equals("yog-amulet")) {
+                    waitForButton("end_vote");
+                    shot(regionShot);
+                    click("end_vote");
+                    await(()->"WON".equals(frame().image.rows.get("status")));
+                    shot("yog-victory-input");
+                } else shot(regionShot);
                 return;
             }
             sceneMetrics("first-floor");

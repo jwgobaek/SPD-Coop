@@ -1185,7 +1185,7 @@ public class Badges {
 	
 	private static void displayBadge( Badge badge ) {
 
-		if (Dungeon.coop != null || badge == null || (badge.type != BadgeType.JOURNAL && !Dungeon.customSeedText.isEmpty())) {
+		if (badge == null || (badge.type != BadgeType.JOURNAL && !Dungeon.customSeedText.isEmpty())) {
 			return;
 		}
 		
@@ -1222,7 +1222,6 @@ public class Badges {
 	}
 	
 	public static void unlock( Badge badge ){
-		if (Dungeon.coop != null) return;
 		if (!isUnlocked(badge) && (badge.type == BadgeType.JOURNAL || Dungeon.customSeedText.isEmpty())){
 			global.add( badge );
 			saveNeeded = true;

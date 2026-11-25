@@ -101,7 +101,26 @@ public class YogArenaTest extends HeadlessDungeon {
     }
 
     public static void forScreen(CoopSession game,String name) {
+        if (name.equals("yog-amulet")) {
+            prepareBoundary(game,"amulet");
+            for (int i=0;i<10 && game.activeSeat()!=1;i++) TenguArenaTest.waitOne(game);
+            assertEquals(1,game.activeSeat());
+            takeAmulet(game);
+            return;
+        }
         prepareBoundary(game,name.equals("yog-warning")?"warning":name.equals("yog-first")?"first":"propose");
+        if (Dungeon.depth==25) {
+            Mob focus=name.equals("yog-first") ? resident(YogFist.class) : resident(YogDzewa.class);
+            for (int off:PathFinder.NEIGHBOURS8) {
+                int cell=focus.pos+off;
+                if (Dungeon.level.passable[cell] && Actor.findChar(cell)==null) {
+                    game.hero(0).pos=cell;
+                    game.observe(0);
+                    assertTrue(game.knowledge(game.hero(0)).visible(focus.pos));
+                    break;
+                }
+            }
+        }
         if (name.equals("yog-finish")) {
             int owner=game.amuletOwner();
             assertTrue(game.chooseEnding(owner,true));
@@ -170,14 +189,21 @@ public class YogArenaTest extends HeadlessDungeon {
                         Dungeon.level.distance(game.hero(1).pos,boss.pos)<11) {
                     SewerSpecialActorTest.atGate(game,Dungeon.level.entrance());
                 }
+                StagedInput before="phase5".equals(boundary) && boss.phase()==4 && fist.HP<=100 ? new StagedInput(game,"WAIT",0) : null;
                 TenguArenaTest.waitOne(game);
+                if (before!=null && published(boundary)) return before;
             } else {
                 Mob target=fist==null ? boss : fist;
                 MiningBranchTest.standBeside(game,target.pos);
                 boolean capture="kill".equals(boundary) && boss.phase()==5 && boss.HP<=100
-                        || "first".equals(boundary) && boss.phase()==1 && boss.HP<=800;
-                StagedInput before=capture ? new StagedInput(game,"ATTACK",target.pos) : null;
-                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ATTACK,target.pos,null));
+                        || ("first".equals(boundary) || "second".equals(boundary) || "third".equals(boundary))
+                             && fist==null && boss.phase()>=1 && boss.phase()<=3 && boss.HP<=1100-300*boss.phase()
+                        || ("first-death".equals(boundary) || "second-death".equals(boundary) || "phase5".equals(boundary))
+                             && fist!=null && fist.HP<=100;
+                boolean visible=game.observe(game.activeSeat()).visible(target.pos) && target.invisible==0;
+                StagedInput before=capture ? new StagedInput(game,visible?"ATTACK":"WAIT",visible?target.pos:0) : null;
+                if (visible) assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ATTACK,target.pos,null));
+                else TenguArenaTest.waitOne(game);
                 if (before!=null && published(boundary)) return before;
             }
             assertFalse("party lost at "+boss.phase()+" HP "+boss.HP,game.defeated());
@@ -224,6 +250,10 @@ public class YogArenaTest extends HeadlessDungeon {
         YogDzewa boss=resident(YogDzewa.class);
         StringBuilder result=new StringBuilder(MiningBranchTest.signature(game));
         result.append('|').append(game.ending()).append('|').append(game.amuletOwner());
+        if (game.amuletOwner()>=0) {
+            com.shatteredpixel.shatteredpixeldungeon.items.Amulet item=game.hero(game.amuletOwner()).belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.Amulet.class);
+            result.append('|').append(game.ownership.identity(item)).append('|').append(game.ownership.owner(item));
+        }
         if (boss!=null) {
             Bundle b=new Bundle();
             boss.storeInBundle(b);
@@ -242,6 +272,14 @@ public class YogArenaTest extends HeadlessDungeon {
         switch (boundary) {
             case "warning":return boss!=null && boss.aimedCells().length>0;
             case "ray":return boss!=null && boss.aimedCells().length==0;
+            case "down":return game.life(0)==CoopSession.Life.DOWNED || game.life(1)==CoopSession.Life.DOWNED;
+            case "revive":return game.life(0)==CoopSession.Life.ALIVE && game.life(1)==CoopSession.Life.ALIVE;
+            case "regular":return resident(YogDzewa.YogRipper.class)!=null || resident(YogDzewa.Larva.class)!=null;
+            case "second":return boss!=null && boss.phase()==3 && resident(YogFist.class)!=null && boss.HP==400;
+            case "third":return boss!=null && boss.phase()==4 && resident(YogFist.class)!=null && boss.HP==100;
+            case "first-death":return boss!=null && boss.phase()==2 && resident(YogFist.class)==null;
+            case "second-death":return boss!=null && boss.phase()==3 && resident(YogFist.class)==null;
+            case "phase5":return boss!=null && boss.phase()==5 && resident(YogFist.class)==null;
             case "first":return boss!=null && boss.phase()==2 && resident(YogFist.class)!=null;
             case "kill":return Dungeon.depth==25 && boss==null && !Dungeon.level.locked && Dungeon.level.map[Dungeon.level.exit()]==Terrain.EXIT;
             case "last":return Dungeon.depth==26 && amuletCell()>=0;
@@ -255,7 +293,16 @@ public class YogArenaTest extends HeadlessDungeon {
     public static StagedInput prepareBoundary(CoopSession game,String boundary) {
         arrive(game);
         start(game);
-        if (boundary.equals("warning") || boundary.equals("ray")) {
+        if (boundary.equals("down") || boundary.equals("revive")) {
+            Hero ally=game.hero(1-game.activeSeat());
+            MiningBranchTest.standBeside(game,ally.pos);
+            assertTrue(new com.shatteredpixel.shatteredpixeldungeon.items.Ankh().collect(ally.belongings.backpack));
+            ally.HP=17;
+            ally.damage(999,YogDzewa.class);
+            assertTrue(published("down"));
+            return new StagedInput(game,boundary.equals("down")?"WAIT":"REVIVE",boundary.equals("down")?0:ally.pos);
+        }
+        if (boundary.equals("warning") || boundary.equals("ray") || boundary.equals("regular")) {
             if (boundary.equals("ray"))
                 for (int i=0;i<100 && !published("warning");i++) TenguArenaTest.waitOne(game);
             for (int i=0;i<100;i++) {

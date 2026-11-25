@@ -513,6 +513,7 @@ public final class RestartClient {
                     handle=view.belongings.stream().filter(item->view.source.rows.getOrDefault("forge"+item.id,"").startsWith(index)).findFirst().get().id;
                 }
                 SeatActions.Pending p=travel ? consentAndCross(boundary.equals("vault-pick") || boundary.equals("vault-full")) : actions[seat].prepare(state(seat),verb,verb.equals("WAIT") ? 0 : cell,handle);
+                if (yog) System.out.println("native_fixture "+boundary+" verb="+verb+" input="+cell+" seat="+seat+" depth="+view.depth+" visible="+view.visible(cell)+" actor="+state(seat).rows.get("self"));
                 RestartHost.write(path,"boss-command",seat+" "+p.id+" "+p.command);
                 try { String result=p.submit(clients[seat]); assertTrue(result,result.endsWith(" APPLIED")); }
                 catch (IOException lost) { return; }
