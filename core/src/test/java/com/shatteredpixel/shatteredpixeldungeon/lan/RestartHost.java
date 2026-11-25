@@ -55,7 +55,7 @@ public final class RestartHost {
         return mode.startsWith("journey-seven-") || mode.equals("prison") || mode.equals("campaign") || mode.equals("campaign-start") || mode.equals("campaign-team");
     }
     private static long seedFor(String mode) {
-        if (mode.startsWith("tengu-setup-city-")) return 572;
+        if (mode.startsWith("tengu-setup-city-") || mode.startsWith("tengu-setup-king-")) return 572;
         if(mode.startsWith("tengu-setup-mine-gnoll")) return 571;
         if (mode.startsWith("tengu-setup-") || mode.startsWith("necro-setup-") || mode.equals("late-setup")) return 570;
         if (mode.startsWith("wand-setup-")) return Integer.parseInt(mode.split("-")[2]);
@@ -99,6 +99,13 @@ public final class RestartHost {
                 throw new IOException("Injected write failure");
             if (stage.equals("AFTER_HEAD") && mode.startsWith("tengu-commit-") && java.nio.file.Files.exists(path.resolve("boss-command"))) {
                 String boundary=mode.substring("tengu-commit-".length());
+                if (boundary.startsWith("king-")) {
+                    if (CityKingTest.published(boundary.substring(5))) {
+                        write(path,"tengu-signature",CityKingTest.signature(Dungeon.coop));
+                        Runtime.getRuntime().halt(78);
+                    }
+                    return;
+                }
                 if (boundary.startsWith("mine-") || boundary.startsWith("city-")) {
                     if (boundary.startsWith("city-") ? CityEntranceTest.published(boundary.substring(5)) : MiningBranchTest.published(boundary.substring(5))) {
                         write(path,"tengu-signature",MiningBranchTest.signature(Dungeon.coop));
@@ -180,16 +187,17 @@ public final class RestartHost {
                 else PrisonShopChecks.copiesOf(engine);
             }
         }
+        StagedInput stagedInput=null;
         try(LanRoom room=(special || mode.startsWith("tengu-setup-") || mode.equals("late-setup") || mode.startsWith("necro-setup-") || mode.startsWith("wand-setup-") || mode.startsWith("scribe") || kit(mode) || knife(mode) || newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup") || mode.equals("schema3-backup") || mode.equals("prison-backup"))) {
             if (mode.startsWith("tengu-read-")) {
                 boolean dm=mode.startsWith("tengu-read-dm-");
                 boolean interior=mode.startsWith("tengu-read-interior-");
-                assertEquals(read(path,"tengu-signature"),(mode.startsWith("tengu-read-mine-") || mode.startsWith("tengu-read-city-")) ? MiningBranchTest.signature(Dungeon.coop) : dm?CavesBossTest.signature(Dungeon.coop):interior?CavesInteriorTest.signature(Dungeon.coop):TenguArenaTest.signature(Dungeon.coop));
+                assertEquals(read(path,"tengu-signature"),mode.startsWith("tengu-read-king-") ? CityKingTest.signature(Dungeon.coop) : (mode.startsWith("tengu-read-mine-") || mode.startsWith("tengu-read-city-")) ? MiningBranchTest.signature(Dungeon.coop) : dm?CavesBossTest.signature(Dungeon.coop):interior?CavesInteriorTest.signature(Dungeon.coop):TenguArenaTest.signature(Dungeon.coop));
                 String boundary=mode.substring("tengu-read-".length());
                 String expected=boundary.equals("enter") ? "FIGHT_START" : boundary.equals("pause") ? "FIGHT_PAUSE"
                         : boundary.equals("kill") || boundary.equals("claim") ? "WON" : "FIGHT_ARENA";
-                if (boundary.startsWith("city-")) { assertTrue(CityEntranceTest.published(boundary.substring(5))); } else if (boundary.startsWith("mine-")) { assertTrue(MiningBranchTest.published(boundary.substring(5))); } else if (dm) { assertTrue(CavesBossTest.published(boundary.substring(3))); } else if (interior) {
+                if (boundary.startsWith("king-")) { assertTrue(CityKingTest.published(boundary.substring(5))); } else if (boundary.startsWith("city-")) { assertTrue(CityEntranceTest.published(boundary.substring(5))); } else if (boundary.startsWith("mine-")) { assertTrue(MiningBranchTest.published(boundary.substring(5))); } else if (dm) { assertTrue(CavesBossTest.published(boundary.substring(3))); } else if (interior) {
                     assertTrue(CavesInteriorTest.committed(boundary.substring(9)));
                 } else if (boundary.equals("caves")) {
                     assertEquals(11,Dungeon.depth);
@@ -462,7 +470,15 @@ public final class RestartHost {
                 if (mode.startsWith("tengu-setup-") && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;
                     String name=mode.substring("tengu-setup-".length());
-                    int target=name.startsWith("city-") ? CityEntranceTest.prepareBoundary(Dungeon.coop,name.substring(5)) : name.startsWith("mine-") ? MiningBranchTest.prepareBoundary(Dungeon.coop,name.substring(5)) : name.startsWith("dm-") ? CavesBossTest.prepareBoundary(Dungeon.coop,name.substring(3)) : name.startsWith("interior-") ? CavesInteriorTest.prepareSocket(Dungeon.coop,name.substring(9))
+                    if (name.startsWith("king-")) {
+                        stagedInput=CityKingTest.prepareBoundary(Dungeon.coop,name.substring(5));
+                        write(path,"king-action",stagedInput.verb);
+                    } else if (name.startsWith("mine-") && (name.endsWith("boss") || name.endsWith("upgrade") || name.endsWith("reforge"))) {
+                        stagedInput=MiningBranchTest.equipmentOrBoss(Dungeon.coop,name.substring(5));
+                        write(path,"mine-action",stagedInput.verb);
+                        write(path,"mine-index",Integer.toString(stagedInput.itemOrder));
+                    }
+                    int target=stagedInput!=null ? stagedInput.cell : name.startsWith("city-") ? CityEntranceTest.prepareBoundary(Dungeon.coop,name.substring(5)) : name.startsWith("mine-") ? MiningBranchTest.prepareBoundary(Dungeon.coop,name.substring(5)) : name.startsWith("dm-") ? CavesBossTest.prepareBoundary(Dungeon.coop,name.substring(3)) : name.startsWith("interior-") ? CavesInteriorTest.prepareSocket(Dungeon.coop,name.substring(9))
                             : TenguArenaTest.prepareSocket(Dungeon.coop,name);
                     write(path,"tengu-target",Integer.toString(target));
                     room.save();
@@ -562,6 +578,13 @@ public final class RestartHost {
                 assertNull(Dungeon.coop);
                 assertThrows(IOException.class,room::saveAndClose);
             } else { if (mode.equals("goo-receipt")) verifyBossLoot(path); room.saveAndClose(); }
+        }
+        // Publish the fixture immediately before the observed native transition. The next host
+        // performs the input through TCP. Seat credentials and the room's sync state stay intact.
+        if (stagedInput!=null) try(CoopSaves.Slot disk=saves.existing(saves.sessions().get(0))) {
+            com.watabou.utils.Bundle prepared=disk.read(false);
+            prepared.put("engine",stagedInput.before);
+            disk.publish(prepared,false);
         }
     }
 

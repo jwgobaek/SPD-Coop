@@ -18,9 +18,9 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 /** One active floor; native generated-level keys distinguish equal depths across branches; only the active floor has registered actors. */
 public final class CoopFloors {
     private final CoopSession game;
-    public static final int LAST_SEWER = 5, FIRST_PRISON = 6, LAST_PLAYABLE = 19;
+    public static final int LAST_SEWER = 5, FIRST_PRISON = 6, LAST_PLAYABLE = 20;
     static int lastDepth(int schema) {
-        return schema>=10 ? LAST_PLAYABLE : schema==9 ? 15 : schema==8 ? 14 : schema==7 ? 11 : schema==6 ? 9 : schema==5 ? 7 : schema==4 ? FIRST_PRISON : schema==3 ? LAST_SEWER : schema;
+        return schema>=11 ? LAST_PLAYABLE : schema==10 ? 19 : schema==9 ? 15 : schema==8 ? 14 : schema==7 ? 11 : schema==6 ? 9 : schema==5 ? 7 : schema==4 ? FIRST_PRISON : schema==3 ? LAST_SEWER : schema;
     }
     private final java.util.Map<Integer,Bundle> dormant = new java.util.TreeMap<>();
     private long voteTurn;
@@ -196,7 +196,7 @@ public final class CoopFloors {
     }
 
     static void checkLevelType(Bundle floor,int depth,int branch) {
-        Class<?> expected=branch==1 ? MiningLevel.class : depth>=16 ? com.shatteredpixel.shatteredpixeldungeon.levels.CityLevel.class : depth==15 ? com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel.class : depth>=11 ? com.shatteredpixel.shatteredpixeldungeon.levels.CavesLevel.class : depth==10 ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel.class : depth>=FIRST_PRISON ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel.class
+        Class<?> expected=branch==1 ? MiningLevel.class : depth==20 ? com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel.class : depth>=16 ? com.shatteredpixel.shatteredpixeldungeon.levels.CityLevel.class : depth==15 ? com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel.class : depth>=11 ? com.shatteredpixel.shatteredpixeldungeon.levels.CavesLevel.class : depth==10 ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel.class : depth>=FIRST_PRISON ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel.class
                 : depth==5 ? com.shatteredpixel.shatteredpixeldungeon.levels.SewerBossLevel.class
                 : com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel.class;
         if (!expected.getName().equals(floor.getString("__className")))
@@ -204,6 +204,33 @@ public final class CoopFloors {
         validateSummons(floor);
         if (depth == 10) validateBoss(floor);
         if (depth == 15) validateCavesBoss(floor);
+        if (depth == 20) validateCityBoss(floor);
+    }
+
+    private static void validateCityBoss(Bundle floor) {
+        int[] terrain=floor.getIntArray("map");
+        int lower=com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel.arenaDoor();
+        int upper=com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel.exitDoor();
+        int lockedDoor=com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.LOCKED_DOOR;
+        boolean sealed=floor.getBoolean("locked");
+        if (terrain.length!=15*48 || sealed!=(terrain[lower]==lockedDoor) || sealed && terrain[upper]!=lockedDoor)
+            throw new IllegalArgumentException("Invalid city arena boundary");
+        String kingType=com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing.class.getName();
+        int kings=0;
+        for (Bundle mob:floor.getBundleArray("mobs")) {
+            if (!kingType.equals(mob.getString("__className"))) continue;
+            kings++;
+            int phase=mob.getInt("phase");
+            if (phase<1 || phase>3 || mob.getInt("HP")<=0 || mob.getInt("summons_made")<0)
+                throw new IllegalArgumentException("Invalid Dwarf King phase");
+            for (Bundle buff:mob.getBundleArray("buffs")) {
+                if (!(kingType+"$Summoning").equals(buff.getString("__className"))) continue;
+                int pos=buff.getInt("pos");
+                if (buff.getInt("delay")<1 || pos<0 || pos>=terrain.length)
+                    throw new IllegalArgumentException("Invalid city summon");
+            }
+        }
+        if (kings!=(sealed ? 1 : 0)) throw new IllegalArgumentException("City seal and king disagree");
     }
 
     private static void validateCavesBoss(Bundle floor) {
@@ -328,6 +355,7 @@ public final class CoopFloors {
     }
 
     int schema() {
+        if (Dungeon.levelHasBeenGenerated(20,0)) return 11;
         if (Dungeon.levelHasBeenGenerated(16,0)) return 10;
         for (int d=12;d<=14;d++) if (Dungeon.levelHasBeenGenerated(d,1)) return 10;
         if (Dungeon.levelHasBeenGenerated(15,0)) return 9;
@@ -363,9 +391,13 @@ public final class CoopFloors {
             if (schema>=10 && key/1000==1 && mineDepth(key%1000) && generated.contains(key%1000)) mineCount++;
             else throw new IllegalArgumentException("Unknown generated floor "+key);
         }
+        if (mineCount!=0 && (!Blacksmith.Quest.given() || !Blacksmith.Quest.started()
+                || (Dungeon.branch==1)==Blacksmith.Quest.completed()))
+            throw new IllegalArgumentException("Mine and quest history disagree");
         int mainCount=generated.size()-mineCount;
         int required = schema==8 ? 12 : schema==7 ? 10 : schema==6 ? 8 : bound;
         if (!generated.contains(active) || generated.size()!=Dungeon.generatedLevels.size() || mineCount>1
+                || (schema==11 && !generated.contains(20))
                 || (schema==10 && mineCount==0 && !generated.contains(16)) || (multi && !generated.contains(3))
                 || (schema>=4 && schema<10 && !generated.contains(required)))
             throw new IllegalArgumentException("Invalid generation history");
@@ -374,14 +406,14 @@ public final class CoopFloors {
         if ((multi && state.contains("parked")) || (!multi && state.contains("dormant")))
             throw new IllegalArgumentException("Mixed floor formats");
         HashSet<Integer> actors=new HashSet<>();
-        for (Actor actor:Actor.all()) actors.add(actor.id());
+        for (Actor actor:Actor.all()) if (!actors.add(actor.id())) throw new IllegalArgumentException("Duplicate live Actor ID");
         for (int i=0;i<2;i++) {
             Hero hero=game.hero(i);
             actors.add(hero.id());
             for (com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff buff:hero.buffs()) actors.add(buff.id());
         }
         int nextId=state.getBundle("world").getInt("nextid");
-        inspectDownedGhouls(state.getBundle("floor"),actors,nextId);
+        inspectDownedGhouls(state.getBundle("floor"),actors,nextId,true);
         if (Dungeon.depth==10) inspectOffFloorBoss(state.getBundle("floor"),actors,nextId);
         for (int key:generated) {
             boolean present=multi ? records.contains(String.valueOf(key)) : key==3-Dungeon.depth && state.contains("parked");
@@ -395,16 +427,19 @@ public final class CoopFloors {
         if (multi && records.getKeys().size()!=dormant.size()) throw new IllegalArgumentException("Unknown dormant depth");
     }
 
-    private static void inspectDownedGhouls(Bundle floor,HashSet<Integer> actors,int nextId) {
+    private static void inspectDownedGhouls(Bundle floor,HashSet<Integer> actors,int nextId,boolean active) {
         for (Bundle resident:floor.getBundleArray("mobs")) {
             for (Bundle buff:resident.getBundleArray("buffs")) {
                 if (!buff.getString("__className").equals(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Ghoul.GhoulLifeLink.class.getName())) continue;
                 Bundle body=buff.getBundle("ghoul");
-                if (!com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Ghoul.class.getName().equals(body.getString("__className"))
+                if ((!com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Ghoul.class.getName().equals(body.getString("__className")) && !com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing.DKGhoul.class.getName().equals(body.getString("__className")))
                         || body.getInt("pos")<0 || body.getInt("pos")>=floor.getInt("width")*floor.getInt("height"))
                     throw new IllegalArgumentException("Invalid linked ghoul");
                 inspectActor(body,actors,nextId);
-                for(Bundle held:body.getBundleArray("buffs")) inspectActor(held,actors,nextId);
+                for(Bundle held:body.getBundleArray("buffs")) {
+                    if (!active) inspectActor(held,actors,nextId);
+                    else if (!actors.contains(held.getInt("id"))) throw new IllegalArgumentException("Missing linked body buff");
+                }
             }
         }
     }
@@ -415,7 +450,7 @@ public final class CoopFloors {
             inspectActor(mob,actors,nextId);
             for(Bundle buff:mob.getBundleArray("buffs")) inspectActor(buff,actors,nextId);
         }
-        inspectDownedGhouls(floor,actors,nextId);
+        inspectDownedGhouls(floor,actors,nextId,false);
         if (floor.contains("pending_gas")) for (Bundle gas:floor.getBundleArray("pending_gas")) inspectActor(gas,actors,nextId);
         for(Bundle blob:floor.getBundleArray("blobs")) inspectActor(blob,actors,nextId);
         if(floor.contains("respawner")) inspectActor(floor.getBundle("respawner"),actors,nextId);

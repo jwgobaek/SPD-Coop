@@ -110,6 +110,9 @@ public class MiningBranchTest extends HeadlessDungeon {
         return 0;
     }
     public static boolean published(String name) {
+        if(name.endsWith("boss")) return Dungeon.branch==1 && Blacksmith.Quest.bossBeaten();
+        if(name.endsWith("upgrade")) return Dungeon.branch==0 && Blacksmith.Quest.upgrades==1 && Blacksmith.Quest.favor==2000;
+        if(name.endsWith("reforge")) return Dungeon.branch==0 && Blacksmith.Quest.reforges==1 && Blacksmith.Quest.favor==2500;
         if(name.endsWith("order")) return CoopSmith.pendingChoice() && Blacksmith.Quest.favor==1000;
         if(name.endsWith("claim")) return Blacksmith.Quest.smiths==1 && Blacksmith.Quest.smithRewards==null && Blacksmith.Quest.favor==1000;
         if(name.endsWith("return")) return Dungeon.branch==0 && Blacksmith.Quest.completed() && Blacksmith.Quest.favor==50;
@@ -162,7 +165,7 @@ public class MiningBranchTest extends HeadlessDungeon {
     }
     @Test public void originalCrystalBossDropsAndFavor() { fight(570); }
     @Test public void originalGnollBossAndSappers() { fight(571); }
-    private int blockedApproach(CoopSession game,int target) {
+    private static int blockedApproach(CoopSession game,int target) {
         java.util.ArrayDeque<Integer> search=new java.util.ArrayDeque<>();
         boolean[] seen=new boolean[Dungeon.level.length()];
         search.add(target);seen[target]=true;
@@ -178,9 +181,8 @@ public class MiningBranchTest extends HeadlessDungeon {
         }
         throw new AssertionError("No native route to "+target);
     }
-    private void fight(int seed) {
-        try(CoopSession game=CavesInteriorTest.open(seed)) {
-            enter(game,seed);
+    private static StagedInput finishBoss(CoopSession game,int seed) {
+            StagedInput input=null;
             for (int seat=0;seat<2;seat++) {
                 // Durable isolated combat fixture. The game creates all quest residents and terrain.
                 Hero fighter=game.hero(seat);
@@ -206,11 +208,42 @@ public class MiningBranchTest extends HeadlessDungeon {
                     continue;
                 }
                 standBeside(game,target.pos);
+                input=new StagedInput(game,pick?"MINE":"ATTACK",target.pos);
                 assertTrue("native strike "+n+" "+target+" "+game.stopReason()+" live="+target.isAlive()+" actual="+Actor.findChar(target.pos)+" fov="+game.hero(game.activeSeat()).fieldOfView[target.pos]+" alignment="+target.alignment,CoopFloorsTest.step(game,pick?CoopSession.Action.MINE:CoopSession.Action.ATTACK,target.pos,null));
                 game.checkpoint();
             }
             assertTrue(Blacksmith.Quest.bossBeaten());
             assertFalse(Dungeon.level.mobs.contains(boss));
+            return input;
+    }
+
+    public static StagedInput equipmentOrBoss(CoopSession game,String stage) {
+        int seed=stage.startsWith("gnoll")?571:570;
+        if (stage.endsWith("boss")) {
+            enter(game,seed);
+            return finishBoss(game,seed);
+        }
+        prepareBoundary(game,stage);
+        Hero hero=game.hero(game.activeSeat());
+        com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger first=new com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger();
+        com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger second=new com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger();
+        first.identify();second.identify();
+        assertTrue(first.collect(hero.belongings.backpack));
+        assertTrue(second.collect(hero.belongings.backpack));
+        int order=0,firstOrder=0,secondOrder=0;
+        for (com.shatteredpixel.shatteredpixeldungeon.items.Item item:hero.belongings) {
+            order++;
+            if (item==first) firstOrder=order;
+            if (item==second) secondOrder=order;
+        }
+        assertTrue(firstOrder>0 && secondOrder>0);
+        return new StagedInput(game,stage.endsWith("upgrade")?"SMITH_UPGRADE":"SMITH_REFORGE",stage.endsWith("upgrade")?0:secondOrder,firstOrder);
+    }
+
+    private void fight(int seed) {
+        try(CoopSession game=CavesInteriorTest.open(seed)) {
+            enter(game,seed);
+            finishBoss(game,seed);
             int gate=Dungeon.level.getTransition(LevelTransition.Type.BRANCH_ENTRANCE).cell();
             atBranchGate(game,gate);
             for (int n=0;n<64 && game.stairs.stair()!=gate;n++) {

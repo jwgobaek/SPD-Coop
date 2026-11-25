@@ -31,7 +31,7 @@ public final class CoopRenderSmoke {
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("mine-crystal|mine-gnoll|city-market")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("mine-crystal|mine-gnoll|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -655,7 +655,7 @@ public final class CoopRenderSmoke {
         render(()->{
             Field active=CoopScene.class.getDeclaredField("active"); active.setAccessible(true);
             active.set(null,new CoopController(CoopPlatform.root(),null,null,testPort,0,
-                    new java.util.Random(){@Override public long nextLong(){return !regionShot.isEmpty() ? (regionShot.equals("mine-crystal")?570:regionShot.equals("city-market")?572:571) : latePrison ? 570 : wandmaker ? 577 : seventh ? 581 : deep ? 402 : armored ? 446 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
+                    new java.util.Random(){@Override public long nextLong(){return !regionShot.isEmpty() ? (regionShot.equals("mine-crystal")?570:(regionShot.equals("city-market") || regionShot.startsWith("king-"))?572:571) : latePrison ? 570 : wandmaker ? 577 : seventh ? 581 : deep ? 402 : armored ? 446 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
             return null;
         });
         click("title"); await(()->button("host")!=null);
@@ -674,7 +674,7 @@ public final class CoopRenderSmoke {
             await(()->frame().dungeon!=null); await(()->button("bag")!=null);
             if (!regionShot.isEmpty()) {
                 RenderEncounter.tengu(hostController(),regionShot);
-                await(()->frame().dungeon!=null && (regionShot.equals("city-market") ? frame().dungeon.depth==16
+                await(()->frame().dungeon!=null && (regionShot.startsWith("king-") ? frame().dungeon.depth==20 : regionShot.equals("city-market") ? frame().dungeon.depth==16
                         : frame().dungeon.branch==1));
                 shot(regionShot);
                 return;

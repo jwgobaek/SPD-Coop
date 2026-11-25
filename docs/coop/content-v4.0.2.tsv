@@ -442,14 +442,14 @@ actors/mobs/DM300	actors/mobs	VERIFIED	native staged fight, two overcharges, inv
 actors/mobs/DM300.FallingRockBuff	actors/mobs	VERIFIED	original delayed rock cells, actor IDs, recovery and next ticks / CavesBossTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DM300.java
 actors/mobs/DelayedRockFall	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DelayedRockFall.java
 actors/mobs/DemonSpawner	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DemonSpawner.java
-actors/mobs/DwarfKing	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DwarfKing.java
+actors/mobs/DwarfKing	actors/mobs	VERIFIED	Native three-phase encounter, summoned subjects, crown pickup and restore; CityKingTest, HostRestartTest. Crown abilities excluded.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DwarfKing.java
 actors/mobs/DwarfKing.DKBarrior	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DwarfKing.java
 actors/mobs/DwarfKing.DKGhoul	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DwarfKing.java
 actors/mobs/DwarfKing.DKGolem	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DwarfKing.java
 actors/mobs/DwarfKing.DKMonk	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DwarfKing.java
 actors/mobs/DwarfKing.DKWarlock	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DwarfKing.java
-actors/mobs/DwarfKing.KingDamager	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DwarfKing.java
-actors/mobs/DwarfKing.Summoning	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DwarfKing.java
+actors/mobs/DwarfKing.KingDamager	actors/mobs	VERIFIED	Native three-phase encounter, summoned subjects, crown pickup and restore; CityKingTest, HostRestartTest. Crown abilities excluded.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DwarfKing.java
+actors/mobs/DwarfKing.Summoning	actors/mobs	VERIFIED	Native three-phase encounter, summoned subjects, crown pickup and restore; CityKingTest, HostRestartTest. Crown abilities excluded.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/DwarfKing.java
 actors/mobs/EbonyMimic	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/EbonyMimic.java
 actors/mobs/Elemental	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
 actors/mobs/Elemental.AllyNewBornElemental	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Elemental.java
@@ -629,7 +629,7 @@ items/Item	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpix
 items/ItemStatusHandler	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/ItemStatusHandler.java
 items/KindOfWeapon	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/KindOfWeapon.java
 items/KindofMisc	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/KindofMisc.java
-items/KingsCrown	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/KingsCrown.java
+items/KingsCrown	items	VERIFIED	Native three-phase encounter, summoned subjects, crown pickup and restore; CityKingTest, HostRestartTest. Crown abilities excluded.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/KingsCrown.java
 items/LiquidMetal	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/LiquidMetal.java
 items/LiquidMetal.Recipe	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/LiquidMetal.java
 items/LostBackpack	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/LostBackpack.java
@@ -1201,7 +1201,7 @@ levels/CavesBossLevel.PylonEnergy	levels	VERIFIED	native energy blob, powered ce
 levels/CavesLevel	levels	VERIFIED	floor 11 shop and floors 12–14 native residents, two-seat stairs, preserved dormant levels, restart and return / CavesInteriorTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesLevel.java
 levels/CavesLevel.Sparkle	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesLevel.java
 levels/CavesLevel.Vein	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesLevel.java
-levels/CityBossLevel	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityBossLevel.java
+levels/CityBossLevel	levels	VERIFIED	Native three-phase encounter, summoned subjects, crown pickup and restore; CityKingTest, HostRestartTest. Crown abilities excluded.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityBossLevel.java
 levels/CityBossLevel.CustomGroundVisuals	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityBossLevel.java
 levels/CityBossLevel.CustomTerrainVisuals	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityBossLevel.java
 levels/CityBossLevel.CustomWallVisuals	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CityBossLevel.java

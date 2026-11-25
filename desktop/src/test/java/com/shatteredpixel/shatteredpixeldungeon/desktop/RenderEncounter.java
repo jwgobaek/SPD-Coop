@@ -48,7 +48,9 @@ final class RenderEncounter {
         owner.setAccessible(true);
         ((ExecutorService)owner.get(room)).submit(()->{
             CoopSession game=Dungeon.coop;
-            if(destination.startsWith("mine-") || destination.equals("city-market")) {
+            if (destination.startsWith("king-")) {
+                com.shatteredpixel.shatteredpixeldungeon.CityKingTest.prepareBoundary(game,destination.equals("king-crown")?"win":"shield");
+            } else if(destination.startsWith("mine-") || destination.equals("city-market")) {
                 com.shatteredpixel.shatteredpixeldungeon.MiningBranchTest.forScreen(game,destination);
             } else if (destination.startsWith("DM_")) {
                 com.shatteredpixel.shatteredpixeldungeon.CavesBossTest.forScreen(game,destination);

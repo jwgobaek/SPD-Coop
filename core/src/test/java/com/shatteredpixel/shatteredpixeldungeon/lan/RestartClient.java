@@ -421,15 +421,19 @@ public final class RestartClient {
             boolean interior=boundary.startsWith("interior-");
             boolean dm=boundary.startsWith("dm-");
             boolean mine=boundary.startsWith("mine-");
+            boolean king=boundary.startsWith("king-");
+            if (king) { verb=RestartHost.read(path,"king-action");travel=verb.equals("TRAVEL"); }
             boolean city=boundary.startsWith("city-");
             if (city) {
                 travel=!boundary.endsWith("imp");
                 verb="ACCEPT_IMP";
             }
+            boolean equipmentOrBoss=mine && (boundary.endsWith("boss") || boundary.endsWith("upgrade") || boundary.endsWith("reforge"));
             if (mine) {
                 travel=boundary.endsWith("enter") || boundary.endsWith("return");
                 verb=boundary.endsWith("order")?"SMITH_ORDER":boundary.endsWith("claim")?"SMITH_CLAIM":"MINE";
             }
+            if (equipmentOrBoss) verb=RestartHost.read(path,"mine-action");
             if (dm) {
                 String name=boundary.substring(3);
                 travel=name.equals("visit") || name.equals("return") || name.equals("revisit");
@@ -445,12 +449,17 @@ public final class RestartClient {
             for (int i=0;i<40;i++) {
                 int seat=active();
                 PublicDungeon view=new PublicDungeon(state(seat));
-                if (city) assertEquals(travel ? Integer.parseInt(boundary.substring(5))-1 : 18,view.depth);
-                else if (mine) assertEquals(boundary.endsWith("enter") || boundary.endsWith("claim") || boundary.endsWith("order") ? 0 : 1,view.branch);
+                if (king) assertEquals(boundary.endsWith("visit") ? 19 : 20,view.depth);
+                else if (city) assertEquals(travel ? Integer.parseInt(boundary.substring(5))-1 : 18,view.depth);
+                else if (mine) assertEquals(boundary.endsWith("enter") || boundary.endsWith("claim") || boundary.endsWith("order") || boundary.endsWith("upgrade") || boundary.endsWith("reforge") ? 0 : 1,view.branch);
                 else if (dm) assertEquals(boundary.equals("dm-visit") || boundary.equals("dm-revisit") ? 14 : 15,view.depth);
                 else if (interior) assertEquals(travel ? Integer.parseInt(boundary.substring(9))-1 : boundary.contains("web")?12:13,view.depth);
                 else assertEquals(boundary.equals("ten") ? 9 : boundary.equals("return") ? 11 : 10,view.depth);
                 long handle=verb.equals("PICK_UP") ? view.floor.get(cell).id : 0;
+                if(equipmentOrBoss && !boundary.endsWith("boss")) {
+                    String index=RestartHost.read(path,"mine-index")+",";
+                    handle=view.belongings.stream().filter(item->view.source.rows.getOrDefault("forge"+item.id,"").startsWith(index)).findFirst().get().id;
+                }
                 SeatActions.Pending p=travel ? consentAndCross() : actions[seat].prepare(state(seat),verb,verb.equals("WAIT") ? 0 : cell,handle);
                 RestartHost.write(path,"boss-command",seat+" "+p.id+" "+p.command);
                 try { String result=p.submit(clients[seat]); assertTrue(result,result.endsWith(" APPLIED")); }

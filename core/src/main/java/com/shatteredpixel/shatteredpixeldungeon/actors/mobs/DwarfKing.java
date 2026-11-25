@@ -106,6 +106,8 @@ public class DwarfKing extends Mob {
 	}
 
 	private int phase = 1;
+
+    public int phase() { return phase; }
 	private int summonsMade = 0;
 
 	private float summonCooldown = 0;
@@ -204,7 +206,7 @@ public class DwarfKing extends Mob {
 				//challenge logic
 				if (summonsMade < 6){
 					if (summonsMade == 0) {
-						sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
+						if (Dungeon.coop == null) sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
 						Sample.INSTANCE.play(Assets.Sounds.CHALLENGE);
 						yell(Messages.get(this, "wave_1"));
 					}
@@ -215,7 +217,7 @@ public class DwarfKing extends Mob {
 					return true;
 				} else if (shielding() <= 300 && summonsMade < 12){
 					if (summonsMade == 6) {
-						sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
+						if (Dungeon.coop == null) sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
 						Sample.INSTANCE.play(Assets.Sounds.CHALLENGE);
 						yell(Messages.get(this, "wave_2"));
 					}
@@ -231,7 +233,7 @@ public class DwarfKing extends Mob {
 					return true;
 				} else if (shielding() <= 150 && summonsMade < 18) {
 					if (summonsMade == 12) {
-						sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
+						if (Dungeon.coop == null) sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
 						Sample.INSTANCE.play(Assets.Sounds.CHALLENGE);
 						yell(Messages.get(this, "wave_3"));
 						summonSubject(3, DKWarlock.class);
@@ -255,7 +257,7 @@ public class DwarfKing extends Mob {
 				//non-challenge logic
 				if (summonsMade < 4) {
 					if (summonsMade == 0) {
-						sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
+						if (Dungeon.coop == null) sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
 						Sample.INSTANCE.play(Assets.Sounds.CHALLENGE);
 						yell(Messages.get(this, "wave_1"));
 					}
@@ -265,7 +267,7 @@ public class DwarfKing extends Mob {
 					return true;
 				} else if (shielding() <= 200 && summonsMade < 8) {
 					if (summonsMade == 4) {
-						sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
+						if (Dungeon.coop == null) sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
 						Sample.INSTANCE.play(Assets.Sounds.CHALLENGE);
 						yell(Messages.get(this, "wave_2"));
 					}
@@ -278,7 +280,7 @@ public class DwarfKing extends Mob {
 					spend(TICK);
 					return true;
 				} else if (shielding() <= 100 && summonsMade < 12) {
-					sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
+					if (Dungeon.coop == null) sprite.centerEmitter().start(Speck.factory(Speck.SCREAM), 0.4f, 2);
 					Sample.INSTANCE.play(Assets.Sounds.CHALLENGE);
 					yell(Messages.get(this, "wave_3"));
 					summonSubject(4, DKWarlock.class);
@@ -363,7 +365,7 @@ public class DwarfKing extends Mob {
 			Buff.append(furthest, LifeLink.class, 100f).object = id();
 			Buff.append(this, LifeLink.class, 100f).object = furthest.id();
 			yell(Messages.get(this, "lifelink_" + Random.IntRange(1, 2)));
-			sprite.parent.add(new Beam.HealthRay(sprite.destinationCenter(), furthest.sprite.destinationCenter()));
+			if (Dungeon.coop == null) sprite.parent.add(new Beam.HealthRay(sprite.destinationCenter(), furthest.sprite.destinationCenter()));
 			Sample.INSTANCE.play( Assets.Sounds.RAY );
 			return true;
 
@@ -407,7 +409,7 @@ public class DwarfKing extends Mob {
 				}
 			}
 
-			Actor.add(new Pushing(this, pos, bestPos));
+			if (Dungeon.coop == null) Actor.add(new Pushing(this, pos, bestPos));
 			pos = bestPos;
 
 			//find closest cell that's adjacent to enemy, place subject there
@@ -455,7 +457,7 @@ public class DwarfKing extends Mob {
 	@Override
 	public void damage(int dmg, Object src) {
 		//hero counts as unarmed if they aren't attacking with a weapon and aren't benefiting from force
-		if (src == Dungeon.hero && (!RingOfForce.fightingUnarmed(Dungeon.hero) || Dungeon.hero.buff(RingOfForce.Force.class) != null)){
+		if (src instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero && (!RingOfForce.fightingUnarmed((com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero)src) || ((Char)src).buff(RingOfForce.Force.class) != null)){
 			Statistics.qualifiedForBossChallengeBadge = false;
 		//Corrosion, corruption, and regrowth do no direct damage and so have their own custom logic
 		//Transfusion damages DK and so doesn't need custom logic
@@ -482,11 +484,13 @@ public class DwarfKing extends Mob {
 		int preHP = HP;
 		super.damage(dmg, src);
 
-		LockedFloor lock = Dungeon.hero.buff(LockedFloor.class);
-		if (lock != null && !isImmune(src.getClass()) && !isInvulnerable(src.getClass())){
-			if (Dungeon.isChallenged(Challenges.STRONGER_BOSSES))   lock.addTime(dmg/5f);
-			else                                                    lock.addTime(dmg/3f);
-		}
+        if (!isImmune(src.getClass()) && !isInvulnerable(src.getClass())) {
+            for (int seat=0;seat<(Dungeon.coop==null ? 1 : 2);seat++) {
+                Char hero=Dungeon.coop==null ? Dungeon.hero : Dungeon.coop.hero(seat);
+                LockedFloor lock=hero.buff(LockedFloor.class);
+                if (lock!=null) lock.addTime(dmg/(Dungeon.isChallenged(Challenges.STRONGER_BOSSES) ? 5f : 3f));
+            }
+        }
 
 		if (phase == 1) {
 			int dmgTaken = preHP - HP;
@@ -519,11 +523,11 @@ public class DwarfKing extends Mob {
 			properties.remove(Property.IMMOVABLE);
 			phase = 3;
 			summonsMade = 1; //monk/warlock on 3rd summon
-			sprite.centerEmitter().start( Speck.factory( Speck.SCREAM ), 0.4f, 2 );
+			if (Dungeon.coop == null) sprite.centerEmitter().start( Speck.factory( Speck.SCREAM ), 0.4f, 2 );
 			Sample.INSTANCE.play( Assets.Sounds.CHALLENGE );
 			yell(  Messages.get(this, "enraged", Dungeon.hero.name()) );
 			BossHealthBar.bleed(true);
-			Game.runOnRenderThread(new Callback() {
+			if (Dungeon.coop == null) Game.runOnRenderThread(new Callback() {
 				@Override
 				public void call() {
 					Music.INSTANCE.fadeOut(0.5f, new Callback() {
@@ -560,9 +564,9 @@ public class DwarfKing extends Mob {
 		}
 
 		if (pos == CityBossLevel.throne){
-			Dungeon.level.drop(new KingsCrown(), pos + Dungeon.level.width()).sprite.drop(pos);
+			Dungeon.level.drop(new KingsCrown(), pos + Dungeon.level.width()).animateDrop(pos);
 		} else {
-			Dungeon.level.drop(new KingsCrown(), pos).sprite.drop();
+			Dungeon.level.drop(new KingsCrown(), pos).animateDrop(pos);
 		}
 
 		Badges.validateBossSlain();
@@ -579,15 +583,12 @@ public class DwarfKing extends Mob {
 		}
 		Bestiary.skipCountingEncounters = false;
 
-		LloydsBeacon beacon = Dungeon.hero.belongings.getItem(LloydsBeacon.class);
-		if (beacon != null) {
-			beacon.upgrade();
-		}
-
-		//cleanses degrade that may have been applied by a DK warlock, mainly for convenience
-		if (Dungeon.hero.buff(Degrade.class) != null){
-			Dungeon.hero.buff(Degrade.class).detach();
-		}
+        for (int seat=0;seat<(Dungeon.coop==null ? 1 : 2);seat++) {
+            com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero hero=Dungeon.coop==null ? Dungeon.hero : Dungeon.coop.hero(seat);
+            LloydsBeacon beacon=hero.belongings.getItem(LloydsBeacon.class);
+            if (beacon!=null) beacon.upgrade();
+            Buff.detach(hero,Degrade.class);
+        }
 
 		yell( Messages.get(this, "defeated") );
 	}
@@ -629,7 +630,7 @@ public class DwarfKing extends Mob {
 
 		@Override
 		protected void zap() {
-			if (enemy == Dungeon.hero){
+			if (enemy instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero){
 				Statistics.bossScores[3] -= 400;
 			}
 			super.zap();
@@ -661,6 +662,7 @@ public class DwarfKing extends Mob {
 
 			if (delay <= 0){
 
+				if (Dungeon.coop == null) {
 				if (summon == DKGolem.class){
 					particles.burst(SparkParticle.FACTORY, 10);
 					Sample.INSTANCE.play(Assets.Sounds.CHARGEUP);
@@ -674,6 +676,7 @@ public class DwarfKing extends Mob {
 					particles.burst(Speck.factory(Speck.BONE), 10);
 					Sample.INSTANCE.play(Assets.Sounds.BONES);
 				}
+                }
 				particles = null;
 
 				if (Actor.findChar(pos) != null){
@@ -713,7 +716,7 @@ public class DwarfKing extends Mob {
 							target.damage(target.HT/12, new KingDamager());
 						}
 					}
-					if (!ch.isAlive() && ch == Dungeon.hero) {
+					if (Dungeon.coop==null && !ch.isAlive() && ch == Dungeon.hero) {
 						Dungeon.fail(DwarfKing.class);
 						GLog.n( Messages.capitalize(Messages.get(Char.class, "kill", Messages.get(DwarfKing.class, "name"))));
 					}
@@ -728,23 +731,30 @@ public class DwarfKing extends Mob {
 
 		@Override
 		public void fx(boolean on) {
+            if (Dungeon.coop != null) return;
 			if (on && (particles == null || particles.parent == null)) {
 				particles = CellEmitter.get(pos);
 
-				if (summon == DKGolem.class){
-					particles.pour(SparkParticle.STATIC, 0.05f);
-				} else if (summon == DKWarlock.class){
-					particles.pour(ShadowParticle.UP, 0.1f);
-				} else if (summon == DKMonk.class){
-					particles.pour(ElmoParticle.FACTORY, 0.1f);
-				} else {
-					particles.pour(Speck.factory(Speck.RATTLE), 0.1f);
-				}
+                emitWarning(particles,warningVisual());
 
 			} else if (!on && particles != null) {
 				particles.on = false;
 			}
 		}
+
+        public int warningVisual() {
+            return summon==DKGolem.class ? 3 : summon==DKWarlock.class ? 2 : summon==DKMonk.class ? 1 : 0;
+        }
+
+        public static void emitWarning(Emitter emitter,int visual) {
+            switch (visual) {
+                case 3: emitter.pour(SparkParticle.STATIC,0.05f);break;
+                case 2: emitter.pour(ShadowParticle.UP,0.1f);break;
+                case 1: emitter.pour(ElmoParticle.FACTORY,0.1f);break;
+                case 0: emitter.pour(Speck.factory(Speck.RATTLE),0.1f);break;
+                default: throw new IllegalArgumentException("Unknown city summon");
+            }
+        }
 
 		private static final String DELAY = "delay";
 		private static final String POS = "pos";

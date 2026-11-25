@@ -155,14 +155,16 @@ final class CoopBoard extends Group {
             } else if (key.startsWith("sale")) {
                 int cell=Integer.parseInt(key.substring(4)), image=Integer.parseInt(value);
                 object(keep,key+":"+image,cell,()->new ItemSprite(image));
-            } else if (key.startsWith("web") || key.startsWith("rocks")) {
+            } else if (key.startsWith("web") || key.startsWith("rocks") || key.startsWith("summon")) {
                 boolean rocks=key.startsWith("rocks");
-                int cell=Integer.parseInt(key.substring(rocks?5:3));
+                boolean summon=key.startsWith("summon");
+                int cell=Integer.parseInt(key.substring(summon?6:rocks?5:3));
                 if (!webs.containsKey(key)) {
                     com.watabou.noosa.particles.Emitter emitter=new com.watabou.noosa.particles.Emitter();
                     markings.add(emitter);
                     emitter.pos(center(cell));
-                    if (rocks) emitter.pour(com.shatteredpixel.shatteredpixeldungeon.effects.particles.EarthParticle.FALLING,0.1f);
+                    if (summon) com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing.Summoning.emitWarning(emitter,Integer.parseInt(value));
+                    else if (rocks) emitter.pour(com.shatteredpixel.shatteredpixeldungeon.effects.particles.EarthParticle.FALLING,0.1f);
                     else emitter.pour(com.shatteredpixel.shatteredpixeldungeon.effects.particles.WebParticle.FACTORY,0.25f);
                     webs.put(key,emitter);
                 }
@@ -304,13 +306,14 @@ final class CoopBoard extends Group {
                     case "CrystalSpire": sprite="Green".equals(color) ? new CrystalSpireSprite.Green() : "Red".equals(color) ? new CrystalSpireSprite.Red() : new CrystalSpireSprite.Blue();break;
                     case "CrystalWisp": sprite="Green".equals(color) ? new CrystalWispSprite.Green() : "Red".equals(color) ? new CrystalWispSprite.Red() : new CrystalWispSprite.Blue();break;
                     case "GnollGeomancer": sprite=new GnollGeomancerSprite();break;
-                    case "Monk": sprite=new MonkSprite();break;
-                    case "Golem": sprite=new GolemSprite();break;
+                    case "DwarfKing": sprite=new KingSprite();break;
+                    case "DKMonk": case "Monk": sprite=new MonkSprite();break;
+                    case "DKGolem": case "Golem": sprite=new GolemSprite();break;
                     case "Imp": sprite=new ImpSprite();break;
                     case "FireElemental": sprite=new ElementalSprite.Fire();break;
                     case "ShockElemental": sprite=new ElementalSprite.Shock();break;
-                    case "Ghoul": sprite=new GhoulSprite();break;
-                    case "Warlock": sprite=new WarlockSprite();break;
+                    case "DKGhoul": case "Ghoul": sprite=new GhoulSprite();break;
+                    case "DKWarlock": case "Warlock": sprite=new WarlockSprite();break;
                     case "FrostElemental": sprite=new ElementalSprite.Frost();break;
                     case "GnollGuard": sprite=new GnollGuardSprite();break;
                     case "GnollSapper": sprite=new GnollSapperSprite();break;

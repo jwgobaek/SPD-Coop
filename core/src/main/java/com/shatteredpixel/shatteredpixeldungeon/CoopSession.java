@@ -1,4 +1,5 @@
 package com.shatteredpixel.shatteredpixeldungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Shaman;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Spinner;
@@ -445,6 +446,7 @@ public final class CoopSession implements AutoCloseable {
             return type == CrystalGuardian.class || type == CrystalSpire.class || type == CrystalWisp.class
                     || type == GnollGeomancer.class || type == GnollGuard.class || type == GnollSapper.class;
         }
+        if (Dungeon.depth==20 && (type==DwarfKing.class || type==DwarfKing.DKGhoul.class || type==DwarfKing.DKMonk.class || type==DwarfKing.DKWarlock.class || type==DwarfKing.DKGolem.class)) return true;
         if (Dungeon.depth>=16 && Dungeon.depth<=19 && (type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Ghoul.class
                 || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Warlock.class
                 || type==Elemental.FrostElemental.class || type==Elemental.FireElemental.class || type==Elemental.ShockElemental.class
@@ -770,7 +772,7 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && item.getClass()!=GooBlob.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.quest.MetalShard.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.TengusMask.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand && ownership.owner(item)==player) && !(item instanceof CorpseDust || item instanceof Embers || item instanceof CeremonialCandle || item instanceof Rotberry.Seed) && !(item instanceof Potion) && !supportedScroll(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && item.getClass()!=GooBlob.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.quest.MetalShard.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.TengusMask.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.KingsCrown.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand && ownership.owner(item)==player) && !(item instanceof CorpseDust || item instanceof Embers || item instanceof CeremonialCandle || item instanceof Rotberry.Seed) && !(item instanceof Potion) && !supportedScroll(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
                             || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && !hero.belongings.backpack.canHold(item))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
@@ -934,12 +936,22 @@ public final class CoopSession implements AutoCloseable {
         return b;
     }
 
+    /** Original revive-persistent buffs continue ticking while their ghoul is outside Level.mobs. */
+    public static java.util.List<com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff> linkedBodyBuffs(Level floor) {
+        java.util.List<com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff> result=new java.util.ArrayList<>();
+        for (Mob resident:floor.mobs)
+            for (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Ghoul.GhoulLifeLink link:resident.buffs(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Ghoul.GhoulLifeLink.class))
+                result.addAll(link.downedGhoul().buffs());
+        return result;
+    }
+
     void validateActorGraph() {
         HashSet<Actor> persistent = new HashSet<>();
         persistent.add(heroes[0]); persistent.add(heroes[1]);
         persistent.addAll(Dungeon.level.mobs);
         for (Actor ch : new HashSet<>(persistent)) persistent.addAll(((Char)ch).buffs());
         persistent.addAll(Dungeon.level.blobs.values());
+        persistent.addAll(linkedBodyBuffs(Dungeon.level));
         if (Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel)
             persistent.addAll(((com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel)Dungeon.level).pendingGas());
         Actor spawner = Dungeon.level.respawner();
@@ -1052,7 +1064,7 @@ public final class CoopSession implements AutoCloseable {
         if (Dungeon.coop!=null || Dungeon.hero!=null || Dungeon.level!=null) throw new IllegalStateException("Dungeon in use");
         Bundle world=b.getBundle("world"), floor=b.getBundle("floor");
         int schema=b.getInt("schema"),depth=world.getInt("depth");
-        if ((schema<1 || schema>10) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
+        if ((schema<1 || schema>11) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
                 (depth<1 || depth>CoopFloors.lastDepth(schema)) || (world.getInt("branch")!=0 && !(schema>=10 && world.getInt("branch")==1 && CoopFloors.mineDepth(depth))) || world.getInt("challenges")!=0)
             throw new IllegalArgumentException("Unsupported world");
         int width=floor.getInt("width"), height=floor.getInt("height");

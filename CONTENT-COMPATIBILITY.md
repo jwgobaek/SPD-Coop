@@ -2,7 +2,7 @@
 
 ## 광산·도시 체크포인트
 
-현재 선언별 상태 집계는 IMPLEMENTED 14, UNSUPPORTED 1383, VERIFIED 183이다. 각 VERIFIED 행의 실제 범위는 TSV의 scope_or_evidence 열을 따른다. [실행 기록](docs/coop/mines-city-results.md)
+현재 선언별 상태 집계는 IMPLEMENTED 14, UNSUPPORTED 1378, VERIFIED 188이다. 각 VERIFIED 행의 실제 범위는 TSV의 scope_or_evidence 열을 따른다. [실행 기록](docs/coop/mines-city-results.md)
 
 ## 동굴 12~15층 · 현재 범위
 

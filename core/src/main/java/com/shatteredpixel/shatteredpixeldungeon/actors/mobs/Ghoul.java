@@ -151,6 +151,8 @@ public class Ghoul extends Mob {
 
 	@Override
 	public void die(Object cause) {
+        // A restored body can lose its last host before its first revival tick.
+        if (Dungeon.coop!=null && sprite==null) Dungeon.coop.attachSprite(this);
 		if (cause != Chasm.class && cause != GhoulLifeLink.class && !Dungeon.level.pit[pos]){
 			Ghoul nearby = GhoulLifeLink.searchForHost(this);
 			if (nearby != null){

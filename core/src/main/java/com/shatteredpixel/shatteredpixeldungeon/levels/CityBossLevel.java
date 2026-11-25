@@ -315,8 +315,8 @@ public class CityBossLevel extends Level {
 	@Override
 	public void occupyCell( Char ch ) {
 		if (map[bottomDoor] != Terrain.LOCKED_DOOR && map[topDoor] == Terrain.LOCKED_DOOR
-				&& ch.pos < bottomDoor && ch == Dungeon.hero) {
-			seal();
+				&& ch.pos < bottomDoor && (ch == Dungeon.hero || Dungeon.coop != null && Dungeon.coop.playerOf(ch) != 0)) {
+			sealFor(ch);
 		}
 
 		super.occupyCell( ch );
@@ -324,21 +324,47 @@ public class CityBossLevel extends Level {
 
 	@Override
 	public void seal() {
-		super.seal();
+        sealFor(Dungeon.hero);
+    }
+
+    public static int arenaDoor() { return bottomDoor; }
+    public static int exitDoor() { return topDoor; }
+    public boolean exitOpen() { return !locked && (map[topDoor] == Terrain.DOOR || map[topDoor] == Terrain.OPEN_DOOR); }
+
+    private void sealFor(Char entrant) {
+        if (locked || exitOpen()) return;
+        super.seal();
 		Statistics.qualifiedForBossChallengeBadge = true;
 
 		//moves intelligent allies with the hero, preferring closer pos to entrance door
 		int doorPos = pointToCell(new Point(arena.left + arena.width()/2, arena.bottom));
 		Mob.holdAllies(this, doorPos);
-		Mob.restoreAllies(this, Dungeon.hero.pos, doorPos);
+		Mob.restoreAllies(this, entrant.pos, doorPos);
+        if (Dungeon.coop != null) {
+            for (int seat=0;seat<2;seat++) {
+                Char partner=Dungeon.coop.hero(seat);
+                if (partner.pos < bottomDoor) continue;
+                int arrival=-1;
+                for (int row=arena.bottom-2;row>arena.top && arrival<0;row--)
+                    for (int x=arena.left+1;x<arena.right-1;x++) {
+                        int dest=row*width()+x;
+                        if (passable[dest] && dest!=throne && dest!=entrant.pos && Actor.findChar(dest)==null) {
+                            arrival=dest;break;
+                        }
+                    }
+                if (arrival<0) throw new IllegalStateException("No city arena arrival");
+                partner.pos=arrival;
+                partner.sprite.place(arrival);
+            }
+        }
 
 		DwarfKing boss = new DwarfKing();
 		boss.state = boss.WANDERING;
 		boss.pos = pointToCell(arena.center());
 		GameScene.add( boss );
-		boss.beckon(Dungeon.hero.pos);
+		boss.beckon(entrant.pos);
 
-		if (heroFOV[boss.pos]) {
+		if (Dungeon.coop == null && heroFOV[boss.pos]) {
 			boss.notice();
 			boss.sprite.alpha( 0 );
 			boss.sprite.parent.add( new AlphaTweener( boss.sprite, 1, 0.1f ) );
@@ -351,12 +377,12 @@ public class CityBossLevel extends Level {
 		Heap h = heaps.get(bottomDoor);
 		if (h != null){
 			for (Item i : h.items){
-				drop(i, bottomDoor-width()).sprite.drop(bottomDoor);
+				drop(i, bottomDoor-width()).animateDrop(bottomDoor);
 			}
 			h.destroy();
 		}
 
-		Game.runOnRenderThread(new Callback() {
+		if (Dungeon.coop == null) Game.runOnRenderThread(new Callback() {
 			@Override
 			public void call() {
 				Music.INSTANCE.play(Assets.Music.CITY_BOSS, true);
@@ -379,7 +405,7 @@ public class CityBossLevel extends Level {
 		}
 		Dungeon.observe();
 
-		Game.runOnRenderThread(new Callback() {
+		if (Dungeon.coop == null) Game.runOnRenderThread(new Callback() {
 			@Override
 			public void call() {
 				Music.INSTANCE.fadeOut(5f, new Callback() {
@@ -452,7 +478,15 @@ public class CityBossLevel extends Level {
 		return wallVisuals;
 	}
 
-	public static class CustomGroundVisuals extends CustomTilemap {
+	public abstract static class CityOverlay extends CustomTilemap {
+        public abstract int[] frames();
+        @Override public Tilemap create() {
+            Tilemap tiles=super.create();
+            tiles.map(frames(),tileW);
+            return tiles;
+        }
+    }
+    public static class CustomGroundVisuals extends CityOverlay {
 
 		{
 			texture = Assets.Environment.CITY_BOSS;
@@ -463,8 +497,7 @@ public class CityBossLevel extends Level {
 		private static final int STAIR_ROWS = 7;
 
 		@Override
-		public Tilemap create() {
-			Tilemap v = super.create();
+		public int[] frames() {
 			int[] data = new int[tileW*tileH];
 
 			int[] map = Dungeon.level.map;
@@ -612,8 +645,7 @@ public class CityBossLevel extends Level {
 				}
 			}
 
-			v.map( data, tileW );
-			return v;
+			return data;
 		}
 
 		@Override
@@ -677,7 +709,7 @@ public class CityBossLevel extends Level {
 		}
 	}
 
-	public static class CustomTerrainVisuals extends CustomTilemap {
+	public static class CustomTerrainVisuals extends CityOverlay {
 
 		{
 			texture = Assets.Environment.CITY_BOSS;
@@ -686,8 +718,7 @@ public class CityBossLevel extends Level {
 		}
 
 		@Override
-		public Tilemap create() {
-			Tilemap v = super.create();
+		public int[] frames() {
 			int[] data = new int[tileW*tileH];
 			int[] map = Dungeon.level.map;
 
@@ -743,8 +774,7 @@ public class CityBossLevel extends Level {
 				}
 			}
 
-			v.map( data, tileW );
-			return v;
+			return data;
 		}
 
 		@Override
@@ -753,7 +783,7 @@ public class CityBossLevel extends Level {
 		}
 	}
 
-	public static class CustomWallVisuals extends CustomTilemap {
+	public static class CustomWallVisuals extends CityOverlay {
 		{
 			texture = Assets.Environment.CITY_BOSS;
 			tileW = 15;
@@ -761,8 +791,7 @@ public class CityBossLevel extends Level {
 		}
 
 		@Override
-		public Tilemap create() {
-			Tilemap v = super.create();
+		public int[] frames() {
 			int[] data = new int[tileW*tileH];
 
 			int[] map = Dungeon.level.map;
@@ -826,8 +855,7 @@ public class CityBossLevel extends Level {
 				data[i] = -1;
 			}
 
-			v.map( data, tileW );
-			return v;
+			return data;
 		}
 	}
 }

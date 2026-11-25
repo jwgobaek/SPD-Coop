@@ -26,6 +26,12 @@ final class SeatProjection {
     private static void writeExitTiles(Map<String,String> rows,Iterable<com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTilemap> tiles,
                                        FloorKnowledge sight, Level level, String prefix) {
         for (com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTilemap tile:tiles) {
+            if (tile instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel.CityOverlay) {
+                int[] frames=((com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel.CityOverlay)tile).frames();
+                for (int i=0;i<frames.length;i++)
+                    if (frames[i]>=0 && sight.visible(i)) rows.put(prefix+i,Integer.toString(frames[i]));
+                continue;
+            }
             if (tile instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel.CaveOverlay) {
                 int[] frames=((com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel.CaveOverlay)tile).frames();
                 boolean dynamic=tile instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel.ArenaVisuals;
@@ -110,7 +116,12 @@ final class SeatProjection {
                         rows.put("nest"+cell,Integer.toString(sprite));
                 }
             }
-            if (level instanceof PrisonBossLevel || level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel) {
+            if (level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel) {
+                for (Mob resident:level.mobs) if (resident instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing)
+                    for (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing.Summoning cast:resident.buffs(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing.Summoning.class))
+                        if (sight.visible(cast.getPos())) rows.put("summon"+cast.getPos(),Integer.toString(cast.warningVisual()));
+            }
+            if (level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel || level instanceof PrisonBossLevel || level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel) {
                 writeExitTiles(rows,level.customTiles,sight,level,"exitfloor");
                 writeExitTiles(rows,level.customWalls,sight,level,"exitwall");
             }

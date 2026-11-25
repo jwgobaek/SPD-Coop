@@ -276,6 +276,8 @@ public abstract class Actor implements Bundlable {
 			add( mob );
 		}
 
+		if (Dungeon.coop!=null) for (Buff buff:com.shatteredpixel.shatteredpixeldungeon.CoopSession.linkedBodyBuffs(Dungeon.level)) add(buff);
+
 		if (Dungeon.coop!=null && Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel)
 			for (Actor gas:((com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel)Dungeon.level).pendingGas()) add(gas);
 		//mobs need to remember their targets after every actor is added

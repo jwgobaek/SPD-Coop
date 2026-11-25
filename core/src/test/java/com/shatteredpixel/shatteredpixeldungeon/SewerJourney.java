@@ -32,6 +32,7 @@ public class SewerJourney extends HeadlessDungeon {
     }
     private final boolean coverAlly=Boolean.getBoolean("journey.coverAlly");
     private final boolean prisonSupplies=Boolean.getBoolean("journey.prisonSupplies");
+    private final boolean visibleSupplyRoutes=Boolean.getBoolean("journey.visibleSupplyRoutes");
     private final boolean prisonEscort=Boolean.getBoolean("journey.prisonEscort");
     private final boolean prisonTrace=Boolean.getBoolean("journey.prisonTrace");
     private final List<String> route=new ArrayList<>();
@@ -229,7 +230,7 @@ public class SewerJourney extends HeadlessDungeon {
                     continue;
                 }
                 PotionOfHealing heal=h.belongings.getItem(PotionOfHealing.class);
-                if(h.HP<h.HT*2/3 && heal!=null && act(g,CoopSession.Action.DRINK,0,heal)) continue;
+                if(h.HP<h.HT*2/3 && heal!=null && (!visibleSupplyRoutes || Dungeon.depth<6 || heal.isKnown()) && act(g,CoopSession.Action.DRINK,0,heal)) continue;
                 ArrayList<Mob> enemies=new ArrayList<>();
                 for(Mob m:l.mobs) if(m.alignment==Char.Alignment.ENEMY && m.invisible<=0 && g.observe(s).visible(m.pos)) enemies.add(m);
                 enemies.sort(Comparator.comparingInt((Mob m)->l.distance(h.pos,m.pos)).thenComparingInt(Actor::id));
@@ -316,6 +317,9 @@ public class SewerJourney extends HeadlessDungeon {
                     if(!(item instanceof Food || item instanceof IronKey || item instanceof PotionOfHealing
                             || prisonPolicy && prisonEscort && item instanceof Gold)) continue;
                     if(!h.belongings.backpack.canHold(item)) continue;
+                    if (visibleSupplyRoutes && prisonPolicy && item instanceof PotionOfHealing && !((PotionOfHealing)item).isKnown()) continue;
+                    if (visibleSupplyRoutes && prisonPolicy && !l.adjacent(h.pos,pile.pos)
+                            && CoopFloorsTest.nextStep(g,pile.pos,true,true)<0) continue;
                     if(l.distance(h.pos,pile.pos)<=6 && (supply<0 || l.distance(h.pos,pile.pos)<l.distance(h.pos,supply))) supply=pile.pos;
                 }
                 if(visitsHere<3 && supply>=0 && (l.adjacent(h.pos,supply) || CoopFloorsTest.nextStep(g,supply,true,true)>=0)) {

@@ -2,7 +2,7 @@
 
 ## 광산·도시 체크포인트
 
-본편 16~19층과 두 대장장이 광산에서 협동 행동을 검증했다. 다음 단계는 원본 VaultLevel의 출입·보상, Dwarf King의 단계별 전투와 저장, 21층 순서다. [실행 기록](docs/coop/mines-city-results.md)
+봉쇄·세 단계 원본 전투 및 왕관까지 20층을 검증했다. 다음 구역은 21층 HallsLevel이다. Imp 금고 분기를 별도로 확장한다. [실행 기록](docs/coop/mines-city-results.md)
 
 ## 동굴 본편 검증 범위
 
