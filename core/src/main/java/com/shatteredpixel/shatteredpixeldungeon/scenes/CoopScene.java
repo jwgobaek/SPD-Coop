@@ -8,6 +8,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.*;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndSeatInventory;
 import com.watabou.noosa.*;
 import java.util.UUID;
 
@@ -25,6 +26,20 @@ public class CoopScene extends PixelScene {
     private long effectsVersion;
     private PublicDungeon targetView;
     private PublicDungeon.Loot targetStaff;
+
+    public void useItem(PublicDungeon view, PublicDungeon.Loot item, String action) {
+        if (controller.frame().image!=view.source || !view.actions(item).contains(action)) return;
+        switch (action) {
+            case "ZAP": case "SHOOT": case "THROW":
+                aim(view,item);
+                break;
+            case "UPGRADE": case "IDENTIFY":
+                add(WndSeatInventory.chooseEquipment(view,controller,item));
+                break;
+            default:
+                view.use(controller,item,action);
+        }
+    }
 
     public void aim(PublicDungeon view, PublicDungeon.Loot staff) {
         if (controller.frame().image!=view.source || (!view.actions(staff).contains("ZAP") && !view.actions(staff).contains("SHOOT") && !view.actions(staff).contains("THROW"))) return;

@@ -160,10 +160,7 @@ final class CoopHud extends Group {
         if (layout==null || !layout.assigned(slot)) { edit(slot); return; }
         PublicDungeon.Loot item=items[slot];
         if(item==null) return;
-        String verb=PublicDungeon.shortcutAction(item);
-        if(!view.actions(item).contains(verb)) return;
-        if(verb.equals("ZAP") || verb.equals("SHOOT") || verb.equals("THROW")) scene.aim(view,item);
-        else view.use(client,item,verb);
+        scene.useItem(view,item,PublicDungeon.shortcutAction(item));
     }
 
     private final class MenuButton extends Button {

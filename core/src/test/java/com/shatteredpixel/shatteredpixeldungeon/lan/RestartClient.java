@@ -80,6 +80,7 @@ public final class RestartClient {
                     String[] parts=row.split(",");
                     switch (parts[1]) {
                         case "BOW": case "ARMOR": case "HEALING": case "HONEYPOT": case "SHELL":
+                        case "STONE": case "INSCRIBED": case "UPGRADE": case "IDENTIFY":
                             parts[1]="OTHER";
                             break;
                         case "STAFF":
@@ -335,6 +336,16 @@ public final class RestartClient {
         }
         for(int i=0;i<2;i++) bind(i);
         barrier();
+        if (mode.equals("legacy-sewer")) {
+            for (int seat=0; seat<2; seat++) {
+                PublicDungeon view=new PublicDungeon(state(seat));
+                assertEquals(3,view.depth);
+                String id=RestartHost.read(path,"last-seat-"+seat);
+                assertTrue(clients[seat].request("LOOKUP "+epoch+" "+id).endsWith(" APPLIED"));
+            }
+            act("WAIT",0,0);
+            return;
+        }
         if (mode.equals("campaign-resume")) { campaign(mode); return; }
         if (mode.equals("schema3-backup")) {
             assertEquals(3,new PublicDungeon(state(0)).depth);
@@ -743,6 +754,21 @@ public final class RestartClient {
     }
 
     private void crystalResume(String mode) throws Exception {
+        PublicDungeon guest=new PublicDungeon(state(1));
+        Path layoutFile=path.resolve("mimic-shortcut");
+        SeatQuickslots shortcuts;
+        if (mode.equals("crystal-open")) {
+            PublicDungeon.Loot food=guest.belongings.stream().filter(i->i.kind.equals("FOOD")).findFirst().get();
+            shortcuts=SeatQuickslots.empty().bind(1,food);
+            try (DataOutputStream out=new DataOutputStream(Files.newOutputStream(layoutFile))) { shortcuts.write(out); }
+        } else {
+            try (DataInputStream in=new DataInputStream(Files.newInputStream(layoutFile))) { shortcuts=SeatQuickslots.read(in); }
+        }
+        PublicDungeon.Loot carried=shortcuts.item(1,guest);
+        assertNotNull("The victim retains the physical remainder of the split stack",carried);
+        assertNull(shortcuts.item(1,new PublicDungeon(state(0))));
+        assertFalse(state(0).rows.containsValue(carried.reference));
+        assertEquals(mode.equals("crystal-open") || mode.equals("crystal-final") ? 3 : 2,carried.quantity);
         if (mode.equals("crystal-open")) {
             int cell=Integer.parseInt(RestartHost.read(path,"encounter-cell"));
             assertEquals("CRYSTAL_CHEST",state(1).rows.get("h"+cell));
@@ -793,6 +819,9 @@ public final class RestartClient {
             assertEquals(cell,pos(1));
             assertFalse(new PublicDungeon(state(1)).monsters.containsValue("CrystalMimic"));
             act("PICK_UP",cell,item(1,"F"+cell,"FOOD"));
+            PublicDungeon.Loot merged=shortcuts.item(1,new PublicDungeon(state(1)));
+            assertEquals(carried.reference,merged.reference);
+            assertEquals(3,merged.quantity);
         } else {
             assertEquals(3,new PublicDungeon(state(1)).belongings.stream().filter(i->i.kind.equals("FOOD")).findFirst().get().quantity);
             act("WAIT",0,0);

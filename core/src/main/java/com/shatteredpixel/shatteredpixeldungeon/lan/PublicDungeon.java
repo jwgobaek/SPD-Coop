@@ -30,7 +30,7 @@ public final class PublicDungeon {
             reference=ref==null ? "" : ref;
             String label=rows.get("label"+id);
             String family=rows.get("family"+id);
-            stackType=kind.equals("STONE") && family!=null && family.matches("stone\\.[0-9a-f]{32}") ? family : (kind.equals("FOOD") || kind.equals("HEALING")) && label!=null ? label : "";
+            stackType=kind.equals("STONE") && family!=null && family.matches("stone\\.[0-9a-f]{32}") ? family : (kind.equals("FOOD") || kind.equals("HEALING") || kind.equals("UPGRADE") || kind.equals("IDENTIFY")) && label!=null ? label : "";
             sprite=number(f[2],0,1023); quantity=number(f[3],1,Integer.MAX_VALUE); upgrade=f[4];
             charges=kind.equals("STAFF") ? number(f[5],0,10) : 0;
             capacity=kind.equals("STAFF") ? number(f[6],charges,10) : 0;
@@ -95,6 +95,7 @@ public final class PublicDungeon {
             case "FOOD": return "EAT";
             case "HEALING": return "DRINK";
             case "STONE": return "THROW";
+            case "UPGRADE": case "IDENTIFY": return item.kind;
             case "BOW": return "SHOOT";
             case "STAFF": return item.slot.equals("WEAPON") ? "ZAP" : "EQUIP";
             case "MELEE": case "ARMOR": return item.slot.equals("BAG") ? "EQUIP" : "UNEQUIP";

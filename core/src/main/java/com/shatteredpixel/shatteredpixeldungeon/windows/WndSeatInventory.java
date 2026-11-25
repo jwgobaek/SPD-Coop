@@ -23,6 +23,10 @@ public final class WndSeatInventory extends WndTabbed {
 
     @Override protected int tabHeight() { return 20; }
 
+    public static WndSeatInventory chooseEquipment(PublicDungeon view,CoopController client,PublicDungeon.Loot scroll) {
+        return new WndSeatInventory(view,client,0,-1,scroll);
+    }
+
     public static WndSeatInventory chooseShortcut(PublicDungeon view,CoopController client,int slot) {
         return new WndSeatInventory(view,client,0,slot);
     }
@@ -143,9 +147,7 @@ public final class WndSeatInventory extends WndTabbed {
                 if(i<0 || i>=verbs.size()) return;
                 WndSeatInventory.this.hide();
                 String verb=verbs.get(i);
-                if(verb.equals("ZAP") || verb.equals("SHOOT") || verb.equals("THROW")) ((CoopScene)Game.scene()).aim(view,item);
-                else if (verb.equals("UPGRADE") || verb.equals("IDENTIFY")) Game.scene().add(new WndSeatInventory(view,client,0,-1,item));
-                else view.use(client,item,verb);
+                ((CoopScene)Game.scene()).useItem(view,item,verb);
             }
         });
     }

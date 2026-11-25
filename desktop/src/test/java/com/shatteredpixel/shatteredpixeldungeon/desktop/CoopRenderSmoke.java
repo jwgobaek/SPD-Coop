@@ -139,12 +139,22 @@ public final class CoopRenderSmoke {
             return null;
         });
     }
+    private static Point waitForButton(String name) throws Exception {
+        long end=System.nanoTime()+LIMIT;
+        do {
+            Point point=button(name);
+            if (point!=null) return point;
+            Thread.sleep(35);
+        } while (System.nanoTime()<end);
+        throw new AssertionError("Desktop input did not become available: "+name);
+    }
+
     private static void click(String name) throws Exception {
-        System.out.println("Input "+name); await(()->button(name)!=null); Point p=button(name);
-        press(p);
+        System.out.println("Input "+name);
+        press(waitForButton(name));
     }
     private static void hold(String name) throws Exception {
-        Point p=button(name);
+        Point p=waitForButton(name);
         render(()->{PointerEvent.addPointerEvent(new PointerEvent(p.x,p.y,1,PointerEvent.Type.DOWN,PointerEvent.LEFT));return null;});
         Thread.sleep(1000);
         render(()->{PointerEvent.addPointerEvent(new PointerEvent(p.x,p.y,1,PointerEvent.Type.UP,PointerEvent.LEFT));return null;});
@@ -182,7 +192,12 @@ public final class CoopRenderSmoke {
         press(tab); shot("pouch");
         render(()->{((WndSeatInventory)find(Game.scene(),g->g instanceof WndSeatInventory)).hide();return null;});
         RenderEncounter.healing(hostController());
-        click("wait"); await(()->frame().dungeon.offered && frame().dungeon.hp<frame().dungeon.maxHp);
+        long beforeWait=frame().lastAction;
+        long beforeVersion=frame().image.version;
+        click("wait");
+        await(()->frame().lastAction==beforeWait+1 && frame().image.version>beforeVersion
+                && frame().dungeon.offered && frame().dungeon.hp<frame().dungeon.maxHp
+                && !hostController().busy() && button("wait")!=null);
         java.nio.file.Files.createFile(new File(root,"hold-guest").toPath());
         long previousAction=frame().lastAction;
         hold("wait");
@@ -558,7 +573,11 @@ public final class CoopRenderSmoke {
                     shot(verb.toLowerCase(java.util.Locale.ROOT)+"-target");
                     render(()->{((WndSeatInventory)find(Game.scene(),g->g instanceof WndSeatInventory)).onBackPressed();return null;});
                     if(frame().image!=view.source) throw new AssertionError("Cancelled equipment selection spent a turn");
-                    bagAction(verb,verb.toLowerCase(java.util.Locale.ROOT));
+                    String slot=verb.equals("UPGRADE") ? "slot2" : "slot1";
+                    click(slot); press(inventoryPoint(verb));
+                    int index=verb.equals("UPGRADE") ? 1 : 0;
+                    await(()->frame().quickslots.item(index,frame().dungeon)!=null);
+                    click(slot);
                     press(inventoryPoint(gear.id));
                     await(()->frame().dungeon.offered && frame().dungeon.belongings.stream().anyMatch(x->
                             x.slot.equals("BAG") && x.kind.equals("ARMOR") && x.upgrade.equals(verb.equals("UPGRADE")?"1":"0")));
