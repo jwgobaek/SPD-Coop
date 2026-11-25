@@ -6,7 +6,7 @@ Cloud에서 `bash scripts/verify-android-build.sh <새 결과 디렉터리>`를 
 
 ## Android 설치와 업데이트
 
-빌드와 서명 검사는 Cloud에서 수행한다. 설치 파일은 MuMu 내부의 승인된 비공개 링크를 이용한다. [GB2 시험 절차](ANDROID-REMOTE-TESTING.md)
+빌드와 서명 검사는 Cloud에서 수행한다. 설치 파일은 MuMu 내부에서 지정된 최신 파일 링크로 로그인 없이 내려받고 설치 전후 SHA-256을 확인한다. [GB2 시험 절차](ANDROID-REMOTE-TESTING.md)
 
 ## 감옥 9층 개발판
 

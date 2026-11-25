@@ -24,7 +24,7 @@ Necromancer의 소환 대상 셀, 원본 firstSummon·storedSkeletonID, HUNTING�
 
 7층 시드 572에서 다른 층에 남은 망령의 수명을 추가 검증한다. 직접 시전 가능한 보상 지팡이는 원본 효과별로 검증하고, 강령술사의 소환 관계와 GeyserTrap의 강제 착지와 복합 효과를 검사한다. PoisonDartTrap 및 ToxicVent의 원본 비활성 상태 검증은 5e22a74에 있다. 8·9층을 먼저 열고 Tengu의 별도 보관 객체·storedItems와 다섯 단계의 내구성 경계가 검증된 다음 10층을 연다.
 
-Drive 발행은 전체 회귀·APK 서명·GitHub 원격 확인 후 세션 마지막에 한 번 수행한다. 기존 01_Latest에서 SPD-Coop-latest.apk와 APK를 제외한 SPD-Coop-latest-backup.zip만 관리한다. 세션당 전송 상한은 각각 한 개다. [백업 절차](BACKUP-AND-DELIVERABLES.md)
+Drive 발행은 전체 회귀·APK 서명·GitHub 원격 확인 후 세션 마지막에 한 번 수행한다. 기존 01_Latest에서 SPD-Coop-latest.apk와 APK를 제외한 SPD-Coop-latest-backup.zip만 관리한다. 기존 두 파일 ID에만 링크 뷰어와 다운로드를 허용한다(anyone/reader, allowFileDiscovery=false). 민감정보 검사 후 MuMu 내부에서 로그아웃 다운로드와 해시를 검사한다. Windows에는 작업물을 저장하지 않는다. 세션당 전송 상한은 각각 한 개다. [백업 절차](BACKUP-AND-DELIVERABLES.md)
 
 ## 이전 계획 · 첫 7층 체크포인트
 

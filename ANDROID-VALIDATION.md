@@ -18,7 +18,7 @@ Codex에서 승인된 Commander와 기본 Device-2의 로컬 ADB에 직접 접�
 |일반 무선 LAN 검색, 별도 휴대폰 간 연결, 핫스팟·오프라인 Wi-Fi|NOT RUN|
 |장시간 다층 진행, Android 보스전, 저장 손상 복구·버전 간 업데이트·마이그레이션, 전체 회전·핀치, 실폰 발열|NOT RUN|
 
-최종적으로 양쪽 세션이 일치했고 seat 0·1 모두 GAME/INGAME, Turn 4, State Version 9, pending 0, Save PERSISTENT였다. 의도적인 종료 직후 참가자의 CONNECTIONLOST를 기록했다. 확인한 구간에서 앱 크래시·ANR은 관찰되지 않았다. 아래의 Cloud 빌드 당시 기록을 이후 Android 실측과 구분한다. [실측 보고서](https://drive.google.com/file/d/1yqLTA1Ze6u-weS6ngku1NNgju9z3pfWV/view) · [원자료](https://drive.google.com/drive/folders/1ZbDjsdcsGTFm2BKydRhuUSND_oN4jEn7) · [로그 발췌](https://drive.google.com/file/d/1TGyK3UGWDhqcDB6qpSIdjJIbIlb6Xjn2/view)
+최종적으로 양쪽 세션이 일치했고 seat 0·1 모두 GAME/INGAME, Turn 4, State Version 9, pending 0, Save PERSISTENT였다. 의도적인 종료 직후 참가자의 CONNECTIONLOST를 기록했다. 확인한 구간에서 앱 크래시·ANR은 관찰되지 않았다. 아래의 Cloud 빌드 당시 기록을 이후 Android 실측과 구분한다. 실측 보고서·원자료·로그는 소유자의 별도 검증 폴더에 보관한다.
 
 신규 빌드마다 영향 범위와 설치본 해시를 따로 기록한다. [원격 시험 및 정리 절차](ANDROID-REMOTE-TESTING.md)
 
@@ -45,3 +45,5 @@ Common game logic, persistence and LAN protocol run under the desktop JVM and li
 The manifest declares INTERNET and ACCESS_NETWORK_STATE. AndroidLauncher supplies the lifecycle and ACTION_SEND integration. AndroidSeatKeys uses the platform AndroidKeyStore provider. Desktop screenshots, JVM loopback tests and package inspection have separate results in TEST_REPORT.md.
 
 The prison checkpoint adds desktop evidence for a sold item returning from a dormant floor, the two clients resuming from floor 7, and full room shutdown. Repeat these on Android under screen lock and app process death.
+
+최신 APK와 통합 ZIP 두 파일만 기존 ID에 링크 뷰어와 다운로드를 허용한다. 비로그인 다운로드의 실제 파일 크기와 SHA-256을 별도로 확인한다. [발행 절차](BACKUP-AND-DELIVERABLES.md)
