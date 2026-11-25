@@ -98,7 +98,7 @@ final class CoopHud extends Group {
         @Override protected void onClick() { scene.gameMenu(); }
     }
 
-    private int tier() { return Integer.parseInt(view.source.rows.getOrDefault("selftier","0")); }
+    private int tier() { return Integer.parseInt(view.source.rows.containsKey("selftier") ? view.source.rows.get("selftier") : "0"); }
 
     void apply(PublicDungeon next, boolean confirmed, String line, boolean aiming) {
         view=next;

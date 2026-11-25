@@ -24,6 +24,11 @@ public final class ProjectionChecks {
             float time=com.shatteredpixel.shatteredpixeldungeon.actors.Actor.now();
             com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonRenderMap map=
                     new com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonRenderMap(image);
+            for (String key:p.current.rows.keySet()) if(key.startsWith("label")) {
+                String item=p.current.rows.get("i"+key.substring(5));
+                assertNotNull(item);
+                assertFalse("Only a seat's own bag exposes description keys",item.startsWith("F"));
+            }
             int hidden=0, shown=0;
             for (int i=0;i<terrain.length;i++) {
                 assertEquals(image.terrain(i),map.terrain(i));

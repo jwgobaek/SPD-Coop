@@ -85,8 +85,12 @@ final class CoopBoard extends Group {
                 String[] mob = value.split(",");
                 int cell = Integer.parseInt(mob[0]);
                 Image sprite=object(keep, key+":"+mob[1], cell, ()->monster(mob[1]));
-                sprite.resetColor();
-                if (view.source.rows.containsKey("charge"+cell)) sprite.tint(1f,0.2f,0.2f,0.55f);
+                boolean charging=view.source.rows.containsKey("charge"+cell);
+                if (sprite instanceof GooSprite) ((GooSprite)sprite).displayCharge(charging);
+                else if (sprite instanceof SentrySprite) {
+                    sprite.resetColor();
+                    if (charging) sprite.tint(1f,0.2f,0.2f,0.55f);
+                }
             } else if (key.charAt(0)=='h' && Character.isDigit(key.charAt(1))) {
                 int cell = Integer.parseInt(key.substring(1));
                 if (view.floor.containsKey(cell)) continue;
@@ -164,6 +168,10 @@ final class CoopBoard extends Group {
         }
         sprite.x=cell%view.width*TILE+(TILE-sprite.width())/2;
         sprite.y=cell/view.width*TILE+TILE-sprite.height();
+        if (sprite instanceof CharSprite) sprite.point(((CharSprite)sprite).worldToCamera(cell,view.width,camera));
+        else if (sprite instanceof ItemSprite) sprite.point(((ItemSprite)sprite).worldToCamera(cell,view.width,camera));
+        else if (key.startsWith("self") || key.startsWith("ally"))
+            sprite.point(DungeonTilemap.spritePosition(cell,view.width,camera,sprite.width(),sprite.height(),6/16f));
         return sprite;
     }
     private PointF center(int cell) {
@@ -201,17 +209,18 @@ final class CoopBoard extends Group {
                     case "GoldenMimic": sprite=new MimicSprite.Golden();break;
                     case "CrystalMimic": sprite=new MimicSprite.Crystal();break;
                     case "Mimic": sprite=new MimicSprite();break;
-                    case "Bee": sprite=new Image(Assets.Sprites.BEE,0,0,16,16);break;
-                    case "Ghost": sprite=new Image(Assets.Sprites.GHOST,0,0,14,15);break;
-                    case "FetidRat": sprite=new Image(Assets.Sprites.RAT,0,30,16,15);break;
-                    case "Piranha": sprite=new Image(Assets.Sprites.PIRANHA,0,0,12,16);break;
-                    case "Sentry": sprite=new Image(Assets.Sprites.SENTRY,0,0,8,15);
+                    case "Bee": sprite=new BeeSprite();break;
+                    case "Ghost": sprite=new GhostSprite();break;
+                    case "FetidRat": sprite=new FetidRatSprite();break;
+                    case "Piranha": sprite=new PiranhaSprite();break;
+                    case "Sentry": sprite=new SentrySprite.Red();
 
                         break;
-                    case "Gnoll": sprite=new Image(Assets.Sprites.GNOLL,0,0,12,15);break;
-                    case "Snake": sprite=new Image(Assets.Sprites.SNAKE,0,0,12,11);break;
-                    case "Albino": sprite=new Image(Assets.Sprites.RAT,0,15,16,15);break;
-                    default: sprite=new Image(Assets.Sprites.RAT,0,0,16,15);
+                    case "Gnoll": sprite=new GnollSprite();break;
+                    case "Snake": sprite=new SnakeSprite();break;
+                    case "Albino": sprite=new AlbinoSprite();break;
+                    case "Rat": sprite=new RatSprite();break;
+                    default: throw new IllegalArgumentException("Unknown projected monster");
                 }
         return sprite;
     }

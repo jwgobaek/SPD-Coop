@@ -83,6 +83,38 @@ public class WndBag extends WndTabbed {
 	
 	private static Bag lastBag;
 
+	static final class Grid {
+		final int slotWidth,slotHeight,cols,rows,width,height;
+		Grid(int sw,int sh,int cols,int rows,int width,int height) {
+			this.slotWidth=sw; this.slotHeight=sh; this.cols=cols; this.rows=rows;
+			this.width=width; this.height=height;
+		}
+	}
+
+	static Grid grid(int marginTop,int marginHor) {
+		int slotWidth = PixelScene.landscape() ? SLOT_WIDTH_L : SLOT_WIDTH_P;
+		int slotHeight = PixelScene.landscape() ? SLOT_HEIGHT_L : SLOT_HEIGHT_P;
+
+		int nCols = PixelScene.landscape() ? COLS_L : COLS_P;
+		int nRows = (int)Math.ceil(25/(float)nCols); //we expect to lay out 25 slots in all cases
+
+		int windowWidth = slotWidth * nCols + SLOT_MARGIN * (nCols - 1);
+		int windowHeight = TITLE_HEIGHT + slotHeight * nRows + SLOT_MARGIN * (nRows - 1);
+
+		if (PixelScene.landscape()){
+			while (slotHeight >= 24 && (windowHeight + 20 + marginTop) > PixelScene.uiCamera.height){
+				slotHeight--;
+				windowHeight -= nRows;
+			}
+		} else {
+			while (slotWidth >= 26 && (windowWidth + marginHor) > PixelScene.uiCamera.width){
+				slotWidth--;
+				windowWidth -= nCols;
+			}
+		}
+		return new Grid(slotWidth,slotHeight,nCols,nRows,windowWidth,windowHeight);
+	}
+
 	public WndBag( Bag bag ) {
 		this(bag, null);
 	}
@@ -100,26 +132,13 @@ public class WndBag extends WndTabbed {
 		
 		lastBag = bag;
 
-		slotWidth = PixelScene.landscape() ? SLOT_WIDTH_L : SLOT_WIDTH_P;
-		slotHeight = PixelScene.landscape() ? SLOT_HEIGHT_L : SLOT_HEIGHT_P;
-
-		nCols = PixelScene.landscape() ? COLS_L : COLS_P;
-		nRows = (int)Math.ceil(25/(float)nCols); //we expect to lay out 25 slots in all cases
-
-		int windowWidth = slotWidth * nCols + SLOT_MARGIN * (nCols - 1);
-		int windowHeight = TITLE_HEIGHT + slotHeight * nRows + SLOT_MARGIN * (nRows - 1);
-
-		if (PixelScene.landscape()){
-			while (slotHeight >= 24 && (windowHeight + 20 + chrome.marginTop()) > PixelScene.uiCamera.height){
-				slotHeight--;
-				windowHeight -= nRows;
-			}
-		} else {
-			while (slotWidth >= 26 && (windowWidth + chrome.marginHor()) > PixelScene.uiCamera.width){
-				slotWidth--;
-				windowWidth -= nCols;
-			}
-		}
+		Grid grid = grid(chrome.marginTop(), chrome.marginHor());
+		slotWidth = grid.slotWidth;
+		slotHeight = grid.slotHeight;
+		nCols = grid.cols;
+		nRows = grid.rows;
+		int windowWidth = grid.width;
+		int windowHeight = grid.height;
 
 		placeTitle( bag, windowWidth );
 		

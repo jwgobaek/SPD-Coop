@@ -201,6 +201,12 @@ final class SeatProjection {
             WandOfMagicMissile wand=((MagesStaff)item).starterWand();
             if (wand!=null) { kind="STAFF"; charges=","+wand.curCharges+","+wand.maxCharges; }
         }
+        if (!slot.startsWith("F") && !kind.equals("OTHER") && item.getClass().getEnclosingClass()==null) {
+            String label=item.getClass().getName();
+            String prefix="com.shatteredpixel.shatteredpixeldungeon.";
+            if (label.startsWith(prefix+"items."))
+                rows.put("label"+id,label.substring(prefix.length()).toLowerCase(Locale.ROOT));
+        }
         rows.put("i"+id,slot+","+kind+","+item.image()+","+item.quantity()+","+
                 (item.levelKnown ? item.visiblyUpgraded() : "NA")+charges);
     }

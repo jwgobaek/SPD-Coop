@@ -7,7 +7,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.*;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndCoopBag;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndSeatInventory;
 import com.watabou.input.PointerEvent;
 import com.watabou.noosa.*;
 import com.watabou.utils.Point;
@@ -171,17 +171,19 @@ public final class CoopRenderSmoke {
     private static PublicDungeon.Loot staff(PublicDungeon view) {
         return view.belongings.stream().filter(i->i.kind.equals("STAFF") && i.slot.equals("WEAPON")).findFirst().get();
     }
+    private static Point inventoryPoint(String kind) throws Exception {
+        long id=frame().dungeon.belongings.stream().filter(item->item.kind.equals(kind)).findFirst().get().id;
+        return render(()->{
+            WndSeatInventory.Slot cell=(WndSeatInventory.Slot)find(Game.scene(),g->g instanceof WndSeatInventory.Slot
+                    && ((WndSeatInventory.Slot)g).handle==id);
+            if (cell==null || !cell.active) throw new AssertionError("Missing public inventory slot");
+            return cell.camera().cameraToScreen(cell.left()+cell.width()/2,cell.top()+cell.height()/2);
+        });
+    }
     private static void bagAction(String kind,String verb) throws Exception {
         click("bag");
-        await(()->render(()->find(Game.scene(),g->g instanceof WndCoopBag)!=null));
-        PublicDungeon view=frame().dungeon;
-        java.util.ArrayList<PublicDungeon.Loot> sorted=new java.util.ArrayList<>(view.belongings);
-        sorted.sort((a,b)->Boolean.compare(a.slot.equals("BAG"),b.slot.equals("BAG")));
-        int slot=sorted.indexOf(sorted.stream().filter(i->i.kind.equals(kind)).findFirst().get());
-        press(render(()->{
-            WndCoopBag wnd=(WndCoopBag)find(Game.scene(),g->g instanceof WndCoopBag);
-            return wnd.camera().cameraToScreen(13+24*(slot%5),28+22*(slot/5));
-        }));
+        await(()->render(()->find(Game.scene(),g->g instanceof WndSeatInventory)!=null));
+        press(inventoryPoint(kind));
         click(verb);
     }
     private static void aimStaff() throws Exception {
@@ -442,21 +444,19 @@ public final class CoopRenderSmoke {
             }
             if(destination<0) throw new AssertionError("No directly visible adjacent floor");
             final int target=destination;
+            Gizmo boardBefore=render(()->find(Game.scene(),g->g.getClass().getSimpleName().equals("CoopBoard")));
+            Gizmo hudBefore=render(()->find(Game.scene(),g->g.getClass().getSimpleName().equals("CoopHud")));
+            Gizmo inputBefore=render(()->find(boardBefore,g->g instanceof PointerArea));
             press(mapPoint(before,target)); await(()->frame().dungeon.pos==target); await(()->frame().dungeon.offered);
+            if (!render(()->find(Game.scene(),g->g==boardBefore)==boardBefore && find(Game.scene(),g->g==hudBefore)==hudBefore
+                    && find(boardBefore,g->g==inputBefore)==inputBefore))
+                throw new AssertionError("An ordinary move recreated the floor, HUD or touch listener");
             click("bag");
-            await(()->render(()->find(Game.scene(),g->g instanceof WndCoopBag)!=null)); shot("inventory");
-            PublicDungeon bag=frame().dungeon;
-            java.util.ArrayList<PublicDungeon.Loot> sorted=new java.util.ArrayList<>(bag.belongings);
-            sorted.sort((a,b)->Boolean.compare(a.slot.equals("BAG"),b.slot.equals("BAG")));
-            int food=-1;
-            for(int i=0;i<sorted.size();i++) if(bag.actions(sorted.get(i)).contains("EAT")) {food=i;break;}
-            if(food<0) throw new AssertionError("Missing starter food");
-            final int slot=food;
-            Point item=render(()->{
-                WndCoopBag wnd=(WndCoopBag)find(Game.scene(),g->g instanceof WndCoopBag);
-                return wnd.camera().cameraToScreen(13+24*(slot%5),28+22*(slot/5));
-            });
-            press(item); click("eat"); await(()->frame().lastAction>=2 && "APPLIED".equals(frame().lastResult));
+            await(()->render(()->find(Game.scene(),g->g instanceof WndSeatInventory)!=null)); shot("inventory");
+            press(inventoryPoint("FOOD"));
+            await(()->render(()->find(Game.scene(),g->g instanceof com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions)!=null));
+            shot("item-info");
+            click("eat"); await(()->frame().lastAction>=2 && "APPLIED".equals(frame().lastResult));
             await(()->frame().dungeon.offered);
             click("wait"); await(()->frame().lastAction>=3 && "APPLIED".equals(frame().lastResult));
             await(()->frame().dungeon.offered);

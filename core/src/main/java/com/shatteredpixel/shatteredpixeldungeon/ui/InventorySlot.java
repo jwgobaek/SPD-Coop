@@ -112,6 +112,29 @@ public class InventorySlot extends ItemSlot {
 		}
 	}
 
+	/** Present public sprite/text values without constructing an Item or consulting a Hero. */
+	public void display(int image, String count, String upgrade, boolean equipped, boolean selectable) {
+		enable(selectable);
+		bg.visible = true;
+		bg.texture(TextureCache.createSolid(equipped ? EQUIPPED : NORMAL));
+		sprite.visible(image >= 0);
+		if (image >= 0) {
+			sprite.view(image, null);
+			sprite.alpha(selectable ? 1f : 0.35f);
+		}
+		status.text(count);
+		status.visible = !count.isEmpty();
+		extra.visible = false;
+		level.visible = !upgrade.equals("NA") && !upgrade.equals("0");
+		if (level.visible) {
+			int value = Integer.parseInt(upgrade);
+			level.text(value>0 ? "+"+value : String.valueOf(value));
+			level.hardlight(value > 0 ? UPGRADED : DEGRADED);
+			level.measure();
+		}
+		layout();
+	}
+
 	public Item item(){
 		return item;
 	}

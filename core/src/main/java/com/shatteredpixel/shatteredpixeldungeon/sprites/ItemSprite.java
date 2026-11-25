@@ -145,12 +145,11 @@ public class ItemSprite extends MovieClip {
 	}
 	
 	public PointF worldToCamera( int cell ) {
-		final int csize = DungeonTilemap.SIZE;
-		
-		return new PointF(
-				PixelScene.align(Camera.main, ((cell % Dungeon.level.width()) + 0.5f) * csize - width() * 0.5f),
-				PixelScene.align(Camera.main, ((cell / Dungeon.level.width()) + 1.0f) * csize - height() - csize * perspectiveRaise)
-		);
+		return worldToCamera(cell, Dungeon.level.width(), Camera.main);
+	}
+
+	public PointF worldToCamera(int cell, int columns, Camera camera) {
+		return DungeonTilemap.spritePosition(cell, columns, camera, width(), height(), perspectiveRaise);
 	}
 	
 	public void place( int p ) {

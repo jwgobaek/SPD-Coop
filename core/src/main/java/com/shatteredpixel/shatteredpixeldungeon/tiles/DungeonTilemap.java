@@ -158,6 +158,13 @@ public abstract class DungeonTilemap extends Tilemap {
 		} );
 	}
 	
+	public static PointF spritePosition(int cell, int columns, com.watabou.noosa.Camera camera,
+	                                   float width, float height, float perspectiveRaise) {
+		return new PointF(
+				com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene.align(camera, (cell % columns + 0.5f) * SIZE - width / 2),
+				com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene.align(camera, (cell / columns + 1f) * SIZE - height - SIZE * perspectiveRaise));
+	}
+
 	public static PointF tileToWorld( int pos ) {
 		return new PointF( pos % Dungeon.level.width(), pos / Dungeon.level.width()  ).scale( SIZE );
 	}

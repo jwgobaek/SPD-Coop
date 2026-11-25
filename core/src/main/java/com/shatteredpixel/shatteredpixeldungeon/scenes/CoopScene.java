@@ -249,7 +249,7 @@ public class CoopScene extends PixelScene {
     }
     private void alert(String body) {add(new WndOptions(msg("title"),body,msg("back")));}
     void openBag(PublicDungeon view) {
-        add(new com.shatteredpixel.shatteredpixeldungeon.windows.WndCoopBag(view,controller));
+        add(new com.shatteredpixel.shatteredpixeldungeon.windows.WndSeatInventory(view,controller));
     }
     void gameMenu() {
         boolean host=shown.seat==0;

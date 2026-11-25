@@ -90,6 +90,12 @@ public class GooSprite extends MobSprite {
 			spray(true);
 	}
 
+	/** Choose only an animation for a visible LAN boss. Its Actor and emitters belong to the host. */
+	public void displayCharge(boolean charged) {
+		Animation next = charged ? pump : idle;
+		if (curAnim != next) play(next);
+	}
+
 	public void pumpUp( int warnDist ) {
 		pumpUpEmitterDist = warnDist;
 		if (warnDist > 0){

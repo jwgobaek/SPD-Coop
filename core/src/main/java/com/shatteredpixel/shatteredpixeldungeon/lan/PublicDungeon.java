@@ -35,8 +35,8 @@ public final class PublicDungeon {
         stair=number(gate[0],-1,65535); consent=number(gate[1],0,1)==1;
         width=number(source.rows.get("width"),3,256);
         // Older hosts did not publish floor height. Reserve the original maximum for those peers.
-        height=number(source.rows.getOrDefault("height","256"),3,256);
-        shield=number(source.rows.getOrDefault("shield","0"),0,Integer.MAX_VALUE);
+        height=number(source.rows.containsKey("height") ? source.rows.get("height") : "256",3,256);
+        shield=number(source.rows.containsKey("shield") ? source.rows.get("shield") : "0",0,Integer.MAX_VALUE);
         String[] hero=source.rows.get("self").split(",");
         pos=number(hero[1],0,width*height-1); hp=number(hero[2],0,Integer.MAX_VALUE);
         maxHp=number(hero[3],Math.max(1,hp),Integer.MAX_VALUE);
