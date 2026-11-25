@@ -15,9 +15,9 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 /** One active floor and up to eight dormant floors; only the active floor has registered actors. */
 public final class CoopFloors {
     private final CoopSession game;
-    public static final int LAST_SEWER = 5, FIRST_PRISON = 6, LAST_PLAYABLE = 9;
+    public static final int LAST_SEWER = 5, FIRST_PRISON = 6, LAST_PLAYABLE = 10;
     static int lastDepth(int schema) {
-        return schema==6 ? LAST_PLAYABLE : schema==5 ? 7 : schema==4 ? FIRST_PRISON : schema==3 ? LAST_SEWER : schema;
+        return schema==7 ? 10 : schema==6 ? 9 : schema==5 ? 7 : schema==4 ? FIRST_PRISON : schema==3 ? LAST_SEWER : schema;
     }
     private final java.util.Map<Integer,Bundle> dormant = new java.util.TreeMap<>();
     private long voteTurn;
@@ -158,12 +158,42 @@ public final class CoopFloors {
     }
 
     static void checkLevelType(Bundle floor,int depth) {
-        Class<?> expected=depth>=FIRST_PRISON ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel.class
+        Class<?> expected=depth==10 ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel.class : depth>=FIRST_PRISON ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel.class
                 : depth==5 ? com.shatteredpixel.shatteredpixeldungeon.levels.SewerBossLevel.class
                 : com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel.class;
         if (!expected.getName().equals(floor.getString("__className")))
             throw new IllegalArgumentException("Unexpected level type at depth "+depth);
         validateSummons(floor);
+        if (depth == 10) validateBoss(floor);
+    }
+
+    private static void validateBoss(Bundle floor) {
+        String state = floor.getString("state");
+        boolean fighting = "FIGHT_START".equals(state) || "FIGHT_ARENA".equals(state);
+        boolean won = "WON".equals(state);
+        if (!won && !fighting && !"START".equals(state) && !"FIGHT_PAUSE".equals(state))
+            throw new IllegalArgumentException("Invalid Tengu stage");
+        Bundle boss = floor.getBundle("tengu");
+        String type = com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Tengu.class.getName();
+        if (floor.getBoolean("locked") != (!won && !"START".equals(state))
+                || won != boss.isNull() || (!won && (!type.equals(boss.getString("__className")) || boss.getInt("HP") <= 0)))
+            throw new IllegalArgumentException("Invalid Tengu record or seal");
+        int count = 0;
+        for (Bundle mob : floor.getBundleArray("mobs")) if (type.equals(mob.getString("__className"))) {
+            if (!fighting || mob.getInt("id") != boss.getInt("id") || mob.getInt("HP") != boss.getInt("HP"))
+                throw new IllegalArgumentException("Inconsistent Tengu entry");
+            count++;
+        }
+        if (count != (fighting ? 1 : 0)) throw new IllegalArgumentException("Tengu resident count");
+    }
+
+    private static void inspectOffFloorBoss(Bundle floor, HashSet<Integer> actors, int nextId) {
+        String state = floor.getString("state");
+        if ("START".equals(state) || "FIGHT_PAUSE".equals(state)) {
+            Bundle boss = floor.getBundle("tengu");
+            inspectActor(boss, actors, nextId);
+            for (Bundle buff : boss.getBundleArray("buffs")) inspectActor(buff, actors, nextId);
+        }
     }
 
     private static void validateSummons(Bundle floor) {
@@ -219,6 +249,7 @@ public final class CoopFloors {
     }
 
     int schema() {
+        if (Dungeon.levelHasBeenGenerated(10,0)) return 7;
         if (Dungeon.levelHasBeenGenerated(8,0)) return 6;
         if (Dungeon.levelHasBeenGenerated(7,0)) return 5;
         if (Dungeon.levelHasBeenGenerated(FIRST_PRISON,0)) return 4;
@@ -257,6 +288,7 @@ public final class CoopFloors {
             for (com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff buff:hero.buffs()) actors.add(buff.id());
         }
         int nextId=state.getBundle("world").getInt("nextid");
+        if (Dungeon.depth==10) inspectOffFloorBoss(state.getBundle("floor"),actors,nextId);
         for (int depth=1;depth<=bound;depth++) {
             boolean expected=depth!=Dungeon.depth && Dungeon.levelHasBeenGenerated(depth,0);
             boolean present=multi ? records.contains(String.valueOf(depth)) : depth==3-Dungeon.depth && state.contains("parked");
@@ -281,6 +313,10 @@ public final class CoopFloors {
         if(actors.size()>16384) throw new IllegalArgumentException("Sewer actor count");
         Bundle entries=parked.getBundle("items");
         int count=0;
+        if (parked.getInt("depth")==10) {
+            inspectOffFloorBoss(floor,actors,nextId);
+            for (Bundle item:floor.getBundleArray("storeditems")) inspectItem(item,entries.getBundle("encounter"+count++));
+        }
         for(Bundle heap:floor.getBundleArray("heaps")) {
             int pos=heap.getInt("pos"), index=0;
             if(pos<0 || pos>=floor.getInt("width")*floor.getInt("height")) throw new IllegalArgumentException("Parked heap cell");

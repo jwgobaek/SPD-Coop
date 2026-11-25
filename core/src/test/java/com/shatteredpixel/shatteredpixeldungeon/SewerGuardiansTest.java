@@ -225,8 +225,22 @@ public class SewerGuardiansTest extends HeadlessDungeon {
                     for(int hit=0;hit<32;hit++) statue.attackProc(victim,3);
                     assertNull(victim.buff(Corrupting.CorruptingTracker.class));
                     int hp=statue.HP;
-                    statue.damage(8,new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile());
-                    assertTrue(statue.HP>hp-8);
+                    // A level-zero native glyph can roll zero reduction. Replay a positive native roll.
+                    int reduction=0;
+                    long rollSeed=0;
+                    Class<com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic> glyph=
+                            com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic.class;
+                    while (reduction==0 && rollSeed<32) {
+                        com.watabou.utils.Random.pushGenerator(++rollSeed);
+                        try {
+                            reduction=com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic.drRoll(statue,statue.glyphLevel(glyph));
+                        } finally { com.watabou.utils.Random.popGenerator(); }
+                    }
+                    assertTrue(reduction>0);
+                    com.watabou.utils.Random.pushGenerator(rollSeed);
+                    try { statue.damage(8,new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile()); }
+                    finally { com.watabou.utils.Random.popGenerator(); }
+                    assertEquals(hp-Math.max(0,8-reduction),statue.HP);
                 } else {
                     assertEquals("Swiftness",statue.armor().glyph.getClass().getSimpleName());
                     assertEquals(Projecting.class,statue.weapon().enchantment.getClass());

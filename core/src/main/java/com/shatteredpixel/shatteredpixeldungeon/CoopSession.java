@@ -448,7 +448,7 @@ public final class CoopSession implements AutoCloseable {
                 || type==Crab.class || type==HermitCrab.class || type==Swarm.class || type==Slime.class || type==CausticSlime.class || type==Thief.class
                 || (Dungeon.depth>=2 && Dungeon.depth<=4 && type==Ghost.class)
                 || (Dungeon.depth==2 && type==FetidRat.class) || (Dungeon.depth==3 && type==GnollTrickster.class)
-                || (Dungeon.depth==4 && type==GreatCrab.class) || (Dungeon.depth==5 && (type==Goo.class || type==RatKing.class));
+                || (Dungeon.depth==10 && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Tengu.class) || (Dungeon.depth==4 && type==GreatCrab.class) || (Dungeon.depth==5 && (type==Goo.class || type==RatKing.class));
     }
 
     /** Only passive weapon statistics and on-hit effects run for a statue. Hero abilities have their own gate. */
@@ -702,7 +702,7 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && item.getClass()!=GooBlob.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand && ownership.owner(item)==player) && !(item instanceof CorpseDust || item instanceof Embers || item instanceof CeremonialCandle || item instanceof Rotberry.Seed) && !(item instanceof Potion) && !supportedScroll(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && item.getClass()!=GooBlob.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.TengusMask.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand && ownership.owner(item)==player) && !(item instanceof CorpseDust || item instanceof Embers || item instanceof CeremonialCandle || item instanceof Rotberry.Seed) && !(item instanceof Potion) && !supportedScroll(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
                             || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !hero.belongings.backpack.canHold(item))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
@@ -970,7 +970,7 @@ public final class CoopSession implements AutoCloseable {
         if (Dungeon.coop!=null || Dungeon.hero!=null || Dungeon.level!=null) throw new IllegalStateException("Dungeon in use");
         Bundle world=b.getBundle("world"), floor=b.getBundle("floor");
         int schema=b.getInt("schema"),depth=world.getInt("depth");
-        if ((schema<1 || schema>6) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
+        if ((schema<1 || schema>7) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
                 (depth<1 || depth>CoopFloors.lastDepth(schema)) || world.getInt("branch")!=0 || world.getInt("challenges")!=0)
             throw new IllegalArgumentException("Unsupported world");
         int width=floor.getInt("width"), height=floor.getInt("height");

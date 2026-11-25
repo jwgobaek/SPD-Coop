@@ -55,6 +55,8 @@ final class SeatProjection {
         boolean playing=status.equals("IN_GAME");
         boolean defeated = status.equals("PARTY_DEFEATED");
         String floorId=Dungeon.branch+","+Dungeon.depth;
+        if (Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel)
+            floorId += "," + ((com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel)Dungeon.level).state().name();
         boolean changed=current!=null && !floorId.equals(current.rows.get("floor"));
         if(changed) resetHandles(nextItem);
         rows.put("floor",floorId);

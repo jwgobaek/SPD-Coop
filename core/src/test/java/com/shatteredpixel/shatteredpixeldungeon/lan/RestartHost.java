@@ -51,7 +51,7 @@ public final class RestartHost {
         return mode.startsWith("journey-seven-") || mode.equals("prison") || mode.equals("campaign") || mode.equals("campaign-start") || mode.equals("campaign-team");
     }
     private static long seedFor(String mode) {
-        if (mode.startsWith("necro-setup-") || mode.equals("late-setup")) return 570;
+        if (mode.startsWith("tengu-setup-") || mode.startsWith("necro-setup-") || mode.equals("late-setup")) return 570;
         if (mode.startsWith("wand-setup-")) return Integer.parseInt(mode.split("-")[2]);
         switch (mode) {
             case "blocked-start": return 457; // Native HandAxe/Elastic remains outside the audited standalone effect set.
@@ -91,6 +91,14 @@ public final class RestartHost {
                 Runtime.getRuntime().halt(80);
             if (stage.equals("WRITING") && java.nio.file.Files.exists(path.resolve("fail-write")))
                 throw new IOException("Injected write failure");
+            if (stage.equals("AFTER_HEAD") && mode.startsWith("tengu-commit-") && java.nio.file.Files.exists(path.resolve("boss-command"))) {
+                String boundary=mode.substring("tengu-commit-".length());
+                String phase=TenguArenaTest.floor().state().name();
+                if ((!boundary.equals("kill") || phase.equals("WON")) && (!boundary.equals("pause") || phase.equals("FIGHT_PAUSE"))) {
+                    write(path,"tengu-signature",TenguArenaTest.signature(Dungeon.coop));
+                    Runtime.getRuntime().halt(78);
+                }
+            }
             if (stage.equals("AFTER_HEAD") && mode.equals("goo") && java.nio.file.Files.exists(path.resolve("boss-action"))
                     && Actor.findById(Integer.parseInt(read(path,"boss-id")))==null) {
                 verifyBossLoot(path);
@@ -145,8 +153,27 @@ public final class RestartHost {
                 else PrisonShopChecks.copiesOf(engine);
             }
         }
-        try(LanRoom room=(special || mode.equals("late-setup") || mode.startsWith("necro-setup-") || mode.startsWith("wand-setup-") || mode.startsWith("scribe") || kit(mode) || knife(mode) || newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
+        try(LanRoom room=(special || mode.startsWith("tengu-setup-") || mode.equals("late-setup") || mode.startsWith("necro-setup-") || mode.startsWith("wand-setup-") || mode.startsWith("scribe") || kit(mode) || knife(mode) || newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup") || mode.equals("schema3-backup") || mode.equals("prison-backup"))) {
+            if (mode.startsWith("tengu-read-")) {
+                assertEquals(read(path,"tengu-signature"),TenguArenaTest.signature(Dungeon.coop));
+                String boundary=mode.substring("tengu-read-".length());
+                String expected=boundary.equals("enter") ? "FIGHT_START" : boundary.equals("pause") ? "FIGHT_PAUSE"
+                        : boundary.equals("kill") || boundary.equals("claim") ? "WON" : "FIGHT_ARENA";
+                assertEquals(expected,TenguArenaTest.floor().state().name());
+                if (boundary.equals("devices")) {
+                    Tengu boss=TenguArenaTest.boss();
+                    assertNotNull(boss.buff(Tengu.BombAbility.class));
+                    assertNotNull(boss.buff(Tengu.ShockerAbility.class));
+                    assertNotNull(boss.buff(Tengu.FireAbility.class));
+                }
+                if (boundary.equals("claim")) {
+                    int seat=Integer.parseInt(read(path,"boss-command").split(" ")[0]);
+                    Item mask=Dungeon.coop.hero(seat).belongings.getItem(TengusMask.class);
+                    assertNotNull(mask);
+                    assertEquals(Dungeon.coop.player(seat),Dungeon.coop.ownership.owner(mask));
+                }
+            }
             if (mode.startsWith("late-down") || mode.startsWith("late-up")) {
                 int depth=Integer.parseInt(mode.substring(mode.length()-1));
                 assertEquals(depth,Dungeon.depth);
@@ -376,6 +403,13 @@ public final class RestartHost {
                         assertTrue(piece.collect(owner.belongings.backpack));
                         game.ownership.claim(piece,game.player(seat));
                     }
+                }
+                if (mode.startsWith("tengu-setup-") && !started && room.state()==LanRoom.State.IN_GAME) {
+                    started=true;
+                    int target=TenguArenaTest.prepareSocket(Dungeon.coop,mode.substring("tengu-setup-".length()));
+                    write(path,"tengu-target",Integer.toString(target));
+                    room.save();
+                    write(path,"return-ready","1");
                 }
                 if (mode.equals("late-setup") && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;

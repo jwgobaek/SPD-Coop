@@ -87,7 +87,7 @@ final class CoopBoard extends Group {
     }
     boolean sameFloor(PublicDungeon next) {
         return view.source.session.equals(next.source.session) && view.source.seat==next.source.seat
-                && view.depth==next.depth && view.width==next.width && view.height==next.height;
+                && java.util.Objects.equals(view.source.rows.get("floor"),next.source.rows.get("floor")) && view.width==next.width && view.height==next.height;
     }
 
     void refresh(PublicDungeon next, String cue, boolean advanced) {
@@ -274,6 +274,7 @@ final class CoopBoard extends Group {
                     case "RatKing": sprite=new RatKingSprite();break;
                     case "GnollTrickster": sprite=new GnollTricksterSprite();break;
                     case "GreatCrab": sprite=new GreatCrabSprite();break;
+                    case "Tengu": sprite=new TenguSprite();break;
                     case "Goo":
                         sprite=new GooSprite();
 
