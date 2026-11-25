@@ -25,10 +25,12 @@ public final class CoopController {
         public final StateImage image;
         public final PublicDungeon dungeon;
         public final SeatQuickslots quickslots;
+        public final boolean delta;
         public final UUID session;
         public final int seat;
         public final long pending,lastAction,wireBytes;
         Frame(CoopController c) {
+            delta=c.replica!=null && c.replica.appliedDelta();
             quickslots=c.ticket==null ? null : c.ticket.quickslots;
             page=c.page; wireBytes=c.client==null ? 0 : c.client.transferredBytes(); issue=c.issue; crash=c.crash; cue=c.cue; notice=c.notice; roster=c.roster; list=c.list; image=c.image; dungeon=c.dungeon;
             seat=c.ticket==null ? -1 : c.ticket.seat; session=c.ticket==null ? null : c.ticket.session;

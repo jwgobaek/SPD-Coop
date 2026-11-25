@@ -98,6 +98,11 @@ final class SeatProjection {
             rows.put("shield",Integer.toString(hero.shielding()));
             rows.put("self",hero.id()+","+hero.pos+","+hero.HP+","+hero.HT+","+hero.heroClass.name()+","+hero.lvl+","+hero.exp);
             rows.put("selftier",Integer.toString(hero.tier()));
+            rows.put("strength",Integer.toString(hero.STR()));
+            rows.put("subclass",hero.subClass.name());
+            for (Map<Talent,Integer> tier:hero.talents) for (Map.Entry<Talent,Integer> talent:tier.entrySet()) {
+                if (talent.getValue()>0) rows.put("talent"+talent.getKey().ordinal(),talent.getKey().name()+","+talent.getValue());
+            }
             Hero ally = game.hero(1-seat);
             if (sight.visible(ally.pos) && ally.invisible <= 0) {
                 rows.put("ally",ally.id()+","+ally.pos+","+ally.heroClass.name());
@@ -105,6 +110,7 @@ final class SeatProjection {
                 rows.put("allylife",game.life(1-seat).name());
             }
             for (Buff buff : hero.buffs()) {
+                if (buff.type==Buff.buffType.NEGATIVE && buff.icon()!=BuffIndicator.NONE) rows.put("hazard","1");
                 if (buff.icon() != BuffIndicator.NONE) rows.put("b"+buff.id(),buff.icon()+","+
                         (buff instanceof FlavourBuff ? Float.toString(buff.visualcooldown()) : "NA"));
             }
@@ -164,6 +170,17 @@ final class SeatProjection {
                     String token=StateImage.hash(shortcutSalt+"/item/"+game.ownership.identity(item)).substring(0,32);
                     rows.put("ref"+ids.get(item),token);
                 }
+            }
+            int tab=0;
+            for (com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag bag:hero.belongings.getBags()) {
+                rows.put("bagtab"+tab,bag.getClass().getSimpleName());
+                int order=0;
+                for (Item item:bag.items) {
+                    Long handle=ids.get(item);
+                    if (handle!=null && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag))
+                        rows.put("pocket"+handle,tab+","+order++);
+                }
+                tab++;
             }
         }
         ids.keySet().retainAll(visibleItems.values());

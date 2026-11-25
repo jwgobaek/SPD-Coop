@@ -17,10 +17,14 @@ public final class PublicDungeon {
     public static final class Loot {
         public final long id;
         public final String slot,kind,upgrade,reference,stackType;
-        public final int sprite,quantity,charges,capacity;
+        public final int sprite,quantity,charges,capacity,bagIndex,order;
         Loot(String key,String value,Map<String,String> rows) {
             String[] f=value.split(",");
             id=Long.parseLong(key.substring(1)); slot=f[0]; kind=f[1];
+            String pocket=rows.get("pocket"+id);
+            String[] location=pocket==null ? null : pocket.split(",");
+            bagIndex=location==null ? (rows.containsKey("bagtab0") ? -1 : 0) : number(location[0],0,31);
+            order=location==null ? 0 : number(location[1],0,2047);
             String ref=rows.get("ref"+id);
             if (ref!=null && (!ref.matches("[0-9a-f]{32}") || slot.startsWith("F"))) throw new IllegalArgumentException("Inventory reference");
             reference=ref==null ? "" : ref;

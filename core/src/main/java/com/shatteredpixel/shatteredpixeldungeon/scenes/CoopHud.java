@@ -34,6 +34,42 @@ final class CoopHud extends Group {
     private String lastPortrait, lastLine;
     private final float left,top,right,bottom;
     private PublicDungeon view;
+    private PublicDungeon restStart;
+    private int restRemaining;
+    private long sentWait;
+    private float nextRest;
+    void stopRest() { restRemaining=0; restStart=null; }
+    private boolean canRest(PublicDungeon v) {
+        if (!v.offered || v.hp>=v.maxHp || !"ALIVE".equals(v.source.rows.get("life"))
+                || "1".equals(v.source.rows.get("hazard")) || v.source.rows.containsKey("cloud"+v.pos)
+                || v.source.rows.containsKey("stench"+v.pos)) return false;
+        for (String mob:v.monsters.values())
+            if (!mob.equals("Ghost") && !mob.equals("Sheep") && !mob.equals("RatKing")) return false;
+        return true;
+    }
+    private void rest() {
+        if (restRemaining>0) { stopRest(); return; }
+        if (view==null || client.busy() || !canRest(view)) return;
+        restRemaining=20;
+        sendWait(view);
+    }
+    private void sendWait(PublicDungeon v) {
+        if (!client.act(v.source,"WAIT",0,0)) { stopRest(); return; }
+        restStart=v; sentWait=v.source.version; restRemaining--; nextRest=0.3f;
+    }
+    @Override public void update() {
+        super.update();
+        if (restRemaining<=0 || restStart==null) return;
+        CoopController.Frame frame=client.frame();
+        if (frame.page!=CoopController.Page.GAME || frame.dungeon==null || !frame.dungeon.offered) { stopRest(); return; }
+        if (scene.hasOpenWindow()) { stopRest(); return; }
+        nextRest-=Game.elapsed;
+        if (client.busy() || frame.pending!=0 || nextRest>0 || view!=frame.dungeon || view.source.version==sentWait) return;
+        if (view.source.version!=sentWait+1 || !"APPLIED".equals(frame.lastResult) || !"WAIT".equals(frame.pendingVerb)
+                || !canRest(view) || view.depth!=restStart.depth || view.pos!=restStart.pos || view.hp<restStart.hp
+                || !restStart.buffs.containsAll(view.buffs)) { stopRest(); return; }
+        sendWait(view);
+    }
 
     CoopHud(CoopScene scene,CoopController client,RectF inset) {
         this.scene=scene; this.client=client;
@@ -47,7 +83,7 @@ final class CoopHud extends Group {
         Button info=new Button(){ @Override protected void onClick() {
             if(view!=null) scene.add(new WndTitledMessage(HeroSprite.avatar(HeroClass.valueOf(view.heroClass),tier()),
                     HeroClass.valueOf(view.heroClass).title(),"HP "+view.hp+"/"+view.maxHp+"\n"+
-                    CoopScene.msg("level",view.level,view.experience)+"\n"+CoopScene.msg("depth",view.depth)));
+                    characterInfo()));
         }};
         info.setRect(left,top,82,35);add(info);
         Image menuBase=new Image(Assets.Interfaces.MENU,1,0,31,21);
@@ -64,7 +100,11 @@ final class CoopHud extends Group {
         bag.setPos(x-=24,bottom-26);
         search=tool("search",44,20,192,()->client.act(view.source,"SEARCH",view.pos,0));
         search.setPos(x-=20,bottom-26);
-        wait=tool("wait",24,20,176,()->client.act(view.source,"WAIT",0,0));
+        wait=tool("wait",24,20,176,()->{
+            if (restRemaining>0) stopRest();
+            else client.act(view.source,"WAIT",0,0);
+        });
+        wait.onHold(this::rest);
         wait.setPos(x-=20,bottom-26);
         for(int i=quick.length-1;i>=0;i--) {
             final int slot=i;
@@ -88,6 +128,18 @@ final class CoopHud extends Group {
         add(button);return button;
     }
 
+    private String characterInfo() {
+        StringBuilder text=new StringBuilder(CoopScene.msg("level",view.level,view.experience))
+                .append("/").append(Hero.maxExp(view.level)).append("\n").append(CoopScene.msg("depth",view.depth));
+        if (view.source.rows.containsKey("strength")) text.append("\n").append(CoopScene.msg("own_strength",view.source.rows.get("strength")));
+        String sub=view.source.rows.get("subclass");
+        if (sub!=null && !sub.equals("NONE")) text.append("\n").append(com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass.valueOf(sub).title());
+        for (Map.Entry<String,String> row:view.source.rows.entrySet()) if (row.getKey().startsWith("talent")) {
+            String[] parts=row.getValue().split(",");
+            text.append("\n").append(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.valueOf(parts[0]).title()).append(" +").append(parts[1]);
+        }
+        return text.toString();
+    }
     private void edit(int slot) {
         if (view==null || layout==null || client.frame().image!=view.source) return;
         final PublicDungeon shown=view;

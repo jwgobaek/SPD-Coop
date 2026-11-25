@@ -37,11 +37,27 @@ public final class WndSeatInventory extends WndTabbed {
         PublicDungeon.Loot[] gear=new PublicDungeon.Loot[GEAR.length];
         for (PublicDungeon.Loot item:view.belongings) {
             int index=Arrays.asList(GEAR).indexOf(item.slot);
-            if (index<0) pack.add(item); else gear[index]=item;
+            if (index>=0) gear[index]=item;
+            else if (item.bagIndex>=0 || item.slot.equals("SECOND")) pack.add(item);
         }
+        Collections.sort(pack,(a,b)->Integer.compare(a.order,b.order));
         int capacity=grid.rows*grid.cols-gear.length;
+        List<Integer> tabs=new ArrayList<>();
+        List<Integer> offsets=new ArrayList<>();
+        for (int bag=0;bag==0 || view.source.rows.containsKey("bagtab"+bag);bag++) {
+            int count=0;
+            for (PublicDungeon.Loot item:pack) if (item.bagIndex==bag) count++;
+            for (int offset=0;offset<Math.max(1,count);offset+=capacity) { tabs.add(bag); offsets.add(offset); }
+        }
+        int selected=tabs.get(page);
+        for (Iterator<PublicDungeon.Loot> it=pack.iterator();it.hasNext();) if (it.next().bagIndex!=selected) it.remove();
+        if (shortcut<0 && selected>0) {
+            String bag=view.source.rows.get("bagtab"+selected).toLowerCase(Locale.ROOT);
+            String translated=Messages.get("items.bags."+bag+".name");
+            if (!Messages.NO_TEXT_FOUND.equals(translated)) title.text(Messages.titleCase(translated));
+        }
         for (int i=0;i<grid.rows*grid.cols;i++) {
-            int index=page*capacity+i-gear.length;
+            int index=offsets.get(page)+i-gear.length;
             PublicDungeon.Loot item=i<gear.length ? gear[i] : index<pack.size() ? pack.get(index) : null;
             int placeholder=i<gear.length ? EMPTY[i] : -1;
             Slot cell=new Slot(item,placeholder,i<gear.length);
@@ -49,12 +65,17 @@ public final class WndSeatInventory extends WndTabbed {
                     WndBag.TITLE_HEIGHT+(i/grid.cols)*(grid.slotHeight+WndBag.SLOT_MARGIN),grid.slotWidth,grid.slotHeight);
             add(cell);
         }
-        int pages=Math.max(1,(pack.size()+capacity-1)/capacity);
-        for (int i=0;i<pages;i++) {
+        for (int i=0;i<tabs.size();i++) {
             final int dest=i;
-            Tab tab=i==0 ? new IconTab(Icons.get(Icons.BACKPACK)) {
+            String type=view.source.rows.get("bagtab"+tabs.get(i));
+            Icons icon=Icons.BACKPACK;
+            if ("VelvetPouch".equals(type)) icon=Icons.SEED_POUCH;
+            if ("ScrollHolder".equals(type)) icon=Icons.SCROLL_HOLDER;
+            if ("PotionBandolier".equals(type)) icon=Icons.POTION_BANDOLIER;
+            if ("MagicalHolster".equals(type)) icon=Icons.WAND_HOLSTER;
+            Tab tab=offsets.get(i)==0 ? new IconTab(Icons.get(icon)) {
                 @Override protected void onClick(){changePage(page,dest);}
-            } : new LabeledTab(String.valueOf(i+1)) {
+            } : new LabeledTab(String.valueOf(offsets.get(i)/capacity+1)) {
                 @Override protected void onClick(){changePage(page,dest);}
             };
             add(tab);

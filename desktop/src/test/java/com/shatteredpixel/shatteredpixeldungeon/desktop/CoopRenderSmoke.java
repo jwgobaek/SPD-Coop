@@ -26,10 +26,11 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
+    private static boolean controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
+        controls=args.length>1 && args[1].equals("controls");
         shortcuts=args.length>1 && args[1].equals("shortcuts");
         sentry=args.length>1 && args[1].equals("sentry");
         ghost=args.length>1 && args[1].equals("ghost");
@@ -74,7 +75,7 @@ public final class CoopRenderSmoke {
             while(System.nanoTime()<end && c.frame().page==CoopController.Page.GAME) {
                 CoopController.Frame f=c.frame();
                 if(!c.busy() && f.dungeon!=null) {
-                    if(f.dungeon.offered) {
+                    if(f.dungeon.offered && !new File(root,"hold-guest").exists()) {
                         Integer target=null;
                         if(resume && f.dungeon.depth==5)
                             for(java.util.Map.Entry<Integer,String> enemy:f.dungeon.monsters.entrySet())
@@ -146,6 +147,49 @@ public final class CoopRenderSmoke {
         Thread.sleep(150);
     }
 
+    private static void controlInputs(File root) throws Exception {
+        long version=frame().image.version;
+        PublicDungeon view=frame().dungeon;
+        Point before=mapPoint(view,view.pos);
+        click("menu"); click("zoom_in");
+        Point adjacent=mapPoint(view,view.pos+1);
+        click("menu"); click("zoom_out");
+        if (Math.abs(adjacent.x-before.x)<=Math.abs(mapPoint(view,view.pos+1).x-before.x))
+            throw new AssertionError("Zoom did not change tile spacing");
+        render(()->{PointerEvent.addPointerEvent(new PointerEvent(before.x,before.y,1,PointerEvent.Type.DOWN,PointerEvent.LEFT));return null;});
+        Thread.sleep(100);
+        render(()->{PointerEvent.addPointerEvent(new PointerEvent(before.x+75,before.y+45,1,PointerEvent.Type.DOWN,PointerEvent.LEFT));return null;});
+        Thread.sleep(160);
+        render(()->{PointerEvent.addPointerEvent(new PointerEvent(before.x+75,before.y+45,1,PointerEvent.Type.UP,PointerEvent.LEFT));return null;});
+        Thread.sleep(120);
+        if (Point.distance(before,mapPoint(view,view.pos))<20) throw new AssertionError("Missing camera drag");
+        click("menu"); click("center_view");
+        if (Point.distance(before,mapPoint(view,view.pos))>2 || version!=frame().image.version) throw new AssertionError("Camera changed game");
+        click("bag"); await(()->render(()->find(Game.scene(),g->g instanceof WndSeatInventory)!=null));
+        render(()->{WndSeatInventory bag=(WndSeatInventory)find(Game.scene(),g->g instanceof WndSeatInventory);
+            Field f=com.shatteredpixel.shatteredpixeldungeon.windows.WndTabbed.class.getDeclaredField("tabs");
+            f.setAccessible(true); if (((java.util.List<?>)f.get(bag)).size()<2) throw new AssertionError("Missing real pouch"); return null;});
+        Point tab=render(()->{
+            WndSeatInventory bag=(WndSeatInventory)find(Game.scene(),g->g instanceof WndSeatInventory);
+            Field f=com.shatteredpixel.shatteredpixeldungeon.windows.WndTabbed.class.getDeclaredField("tabs"); f.setAccessible(true);
+            com.shatteredpixel.shatteredpixeldungeon.ui.Button b=(com.shatteredpixel.shatteredpixeldungeon.ui.Button)((java.util.List<?>)f.get(bag)).get(1);
+            return b.camera().cameraToScreen(b.left()+b.width()/2,b.top()+b.height()/2);
+        });
+        press(tab); shot("pouch");
+        render(()->{((WndSeatInventory)find(Game.scene(),g->g instanceof WndSeatInventory)).hide();return null;});
+        RenderEncounter.healing(hostController());
+        click("wait"); await(()->frame().dungeon.offered && frame().dungeon.hp<frame().dungeon.maxHp);
+        java.nio.file.Files.createFile(new File(root,"hold-guest").toPath());
+        long previousAction=frame().lastAction;
+        hold("wait");
+        await(()->!frame().dungeon.offered && frame().lastAction==previousAction+1);
+        long guestTurn=frame().image.version;
+        Thread.sleep(900);
+        if (frame().image.version!=guestTurn || frame().pending!=0) throw new AssertionError("Rest crossed guest turn");
+        shot("rest-stopped");
+        System.out.println("PASS camera, actual bag tab, bounded rest stops at next seat");
+    }
+
     private static void shortcutInputs() throws Exception {
         long version=frame().image.version;
         click("slot1");
@@ -179,11 +223,14 @@ public final class CoopRenderSmoke {
         ImageIO.write(new Robot().createScreenCapture(area),"png",new File(shots,name+".png"));
     }
     private static Point mapPoint(PublicDungeon view,int cell) throws Exception {
+        await(()->render(()->{
+            Group board=(Group)find(Game.scene(),g->g.getClass().getSimpleName().equals("CoopBoard"));
+            Field drawn=board.getClass().getDeclaredField("view"); drawn.setAccessible(true);
+            return drawn.get(board)==view;
+        }));
         return render(()->{
             Group board=(Group)find(Game.scene(),g->g.getClass().getSimpleName().equals("CoopBoard"));
-            PointerArea area=(PointerArea)find(board,g->g instanceof PointerArea);
-            return area.camera().cameraToScreen(area.x+area.width()/2+16*(cell%view.width-view.pos%view.width),
-                    area.y+area.height()/2+16*(cell/view.width-view.pos/view.width));
+            return board.camera().cameraToScreen((cell%view.width+0.5f)*16,(cell/view.width+0.5f)*16);
         });
     }
     private static CoopController hostController() throws Exception {
@@ -431,6 +478,7 @@ public final class CoopRenderSmoke {
                 render(()->{((com.shatteredpixel.shatteredpixeldungeon.ui.Window)find(Game.scene(),
                         g->g instanceof com.shatteredpixel.shatteredpixeldungeon.windows.WndTitledMessage)).hide();return null;});
             }
+            if (controls) { controlInputs(root); return; }
             if (shortcuts) { shortcutInputs(); return; }
             if (mage) {
                 long turnBefore=frame().image.version;

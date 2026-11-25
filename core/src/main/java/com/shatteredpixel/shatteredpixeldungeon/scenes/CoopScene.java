@@ -32,6 +32,7 @@ public class CoopScene extends PixelScene {
     }
     void cancelAim() { targetView=null; targetStaff=null; renderFrame(); }
     private void touchCell(PublicDungeon view,int cell) {
+        if (hud!=null) hud.stopRest();
         if (targetView==null) {
             if(view.visible(cell) && ((view.depth<5 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EXIT)
                     || (view.depth>1 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.ENTRANCE))) {
@@ -248,6 +249,10 @@ public class CoopScene extends PixelScene {
         });
     }
     private void alert(String body) {add(new WndOptions(msg("title"),body,msg("back")));}
+    boolean hasOpenWindow() {
+        for (Gizmo child:members) if (child instanceof Window) return true;
+        return false;
+    }
     void openBag(PublicDungeon view) {
         add(new com.shatteredpixel.shatteredpixeldungeon.windows.WndSeatInventory(view,controller));
     }
@@ -255,8 +260,9 @@ public class CoopScene extends PixelScene {
         boolean host=shown.seat==0;
         boolean save=host && shown.page==CoopController.Page.GAME;
         add(new WndOptions(msg("menu"),shown.address+"\n"+status(shown.image==null?"LOBBY":shown.image.rows.get("status")),
-                msg("continue"),msg("diagnostics"),msg(save?"saveexit":host?"closeroom":"leave")){
-            protected void onSelect(int n) { if(n==1) diagnostics(); if(n==2) controller.leave(save); }
+                board==null ? new String[]{msg("continue"),msg("diagnostics"),msg(host?"closeroom":"leave")} :
+                new String[]{msg("continue"),msg("diagnostics"),msg(save?"saveexit":"leave"),msg("center_view"),msg("zoom_in"),msg("zoom_out")}){
+            protected void onSelect(int n) { if(n==1) diagnostics(); if(n==2) controller.leave(save); if(board!=null && n==3) board.centerOnHero(); if(board!=null && n>=4) board.zoom(n==4?1:-1); }
         });
     }
     private void diagnostics() {
@@ -273,7 +279,8 @@ public class CoopScene extends PixelScene {
             button(msg("menu"),this::gameMenu); return;
         }
         String effect="";
-        if(effectsVersion!=0 && f.image.version==effectsVersion+1) effect=f.cue;
+        boolean advanced=f.delta && effectsVersion!=0 && f.image.version==effectsVersion+1;
+        if(advanced) effect=f.cue;
         effectsVersion=f.image.version;
         String sound=null;
         switch(effect) {
@@ -286,7 +293,7 @@ public class CoopScene extends PixelScene {
         }
         if(sound!=null) com.watabou.noosa.audio.Sample.INSTANCE.play(sound);
         if(board==null) { board=new CoopBoard(v,this::touchCell); addToBack(board); }
-        else board.refresh(v,effect);
+        else board.refresh(v,effect,advanced);
         String line=f.pending!=0 ? ("TRAVEL".equals(f.pendingVerb)?msg("travelling"):msg("pending",f.pending)) : f.image.rows.containsKey("reason") ?
                 status(f.image.rows.get("reason")) : !"ALIVE".equals(f.image.rows.get("life")) ?
                 status(f.image.rows.get("life")) : msg(v.offered?"yourturn":"theirturn");

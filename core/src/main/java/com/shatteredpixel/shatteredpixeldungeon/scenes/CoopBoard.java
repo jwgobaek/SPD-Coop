@@ -50,22 +50,47 @@ final class CoopBoard extends Group {
         fog = new FogOfWar(map);
         add(fog);
         inputArea = new PointerArea(0, 0, camera.width, camera.height) {
+            private final PointF last=new PointF();
+            private boolean dragged;
+            @Override protected void onPointerDown(PointerEvent e) {
+                last.set(e.current); dragged=false;
+            }
+            @Override protected void onDrag(PointerEvent e) {
+                if (!dragged && PointF.distance(e.start,e.current)<4*camera().zoom) return;
+                dragged=true;
+                Camera c=camera();
+                float x=c.scroll.x+c.width/2f+(last.x-e.current.x)/c.zoom;
+                float y=c.scroll.y+c.height/2f+(last.y-e.current.y)/c.zoom;
+                c.snapTo(GameMath.gate(0,x,view.width*TILE),GameMath.gate(0,y,view.height*TILE));
+                last.set(e.current);
+                trackViewport();
+            }
             @Override protected void onClick(PointerEvent e) {
+                if (dragged) return;
                 PointF point = camera().screenToCamera((int)e.current.x, (int)e.current.y);
                 int x = (int)Math.floor(point.x/TILE), y = (int)Math.floor(point.y/TILE);
                 if (x>=0 && x<view.width && y>=0 && y<view.height) input.tap(view, x+y*view.width);
             }
         };
         add(inputArea);
-        refresh(initial, "");
+        refresh(initial, "",false);
     }
 
+    private void trackViewport() {
+        inputArea.x=camera.scroll.x; inputArea.y=camera.scroll.y;
+        inputArea.width=camera.width; inputArea.height=camera.height;
+    }
+    void centerOnHero() { camera.snapTo(center(view.pos)); trackViewport(); }
+    void zoom(int step) {
+        camera.zoom(GameMath.gate(PixelScene.minZoom,camera.zoom+step,PixelScene.maxZoom));
+        trackViewport();
+    }
     boolean sameFloor(PublicDungeon next) {
         return view.source.session.equals(next.source.session) && view.source.seat==next.source.seat
                 && view.depth==next.depth && view.width==next.width && view.height==next.height;
     }
 
-    void refresh(PublicDungeon next, String cue) {
+    void refresh(PublicDungeon next, String cue, boolean advanced) {
         if (view==next && cue.isEmpty() && !sprites.isEmpty()) return;
         if (view.source != next.source && map.apply(next)) {
             com.watabou.utils.Rect area=map.changedArea();
@@ -79,11 +104,11 @@ final class CoopBoard extends Group {
             fog.updateFog(area);
         }
         boolean follow=sprites.isEmpty() || view.pos!=next.pos;
+        PublicDungeon previous=view;
         view = next;
         PointF center = center(view.pos);
         if (follow) camera.snapTo(center);
-        inputArea.x = center.x - inputArea.width()/2;
-        inputArea.y = center.y - inputArea.height()/2;
+        trackViewport();
 
         Set<String> keep = new HashSet<>();
         for (Map.Entry<String,String> row : view.source.rows.entrySet()) {
@@ -129,8 +154,17 @@ final class CoopBoard extends Group {
             PublicDungeon.Loot item=heap.getValue();
             object(keep,"i"+item.id+":"+item.sprite,heap.getKey(),()->new ItemSprite(item.sprite));
         }
-        if (view.ally>=0) avatar(keep,"ally",view.ally,view.allyClass,"");
-        avatar(keep,"self",view.pos,view.heroClass,cue);
+        if (view.ally>=0) {
+            boolean walked=advanced && previous.ally>=0 && previous.ally!=view.ally;
+            avatar(keep,"ally",view.ally,view.allyClass,walked ? "MOVE" : "",walked ? previous.ally : view.ally,view.ally);
+        }
+        int facing=view.pos;
+        String receipt=view.source.rows.get("receipt");
+        if (advanced && receipt!=null && (cue.equals("ZAP") || cue.equals("SHOOT") || cue.equals("ATTACK"))) {
+            int target=Integer.parseInt(receipt.split(",")[2]);
+            if (view.visible(target)) facing=target;
+        }
+        avatar(keep,"self",view.pos,view.heroClass,cue,advanced ? previous.pos : view.pos,facing);
         Iterator<Map.Entry<String,Image>> it=sprites.entrySet().iterator();
         while(it.hasNext()) {
             Map.Entry<String,Image> entry=it.next();
@@ -140,9 +174,9 @@ final class CoopBoard extends Group {
             }
         }
         if ("ZAP".equals(cue)) {
-            String[] receipt=view.source.rows.get("receipt").split(",");
-            if (receipt.length==4) {
-                int to=Integer.parseInt(receipt[2]);
+            String[] parts=view.source.rows.get("receipt").split(",");
+            if (parts.length==4) {
+                int to=Integer.parseInt(parts[2]);
                 if (view.visible(to)) {
                     com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile bolt=new com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile();
                     effects.add(bolt);
@@ -153,11 +187,12 @@ final class CoopBoard extends Group {
         }
     }
 
-    private void avatar(Set<String> keep, String role, int cell, String type, String cue) {
+    private void avatar(Set<String> keep, String role, int cell, String type, String cue, int from, int to) {
         String tier=view.source.rows.get(role+"tier");
         String life=view.source.rows.get(role.equals("self") ? "life" : "allylife");
         String key=role+":"+type+":"+tier+":"+life;
         MovieClip clip=(MovieClip)object(keep,key,cell,()->hero(type,tier,life,""));
+        if (to%view.width!=from%view.width) clip.flipHorizontal=to%view.width<from%view.width;
         if (!cue.isEmpty() && "ALIVE".equals(life)) animate(clip,type,tier,life,cue);
     }
 
@@ -245,7 +280,7 @@ final class CoopBoard extends Group {
         else {
             MovieClip.Animation move=null;
             if(action.equals("MOVE")) move=new MovieClip.Animation(20,false).frames(film,2,3,4,5,6,7);
-            if(action.equals("ZAP") || action.equals("ATTACK")) move=new MovieClip.Animation(15,false).frames(film,13,14,15,0);
+            if(action.equals("ZAP") || action.equals("SHOOT") || action.equals("ATTACK")) move=new MovieClip.Animation(15,false).frames(film,13,14,15,0);
             if(action.equals("PICK_UP") || action.equals("REVIVE") || action.equals("EAT"))
                 move=new MovieClip.Animation(8,false).frames(film,16,17,16,17);
             sprite.play(move==null?idle:move);
