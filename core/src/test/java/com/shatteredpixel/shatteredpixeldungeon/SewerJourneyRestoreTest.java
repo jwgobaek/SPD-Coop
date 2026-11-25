@@ -14,12 +14,13 @@ import static org.junit.Assert.*;
 public class SewerJourneyRestoreTest {
     @Rule public TemporaryFolder directory = new TemporaryFolder();
 
-    private List<String> journey(String mode) throws Exception {
+    private List<String> journey(String mode, int step) throws Exception {
         Path root = directory.getRoot().toPath();
         Path trace = root.resolve(mode + ".tsv");
         Path log = root.resolve(mode + ".log");
         Process host = new ProcessBuilder(System.getProperty("java.home") + "/bin/java", "-Xmx256m",
-                "-Djourney.front=MAGE", "-Djourney." + mode + "=" + root.resolve("start.dat"),
+                "-Djourney.front=MAGE", "-Djourney.traceActors=true", "-Djourney.checkpointStep=" + step,
+                "-Djourney.history=" + root.resolve("checkpoint.tsv"), "-Djourney." + mode + "=" + root.resolve("start.dat"),
                 "-Djourney.trace=" + trace, "-cp", System.getProperty("coop.client.classpath"),
                 SewerJourney.class.getName(), "581").redirectErrorStream(true).redirectOutput(log.toFile()).start();
         try {
@@ -34,9 +35,20 @@ public class SewerJourneyRestoreTest {
     }
 
     @Test public void initialDiskCheckpointRepeatsOriginalGooVictoryInNewJvm() throws Exception {
-        List<String> original = journey("checkpoint");
-        List<String> restored = journey("resume");
+        compareFrom(0);
+    }
+
+    @Test public void nativeBridgeWanderingAndBossPursuitRepeatAfterColdBoot() throws Exception {
+        compareFrom(400);
+        compareFrom(1040);
+    }
+
+    private void compareFrom(int step) throws Exception {
+        List<String> original = journey("checkpoint", step);
+        List<String> restored = journey("resume", step);
         assertEquals(1121, original.size());
-        assertEquals(original, restored);
+        assertEquals(original.size()-step, restored.size());
+        for (int i=step; i<original.size(); i++)
+            assertEquals("First diverging step " + i, original.get(i), restored.get(i-step));
     }
 }

@@ -46,6 +46,9 @@ public final class RestartHost {
         return mode.equals("statue") || mode.equals("unstable") || mode.equals("phantom") || mode.equals("exile");
     }
     static boolean kit(String mode) { return mode.equals("kit0") || mode.equals("kit1"); }
+    static boolean newCampaign(String mode) {
+        return mode.equals("campaign") || mode.equals("campaign-start");
+    }
     private static long seedFor(String mode) {
         switch (mode) {
             case "blocked-start": return 716; // ArmoredStatue with RoundShield and Chilling
@@ -60,7 +63,7 @@ public final class RestartHost {
             case "quest": return 403;
             case "piranha": return 406;
             case "walk": return 415;
-            case "campaign": return 581;
+            case "campaign": case "campaign-start": return 581;
             default: return 402;
         }
     }
@@ -107,7 +110,7 @@ public final class RestartHost {
         }
         InetAddress loop=InetAddress.getLoopbackAddress();
         boolean special = plant(mode) || mode.equals("goo") || hazard(mode) || mode.equals("blocked-start") || guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
-        try(LanRoom room=(special || kit(mode) || mode.equals("campaign") || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
+        try(LanRoom room=(special || kit(mode) || newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup") || mode.equals("schema3-backup"))) {
             if (mode.equals("schema2-to-three")) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
             if (mode.equals("goo-receipt")) {
@@ -153,7 +156,7 @@ public final class RestartHost {
                 room.pump();
                 if (room.failure()!=null && !(mode.equals("failure") && room.failure().equals("CHECKPOINT_FAILED")))
                     throw new IllegalStateException(room.failure());
-                if (!started && mode.equals("campaign") && room.state()==LanRoom.State.IN_GAME) {
+                if (!started && newCampaign(mode) && room.state()==LanRoom.State.IN_GAME) {
                     started=true;
                     com.watabou.utils.Random.pushGenerator(581);
                 }

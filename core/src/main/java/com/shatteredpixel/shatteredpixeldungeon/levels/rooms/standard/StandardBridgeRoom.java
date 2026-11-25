@@ -21,7 +21,9 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.watabou.utils.Bundle;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
@@ -63,6 +65,25 @@ public abstract class StandardBridgeRoom extends StandardRoom {
 
 	//keep these so that subclasses can use them in their methods
 	protected Rect spaceRect;
+
+	@Override
+	public void storeInBundle(Bundle bundle) {
+		super.storeInBundle(bundle);
+		if (Dungeon.coop != null && spaceRect != null)
+			bundle.put("coop_bridge_space", new int[]{spaceRect.left, spaceRect.top, spaceRect.right, spaceRect.bottom});
+	}
+
+	@Override
+	public void restoreFromBundle(Bundle bundle) {
+		super.restoreFromBundle(bundle);
+		if (Dungeon.coop != null && bundle.contains("coop_bridge_space")) {
+			int[] edges = bundle.getIntArray("coop_bridge_space");
+			if (edges.length != 4 || edges[0] < left || edges[1] < top || edges[2] > right || edges[3] > bottom
+					|| edges[0] > edges[2] || edges[1] > edges[3])
+				throw new IllegalArgumentException("Invalid bridge space");
+			spaceRect = new Rect(edges[0], edges[1], edges[2], edges[3]);
+		}
+	}
 	protected Rect bridgeRect;
 
 	@Override

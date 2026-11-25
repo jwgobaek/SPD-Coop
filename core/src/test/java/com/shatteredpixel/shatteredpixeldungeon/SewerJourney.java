@@ -35,8 +35,23 @@ public class SewerJourney extends HeadlessDungeon {
     private boolean act(CoopSession game,CoopSession.Action verb,int cell,Item item) {
         int seat=game.activeSeat(), depth=Dungeon.depth, from=game.hero(seat).pos;
         if (!CoopFloorsTest.step(game,verb,cell,item)) return false;
-        if(System.getProperty("journey.trace")!=null)
-            route.add(seat+" "+depth+" "+from+" "+verb+" "+cell+" "+Dungeon.depth+" "+game.hero(seat).pos+" "+game.hero(seat).HP);
+        if(System.getProperty("journey.trace")!=null) {
+            String state=seat+" "+depth+" "+from+" "+verb+" "+cell+" "+Dungeon.depth+" "+game.hero(seat).pos+" "+game.hero(seat).HP;
+            if (Boolean.getBoolean("journey.traceActors")) {
+                StringBuilder actors=new StringBuilder().append(com.watabou.utils.Random.worldState()[0]);
+                List<Mob> mobs=new ArrayList<>(Dungeon.level.mobs);
+                mobs.sort(Comparator.comparingInt(Actor::id));
+                for (Mob mob : mobs) {
+                    com.watabou.utils.Bundle saved=new com.watabou.utils.Bundle();
+                    mob.storeInBundle(saved);
+                    actors.append(' ').append(mob.id()).append('/').append(mob.getClass().getSimpleName())
+                            .append('/').append(mob.pos).append('/').append(mob.HP).append('/').append(saved.getString("state"))
+                            .append('/').append(saved.getInt("target")).append('/').append(saved.getInt("enemy_id"));
+                }
+                state+=" "+actors;
+            }
+            route.add(state);
+        }
         counts.merge(verb.name(),1,Integer::sum);
         return true;
     }
@@ -76,15 +91,27 @@ public class SewerJourney extends HeadlessDungeon {
             if (resume==null) {
                 g.join(2,back);
                 com.watabou.utils.Random.pushGenerator(seed); // fixed combat stream, never redrawn
+            }
+            Map<Integer,Integer> visits=new HashMap<>();
+            int checkpointStep=Integer.getInteger("journey.checkpointStep",0);
+            int start=resume==null ? 0 : checkpointStep;
+            if (start>0) {
+                // The route planner remembers visits. Rebuild only its input history from the
+                // control transcript; no positions, actors or items are written to the engine.
+                List<String> history=java.nio.file.Files.readAllLines(java.nio.file.Paths.get(System.getProperty("journey.history")));
+                for (String line : history.subList(0,start)) {
+                    String[] fields=line.split(" ",4);
+                    int key=Integer.parseInt(fields[1])*200000+Integer.parseInt(fields[0])*100000+Integer.parseInt(fields[2]);
+                    visits.merge(key,1,Integer::sum);
+                }
+            }
+            for(int n=start;n<2500;n++) {
                 String save=System.getProperty("journey.checkpoint");
-                if (save!=null) {
+                if (save!=null && n==checkpointStep) {
                     try (java.io.OutputStream out=java.nio.file.Files.newOutputStream(java.nio.file.Paths.get(save))) {
                         if (!com.watabou.utils.Bundle.write(g.checkpoint(),out)) throw new java.io.IOException("Checkpoint write failed");
                     }
                 }
-            }
-            Map<Integer,Integer> visits=new HashMap<>();
-            for(int n=0;n<2500;n++) {
                 highest=Math.max(highest,Dungeon.depth);
                 int s=g.activeSeat();
                 if(s<0 || g.stopped() || (Dungeon.depth<5 && (g.life(0)==CoopSession.Life.DEAD || g.life(1)==CoopSession.Life.DEAD))) {result="casualty/halt "+g.life(0)+"/"+g.life(1)+" stops="+g.stopReason();break;}

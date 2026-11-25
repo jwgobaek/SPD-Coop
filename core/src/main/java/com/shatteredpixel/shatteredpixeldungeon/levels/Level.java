@@ -440,6 +440,7 @@ public abstract class Level implements Bundlable {
 		for (Bundlable m : collection) {
 			Mob mob = (Mob)m;
 			if (mob != null) {
+				if (Dungeon.coop != null) mob.validateCoopPath(length());
 				mobs.add( mob );
 			}
 		}

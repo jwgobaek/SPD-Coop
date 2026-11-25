@@ -82,6 +82,10 @@ public class HostRestartTest {
         for(int depth=1;depth<=5;depth++) System.out.println("campaign "+RestartHost.read(dir,"perf"+depth));
     }
 
+    @Test(timeout=330000) public void coldHostAndBothAuthenticatedSeatsFinishNaturalCampaignFromFloorThree() throws Exception {
+        run(temp.getRoot().toPath(),new String[]{"campaign-start","campaign-resume"});
+    }
+
     @Test(timeout=100000) public void fiveFloorBossKillBeforeReplyKeepsLootAfterRestart() throws Exception {
         run(temp.getRoot().toPath(),new String[]{"goo","goo-receipt"});
         for(int depth=1;depth<=5;depth++) System.out.println(RestartHost.read(temp.getRoot().toPath(),"perf"+depth));
@@ -117,7 +121,7 @@ public class HostRestartTest {
                 while(!Files.exists(dir.resolve("endpoint")) && host.isAlive() && System.nanoTime()<end) Thread.sleep(5);
                 assertTrue(RestartHost.read(dir,"RestartHost.log"),Files.exists(dir.resolve("endpoint")));
                 client=start(RestartClient.class,dir,mode);
-                assertTrue("client deadline "+mode,client.waitFor(mode.equals("campaign")?280:130,TimeUnit.SECONDS));
+                assertTrue("client deadline "+mode,client.waitFor(mode.startsWith("campaign")?280:130,TimeUnit.SECONDS));
                 String trace=RestartHost.read(dir,"RestartClient.log");
                 assertEquals(mode+" "+trace+" "+RestartHost.read(dir,"RestartHost.log"),0,client.exitValue());
                 for (String line : trace.split("\\r?\\n")) {

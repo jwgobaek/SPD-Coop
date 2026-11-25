@@ -184,6 +184,15 @@ public abstract class Mob extends Char {
 		} else if (state == PASSIVE) {
 			bundle.put( STATE, Passive.TAG );
 		}
+		if (Dungeon.coop != null) {
+			bundle.put("coop_alerted", alerted);
+			if (path != null && !path.isEmpty()) {
+				int[] cells = new int[path.size()];
+				int index = 0;
+				for (int cell : path) cells[index++] = cell;
+				bundle.put("coop_path", cells);
+			}
+		}
 		bundle.put( SEEN, enemySeen );
 		bundle.put( TARGET, target );
 		bundle.put( MAX_LVL, maxLvl );
@@ -234,6 +243,15 @@ public abstract class Mob extends Char {
 			this.state = PASSIVE;
 		}
 
+		if (Dungeon.coop != null) {
+			alerted = bundle.getBoolean("coop_alerted");
+			if (bundle.contains("coop_path")) {
+				int[] cells = bundle.getIntArray("coop_path");
+				if (cells.length > 256*256) throw new IllegalArgumentException("Mob path too long");
+				path = new PathFinder.Path();
+				for (int cell : cells) path.add(cell);
+			}
+		}
 		enemySeen = bundle.getBoolean( SEEN );
 
 		target = bundle.getInt( TARGET );
@@ -255,6 +273,15 @@ public abstract class Mob extends Char {
 		if (enemyID != -1 && enemy == null) enemy = (Char)Actor.findById(enemyID);
 	}
 	
+	public void validateCoopPath(int length) {
+		if (path != null) {
+			if (path.size() > length) throw new IllegalArgumentException("Mob path exceeds floor");
+			for (int cell : path) {
+				if (cell < 0 || cell >= length) throw new IllegalArgumentException("Mob path outside floor");
+			}
+		}
+	}
+
 	public CharSprite sprite() {
 		return Reflection.newInstance(spriteClass);
 	}
