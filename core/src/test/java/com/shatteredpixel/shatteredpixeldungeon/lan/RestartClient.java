@@ -141,7 +141,7 @@ public final class RestartClient {
                 assertEquals("ERROR VERSION", old.request("MODE SYNC12"));
             }
         }
-        if (special || RestartHost.kit(mode) || RestartHost.newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
+        if (special || mode.startsWith("scribe") || RestartHost.kit(mode) || RestartHost.newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
             for(int i=0;i<2;i++) {
                 assertTrue(clients[i].request(i==0 ? RestartHost.read(path,"endpoint").split("\n")[1] : "JOIN").startsWith("JOINED"));
                 keys[i]=SeatCredential.generate();
@@ -166,6 +166,26 @@ public final class RestartClient {
             if(RestartHost.newCampaign(mode)) { campaign(mode); return; }
             if(mode.equals("walk")) { walk(); return; }
             act("WAIT",0,0);
+            if (mode.startsWith("scribe")) {
+                int seat=mode.charAt(6)-'0'; offer(seat);
+                PublicDungeon view=new PublicDungeon(state(seat));
+                PublicDungeon.Loot target=view.belongings.stream().filter(i->i.kind.equals("ARMOR") && i.slot.equals("BAG")).findFirst().get();
+                assertEquals("NA",target.upgrade);
+                int select=view.scrollTarget(target,"IDENTIFY");
+                assertTrue(select>0);
+                verifyAfterReconnect(act("IDENTIFY",select,item(seat,"BAG","IDENTIFY")),seat);
+                offer(seat); view=new PublicDungeon(state(seat));
+                target=view.belongings.stream().filter(i->i.kind.equals("ARMOR") && i.slot.equals("BAG")).findFirst().get();
+                assertEquals("0",target.upgrade); assertEquals(0,view.scrollTarget(target,"IDENTIFY"));
+                long handle=item(seat,"BAG","UPGRADE");
+                SeatActions.Pending bad=actions[seat].prepare(state(seat),"UPGRADE",0,handle);
+                assertTrue(bad.submit(clients[seat]).endsWith(" REJECT_INVALID"));
+                SeatActions.Pending read=actions[seat].prepare(state(seat),"UPGRADE",view.scrollTarget(target,"UPGRADE"),handle);
+                RestartHost.write(path,"scroll-action",seat+" "+read.id+" "+read.command);
+                RestartHost.write(path,"kill-before-reply","1");
+                assertThrows(IOException.class,()->read.submit(clients[seat]));
+                return;
+            }
             if (RestartHost.kit(mode)) {
                 int seat=mode.charAt(3)-'0'; offer(seat);
                 act("PICK_UP",pos(seat),item(seat,"F"+pos(seat),"HEALING"));
@@ -348,6 +368,20 @@ public final class RestartClient {
             String receipt=clients[seat].request("LOOKUP "+epoch+" "+old[1]);
             assertTrue(receipt,receipt.endsWith(" APPLIED")); assertEquals(receipt,clients[seat].request(old[2]));
             refresh(); assertEquals(version,state(seat).version); act("WAIT",0,0);
+            return;
+        }
+        if (mode.equals("readscroll")) {
+            String[] old=RestartHost.read(path,"scroll-action").split(" ",3);
+            int seat=Integer.parseInt(old[0]);
+            long version=state(seat).version;
+            String result=clients[seat].request("LOOKUP "+epoch+" "+old[1]);
+            assertTrue(result,result.endsWith(" APPLIED")); assertEquals(result,clients[seat].request(old[2]));
+            refresh(); assertEquals(version,state(seat).version);
+            PublicDungeon view=new PublicDungeon(state(seat));
+            assertTrue(view.belongings.stream().anyMatch(i->i.kind.equals("ARMOR") && i.slot.equals("BAG") && i.upgrade.equals("1")));
+            assertFalse(view.belongings.stream().anyMatch(i->i.kind.equals("UPGRADE") || i.kind.equals("IDENTIFY")));
+            assertFalse(new PublicDungeon(state(1-seat)).belongings.stream().anyMatch(i->i.kind.equals("ARMOR") && i.upgrade.equals("1")));
+            act("WAIT",0,0);
             return;
         }
         if (mode.equals("schema2-to-three")) {

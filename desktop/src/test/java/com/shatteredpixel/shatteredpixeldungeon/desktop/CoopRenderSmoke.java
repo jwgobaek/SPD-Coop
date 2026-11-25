@@ -59,12 +59,13 @@ public final class CoopRenderSmoke {
     }
     private static void guest(File root,boolean resume) throws Exception {
         CoopController c=new CoopController(root,null,InetAddress.getLoopbackAddress(),0,0);
+        String endpoint="127.0.0.1:"+java.nio.file.Files.readString(new File(root,"port").toPath()).trim();
         try {
             if(resume) {
                 c.saved(true); await(()->c.frame().page==CoopController.Page.TICKETS && !c.busy());
-                c.reconnect(c.frame().list.get(0).id,"127.0.0.1:"+LanClient.TCP_PORT);
+                c.reconnect(c.frame().list.get(0).id,endpoint);
             } else {
-            c.join("127.0.0.1:"+LanClient.TCP_PORT,null);
+            c.join(endpoint,null);
             await(()->!c.busy() && c.frame().page==CoopController.Page.LOBBY);
             String character=(new File(root,"stairs").isFile() || new File(root,"kit").isFile())?"WARRIOR":"HUNTRESS";
             c.select(character); await(()->!c.busy() && c.frame().roster.contains(character));
@@ -445,9 +446,11 @@ public final class CoopRenderSmoke {
         await(()->render(()->Game.scene() instanceof HeroSelectScene || Game.scene() instanceof StartScene));
         shot("solo-entry");
         render(()->{ShatteredPixelDungeon.switchNoFade(TitleScene.class);return null;});
+        int testPort;
+        try (java.net.ServerSocket port=new java.net.ServerSocket(0)) { testPort=port.getLocalPort(); }
         render(()->{
             Field active=CoopScene.class.getDeclaredField("active"); active.setAccessible(true);
-            active.set(null,new CoopController(CoopPlatform.root(),null,null,LanClient.TCP_PORT,LanClient.UDP_PORT,
+            active.set(null,new CoopController(CoopPlatform.root(),null,null,testPort,0,
                     new java.util.Random(){@Override public long nextLong(){return deep ? 402 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
             return null;
         });
@@ -456,6 +459,7 @@ public final class CoopRenderSmoke {
         shot("lobby"); click(kit?"huntressClass":mage?"mageClass":"warriorClass");
         if(mage) shot("mage-selected");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
+        java.nio.file.Files.writeString(new File(root,"port").toPath(),Integer.toString(testPort));
         if(kit) java.nio.file.Files.createFile(new File(root,"kit").toPath());
         if(floors) java.nio.file.Files.createFile(new File(root,"stairs").toPath());
         Process child=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-cp",System.getProperty("java.class.path"),

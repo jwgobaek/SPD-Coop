@@ -78,9 +78,12 @@ public class ScrollOfUpgrade extends InventoryScroll {
 	}
 
 	public Item upgradeItem( Item item ){
-		upgrade( curUser );
+		return upgradeFor(curUser,item);
+	}
 
-		Degrade.detach( curUser, Degrade.class );
+	public Item upgradeFor(Hero reader, Item item) {
+		if (Dungeon.coop==null) upgrade(reader);
+		Degrade.detach(reader, Degrade.class);
 
 		//logic for telling the user when item properties change from upgrades
 		//...yes this is rather messy
@@ -94,9 +97,9 @@ public class ScrollOfUpgrade extends InventoryScroll {
 			item = w.upgrade();
 
 			if (w.cursedKnown && hadCursedEnchant && !w.hasCurseEnchant()){
-				removeCurse( Dungeon.hero );
+				if (Dungeon.coop==null) removeCurse(reader);
 			} else if (w.cursedKnown && wasCursed && !w.cursed){
-				weakenCurse( Dungeon.hero );
+				if (Dungeon.coop==null) weakenCurse(reader);
 			}
 			if (wasHardened && !w.enchantHardened){
 				GLog.w( Messages.get(Weapon.class, "hardening_gone") );
@@ -114,9 +117,9 @@ public class ScrollOfUpgrade extends InventoryScroll {
 			item = a.upgrade();
 
 			if (a.cursedKnown && hadCursedGlyph && !a.hasCurseGlyph()){
-				removeCurse( Dungeon.hero );
+				if (Dungeon.coop==null) removeCurse(reader);
 			} else if (a.cursedKnown && wasCursed && !a.cursed){
-				weakenCurse( Dungeon.hero );
+				if (Dungeon.coop==null) weakenCurse(reader);
 			}
 			if (wasHardened && !a.glyphHardened){
 				GLog.w( Messages.get(Armor.class, "hardening_gone") );
@@ -130,18 +133,18 @@ public class ScrollOfUpgrade extends InventoryScroll {
 			item = item.upgrade();
 
 			if (item.cursedKnown && wasCursed && !item.cursed){
-				removeCurse( Dungeon.hero );
+				if (Dungeon.coop==null) removeCurse(reader);
 			}
 
 		} else {
 			item = item.upgrade();
 		}
 
-		Badges.validateItemLevelAquired( item );
+		if (Dungeon.coop==null) Badges.validateItemLevelAquired( item );
 		Statistics.upgradesUsed++;
-		Badges.validateMageUnlock();
+		if (Dungeon.coop==null) Badges.validateMageUnlock();
 
-		Catalog.countUse(item.getClass());
+		if (Dungeon.coop==null) Catalog.countUse(item.getClass());
 
 		return item;
 	}

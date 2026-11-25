@@ -75,9 +75,10 @@ public class ScrollOfIdentify extends InventoryScroll {
 			}
 		}
 
-		item.identify();
+		if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop==null) item.identify();
+		else item.identify(false);
 		GLog.i(Messages.get(ScrollOfIdentify.class, "it_is", item.title()));
-		Badges.validateItemLevelAquired( item );
+		if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop==null) Badges.validateItemLevelAquired(item);
 	}
 	
 	@Override

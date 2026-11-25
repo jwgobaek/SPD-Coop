@@ -61,6 +61,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.items.Honeypot;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bee;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger;
@@ -91,9 +94,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
+    public enum Action { UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
         public boolean requiresItem() {
-            return this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
+            return this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -459,6 +462,39 @@ public final class CoopSession implements AutoCloseable {
                 || item.getClass()==MailArmor.class);
     }
 
+    public static boolean equipmentForScroll(Item item) {
+        return basicArmorType(item) || basicWeaponType(item);
+    }
+
+    public static boolean supportedScroll(Item item) {
+        return item!=null && (item.getClass()==ScrollOfUpgrade.class || item.getClass()==ScrollOfIdentify.class);
+    }
+
+    private boolean readEquipmentScroll(Hero reader, Action action, Item source, int selection) {
+        if (!supportedScroll(source) || !(reader.belongings.backpack.contains(source))
+                || !((Scroll)source).isKnown() || ownership.owner(source)!=playerOf(reader)
+                || (action==Action.UPGRADE)!=(source instanceof ScrollOfUpgrade)
+                || reader.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness.class)!=null
+                || reader.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune.class)!=null) return false;
+        int index=0;
+        for (Item target:reader.belongings) {
+            if (++index!=selection) continue;
+            if (!equipmentForScroll(target) || ownership.owner(target)!=playerOf(reader)) return false;
+            if (action==Action.UPGRADE ? !target.isUpgradable() : target.isIdentified()) return false;
+            Scroll scroll=(Scroll)source.detach(reader.belongings.backpack);
+            if (scroll==null) throw new IllegalStateException("Scroll missing at commit");
+            if (action==Action.UPGRADE) {
+                scroll.finishReading(reader);
+                ((ScrollOfUpgrade)scroll).upgradeFor(reader,target);
+            } else {
+                ScrollOfIdentify.IDItem(target);
+                scroll.finishReading(reader);
+            }
+            return true;
+        }
+        return false;
+    }
+
     private boolean basicArmor(Item item) {
         return basicArmorType(item) && ((Armor)item).glyph==null;
     }
@@ -592,11 +628,15 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && item.getClass()!=GooBlob.class && !(item instanceof Potion) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && item.getClass()!=GooBlob.class && !(item instanceof Potion) && !supportedScroll(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
                             || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !hero.belongings.backpack.canHold(item))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
                     hero.act();
+                    break;
+                case IDENTIFY:
+                case UPGRADE:
+                    if (!readEquipmentScroll(hero,action,item,cell)) return false;
                     break;
                 case DRINK:
                     if (!(item instanceof PotionOfHealing) || !((Potion)item).isKnown()

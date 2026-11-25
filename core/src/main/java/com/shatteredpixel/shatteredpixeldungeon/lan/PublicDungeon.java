@@ -100,12 +100,20 @@ public final class PublicDungeon {
             default: return "";
         }
     }
+    public int scrollTarget(Loot item,String verb) {
+        String data=source.rows.get("select"+item.id);
+        if (data==null || !belongings.contains(item)) return 0;
+        String[] fields=data.split(",");
+        return fields.length==3 && "1".equals(fields[verb.equals("UPGRADE")?1:2]) ? number(fields[0],1,2048) : 0;
+    }
+
     public List<String> actions(Loot item) {
         List<String> verbs=new ArrayList<>();
         if(!offered || !belongings.contains(item)) return verbs;
         boolean weapon=item.kind.equals("MELEE") || item.kind.equals("STAFF");
         if(item.slot.equals("WEAPON") && item.charges>0) verbs.add("ZAP");
         if(item.slot.equals("BAG")) {
+            if(item.kind.equals("UPGRADE") || item.kind.equals("IDENTIFY")) verbs.add(item.kind);
             if(item.kind.equals("HEALING")) verbs.add("DRINK");
             if(item.kind.equals("BOW")) verbs.add("SHOOT");
             if(item.kind.equals("FOOD")) verbs.add("EAT");

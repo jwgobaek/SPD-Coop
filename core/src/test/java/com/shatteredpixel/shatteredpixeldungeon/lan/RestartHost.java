@@ -112,7 +112,7 @@ public final class RestartHost {
         }
         InetAddress loop=InetAddress.getLoopbackAddress();
         boolean special = plant(mode) || mode.equals("goo") || hazard(mode) || mode.equals("blocked-start") || guardian(mode) || mode.equals("crystal-new") || mode.equals("sentry") || mode.equals("piranha") || mode.equals("quest") || mode.equals("hive") || (mode.equals("mimic") || mode.equals("golden"));
-        try(LanRoom room=(special || kit(mode) || newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
+        try(LanRoom room=(special || mode.startsWith("scribe") || kit(mode) || newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup") || mode.equals("schema3-backup"))) {
             if (mode.equals("schema2-to-three")) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
             if (mode.equals("goo-receipt")) {
@@ -265,6 +265,19 @@ public final class RestartHost {
                                 break;
                             }
                         }
+                    }
+                }
+                if (mode.startsWith("scribe") && !started && room.state()==LanRoom.State.IN_GAME) {
+                    started=true;
+                    int seat=mode.charAt(6)-'0';
+                    CoopSession game=Dungeon.coop;
+                    Hero owner=game.hero(seat);
+                    Item armor=new com.shatteredpixel.shatteredpixeldungeon.items.armor.LeatherArmor();
+                    Item upgrade=new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade().identify();
+                    Item identify=new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify().identify();
+                    for (Item piece:new Item[]{armor,upgrade,identify}) {
+                        assertTrue(piece.collect(owner.belongings.backpack));
+                        game.ownership.claim(piece,game.player(seat));
                     }
                 }
                 if (kit(mode) && !started && room.state()==LanRoom.State.IN_GAME) {
