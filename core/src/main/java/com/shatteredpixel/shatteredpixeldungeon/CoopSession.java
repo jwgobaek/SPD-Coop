@@ -94,9 +94,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
+    public enum Action { THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
         public boolean requiresItem() {
-            return this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
+            return this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -467,6 +467,11 @@ public final class CoopSession implements AutoCloseable {
         return basicArmorType(item) || basicWeaponType(item);
     }
 
+    public static boolean basicStone(Item item) {
+        return item!=null && item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone.class
+                && !item.cursed && ((Weapon)item).enchantment==null && item.trueLevel()==0;
+    }
+
     public static boolean supportedScroll(Item item) {
         return item!=null && (item.getClass()==ScrollOfUpgrade.class || item.getClass()==ScrollOfIdentify.class);
     }
@@ -629,7 +634,7 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && item.getClass()!=GooBlob.class && !(item instanceof Potion) && !supportedScroll(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && item.getClass()!=GooBlob.class && !(item instanceof Potion) && !supportedScroll(item) && !basicStone(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
                             || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !hero.belongings.backpack.canHold(item))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
@@ -643,6 +648,15 @@ public final class CoopSession implements AutoCloseable {
                     if (!(item instanceof PotionOfHealing) || !((Potion)item).isKnown()
                             || !hero.belongings.backpack.contains(item)) return false;
                     item.execute(hero, Potion.AC_DRINK);
+                    break;
+                case THROW:
+                    if (!basicStone(item) || !level.insideMap(cell) || !knowledge(activeSeat).visible(cell)
+                            || cell==hero.pos || level.solid[cell] || !supportedLanding(cell) || level.getTransition(cell)!=null) return false;
+                    Char hit=Actor.findChar(cell);
+                    if (hit!=null && (!(hit instanceof Mob) || hit.alignment!=Char.Alignment.ENEMY || !basicMob(hit)
+                            || !hit.isAlive() || hit.invisible>0 || hero.isCharmedBy(hit))) return false;
+                    if (!((com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon)item).throwStoneInCoop(hero,cell)) return false;
+                    if (hit!=null) { lastOpponent[activeSeat]=(Mob)hit; attackTurn[activeSeat]=turn; }
                     break;
                 case SHOOT:
                     if (!(item instanceof SpiritBow) || hero.heroClass!=HeroClass.HUNTRESS

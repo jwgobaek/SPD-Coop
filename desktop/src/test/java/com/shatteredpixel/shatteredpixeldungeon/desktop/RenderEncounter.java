@@ -56,6 +56,35 @@ final class RenderEncounter {
             throw new AssertionError("Missing adjacent plant cell");
         }).get(5,TimeUnit.SECONDS);
     }
+    static void atBossKey(CoopController client) throws Exception {
+        Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
+        Object room=host.get(client);
+        Field executor=room.getClass().getDeclaredField("owner"); executor.setAccessible(true);
+        ((ExecutorService)executor.get(room)).submit(()->{
+            for(com.shatteredpixel.shatteredpixeldungeon.items.Heap pile:Dungeon.level.heaps.valueList())
+                if (pile.peek() instanceof com.shatteredpixel.shatteredpixeldungeon.items.keys.WornKey) {
+                    Dungeon.coop.hero(0).pos=pile.pos; return;
+                }
+            throw new AssertionError("Missing original boss key");
+        }).get(5,TimeUnit.SECONDS);
+    }
+
+    static void scrolls(CoopController client) throws Exception {
+        Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
+        Object room=host.get(client);
+        Field executor=room.getClass().getDeclaredField("owner"); executor.setAccessible(true);
+        ((ExecutorService)executor.get(room)).submit(()->{
+            Hero owner=Dungeon.coop.hero(0);
+            for(com.shatteredpixel.shatteredpixeldungeon.items.Item item:new com.shatteredpixel.shatteredpixeldungeon.items.Item[]{
+                    new com.shatteredpixel.shatteredpixeldungeon.items.armor.LeatherArmor(),
+                    new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade().identify(),
+                    new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify().identify()}) {
+                if(!item.collect(owner.belongings.backpack)) throw new AssertionError("Test bag full");
+                Dungeon.coop.ownership.claim(item,Dungeon.coop.player(0));
+            }
+        }).get(5,TimeUnit.SECONDS);
+    }
+
     static void healing(CoopController client) throws Exception {
         Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
         Object room=host.get(client);

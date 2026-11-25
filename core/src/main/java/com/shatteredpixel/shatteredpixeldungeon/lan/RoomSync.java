@@ -205,7 +205,9 @@ final class RoomSync {
         if ((action==CoopSession.Action.MOVE || action==CoopSession.Action.ATTACK)
                 && !seats[seat].view.current.rows.containsKey("t"+cell)) return "REJECT_INVALID";
         boolean targeted=action==CoopSession.Action.ATTACK || action==CoopSession.Action.ZAP || action==CoopSession.Action.SHOOT;
-        Char target=targeted ? Actor.findChar(cell) : null;
+        Char target=(targeted || action==CoopSession.Action.THROW) ? Actor.findChar(cell) : null;
+        if (action==CoopSession.Action.THROW && (target!=null && !seats[seat].view.current.rows.containsKey("m"+target.id())
+                || !seats[seat].view.current.rows.containsKey("t"+cell))) return "REJECT_INVALID";
         String container=seats[seat].view.current.rows.get("h"+cell);
         boolean aimingAtChest=action==CoopSession.Action.ZAP && ("CHEST".equals(container) || "CRYSTAL_CHEST".equals(container));
         if (targeted && !aimingAtChest && (target==null || !seats[seat].view.current.rows.containsKey("m"+target.id())))
@@ -228,7 +230,7 @@ final class RoomSync {
                 return "APPLIED_STOPPED";
             }
             Mob defeated=target instanceof Mob && ((Mob)target).wasDefeatedBy(game.hero(seat)) ? (Mob)target : null;
-            String detail=targeted ? verb+","+cell : verb;
+            String detail=targeted || action==CoopSession.Action.THROW ? verb+","+cell : verb;
             commit(defeated,seat,id+","+detail+",APPLIED","IN_GAME");
             return "APPLIED";
         } catch (RuntimeException failure) {

@@ -33,6 +33,46 @@ public class CoopPlayInputTest extends HeadlessDungeon {
         }
     }
 
+    @Test public void eitherWarriorCanThrowRecoverAndExhaustTheOriginalStone() {
+        for (int seat=0;seat<2;seat++) try (CoopSession game=CoopSession.open(402,1,com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass.WARRIOR)) {
+            game.join(2,com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass.WARRIOR);
+            com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat target=CoopMageTest.encounter(game,seat);
+            com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero user=game.hero(seat), ally=game.hero(1-seat);
+            com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone stones=user.belongings.getItem(
+                    com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone.class);
+            int home=user.pos, allyHome=ally.pos, stock=stones.quantity();
+            long original=game.ownership.identity(stones);
+            SewerBeeTest.offer(game,seat);
+            assertFalse(CoopFloorsTest.step(game,CoopSession.Action.THROW,target.pos,ally.belongings.getItem(stones.getClass())));
+            int hits=0,misses=0,broken=0;
+            for (int n=0;n<60 && broken==0;n++) {
+                SewerBeeTest.offer(game,seat);
+                int hp=target.HP, count=stones.quantity();
+                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.THROW,target.pos,stones));
+                assertEquals(count-1,stones.quantity());
+                if (target.HP<hp) hits++; else misses++;
+                com.shatteredpixel.shatteredpixeldungeon.items.Heap heap=Dungeon.level.heaps.get(target.pos);
+                if (heap==null || !(heap.peek() instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone)) {
+                    broken++; break;
+                }
+                com.shatteredpixel.shatteredpixeldungeon.items.Item unit=heap.peek();
+                assertNotEquals(original,game.ownership.identity(unit)); assertEquals(game.player(seat),game.ownership.owner(unit));
+                int cell=target.pos;
+                // Isolated recovery fixture moves the target away and seats onto the dropped unit in turn.
+                target.pos=cell+1;
+                SewerBeeTest.offer(game,1-seat); ally.pos=cell;
+                assertFalse(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,cell,unit));
+                ally.pos=allyHome;
+                SewerBeeTest.offer(game,seat); user.pos=cell;
+                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,cell,unit));
+                assertEquals(stock,stones.quantity()); assertEquals(original,game.ownership.identity(stones));
+                user.pos=home; target.pos=cell; game.observe(seat);
+            }
+            assertTrue(hits>=5); assertEquals(1,broken);
+            System.out.println("physical throwing stone seat="+seat+" hits="+hits+" misses="+misses+" broken="+broken);
+        }
+    }
+
     @Test public void soloQuickslotStillReplacesOriginalConsumedStack() {
         QuickSlot solo=new QuickSlot();
         Food ration=new Food(), next=new Food();

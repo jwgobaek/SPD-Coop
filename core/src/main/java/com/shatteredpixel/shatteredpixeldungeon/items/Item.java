@@ -200,7 +200,7 @@ public class Item implements Bundlable {
 	protected void onThrow( int cell ) {
 		Heap heap = Dungeon.level.drop( this, cell );
 		if (!heap.isEmpty()) {
-			heap.sprite.drop( cell );
+			heap.animateDrop(cell);
 		}
 	}
 	

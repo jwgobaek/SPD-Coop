@@ -172,6 +172,9 @@ final class SeatProjection {
                 selection++;
                 putItem(rows,visibleItems,item,slot(hero.belongings,item));
                 if (game.ownership.owner(item)==game.player(seat)) {
+                    if (CoopSession.basicStone(item) && item.isIdentified())
+                        rows.put("family"+ids.get(item),"stone."+StateImage.hash(shortcutSalt+"/stone/"+
+                                ((com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone)item).setID).substring(0,32));
                     if (CoopSession.equipmentForScroll(item))
                         rows.put("select"+ids.get(item),selection+","+(item.isUpgradable()?1:0)+","+(item.isIdentified()?0:1));
                     // Only an owned item in this seat's actual inventory gets a shortcut reference.
@@ -234,6 +237,7 @@ final class SeatProjection {
         if (!slot.startsWith("F") && CoopSession.supportedScroll(item)
                 && ((com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll)item).isKnown())
             kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade ? "UPGRADE" : "IDENTIFY";
+        if (!slot.startsWith("F") && CoopSession.basicStone(item) && item.isIdentified()) kind="STONE";
         String charges="";
         if (!slot.startsWith("F") && item instanceof MagesStaff) {
             WandOfMagicMissile wand=((MagesStaff)item).starterWand();

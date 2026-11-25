@@ -143,7 +143,7 @@ public final class WndSeatInventory extends WndTabbed {
                 if(i<0 || i>=verbs.size()) return;
                 WndSeatInventory.this.hide();
                 String verb=verbs.get(i);
-                if(verb.equals("ZAP") || verb.equals("SHOOT")) ((CoopScene)Game.scene()).aim(view,item);
+                if(verb.equals("ZAP") || verb.equals("SHOOT") || verb.equals("THROW")) ((CoopScene)Game.scene()).aim(view,item);
                 else if (verb.equals("UPGRADE") || verb.equals("IDENTIFY")) Game.scene().add(new WndSeatInventory(view,client,0,-1,item));
                 else view.use(client,item,verb);
             }

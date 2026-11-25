@@ -170,7 +170,7 @@ final class CoopBoard extends Group {
         }
         int facing=view.pos;
         String receipt=view.source.rows.get("receipt");
-        if (advanced && receipt!=null && (cue.equals("ZAP") || cue.equals("SHOOT") || cue.equals("ATTACK"))) {
+        if (advanced && receipt!=null && (cue.equals("ZAP") || cue.equals("SHOOT") || cue.equals("THROW") || cue.equals("ATTACK"))) {
             String[] fields=receipt.split(",");
             if (fields.length==4) {
                 int target=Integer.parseInt(fields[2]);
@@ -185,6 +185,10 @@ final class CoopBoard extends Group {
                 Image sprite=entry.getValue();
                 sprite.parent.remove(sprite); sprite.destroy(); it.remove();
             }
+        }
+        if (advanced && ("SHOOT".equals(cue) || "THROW".equals(cue)) && facing!=view.pos) {
+            MissileSprite shot=(MissileSprite)effects.recycle(MissileSprite.class);
+            shot.seatShot(center(view.pos),center(facing),"SHOOT".equals(cue));
         }
         if ("ZAP".equals(cue)) {
             String[] parts=view.source.rows.get("receipt").split(",");

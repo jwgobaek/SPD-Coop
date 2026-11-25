@@ -151,6 +151,7 @@ public final class RestartClient {
                 models[i]=new DisplayReplica(session,i);
                 String character=(mode.equals("quest") || RestartHost.guardian(mode) || mode.equals("crystal-new"))?"MAGE":mode.startsWith("cast") && i==Integer.parseInt(mode.substring(4)) ? "MAGE" : mode.equals("walk") ? (i==0?"MAGE":"WARRIOR") : i==0?"WARRIOR":"HUNTRESS";
                 if (RestartHost.newCampaign(mode)) character=i==0?"MAGE":"HUNTRESS";
+                if (mode.startsWith("scribe") && i==mode.charAt(6)-'0') character="WARRIOR";
                 if (RestartHost.kit(mode)) character=i==mode.charAt(3)-'0'?"HUNTRESS":"WARRIOR";
                 assertEquals("OK",clients[i].request("SELECT "+character)); clients[i].request("READY 1");
             }
@@ -169,6 +170,12 @@ public final class RestartClient {
             if (mode.startsWith("scribe")) {
                 int seat=mode.charAt(6)-'0'; offer(seat);
                 PublicDungeon view=new PublicDungeon(state(seat));
+                PublicDungeon.Loot stones=view.belongings.stream().filter(i->i.kind.equals("STONE")).findFirst().get();
+                assertEquals("THROW",PublicDungeon.shortcutAction(stones));
+                int number=stones.quantity;
+                verifyAfterReconnect(act("THROW",view.pos+3,stones.id),seat);
+                offer(seat); view=new PublicDungeon(state(seat));
+                assertTrue(view.belongings.stream().anyMatch(i->i.kind.equals("STONE") && i.quantity==number-1));
                 PublicDungeon.Loot target=view.belongings.stream().filter(i->i.kind.equals("ARMOR") && i.slot.equals("BAG")).findFirst().get();
                 assertEquals("NA",target.upgrade);
                 int select=view.scrollTarget(target,"IDENTIFY");
@@ -376,7 +383,7 @@ public final class RestartClient {
                 assertEquals(6,view.depth);
                 String old=RestartHost.read(path,"arrived"+i);
                 PublicDungeon.Loot equipped=view.belongings.stream().filter(x->x.slot.equals("WEAPON")).findFirst().get();
-                assertEquals(old,state(i).rows.get("actor")+" "+view.pos+" "+view.hp+" "+equipped.reference);
+                assertEquals(old,state(i).rows.get("self").split(",")[0]+" "+view.pos+" "+view.hp+" "+equipped.reference);
             }
             int seat=active();
             assertTrue(consentAndCross().submit(clients[seat]).endsWith(" APPLIED")); refresh();
@@ -680,7 +687,7 @@ public final class RestartClient {
                 PublicDungeon view=new PublicDungeon(state(i)); assertEquals(6,view.depth);
                 PublicDungeon.Loot weapon=view.belongings.stream().filter(x->x.slot.equals("WEAPON")).findFirst().get();
                 assertFalse(weapon.reference.isEmpty());
-                RestartHost.write(path,"arrived"+i,state(i).rows.get("actor")+" "+view.pos+" "+view.hp+" "+weapon.reference);
+                RestartHost.write(path,"arrived"+i,state(i).rows.get("self").split(",")[0]+" "+view.pos+" "+view.hp+" "+weapon.reference);
             }
         }
         int blobs=0;

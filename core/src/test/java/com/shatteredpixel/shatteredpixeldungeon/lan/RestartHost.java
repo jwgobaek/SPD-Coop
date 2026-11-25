@@ -278,6 +278,7 @@ public final class RestartHost {
                     started=true;
                     int seat=mode.charAt(6)-'0';
                     CoopSession game=Dungeon.coop;
+                    CoopMageTest.encounter(game,seat);
                     Hero owner=game.hero(seat);
                     Item armor=new com.shatteredpixel.shatteredpixeldungeon.items.armor.LeatherArmor();
                     Item upgrade=new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade().identify();

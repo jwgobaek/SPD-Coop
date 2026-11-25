@@ -84,6 +84,10 @@ abstract public class MissileWeapon extends Weapon {
 	
 	public static final float MAX_DURABILITY = 100;
 	protected float durability = MAX_DURABILITY;
+	// Bound only while the engine resolves a detached coop projectile, including its durability roll.
+	private transient Hero coopThrower;
+	private Hero missileUser() { return coopThrower==null ? Dungeon.hero : coopThrower; }
+
 	protected float baseUses = 8;
 	
 	public boolean holster;
@@ -99,8 +103,8 @@ abstract public class MissileWeapon extends Weapon {
 	
 	@Override
 	public int min() {
-		if (Dungeon.hero != null){
-			return Math.max(0, min(buffedLvl() + RingOfSharpshooting.levelDamageBonus(Dungeon.hero)));
+		if (missileUser() != null){
+			return Math.max(0, min(buffedLvl() + RingOfSharpshooting.levelDamageBonus(missileUser())));
 		} else {
 			return Math.max(0 , min( buffedLvl() ));
 		}
@@ -114,8 +118,8 @@ abstract public class MissileWeapon extends Weapon {
 	
 	@Override
 	public int max() {
-		if (Dungeon.hero != null){
-			return Math.max(0, max( buffedLvl() + RingOfSharpshooting.levelDamageBonus(Dungeon.hero) ));
+		if (missileUser() != null){
+			return Math.max(0, max( buffedLvl() + RingOfSharpshooting.levelDamageBonus(missileUser()) ));
 		} else {
 			return Math.max(0 , max( buffedLvl() ));
 		}
@@ -196,7 +200,7 @@ abstract public class MissileWeapon extends Weapon {
 			projecting += 4;
 		}
 		if ((!(this instanceof SpiritBow.SpiritArrow) && Random.Int(3) < user.pointsInTalent(Talent.SHARED_ENCHANTMENT))){
-			SpiritBow bow = Dungeon.hero.belongings.getItem(SpiritBow.class);
+			SpiritBow bow = user.belongings.getItem(SpiritBow.class);
 			if (bow != null && bow.hasEnchant(Projecting.class, user)) {
 				projecting += 4;
 			}
@@ -266,25 +270,58 @@ abstract public class MissileWeapon extends Weapon {
 
 	@Override
 	protected void onThrow( int cell ) {
+		resolveThrow(curUser,cell);
+	}
+
+	public boolean throwStoneInCoop(Hero user,int cell) {
+		if (!com.shatteredpixel.shatteredpixeldungeon.CoopSession.basicStone(this)
+				|| !user.belongings.backpack.contains(this)
+				|| new com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica(user.pos,cell,
+					com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica.PROJECTILE).collisionPos!=cell) return false;
+		boolean occupied=Actor.findChar(cell)!=null;
+		float delay=castDelay(user,cell);
+		coopThrower=user;
+		MissileWeapon unit=null;
+		try {
+			// Preserve the ordinary trajectory roll on accepted throws.
+			if (throwPos(user,cell)!=cell) throw new IllegalStateException("Unexpected stone trajectory");
+			parent=null;
+			unit=(MissileWeapon)detach(user.belongings.backpack);
+			if (unit==null) throw new IllegalStateException("Missing thrown stone");
+			unit.coopThrower=user;
+			if (!occupied) user.spend(delay);
+			unit.resolveThrow(user,cell);
+			Talent.LethalMomentumTracker free=user.buff(Talent.LethalMomentumTracker.class);
+			if (!occupied) user.next();
+			else if (free!=null) { free.detach(); user.next(); }
+			else user.spendAndNext(delay);
+			return true;
+		} finally {
+			coopThrower=null;
+			if (unit!=null) unit.coopThrower=null;
+		}
+	}
+
+	private void resolveThrow(Hero user,int cell) {
 		Char enemy = Actor.findChar( cell );
-		if (enemy == null || enemy == curUser) {
+		if (enemy == null || enemy == user) {
 			parent = null;
 
 			//metamorphed seer shot logic
-			if (curUser.hasTalent(Talent.SEER_SHOT)
-					&& curUser.heroClass != HeroClass.HUNTRESS
-					&& curUser.buff(Talent.SeerShotCooldown.class) == null){
+			if (user.hasTalent(Talent.SEER_SHOT)
+					&& user.heroClass != HeroClass.HUNTRESS
+					&& user.buff(Talent.SeerShotCooldown.class) == null){
 				if (Actor.findChar(cell) == null) {
-					RevealedArea a = Buff.affect(curUser, RevealedArea.class, 5 * curUser.pointsInTalent(Talent.SEER_SHOT));
+					RevealedArea a = Buff.affect(user, RevealedArea.class, 5 * user.pointsInTalent(Talent.SEER_SHOT));
 					a.depth = Dungeon.depth;
 					a.pos = cell;
-					Buff.affect(curUser, Talent.SeerShotCooldown.class, 20f);
+					Buff.affect(user, Talent.SeerShotCooldown.class, 20f);
 				}
 			}
 
 			if (!spawnedForEffect) super.onThrow( cell );
 		} else {
-			if (!curUser.shoot( enemy, this )) {
+			if (!user.shoot( enemy, this )) {
 				rangedMiss( cell );
 			} else {
 				
@@ -296,9 +333,9 @@ abstract public class MissileWeapon extends Weapon {
 
 	@Override
 	public int proc(Char attacker, Char defender, int damage) {
-		if (attacker == Dungeon.hero && Random.Int(3) < Dungeon.hero.pointsInTalent(Talent.SHARED_ENCHANTMENT)){
-			SpiritBow bow = Dungeon.hero.belongings.getItem(SpiritBow.class);
-			if (bow != null && bow.enchantment != null && Dungeon.hero.buff(MagicImmune.class) == null) {
+		if (attacker == missileUser() && Random.Int(3) < missileUser().pointsInTalent(Talent.SHARED_ENCHANTMENT)){
+			SpiritBow bow = missileUser().belongings.getItem(SpiritBow.class);
+			if (bow != null && bow.enchantment != null && missileUser().buff(MagicImmune.class) == null) {
 				if (bow.enchantment instanceof Crystal){
 					//crystal specifically needs to proc on the bow, but it's just based on dmg so it doesn't really matter
 					damage = bow.enchantment.proc(bow, attacker, defender, damage);
@@ -315,7 +352,7 @@ abstract public class MissileWeapon extends Weapon {
 		if (parent != null) parent.cursedKnown = true;
 
 		//instant ID with the right talent
-		if (attacker == Dungeon.hero && Dungeon.hero.pointsInTalent(Talent.SURVIVALISTS_INTUITION) == 2){
+		if (attacker == missileUser() && missileUser().pointsInTalent(Talent.SURVIVALISTS_INTUITION) == 2){
 			usesLeftToID = Math.min(usesLeftToID, 0);
 			availableUsesToID =  Math.max(usesLeftToID, 0);
 		}
@@ -338,8 +375,8 @@ abstract public class MissileWeapon extends Weapon {
 			parent.identify();
 		}
 
-		if (attacker == Dungeon.hero && !isIdentified() && ShardOfOblivion.passiveIDDisabled()){
-			Buff.prolong(Dungeon.hero, ShardOfOblivion.ThrownUseTracker.class, 50f);
+		if (attacker == missileUser() && !isIdentified() && ShardOfOblivion.passiveIDDisabled()){
+			Buff.prolong(missileUser(), ShardOfOblivion.ThrownUseTracker.class, 50f);
 		}
 
 		return result;
@@ -421,7 +458,7 @@ abstract public class MissileWeapon extends Weapon {
 					return;
 				}
 			}
-			Dungeon.level.drop( this, cell ).sprite.drop();
+			Dungeon.level.drop(this,cell).animateDrop();
 		}
 	}
 	
@@ -455,8 +492,8 @@ abstract public class MissileWeapon extends Weapon {
 		float usages = baseUses * (float)(Math.pow(1.5f, level));
 
 		//+50%/75% durability
-		if (Dungeon.hero != null && Dungeon.hero.hasTalent(Talent.DURABLE_PROJECTILES)){
-			usages *= 1.25f + (0.25f*Dungeon.hero.pointsInTalent(Talent.DURABLE_PROJECTILES));
+		if (missileUser() != null && missileUser().hasTalent(Talent.DURABLE_PROJECTILES)){
+			usages *= 1.25f + (0.25f*missileUser().pointsInTalent(Talent.DURABLE_PROJECTILES));
 		}
 		if (holster) {
 			usages *= MagicalHolster.HOLSTER_DURABILITY_FACTOR;
@@ -465,8 +502,8 @@ abstract public class MissileWeapon extends Weapon {
 		//+50% durability on speed aug, -33% durability on damage aug
 		usages /= augment.delayFactor(1f);
 
-		if (Dungeon.hero != null) {
-			usages *= RingOfSharpshooting.durabilityMultiplier( Dungeon.hero );
+		if (missileUser() != null) {
+			usages *= RingOfSharpshooting.durabilityMultiplier( missileUser() );
 		}
 
 		if (enchantment instanceof Crystal){
@@ -557,7 +594,7 @@ abstract public class MissileWeapon extends Weapon {
 	@Override
 	public Item merge(Item other) {
 		super.merge(other);
-		if (isSimilar(other)) {
+		if (canStackWith(other)) {
 			extraThrownLeft = false;
 
 			durability += ((MissileWeapon)other).durability;

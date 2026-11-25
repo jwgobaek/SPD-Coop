@@ -118,6 +118,37 @@ public class MissileSprite extends ItemSprite implements Tweener.Listener {
 	//TODO it might be nice to have a source and destination angle, to improve thrown weapon visuals
 	private void setup( PointF from, PointF to, Item item, Callback listener ){
 
+		int spin = DEFAULT_ANGULAR_SPEED;
+		for (Class<?extends Item> cls : ANGULAR_SPEEDS.keySet()){
+			if (item!=null && cls.isAssignableFrom(item.getClass())){
+				spin = ANGULAR_SPEEDS.get(cls);
+				break;
+			}
+		}
+
+		float speed = SPEED;
+		if (item instanceof Dart
+				&& (Dungeon.hero.belongings.weapon() instanceof Crossbow
+				|| Dungeon.hero.belongings.secondWep() instanceof Crossbow)){
+			speed *= 3f;
+
+		} else if (item instanceof SpiritBow.SpiritArrow
+				|| item instanceof ScorpioSprite.ScorpioShot
+				|| item instanceof TenguSprite.TenguShuriken){
+			speed *= 1.5f;
+		}
+
+		startFlight(from,to,spin,speed,item instanceof GnollGeomancer.Boulder,listener);
+	}
+
+	/** Public appearance of a confirmed seat attack. No engine item or completion action is needed. */
+	public void seatShot(PointF from, PointF to, boolean bow) {
+		revive();
+		view(bow ? ItemSpriteSheet.SPIRIT_ARROW : ItemSpriteSheet.THROWING_STONE,null);
+		startFlight(from,to,bow ? 0 : DEFAULT_ANGULAR_SPEED,bow ? SPEED*1.5f : SPEED,false,null);
+	}
+
+	private void startFlight(PointF from, PointF to, int spin,float speed,boolean boulder,Callback listener) {
 		originToCenter();
 
 		//adjust points so they work with the center of the missile sprite, not the corner
@@ -131,16 +162,9 @@ public class MissileSprite extends ItemSprite implements Tweener.Listener {
 		point( from );
 
 		PointF d = PointF.diff( to, from );
-		speed.set(d).normalize().scale(SPEED);
+		this.speed.set(d).normalize().scale(SPEED);
 		
-		angularSpeed = DEFAULT_ANGULAR_SPEED;
-		for (Class<?extends Item> cls : ANGULAR_SPEEDS.keySet()){
-			if (cls.isAssignableFrom(item.getClass())){
-				angularSpeed = ANGULAR_SPEEDS.get(cls);
-				break;
-			}
-		}
-		
+		angularSpeed=spin;
 		angle = 135 - (float)(Math.atan2( d.x, d.y ) / 3.1415926 * 180);
 		
 		if (d.x >= 0){
@@ -154,22 +178,10 @@ public class MissileSprite extends ItemSprite implements Tweener.Listener {
 			updateFrame();
 		}
 
-		if (item instanceof GnollGeomancer.Boulder){
+		if (boulder){
 			angle = 0;
 			flipHorizontal = false;
 			updateFrame();
-		}
-		
-		float speed = SPEED;
-		if (item instanceof Dart
-				&& (Dungeon.hero.belongings.weapon() instanceof Crossbow
-				|| Dungeon.hero.belongings.secondWep() instanceof Crossbow)){
-			speed *= 3f;
-			
-		} else if (item instanceof SpiritBow.SpiritArrow
-				|| item instanceof ScorpioSprite.ScorpioShot
-				|| item instanceof TenguSprite.TenguShuriken){
-			speed *= 1.5f;
 		}
 		
 		PosTweener tweener = new PosTweener( this, to, d.length() / speed );

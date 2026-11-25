@@ -27,7 +27,7 @@ public class CoopScene extends PixelScene {
     private PublicDungeon.Loot targetStaff;
 
     public void aim(PublicDungeon view, PublicDungeon.Loot staff) {
-        if (controller.frame().image!=view.source || (!view.actions(staff).contains("ZAP") && !view.actions(staff).contains("SHOOT"))) return;
+        if (controller.frame().image!=view.source || (!view.actions(staff).contains("ZAP") && !view.actions(staff).contains("SHOOT") && !view.actions(staff).contains("THROW"))) return;
         targetView=view; targetStaff=staff; renderFrame();
     }
     void cancelAim() { targetView=null; targetStaff=null; renderFrame(); }
@@ -48,9 +48,10 @@ public class CoopScene extends PixelScene {
         }
         boolean bow=targetStaff.kind.equals("BOW");
         String actor=view.monsters.get(cell);
-        boolean enemy=actor!=null && !"Sheep".equals(actor) && !"Sentry".equals(actor) && !"Ghost".equals(actor) && !"RatKing".equals(actor);
-        if (targetView==view && (enemy || (!bow && view.chest(cell)))
-                && controller.act(view.source,bow?"SHOOT":"ZAP",cell,targetStaff.id)) cancelAim();
+        boolean enemy=actor!=null && !"Shopkeeper".equals(actor) && !"Sheep".equals(actor) && !"Sentry".equals(actor) && !"Ghost".equals(actor) && !"RatKing".equals(actor);
+        boolean stone=targetStaff.kind.equals("STONE");
+        if (targetView==view && (enemy || (stone && actor==null && view.visible(cell)) || (!stone && !bow && view.chest(cell)))
+                && controller.act(view.source,stone?"THROW":bow?"SHOOT":"ZAP",cell,targetStaff.id)) cancelAim();
     }
     private void talkToGhost(PublicDungeon view,int cell,String offer) {
         Class<?> ghost=com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost.class;

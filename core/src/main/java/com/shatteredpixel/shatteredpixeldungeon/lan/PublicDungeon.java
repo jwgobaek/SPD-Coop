@@ -29,7 +29,8 @@ public final class PublicDungeon {
             if (ref!=null && (!ref.matches("[0-9a-f]{32}") || slot.startsWith("F"))) throw new IllegalArgumentException("Inventory reference");
             reference=ref==null ? "" : ref;
             String label=rows.get("label"+id);
-            stackType=(kind.equals("FOOD") || kind.equals("HEALING")) && label!=null ? label : "";
+            String family=rows.get("family"+id);
+            stackType=kind.equals("STONE") && family!=null && family.matches("stone\\.[0-9a-f]{32}") ? family : (kind.equals("FOOD") || kind.equals("HEALING")) && label!=null ? label : "";
             sprite=number(f[2],0,1023); quantity=number(f[3],1,Integer.MAX_VALUE); upgrade=f[4];
             charges=kind.equals("STAFF") ? number(f[5],0,10) : 0;
             capacity=kind.equals("STAFF") ? number(f[6],charges,10) : 0;
@@ -93,6 +94,7 @@ public final class PublicDungeon {
         switch (item.kind) {
             case "FOOD": return "EAT";
             case "HEALING": return "DRINK";
+            case "STONE": return "THROW";
             case "BOW": return "SHOOT";
             case "STAFF": return item.slot.equals("WEAPON") ? "ZAP" : "EQUIP";
             case "MELEE": case "ARMOR": return item.slot.equals("BAG") ? "EQUIP" : "UNEQUIP";
@@ -115,6 +117,7 @@ public final class PublicDungeon {
         if(item.slot.equals("BAG")) {
             if(item.kind.equals("UPGRADE") || item.kind.equals("IDENTIFY")) verbs.add(item.kind);
             if(item.kind.equals("HEALING")) verbs.add("DRINK");
+            if(item.kind.equals("STONE")) verbs.add("THROW");
             if(item.kind.equals("BOW")) verbs.add("SHOOT");
             if(item.kind.equals("FOOD")) verbs.add("EAT");
             if(weapon || item.kind.equals("ARMOR")) verbs.add("EQUIP");
@@ -124,7 +127,7 @@ public final class PublicDungeon {
         return verbs;
     }
     public boolean use(CoopController c,Loot item,String verb) {
-        return !verb.equals("ZAP") && !verb.equals("SHOOT") && actions(item).contains(verb) && c.act(source,verb,verb.equals("DROP") || verb.equals("SHATTER")?pos:0,item.id);
+        return !verb.equals("THROW") && !verb.equals("ZAP") && !verb.equals("SHOOT") && actions(item).contains(verb) && c.act(source,verb,verb.equals("DROP") || verb.equals("SHATTER")?pos:0,item.id);
     }
     public int terrain(int cell) {
         String t=source.rows.get("t"+cell);

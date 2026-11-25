@@ -26,10 +26,12 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
+    private static boolean scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
+        scribe=args.length>1 && args[1].equals("scrolls");
+        prison=args.length>1 && args[1].equals("prison");
         controls=args.length>1 && args[1].equals("controls");
         shortcuts=args.length>1 && args[1].equals("shortcuts");
         sentry=args.length>1 && args[1].equals("sentry");
@@ -43,7 +45,7 @@ public final class CoopRenderSmoke {
         garden=args.length>1 && args[1].equals("garden");
         shortcutKit=args.length>1 && args[1].equals("kit-slots");
         kit=shortcutKit || (args.length>1 && args[1].equals("kit"));
-        deep=args.length>1 && args[1].equals("deep");
+        deep=prison || (args.length>1 && args[1].equals("deep"));
         floors=deep || statue || mimic || ghost || sentry || (args.length>1 && args[1].equals("floors"));
         mage=floors || (args.length>1 && args[1].equals("mage"));
         shots=new File(args[0]); if(!shots.isDirectory() && !shots.mkdirs()) throw new AssertionError();
@@ -273,6 +275,9 @@ public final class CoopRenderSmoke {
     }
     private static Point inventoryPoint(String kind) throws Exception {
         long id=frame().dungeon.belongings.stream().filter(item->item.kind.equals(kind)).findFirst().get().id;
+        return inventoryPoint(id);
+    }
+    private static Point inventoryPoint(long id) throws Exception {
         return render(()->{
             WndSeatInventory.Slot cell=(WndSeatInventory.Slot)find(Game.scene(),g->g instanceof WndSeatInventory.Slot
                     && ((WndSeatInventory.Slot)g).handle==id);
@@ -348,6 +353,25 @@ public final class CoopRenderSmoke {
                         i->i.sprite==com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.BLOB))
                     throw new AssertionError("Expected visible original boss reward");
                 shot("goo-rewards");
+                if (prison) {
+                    RenderEncounter.atBossKey(hostController()); click("wait");
+                    await(()->frame().dungeon.offered && frame().dungeon.floor.containsKey(frame().dungeon.pos));
+                    PublicDungeon v=frame().dungeon;
+                    press(mapPoint(v,v.pos));
+                    await(()->frame().dungeon.offered && frame().image.version>v.source.version);
+                    RenderEncounter.atExit(hostController()); click("wait");
+                    await(()->frame().dungeon.offered);
+                    PublicDungeon near=frame().dungeon;
+                    int exit=-1;
+                    for (int j=0;j<near.width*near.height;j++) if(near.visible(j) && near.terrain(j)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.LOCKED_EXIT) {exit=j;break;}
+                    if(exit<0) throw new AssertionError("Missing locked gate");
+                    press(mapPoint(near,exit));
+                    await(()->frame().dungeon.stair>=0 && frame().dungeon.offered);
+                    java.nio.file.Files.createFile(new File(root,"allow5").toPath());
+                    await(()->frame().dungeon.consent);
+                    click("#"+Messages.get(CoopScene.class,"travel",6)); await(()->frame().dungeon.depth==6);
+                    shot("prison-arrival");
+                }
                 click("menu");click("saveexit");await(()->button("host")!=null);
             } finally { returning.destroy(); if(!returning.waitFor(5,TimeUnit.SECONDS)) returning.destroyForcibly(); }
             return;
@@ -514,6 +538,38 @@ public final class CoopRenderSmoke {
                 if (frame().dungeon.hp<=hp || !frame().dungeon.buffs.contains(com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator.HERB_HEALING))
                     throw new AssertionError("Expected a real sungrass tick");
                 shot("sungrass-healing");
+                return;
+            }
+            if (scribe) {
+                RenderEncounter.scrolls(hostController()); click("wait");
+                await(()->frame().dungeon.offered && frame().dungeon.belongings.stream().anyMatch(x->x.kind.equals("IDENTIFY")));
+                for (String verb:new String[]{"IDENTIFY","UPGRADE"}) {
+                    PublicDungeon view=frame().dungeon;
+                    PublicDungeon.Loot gear=view.belongings.stream().filter(x->x.slot.equals("BAG") && x.kind.equals("ARMOR")).findFirst().get();
+                    bagAction(verb,verb.toLowerCase(java.util.Locale.ROOT));
+                    shot(verb.toLowerCase(java.util.Locale.ROOT)+"-target");
+                    render(()->{((WndSeatInventory)find(Game.scene(),g->g instanceof WndSeatInventory)).onBackPressed();return null;});
+                    if(frame().image!=view.source) throw new AssertionError("Cancelled equipment selection spent a turn");
+                    bagAction(verb,verb.toLowerCase(java.util.Locale.ROOT));
+                    press(inventoryPoint(gear.id));
+                    await(()->frame().dungeon.offered && frame().dungeon.belongings.stream().anyMatch(x->
+                            x.slot.equals("BAG") && x.kind.equals("ARMOR") && x.upgrade.equals(verb.equals("UPGRADE")?"1":"0")));
+                }
+                click("slot4"); press(inventoryPoint("STONE"));
+                await(()->frame().quickslots.item(3,frame().dungeon)!=null);
+                PublicDungeon view=frame().dungeon;
+                click("slot4"); await(()->button("cancel")!=null); shot("stone-target");
+                int cell=-1;
+                for (int off:new int[]{1,-1,view.width,-view.width}) {
+                    int at=view.pos+off;
+                    if (view.visible(at) && view.terrain(at)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EMPTY
+                            && view.ally!=at && !view.monsters.containsKey(at)) { cell=at; break; }
+                }
+                if (cell<0) throw new AssertionError("No visible landing cell");
+                press(mapPoint(view,cell));
+                final int landing=cell;
+                await(()->frame().dungeon.floor.containsKey(landing)); shot("stone-landing");
+                System.out.println("PASS selected scroll targets, cancelled without an action, threw an owned quickslot stone");
                 return;
             }
             if(kit) {

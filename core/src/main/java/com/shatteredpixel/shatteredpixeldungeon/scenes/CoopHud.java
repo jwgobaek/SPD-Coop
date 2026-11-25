@@ -162,7 +162,7 @@ final class CoopHud extends Group {
         if(item==null) return;
         String verb=PublicDungeon.shortcutAction(item);
         if(!view.actions(item).contains(verb)) return;
-        if(verb.equals("ZAP") || verb.equals("SHOOT")) scene.aim(view,item);
+        if(verb.equals("ZAP") || verb.equals("SHOOT") || verb.equals("THROW")) scene.aim(view,item);
         else view.use(client,item,verb);
     }
 
