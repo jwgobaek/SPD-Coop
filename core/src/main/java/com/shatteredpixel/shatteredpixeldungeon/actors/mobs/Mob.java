@@ -952,6 +952,15 @@ public abstract class Mob extends Char {
 		return alignment != Alignment.ENEMY && buff(Amok.class) == null;
 	}
 
+	protected final Hero abilityTarget() {
+		if (Dungeon.coop == null) return Dungeon.hero;
+		if (enemy instanceof Hero && enemy.isAlive()) return (Hero)enemy;
+		Hero host = Dungeon.coop.hero(0), guest = Dungeon.coop.hero(1);
+		if (!host.isAlive()) return guest;
+		if (!guest.isAlive()) return host;
+		return Dungeon.level.distance(pos, guest.pos) < Dungeon.level.distance(pos, host.pos) ? guest : host;
+	}
+
 	public void aggro( Char ch ) {
 		enemy = ch;
 		if (state != PASSIVE){

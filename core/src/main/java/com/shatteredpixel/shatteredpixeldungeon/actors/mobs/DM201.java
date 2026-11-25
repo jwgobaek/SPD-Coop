@@ -51,6 +51,15 @@ public class DM201 extends DM200 {
 
 	private boolean threatened = false;
 
+	@Override public void storeInBundle(com.watabou.utils.Bundle b) {
+		super.storeInBundle(b);
+		if (Dungeon.coop!=null) b.put("coop_threatened",threatened);
+	}
+	@Override public void restoreFromBundle(com.watabou.utils.Bundle b) {
+		super.restoreFromBundle(b);
+		if (Dungeon.coop!=null) threatened=b.getBoolean("coop_threatened");
+	}
+
 	@Override
 	public void damage(int dmg, Object src) {
 		if (!(src instanceof Corruption)) {
@@ -97,7 +106,7 @@ public class DM201 extends DM200 {
 
 	@Override
 	public void rollToDropLoot() {
-		if (Dungeon.hero.lvl > maxLvl + 2) return;
+		if (lootOwner().lvl > maxLvl + 2) return;
 
 		super.rollToDropLoot();
 
@@ -105,7 +114,8 @@ public class DM201 extends DM200 {
 		do {
 			ofs = PathFinder.NEIGHBOURS8[Random.Int(8)];
 		} while (Dungeon.level.solid[pos + ofs] && !Dungeon.level.passable[pos + ofs]);
-		Dungeon.level.drop( new MetalShard(), pos + ofs ).sprite.drop( pos );
+		com.shatteredpixel.shatteredpixeldungeon.items.Heap drop=Dungeon.level.drop(new MetalShard(),pos+ofs);
+		if (Dungeon.coop==null) drop.sprite.drop(pos);
 	}
 
 	private class Hunting extends Mob.Hunting {
@@ -114,7 +124,7 @@ public class DM201 extends DM200 {
 		public boolean act( boolean enemyInFOV, boolean justAlerted ) {
 
 			if (threatened && enemyInFOV){
-				if (sprite != null && (sprite.visible || enemy.sprite.visible)) {
+				if (Dungeon.coop==null && sprite != null && (sprite.visible || enemy.sprite.visible)) {
 					sprite.zap( enemy.pos );
 					return false;
 				} else {

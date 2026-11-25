@@ -112,7 +112,7 @@ public class Pylon extends Mob {
 			}
 		}
 
-		if (visible) {
+		if (Dungeon.coop==null && visible) {
 			for (int cell : shockCells){
 				sprite.parent.add(new Lightning(sprite.center(),
 						DungeonTilemap.raisedTileCenterToWorld(cell), null));
@@ -137,10 +137,10 @@ public class Pylon extends Mob {
 			ch.sprite.flash();
 			ch.damage(Random.NormalIntRange(10, 20), new Electricity());
 
-			if (ch == Dungeon.hero) {
+			if (ch == Dungeon.hero || (Dungeon.coop!=null && Dungeon.coop.playerOf(ch)!=0)) {
 				Statistics.qualifiedForBossChallengeBadge = false;
 				Statistics.bossScores[2] -= 100;
-				if (!ch.isAlive()) {
+				if (Dungeon.coop==null && !ch.isAlive()) {
 					Dungeon.fail(DM300.class);
 					GLog.n(Messages.get(Electricity.class, "ondeath"));
 				}
@@ -151,7 +151,7 @@ public class Pylon extends Mob {
 	public void activate(){
 		alignment = Alignment.ENEMY;
 		state = HUNTING; //so allies know to attack it
-		((PylonSprite) sprite).activate();
+		if (Dungeon.coop==null) ((PylonSprite) sprite).activate();
 	}
 
 	@Override
@@ -202,10 +202,12 @@ public class Pylon extends Mob {
 			dmg = 14 + (int)(Math.sqrt(8*(dmg - 14) + 1) - 1)/2;
 		}
 
-		LockedFloor lock = Dungeon.hero.buff(LockedFloor.class);
+		for (int seat=0;seat<(Dungeon.coop==null?1:2);seat++) {
+		LockedFloor lock=(Dungeon.coop==null?Dungeon.hero:Dungeon.coop.hero(seat)).buff(LockedFloor.class);
 		if (lock != null && !isImmune(src.getClass()) && !isInvulnerable(src.getClass())){
 			if (Dungeon.isChallenged(Challenges.STRONGER_BOSSES))   lock.addTime(dmg/2f);
 			else                                                    lock.addTime(dmg);
+		}
 		}
 		super.damage(dmg, src);
 	}

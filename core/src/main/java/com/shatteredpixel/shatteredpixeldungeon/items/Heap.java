@@ -230,7 +230,7 @@ public class Heap implements Bundlable {
 		}
 		
 		if (Dungeon.coop != null) for (Item item : items) {
-			if (item instanceof Bomb) throw new IllegalStateException("Unsupported burning bomb");
+			if (item instanceof Bomb && (item.getClass()!=Bomb.class || ((Bomb)item).fuse!=null)) throw new IllegalStateException("Unsupported burning bomb or live fuse");
 		}
 		boolean burnt = false;
 		boolean evaporated = false;
@@ -283,8 +283,7 @@ public class Heap implements Bundlable {
 		//breaks open most standard containers, mimics die.
 		if (type == Type.CHEST || type == Type.SKELETON) {
 			type = Type.HEAP;
-			sprite.link();
-			sprite.drop();
+			if (sprite!=null) { sprite.link(); sprite.drop(); }
 			return;
 		}
 
@@ -296,11 +295,16 @@ public class Heap implements Bundlable {
 
 			for (Item item : items.toArray( new Item[0] )) {
 
+				// A nested native blast may already have removed this item.
+				if (Dungeon.coop!=null && !items.contains(item)) continue;
 				//unique items and equipment aren't affect by explosions
 				if (item.unique || item.isUpgradable() || item instanceof EquipableItem){
 					continue;
 				}
 
+				if (Dungeon.coop!=null && (item instanceof Potion && !((Potion)item).supportsCoopShatter()
+						|| item instanceof Bomb && (item.getClass()!=Bomb.class || ((Bomb)item).fuse!=null)))
+					throw new UnsupportedOperationException("Unsupported blast item "+item.getClass().getSimpleName());
 				if (item instanceof Potion) {
 					items.remove(item);
 					((Potion) item).shatter(pos);
@@ -339,7 +343,7 @@ public class Heap implements Bundlable {
 		
 		if (Dungeon.coop != null) for (Item item : items) {
 			if ((item instanceof Potion && !item.unique && !((Potion)item).supportsCoopShatter()) || (item instanceof Bomb && ((Bomb)item).fuse != null))
-				throw new IllegalStateException("Unsupported frozen potion or fuse");
+				throw new IllegalStateException("Unsupported frozen item: "+item.getClass().getSimpleName());
 		}
 		boolean frozen = false;
 		for (Item item : items.toArray( new Item[0] )) {

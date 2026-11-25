@@ -39,11 +39,11 @@ public class PotionOfToxicGas extends Potion {
 	public void shatter( int cell ) {
 
 		splash( cell );
-		if (Dungeon.level.heroFOV[cell]) {
+		if (witnessedShatter(cell)) {
 			identify();
 
-			Sample.INSTANCE.play( Assets.Sounds.SHATTER );
-			Sample.INSTANCE.play( Assets.Sounds.GAS );
+			if (Dungeon.coop==null) Sample.INSTANCE.play( Assets.Sounds.SHATTER );
+			if (Dungeon.coop==null) Sample.INSTANCE.play( Assets.Sounds.GAS );
 		}
 
 		GameScene.add( Blob.seed( cell, 1000, ToxicGas.class ) );

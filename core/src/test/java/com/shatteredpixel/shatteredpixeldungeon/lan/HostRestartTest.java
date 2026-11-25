@@ -17,6 +17,14 @@ public class HostRestartTest {
                 .redirectErrorStream(true).redirectOutput(dir.resolve(main.getSimpleName()+".log").toFile()).start();
     }
 
+    @Test(timeout=240000) public void caveBossBoundariesSurviveLostAcknowledgements() throws Exception {
+        for(String name:new String[]{"visit","enter","charge","pylon","devices","down","revive","kill","reward","return","revisit"}) {
+            Path dir=temp.newFolder().toPath();
+            run(dir,new String[]{"tengu-setup-dm-"+name,"tengu-commit-dm-"+name,"tengu-read-dm-"+name});
+            if (name.equals("devices")) System.out.println(RestartHost.read(dir,"perf15"));
+        }
+    }
+
     @Test(timeout=180000) public void cavesTravelSmithAndBothSeatsNativeHazardsSurviveLostAcknowledgements() throws Exception {
         for(String name:new String[]{"12","13","14","web0","web1","gas0","gas1","smith"}) {
             Path directory=temp.newFolder().toPath();

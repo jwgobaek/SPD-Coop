@@ -43,7 +43,7 @@ public class StormTrap extends Trap {
 	@Override
 	public void activate() {
 		
-		if (Dungeon.level.heroFOV[pos]){
+		if (Dungeon.coop==null && Dungeon.level.heroFOV[pos]){
 			Sample.INSTANCE.play( Assets.Sounds.LIGHTNING );
 		}
 		

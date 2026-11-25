@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.lan;
 
 import com.shatteredpixel.shatteredpixeldungeon.CavesInteriorTest;
+import com.shatteredpixel.shatteredpixeldungeon.CavesBossTest;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.backends.headless.*;
 import com.shatteredpixel.shatteredpixeldungeon.*;
@@ -94,6 +95,13 @@ public final class RestartHost {
                 throw new IOException("Injected write failure");
             if (stage.equals("AFTER_HEAD") && mode.startsWith("tengu-commit-") && java.nio.file.Files.exists(path.resolve("boss-command"))) {
                 String boundary=mode.substring("tengu-commit-".length());
+                if (boundary.startsWith("dm-")) {
+                    if (CavesBossTest.published(boundary.substring(3))) {
+                        write(path,"tengu-signature",CavesBossTest.signature(Dungeon.coop));
+                        Runtime.getRuntime().halt(78);
+                    }
+                    return;
+                }
                 if (boundary.startsWith("interior-")) {
                     if (CavesInteriorTest.committed(boundary.substring(9))) {
                         write(path,"tengu-signature",CavesInteriorTest.signature(Dungeon.coop));
@@ -164,12 +172,13 @@ public final class RestartHost {
         try(LanRoom room=(special || mode.startsWith("tengu-setup-") || mode.equals("late-setup") || mode.startsWith("necro-setup-") || mode.startsWith("wand-setup-") || mode.startsWith("scribe") || kit(mode) || knife(mode) || newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) ? LanRoom.persistentGame(loop,0,0,seedFor(mode),saves)
                 : LanRoom.resume(loop,0,0,saves,saves.sessions().get(0),mode.equals("backup") || mode.equals("floorbackup") || mode.equals("schema3-backup") || mode.equals("prison-backup"))) {
             if (mode.startsWith("tengu-read-")) {
+                boolean dm=mode.startsWith("tengu-read-dm-");
                 boolean interior=mode.startsWith("tengu-read-interior-");
-                assertEquals(read(path,"tengu-signature"),interior?CavesInteriorTest.signature(Dungeon.coop):TenguArenaTest.signature(Dungeon.coop));
+                assertEquals(read(path,"tengu-signature"),dm?CavesBossTest.signature(Dungeon.coop):interior?CavesInteriorTest.signature(Dungeon.coop):TenguArenaTest.signature(Dungeon.coop));
                 String boundary=mode.substring("tengu-read-".length());
                 String expected=boundary.equals("enter") ? "FIGHT_START" : boundary.equals("pause") ? "FIGHT_PAUSE"
                         : boundary.equals("kill") || boundary.equals("claim") ? "WON" : "FIGHT_ARENA";
-                if (interior) {
+                if (dm) { assertTrue(CavesBossTest.published(boundary.substring(3))); } else if (interior) {
                     assertTrue(CavesInteriorTest.committed(boundary.substring(9)));
                 } else if (boundary.equals("caves")) {
                     assertEquals(11,Dungeon.depth);
@@ -210,9 +219,9 @@ public final class RestartHost {
                 }
             }
             if (mode.startsWith("late-down") || mode.startsWith("late-up")) {
-                int depth=Integer.parseInt(mode.substring(mode.length()-1));
+                int depth=Integer.parseInt(mode.replaceFirst("^late-(down|up)", ""));
                 assertEquals(depth,Dungeon.depth);
-                assertEquals(depth==7 ? 5 : 6,Dungeon.coop.checkpoint().getInt("schema"));
+                assertEquals(depth==7 ? 5 : depth==11 ? 7 : 6,Dungeon.coop.checkpoint().getInt("schema"));
                 SewerSpecialActorTest.atGate(Dungeon.coop,mode.startsWith("late-down") ? Dungeon.level.exit() : Dungeon.level.entrance());
             }
             if (mode.equals("schema2-to-three")) SewerSpecialActorTest.atGate(Dungeon.coop,Dungeon.level.exit());
@@ -442,7 +451,7 @@ public final class RestartHost {
                 if (mode.startsWith("tengu-setup-") && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;
                     String name=mode.substring("tengu-setup-".length());
-                    int target=name.startsWith("interior-") ? CavesInteriorTest.prepareSocket(Dungeon.coop,name.substring(9))
+                    int target=name.startsWith("dm-") ? CavesBossTest.prepareBoundary(Dungeon.coop,name.substring(3)) : name.startsWith("interior-") ? CavesInteriorTest.prepareSocket(Dungeon.coop,name.substring(9))
                             : TenguArenaTest.prepareSocket(Dungeon.coop,name);
                     write(path,"tengu-target",Integer.toString(target));
                     room.save();
@@ -454,7 +463,7 @@ public final class RestartHost {
                     room.save();
                     write(path,"return-ready","1");
                 }
-                if ((mode.equals("tengu-read-devices") || mode.equals("tengu-read-caves"))
+                if ((mode.equals("tengu-read-devices") || mode.equals("tengu-read-caves") || mode.equals("tengu-read-dm-devices"))
                         && !started && room.state()==LanRoom.State.IN_GAME) {
                     started=true;
                     measureSaves(path,room,Dungeon.depth);

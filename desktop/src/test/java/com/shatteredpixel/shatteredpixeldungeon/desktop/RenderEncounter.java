@@ -48,7 +48,9 @@ final class RenderEncounter {
         owner.setAccessible(true);
         ((ExecutorService)owner.get(room)).submit(()->{
             CoopSession game=Dungeon.coop;
-            if (destination.equals("FIGHT_START")) {
+            if (destination.startsWith("DM_")) {
+                com.shatteredpixel.shatteredpixeldungeon.CavesBossTest.forScreen(game,destination);
+            } else if (destination.equals("FIGHT_START")) {
                 for (int seat=0;seat<2;seat++) {
                     com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero hero=game.hero(seat);
                     hero.HT=hero.HP=500;

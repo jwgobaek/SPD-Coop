@@ -15,9 +15,9 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 /** One active floor and up to thirteen dormant floors; only the active floor has registered actors. */
 public final class CoopFloors {
     private final CoopSession game;
-    public static final int LAST_SEWER = 5, FIRST_PRISON = 6, LAST_PLAYABLE = 14;
+    public static final int LAST_SEWER = 5, FIRST_PRISON = 6, LAST_PLAYABLE = 15;
     static int lastDepth(int schema) {
-        return schema==8 ? 14 : schema==7 ? 11 : schema==6 ? 9 : schema==5 ? 7 : schema==4 ? FIRST_PRISON : schema==3 ? LAST_SEWER : schema;
+        return schema==9 ? 15 : schema==8 ? 14 : schema==7 ? 11 : schema==6 ? 9 : schema==5 ? 7 : schema==4 ? FIRST_PRISON : schema==3 ? LAST_SEWER : schema;
     }
     private final java.util.Map<Integer,Bundle> dormant = new java.util.TreeMap<>();
     private long voteTurn;
@@ -35,6 +35,7 @@ public final class CoopFloors {
             if (Dungeon.depth==LAST_SEWER && t.destDepth==FIRST_PRISON
                     && l.map[t.cell()]!=com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.UNLOCKED_EXIT) continue;
             if (Dungeon.depth==10 && t.destDepth==11 && ((com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel)l).state()!=com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel.State.WON) continue;
+            if (Dungeon.depth==15 && t.destDepth>15 && !((com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel)l).exitOpen()) continue;
             if (inRange(l,t)) return t.cell();
         }
         return -1;
@@ -159,13 +160,54 @@ public final class CoopFloors {
     }
 
     static void checkLevelType(Bundle floor,int depth) {
-        Class<?> expected=depth>=11 ? com.shatteredpixel.shatteredpixeldungeon.levels.CavesLevel.class : depth==10 ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel.class : depth>=FIRST_PRISON ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel.class
+        Class<?> expected=depth==15 ? com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel.class : depth>=11 ? com.shatteredpixel.shatteredpixeldungeon.levels.CavesLevel.class : depth==10 ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel.class : depth>=FIRST_PRISON ? com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel.class
                 : depth==5 ? com.shatteredpixel.shatteredpixeldungeon.levels.SewerBossLevel.class
                 : com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel.class;
         if (!expected.getName().equals(floor.getString("__className")))
             throw new IllegalArgumentException("Unexpected level type at depth "+depth);
         validateSummons(floor);
         if (depth == 10) validateBoss(floor);
+        if (depth == 15) validateCavesBoss(floor);
+    }
+
+    private static void validateCavesBoss(Bundle floor) {
+        int bosses=0, pylons=0, active=0, charges=0;
+        boolean charged=false;
+        java.util.Set<Integer> positions=new HashSet<>();
+        for (Bundle mob:floor.getBundleArray("mobs")) {
+            String type=mob.getString("__className");
+            if (type.equals(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300.class.getName())) {
+                bosses++;
+                charges=mob.getInt("pylons_activated");
+                charged=mob.getBoolean("supercharged");
+                if (charges<0 || charges>2 || mob.getInt("HP")<=0) throw new IllegalArgumentException("Invalid DM-300");
+            } else if (type.equals(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Pylon.class.getName())) {
+                pylons++;
+                int pos=mob.getInt("pos");
+                if (!positions.add(pos) || java.util.Arrays.stream(com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel.pylonPositions).noneMatch(p->p==pos)
+                        || mob.getInt("target_neighbour")<0 || mob.getInt("target_neighbour")>=8)
+                    throw new IllegalArgumentException("Invalid pylon");
+                String alignment=mob.getString("alignment");
+                if ("ENEMY".equals(alignment)) active++;
+                else if (!"NEUTRAL".equals(alignment)) throw new IllegalArgumentException("Invalid pylon allegiance");
+            }
+        }
+        int[] map=floor.getIntArray("map");
+        com.watabou.utils.Rect gate=com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel.gate;
+        int entry=gate.top*floor.getInt("width")+gate.left;
+        if (entry<0 || entry>=map.length) throw new IllegalArgumentException("Invalid cave gate");
+        boolean open=map[entry]==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EMPTY;
+        boolean locked=floor.getBoolean("locked");
+        if (bosses!=(locked?1:0) || (open && locked) || active!=(charged?1:0)
+                || pylons!=(locked ? 4-charges+active : open ? 2 : 4))
+            throw new IllegalArgumentException("Invalid DM-300 phase or pylons");
+        if (floor.contains("pending_gas")) for(Bundle gas:floor.getBundleArray("pending_gas")) {
+            if (!com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300.PendingGas.class.getName().equals(gas.getString("__className"))
+                    || gas.getInt("caster")<=0 || gas.getInt("multiplier")!=1 || gas.getInt("origin")<=0 || gas.getInt("origin")>=map.length
+                    || gas.getInt("impact")<=0 || gas.getInt("impact")>=map.length || gas.getIntArray("cells").length==0)
+                throw new IllegalArgumentException("Invalid pending gas");
+            for (int c:gas.getIntArray("cells")) if (c<0 || c>=map.length) throw new IllegalArgumentException("Invalid gas path");
+        }
     }
 
     private static void validateBoss(Bundle floor) {
@@ -250,6 +292,7 @@ public final class CoopFloors {
     }
 
     int schema() {
+        if (Dungeon.levelHasBeenGenerated(15,0)) return 9;
         if (Dungeon.levelHasBeenGenerated(12,0)) return 8;
         if (Dungeon.levelHasBeenGenerated(10,0)) return 7;
         if (Dungeon.levelHasBeenGenerated(8,0)) return 6;
@@ -310,6 +353,7 @@ public final class CoopFloors {
             inspectActor(mob,actors,nextId);
             for(Bundle buff:mob.getBundleArray("buffs")) inspectActor(buff,actors,nextId);
         }
+        if (floor.contains("pending_gas")) for (Bundle gas:floor.getBundleArray("pending_gas")) inspectActor(gas,actors,nextId);
         for(Bundle blob:floor.getBundleArray("blobs")) inspectActor(blob,actors,nextId);
         if(floor.contains("respawner")) inspectActor(floor.getBundle("respawner"),actors,nextId);
         if(actors.size()>16384) throw new IllegalArgumentException("Sewer actor count");

@@ -26,7 +26,7 @@ import javax.imageio.ImageIO;
 /** Optional real LWJGL/X11 test. Use an isolated desktop profile and an isolated profile. */
 public final class CoopRenderSmoke {
     private static File shots;
-    private static boolean tengu,latePrison,wandmaker,seventh,knife,market,armored,scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
+    private static boolean caves,tengu,latePrison,wandmaker,seventh,knife,market,armored,scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
@@ -34,7 +34,8 @@ public final class CoopRenderSmoke {
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
         wandmaker=args.length>1 && args[1].equals("wandmaker");
-        tengu=args.length>1 && args[1].equals("tengu");
+        caves=args.length>1 && args[1].equals("caves");
+        tengu=caves || args.length>1 && args[1].equals("tengu");
         latePrison=tengu || args.length>1 && args[1].equals("prison-nine");
         seventh=latePrison || wandmaker || args.length>1 && args[1].equals("seven");
         prison=seventh || market || args.length>1 && args[1].equals("prison");
@@ -178,8 +179,12 @@ public final class CoopRenderSmoke {
         long action=frame().lastAction;
         long version=frame().image.version;
         click("wait");
-        await(()->frame().lastAction==action+1 && frame().image.version>version && frame().dungeon.offered
-                && frame().lastResult.equals("APPLIED") && button("wait")!=null);
+        await(()->{
+            CoopController.Frame current=frame();
+            return current.dungeon!=null && current.image!=null && current.lastAction==action+1
+                    && current.image.version>version && current.dungeon.offered
+                    && current.lastResult.equals("APPLIED") && button("wait")!=null;
+        });
         PublicDungeon offered=frame().dungeon;
         mapPoint(offered,offered.pos);
     }
@@ -459,7 +464,7 @@ public final class CoopRenderSmoke {
                         await(()->frame().dungeon.depth==7);
                         shot("prison-seven-arrival");
                         if (latePrison) {
-                            for (int depth = 8; depth <= (tengu ? 11 : 9); depth++) {
+                            for (int depth = 8; depth <= (caves ? 15 : tengu ? 11 : 9); depth++) {
                                 final int arrival = depth;
                                 waitAndRegainTurn();
                                 RenderEncounter.atExit(hostController());
@@ -476,6 +481,31 @@ public final class CoopRenderSmoke {
                                         shot("tengu-"+phase.toLowerCase(java.util.Locale.ROOT));
                                     }
                                     await(()->frame().dungeon.offered);
+                                }
+                                if (caves && (depth==12 || depth==13)) {
+                                    String resident=depth==12?"Spinner":"Blacksmith";
+                                    int residentCell=RenderEncounter.beside(hostController(),depth==12
+                                            ? com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Spinner.class
+                                            : com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.class);
+                                    waitAndRegainTurn();
+                                    await(()->frame().dungeon.monsters.containsValue(resident));
+                                    shot("caves-"+resident.toLowerCase(java.util.Locale.ROOT));
+                                    if(depth==13) {
+                                        press(mapPoint(frame().dungeon,residentCell));
+                                        await(()->button("#"+Messages.get(CoopScene.class,"accept"))!=null);
+                                        shot("smith-offer");
+                                        click("#"+Messages.get(CoopScene.class,"accept"));
+                                        await(()->frame().image.rows.values().stream().anyMatch(value->value.startsWith("reminder_")));
+                                    }
+                                }
+                                if (caves && depth==15) {
+                                    for(String phase:new String[]{"DM_START","DM_CHARGE","DM_WON"}) {
+                                        RenderEncounter.tengu(hostController(),phase);
+                                        await(()->phase.equals("DM_START") ? frame().dungeon.monsters.containsValue("DM300")
+                                                : phase.equals("DM_CHARGE") ? frame().image.rows.keySet().stream().anyMatch(k->k.startsWith("charge"))
+                                                : !frame().dungeon.monsters.containsValue("DM300") && frame().dungeon.floor.values().stream().anyMatch(i->i.sprite==com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.SHARD));
+                                        shot(phase.toLowerCase(java.util.Locale.ROOT));
+                                    }
                                 }
                                 if (depth == 8) {
                                     RenderEncounter.beside(hostController(), com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Necromancer.class);

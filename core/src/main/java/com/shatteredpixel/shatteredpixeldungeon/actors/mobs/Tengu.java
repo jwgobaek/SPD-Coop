@@ -494,14 +494,7 @@ public class Tengu extends Mob {
 		return targetAbilityUses;
 	}
 	
-	private Hero abilityTarget() {
-		if (Dungeon.coop == null) return Dungeon.hero;
-		if (enemy instanceof Hero && enemy.isAlive()) return (Hero)enemy;
-		Hero host = Dungeon.coop.hero(0), guest = Dungeon.coop.hero(1);
-		if (!host.isAlive()) return guest;
-		if (!guest.isAlive()) return host;
-		return Dungeon.level.distance(pos, guest.pos) < Dungeon.level.distance(pos, host.pos) ? guest : host;
-	}
+
 
 	public boolean useAbility(){
 		Hero victim = abilityTarget();

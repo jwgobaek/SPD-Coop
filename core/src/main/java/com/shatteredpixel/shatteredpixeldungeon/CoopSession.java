@@ -452,7 +452,8 @@ public final class CoopSession implements AutoCloseable {
                 || ((Dungeon.depth==9 || caveDepth()) && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bat.class)
                 || (caveDepth() && (type==Brute.class || type==Shaman.RedShaman.class || type==Shaman.BlueShaman.class || type==Shaman.PurpleShaman.class))
                 || (caveDepth() && Dungeon.depth>=12 && (type==Spinner.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.class))
-                || (caveDepth() && Dungeon.depth>=13 && type==DM200.class)
+                || (caveDepth() && Dungeon.depth>=13 && (type==DM200.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM201.class))
+                || (Dungeon.depth==15 && (type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Pylon.class))
                 || type==CorpseDust.DustWraith.class || (Dungeon.depth>=7 && Dungeon.depth<=9 && (type==Wraith.class || type==TormentedSpirit.class))
                 || type == GnollExile.class || type == PhantomPiranha.class || type == Rat.class || type == Snake.class || type == Gnoll.class || type == Albino.class
                 || type == Mimic.class || type == CrystalMimic.class || type == GoldenMimic.class || type == Sheep.class || type == Bee.class || type == Piranha.class || type == SentryRoom.Sentry.class
@@ -470,6 +471,10 @@ public final class CoopSession implements AutoCloseable {
         // Runic Slash is a hero ability. A statue uses the blade's tier-four passive damage curve.
         if (base == com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.RunicBlade.class)
             return ((Weapon)item).enchantment instanceof Shocking;
+        if (base==com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.AssassinsBlade.class
+                || base==com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Longsword.class)
+            return ((Weapon)item).enchantment instanceof Kinetic;
+        if (base==Scimitar.class && ((Weapon)item).enchantment instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Elastic) return true;
         boolean extendedReach = base == Spear.class || base == Whip.class;
         // Innate reach and Projecting both use the original Weapon.reachFactor.
         if (base == Whip.class && ((Weapon)item).enchantment instanceof Projecting) return false;
@@ -721,7 +726,7 @@ public final class CoopSession implements AutoCloseable {
                 case PICK_UP:
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
-                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && item.getClass()!=GooBlob.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.TengusMask.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand && ownership.owner(item)==player) && !(item instanceof CorpseDust || item instanceof Embers || item instanceof CeremonialCandle || item instanceof Rotberry.Seed) && !(item instanceof Potion) && !supportedScroll(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && item.getClass()!=GooBlob.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.quest.MetalShard.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.TengusMask.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand && ownership.owner(item)==player) && !(item instanceof CorpseDust || item instanceof Embers || item instanceof CeremonialCandle || item instanceof Rotberry.Seed) && !(item instanceof Potion) && !supportedScroll(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
                             || (item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && !hero.belongings.backpack.canHold(item))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
@@ -891,9 +896,15 @@ public final class CoopSession implements AutoCloseable {
         persistent.addAll(Dungeon.level.mobs);
         for (Actor ch : new HashSet<>(persistent)) persistent.addAll(((Char)ch).buffs());
         persistent.addAll(Dungeon.level.blobs.values());
+        if (Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel)
+            persistent.addAll(((com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel)Dungeon.level).pendingGas());
         Actor spawner = Dungeon.level.respawner();
         if (spawner!=null) persistent.add(spawner);
-        if (!persistent.equals(Actor.all())) throw new IllegalStateException("Transient actor at checkpoint");
+        if (!persistent.equals(Actor.all())) {
+            java.util.Set<Actor> extra=new HashSet<>(Actor.all()); extra.removeAll(persistent);
+            java.util.Set<Actor> missing=new HashSet<>(persistent); missing.removeAll(Actor.all());
+            throw new IllegalStateException("Transient actor at checkpoint: extra="+extra+", missing="+missing);
+        }
     }
 
     /** Reconcile a bee with its individual shell when its native floor becomes active again. */
@@ -989,7 +1000,7 @@ public final class CoopSession implements AutoCloseable {
         if (Dungeon.coop!=null || Dungeon.hero!=null || Dungeon.level!=null) throw new IllegalStateException("Dungeon in use");
         Bundle world=b.getBundle("world"), floor=b.getBundle("floor");
         int schema=b.getInt("schema"),depth=world.getInt("depth");
-        if ((schema<1 || schema>8) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
+        if ((schema<1 || schema>9) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
                 (depth<1 || depth>CoopFloors.lastDepth(schema)) || world.getInt("branch")!=0 || world.getInt("challenges")!=0)
             throw new IllegalArgumentException("Unsupported world");
         int width=floor.getInt("width"), height=floor.getInt("height");

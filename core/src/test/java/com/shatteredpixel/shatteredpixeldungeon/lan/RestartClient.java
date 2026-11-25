@@ -382,7 +382,7 @@ public final class RestartClient {
             return;
         }
         if (mode.startsWith("late-down") || mode.startsWith("late-up")) {
-            int from=Integer.parseInt(mode.substring(mode.length()-1));
+            int from=Integer.parseInt(mode.replaceFirst("^late-(down|up)", ""));
             assertEquals(from,new PublicDungeon(state(0)).depth);
             if (mode.equals("late-up9")) {
                 String[] prior=RestartHost.read(path,"ninth-crossing").split(" ",3);
@@ -419,6 +419,13 @@ public final class RestartClient {
             String verb=boundary.equals("revive") ? "REVIVE" : boundary.equals("down") || boundary.equals("devices") ? "WAIT" : boundary.equals("claim") ? "PICK_UP"
                     : boundary.equals("enter") || boundary.equals("arena") ? "MOVE" : "ATTACK";
             boolean interior=boundary.startsWith("interior-");
+            boolean dm=boundary.startsWith("dm-");
+            if (dm) {
+                String name=boundary.substring(3);
+                travel=name.equals("visit") || name.equals("return") || name.equals("revisit");
+                verb=name.equals("enter")?"MOVE":name.equals("reward")?"PICK_UP":name.equals("revive")?"REVIVE"
+                        :name.equals("down") || name.equals("devices")?"WAIT":"ATTACK";
+            }
             if (interior) {
                 String name=boundary.substring(9);
                 travel=Character.isDigit(name.charAt(0));
@@ -428,7 +435,8 @@ public final class RestartClient {
             for (int i=0;i<40;i++) {
                 int seat=active();
                 PublicDungeon view=new PublicDungeon(state(seat));
-                if (interior) assertEquals(travel ? Integer.parseInt(boundary.substring(9))-1 : boundary.contains("web")?12:13,view.depth);
+                if (dm) assertEquals(boundary.equals("dm-visit") || boundary.equals("dm-revisit") ? 14 : 15,view.depth);
+                else if (interior) assertEquals(travel ? Integer.parseInt(boundary.substring(9))-1 : boundary.contains("web")?12:13,view.depth);
                 else assertEquals(boundary.equals("ten") ? 9 : boundary.equals("return") ? 11 : 10,view.depth);
                 long handle=verb.equals("PICK_UP") ? view.floor.get(cell).id : 0;
                 SeatActions.Pending p=travel ? consentAndCross() : actions[seat].prepare(state(seat),verb,verb.equals("WAIT") ? 0 : cell,handle);
@@ -459,10 +467,10 @@ public final class RestartClient {
             assertEquals(receipt,clients[seat].request(prior[2]));
             refresh();
             assertEquals(version,state(seat).version);
-            if (mode.equals("tengu-read-devices")) {
+            if (mode.equals("tengu-read-devices") || mode.equals("tengu-read-dm-devices")) {
                 for (int i=0;i<21;i++) act("WAIT",0,0);
                 Collections.sort(latency);
-                System.out.println("tengu_tcp restored_arena_waits="+latency.size()+" median_us="+latency.get(10)+" p95_us="+latency.get(19));
+                System.out.println("tengu_tcp mode="+mode+" restored_arena_waits="+latency.size()+" median_us="+latency.get(10)+" p95_us="+latency.get(19));
             } else act("WAIT",0,0);
             return;
         }

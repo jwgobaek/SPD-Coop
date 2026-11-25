@@ -44,7 +44,7 @@ public class FrostTrap extends Trap {
 	@Override
 	public void activate() {
 		
-		if (Dungeon.level.heroFOV[ pos ]){
+		if (Dungeon.coop==null && Dungeon.level.heroFOV[ pos ]){
 			Splash.at( pos, 0xFFB2D6FF, 5);
 			Sample.INSTANCE.play( Assets.Sounds.SHATTER );
 		}

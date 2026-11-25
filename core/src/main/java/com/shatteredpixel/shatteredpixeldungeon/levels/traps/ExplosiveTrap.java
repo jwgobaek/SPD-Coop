@@ -46,7 +46,7 @@ public class ExplosiveTrap extends Trap {
 		}
 
 		new Bomb().explode(pos);
-		if (reclaimed && !Dungeon.hero.isAlive()) {
+		if (Dungeon.coop==null && reclaimed && !Dungeon.hero.isAlive()) {
 			Badges.validateDeathFromFriendlyMagic();
 		}
 	}

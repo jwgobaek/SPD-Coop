@@ -150,7 +150,7 @@ public class DM300 extends Mob {
 		abilityCooldown = bundle.getInt(ABILITY_COOLDOWN);
 		lastAbility = bundle.getInt(LAST_ABILITY);
 
-		if (turnsSinceLastAbility != -1){
+		if (Dungeon.coop == null && turnsSinceLastAbility != -1){
 			BossHealthBar.assignBoss(this);
 			if (!supercharged && pylonsActivated == totalPylonsToActivate()) BossHealthBar.bleed(true);
 		}
@@ -162,6 +162,8 @@ public class DM300 extends Mob {
 		if (paralysed > 0){
 			return super.act();
 		}
+
+		Char heroTarget = abilityTarget();
 
 		//ability logic only triggers if DM is not supercharged
 		if (!supercharged){
@@ -176,10 +178,10 @@ public class DM300 extends Mob {
 			//determine if DM can reach its enemy
 			boolean canReach;
 			if (enemy == null || !enemy.isAlive()){
-				if (Dungeon.level.adjacent(pos, Dungeon.hero.pos)){
+				if (Dungeon.level.adjacent(pos, heroTarget.pos)){
 					canReach = true;
 				} else {
-					canReach = (Dungeon.findStep(this, Dungeon.hero.pos, Dungeon.level.openSpace, fieldOfView, true) != -1);
+					canReach = (Dungeon.findStep(this, heroTarget.pos, Dungeon.level.openSpace, fieldOfView, true) != -1);
 				}
 			} else {
 				if (Dungeon.level.adjacent(pos, enemy.pos)){
@@ -190,13 +192,13 @@ public class DM300 extends Mob {
 			}
 
 			if (state != HUNTING){
-				if (Dungeon.hero.invisible <= 0 && canReach){
-					beckon(Dungeon.hero.pos);
+				if (heroTarget.invisible <= 0 && canReach){
+					beckon(heroTarget.pos);
 				}
 			} else {
 
-				if ((enemy == null || !enemy.isAlive()) && Dungeon.hero.invisible <= 0) {
-					enemy = Dungeon.hero;
+				if ((enemy == null || !enemy.isAlive()) && heroTarget.invisible <= 0) {
+					enemy = heroTarget;
 				}
 
 				//more aggressive ability usage when DM can't reach its target
@@ -210,12 +212,12 @@ public class DM300 extends Mob {
 							lastAbility = GAS;
 							turnsSinceLastAbility = 0;
 
-							if (sprite != null && (sprite.visible || enemy.sprite.visible)) {
+							if (Dungeon.coop == null && sprite != null && (sprite.visible || enemy.sprite.visible)) {
 								sprite.zap(enemy.pos);
 								return false;
 							} else {
 								ventGas(enemy);
-								Sample.INSTANCE.play(Assets.Sounds.GAS);
+								if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop==null) Sample.INSTANCE.play(Assets.Sounds.GAS);
 								return true;
 							}
 						//if we can't gas, or if target is inorganic then drop rocks
@@ -223,12 +225,12 @@ public class DM300 extends Mob {
 						} else if (enemy.paralysed <= 0) {
 							lastAbility = ROCKS;
 							turnsSinceLastAbility = 0;
-							if (sprite != null && (sprite.visible || enemy.sprite.visible)) {
+							if (Dungeon.coop == null && sprite != null && (sprite.visible || enemy.sprite.visible)) {
 								((DM300Sprite)sprite).slam(enemy.pos);
 								return false;
 							} else {
 								dropRocks(enemy);
-								Sample.INSTANCE.play(Assets.Sounds.ROCKS);
+								if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop==null) Sample.INSTANCE.play(Assets.Sounds.ROCKS);
 								return true;
 							}
 						}
@@ -262,21 +264,21 @@ public class DM300 extends Mob {
 						abilityCooldown = Random.NormalIntRange(MIN_COOLDOWN, MAX_COOLDOWN);
 
 						if (lastAbility == GAS) {
-							if (sprite != null && (sprite.visible || enemy.sprite.visible)) {
+							if (Dungeon.coop == null && sprite != null && (sprite.visible || enemy.sprite.visible)) {
 								sprite.zap(enemy.pos);
 								return false;
 							} else {
 								ventGas(enemy);
-								Sample.INSTANCE.play(Assets.Sounds.GAS);
+								if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop==null) Sample.INSTANCE.play(Assets.Sounds.GAS);
 								return true;
 							}
 						} else {
-							if (sprite != null && (sprite.visible || enemy.sprite.visible)) {
+							if (Dungeon.coop == null && sprite != null && (sprite.visible || enemy.sprite.visible)) {
 								((DM300Sprite)sprite).slam(enemy.pos);
 								return false;
 							} else {
 								dropRocks(enemy);
-								Sample.INSTANCE.play(Assets.Sounds.ROCKS);
+								if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop==null) Sample.INSTANCE.play(Assets.Sounds.ROCKS);
 								return true;
 							}
 						}
@@ -290,10 +292,10 @@ public class DM300 extends Mob {
 				chargeAnnounced = true;
 			}
 
-			if (Dungeon.hero.invisible <= 0){
-				beckon(Dungeon.hero.pos);
+			if (heroTarget.invisible <= 0){
+				beckon(heroTarget.pos);
 				state = HUNTING;
-				enemy = Dungeon.hero;
+				enemy = heroTarget;
 			}
 
 		}
@@ -303,7 +305,7 @@ public class DM300 extends Mob {
 
 	@Override
 	public boolean attack(Char enemy, float dmgMulti, float dmgBonus, float accMulti) {
-		if (enemy == Dungeon.hero && supercharged){
+		if ((enemy == Dungeon.hero || (Dungeon.coop!=null && Dungeon.coop.playerOf(enemy)!=0)) && supercharged){
 			Statistics.qualifiedForBossChallengeBadge = false;
 		}
 		return super.attack(enemy, dmgMulti, dmgBonus, accMulti);
@@ -313,7 +315,7 @@ public class DM300 extends Mob {
 	protected Char chooseEnemy() {
 		Char enemy = super.chooseEnemy();
 		if (supercharged && enemy == null){
-			enemy = Dungeon.hero;
+			enemy = abilityTarget();
 		}
 		return enemy;
 	}
@@ -322,7 +324,7 @@ public class DM300 extends Mob {
 	public void move(int step, boolean travelling) {
 		super.move(step, travelling);
 
-		if (travelling) PixelScene.shake( supercharged ? 3 : 1, 0.25f );
+		if (Dungeon.coop == null && travelling) PixelScene.shake( supercharged ? 3 : 1, 0.25f );
 
 		if (!flying && Dungeon.level.map[pos] == Terrain.INACTIVE_TRAP && state == HUNTING) {
 
@@ -331,11 +333,11 @@ public class DM300 extends Mob {
 				return;
 			}
 
-			if (Dungeon.level.heroFOV[pos]) {
+			if (Dungeon.coop == null && Dungeon.level.heroFOV[pos]) {
 				if (buff(Barrier.class) == null) {
 					GLog.w(Messages.get(this, "shield"));
 				}
-				Sample.INSTANCE.play(Assets.Sounds.LIGHTNING);
+				if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop==null) Sample.INSTANCE.play(Assets.Sounds.LIGHTNING);
 				sprite.emitter().start(SparkParticle.STATIC, 0.05f, 20);
 				sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(30 + (HT - HP)/10), FloatingText.SHIELDING);
 			}
@@ -353,8 +355,8 @@ public class DM300 extends Mob {
 	@Override
 	public void notice() {
 		super.notice();
-		if (!BossHealthBar.isAssigned()) {
-			BossHealthBar.assignBoss(this);
+		if (Dungeon.coop == null ? !BossHealthBar.isAssigned() : turnsSinceLastAbility==-1) {
+			if (Dungeon.coop == null) BossHealthBar.assignBoss(this);
 			turnsSinceLastAbility = 0;
 			yell(Messages.get(this, "notice"));
 			for (Char ch : Actor.chars()){
@@ -371,34 +373,63 @@ public class DM300 extends Mob {
 	}
 
 	public void ventGas( Char target ){
-		Dungeon.hero.interrupt();
+		if (Dungeon.coop == null) Dungeon.hero.interrupt();
+		else if (target instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero) ((com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero)target).interrupt();
 
 		Ballistica trajectory = new Ballistica(pos, target.pos, Ballistica.STOP_TARGET);
 
 		int gasMulti = Dungeon.isChallenged(Challenges.STRONGER_BOSSES) ? 2 : 1;
 
 		//we delay the gas generation to just before the target acts, to prevent cases where partial turns can result in instant gas damage
-		Actor.addDelayed(new Actor() {
-			{ actPriority = VFX_PRIO; } //add the gas before any other actor at that time
-			@Override
-			protected boolean act() {
-				int gasVented = 0;
-				GameScene.add(Blob.seed(trajectory.collisionPos, 100*gasMulti, ToxicGas.class));
-				for (int i : trajectory.subPath(0, trajectory.dist)){
-					GameScene.add(Blob.seed(i, 20*gasMulti, ToxicGas.class));
-					gasVented += 20*gasMulti;
-				}
-				if (gasVented < 250*gasMulti){
-					int toVentAround = (int)Math.ceil(((250*gasMulti) - gasVented)/8f);
-					for (int i : PathFinder.NEIGHBOURS8){
-						GameScene.add(Blob.seed(pos+i, toVentAround, ToxicGas.class));
-					}
-				}
-				Actor.remove(this);
-				return true;
-			}
-		}, target.cooldown());
+		PendingGas gas = new PendingGas();
+		gas.source=this;
+		gas.sourceId=id();
+		gas.lastSourcePos=pos;
+		gas.impact=trajectory.collisionPos;
+		gas.cells=trajectory.subPath(0,trajectory.dist).stream().mapToInt(Integer::intValue).toArray();
+		gas.multiplier=gasMulti;
+		if (Dungeon.coop != null) ((CavesBossLevel)Dungeon.level).trackGas(gas);
+		Actor.addDelayed(gas,target.cooldown());
+	}
 
+	/** The gas arrives just before its target's next turn, even if another hero acts first. */
+	public static class PendingGas extends Actor {
+		{ actPriority=VFX_PRIO; }
+		private DM300 source;
+		private int sourceId,lastSourcePos,impact,multiplier;
+		private int[] cells;
+
+		@Override protected boolean act() {
+			if (source==null && Actor.findById(sourceId) instanceof DM300) source=(DM300)Actor.findById(sourceId);
+			int center=source==null ? lastSourcePos : source.pos;
+			int vented=0;
+			GameScene.add(Blob.seed(impact,100*multiplier,ToxicGas.class));
+			for (int cell:cells) {
+				GameScene.add(Blob.seed(cell,20*multiplier,ToxicGas.class));
+				vented+=20*multiplier;
+			}
+			if (vented<250*multiplier) {
+				int amount=(int)Math.ceil((250*multiplier-vented)/8f);
+				for (int offset:PathFinder.NEIGHBOURS8) GameScene.add(Blob.seed(center+offset,amount,ToxicGas.class));
+			}
+			if (Dungeon.coop!=null) ((CavesBossLevel)Dungeon.level).finishGas(this);
+			Actor.remove(this);
+			return true;
+		}
+
+		@Override public void storeInBundle(Bundle b) {
+			super.storeInBundle(b);
+			b.put("caster",sourceId);
+			b.put("origin",source==null?lastSourcePos:source.pos);
+			b.put("impact",impact);
+			b.put("cells",cells);
+			b.put("multiplier",multiplier);
+		}
+		@Override public void restoreFromBundle(Bundle b) {
+			super.restoreFromBundle(b);
+			sourceId=b.getInt("caster");lastSourcePos=b.getInt("origin");
+			impact=b.getInt("impact");cells=b.getIntArray("cells");multiplier=b.getInt("multiplier");
+		}
 	}
 
 	public void onSlamComplete(){
@@ -408,7 +439,8 @@ public class DM300 extends Mob {
 
 	public void dropRocks( Char target ) {
 
-		Dungeon.hero.interrupt();
+		if (Dungeon.coop == null) Dungeon.hero.interrupt();
+		else if (target instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero) ((com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero)target).interrupt();
 		final int rockCenter;
 
 		//knock back 2 tiles if adjacent
@@ -416,9 +448,7 @@ public class DM300 extends Mob {
 			int oppositeAdjacent = target.pos + (target.pos - pos);
 			Ballistica trajectory = new Ballistica(target.pos, oppositeAdjacent, Ballistica.MAGIC_BOLT);
 			WandOfBlastWave.throwChar(target, trajectory, 2, false, false, this);
-			if (target == Dungeon.hero){
-				Dungeon.hero.interrupt();
-			}
+			if (Dungeon.coop == null && target == Dungeon.hero) Dungeon.hero.interrupt();
 			rockCenter = trajectory.path.get(Math.min(trajectory.dist, 2));
 
 		//knock back 1 tile if there's 1 tile of space
@@ -426,9 +456,7 @@ public class DM300 extends Mob {
 			int oppositeAdjacent = target.pos + (target.pos - pos);
 			Ballistica trajectory = new Ballistica(target.pos, oppositeAdjacent, Ballistica.MAGIC_BOLT);
 			WandOfBlastWave.throwChar(target, trajectory, 1, false, false, this);
-			if (target == Dungeon.hero){
-				Dungeon.hero.interrupt();
-			}
+			if (Dungeon.coop == null && target == Dungeon.hero) Dungeon.hero.interrupt();
 			rockCenter = trajectory.path.get(Math.min(trajectory.dist, 1));
 
 		//otherwise no knockback
@@ -463,7 +491,7 @@ public class DM300 extends Mob {
 		}
 		float delay = GameMath.gate(TICK, (int)Math.ceil(target.cooldown()), 3*TICK);
 		for (int i : rockCells){
-			GameScene.targetedCell(i, delay);
+			if (Dungeon.coop == null) GameScene.targetedCell(i, delay);
 		}
 		//don't want to overly punish players with slow move or attack speed
 		Buff.append(this, FallingRockBuff.class, delay).setRockPositions(rockCells);
@@ -474,7 +502,7 @@ public class DM300 extends Mob {
 
 	@Override
 	public void damage(int dmg, Object src) {
-		if (!BossHealthBar.isAssigned()){
+		if (Dungeon.coop == null ? !BossHealthBar.isAssigned() : turnsSinceLastAbility==-1){
 			notice();
 		}
 
@@ -485,8 +513,8 @@ public class DM300 extends Mob {
 		}
 
 		int dmgTaken = preHP - HP;
-		if (dmgTaken > 0) {
-			LockedFloor lock = Dungeon.hero.buff(LockedFloor.class);
+		if (dmgTaken > 0) for (int seat=0;seat<(Dungeon.coop==null?1:2);seat++) {
+			LockedFloor lock = (Dungeon.coop==null ? Dungeon.hero : Dungeon.coop.hero(seat)).buff(LockedFloor.class);
 			if (lock != null && !isImmune(src.getClass()) && !isInvulnerable(src.getClass())){
 				if (Dungeon.isChallenged(Challenges.STRONGER_BOSSES))   lock.addTime(dmgTaken/2f);
 				else                                                    lock.addTime(dmgTaken);
@@ -522,14 +550,14 @@ public class DM300 extends Mob {
 
 	public void supercharge(){
 		supercharged = true;
-		((CavesBossLevel)Dungeon.level).activatePylon();
+		((CavesBossLevel)Dungeon.level).activatePylon(abilityTarget().pos);
 		pylonsActivated++;
 
 		spend(Dungeon.isChallenged(Challenges.STRONGER_BOSSES) ? 2f : 3f);
 		yell(Messages.get(this, "charging"));
 		sprite.showStatus(CharSprite.POSITIVE, Messages.get(this, "invulnerable"));
-		((DM300Sprite)sprite).updateChargeState(true);
-		((DM300Sprite)sprite).charge();
+		if (Dungeon.coop == null) ((DM300Sprite)sprite).updateChargeState(true);
+		if (Dungeon.coop == null) ((DM300Sprite)sprite).charge();
 		chargeAnnounced = false;
 
 	}
@@ -540,7 +568,7 @@ public class DM300 extends Mob {
 
 	public void loseSupercharge(){
 		supercharged = false;
-		((DM300Sprite)sprite).updateChargeState(false);
+		if (Dungeon.coop == null) ((DM300Sprite)sprite).updateChargeState(false);
 
 		//adjust turns since last ability to prevent DM immediately using an ability when charge ends
 		turnsSinceLastAbility = Math.min(turnsSinceLastAbility, MIN_COOLDOWN-3);
@@ -549,8 +577,8 @@ public class DM300 extends Mob {
 			yell(Messages.get(this, "charge_lost"));
 		} else {
 			yell(Messages.get(this, "pylons_destroyed"));
-			BossHealthBar.bleed(true);
-			Game.runOnRenderThread(new Callback() {
+			if (Dungeon.coop == null) BossHealthBar.bleed(true);
+			if (Dungeon.coop == null) Game.runOnRenderThread(new Callback() {
 				@Override
 				public void call() {
 					Music.INSTANCE.fadeOut(0.5f, new Callback() {
@@ -572,9 +600,11 @@ public class DM300 extends Mob {
 	@Override
 	public void die( Object cause ) {
 
+		if (Dungeon.coop != null) for (PendingGas gas:((CavesBossLevel)Dungeon.level).pendingGas())
+			if (gas.sourceId==id()) gas.lastSourcePos=pos;
 		super.die( cause );
 
-		GameScene.bossSlain();
+		if (Dungeon.coop == null) GameScene.bossSlain();
 		Dungeon.level.unseal();
 
 		//60% chance of 2 shards, 30% chance of 3, 10% chance for 4. Average of 2.5
@@ -584,18 +614,19 @@ public class DM300 extends Mob {
 			do {
 				ofs = PathFinder.NEIGHBOURS8[Random.Int(8)];
 			} while (!Dungeon.level.passable[pos + ofs]);
-			Dungeon.level.drop( new MetalShard(), pos + ofs ).sprite.drop( pos );
+			com.shatteredpixel.shatteredpixeldungeon.items.Heap drop = Dungeon.level.drop(new MetalShard(), pos+ofs);
+			if (Dungeon.coop == null) drop.sprite.drop(pos);
 		}
 
-		Badges.validateBossSlain();
-		if (Statistics.qualifiedForBossChallengeBadge){
+		if (Dungeon.coop == null) Badges.validateBossSlain();
+		if (Dungeon.coop == null && Statistics.qualifiedForBossChallengeBadge){
 			Badges.validateBossChallengeCompleted();
 		}
 		Statistics.bossScores[2] += 3000;
 
-		LloydsBeacon beacon = Dungeon.hero.belongings.getItem(LloydsBeacon.class);
-		if (beacon != null) {
-			beacon.upgrade();
+		for (int seat=0;seat<(Dungeon.coop==null?1:2);seat++) {
+			LloydsBeacon beacon=(Dungeon.coop==null?Dungeon.hero:Dungeon.coop.hero(seat)).belongings.getItem(LloydsBeacon.class);
+			if (beacon!=null) beacon.upgrade();
 		}
 
 		yell( Messages.get(this, "defeated") );
@@ -619,7 +650,7 @@ public class DM300 extends Mob {
 				}
 			}
 			if (bestpos != pos){
-				Sample.INSTANCE.play( Assets.Sounds.ROCKS );
+				if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop==null) Sample.INSTANCE.play( Assets.Sounds.ROCKS );
 
 				Rect gate = CavesBossLevel.gate;
 				for (int i : PathFinder.NEIGHBOURS9){
@@ -653,7 +684,7 @@ public class DM300 extends Mob {
 				if (bestpos != pos) {
 					move(bestpos);
 				}
-				PixelScene.shake( 5, 1f );
+				if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop==null) PixelScene.shake( 5, 1f );
 
 				return true;
 			}
@@ -696,7 +727,7 @@ public class DM300 extends Mob {
 				}
 				if (ch.isAlive()) {
 					Buff.prolong(ch, Paralysis.class, Dungeon.isChallenged(Challenges.STRONGER_BOSSES) ? 5 : 3);
-				} else if (ch == Dungeon.hero){
+				} else if (Dungeon.coop==null && ch == Dungeon.hero){
 					Dungeon.fail( target );
 					GLog.n( Messages.get( GnollGeomancer.class, "rockfall_kill") );
 				}

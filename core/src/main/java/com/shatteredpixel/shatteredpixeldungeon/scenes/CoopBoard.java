@@ -16,14 +16,14 @@ import com.watabou.utils.PointF;
 /** A viewport over the verified seat map. No Char, Level or actor-linked sprite is constructed here. */
 final class CoopBoard extends Group {
     private static final int TILE=16;
-    private static final int[] CLOUD_COLORS = {0x77ED6525, 0x667EDFFF, 0x66E5E067, 0x664AA940, 0x669E60CD};
+    private static final int[] CLOUD_COLORS = {0x77ED6525, 0x667EDFFF, 0x66E5E067, 0x664AA940, 0x669E60CD, 0x778D8B36};
     interface Input { void tap(PublicDungeon view, int cell); }
 
     private final DungeonRenderMap map;
     private final Tilemap[] layers;
     private final FogOfWar fog;
     private final SkinnedBlock water;
-    private final Map<Integer,com.watabou.noosa.particles.Emitter> webs = new HashMap<>();
+    private final Map<String,com.watabou.noosa.particles.Emitter> webs = new HashMap<>();
     private final Group markings = new Group();
     private final Group heaps = new Group();
     private final Group actors = new Group();
@@ -111,9 +111,9 @@ final class CoopBoard extends Group {
         if (follow) camera.snapTo(center);
         trackViewport();
 
-        for (Iterator<Map.Entry<Integer,com.watabou.noosa.particles.Emitter>> it=webs.entrySet().iterator();it.hasNext();) {
-            Map.Entry<Integer,com.watabou.noosa.particles.Emitter> web=it.next();
-            if (!view.source.rows.containsKey("web"+web.getKey())) {
+        for (Iterator<Map.Entry<String,com.watabou.noosa.particles.Emitter>> it=webs.entrySet().iterator();it.hasNext();) {
+            Map.Entry<String,com.watabou.noosa.particles.Emitter> web=it.next();
+            if (!view.source.rows.containsKey(web.getKey())) {
                 markings.remove(web.getValue());
                 web.getValue().destroy();
                 it.remove();
@@ -126,12 +126,16 @@ final class CoopBoard extends Group {
             if (key.charAt(0)=='m' && Character.isDigit(key.charAt(1))) {
                 String[] mob = value.split(",");
                 int cell = Integer.parseInt(mob[0]);
-                Image sprite=object(keep, key+":"+mob[1],cell,()->{
+                boolean charged=view.source.rows.containsKey("charge"+cell);
+                boolean bossForm=charged && ("Pylon".equals(mob[1]) || "DM300".equals(mob[1]));
+                Image sprite=object(keep, key+":"+mob[1]+(bossForm?":active":""),cell,()->{
                     Image result=monster(mob[1]);
                     if ("ArmoredStatue".equals(mob[1])) {
                         String tier=view.source.rows.get("mail"+key.substring(1));
                         if (tier!=null) ((StatueSprite)result).setArmor(Integer.parseInt(tier));
                     }
+                    if (bossForm && result instanceof PylonSprite) ((PylonSprite)result).activate();
+                    if (bossForm && result instanceof DM300Sprite) ((DM300Sprite)result).updateChargeState(true);
                     return result;
                 });
                 boolean charging=view.source.rows.containsKey("charge"+cell);
@@ -151,14 +155,16 @@ final class CoopBoard extends Group {
             } else if (key.startsWith("sale")) {
                 int cell=Integer.parseInt(key.substring(4)), image=Integer.parseInt(value);
                 object(keep,key+":"+image,cell,()->new ItemSprite(image));
-            } else if (key.startsWith("web")) {
-                int cell=Integer.parseInt(key.substring(3));
-                if (!webs.containsKey(cell)) {
+            } else if (key.startsWith("web") || key.startsWith("rocks")) {
+                boolean rocks=key.startsWith("rocks");
+                int cell=Integer.parseInt(key.substring(rocks?5:3));
+                if (!webs.containsKey(key)) {
                     com.watabou.noosa.particles.Emitter emitter=new com.watabou.noosa.particles.Emitter();
                     markings.add(emitter);
                     emitter.pos(center(cell));
-                    emitter.pour(com.shatteredpixel.shatteredpixeldungeon.effects.particles.WebParticle.FACTORY,0.25f);
-                    webs.put(cell,emitter);
+                    if (rocks) emitter.pour(com.shatteredpixel.shatteredpixeldungeon.effects.particles.EarthParticle.FALLING,0.1f);
+                    else emitter.pour(com.shatteredpixel.shatteredpixeldungeon.effects.particles.WebParticle.FACTORY,0.25f);
+                    webs.put(key,emitter);
                 }
             } else if (key.startsWith("stench") || key.startsWith("cloud")) {
                 boolean stench=key.startsWith("stench");
@@ -296,6 +302,9 @@ final class CoopBoard extends Group {
                     case "RedShaman": sprite=new ShamanSprite.Red();break;
                     case "Spinner": sprite=new SpinnerSprite();break;
                     case "Blacksmith": sprite=new BlacksmithSprite();break;
+                    case "DM300": sprite=new DM300Sprite();break;
+                    case "Pylon": sprite=new PylonSprite();break;
+                    case "DM201": sprite=new DM201Sprite();break;
                     case "DM200": sprite=new DM200Sprite();break;
                     case "BlueShaman": sprite=new ShamanSprite.Blue();break;
                     case "PurpleShaman": sprite=new ShamanSprite.Purple();break;

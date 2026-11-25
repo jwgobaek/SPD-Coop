@@ -112,6 +112,17 @@ public class CavesBossLevel extends Level {
 	public static int[] pylonPositions = new int[]{ 4 + 13*WIDTH, 28 + 13*WIDTH, 4 + 37*WIDTH, 28 + 37*WIDTH };
 
 	private ArenaVisuals customArenaVisuals;
+	private final java.util.List<DM300.PendingGas> gas=new java.util.ArrayList<>();
+	public java.util.List<DM300.PendingGas> pendingGas() { return java.util.Collections.unmodifiableList(gas); }
+	public void trackGas(DM300.PendingGas actor) { gas.add(actor); }
+	public void finishGas(DM300.PendingGas actor) { gas.remove(actor); }
+
+	@Override public void storeInBundle(Bundle b) {
+		super.storeInBundle(b);
+		if (!gas.isEmpty()) b.put("pending_gas",gas);
+	}
+
+	public boolean exitOpen() { return !locked && !solid[gate.left+gate.top*width()]; }
 
 	@Override
 	protected boolean build() {
@@ -196,6 +207,8 @@ public class CavesBossLevel extends Level {
 	@Override
 	public void restoreFromBundle(Bundle bundle) {
 		super.restoreFromBundle(bundle);
+		gas.clear();
+		if (bundle.contains("pending_gas")) for (com.watabou.utils.Bundlable a:bundle.getCollection("pending_gas")) gas.add((DM300.PendingGas)a);
 
 		for (CustomTilemap c : customTiles){
 			if (c instanceof ArenaVisuals){
@@ -282,7 +295,7 @@ public class CavesBossLevel extends Level {
 	public void occupyCell(Char ch) {
 		//seal the level when the hero moves near to a pylon, the level isn't already sealed, and the gate hasn't been destroyed
 		int gatePos = pointToCell(new Point(gate.left, gate.top));
-		if (ch == Dungeon.hero && !locked && solid[gatePos]){
+		if ((ch == Dungeon.hero || (Dungeon.coop!=null && Dungeon.coop.playerOf(ch)!=0)) && !locked && solid[gatePos]){
 			for (int pos : pylonPositions){
 				if (Dungeon.level.distance(ch.pos, pos) <= 3){
 					seal();
@@ -317,7 +330,7 @@ public class CavesBossLevel extends Level {
 			int n;
 			do {
 				n = entrance + PathFinder.NEIGHBOURS8[Random.Int( 8 )];
-			} while (!Dungeon.level.passable[n]);
+			} while (!Dungeon.level.passable[n] || (Dungeon.coop!=null && Actor.findChar(n)!=null));
 			ch.pos = n;
 			ch.sprite.place(n);
 		}
@@ -325,9 +338,9 @@ public class CavesBossLevel extends Level {
 		GameScene.updateMap( entrance );
 		Dungeon.observe();
 
-		CellEmitter.get( entrance ).start( Speck.factory( Speck.ROCK ), 0.07f, 10 );
-		PixelScene.shake( 3, 0.7f );
-		Sample.INSTANCE.play( Assets.Sounds.ROCKS );
+		if (Dungeon.coop==null) CellEmitter.get( entrance ).start( Speck.factory( Speck.ROCK ), 0.07f, 10 );
+		if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop==null) PixelScene.shake( 3, 0.7f );
+		if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop==null) Sample.INSTANCE.play( Assets.Sounds.ROCKS );
 
 		DM300 boss = new DM300();
 		boss.state = boss.WANDERING;
@@ -336,7 +349,7 @@ public class CavesBossLevel extends Level {
 		} while (!openSpace[boss.pos] || map[boss.pos] == Terrain.EMPTY_SP || Actor.findChar(boss.pos) != null);
 		GameScene.add( boss );
 
-		Game.runOnRenderThread(new Callback() {
+		if (Dungeon.coop==null) Game.runOnRenderThread(new Callback() {
 			@Override
 			public void call() {
 				Music.INSTANCE.play(Assets.Music.CAVES_BOSS, true);
@@ -355,7 +368,7 @@ public class CavesBossLevel extends Level {
 		int i = gate.top*width();
 		for (int j = gate.left; j < gate.right; j++){
 			set( i+j, Terrain.EMPTY );
-			if (Dungeon.level.heroFOV[i+j]){
+			if (Dungeon.coop==null && Dungeon.level.heroFOV[i+j]){
 				CellEmitter.get(i+j).burst(BlastParticle.FACTORY, 10);
 			}
 		}
@@ -365,7 +378,7 @@ public class CavesBossLevel extends Level {
 
 		Dungeon.observe();
 
-		Game.runOnRenderThread(new Callback() {
+		if (Dungeon.coop==null) Game.runOnRenderThread(new Callback() {
 			@Override
 			public void call() {
 				Music.INSTANCE.fadeOut(5f, new Callback() {
@@ -379,7 +392,9 @@ public class CavesBossLevel extends Level {
 
 	}
 
-	public void activatePylon(){
+	public void activatePylon(){ activatePylon(Dungeon.hero.pos); }
+
+	public void activatePylon(int targetPos){
 		ArrayList<Pylon> pylons = new ArrayList<>();
 		for (Mob m : mobs){
 			if (m instanceof Pylon && m.alignment == Char.Alignment.NEUTRAL){
@@ -387,12 +402,13 @@ public class CavesBossLevel extends Level {
 			}
 		}
 
+		if (Dungeon.coop!=null) pylons.sort(java.util.Comparator.comparingInt(Pylon::id));
 		if (pylons.size() == 1){
 			pylons.get(0).activate();
 		} else if (!pylons.isEmpty()) {
 			Pylon closest = null;
 			for (Pylon p : pylons){
-				if (closest == null || trueDistance(p.pos, Dungeon.hero.pos) < trueDistance(closest.pos, Dungeon.hero.pos)){
+				if (closest == null || trueDistance(p.pos, targetPos) < trueDistance(closest.pos, targetPos)){
 					closest = p;
 				}
 			}
@@ -649,7 +665,16 @@ public class CavesBossLevel extends Level {
 	 * Visual Effects
 	 */
 
-	public static class CityEntrance extends CustomTilemap{
+	public static abstract class CaveOverlay extends CustomTilemap {
+		public abstract int[] frames();
+		@Override public Tilemap create() {
+			Tilemap view=super.create();
+			view.map(frames(),tileW);
+			return view;
+		}
+	}
+
+	public static class CityEntrance extends CaveOverlay{
 
 		{
 			texture = Assets.Environment.CAVES_BOSS;
@@ -670,8 +695,7 @@ public class CavesBossLevel extends Level {
 		};
 
 		@Override
-		public Tilemap create() {
-			Tilemap v = super.create();
+		public int[] frames() {
 			int[] data = new int[tileW*tileH];
 			int entryPos = 0;
 			for (int i = 0; i < data.length; i++){
@@ -701,13 +725,12 @@ public class CavesBossLevel extends Level {
 				}
 			}
 
-			v.map( data, tileW );
-			return v;
+			return data;
 		}
 
 	}
 
-	public static class EntranceTerrain extends CustomTilemap {
+	public static class EntranceTerrain extends CaveOverlay {
 
 		{
 			texture = Assets.Environment.CAVES_BOSS;
@@ -728,16 +751,14 @@ public class CavesBossLevel extends Level {
 		};
 
 		@Override
-		public Tilemap create() {
-			Tilemap v = super.create();
+		public int[] frames() {
 			int[] data = new int[tileW*tileH];
 			int entryPos = 0;
 			for (int i = 0; i < data.length; i++){
 				data[i] = entryWay[entryPos++];
 			}
 
-			v.map( data, tileW );
-			return v;
+			return data;
 		}
 
 		@Override
@@ -746,7 +767,7 @@ public class CavesBossLevel extends Level {
 		}
 	}
 
-	public static class EntranceOverhang extends CustomTilemap{
+	public static class EntranceOverhang extends CaveOverlay{
 
 		{
 			texture = Assets.Environment.CAVES_BOSS;
@@ -767,8 +788,7 @@ public class CavesBossLevel extends Level {
 		};
 
 		@Override
-		public Tilemap create() {
-			Tilemap v = super.create();
+		public int[] frames() {
 			int[] data = new int[tileW*tileH];
 			int entryPos = 0;
 			for (int i = 0; i < data.length; i++){
@@ -784,64 +804,57 @@ public class CavesBossLevel extends Level {
 					data[i] = -1;
 				}
 			}
-			v.map( data, tileW );
-			return v;
+			return data;
 		}
 
 	}
 
-	public static class ArenaVisuals extends CustomTilemap {
+	public static class ArenaVisuals extends CaveOverlay {
 
 		{
 			texture = Assets.Environment.CAVES_BOSS;
 		}
 
-		@Override
-		public Tilemap create() {
-			Tilemap v = super.create();
-			updateState( );
-
-			return v;
+		public void updateState() {
+			if (vis!=null) vis.map(frames(),tileW);
 		}
 
-		public void updateState( ){
-			if (vis != null){
-				int[] data = new int[tileW*tileH];
-				int j = Dungeon.level.width() * tileY;
-				for (int i = 0; i < data.length; i++){
+		@Override public int[] frames() {
+			int[] data = new int[tileW*tileH];
+			int j = Dungeon.level.width() * tileY;
+			for (int i = 0; i < data.length; i++){
 
-					if (Dungeon.level.map[j] == Terrain.EMPTY_SP) {
-						for (int k : pylonPositions) {
-							if (k == j) {
-								if (Dungeon.level.locked
-										&& !(Actor.findChar(k) instanceof Pylon)) {
-									data[i] = 38;
-								} else {
-									data[i] = -1;
-								}
-							} else if (Dungeon.level.adjacent(k, j)) {
-								int w = Dungeon.level.width;
-								data[i] = 54 + (j % w + 8 * (j / w)) - (k % w + 8 * (k / w));
+				if (Dungeon.level.map[j] == Terrain.EMPTY_SP) {
+					for (int k : pylonPositions) {
+						if (k == j) {
+							if (Dungeon.level.locked
+									&& !(Actor.findChar(k) instanceof Pylon)) {
+								data[i] = 38;
+							} else {
+								data[i] = -1;
 							}
+						} else if (Dungeon.level.adjacent(k, j)) {
+							int w = Dungeon.level.width;
+							data[i] = 54 + (j % w + 8 * (j / w)) - (k % w + 8 * (k / w));
 						}
-					} else if (Dungeon.level.map[j] == Terrain.INACTIVE_TRAP){
-						data[i] = 37;
-					} else if (gate.inside(Dungeon.level.cellToPoint(j))){
-						int idx = Dungeon.level.solid[j] ? 40 : 32;
-						data[i++] = idx++;
-						data[i++] = idx++;
-						data[i++] = idx++;
-						data[i++] = idx++;
-						data[i] = idx;
-						j += 4;
-					} else {
-						data[i] = -1;
 					}
-
-					j++;
+				} else if (Dungeon.level.map[j] == Terrain.INACTIVE_TRAP){
+					data[i] = 37;
+				} else if (gate.inside(Dungeon.level.cellToPoint(j))){
+					int idx = Dungeon.level.solid[j] ? 40 : 32;
+					data[i++] = idx++;
+					data[i++] = idx++;
+					data[i++] = idx++;
+					data[i++] = idx++;
+					data[i] = idx;
+					j += 4;
+				} else {
+					data[i] = -1;
 				}
-				vis.map(data, tileW);
+
+				j++;
 			}
+			return data;
 		}
 
 		@Override
@@ -910,17 +923,17 @@ public class CavesBossLevel extends Level {
 								Buff.prolong(ch, Trap.HazardAssistTracker.class, Trap.HazardAssistTracker.DURATION);
 							}
 
-							Sample.INSTANCE.play( Assets.Sounds.LIGHTNING );
+							if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop==null) Sample.INSTANCE.play( Assets.Sounds.LIGHTNING );
 							ch.damage( Random.NormalIntRange(6, 12), new Electricity());
 							ch.sprite.flash();
 
-							if (ch == Dungeon.hero){
-								if (energySourceSprite != null && energySourceSprite instanceof PylonSprite){
+							if (ch == Dungeon.hero || (Dungeon.coop!=null && Dungeon.coop.playerOf(ch)!=0)){
+								if (Dungeon.coop==null ? energySourceSprite instanceof PylonSprite : Dungeon.level.mobs.stream().anyMatch(m->m instanceof Pylon && m.alignment==Char.Alignment.ENEMY)){
 									//took damage while DM-300 was supercharged
 									Statistics.qualifiedForBossChallengeBadge = false;
 								}
 								Statistics.bossScores[2] -= 200;
-								if ( !ch.isAlive()) {
+								if (Dungeon.coop==null && !ch.isAlive()) {
 									Dungeon.fail(DM300.class);
 									GLog.n(Messages.get(Electricity.class, "ondeath"));
 								}

@@ -55,7 +55,7 @@ public class DelayedRockFall extends FlavourBuff {
 	@Override
 	public boolean act() {
 		for (int i : rockPositions){
-			CellEmitter.get( i ).start( Speck.factory( Speck.ROCK ), 0.07f, 10 );
+			if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop==null) CellEmitter.get( i ).start( Speck.factory( Speck.ROCK ), 0.07f, 10 );
 
 			Char ch = Actor.findChar(i);
 			if (ch != null){
@@ -65,8 +65,8 @@ public class DelayedRockFall extends FlavourBuff {
 			}
 		}
 
-		PixelScene.shake( 3, 0.7f );
-		Sample.INSTANCE.play(Assets.Sounds.ROCKS);
+		if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop==null) PixelScene.shake( 3, 0.7f );
+		if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop==null) Sample.INSTANCE.play(Assets.Sounds.ROCKS);
 
 		detach();
 		return super.act();
@@ -80,8 +80,13 @@ public class DelayedRockFall extends FlavourBuff {
 		//do nothing by default
 	}
 
-	@Override
-	public void fx(boolean on) {
+	public boolean targetsCell(int cell) {
+		if (rockPositions!=null) for (int pos:rockPositions) if (pos==cell) return true;
+		return false;
+	}
+
+	@Override public void fx(boolean on) {
+		if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop!=null) return;
 		if (on && rockPositions != null){
 			for (int i : this.rockPositions){
 				Emitter e = CellEmitter.get(i);

@@ -142,14 +142,14 @@ public class Bomb extends Item {
 			this.fuse = null;
 		}
 
-		Sample.INSTANCE.play( Assets.Sounds.BLAST );
+		if (Dungeon.coop==null) Sample.INSTANCE.play( Assets.Sounds.BLAST );
 
 		if (explodesDestructively()) {
 
 			ArrayList<Integer> affectedCells = new ArrayList<>();
 			ArrayList<Char> affectedChars = new ArrayList<>();
 			
-			if (Dungeon.level.heroFOV[cell]) {
+			if (Dungeon.coop==null && Dungeon.level.heroFOV[cell]) {
 				CellEmitter.center(cell).burst(BlastParticle.FACTORY, 30);
 			}
 			
@@ -169,7 +169,7 @@ public class Bomb extends Item {
 			}
 
 			for (int i : affectedCells){
-				if (Dungeon.level.heroFOV[i]) {
+				if (Dungeon.coop==null && Dungeon.level.heroFOV[i]) {
 					CellEmitter.get(i).burst(SmokeParticle.FACTORY, 4);
 				}
 
@@ -200,7 +200,7 @@ public class Bomb extends Item {
 					ch.damage(dmg, this);
 				}
 				
-				if (ch == Dungeon.hero && !ch.isAlive()) {
+				if (Dungeon.coop==null && ch == Dungeon.hero && !ch.isAlive()) {
 					if (this instanceof ConjuredBomb){
 						Badges.validateDeathFromFriendlyMagic();
 					}

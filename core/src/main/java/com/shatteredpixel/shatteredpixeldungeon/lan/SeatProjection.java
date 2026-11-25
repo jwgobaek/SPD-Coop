@@ -26,6 +26,16 @@ final class SeatProjection {
     private static void writeExitTiles(Map<String,String> rows,Iterable<com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTilemap> tiles,
                                        FloorKnowledge sight, Level level, String prefix) {
         for (com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTilemap tile:tiles) {
+            if (tile instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel.CaveOverlay) {
+                int[] frames=((com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel.CaveOverlay)tile).frames();
+                boolean dynamic=tile instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel.ArenaVisuals;
+                for (int i=0;i<frames.length;i++) {
+                    int cell=(tile.tileY+i/tile.tileW)*level.width()+tile.tileX+i%tile.tileW;
+                    if (frames[i]>=0 && (sight.visible(cell) || (!dynamic && sight.visited(cell))))
+                        rows.put(prefix+cell,Integer.toString(frames[i]));
+                }
+                continue;
+            }
             if (!(tile instanceof PrisonBossLevel.ExitTiles)) continue;
             PrisonBossLevel.ExitTiles exit=(PrisonBossLevel.ExitTiles)tile;
             for (int y=0;y<exit.tileH;y++) for (int x=0;x<exit.tileW;x++) {
@@ -99,7 +109,7 @@ final class SeatProjection {
                         rows.put("nest"+cell,Integer.toString(sprite));
                 }
             }
-            if (level instanceof PrisonBossLevel) {
+            if (level instanceof PrisonBossLevel || level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel) {
                 writeExitTiles(rows,level.customTiles,sight,level,"exitfloor");
                 writeExitTiles(rows,level.customWalls,sight,level,"exitwall");
             }
@@ -160,11 +170,16 @@ final class SeatProjection {
                 }
                 int clouds = (Blob.volumeAt(cell, Fire.class)>0 || Blob.volumeAt(cell, com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Tengu.FireAbility.FireBlob.class)>0 ? 1 : 0)
                         | (Blob.volumeAt(cell, Freezing.class)>0 ? 2 : 0)
-                        | (Blob.volumeAt(cell, Electricity.class)>0 || Blob.volumeAt(cell, com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Tengu.ShockerAbility.ShockerBlob.class)>0 ? 4 : 0)
+                        | (Blob.volumeAt(cell, Electricity.class)>0 || Blob.volumeAt(cell,com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel.PylonEnergy.class)>0 || Blob.volumeAt(cell, com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Tengu.ShockerAbility.ShockerBlob.class)>0 ? 4 : 0)
                         | (Blob.volumeAt(cell, ToxicGas.class)>0 ? 8 : 0)
-                        | (Blob.volumeAt(cell, ConfusionGas.class)>0 ? 16 : 0);
+                        | (Blob.volumeAt(cell, ConfusionGas.class)>0 ? 16 : 0)
+                        | (Blob.volumeAt(cell, com.shatteredpixel.shatteredpixeldungeon.actors.blobs.CorrosiveGas.class)>0 ? 32 : 0);
                 if (Blob.volumeAt(cell, com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Web.class)>0)
                     rows.put("web"+cell,"1");
+                if (level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel)
+                    for (Mob caster:level.mobs) if (caster instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300)
+                        for (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300.FallingRockBuff rocks:caster.buffs(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300.FallingRockBuff.class))
+                            if (rocks.targetsCell(cell)) rows.put("rocks"+cell,"1");
                 if (clouds != 0) rows.put("cloud"+cell,Integer.toString(clouds));
                 Heap heap = level.heaps.get(cell);
                 if (heap != null && heap.hidden) continue;
@@ -197,6 +212,9 @@ final class SeatProjection {
                         rows.put("charge"+mob.pos,"1");
                     if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue)
                         rows.put("mail"+mob.id(),Integer.toString(((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue)mob).armor().tier));
+                    if ((mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Pylon && mob.alignment==com.shatteredpixel.shatteredpixeldungeon.actors.Char.Alignment.ENEMY)
+                            || (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300 && ((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300)mob).supercharged))
+                        rows.put("charge"+mob.pos,"1");
                     if (mob instanceof Blacksmith && level.adjacent(hero.pos,mob.pos)) {
                         String type = Blacksmith.Quest.Type()==Blacksmith.Quest.CRYSTAL ? "crystal" : "gnoll";
                         rows.put("smith"+mob.pos, (Blacksmith.Quest.given() ? "reminder_" : "intro_quest_")+type);

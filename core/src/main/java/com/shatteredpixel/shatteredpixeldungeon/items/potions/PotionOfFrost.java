@@ -40,10 +40,10 @@ public class PotionOfFrost extends Potion {
 	public void shatter( int cell ) {
 
 		splash( cell );
-		if (Dungeon.level.heroFOV[cell]) {
+		if (witnessedShatter(cell)) {
 			identify();
 
-			Sample.INSTANCE.play( Assets.Sounds.SHATTER );
+			if (Dungeon.coop==null) Sample.INSTANCE.play( Assets.Sounds.SHATTER );
 		}
 		
 		for (int offset : PathFinder.NEIGHBOURS9){

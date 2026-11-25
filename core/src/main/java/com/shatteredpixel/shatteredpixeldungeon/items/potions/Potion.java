@@ -334,8 +334,19 @@ public class Potion extends Item {
 	}
 	
     /** These original types all inherit the base splash, including fire, burning and ooze removal. */
+    protected boolean witnessedShatter(int cell) {
+        if (Dungeon.coop==null) return Dungeon.level.heroFOV[cell];
+        for (int seat=0;seat<2;seat++) {
+            Hero h=Dungeon.coop.hero(seat);
+            if (h.isAlive() && Dungeon.coop.knowledge(h).visible(cell)) return true;
+        }
+        return false;
+    }
+
     public boolean supportsCoopShatter() {
-        return getClass() == PotionOfHealing.class
+        return getClass()==PotionOfToxicGas.class || getClass()==PotionOfParalyticGas.class
+                || getClass()==PotionOfFrost.class || getClass()==PotionOfLiquidFlame.class
+                || getClass() == PotionOfLevitation.class || getClass() == PotionOfHealing.class
                 || getClass() == PotionOfMindVision.class || getClass() == PotionOfInvisibility.class
                 || getClass() == PotionOfHaste.class || getClass() == PotionOfExperience.class;
     }
