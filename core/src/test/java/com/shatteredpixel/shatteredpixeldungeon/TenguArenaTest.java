@@ -119,14 +119,7 @@ public class TenguArenaTest extends HeadlessDungeon {
                 return gate;
             }
             for (Heap heap:floor().heaps.valueList()) if (heap.items.stream().anyMatch(TengusMask.class::isInstance)) {
-                game.hero(game.activeSeat()).pos=heap.pos;
-                game.observe(game.activeSeat());
-                // The original iron key can land above the mask on the same heap.
-                while (!(heap.peek() instanceof TengusMask)) {
-                    game.hero(game.activeSeat()).pos=heap.pos;
-                    game.observe(game.activeSeat());
-                    assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,heap.pos,heap.peek()));
-                }
+                prepareMaskClaim(game, heap);
                 return heap.pos;
             }
             throw new AssertionError("Missing mask");
@@ -194,6 +187,40 @@ public class TenguArenaTest extends HeadlessDungeon {
         for (Heap heap:Dungeon.level.heaps.valueList()) for (Item i:heap.items) if (i instanceof TengusMask)
             fields.add("floor-mask/"+heap.pos+"/"+game.ownership.identity(i));
         return String.join("\n",fields);
+    }
+
+    private static void prepareMaskClaim(CoopSession game, Heap heap) {
+        int collector = game.activeSeat();
+        if (game.hero(1-collector).pos == heap.pos) SewerSpecialActorTest.atGate(game,heap.pos);
+        game.hero(collector).pos = heap.pos;
+        game.observe(collector);
+        // Picking up a key above the mask can give the next turn to the other player.
+        while (!(heap.peek() instanceof TengusMask)) {
+            assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,heap.pos,heap.peek()));
+            SewerBeeTest.offer(game,collector);
+        }
+        assertEquals(heap.pos,game.hero(game.activeSeat()).pos);
+    }
+
+    @Test public void collectorKeepsTheMaskPickupTurnWhenAnIronKeyCoversIt() {
+        for (int collector = 0; collector < 2; collector++) {
+            try (CoopSession game=CoopSession.open(570,11,HeroClass.WARRIOR)) {
+                game.join(22,HeroClass.MAGE);
+                SewerBeeTest.offer(game,collector);
+                Hero hero=game.hero(collector);
+                TengusMask mask=new TengusMask();
+                Heap heap=Dungeon.level.drop(mask,hero.pos);
+                Item key=new com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey(Dungeon.depth);
+                heap.drop(key);
+                assertSame(key,heap.peek());
+                prepareMaskClaim(game,heap);
+                assertEquals(collector,game.activeSeat());
+                assertNotEquals(hero.pos,game.hero(1-collector).pos);
+                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,heap.pos,mask));
+                assertSame(mask,hero.belongings.getItem(TengusMask.class));
+                assertEquals(game.player(collector),game.ownership.owner(mask));
+            }
+        }
     }
 
     @Test public void bothSeatsObserveTheSameNativeHazardTrajectoryAfterRestore() {

@@ -120,9 +120,14 @@ public final class CoopRenderSmoke {
             await(() -> client.frame().dungeon != null && client.frame().seat == 1);
             await(() -> client.frame().dungeon.offered);
             int unopenedCharge = ownTome().charges;
-            openSelector(ownTome().id, selectorCase().spell.name());
+            String memoryLabel = Boolean.getBoolean("spd.selector.history")
+                    ? discoveryLabel(discoveryChoice(frame().dungeon)) : null;
+            openSpellPicker(ownTome().id, selectorCase().spell.name());
+            if (memoryLabel == null) await(CoopRenderSmoke::selectorOpen);
+            else waitForButton(memoryLabel);
             client.leave(false);
             await(() -> client.frame().page == CoopController.Page.MENU && !selectorOpen() && !client.busy());
+            if (memoryLabel != null) await(() -> button(memoryLabel) == null);
             client.reconnect(room, address);
             await(() -> client.frame().dungeon != null && client.frame().dungeon.offered);
             if (ownTome().charges != unopenedCharge) throw new AssertionError("Leaving an open selector spent charge");
@@ -839,12 +844,11 @@ public final class CoopRenderSmoke {
         String spell = selector.spell.name();
         String key = selector.key;
         if (Boolean.getBoolean("spd.selector.history")) {
-            TrinityDiscoveries.Choice memory = Arrays.stream(TrinityDiscoveries.Choice.values())
-                    .filter(c -> view.source.rows.containsKey(c.rowKey())).findFirst().orElseThrow();
-            String label = "#" + Messages.titleCase(Messages.get(memory.effect, "name", "").trim());
+            TrinityDiscoveries.Choice memory = discoveryChoice(view);
+            String label = discoveryLabel(memory);
             if (view.belongings.stream().anyMatch(i -> view.source.rows.containsKey(key+i.id)))
                 throw new AssertionError("Physical reference still in the bag");
-            click("bag"); press(inventoryPoint(tome.id)); click("cast"); click("#"+spell);
+            openSpellPicker(tome.id, spell);
             waitForButton(label);
             shot("discovered-selection");
             Robot keyboard = new Robot();
@@ -853,7 +857,16 @@ public final class CoopRenderSmoke {
             await(() -> button(label) == null);
             if (frame().image.version != view.source.version || ownTome().charges != tome.charges)
                 throw new AssertionError("Cancelling discovery selection spent a charge");
-            click("bag"); press(inventoryPoint(tome.id)); click("cast"); click("#"+spell); click(label);
+            openSpellPicker(tome.id, spell);
+            click("#" + CoopScene.msg("bag"));
+            await(CoopRenderSmoke::selectorOpen);
+            keyboard.keyPress(java.awt.event.KeyEvent.VK_ESCAPE);
+            keyboard.keyRelease(java.awt.event.KeyEvent.VK_ESCAPE);
+            await(() -> !selectorOpen());
+            if (frame().image.version != view.source.version || ownTome().charges != tome.charges)
+                throw new AssertionError("Leaving the nested inventory spent a charge");
+            System.out.println("PASS nested inventory opened and cancelled from " + memory + " memory");
+            openSpellPicker(tome.id, spell); click(label);
             await(() -> frame().image.version > view.source.version && "APPLIED".equals(frame().lastResult)
                     && frame().pending == 0 && ownTome().charges < tome.charges && frame().image.rows.containsKey("trinity"+memory.form.ordinal()));
             shot("discovered-committed");
@@ -966,11 +979,24 @@ public final class CoopRenderSmoke {
         return render(() -> find(Game.scene(), node -> node instanceof WndSeatInventory) != null);
     }
 
-    private static void openSelector(long tomeId, String spell) throws Exception {
+    private static TrinityDiscoveries.Choice discoveryChoice(PublicDungeon view) {
+        return Arrays.stream(TrinityDiscoveries.Choice.values())
+                .filter(choice -> view.source.rows.containsKey(choice.rowKey())).findFirst().orElseThrow();
+    }
+
+    private static String discoveryLabel(TrinityDiscoveries.Choice choice) {
+        return "#" + Messages.titleCase(Messages.get(choice.effect, "name", "").trim());
+    }
+
+    private static void openSpellPicker(long tomeId, String spell) throws Exception {
         click("bag");
         press(inventoryPoint(tomeId));
         click("cast");
         click("#"+spell);
+    }
+
+    private static void openSelector(long tomeId, String spell) throws Exception {
+        openSpellPicker(tomeId, spell);
         await(CoopRenderSmoke::selectorOpen);
     }
 

@@ -556,6 +556,10 @@ public final class RestartClient {
                 else if (dm) assertEquals(boundary.equals("dm-visit") || boundary.equals("dm-revisit") ? 14 : 15,view.depth);
                 else if (interior) assertEquals(travel ? Integer.parseInt(boundary.substring(9))-1 : boundary.contains("web")?12:13,view.depth);
                 else assertEquals(boundary.equals("ten") ? 9 : boundary.equals("return") ? 11 : 10,view.depth);
+                if (boundary.equals("claim")) {
+                    assertEquals("collector stands on the mask", cell, view.pos);
+                    assertEquals(com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.MASK, view.floor.get(cell).sprite);
+                }
                 long handle=verb.equals("PICK_UP") ? view.floor.get(cell).id : 0;
                 if (growth && verb.equals("ZAP")) handle=item(seat,"WEAPON","STAFF");
                 if (growth && verb.equals("THROW")) handle=boundary.contains("rationthrow")

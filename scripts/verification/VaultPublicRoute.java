@@ -33,12 +33,30 @@ public final class VaultPublicRoute {
         int previousPos = -1, recentlyExited = -1, regroupSteps;
         int walkedDoor=-1, crossingDoor=-1, crossingTurns;
         int lastDoorSide = -1, doorEntry = -1, holdDirection;
-        boolean doorwayStrategy() { return regroup.equals("crossonce") || regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover") || regroup.equals("trail") || regroup.equals("safeexit") || regroup.equals("handoff"); }
+        int recoveryWaits;
+        boolean doorwayStrategy() { return regroup.equals("recoverexit") || regroup.equals("coverexit") || regroup.equals("crossonce") || regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover") || regroup.equals("trail") || regroup.equals("safeexit") || regroup.equals("handoff"); }
         private boolean visibleDoor(PublicDungeon v, int cell) {
             if (cell<0 || !v.visible(cell)) return false;
             int tile=v.terrain(cell);
             return tile==Terrain.DOOR || tile==Terrain.OPEN_DOOR;
         }
+        // Only this seat's earlier public sightings are retained, for at most six of its decisions.
+        final Map<Integer,Integer> recentShooters = new HashMap<>();
+        private void rememberShooters(PublicDungeon view) {
+            recentShooters.replaceAll((cell, left) -> left-1);
+            recentShooters.entrySet().removeIf(entry -> entry.getValue() <= 0 || view.visible(entry.getKey()));
+            for (Map.Entry<Integer,String> seen : view.monsters.entrySet()) {
+                if (seen.getValue().equals("VaultDM100") || seen.getValue().equals("VaultShaman"))
+                    recentShooters.put(seen.getKey(),6);
+            }
+        }
+
+        private int rememberedExposure(PublicDungeon view, int cell) {
+            int count = 0;
+            for (int shooter : recentShooters.keySet()) if (!behindCover(view,shooter,cell)) count++;
+            return count;
+        }
+
         int missingTurns;
         boolean escortFollower;
         int reunions;
@@ -134,7 +152,10 @@ public final class VaultPublicRoute {
             if (escort && v.ally>=0)
                 returning=escortFollower && distance(v.pos,v.ally,v.width)>2;
             // A player remembers their own last step onto a threshold, even if the ally disappears.
-            boolean crossing = team && regroup.equals("crossonce");
+            boolean restUnderCover = team && regroup.equals("recoverexit");
+            boolean avoidFire = team && (regroup.equals("coverexit") || restUnderCover);
+            if (avoidFire) rememberShooters(v);
+            boolean crossing = team && (regroup.equals("crossonce") || avoidFire);
             if (crossing) {
                 if (holdDirection > 0) holdDirection--;
                 if (previousPos >= 0 && v.pos != previousPos && visibleDoor(v, v.pos)) {
@@ -215,6 +236,15 @@ public final class VaultPublicRoute {
                         && (i.kind.equals("MELEE") || i.kind.equals("ARMOR"))
                         && v.belongings.stream().noneMatch(e -> e.slot.equals(i.kind.equals("MELEE")?"WEAPON":"ARMOR"))) return new Input("EQUIP",0,i.id);
             }
+            if (restUnderCover) {
+                if (!v.monsters.isEmpty()) recoveryWaits = 0;
+                if (!hungry && v.monsters.isEmpty() && recentShooters.isEmpty() && v.ally >= 0
+                        && distance(v.pos,v.ally,v.width) <= 2 && v.hp * 4 < v.maxHp * 3
+                        && !visibleDoor(v,v.pos) && !v.source.rows.containsKey("aim"+v.pos) && recoveryWaits < 32) {
+                    recoveryWaits++;
+                    return new Input("WAIT",0,0);
+                }
+            }
             PublicDungeon.Loot feet = v.floor.get(v.pos);
             if (crossing && !v.monsters.isEmpty() && (v.hp*2 < v.maxHp || returning)) feet = null;
             if (feet!=null && !(feet.sprite==com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.DEWDROP && v.hp==v.maxHp) && !rejectedItems.contains(feet.id) && !v.chest(v.pos)) return new Input("PICK_UP",v.pos,feet.id);
@@ -289,6 +319,9 @@ public final class VaultPublicRoute {
                     if (avoidBacktrack) {
                         int backward = v.pos == doorEntry ? lastDoorSide : doorEntry;
                         if (first[c] == backward) value -= 160;
+                    }
+                    if (avoidFire && !recentShooters.isEmpty() && v.hp*3 < v.maxHp*2) {
+                        value -= 140*rememberedExposure(v,first[c]) + 100*rememberedExposure(v,c);
                     }
                     if (value>high) {best=first[c]; bestCell=c; high=value;}
                 }

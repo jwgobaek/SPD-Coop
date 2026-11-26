@@ -2,7 +2,7 @@
 
 ## 성서 선택창 수정 후보
 
-수정 후보의 실제 Android 인수는 다섯 경로 모두 NOT RUN이다. 두 Android 설치본은 기존 크래시 배포본이다. 준비한 다섯 격리 시험방과 기존 크래시 방을 보존했다. [수정 후보와 실제 시험 결과](docs/coop/selector-repair-results.md)
+수정 후보의 실제 Android 인수는 다섯 경로 모두 NOT RUN이다. 두 Android 설치본은 기존 크래시 배포본이다. 준비한 다섯 격리 시험방과 기존 크래시 방을 보존했다. [당시 선택창 검증](docs/coop/selector-repair-results.md) · [이번 두 설치본의 해시와 역할별 판정](docs/coop/trinity-discovery-results.md)
 
 ## 인장·비무기 투척·후반 갑옷 능력
 

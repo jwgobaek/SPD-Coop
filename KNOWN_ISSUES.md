@@ -1,5 +1,9 @@
 # 미해결 문제
 
+## 수정 배포 승인과 성장 기능의 잔여 범위
+
+기존 배포판에는 게스트의 성서 선택 크래시가 있다. 수정 후보의 두 Android 설치 및 10건 인수는 미실행이다. Trinity 잔여 원본 후보 108종, 도적의 비축 식량, 상위 주문 및 감옥 정상 완주는 후속 항목이다. [검증 체크포인트](docs/coop/trinity-discovery-results.md)
+
 ## 현재 관리 APK의 게스트 종료
 
 Drive와 두 MuMu에 설치된 `07b1889`의 신성한 직감은 FAIL이다. 수정 후보의 Desktop 회귀는 통과했고 Android는 NOT RUN이다. 미승인 후보 전달과 이미 사용한 발행 횟수가 기기 검증을 막고 있다. [수정 후보와 실제 시험 결과](docs/coop/selector-repair-results.md)

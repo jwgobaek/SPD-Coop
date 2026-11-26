@@ -1,5 +1,9 @@
 # 협동 콘텐츠 지원표
 
+## 후속 Cloud 소스의 특성·형상 범위
+
+원본 초기화 목록 174개 슬롯 중 투자 가능한 슬롯은 단계별 23/24, 30/30, 3/48, 27/72다. HEROIC_ENERGY 한 특성이 18개 능력의 후보 목록에 등장한다. 원본 효과와 기기 실측은 표의 별도 열에 기록한다. [특성 174개 슬롯](docs/coop/trinity-discovery-talents.tsv) · [Trinity 원본 113개 후보](docs/coop/trinity-discovery-forms.tsv)
+
 ## 특성 슬롯과 증거의 범위
 
 일반 방과 개발 시험방을 합쳐 투자 경로가 있는 슬롯은 47/174개다. 표의 `host_effect`는 실제 원본 효과의 호스트 관측, `full_rank_sweep`는 관측한 투자점·조건, `player_ui`와 `tcp_action`은 각각 입력과 권위 실행을 나타낸다. 같은 행에서 저장과 Android의 증거를 따로 확인할 수 있다. [특성별 지원표](docs/coop/seal-arts-talents.tsv) · [수정 APK와 검증 범위](docs/coop/selector-repair-results.md)

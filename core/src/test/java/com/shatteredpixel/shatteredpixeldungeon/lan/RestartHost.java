@@ -175,6 +175,10 @@ public final class RestartHost {
                     }
                     return;
                 }
+                if (boundary.equals("claim")) {
+                    int collector=Integer.parseInt(read(path,"boss-command").split(" ")[0]);
+                    if (Dungeon.coop.hero(collector).belongings.getItem(TengusMask.class)==null) return;
+                }
                 String phase=Dungeon.depth==10 ? TenguArenaTest.floor().state().name() : "";
                 if ((!boundary.equals("kill") || phase.equals("WON")) && (!boundary.equals("pause") || phase.equals("FIGHT_PAUSE"))) {
                     write(path,"tengu-signature",TenguArenaTest.signature(Dungeon.coop));
@@ -282,6 +286,7 @@ public final class RestartHost {
                     int seat=Integer.parseInt(read(path,"boss-command").split(" ")[0]);
                     Item mask=Dungeon.coop.hero(seat).belongings.getItem(TengusMask.class);
                     assertNotNull(mask);
+                    assertEquals(Long.parseLong(read(path,"tengu-mask-id")),Dungeon.coop.ownership.identity(mask));
                     assertEquals(Dungeon.coop.player(seat),Dungeon.coop.ownership.owner(mask));
                 }
             }
@@ -550,6 +555,11 @@ public final class RestartHost {
                     }
                     int target=name.startsWith("vault-") ? ImpVaultTest.stage(Dungeon.coop,name.substring(6)) : stagedInput!=null ? stagedInput.cell : name.startsWith("city-") ? CityEntranceTest.prepareBoundary(Dungeon.coop,name.substring(5)) : name.startsWith("mine-") ? MiningBranchTest.prepareBoundary(Dungeon.coop,name.substring(5)) : name.startsWith("dm-") ? CavesBossTest.prepareBoundary(Dungeon.coop,name.substring(3)) : name.startsWith("interior-") ? CavesInteriorTest.prepareSocket(Dungeon.coop,name.substring(9))
                             : TenguArenaTest.prepareSocket(Dungeon.coop,name);
+                    if (name.equals("claim")) {
+                        Item mask=Dungeon.level.heaps.get(target).peek();
+                        assertTrue(mask instanceof TengusMask);
+                        write(path,"tengu-mask-id",Long.toString(Dungeon.coop.ownership.identity(mask)));
+                    }
                     write(path,"tengu-target",Integer.toString(target));
                     room.save();
                     write(path,"return-ready","1");

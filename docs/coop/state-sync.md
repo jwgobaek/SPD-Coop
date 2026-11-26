@@ -1,5 +1,9 @@
 # 협동 게임 동기화 프로토콜
 
+## SYNC33의 좌석별 Trinity 선택
+
+성서와 실제 형상 특성을 가진 좌석에만 현재 자기 가방 밖에서 선택할 수 있는 발견 후보를 보낸다. discovery101은 Chilling, 102는 Swiftness, 103은 WandOfLightning, 104는 RingOfHaste, 105는 Blazing이다. 각 행의 값은 1이다. 소유한 적격 물품은 기존 bodyitem·minditem·spirititem 경로로 고른다. BODY_FORM·MIND_FORM·SPIRIT_FORM으로 기억을 선택할 때 셀 인수는 각각의 음수 후보 코드다. 성서 핸들, 자기 발견 이력, 형상, 행동권과 상태 버전을 호스트가 검사한다. 도적의 예지가 원본 판정을 통과하면 자기 공개 상태에 secrethint=1을 추가하고 캐릭터 창에서 원본 안내문을 표시한다. 이 행에는 방 위치나 후보 개수가 없다. 전달 프레이밍은 LAN v1이다. 기존 수정 APK의 협상값은 SYNC32다. [선택과 복원](trinity-discovery-results.md)
+
 ## SYNC32의 소유자 입력
 
 LAN v1에서 양쪽이 SYNC32를 협상한다. 자기 가방의 `detachseal`, `affixseal`, `sealarmor`, 문양 행과 후보 순번으로 인장 선택을 구성한다. HolyIntuition·각인 회수·Trinity도 자기 가방의 현재 순번과 실제 아이템 핸들을 호스트가 다시 검사한다. 메뉴·취소는 로컬 UI에서 끝난다. 새 행동에는 기존 Action ID와 State Version을 사용한다. 빛의 아군과 잔상은 보이는 Actor로만 공개한다. 기존 직접 시야·감지 구분과 타인 물품의 비공개를 유지한다. [실행 범위](seal-arts-results.md)

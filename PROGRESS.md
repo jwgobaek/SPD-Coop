@@ -1,5 +1,9 @@
 # SPD-Coop 개발 진행 기록
 
+## 수정 후보 Android 인수와 별도 Cloud 성장 개발
+
+후속 Cloud JUnit은 기존 279개와 신규 13개를 포함해 292/292 통과했다. GB2 두 부팅에서 설치 해시는 기존 배포판과 일치했다. 수정 후보 Android 인수는 0/10이다. 후속 소스는 Trinity의 개인 발견 이력, Blazing, 1·2단계 특성 18종, 공통 갑옷 특성 HEROIC_ENERGY와 ElementalStrike의 세 마법 부여를 연결했다. [실행 범위와 후보 상태](docs/coop/trinity-discovery-results.md)
+
 ## 성서 선택창 회귀
 
 기존 한국어 게스트 예외를 Desktop에서 재현했고 수정 소스의 다섯 선택창을 양쪽 역할과 두 언어에서 검사했다. 원래 시험방의 Cloud 세대 사본, 잘못된 대상과 타인 성서 거부, 선택 직후 호스트 종료의 증거를 추가했다. 두 MuMu는 아직 이전 APK다. [수정 후보와 실제 시험 결과](docs/coop/selector-repair-results.md)
