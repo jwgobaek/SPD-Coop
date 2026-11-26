@@ -37,6 +37,17 @@ public final class RestartClient {
                     +" seat1_bytes="+c.state(1).snapshotBytes());
     }
 
+    private void measurePlayerAction(SeatActions.Pending action,int seat,String verb) throws IOException {
+        long bytes=clients[seat].transferredBytes();
+        long start=System.nanoTime();
+        String receipt=action.submit(clients[seat]);
+        long micros=(System.nanoTime()-start)/1000;
+        assertTrue(receipt,receipt.endsWith(" APPLIED"));
+        System.out.printf("player_action verb=%s seat=%d us=%d command_and_receipt_bytes=%d%n",
+                verb,seat,micros,clients[seat].transferredBytes()-bytes);
+        refresh();
+    }
+
     private void refresh() throws IOException { for(int i=0;i<2;i++) models[i].refresh(clients[i]); }
     private StateImage state(int s) { return models[s].image(); }
     private int active() { return Integer.parseInt(state(0).rows.get("active")); }
@@ -222,6 +233,10 @@ public final class RestartClient {
                             .filter(i -> i.id==handle).findFirst().get().quantity;
                     RestartHost.write(path,"pin-stack",kind+" "+(count-1));
                     SeatActions.Pending shot=actions[seat].prepare(state(seat),"THROW",cell,handle);
+                    if (Boolean.getBoolean("spd.timePlayerAction")) {
+                        measurePlayerAction(shot,seat,"THROW");
+                        return;
+                    }
                     RestartHost.write(path,"pin-pending",seat+" "+shot.id+" "+shot.command);
                     try { String result=shot.submit(clients[seat]); assertTrue(result,result.endsWith(" APPLIED")); }
                     catch (IOException lost) { return; }
@@ -537,6 +552,10 @@ public final class RestartClient {
                 }
                 SeatActions.Pending p=travel ? (boundary.equals("elemental-escape") ? consentAndCross(true,true) : consentAndCross(boundary.equals("vault-pick") || boundary.equals("vault-full"))) : actions[seat].prepare(state(seat),verb,verb.equals("WAIT") ? 0 : cell,handle);
                 if (yog) System.out.println("native_fixture "+boundary+" verb="+verb+" input="+cell+" seat="+seat+" depth="+view.depth+" visible="+view.visible(cell)+" actor="+state(seat).rows.get("self"));
+                if (growth && Boolean.getBoolean("spd.timePlayerAction")) {
+                    measurePlayerAction(p,seat,verb);
+                    return;
+                }
                 RestartHost.write(path,"boss-command",seat+" "+p.id+" "+p.command);
                 try { String result=p.submit(clients[seat]); assertTrue(result,result.endsWith(" APPLIED")); }
                 catch (IOException lost) { return; }
