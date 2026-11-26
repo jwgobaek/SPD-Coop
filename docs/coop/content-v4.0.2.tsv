@@ -90,14 +90,14 @@ actors/buffs/MagicalSleep	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatt
 actors/buffs/MindVision	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MindVision.java
 actors/buffs/Momentum	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Momentum.java
 actors/buffs/MonkEnergy	actors/buffs	PARTIAL	native kill energy, Focus cost/buff and restore in mask trial (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
-actors/buffs/MonkEnergy.Dash	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
-actors/buffs/MonkEnergy.DragonKick	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
-actors/buffs/MonkEnergy.Flurry	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
+actors/buffs/MonkEnergy.Dash	actors/buffs	PARTIAL	Native MonkEnergy action for both seats with restored energy and receipt (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
+actors/buffs/MonkEnergy.DragonKick	actors/buffs	PARTIAL	Native MonkEnergy action for both seats with restored energy and receipt (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
+actors/buffs/MonkEnergy.Flurry	actors/buffs	PARTIAL	Native MonkEnergy action for both seats with restored energy and receipt (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
 actors/buffs/MonkEnergy.FlurryCooldownTracker	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
 actors/buffs/MonkEnergy.FlurryEmpowerTracker	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
 actors/buffs/MonkEnergy.Focus	actors/buffs	PARTIAL	native kill energy, Focus cost/buff and restore in mask trial (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
 actors/buffs/MonkEnergy.FocusBuff	actors/buffs	PARTIAL	native kill energy, Focus cost/buff and restore in mask trial (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
-actors/buffs/MonkEnergy.Meditate	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
+actors/buffs/MonkEnergy.Meditate	actors/buffs	PARTIAL	Native MonkEnergy action for both seats with restored energy and receipt (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
 actors/buffs/MonkEnergy.MeditateResistance	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
 actors/buffs/MonkEnergy.UnarmedAbilityTracker	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
 actors/buffs/Ooze	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Ooze.java
@@ -161,8 +161,8 @@ actors/hero/Talent.BACKUP_BARRIER	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, bo
 actors/hero/Talent.BARKSKIN	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.BEAMING_RAY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.BLAST_RADIUS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.BLESS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.BODY_FORM	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.BLESS	Talent	PARTIAL	native BlessSpell via own HolyTome in seal-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.BODY_FORM	Talent	PARTIAL	Chilling or Swiftness in seal-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.BODY_REPLACEMENT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.BODY_SLAM	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.BOUNTY_HUNTER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -220,10 +220,10 @@ actors/hero/Talent.HEARTY_MEAL	Talent	NATIVE_EFFECT	Native seat investment and t
 actors/hero/Talent.HEIGHTENED_SENSES	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.HEROIC_ENERGY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.HOLD_FAST	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.HOLY_INTUITION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.HOLY_INTUITION	Talent	PARTIAL	own item via HolyTome in seal-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.HOLY_LANCE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.IMPACT_WAVE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.IMPROVISED_PROJECTILES	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.IMPROVISED_PROJECTILES	Talent	PARTIAL	Rank 0/1/2 bound Food, SmallRation and Berry throw path; blind and cooldown (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.INSCRIBED_POWER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.INSCRIBED_STEALTH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.INVIGORATING_MEAL	Talent	NATIVE_EFFECT	Separate tier-2 point pool, investment and native food effect, both roles. SubclassActionTest. Android meal was tier 1.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -243,7 +243,7 @@ actors/hero/Talent.LIQUID_AGILITY	Talent	UNSUPPORTED		core/src/main/java/com/sha
 actors/hero/Talent.LIQUID_NATURE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.LIQUID_WILLPOWER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.LONGRANGE_WARP	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.MIND_FORM	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.MIND_FORM	Talent	PARTIAL	WandOfLightning in seal-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.MNEMONIC_PRAYER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.MONASTIC_VIGOR	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.MYSTICAL_CHARGE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -264,11 +264,11 @@ actors/hero/Talent.RATFORCEMENTS	Talent	UNSUPPORTED		core/src/main/java/com/shat
 actors/hero/Talent.RATLOMACY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.RATSISTANCE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.REACTIVE_BARRIER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.RECALL_INSCRIPTION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.RECALL_INSCRIPTION	Talent	PARTIAL	identified scroll tracker only in seal-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.REJUVENATING_STEPS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.REMOTE_BEACON	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ROGUES_FORESIGHT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.RUNIC_TRANSFERENCE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.RUNIC_TRANSFERENCE	Talent	PARTIAL	Rank 0/1/2 detach and affix, both glyph options and bound full-bag drop (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SATIATED_SPELLS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SCHOLARS_INTUITION	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SEARING_LIGHT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -287,7 +287,7 @@ actors/hero/Talent.SOUL_EATER	Talent	UNSUPPORTED		core/src/main/java/com/shatter
 actors/hero/Talent.SOUL_SIPHON	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SPEEDY_STEALTH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SPIRIT_BLADES	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.SPIRIT_FORM	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.SPIRIT_FORM	Talent	PARTIAL	RingOfHaste in seal-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.STASIS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.STRENGTHENING_MEAL	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.STRIKING_FORCE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -314,25 +314,25 @@ actors/hero/Talent.WILD_POWER	Talent	UNSUPPORTED		core/src/main/java/com/shatter
 actors/hero/abilities/ArmorAbility	actors/hero/abilities	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/ArmorAbility.java
 actors/hero/abilities/Ratmogrify	actors/hero/abilities	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/Ratmogrify.java
 actors/hero/abilities/Ratmogrify.TransmogRat	actors/hero/abilities	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/Ratmogrify.java
-actors/hero/abilities/cleric/AscendedForm	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/AscendedForm.java
+actors/hero/abilities/cleric/AscendedForm	actors/hero/abilities/cleric	PARTIAL	Native AscendBuff duration, shield, owner and charge (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/AscendedForm.java
 actors/hero/abilities/cleric/AscendedForm.AscendBuff	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/AscendedForm.java
-actors/hero/abilities/cleric/PowerOfMany	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/PowerOfMany.java
+actors/hero/abilities/cleric/PowerOfMany	actors/hero/abilities/cleric	PARTIAL	Owner-scoped LightAlly, command, PowerBuff and observation (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/PowerOfMany.java
 actors/hero/abilities/cleric/PowerOfMany.LightAlly	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/PowerOfMany.java
 actors/hero/abilities/cleric/PowerOfMany.LightAllySprite	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/PowerOfMany.java
 actors/hero/abilities/cleric/PowerOfMany.PowerBuff	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/PowerOfMany.java
-actors/hero/abilities/cleric/Trinity	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java
+actors/hero/abilities/cleric/Trinity	actors/hero/abilities/cleric	PARTIAL	4 of 113 catalog candidates across Body, Mind and Spirit (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java
 actors/hero/abilities/cleric/Trinity.WndItemConfirm	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java
 actors/hero/abilities/cleric/Trinity.WndItemtypeSelect	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java
 actors/hero/abilities/cleric/Trinity.WndUseTrinity	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java
-actors/hero/abilities/duelist/Challenge	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Challenge.java
+actors/hero/abilities/duelist/Challenge	actors/hero/abilities/duelist	PARTIAL	One active native duel in a crown trial; partner retains own turn (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Challenge.java
 actors/hero/abilities/duelist/Challenge.DuelParticipant	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Challenge.java
 actors/hero/abilities/duelist/Challenge.EliminationMatchTracker	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Challenge.java
 actors/hero/abilities/duelist/Challenge.SpectatorFreeze	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Challenge.java
-actors/hero/abilities/duelist/ElementalStrike	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/ElementalStrike.java
+actors/hero/abilities/duelist/ElementalStrike	actors/hero/abilities/duelist	PARTIAL	Unenchanted, Blazing and Chilling native cone (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/ElementalStrike.java
 actors/hero/abilities/duelist/ElementalStrike.DirectedPowerTracker	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/ElementalStrike.java
 actors/hero/abilities/duelist/ElementalStrike.ElementalStrikeFurrowCounter	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/ElementalStrike.java
 actors/hero/abilities/duelist/ElementalStrike.ElementalStrikeLuckyTracker	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/ElementalStrike.java
-actors/hero/abilities/duelist/Feint	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Feint.java
+actors/hero/abilities/duelist/Feint	actors/hero/abilities/duelist	PARTIAL	Native adjacent move, owner-scoped afterimage and aggro (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Feint.java
 actors/hero/abilities/duelist/Feint.AfterImage	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Feint.java
 actors/hero/abilities/duelist/Feint.AfterImageSprite	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Feint.java
 actors/hero/abilities/duelist/Feint.FeintConfusion	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Feint.java
@@ -365,7 +365,7 @@ actors/hero/spells/AuraOfProtection	actors/hero/spells	UNSUPPORTED		core/src/mai
 actors/hero/spells/AuraOfProtection.AuraBuff	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/AuraOfProtection.java
 actors/hero/spells/BeamingRay	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/BeamingRay.java
 actors/hero/spells/BeamingRay.BeamingRayBoost	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/BeamingRay.java
-actors/hero/spells/BlessSpell	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/BlessSpell.java
+actors/hero/spells/BlessSpell	actors/hero/spells	PARTIAL	Own HolyTome, native blessing and charge (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/BlessSpell.java
 actors/hero/spells/BodyForm	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/BodyForm.java
 actors/hero/spells/BodyForm.BodyFormBuff	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/BodyForm.java
 actors/hero/spells/Cleanse	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Cleanse.java
@@ -382,7 +382,7 @@ actors/hero/spells/GuidingLight.WasIlluminatedTracker	actors/hero/spells	UNSUPPO
 actors/hero/spells/HallowedGround	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HallowedGround.java
 actors/hero/spells/HallowedGround.HallowedFurrowTracker	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HallowedGround.java
 actors/hero/spells/HallowedGround.HallowedTerrain	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HallowedGround.java
-actors/hero/spells/HolyIntuition	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyIntuition.java
+actors/hero/spells/HolyIntuition	actors/hero/spells	PARTIAL	Own inventory selector and native effect (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyIntuition.java
 actors/hero/spells/HolyLance	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyLance.java
 actors/hero/spells/HolyLance.HolyLanceVFX	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyLance.java
 actors/hero/spells/HolyLance.LanceCooldown	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyLance.java
@@ -399,7 +399,7 @@ actors/hero/spells/MindForm	actors/hero/spells	UNSUPPORTED		core/src/main/java/c
 actors/hero/spells/MindForm.targetSelector	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/MindForm.java
 actors/hero/spells/MnemonicPrayer	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/MnemonicPrayer.java
 actors/hero/spells/Radiance	actors/hero/spells	PARTIAL	native casting, own charge and independent TCP recovery (frost-senses-results.md) / Android Priest mask choice and tome cast (frost-senses-android.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Radiance.java
-actors/hero/spells/RecallInscription	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/RecallInscription.java
+actors/hero/spells/RecallInscription	actors/hero/spells	PARTIAL	Real ScrollOfIdentify tracker and owned target only (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/RecallInscription.java
 actors/hero/spells/RecallInscription.UsedItemTracker	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/RecallInscription.java
 actors/hero/spells/ShieldOfLight	actors/hero/spells	PARTIAL	native casting, own charge and independent TCP recovery (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/ShieldOfLight.java
 actors/hero/spells/ShieldOfLight.ShieldOfLightTracker	actors/hero/spells	PARTIAL	native casting, own charge and independent TCP recovery (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/ShieldOfLight.java
@@ -615,7 +615,7 @@ items/Amulet	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredp
 items/Ankh	items	VERIFIED	owned revival resource, save, consume once / CheckpointTest, ReconnectTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Ankh.java
 items/ArcaneResin	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/ArcaneResin.java
 items/ArcaneResin.Recipe	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/ArcaneResin.java
-items/BrokenSeal	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/BrokenSeal.java
+items/BrokenSeal	items	PARTIAL	Nested physical ID, detach, affix and glyph conflicts on the owner (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/BrokenSeal.java
 items/BrokenSeal.WarriorShield	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/BrokenSeal.java
 items/Dewdrop	items	VERIFIED	Native loose dew pickup in the vault, either seat, full-health refusal and heal / VaultPlayTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Dewdrop.java
 items/EnergyCrystal	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/EnergyCrystal.java
@@ -1055,7 +1055,7 @@ items/wands/WandOfCorruption	items/wands	UNSUPPORTED		core/src/main/java/com/sha
 items/wands/WandOfDisintegration	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfDisintegration.java
 items/wands/WandOfFireblast	items/wands	VERIFIED	native cone, all three charge bands, burning, Cripple and Paralysis, cold restore and lost reply on each seat / CoopMageTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfFireblast.java
 items/wands/WandOfFrost	items/wands	PARTIAL	Frost ZAP, imbue, native blast and volley; staged staff freeze; KO/EN Desktop and two-seat TCP (frost-senses-results.md) / Android staff imbue, ZAP, frost blast and next ZAP after both processes restart (frost-senses-android.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfFrost.java
-items/wands/WandOfLightning	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLightning.java
+items/wands/WandOfLightning	items/wands	PARTIAL	Native ZAP, imbue, battlemage onHit, ElementalBlast and WildMagic (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLightning.java
 items/wands/WandOfLightning.LightningCharge	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLightning.java
 items/wands/WandOfLivingEarth	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLivingEarth.java
 items/wands/WandOfLivingEarth.EarthGuardian	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLivingEarth.java

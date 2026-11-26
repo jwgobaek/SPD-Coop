@@ -16,10 +16,22 @@ public class AndroidStagedGrowth extends HeadlessDungeon {
         fixture.startBackend();
         boolean seals=args.length==3 && args[2].equals("seal");
         boolean armor=args.length==3 && args[2].equals("armor");
-        try (CoopSession game = CoopSession.open(572, 1, seals ? HeroClass.WARRIOR : armor ? HeroClass.DUELIST : HeroClass.MAGE)) {
-            game.join(2, HeroClass.CLERIC);
+        boolean monkTrinity=args.length==3 && args[2].equals("monk-trinity");
+        boolean sparkRogue=args.length==3 && args[2].equals("spark-rogue");
+        HeroClass host=seals ? HeroClass.WARRIOR : (armor || monkTrinity) ? HeroClass.DUELIST : HeroClass.MAGE;
+        try (CoopSession game = CoopSession.open(572, 1, host)) {
+            game.join(2, sparkRogue ? HeroClass.ROGUE : HeroClass.CLERIC);
             Rat target = CoopMageTest.encounter(game, 0);
             SewerBeeTest.offer(game, 0);
+            if (monkTrinity || sparkRogue) {
+                SealArtsTest.stage(game,monkTrinity ? "monkflurry" : "spark",0,target);
+                SewerBeeTest.offer(game,1);
+                if (monkTrinity) SealArtsTest.stage(game,"trinitymind",1,target);
+                else FrostSensesTest.stage(game,"markdeath",1,target);
+                SewerBeeTest.offer(game,0);
+                AndroidTrialTickets.export(Path.of(args[0]),Path.of(args[1]),game);
+                return;
+            }
             if (seals || armor) {
                 if (seals) {
                     SealArtsTest.stage(game,"sealdetach",0,target);

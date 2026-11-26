@@ -1,5 +1,9 @@
 # 협동 게임 동기화 프로토콜
 
+## SYNC32의 소유자 입력
+
+LAN v1에서 양쪽이 SYNC32를 협상한다. 자기 가방의 `detachseal`, `affixseal`, `sealarmor`, 문양 행과 후보 순번으로 인장 선택을 구성한다. HolyIntuition·각인 회수·Trinity도 자기 가방의 현재 순번과 실제 아이템 핸들을 호스트가 다시 검사한다. 메뉴·취소는 로컬 UI에서 끝난다. 새 행동에는 기존 Action ID와 State Version을 사용한다. 빛의 아군과 잔상은 보이는 Actor로만 공개한다. 기존 직접 시야·감지 구분과 타인 물품의 비공개를 유지한다. [실행 범위](seal-arts-results.md)
+
 ## SYNC31과 좌석별 감지
 
 SYNC30에서 여섯 기본 직업, `IMBUE`, 소유 무기의 `WEAPON_ABILITY` 및 성서의 기본 주문을 협상했다. 주입 후보 행은 자기 가방에서 고를 수 있는 순번만 제공하고 감정된 후보에만 강화값을 표시한다. 소유한 무기의 충전·부분 충전과 지팡이 보존 판정은 호스트가 확정한다. [SYNC30 검증](wand-arts-results.md)
