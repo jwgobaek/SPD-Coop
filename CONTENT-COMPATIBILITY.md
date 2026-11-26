@@ -1,5 +1,9 @@
 # 협동 콘텐츠 지원표
 
+## 다트 및 성장 입력 체크포인트
+
+시드 572 다트, 578 단검, 좌석별 특성 투자, 개발 시험방의 가면 및 표식의 검증 범위와 다음 작업을 기록했다. [실행 결과](docs/coop/dart-growth-results.md)
+
 새 지원 범위는 Halls의 원본 Acidic과 다섯 석상 장비 조합, 금고 비콘·이슬·낫 및 가시 경고다. [검증 기록](docs/coop/vault-play-results.md)
 
 원본 FIRE·FROST·SHOCK 최종 정령, 두 좌석의 Ascension, 시드 578의 VaultShaman·VaultElemental.Fire/Frost, 검증한 석상 조합을 추가했다. [실행 결과와 다음 작업](docs/coop/vault-ascent-results.md)

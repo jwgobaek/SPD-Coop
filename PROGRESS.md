@@ -1,5 +1,9 @@
 # SPD-Coop 개발 진행 기록
 
+## 다트 및 성장 입력 체크포인트
+
+두 좌석의 일반 다트와 초기 특성을 플레이 입력에 연결했다. 개발 시험방에서 실제 가면을 소비하고 전직권을 저장할 수 있다. [실행 결과](docs/coop/dart-growth-results.md)
+
 **새 APK 4c2054e, 두 MuMu PASS.** Android 15 두 좌석이 같은 설치 해시에서 신규 방 생성·참가·직업 선택·준비·시작, 실제 이동·턴 동기화, 지팡이 및 돌 조준·사용, 게스트 프로세스 종료·재인증, 호스트 저장·닫기·양쪽 재개를 수행했다. 재인증 후 양쪽 진단 Turn 69, State Version 78, pending 0, PERSISTENT가 일치했다. [설치·시험·PC 정리](docs/coop/vault-play-delivery.md)
 
 **금고 플레이판 `4c2054e` 전체 회귀 PASS.** 시작 체크포인트 220/220, 신규판 230/230, JUnit XML 66개다. 독립 호스트 JVM을 이용한 HostRestartTest 41개가 포함됐다. 원본 몬스터가 보스 주위를 모두 점유한 배치형 시험은 실제 소환수를 공격해 접근하도록 고쳤다. DM-300 처치 뒤 마비·속박이 남았을 때 계단 시험은 원본 대기로 행동 제한이 끝날 때까지 진행한다. [검증 범위](docs/coop/vault-play-results.md) · [Android 및 발행](docs/coop/vault-play-delivery.md)

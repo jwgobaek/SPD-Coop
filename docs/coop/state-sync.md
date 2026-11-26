@@ -1,5 +1,9 @@
 # 협동 게임 동기화 프로토콜
 
+## SYNC27 — 좌석별 다트와 성장 입력
+
+플레이 세션은 SYNC27을 협상한다. 검색 및 로비는 LAN v1이다. 가방에는 DART의 비공개 참조와 THROW 동작이 있으며 확정된 공개 투척에는 DART 종류를 보낸다. 자기 좌석에만 freepoints1과 learn<특성 번호>를 보낸다. INVEST_TALENT는 자기 좌석의 유효한 1단계 포인트를 소비하고 같은 턴에 새 State Version과 영수증을 발행한다. 시험방의 USE_MASK는 자기 가방의 핸들, CLAIM_SUBCLASS는 보류된 자기 선택권을 요구한다. 두 요청 모두 선택한 원본 전직 번호를 전달한다.
+
 SYNC26은 VAULT_RECALL과 소유 좌석의 비콘 사용 메뉴를 추가한다. Acidic을 공개 주민으로 해석하며 금고 발사 장치의 원본 경고는 보이는 발사자와 수신자가 보는 칸에만 표시한다. LAN은 v1이다. [검증 기록](vault-play-results.md)
 
 SYNC25에서 START_ASCENT, ASCENT_PROPOSED, ASCENT_READY, ASCENDING, ASCENDED를 구분한다. ascentgate는 양쪽이 계단 범위에 있을 때 아뮬렛 소유자에게만 전달한다. aim은 수신 좌석의 시야로 제한한다. [실행 결과와 다음 작업](vault-ascent-results.md)
