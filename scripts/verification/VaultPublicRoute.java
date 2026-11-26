@@ -29,7 +29,8 @@ public final class VaultPublicRoute {
         final String regroup = System.getProperty("vault.guide.regroup","off");
         int rendezvous = -1;
         int allyDoor = -1;
-        boolean doorwayStrategy() { return regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover"); }
+        int previousPos = -1, recentlyExited = -1, regroupSteps;
+        boolean doorwayStrategy() { return regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover") || regroup.equals("trail"); }
         private boolean visibleDoor(PublicDungeon v, int cell) {
             if (cell<0 || !v.visible(cell)) return false;
             int tile=v.terrain(cell);
@@ -132,7 +133,24 @@ public final class VaultPublicRoute {
             if (!reviveDenied && v.ally>=0 && adjacent(v.pos,v.ally,v.width) && "DOWNED".equals(v.source.rows.get("allylife"))) {
                 return new Input("REVIVE",v.ally,0);
             }
-            boolean protectExit = regroup.equals("exitcover") && escortFollower && v.hp*3<v.maxHp;
+            boolean trail=team && regroup.equals("trail");
+            if (trail && previousPos!=v.pos) {
+                if (visibleDoor(v,previousPos) && !visibleDoor(v,v.pos)) {
+                    recentlyExited=previousPos;
+                    regroupSteps=2;
+                }
+                previousPos=v.pos;
+            }
+            if (trail && !escortFollower && regroupSteps>0 && recentlyExited>=0 && v.ally>=0
+                    && distance(v.pos,v.ally,v.width)>1 && v.monsters.isEmpty() && exposedTo(v,v.pos)==0) {
+                regroupSteps--;
+                return new Input("WAIT",0,0);
+            }
+            if (trail && escortFollower && v.ally<0 && lastAlly>=0 && missingTurns<=6) {
+                returning=true;
+                meetingCell=lastAlly;
+            }
+            boolean protectExit = (regroup.equals("exitcover") || trail) && escortFollower && v.hp*3<v.maxHp;
             if ((regroup.equals("followdoor") || protectExit) && escortFollower && team) {
                 // Follow a door actually seen under the ally. Give the ally a chance to clear it.
                 if (visibleDoor(v,v.ally) && v.hp*3<v.maxHp) allyDoor=v.ally;
@@ -225,6 +243,8 @@ public final class VaultPublicRoute {
                     if (returning) value=-100*distance(c,meetingCell,v.width)-dist[c]-20*exposedTo(v,c);
                     if (protectExit && lastAlly>=0 && (v.ally>=0 || missingTurns<=6))
                         value-=35*Math.max(0,distance(c,lastAlly,v.width)-1);
+                    if (trail && !escortFollower && c==recentlyExited && v.pos!=recentlyExited && v.monsters.isEmpty())
+                        value-=75;
                     if (value>high) {best=first[c]; bestCell=c; high=value;}
                 }
             }

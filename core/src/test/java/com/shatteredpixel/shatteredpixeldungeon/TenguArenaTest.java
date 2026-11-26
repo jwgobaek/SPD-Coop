@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Regeneration;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -139,6 +140,12 @@ public class TenguArenaTest extends HeadlessDungeon {
                 int target=ally.pos+offset;
                 if (!floor().passable[target] || floor().pit[target] || Actor.findChar(target)!=null) continue;
                 hero.pos=target;
+                // This fixture measures revival followed by arena damage. Start a fresh native
+                // regeneration cycle so a nearly complete healing tick cannot raise HP above five.
+                if (boundary.equals("revive") && hero.buff(Regeneration.class)!=null) {
+                    hero.buff(Regeneration.class).detach();
+                    Buff.affect(hero,Regeneration.class);
+                }
                 hero.HP=17;
                 hero.damage(999,Tengu.class);
                 assertEquals(CoopSession.Life.DOWNED,game.life(seat));

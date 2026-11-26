@@ -31,7 +31,7 @@ public final class CoopRenderSmoke {
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -57,7 +57,7 @@ public final class CoopRenderSmoke {
         kit=shortcutKit || (args.length>1 && args[1].equals("kit"));
         deep=prison || (args.length>1 && args[1].equals("deep"));
         floors=deep || statue || mimic || ghost || sentry || (args.length>1 && args[1].equals("floors"));
-        mage=floors || (args.length>1 && args[1].equals("mage"));
+        mage=regionShot.equals("wand-input") || floors || (args.length>1 && args[1].equals("mage"));
         shots=new File(args[0]); if(!shots.isDirectory() && !shots.mkdirs()) throw new AssertionError();
         // Test classes share the launcher's package but do not carry release-manifest attributes.
         java.util.jar.Manifest manifest=new java.util.jar.Manifest(DesktopLauncher.class.getResourceAsStream("/META-INF/MANIFEST.MF"));
@@ -735,6 +735,25 @@ public final class CoopRenderSmoke {
         shot("crown-leap");
     }
 
+    private static void wandInputs() throws Exception {
+        await(()->frame().dungeon.offered && frame().image.rows.keySet().stream().anyMatch(k->k.startsWith("wandchoice")));
+        PublicDungeon v=frame().dungeon;
+        long wand=v.belongings.stream().filter(i->v.source.rows.containsKey("wandchoice"+i.id)).findFirst().get().id;
+        long staff=v.belongings.stream().filter(i->v.actions(i).contains("IMBUE")).findFirst().get().id;
+        String yes="#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff.class,"yes");
+        String no="#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff.class,"no");
+        for (boolean confirm : new boolean[]{false,true}) {
+            click("bag"); press(inventoryPoint(staff)); click("imbue");
+            if (!confirm) shot("own-wand-picker");
+            press(inventoryPoint(wand)); waitForButton(yes);
+            if (!confirm) shot("confirm-native-imbuement");
+            click(confirm?yes:no);
+            if (!confirm && frame().image.version!=v.source.version) throw new AssertionError("Cancelled choice spent state");
+        }
+        await(()->frame().image.version>v.source.version && !frame().image.rows.containsKey("wandchoice"+wand));
+        shot("imbuement-applied");
+    }
+
     private static void upperInputs() throws Exception {
         com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent cleave=com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.CLEAVE;
         await(()->frame().dungeon.offered && frame().image.rows.containsKey("learn"+cleave.ordinal()));
@@ -806,6 +825,7 @@ public final class CoopRenderSmoke {
                 if (regionShot.equals("vault-dart")) { vaultDart(); return; }
                 if (regionShot.equals("growth-input")) { growthInputs(); return; }
                 if (regionShot.equals("upper-input")) { upperInputs(); return; }
+                if (regionShot.equals("wand-input")) { wandInputs(); return; }
                 if (regionShot.equals("combo-input")) { comboInputs(); return; }
                 if (regionShot.equals("crown-input")) { crownInputs(); return; }
                 if (regionShot.equals("smith-services")) {

@@ -265,7 +265,7 @@ public final class RestartHost {
                         // The isolated room-entry test also checks 5 HP at an undamaged revival.
                         int revivedHP = CoopSession.reviveHP(17,victim.HT);
                         assertEquals(5,revivedHP);
-                        assertTrue(victim.HP > 0 && victim.HP <= revivedHP);
+                        assertTrue("Published HP "+victim.HP+" after a "+revivedHP+" HP revival", victim.HP > 0 && victim.HP <= revivedHP);
                         assertNull(victim.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.Ankh.class));
                     } else {
                         assertEquals(0,victim.HP);

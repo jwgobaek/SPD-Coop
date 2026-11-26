@@ -656,3 +656,7 @@ ascent_ack_us=31371
 **발견 및 수정.** 기습 경로가 입력 준비 상태에 의해 중단될 수 있어 CoopSession.act가 원본 Mimic.interact에 실제 영웅을 넘기도록 수정했다. 미믹 내부 물건과 석상 보유 무기를 휴면 층의 물리적 ID 검증에 추가했다. 추가 표본에서 1층이 미지원 석상을 생성하는 경우가 확인돼 시작 전에 검사하고 로비로 돌려보낸다. 시험에서는 흡혈 회복이 같은 입력 경계에서 피해량을 가릴 수 있어 석상 첫 마력탄을 원거리에서 검사한다. 전리품은 쌓임·낙하 후에도 수량을 비교한다. 중간 b29bc85에서는 시드 415 TCP 안내 경로의 변화로 80건 중 1건이 FAIL했다. 기준 시드 안내 정책을 원복하고 새 시드용 경로 선택만 분리했다. 미시작 로비를 저장하려던 시험 종료 루틴은 정상적인 저장 거부까지 검사하도록 고쳤다. Desktop JAR을 읽는 중 재빌드하면 Ogg 리소스 읽기 오류가 발생해 최종 JAR을 고정하고 다시 검증했다.
 
 주요 명령은 `git ls-remote coop refs/heads/coop/phase8`, `./gradlew --offline :core:test`, `scripts/verify-android-build.sh <output>`, `./gradlew --offline :desktop:compileTestJava :desktop:release`, `CoopRenderSmoke <dir> mimic|crystal|statue`, `python3 scripts/coop-sewer-survey.py <junit> [--gates]`, `python3 scripts/coop-content-inventory.py`, `git diff --check` 및 일반 Git push다. [검증 자료 ZIP](docs/coop/sewer-guardians-evidence.zip) · [원본 생성 110개](docs/coop/sewer-generation.tsv) · [45개 시드의 계단 결과](docs/coop/sewer-gates.tsv)
+
+### 지팡이 주입과 여섯 기본 직업
+
+시작 원격 17bfa4a의 257개 JUnit을 독립 체크아웃에서 모두 재실행했다. 신규 엔진·Desktop·TCP·다층 및 정상 진행 증거는 docs/coop/wand-arts-results.md에 있다. 전체 회귀 첫 실행에서 Tengu 부활의 저장 직후 HP 상한 단언이 실패했다. 같은 호스트 중단 경계의 독립 재실행은 8/8이었다. 부활 시점과 그 후의 원본 재생 틱을 분리하기 위해 해당 배치형 시험에서 전투 불능 직전의 원본 재생 주기를 다시 시작한다. 게임의 부활 공식과 저장 코드는 유지한다.

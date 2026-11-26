@@ -61,7 +61,7 @@ public final class ExperienceProgress {
     private static void play(int seed,int budget) throws Exception {
         HeroClass front=HeroClass.valueOf(System.getProperty("trial.front","WARRIOR"));
         try (CoopSession game=CoopSession.open(seed,1,front)) {
-            game.join(2,HeroClass.HUNTRESS);
+            game.join(2,HeroClass.valueOf(System.getProperty("trial.partner","HUNTRESS")));
             Random.pushGenerator(seed);
             UUID uuid=UUID.randomUUID();
             RoomSync room=new RoomSync(uuid,game);
@@ -69,6 +69,8 @@ public final class ExperienceProgress {
             VaultPublicRoute.Guide[] guides={new VaultPublicRoute.Guide(),new VaultPublicRoute.Guide()};
             long[] seq={0,0};
             int acted=0,depth=1,down=0;
+            java.util.Set<String> declined=new java.util.HashSet<>();
+            java.util.Map<String,Integer> abilityUse=new java.util.TreeMap<>();
             int[] investments={0,0};
             boolean[] wasDown={false,false};
             String result="budget";
@@ -82,6 +84,20 @@ public final class ExperienceProgress {
                     guides[1]=new VaultPublicRoute.Guide();
                 }
                 VaultPublicRoute.Input input=guides[seat].choose(v);
+                if (v.offered && (v.heroClass.equals("CLERIC") || v.heroClass.equals("DUELIST"))) {
+                    for (PublicDungeon.Loot tool : v.belongings) {
+                        String verb=v.actions(tool).contains("CAST") ? "GUIDING_LIGHT" :
+                                tool.weaponSkill && tool.sprite==com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.RAPIER ? "WEAPON_ABILITY" : null;
+                        if (verb==null || tool.charges<=0) continue;
+                        for (int target : new java.util.TreeSet<>(v.monsters.keySet())) {
+                            int distance=Math.max(Math.abs(v.pos%v.width-target%v.width),Math.abs(v.pos/v.width-target/v.width));
+                            if (!v.visible(target) || verb.equals("WEAPON_ABILITY") && distance!=2) continue;
+                            if (declined.contains(seat+"/"+v.depth+"/"+v.pos+"/"+target+"/"+verb)) continue;
+                            input=new VaultPublicRoute.Input(verb,target,tool.id);
+                            break;
+                        }
+                    }
+                }
                 if (v.offered) {
                     for (com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent t:com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.values()) {
                         String offered=v.source.rows.get("learn"+t.ordinal());
@@ -101,6 +117,10 @@ public final class ExperienceProgress {
                     if (v.consent) input=new VaultPublicRoute.Input("TRAVEL",v.stair,0);
                 }
                 String status=send(room,v,seat,game.player(seat),++seq[seat],input);
+                if (input.action.equals("WEAPON_ABILITY") || input.action.equals("GUIDING_LIGHT")) {
+                    if (status.equals("APPLIED")) abilityUse.merge(input.action,1,Integer::sum);
+                    else declined.add(seat+"/"+v.depth+"/"+v.pos+"/"+input.cell+"/"+input.action);
+                }
                 if (input.action.equals("INVEST_TALENT") && status.equals("APPLIED")) investments[seat]++;
                 if (Boolean.getBoolean("trial.trace")) System.out.printf("STEP %d %d %d %s %d %s stair=%d mobs=%s loot=%s%n",n,seat,v.pos,input.action,input.cell,status,v.stair,v.monsters,v.floor.keySet());
                 if (status.equals("APPLIED") || status.equals("PARTY_DEFEATED")) acted++;
@@ -115,6 +135,7 @@ public final class ExperienceProgress {
                     wasDown[s]=fallen;
                 }
             }
+            if (!abilityUse.isEmpty()) System.out.println("NATIVE_ABILITIES "+seed+" "+policy+" "+abilityUse);
             for (int s=0;s<2;s++) {
                 System.out.printf("INVESTED\t%d\t%s\t%d\t%d%n",seed,policy,s,investments[s]);
                 Hero h=game.hero(s);

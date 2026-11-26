@@ -75,6 +75,11 @@ final class RenderEncounter {
                     throw new AssertionError("Expected seed 572 dart heap");
                 game.hero(0).pos=1872;
                 game.observe(0);
+            } else if (destination.equals("wand-input")) {
+                com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand wand=new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast();
+                wand.identify();
+                if (!wand.collect(game.hero(0).belongings.backpack)) throw new AssertionError("Missing inventory space");
+                game.ownership.claim(wand,game.player(0));
             } else if (destination.equals("upper-input")) {
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"third0");
             } else if (destination.equals("combo-input") || destination.equals("crown-input")) {
