@@ -216,7 +216,11 @@ public final class RestartClient {
                 int cell=Integer.parseInt(RestartHost.read(path,"pin-target").split(" ")[1]);
                 for (int n=0;n<7;n++) {
                     offer(seat);
-                    long handle=item(seat,"BAG",mode.startsWith("dart") ? "DART" : "KNIFE"); assertTrue(handle>0);
+                    String kind=mode.startsWith("dart") ? "DART" : "KNIFE";
+                    long handle=item(seat,"BAG",kind); assertTrue(handle>0);
+                    int count=new PublicDungeon(state(seat)).belongings.stream()
+                            .filter(i -> i.id==handle).findFirst().get().quantity;
+                    RestartHost.write(path,"pin-stack",kind+" "+(count-1));
                     SeatActions.Pending shot=actions[seat].prepare(state(seat),"THROW",cell,handle);
                     RestartHost.write(path,"pin-pending",seat+" "+shot.id+" "+shot.command);
                     try { String result=shot.submit(clients[seat]); assertTrue(result,result.endsWith(" APPLIED")); }
@@ -705,7 +709,10 @@ public final class RestartClient {
             assertTrue(receipt,receipt.endsWith(" APPLIED"));
             assertEquals(receipt,clients[seat].request(old[2])); refresh();
             assertEquals(version,state(seat).version);
-            assertTrue(new PublicDungeon(state(seat)).belongings.stream().anyMatch(i->i.kind.equals("KNIFE") && i.quantity<3));
+            String[] expected=RestartHost.read(path,"pin-stack").split(" ");
+            int remaining=new PublicDungeon(state(seat)).belongings.stream()
+                    .filter(i -> i.kind.equals(expected[0])).mapToInt(i -> i.quantity).sum();
+            assertEquals(Integer.parseInt(expected[1]),remaining);
             act("WAIT",0,0); return;
         }
         if (mode.equals("kit-receipt")) {

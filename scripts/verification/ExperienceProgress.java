@@ -59,7 +59,8 @@ public final class ExperienceProgress {
     }
 
     private static void play(int seed,int budget) throws Exception {
-        try (CoopSession game=CoopSession.open(seed,1,HeroClass.WARRIOR)) {
+        HeroClass front=HeroClass.valueOf(System.getProperty("trial.front","WARRIOR"));
+        try (CoopSession game=CoopSession.open(seed,1,front)) {
             game.join(2,HeroClass.HUNTRESS);
             Random.pushGenerator(seed);
             UUID uuid=UUID.randomUUID();
@@ -68,6 +69,7 @@ public final class ExperienceProgress {
             VaultPublicRoute.Guide[] guides={new VaultPublicRoute.Guide(),new VaultPublicRoute.Guide()};
             long[] seq={0,0};
             int acted=0,depth=1,down=0;
+            int[] investments={0,0};
             boolean[] wasDown={false,false};
             String result="budget";
             for (int n=0;n<budget;++n) {
@@ -80,6 +82,15 @@ public final class ExperienceProgress {
                     guides[1]=new VaultPublicRoute.Guide();
                 }
                 VaultPublicRoute.Input input=guides[seat].choose(v);
+                if (Integer.parseInt(v.source.rows.getOrDefault("freepoints1","0"))>0) {
+                    for (com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent t:com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.values()) {
+                        String offered=v.source.rows.get("learn"+t.ordinal());
+                        if (offered!=null && Integer.parseInt(offered)<t.maxPoints()) {
+                            input=new VaultPublicRoute.Input("INVEST_TALENT",t.ordinal(),0);
+                            break;
+                        }
+                    }
+                }
                 if (v.stair>=0 && v.terrain(v.stair)==Terrain.EXIT) {
                     PublicDungeon other=view(clients[1-seat],room,1-seat);
                     if (!v.consent && other.stair==v.stair) {
@@ -89,6 +100,7 @@ public final class ExperienceProgress {
                     if (v.consent) input=new VaultPublicRoute.Input("TRAVEL",v.stair,0);
                 }
                 String status=send(room,v,seat,game.player(seat),++seq[seat],input);
+                if (input.action.equals("INVEST_TALENT") && status.equals("APPLIED")) investments[seat]++;
                 if (Boolean.getBoolean("trial.trace")) System.out.printf("STEP %d %d %d %s %d %s stair=%d mobs=%s loot=%s%n",n,seat,v.pos,input.action,input.cell,status,v.stair,v.monsters,v.floor.keySet());
                 if (status.equals("APPLIED") || status.equals("PARTY_DEFEATED")) acted++;
                 else if (input.item!=0) guides[seat].rejectedItems.add(input.item);
@@ -103,6 +115,7 @@ public final class ExperienceProgress {
                 }
             }
             for (int s=0;s<2;s++) {
+                System.out.printf("INVESTED\t%d\t%s\t%d\t%d%n",seed,policy,s,investments[s]);
                 Hero h=game.hero(s);
                 int food=0,heal=0,up=0;
                 for (Item i:h.belongings) {

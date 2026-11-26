@@ -10,6 +10,8 @@ parser=argparse.ArgumentParser()
 parser.add_argument('core_test_classpath', help='Absolute core test runtime classpath')
 parser.add_argument('--budget', type=int, default=750)
 parser.add_argument('--seeds', type=int, nargs='+', default=[581,1105])
+parser.add_argument('--front', choices=('WARRIOR','MAGE'), default='WARRIOR')
+parser.add_argument('--policies', nargs='+', choices=('last','split','each'), default=['last','split','each'])
 args=parser.parse_args()
 root=Path(__file__).resolve().parents[1]
 java_bin=Path(os.environ['JAVA_HOME'])/'bin'
@@ -26,6 +28,6 @@ with TemporaryDirectory() as tmp:
     subprocess.run([java_bin/'javac','-cp',args.core_test_classpath,'-d',tmp,source,
                     verify/'VaultPublicRoute.java',verify/'ExperienceProgress.java'],check=True)
     for seed in args.seeds:
-        for policy in ('last','split','each'):
-            subprocess.run([java_bin/'java','-Xmx384m','-cp',tmp+os.pathsep+args.core_test_classpath,
+        for policy in args.policies:
+            subprocess.run([java_bin/'java','-Xmx384m','-Dtrial.front='+args.front,'-cp',tmp+os.pathsep+args.core_test_classpath,
                             trial,policy,str(seed),str(args.budget)],cwd=root/'core/src/main/assets',check=True)

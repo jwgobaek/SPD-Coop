@@ -27,6 +27,7 @@ public final class VaultPublicRoute {
         boolean reviveDenied;
         final boolean team=Boolean.getBoolean("vault.guide.team");
         int lastAlly=-1;
+        int destination=-1;
         final Set<String> blockedShots=new HashSet<>();
 
         private int distance(int a,int b,int width) {
@@ -145,7 +146,7 @@ public final class VaultPublicRoute {
             int n=v.width*v.height;
             int[] first=new int[n], dist=new int[n], queue=new int[n];
             Arrays.fill(first,-1); queue[0]=v.pos; first[v.pos]=v.pos;
-            int best=-1, high=Integer.MIN_VALUE;
+            int best=-1, bestCell=-1, high=Integer.MIN_VALUE;
             for (int head=0,tail=1;head<tail;head++) {
                 int at=queue[head++];
                 for (int dy=-1;dy<=1;dy++) for (int dx=-1;dx<=1;dx++) {
@@ -166,7 +167,8 @@ public final class VaultPublicRoute {
                     if (v.ally>=0) value-=2*Math.max(Math.abs(c%v.width-v.ally%v.width), Math.abs(c/v.width-v.ally/v.width));
                     if (team && lastAlly>=0) value-=8*Math.max(0,distance(c,lastAlly,v.width)-3);
                     PublicDungeon.Loot item=v.floor.get(c);
-                    if (item!=null && !rejectedItems.contains(item.id)) {
+                    if (item!=null && !rejectedItems.contains(item.id) && !(item.sprite==
+                            com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.DEWDROP && v.hp==v.maxHp)) {
                         value+=150;
                         if (team && v.visible(c) && (item.kind.equals("MELEE") || item.sprite==
                                 com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.DART)) value+=90;
@@ -175,9 +177,12 @@ public final class VaultPublicRoute {
                         if (adjacent(c,m.getKey(),v.width) && ("VaultMirror".equals(m.getValue()) || "VaultTokenDoor".equals(m.getValue()))
                                 && !adjacent(v.pos,m.getKey(),v.width)) value+=35;
                     }
-                    if (value>high) {best=first[c]; high=value;}
+                    // Retain an observed objective between adjacent moves even as the ally takes a turn.
+                    if (team && c==destination && !v.monsters.containsKey(c)) value+=20;
+                    if (value>high) {best=first[c]; bestCell=c; high=value;}
                 }
             }
+            destination=bestCell;
             return best<0 ? new Input("WAIT",v.pos,0) : new Input("MOVE",best,0);
         }
     }
