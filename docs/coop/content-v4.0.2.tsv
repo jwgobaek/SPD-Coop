@@ -133,8 +133,8 @@ actors/buffs/Vulnerable	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatter
 actors/buffs/WandEmpower	actors/buffs	VERIFIED	CoopMageTest; Android combo build earned Mage meal, HUD and test generation boost=2 left=3 after restart / combo-delivery.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/WandEmpower.java
 actors/buffs/Weakness	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Weakness.java
 actors/buffs/WellFed	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/WellFed.java
-actors/hero/HeroClass.CLERIC	HeroClass	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
-actors/hero/HeroClass.DUELIST	HeroClass	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
+actors/hero/HeroClass.CLERIC	HeroClass	PARTIAL	Normal Android guest, starting spells and restored seat / docs/coop/wand-arts-android.md, docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
+actors/hero/HeroClass.DUELIST	HeroClass	PARTIAL	Normal Android host, starting gear and restored seat / docs/coop/wand-arts-android.md, docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
 actors/hero/HeroClass.HUNTRESS	HeroClass	VERIFIED	first-floor basic actions / CoopControllerTest, CoopPlayInputTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
 actors/hero/HeroClass.MAGE	HeroClass	VERIFIED	starting staff, two seats, disk restart / CoopMageTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
 actors/hero/HeroClass.ROGUE	HeroClass	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
@@ -375,7 +375,7 @@ actors/hero/spells/DivineIntervention.DivineShield	actors/hero/spells	UNSUPPORTE
 actors/hero/spells/DivineSense	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/DivineSense.java
 actors/hero/spells/DivineSense.DivineSenseTracker	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/DivineSense.java
 actors/hero/spells/Flash	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Flash.java
-actors/hero/spells/GuidingLight	actors/hero/spells	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/GuidingLight.java
+actors/hero/spells/GuidingLight	actors/hero/spells	PARTIAL	Android targeted shot and a second cast after both apps restarted / docs/coop/wand-arts-android.md, docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/GuidingLight.java
 actors/hero/spells/GuidingLight.GuidingLightPriestCooldown	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/GuidingLight.java
 actors/hero/spells/GuidingLight.Illuminated	actors/hero/spells	PARTIAL	Starting HolyTome cast, illuminated target and restoration on either seat / docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/GuidingLight.java
 actors/hero/spells/GuidingLight.WasIlluminatedTracker	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/GuidingLight.java
@@ -386,9 +386,9 @@ actors/hero/spells/HolyIntuition	actors/hero/spells	UNSUPPORTED		core/src/main/j
 actors/hero/spells/HolyLance	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyLance.java
 actors/hero/spells/HolyLance.HolyLanceVFX	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyLance.java
 actors/hero/spells/HolyLance.LanceCooldown	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyLance.java
-actors/hero/spells/HolyWard	actors/hero/spells	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyWard.java
+actors/hero/spells/HolyWard	actors/hero/spells	PARTIAL	Android cast and owner tome charge 3 to 2 / docs/coop/wand-arts-android.md, docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyWard.java
 actors/hero/spells/HolyWard.HolyArmBuff	actors/hero/spells	PARTIAL	Owner-only starter Holy Ward cast, charge and restored buff / docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyWard.java
-actors/hero/spells/HolyWeapon	actors/hero/spells	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyWeapon.java
+actors/hero/spells/HolyWeapon	actors/hero/spells	PARTIAL	TCP successful cast and restoration. Android rejection at one charge / docs/coop/wand-arts-android.md, docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyWeapon.java
 actors/hero/spells/HolyWeapon.HolyWepBuff	actors/hero/spells	PARTIAL	Owner-only starter Holy Weapon cast, charge and restored buff / docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyWeapon.java
 actors/hero/spells/InventoryClericSpell	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/InventoryClericSpell.java
 actors/hero/spells/Judgement	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Judgement.java
@@ -695,7 +695,7 @@ items/artifacts/DriedRose.WndGhostHero	items/artifacts	UNSUPPORTED		core/src/mai
 items/artifacts/DriedRose.roseRecharge	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/DriedRose.java
 items/artifacts/EtherealChains	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/EtherealChains.java
 items/artifacts/EtherealChains.chainsRecharge	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/EtherealChains.java
-items/artifacts/HolyTome	items/artifacts	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/HolyTome.java
+items/artifacts/HolyTome	items/artifacts	PARTIAL	Android starter spell menu, owner charge and cast after resume / docs/coop/wand-arts-android.md, docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/HolyTome.java
 items/artifacts/HolyTome.TomeRecharge	items/artifacts	PARTIAL	Reattachment to the actual owner and starter tome charge restoration / docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/HolyTome.java
 items/artifacts/HornOfPlenty	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/HornOfPlenty.java
 items/artifacts/HornOfPlenty.hornRecharge	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/HornOfPlenty.java
@@ -1139,7 +1139,7 @@ items/weapon/melee/MeleeWeapon	items/weapon/melee	UNSUPPORTED		core/src/main/jav
 items/weapon/melee/MeleeWeapon.Charger	items/weapon/melee	PARTIAL	Rapier and Crossbow ability charges for the actual Duelist, including restored distinct charges / docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/MeleeWeapon.java
 items/weapon/melee/Quarterstaff	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Quarterstaff.java
 items/weapon/melee/Quarterstaff.DefensiveStance	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Quarterstaff.java
-items/weapon/melee/Rapier	items/weapon/melee	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Rapier.java
+items/weapon/melee/Rapier	items/weapon/melee	PARTIAL	Android normal first-floor Lunge, legal landing and charge 2 to 1 / docs/coop/wand-arts-android.md, docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Rapier.java
 items/weapon/melee/RoundShield	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RoundShield.java
 items/weapon/melee/RoundShield.GuardTracker	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RoundShield.java
 items/weapon/melee/RunicBlade	items/weapon/melee	VERIFIED	seed 572 cave armored statue only, passive damage, chain proc, mail and blade IDs and drops; duelist ability excluded / CavesEntranceTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RunicBlade.java
