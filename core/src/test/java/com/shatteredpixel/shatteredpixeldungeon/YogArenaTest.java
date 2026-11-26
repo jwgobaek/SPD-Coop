@@ -174,6 +174,15 @@ public class YogArenaTest extends HeadlessDungeon {
         fight(game,defeated,null);
     }
 
+    private static boolean canApproach(Hero hero, int cell) {
+        for (int offset : PathFinder.NEIGHBOURS8) {
+            int next=cell+offset;
+            if (Dungeon.level.insideMap(next) && Dungeon.level.passable[next]
+                    && (Actor.findChar(next)==null || Actor.findChar(next)==hero)) return true;
+        }
+        return false;
+    }
+
     static StagedInput fight(CoopSession game, java.util.List<String> defeated,String boundary) {
         YogDzewa boss=resident(YogDzewa.class);
         boolean phaseFive=false;
@@ -207,6 +216,24 @@ public class YogArenaTest extends HeadlessDungeon {
                 if (before!=null && published(boundary)) return before;
             } else {
                 Mob target=fist==null ? boss : fist;
+                if (!canApproach(acting,target.pos)) {
+                    // A genuine summoning wave can occupy every cell next to the boss.
+                    // Clear its perimeter using normal attacks until the target is reachable.
+                    Mob defender=null;
+                    for (int offset : PathFinder.NEIGHBOURS8) {
+                        com.shatteredpixel.shatteredpixeldungeon.actors.Char ch=Actor.findChar(target.pos+offset);
+                        if (ch instanceof Mob && ch.alignment==Mob.Alignment.ENEMY && canApproach(acting,ch.pos)) {
+                            defender=(Mob)ch;
+                            break;
+                        }
+                    }
+                    if (defender!=null) MiningBranchTest.standBeside(game,defender.pos);
+                    if (defender!=null && game.observe(game.activeSeat()).visible(defender.pos) && defender.invisible==0) {
+                        assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ATTACK,defender.pos,null));
+                    } else TenguArenaTest.waitOne(game);
+                    assertFalse("party lost clearing the perimeter",game.defeated());
+                    continue;
+                }
                 MiningBranchTest.standBeside(game,target.pos);
                 boolean capture="kill".equals(boundary) && boss.phase()==5 && boss.HP<=100
                         || ("first".equals(boundary) || "second".equals(boundary) || "third".equals(boundary))
