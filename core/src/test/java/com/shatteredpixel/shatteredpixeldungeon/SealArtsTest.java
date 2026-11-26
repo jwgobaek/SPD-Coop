@@ -83,13 +83,14 @@ public class SealArtsTest extends HeadlessDungeon {
     static StagedInput stage(CoopSession game, String type, int seat, Rat rat) {
         Hero hero = game.hero(seat);
         Armor armor = hero.belongings.armor();
-        if (type.equals("recallrecharge")) {
+        if (type.equals("readrecharge") || type.equals("recallrecharge")) {
             hero.lvl = 15;
             assertTrue(CoopFloorsTest.step(game, CoopSession.Action.INVEST_TALENT,Talent.RECALL_INSCRIPTION.ordinal(),null));
             ScrollOfRecharging scroll = new ScrollOfRecharging();
             scroll.setKnown();
             assertTrue(scroll.collect(hero.belongings.backpack));
             game.ownership.claim(scroll,game.player(seat));
+            if (type.equals("readrecharge")) return new StagedInput(game,"READ_RECHARGING",0);
             assertTrue(CoopFloorsTest.step(game, CoopSession.Action.READ_RECHARGING, 0, scroll));
             assertNull(hero.belongings.getItem(ScrollOfRecharging.class));
             assertNotNull(hero.buff(Recharging.class));
@@ -297,6 +298,8 @@ public class SealArtsTest extends HeadlessDungeon {
         case "monkmeditate": return hero.buff(MonkEnergy.MonkAbility.Meditate.MeditationRecharge.class)!=null || hero.buff(Recharging.class)!=null;
         case "trinitymind": return Dungeon.level.mobs.stream().anyMatch(m->m.HP<m.HT) && ((ClassArmor)armor).charge<26;
         case "trinityspirit": return hero.buff(SpiritForm.SpiritFormBuff.class)!=null && hero.buff(SpiritForm.SpiritFormBuff.class).ring() instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste;
+        case "readrecharge": return hero.buff(Recharging.class) != null && RecallInscription.remembersRecharging(hero)
+                && hero.belongings.getItem(ScrollOfRecharging.class) == null && game.hero(1-seat).buff(Recharging.class) == null;
         case "recallrecharge": return hero.buff(Recharging.class) != null && hero.buff(RecallInscription.UsedItemTracker.class) == null
                 && hero.belongings.getItem(ScrollOfRecharging.class) == null && ((HolyTome)hero.belongings.artifact).charges() == 0;
         case "recallid": return hero.belongings.backpack.items.stream().anyMatch(i -> i instanceof ClothArmor && i.isIdentified()) && hero.buff(RecallInscription.UsedItemTracker.class)==null;

@@ -62,7 +62,7 @@ public final class MixedRoomStability {
             "strikevenom0", "strikevenom1", "heroicenergy0", "heroicenergy1", "food", "floor"};
 
     static final String[] CACHE_GROWTH = {"cacheinvest0","cacheinvest1","trinityblockhistory0","trinityblockhistory1",
-            "strikekinetic0","strikekinetic1","strikebloom0","strikebloom1","recallrecharge0","recallrecharge1","food","floor"};
+            "strikekinetic0","strikekinetic1","strikebloom0","strikebloom1","readrecharge0","readrecharge1","recallrecharge0","recallrecharge1","food","floor"};
 
     static final String[] SELECTORS = {"intuition0","intuition1","recallid0","recallid1",
             "trinityselect0","trinityselect1","trinitymindselect0","trinitymindselect1",
@@ -80,7 +80,7 @@ public final class MixedRoomStability {
         if (stage.startsWith("cacheinvest")) return seat == stage.charAt(stage.length()-1)-'0' ? "ROGUE" : "MAGE";
         if (stage.matches("(spark|ice|iceimbue|iceblast|icevolley|imbue|volley)[01]")) return "MAGE";
         if (stage.matches("(strikekinetic|strikebloom|strikeblock|strikeshock|strikevenom|heroicenergy|challenge|elestrike|feint|monkflurry|monkdash|monkdragonkick|monkmeditate|swap|monkfocus|stance|guardshield|lunge|spike|charged)[01]")) return "DUELIST";
-        if (stage.matches("(trinityblockhistory|recallrecharge|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinity|trinityselect|trinitymind|trinitymindselect|trinityspirit|trinityspiritselect|lightally|lightorder|ascendform|intuition|bless|recallid|radiance|smite|divinesense|sunray|lightshield|light|ward|blessweapon)[01]")) return "CLERIC";
+        if (stage.matches("(trinityblockhistory|readrecharge|recallrecharge|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinity|trinityselect|trinitymind|trinitymindselect|trinityspirit|trinityspiritselect|lightally|lightorder|ascendform|intuition|bless|recallid|radiance|smite|divinesense|sunray|lightshield|light|ward|blessweapon)[01]")) return "CLERIC";
         if (stage.matches("(hawk|direct)[01]") || stage.startsWith("blades")) return "HUNTRESS";
         if (stage.matches("(markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) return "ROGUE";
         if (stage.startsWith("beacon") || stage.startsWith("recall") || stage.startsWith("battery")) return "MAGE";
@@ -132,7 +132,7 @@ public final class MixedRoomStability {
             String visible=verb.equals("DETACH_SEAL") ? verb : "AFFIX_SEAL";
             item=view.belongings.stream().filter(it->view.actions(it).contains(visible)).findFirst().get().id;
         }
-        if(Arrays.asList("WEAPON_ABILITY","IMBUE","THROW","EAT","DRINK","ZAP","USE_CROWN","CLOAK","ARMOR_ABILITY").contains(verb)) {
+        if(Arrays.asList("READ_RECHARGING","WEAPON_ABILITY","IMBUE","THROW","EAT","DRINK","ZAP","USE_CROWN","CLOAK","ARMOR_ABILITY").contains(verb)) {
             item=view.belongings.stream().filter(it->view.actions(it).contains(verb))
                     .filter(it->!verb.equals("THROW") || it.kind.equals("DART") || it.kind.equals("SPIKE") || it.kind.equals("FOOD") && view.heroClass.equals("WARRIOR"))
                     .findFirst().orElseThrow(()->new AssertionError("missing public action "+verb)).id;
