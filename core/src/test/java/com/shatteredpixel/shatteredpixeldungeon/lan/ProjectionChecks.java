@@ -12,7 +12,12 @@ import static org.junit.Assert.*;
 
 public final class ProjectionChecks {
     public static PublicDungeon seatImage(CoopSession game, int seat) {
-        SeatProjection projection = new SeatProjection(UUID.randomUUID(),seat);
+        return seatImage(game,seat,UUID.randomUUID(),UUID.randomUUID());
+    }
+
+    public static PublicDungeon seatImage(CoopSession game, int seat, UUID sessionId, UUID shortcutSalt) {
+        SeatProjection projection = new SeatProjection(sessionId,seat);
+        projection.shortcutSalt=shortcutSalt;
         projection.capture(game,1,"IN_GAME",null,null);
         return new PublicDungeon(projection.current);
     }

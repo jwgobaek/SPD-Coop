@@ -135,3 +135,9 @@ TCP 47821과 UDP 47820을 기본값으로 채택했다. v1은 최대 두 좌석,
 ## P1-A provisional shop rules
 
 Both authenticated heroes spend the original shared Dungeon.gold on their offered turn. The original Shopkeeper sells stock at sellPrice and buys equipment at item.value(). His three most recent sales form a shop-wide FIFO. Each retained object keeps its seller as owner, and only that seller sees it and can buy it back at its native value. An evicted object exits circulation as in single-player. Purchases and buybacks require capacity before committing. This prevents an item paid for with shared gold being dropped into the other hero's possession. Opening a quote or cancelling it is local. This policy remains provisional.
+
+## 여섯 기본 직업의 성장권 적용 준비
+
+일반 방 생성 시 `LanRoom.persistentGame`은 가면과 왕관 각각 OFF를 선택한다. OWNER와 ROSTER는 명시적 시험방에서만 초기화한다. 차후 승인 시 새 방 생성자의 정책 인자 두 개를 각각 설정하고, 정상 로비의 참가·인증·저장 경로에서 시험용 아이템이나 층 배치 없이 검증한다. 이전 OFF 방을 복원하면 기존 OFF를 계승한다. 기존 저장본을 소급 변경하려면 과거 물품 소비와 좌석별 미사용 권리를 구별할 근거 및 별도 승인이 필요하다.
+
+지원되는 전직 또는 갑옷 능력이 없는 좌석은 그 선택을 확정하기 전에 거부한다. 권리 발급과 사용은 각각 잠긴 로스터의 원래 좌석과 기존 영수증으로 확인한다. ROSTER의 추가 선택권은 물리적 가면·왕관을 생성하지 않는다. 신규 직업의 상위 경로를 개방할 때 미사용 권리 보존, 기존 스키마 읽기, 선택 직후 HEAD 장애 복구를 다시 시험한다.

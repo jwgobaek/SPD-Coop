@@ -110,7 +110,7 @@ public class Rapier extends MeleeWeapon {
 		if (hero.rooted || Dungeon.level.distance(hero.pos, target) < 2
 				|| Dungeon.level.distance(hero.pos, target)-1 > wep.reachFactor(hero)){
 			GLog.w(Messages.get(wep, "ability_target_range"));
-			if (hero.rooted) PixelScene.shake( 1, 1f );
+			if (hero.rooted && Dungeon.coop == null) PixelScene.shake( 1, 1f );
 			return false;
 		}
 
@@ -133,7 +133,7 @@ public class Rapier extends MeleeWeapon {
 		final int dest = lungeCell;
 
 		hero.busy();
-		Sample.INSTANCE.play(Assets.Sounds.MISS);
+		if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.MISS);
 		Callback landed = new Callback() {
 			@Override
 			public void call() {
@@ -151,9 +151,9 @@ public class Rapier extends MeleeWeapon {
 						public void call() {
 
 							wep.beforeAbilityUsed(hero, enemy);
-							AttackIndicator.target(enemy);
+							if (Dungeon.coop == null) AttackIndicator.target(enemy);
 							if (hero.attack(enemy, dmgMulti, dmgBoost, Char.INFINITE_ACCURACY)) {
-								Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
+								if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
 								if (!enemy.isAlive()) {
 									wep.onAbilityKill(hero, enemy);
 								}

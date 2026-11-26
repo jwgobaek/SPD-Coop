@@ -1,6 +1,15 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Combo;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Ooze;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.GrippingTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.OozeTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
@@ -10,6 +19,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.wands.*;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.lan.ProjectionChecks;
 import com.shatteredpixel.shatteredpixeldungeon.lan.PublicDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.lan.SeatQuickslots;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 import static org.junit.Assert.*;
@@ -77,6 +87,58 @@ public final class WandArtsBoundaries extends HeadlessDungeon {
         }
     }
 
+    private static void fullInventory(int seat, boolean overCapacity) {
+        Bundle checkpoint;
+        long retained, staffId;
+        try (CoopSession g=CoopSession.open(572,11,HeroClass.MAGE)) {
+            g.join(22,HeroClass.MAGE);
+            CoopMageTest.encounter(g,seat);
+            SewerBeeTest.offer(g,seat);
+            Hero owner=g.hero(seat);
+            owner.lvl=9;
+            assertTrue(CoopFloorsTest.step(g,CoopSession.Action.INVEST_TALENT,Talent.WAND_PRESERVATION.ordinal(),null));
+            MagesStaff staff=(MagesStaff)owner.belongings.weapon();
+            staffId=g.ownership.identity(staff);
+            Wand old=staff.imbuedWand();
+            retained=g.ownership.identity(old);
+            Wand next=WandArtsTest.give(g,seat,new WandOfFireblast());
+            com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag bag=owner.belongings.backpack;
+            while (bag.items.size()<bag.capacity()) {
+                com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor armor=new com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor();
+                assertTrue(armor.collect(bag));
+                g.ownership.claim(armor,g.player(seat));
+            }
+            if (overCapacity) {
+                // Only a staged, previously over-capacity bag can still be full after the incoming wand leaves.
+                com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor extra=new com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor();
+                bag.items.add(extra);
+                g.ownership.claim(extra,g.player(seat));
+            }
+            assertTrue(CoopFloorsTest.step(g,CoopSession.Action.IMBUE,WandArtsTest.choice(g,seat,next),staff));
+            assertEquals(!overCapacity,bag.contains(old));
+            if (overCapacity) assertTrue(Dungeon.level.heaps.get(owner.pos).items.contains(old));
+            checkpoint=g.checkpoint();
+        }
+        try (CoopSession g=CoopSession.restore(checkpoint)) {
+            Hero owner=g.hero(seat);
+            assertEquals(staffId,g.ownership.identity(owner.belongings.weapon()));
+            Wand old=overCapacity ? (Wand)Dungeon.level.heaps.get(owner.pos).peek() : owner.belongings.getItem(WandOfMagicMissile.class);
+            assertEquals(retained,g.ownership.identity(old));
+            assertEquals(g.player(seat),g.ownership.owner(old));
+            if (overCapacity) {
+                assertFalse(g.ownership.allowed(old,g.player(1-seat)));
+                com.shatteredpixel.shatteredpixeldungeon.items.Item armor=owner.belongings.backpack.items.stream()
+                        .filter(i->i instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor).findFirst().get();
+                // The fixture clears one slot; recovery itself uses the native pickup action.
+                armor.detachAll(owner.belongings.backpack);
+                SewerBeeTest.offer(g,seat);
+                assertTrue(CoopFloorsTest.step(g,CoopSession.Action.PICK_UP,owner.pos,old));
+                assertTrue(owner.belongings.backpack.contains(old));
+                assertEquals(retained,g.ownership.identity(old));
+            }
+        }
+    }
+
     private static void replayVolley(int seat) {
         Bundle staged;
         int cell;
@@ -110,14 +172,112 @@ public final class WandArtsBoundaries extends HeadlessDungeon {
         }
     }
 
+    private static void twoPreservationCounters() {
+        Bundle checkpoint;
+        SeatQuickslots[] layouts=new SeatQuickslots[2];
+        String[] references=new String[2];
+        java.util.UUID sessionId=java.util.UUID.randomUUID();
+        java.util.UUID[] salts={java.util.UUID.randomUUID(),java.util.UUID.randomUUID()};
+        try (CoopSession game=CoopSession.open(572,11,HeroClass.MAGE)) {
+            game.join(22,HeroClass.MAGE);
+            CoopMageTest.encounter(game,0);
+            for (int seat=0;seat<2;seat++) {
+                Hero hero=game.hero(seat);
+                hero.lvl=9;
+                SewerBeeTest.offer(game,seat);
+                for (int i=0;i<=seat;i++) assertTrue(CoopFloorsTest.step(game,CoopSession.Action.INVEST_TALENT,Talent.WAND_PRESERVATION.ordinal(),null));
+                MagesStaff staff=(MagesStaff)hero.belongings.weapon();
+                Wand wand=WandArtsTest.give(game,seat,seat==0 ? new WandOfFireblast() : new WandOfBlastWave());
+                PublicDungeon image=ProjectionChecks.seatImage(game,seat,sessionId,salts[seat]);
+                layouts[seat]=SeatQuickslots.defaults(image);
+                references[seat]=layouts[seat].item(0,image).reference;
+                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.IMBUE,WandArtsTest.choice(game,seat,wand),staff));
+                assertNotNull(hero.buff(Talent.WandPreservationCounter.class));
+            }
+            checkpoint=game.checkpoint();
+        }
+        try (CoopSession game=CoopSession.restore(checkpoint)) {
+            for (int seat=0;seat<2;seat++) {
+                Hero hero=game.hero(seat);
+                assertNotNull(hero.buff(Talent.WandPreservationCounter.class));
+                assertEquals(references[seat],layouts[seat].item(0,ProjectionChecks.seatImage(game,seat,sessionId,salts[seat])).reference);
+            }
+            Hero guest=game.hero(1);
+            guest.earnExp(guest.maxExp(),Rat.class);
+            assertNull(guest.buff(Talent.WandPreservationCounter.class));
+            assertNotNull(game.hero(0).buff(Talent.WandPreservationCounter.class));
+        }
+    }
+
+    private static void enhancedLanding(int seat, Trap trap) {
+        try (CoopSession game=CoopSession.open(571,11,HeroClass.WARRIOR)) {
+            game.join(22,HeroClass.WARRIOR);
+            SubclassActionTest.stage(game,"enhanced"+seat,seat);
+            Rat rat=(Rat)Dungeon.level.mobs.iterator().next();
+            Hero hero=game.hero(seat);
+            int landing=rat.pos-1;
+            Dungeon.level.setTrap(trap,landing);
+            Level.set(landing,Terrain.SECRET_TRAP);
+            trap.hide();
+            game.observe(seat);
+            assertTrue(CoopFloorsTest.step(game,CoopSession.Action.CLOBBER,rat.pos,null));
+            assertEquals(landing,hero.pos);
+            assertEquals(trap.disarmedByActivation ? Terrain.INACTIVE_TRAP : Terrain.TRAP,Dungeon.level.map[landing]);
+            if (trap instanceof GrippingTrap) assertNotNull(hero.buff(Cripple.class));
+            else assertNotNull(hero.buff(Ooze.class));
+            game.checkpoint();
+        }
+    }
+
+    private static void parrySeparateAttackers(int seat, boolean lethal) {
+        try (CoopSession game=CoopSession.open(571,11,HeroClass.WARRIOR)) {
+            game.join(22,HeroClass.WARRIOR);
+            SubclassActionTest.stage(game,"parryready"+seat,seat);
+            Hero hero=game.hero(seat);
+            Rat first=(Rat)Dungeon.level.mobs.iterator().next();
+            game.hero(1-seat).pos=first.pos+Dungeon.level.width()+1;
+            if (lethal) first.HP=1;
+            first.timeToNow();
+            first.aggro(hero);
+            first.state=first.HUNTING;
+            Rat second=new Rat();
+            second.pos=hero.pos-1;
+            second.HT=second.HP=200;
+            second.aggro(hero);
+            second.state=second.HUNTING;
+            GameScene.add(second,0);
+            int hp=hero.HP;
+            assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PARRY,hero.pos,null));
+            for (int n=0;n<3 && (first.HP==(lethal?1:first.HT) || second.HP==second.HT);n++)
+                TenguArenaTest.waitOne(game);
+            if (lethal) assertFalse(first.isAlive());
+            else assertTrue("first attacker "+first.HP,first.HP<first.HT);
+            assertTrue("second attacker "+second.HP,second.HP<second.HT);
+            assertEquals(hp,hero.HP);
+            assertNull(game.hero(1-seat).buff(Combo.class));
+            game.checkpoint();
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         WandArtsBoundaries probe=new WandArtsBoundaries();
         probe.temporary.create();
         probe.startBackend();
         try {
+            twoPreservationCounters();
+            System.out.println("PASS two independent preservation counters and restored staff shortcuts");
             for (int seat=0;seat<2;seat++) {
+                parrySeparateAttackers(seat,false);
+                parrySeparateAttackers(seat,true);
+                System.out.println("PASS scheduled distinct attackers and two ripostes seat "+seat);
+                enhancedLanding(seat,new GrippingTrap());
+                enhancedLanding(seat,new OozeTrap());
+                System.out.println("PASS enhanced leap native gripping and ooze traps seat "+seat);
                 replaceTwice(seat);
                 System.out.println("PASS repeated imbue and unknown level seat "+seat);
+                fullInventory(seat,false);
+                fullInventory(seat,true);
+                System.out.println("PASS full inventory and staged overflow, restore and owner pickup seat "+seat);
                 replayVolley(seat);
                 System.out.println("PASS restored heterogeneous four-shot volley seat "+seat);
                 travelWithHawk(seat);

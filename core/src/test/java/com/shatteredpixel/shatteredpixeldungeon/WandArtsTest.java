@@ -15,6 +15,10 @@ import com.shatteredpixel.shatteredpixeldungeon.lan.ProjectionChecks;
 import com.shatteredpixel.shatteredpixeldungeon.lan.PublicDungeon;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.GrippingTrap;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -93,6 +97,40 @@ public class WandArtsTest extends HeadlessDungeon {
                 hero.earnExp(hero.maxExp(),Rat.class);
                 assertEquals(rank==1,hero.buff(Talent.WandPreservationCounter.class)!=null);
             }
+        }
+    }
+
+    @Test public void rapierRejectsRootedOrOccupiedLandingAndTriggersTheNativeTrap() {
+        for (int seat=0;seat<2;seat++)
+        try (CoopSession game=CoopSession.open(571,11,HeroClass.DUELIST)) {
+            game.join(22,HeroClass.DUELIST);
+            Rat target=CoopMageTest.encounter(game,seat);
+            SewerBeeTest.offer(game,seat);
+            Hero hero=game.hero(seat);
+            WandArtsTest.stage(game,"lunge",seat,target);
+            MeleeWeapon weapon=
+                    (MeleeWeapon)hero.belongings.weapon();
+            int start=hero.pos;
+            hero.rooted=true;
+            assertFalse(CoopFloorsTest.step(game,CoopSession.Action.WEAPON_ABILITY,target.pos,weapon));
+            hero.rooted=false;
+            assertFalse(CoopFloorsTest.step(game,CoopSession.Action.WEAPON_ABILITY,hero.pos-2,weapon));
+            int w=Dungeon.level.width();
+            Level.set(start+1-w,Terrain.WALL);
+            Level.set(start+1+w,Terrain.CHASM);
+            game.hero(1-seat).pos=start+1;
+            assertFalse(CoopFloorsTest.step(game,CoopSession.Action.WEAPON_ABILITY,target.pos,weapon));
+            assertEquals(start,hero.pos);
+            assertEquals(2,hero.buff(MeleeWeapon.Charger.class).charges);
+            game.hero(1-seat).pos=start-w;
+            Dungeon.level.setTrap(new GrippingTrap(),start+1);
+            Level.set(start+1,Terrain.SECRET_TRAP);
+            Dungeon.level.traps.get(start+1).hide();
+            assertTrue(CoopFloorsTest.step(game,CoopSession.Action.WEAPON_ABILITY,target.pos,weapon));
+            assertEquals(start+1,hero.pos);
+            assertNotNull(hero.buff(Cripple.class));
+            assertTrue(target.HP<target.HT);
+            game.checkpoint();
         }
     }
 
