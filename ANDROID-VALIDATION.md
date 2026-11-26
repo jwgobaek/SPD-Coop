@@ -1,5 +1,9 @@
 # Android validation backlog
 
+## 결투가와 성직자의 일반 방
+
+Android 15 두 기기에 같은 서명으로 업데이트한 뒤 일반 방에서 결투가의 레이피어 돌진과 성직자의 신성 방어·인도하는 빛을 실제 입력했다. [설치, 재접속 및 기기 실측](docs/coop/wand-arts-android.md)
+
 ## 도적과 실제 식사 강화 발사
 
 두 Android의 데이터 보존 업데이트, 일반 도적 망토 3→2, 게스트 프로세스 재접속과 스키마 18의 70세대 재개, 기존 시험방의 실제 강화 발사 및 잔여 3→2를 확인했다. [Android 실측](docs/coop/upper-growth-android.md)
