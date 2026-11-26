@@ -175,7 +175,7 @@ public final class RestartClient {
                 if (mode.startsWith("tengu-setup-growth-")) {
                     character=i==0?"WARRIOR":"HUNTRESS";
                     if (mode.matches(".*-cloak[01]")) character="ROGUE";
-                    if (mode.matches(".*-(enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
+                    if (mode.matches(".*-(leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
                     if (mode.matches(".*-(blades|sniper|nature)[01]")) character="HUNTRESS";
                     if (mode.matches(".*-(battery|recall|beacon|meal|blast|warlock|battlemage|soul)[01]")) character="MAGE";
                 }

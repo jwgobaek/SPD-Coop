@@ -28,6 +28,13 @@ public final class VaultPublicRoute {
         final boolean team=Boolean.getBoolean("vault.guide.team");
         final String regroup = System.getProperty("vault.guide.regroup","off");
         int rendezvous = -1;
+        int allyDoor = -1;
+        boolean doorwayStrategy() { return regroup.equals("doorway") || regroup.equals("followdoor"); }
+        private boolean visibleDoor(PublicDungeon v, int cell) {
+            if (cell<0 || !v.visible(cell)) return false;
+            int tile=v.terrain(cell);
+            return tile==Terrain.DOOR || tile==Terrain.OPEN_DOOR;
+        }
         int missingTurns;
         boolean escortFollower;
         int reunions;
@@ -119,11 +126,23 @@ public final class VaultPublicRoute {
             boolean returning = rendezvous>=0 && !regroup.equals("off") && (missingTurns>0
                     || regroup.equals("cover") && v.ally>=0 && distance(v.pos,v.ally,v.width)>3);
             int meetingCell = v.ally>=0 ? v.ally : rendezvous;
-            boolean escort=regroup.equals("escort") || regroup.equals("doorway");
+            boolean escort=regroup.equals("escort") || doorwayStrategy();
             if (escort && v.ally>=0)
                 returning=escortFollower && distance(v.pos,v.ally,v.width)>2;
             if (!reviveDenied && v.ally>=0 && adjacent(v.pos,v.ally,v.width) && "DOWNED".equals(v.source.rows.get("allylife"))) {
                 return new Input("REVIVE",v.ally,0);
+            }
+            if (regroup.equals("followdoor") && escortFollower && team) {
+                // Follow a door actually seen under the ally. Give the ally a chance to clear it.
+                if (visibleDoor(v,v.ally) && v.hp*3<v.maxHp) allyDoor=v.ally;
+                if (allyDoor==v.pos || allyDoor>=0 && (visits.getOrDefault(allyDoor,0)>2
+                        || v.monsters.containsKey(allyDoor) || v.source.rows.containsKey("aim"+allyDoor))) allyDoor=-1;
+                if (visibleDoor(v,allyDoor) && adjacent(v.pos,allyDoor,v.width)
+                        && !blocked.contains(allyDoor) && !v.source.rows.containsKey("trap"+allyDoor)
+                        && exposedTo(v,allyDoor)<=exposedTo(v,v.pos)) {
+                    if (allyDoor!=v.ally) return new Input("MOVE",allyDoor,0);
+                    if (dangerDistance(v,v.pos)>1) return new Input("WAIT",0,0);
+                }
             }
             for (int c : new TreeSet<>(v.floor.keySet())) {
                 if (v.chest(c) && c!=v.pos && adjacent(v.pos,c,v.width) && !rejectedChests.contains(c)) return new Input("OPEN",c,0);
@@ -198,7 +217,7 @@ public final class VaultPublicRoute {
                                 && !adjacent(v.pos,m.getKey(),v.width)) value+=35;
                     }
                     // Retain an observed objective between adjacent moves even as the ally takes a turn.
-                    if (regroup.equals("doorway") && v.ally>=0 && escortFollower && v.visible(c) &&
+                    if (doorwayStrategy() && v.ally>=0 && escortFollower && v.visible(c) &&
                             (tile==Terrain.DOOR || tile==Terrain.OPEN_DOOR) && adjacent(c,v.ally,v.width))
                         value+=30/(1+visits.getOrDefault(c,0));
                     if (team && c==destination && !v.monsters.containsKey(c)) value+=20;

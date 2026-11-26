@@ -193,11 +193,40 @@ public class SubclassActionTest extends HeadlessDungeon {
             h.lvl=9;
             assertTrue(CoopFloorsTest.step(g, CoopSession.Action.INVEST_TALENT,Talent.SHIELD_BATTERY.ordinal(),null));
             return new StagedInput(g,"ZAP",h.pos);
-        case "enhanced":
+        case "lethal":
+            prepare(g,seat,rat,8);
+            h.lvl=25;
+            assertTrue(CoopFloorsTest.step(g,CoopSession.Action.INVEST_TALENT,Talent.LETHAL_DEFENSE.ordinal(),null));
+            h.belongings.weapon().upgrade(12);
+            Rat extra=new Rat();
+            rat.HP=extra.HP=1;
+            extra.pos=rat.pos+Dungeon.level.width();
+            com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.add(extra,2000);
+            return new StagedInput(g,"CRUSH",rat.pos);
+        case "doubleparry": case "parryready":
+            prepare(g,seat,rat,9);
+            h.lvl=25;
+            for (int i=0;i<2;i++) assertTrue(CoopFloorsTest.step(g,CoopSession.Action.INVEST_TALENT,Talent.ENHANCED_COMBO.ordinal(),null));
+            if(type.equals("parryready")) return new StagedInput(g,"PARRY",h.pos);
+            Buff.affect(h,Combo.ParryTracker.class,Actor.TICK);
+            int before=h.HP;
+            rat.attack(h,1,0,1f);
+            assertNotNull(h.buff(Combo.ParryTracker.class));
+            rat.attack(h,1,0,1f);
+            assertEquals(before,h.HP);
+            assertNotNull(h.buff(Combo.RiposteTracker.class));
+            return new StagedInput(g,"WAIT",0);
+        case "leaptrap": case "enhanced":
             prepare(g,seat,rat,10);
             h.lvl=25;
             for (int i=0;i<3;i++) assertTrue(CoopFloorsTest.step(g,CoopSession.Action.INVEST_TALENT,Talent.ENHANCED_COMBO.ordinal(),null));
             h.pos=rat.pos-3;
+            if(type.equals("leaptrap")) {
+                int dest=rat.pos-1;
+                Dungeon.level.setTrap(new com.shatteredpixel.shatteredpixeldungeon.levels.traps.WornDartTrap(),dest);
+                com.shatteredpixel.shatteredpixeldungeon.levels.Level.set(dest,com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.SECRET_TRAP);
+                Dungeon.level.traps.get(dest).hide();
+            }
             g.observe(seat);
             return new StagedInput(g,"CLOBBER",rat.pos);
         case "blades": case "beacon": case "recall": case "endure":
@@ -282,10 +311,18 @@ public class SubclassActionTest extends HeadlessDungeon {
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
         case "battery": return h.buff(Barrier.class)!=null && ((com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff)h.belongings.weapon()).starterWand().curCharges==0;
+        case "lethal":
+            Bundle seal=new Bundle();
+            h.buff(com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal.WarriorShield.class).storeInBundle(seal);
+            return seal.getInt("cooldown")==-100 && Dungeon.level.mobs.stream().noneMatch(m->m instanceof Rat);
+        case "parryready": return h.pointsInTalent(Talent.ENHANCED_COMBO)==2 && (combo==null || !combo.canUseMove(Combo.ComboMove.PARRY));
+        case "doubleparry": return h.buff(Combo.RiposteTracker.class)==null && Dungeon.level.mobs.stream().anyMatch(m->m.HP<m.HT);
+        case "leaptrap": return Dungeon.level.map[h.pos]==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.INACTIVE_TRAP
+                && combo!=null && !combo.canUseMove(Combo.ComboMove.CLOBBER);
         case "enhanced": return combo!=null && !combo.canUseMove(Combo.ComboMove.CLOBBER)
                 && Dungeon.level.mobs.stream().anyMatch(m->m.buff(Vertigo.class)!=null);
         case "blades": return h.armorAbility instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpectralBlades
-                && ((com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor)h.belongings.armor()).charge<20;
+                && ((com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor)h.belongings.armor()).charge < 26;
         case "endure": return h.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.Endure.EndureTracker.class)!=null;
         case "beacon": return h.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.WarpBeaconTracker.class)!=null;
         case "recall": return h.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.WarpBeaconTracker.class)!=null

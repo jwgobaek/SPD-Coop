@@ -1,6 +1,18 @@
 package com.shatteredpixel.shatteredpixeldungeon.lan;
 
 import com.shatteredpixel.shatteredpixeldungeon.ImpVaultTest;
+import com.shatteredpixel.shatteredpixeldungeon.CoopMageTest;
+import com.shatteredpixel.shatteredpixeldungeon.CoopSession;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.MiningBranchTest;
+import com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest;
+import com.shatteredpixel.shatteredpixeldungeon.SewerSpecialActorTest;
+import com.shatteredpixel.shatteredpixeldungeon.StagedInput;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart;
+import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import java.io.File;
@@ -37,7 +49,65 @@ public final class MixedRoomStability {
         }
         return guide.choose(view);
     }
-    void play(LanRoom room,InetSocketAddress addr,int budget) throws Exception {
+    // Deliberately arranged rooms are reported separately from the ordinary start workload.
+    static final String[] GROWTH = {"third0","enhanced1","shock0","endure1","blades0","beacon1",
+            "recall0","crown0","battery1","cloak0","dart","food","healing","floor","mine"};
+
+    static String stageClass(String stage,int seat) {
+        if (stage==null) return seat==0 && Boolean.getBoolean("stability.rogue")?"ROGUE":seat==0?"MAGE":"HUNTRESS";
+        if (stage.startsWith("blades")) return "HUNTRESS";
+        if (stage.startsWith("cloak")) return "ROGUE";
+        if (stage.startsWith("beacon") || stage.startsWith("recall") || stage.startsWith("battery")) return "MAGE";
+        return "WARRIOR";
+    }
+
+    static VaultPublicRoute.Input arrange(String stage) {
+        CoopSession room=Dungeon.coop;
+        Hero h=room.hero(room.activeSeat());
+        int cell=h.pos;
+        String verb;
+        switch(stage) {
+        case "floor":
+            cell=Dungeon.level.getTransition(LevelTransition.Type.REGULAR_EXIT).cell();
+            SewerSpecialActorTest.atGate(room,cell);
+            verb="TRAVEL";
+            break;
+        case "mine":
+            cell=MiningBranchTest.prepareBoundary(room,"gnoll-enter");
+            verb="TRAVEL";
+            break;
+        case "dart": case "healing": case "food":
+            cell=CoopMageTest.encounter(room,room.activeSeat()).pos;
+            if (!stage.equals("food")) {
+                Item item=stage.equals("dart")?new Dart():new PotionOfHealing();
+                item.identify();
+                if(item instanceof Dart) item.quantity(4);
+                assertTrue(item.collect(h.belongings.backpack));
+                room.ownership.claim(item,room.player(room.activeSeat()));
+            }
+            verb=stage.equals("dart")?"THROW":stage.equals("healing")?"DRINK":"EAT";
+            if(!stage.equals("dart")) cell=0;
+            break;
+        default:
+            StagedInput staged=PlayerGrowthTest.stage(room,stage);
+            verb=staged.verb;
+            cell=staged.cell;
+        }
+        return new VaultPublicRoute.Input(verb,cell,0);
+    }
+
+    static VaultPublicRoute.Input fromView(PublicDungeon view,VaultPublicRoute.Input staged) {
+        String verb=staged.action;
+        long item=0;
+        if(Arrays.asList("THROW","EAT","DRINK","ZAP","USE_CROWN","CLOAK","ARMOR_ABILITY").contains(verb)) {
+            item=view.belongings.stream().filter(it->view.actions(it).contains(verb))
+                    .filter(it->!verb.equals("THROW") || it.kind.equals("DART"))
+                    .findFirst().orElseThrow(()->new AssertionError("missing public action "+verb)).id;
+        }
+        return new VaultPublicRoute.Input(verb,staged.cell,item);
+    }
+
+    void play(LanRoom room,InetSocketAddress addr,int budget,String stage,CompletableFuture<VaultPublicRoute.Input> ready) throws Exception {
         LanClient[] clients={LanClient.synchronizedGame(addr),LanClient.synchronizedGame(addr)};
         try {
             SeatCredential[] keys={SeatCredential.generate(),SeatCredential.generate()};
@@ -49,15 +119,16 @@ public final class MixedRoomStability {
                 assertTrue(clients[i].request(i==0?room.hostJoinCommand():"JOIN").startsWith("JOINED "));
                 UUID seated=UUID.fromString(keys[i].enroll(clients[i]).split(" ")[1]);
                 if(i==0) epoch=seated; else assertEquals(epoch,seated);
-                clients[i].request(i==0 && Boolean.getBoolean("stability.rogue") ? "SELECT ROGUE" : i==0?"SELECT MAGE":"SELECT HUNTRESS");
+                assertEquals("OK",clients[i].request("SELECT "+stageClass(stage,i)));
                 images[i]=new DisplayReplica(room.session,i);
                 actions[i]=new SeatActions(room.session,i,i+1);
             }
             for(LanClient c:clients)c.request("READY 1");
             assertEquals("GAME_STARTED",clients[0].request("START"));
+            VaultPublicRoute.Input first=stage==null?null:ready.get(90,TimeUnit.SECONDS);
             int seat=0;
             for(int n=0;n<budget;n++) {
-                if(n==15 || n%100==99) {
+                if((n==0 && first!=null) || n==15 || n%100==99) {
                     clients[1].close();
                     clients[1]=LanClient.synchronizedGame(addr);
                     assertTrue(keys[1].reconnect(clients[1],epoch,1,2).startsWith("RESUMED "));
@@ -73,10 +144,22 @@ public final class MixedRoomStability {
                     images[seat].refresh(clients[seat]);
                 }
                 PublicDungeon v=new PublicDungeon(images[seat].image());
-                VaultPublicRoute.Input move=input(v,guides[seat]);
+                if(n==0 && first!=null && first.action.equals("TRAVEL")) {
+                    int other=1-seat;
+                    images[other].refresh(clients[other]);
+                    SeatActions.Pending consent=actions[other].prepare(images[other].image(),"CONSENT",first.cell,0);
+                    long began=System.nanoTime();
+                    assertTrue(consent.submit(clients[other]).endsWith(" APPLIED"));
+                    verbs.merge("CONSENT",1,Integer::sum);
+                    latencies.add(System.nanoTime()-began);
+                    images[seat].refresh(clients[seat]);
+                    v=new PublicDungeon(images[seat].image());
+                }
+                VaultPublicRoute.Input move=n==0 && first!=null?fromView(v,first):input(v,guides[seat]);
                 SeatActions.Pending action=actions[seat].prepare(v.source,move.action,move.cell,move.item);
                 long start=System.nanoTime();
                 String receipt=action.submit(clients[seat]);
+                if(n==0 && first!=null) assertTrue(stage+" "+receipt,receipt.endsWith(" APPLIED"));
                 if(receipt.endsWith(" APPLIED") || receipt.endsWith(" PARTY_DEFEATED")) {
                     verbs.merge(move.action,1,Integer::sum);
                     latencies.add(System.nanoTime()-start);
@@ -97,13 +180,27 @@ public final class MixedRoomStability {
         }
     }
 
-    void room(File root,int seed,int budget) throws Exception {
+    void room(File root,int seed,int budget,String stage) throws Exception {
         InetAddress loop=InetAddress.getLoopbackAddress();
         ExecutorService worker=Executors.newSingleThreadExecutor();
         try(LanRoom room=LanRoom.persistentGame(loop,0,0,seed,new CoopSaves(root))) {
             InetSocketAddress address=new InetSocketAddress(loop,room.tcpPort());
-            Future<?> run=worker.submit(()-> {play(room,address,budget);return null;});
-            while(!run.isDone()) {room.pump();Thread.sleep(1);}
+            CompletableFuture<VaultPublicRoute.Input> ready=new CompletableFuture<>();
+            Future<?> run=worker.submit(()-> {play(room,address,budget,stage,ready);return null;});
+            while(!run.isDone()) {
+                room.pump();
+                if(stage!=null && !ready.isDone() && room.state()==LanRoom.State.IN_GAME) {
+                    try {
+                        VaultPublicRoute.Input first=arrange(stage);
+                        room.save();
+                        ready.complete(first);
+                    } catch(Throwable error) {
+                        ready.completeExceptionally(error);
+                        throw error;
+                    }
+                }
+                Thread.sleep(1);
+            }
             run.get();
             long start=System.nanoTime();
             room.saveAndClose();
@@ -151,7 +248,8 @@ public final class MixedRoomStability {
         try {
             MixedRoomStability trial=new MixedRoomStability();
             for(int i=0;i<Integer.parseInt(args[0]);i++) {
-                trial.room(fixture.temporary.getRoot(),570+i%12,Integer.parseInt(args[1]));
+                String stage=Boolean.getBoolean("stability.growth")?GROWTH[i%GROWTH.length]:null;
+                trial.room(fixture.temporary.getRoot(),"mine".equals(stage)?571:570+i%12,Integer.parseInt(args[1]),stage);
                 trial.observe(fixture.temporary.getRoot(),i+1);
             }
         } finally {fixture.stopBackend();fixture.temporary.delete();}
