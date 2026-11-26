@@ -191,7 +191,7 @@ actors/hero/Talent.ELEMENTAL_POWER	Talent	UNSUPPORTED		core/src/main/java/com/sh
 actors/hero/Talent.ELEMENTAL_REACH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ELIMINATION_MATCH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.EMPOWERED_STRIKE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.EMPOWERING_MEAL	Talent	PLAYER_TCP	Both mage seats, original food effect, WandEmpower duration and bonus after restore. PlayerGrowthTest.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.EMPOWERING_MEAL	Talent	PLAYER_TCP	Both mage seats, native food effect, WandEmpower duration and bonus after restore. Android two-seat run: earned, invested and restored a point. PlayerGrowthTest, dart-growth-delivery.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ENDLESS_RAGE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ENERGIZING_MEAL	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ENHANCED_COMBO	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -211,7 +211,7 @@ actors/hero/Talent.FEIGNED_RETREAT	Talent	UNSUPPORTED		core/src/main/java/com/sh
 actors/hero/Talent.FIRE_EVERYTHING	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.FLASH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.FOCUSED_MEAL	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.FOLLOWUP_STRIKE	Talent	PARTIAL	Tier-one investment on huntress, TCP restore. ExperienceProgress spends points on original runs. Marked follow-up damage needs a separate boundary.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.FOLLOWUP_STRIKE	Talent	PLAYER_TCP	Tier-one investment and TCP restore. Seat-owned follow-up marks consumed after real dart and melee attacks. Matched damage host 2 to 4 and guest 3 to 5. dart-growth-results.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.GO_FOR_THE_EYES	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.GROWING_POWER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.HALLOWED_GROUND	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -1182,7 +1182,7 @@ items/weapon/missiles/darts/AdrenalineDart	items/weapon/missiles	UNSUPPORTED		co
 items/weapon/missiles/darts/BlindingDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/BlindingDart.java
 items/weapon/missiles/darts/ChillingDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/ChillingDart.java
 items/weapon/missiles/darts/CleansingDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/CleansingDart.java
-items/weapon/missiles/darts/Dart	items/weapon/missiles	PLAYER_TCP	572 cell 1872 pickup and public throws. Separate owners in one PinCushion, native miss and empty-cell landing, owner recovery. Scope excludes tipping. PrisonProjectileTest, DartFlightChecks, HostRestartTest.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/Dart.java
+items/weapon/missiles/darts/Dart	items/weapon/missiles	PLAYER_TCP	572 cell 1872 pickup and public throws. Separate owners in one PinCushion, native miss and empty-cell landing, owner recovery. Korean and English Desktop quickslot aim, cancel and supervised throw reduced 2 to 1. Scope excludes tipping. PrisonProjectileTest, DartFlightChecks, HostRestartTest.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/Dart.java
 items/weapon/missiles/darts/DisplacingDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/DisplacingDart.java
 items/weapon/missiles/darts/HealingDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/HealingDart.java
 items/weapon/missiles/darts/HolyDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/HolyDart.java

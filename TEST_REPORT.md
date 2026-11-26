@@ -2,6 +2,8 @@
 
 ## 다트 및 성장 입력 체크포인트
 
+기준 230/230, APK 소스 1c47efc 전체 회귀 238/238 PASS. 독립 JVM 확정 경계 10회, 강화 배치 570~581의 일반 승리 12/12, 50개 독립 방의 대기 10,000회 및 두 좌석 재접속 130회를 별도 검증했다. Android에서 두 좌석이 2층에 도달했고 마법사의 실제 초기 특성 투자와 재실행 후 복원이 PASS였다. [Android 및 빌드](docs/coop/dart-growth-delivery.md)
+
 570~581의 기존 배치형 승리 기록과 이번 금고 입구 시험을 분리했다. 새 JVM 재접속 시험은 다트, 특성 및 가면의 확정 경계를 검사한다. [실행 결과](docs/coop/dart-growth-results.md)
 
 **새 APK 4c2054e, 두 MuMu PASS.** Android 15 두 좌석이 같은 설치 해시에서 신규 방 생성·참가·직업 선택·준비·시작, 실제 이동·턴 동기화, 지팡이 및 돌 조준·사용, 게스트 프로세스 종료·재인증, 호스트 저장·닫기·양쪽 재개를 수행했다. 재인증 후 양쪽 진단 Turn 69, State Version 78, pending 0, PERSISTENT가 일치했다. [설치·시험·PC 정리](docs/coop/vault-play-delivery.md)
