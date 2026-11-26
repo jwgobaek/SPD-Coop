@@ -21,11 +21,50 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.watabou.utils.Bundle;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.watabou.noosa.Image;
 
 public class SoulMark extends FlavourBuff {
+	private int casterId;
+
+	public static void applyFrom(Hero caster, Char target, float duration) {
+		if (Dungeon.coop == null) {
+			prolong(target, SoulMark.class, duration);
+			return;
+		}
+		SoulMark existing = target.buff(SoulMark.class);
+		// One native mark per enemy. A second caster cannot steal or extend the first caster's mark.
+		if (existing != null && existing.casterId != caster.id()) return;
+		SoulMark mark = prolong(target, SoulMark.class, duration);
+		if (mark != null) mark.casterId = caster.id();
+	}
+
+	public static Hero source(Char target) {
+		SoulMark mark = target.buff(SoulMark.class);
+		if (mark == null) return null;
+		if (Dungeon.coop == null) return Dungeon.hero;
+		for (int seat = 0; seat < 2; seat++) {
+			Hero hero = Dungeon.coop.hero(seat);
+			if (hero != null && hero.id() == mark.casterId && hero.isAlive()) return hero;
+		}
+		return null;
+	}
+
+	@Override public void storeInBundle(Bundle data) {
+		super.storeInBundle(data);
+		if (casterId != 0) data.put("caster_id",casterId);
+	}
+
+	@Override public void restoreFromBundle(Bundle data) {
+		super.restoreFromBundle(data);
+		casterId = data.getInt("caster_id");
+	}
+
 
 	public static final float DURATION	= 10f;
 
@@ -51,6 +90,7 @@ public class SoulMark extends FlavourBuff {
 
 	@Override
 	public void fx(boolean on) {
+		if (Dungeon.coop != null) return;
 		if (on) target.sprite.add(CharSprite.State.MARKED);
 		else target.sprite.remove(CharSprite.State.MARKED);
 	}

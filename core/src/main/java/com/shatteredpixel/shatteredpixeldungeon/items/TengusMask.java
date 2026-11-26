@@ -20,6 +20,7 @@
  */
 
 package com.shatteredpixel.shatteredpixeldungeon.items;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
@@ -92,19 +93,9 @@ public class TengusMask extends Item {
 	}
 	
 	public void choose( HeroSubClass way ) {
+		consumeFor(curUser);
+		applySubclass(curUser, way);
 		
-		detach( curUser.belongings.backpack );
-		Catalog.countUse( getClass() );
-		
-		curUser.spend( Actor.TICK );
-		curUser.busy();
-		
-		curUser.subClass = way;
-		Talent.initSubclassTalents(curUser);
-
-		if (way == HeroSubClass.ASSASSIN && curUser.invisible > 0){
-			Buff.affect(curUser, Preparation.class);
-		}
 		
 		curUser.sprite.operate( curUser.pos );
 		Sample.INSTANCE.play( Assets.Sounds.MASTERY );
@@ -114,5 +105,18 @@ public class TengusMask extends Item {
 		e.start(Speck.factory(Speck.MASK), 0.05f, 20);
 		GLog.p( Messages.get(this, "used"));
 		
+	}
+
+	public void consumeFor(Hero owner) {
+		detach(owner.belongings.backpack);
+		if (Dungeon.coop == null) Catalog.countUse(getClass());
+	}
+
+	public static void applySubclass(Hero owner, HeroSubClass way) {
+		owner.spend(Actor.TICK);
+		owner.busy();
+		owner.subClass = way;
+		Talent.initSubclassTalents(owner);
+		if (way == HeroSubClass.ASSASSIN && owner.invisible > 0) Buff.affect(owner, Preparation.class);
 	}
 }

@@ -33,7 +33,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.quest.CorpseDust;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.items.TengusMask;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroAction;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Albino;
@@ -146,9 +149,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
+    public enum Action { USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
         public boolean requiresItem() {
-            return this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
+            return this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -201,6 +204,57 @@ public final class CoopSession implements AutoCloseable {
     private boolean partyDefeated;
 
     public Life life(int seat) { return lives[seat]; }
+    public enum MaskTrial { OFF, OWNER, ROSTER }
+    private MaskTrial maskTrial = MaskTrial.OFF;
+    private int maskUser = -1;
+    private int maskRights;
+
+    // Only isolated test hosts opt in. Neither the production lobby nor a client command enables a trial.
+    void beginMaskTrial(MaskTrial trial) {
+        checkExecutor();
+        if (trial == null || trial == MaskTrial.OFF || maskTrial != MaskTrial.OFF)
+            throw new IllegalStateException("Mask trial already configured or invalid");
+        maskTrial = trial;
+    }
+
+    public boolean mayUseMask(int seat) {
+        return maskTrial != MaskTrial.OFF && maskUser < 0 && supportsMaskChoice(heroes[seat]);
+    }
+
+    public boolean mayClaimSubclass(int seat) {
+        return (maskRights & (1 << seat)) != 0 && supportsMaskChoice(heroes[seat]);
+    }
+
+    private static boolean supportsMaskChoice(Hero hero) {
+        return hero.subClass == HeroSubClass.NONE && (hero.heroClass == HeroClass.WARRIOR || hero.heroClass == HeroClass.HUNTRESS);
+    }
+
+    private boolean chooseSubclass(Hero hero, int seat, Item item, int choice, boolean consumeMask) {
+        if (!supportsMaskChoice(hero) || choice < 0 || choice >= HeroSubClass.values().length) return false;
+        HeroSubClass way = HeroSubClass.values()[choice];
+        if (!java.util.Arrays.asList(hero.heroClass.subClasses()).contains(way)) return false;
+        if (consumeMask) {
+            if (!mayUseMask(seat) || !(item instanceof TengusMask) || item.quantity() != 1
+                    || ownership.owner(item) != player(seat) || !hero.belongings.backpack.contains(item)) return false;
+            ((TengusMask)item).consumeFor(hero);
+            maskUser = seat;
+            if (maskTrial == MaskTrial.ROSTER && heroes[1-seat].subClass == HeroSubClass.NONE) maskRights = 1 << (1-seat);
+        } else {
+            if (item != null || !mayClaimSubclass(seat)) return false;
+            maskRights &= ~(1 << seat);
+        }
+        TengusMask.applySubclass(hero, way);
+        hero.sprite.operate(hero.pos);
+        return true;
+    }
+
+    static int floorSchema(Bundle state) {
+        if (state.getInt("schema") != 16) return state.getInt("schema");
+        int floor = state.getInt("floor_schema");
+        if (floor < 1 || floor > 15) throw new IllegalArgumentException("Invalid growth floor format");
+        return floor;
+    }
+
     public enum Ending { NONE, OFFER, CONTINUING, PROPOSED, WON, ASCENT_PROPOSED, ASCENT_READY, ASCENDING, ASCENDED }
     public boolean ascentHistory() { return ending==Ending.ASCENT_PROPOSED || ending==Ending.ASCENT_READY || ending==Ending.ASCENDING || ending==Ending.ASCENDED; }
     public boolean won() { return ending==Ending.WON || ending==Ending.ASCENDED; }
@@ -675,8 +729,13 @@ public final class CoopSession implements AutoCloseable {
 
     public static boolean basicMissile(Item item) {
         return item!=null && (item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone.class
-                || item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife.class)
+                || item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife.class
+                || item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart.class)
                 && !item.cursed && ((Weapon)item).enchantment==null && item.trueLevel()==0;
+    }
+
+    public static boolean playableTalent(Talent talent) {
+        return talent == Talent.HEARTY_MEAL || talent == Talent.EMPOWERING_MEAL || talent == Talent.FOLLOWUP_STRIKE;
     }
 
     public static boolean supportedScroll(Item item) {
@@ -728,7 +787,8 @@ public final class CoopSession implements AutoCloseable {
     public static boolean basicWeaponType(Item item) {
         return item!=null && ((item instanceof MagesStaff && ((MagesStaff)item).starterWand()!=null)
                 || item.getClass()==Gloves.class || item.getClass()==WornShortsword.class
-                || item.getClass()==Shortsword.class || item.getClass()==Dagger.class || item.getClass()==Sickle.class);
+                || item.getClass()==Shortsword.class || item.getClass()==Dagger.class || item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dirk.class || item.getClass()==Sickle.class
+                || item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Crossbow.class);
     }
 
     private boolean basicWeapon(Item item) {
@@ -760,6 +820,18 @@ public final class CoopSession implements AutoCloseable {
                 case SMITH_REFORGE: case SMITH_ORDER: case SMITH_CLAIM:
                     if (!CoopSmith.apply(action,hero,item,cell)) return false;
                     break;
+                case USE_MASK: case CLAIM_SUBCLASS:
+                    if (!chooseSubclass(hero, activeSeat, item, cell, action==Action.USE_MASK)) return false;
+                    break;
+                case INVEST_TALENT: {
+                    if (cell < 0 || cell >= Talent.values().length || item != null) return false;
+                    Talent talent = Talent.values()[cell];
+                    if (!playableTalent(talent) || hero.talents.isEmpty() || !hero.talents.get(0).containsKey(talent)
+                            || hero.talentPointsAvailable(1) <= 0 || hero.pointsInTalent(talent) >= talent.maxPoints()) return false;
+                    hero.upgradeTalent(talent);
+                    // The native talent button spends no game time. Retain the current offer.
+                    return true;
+                }
                 case MINE: {
                     if (!(level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.MiningLevel)
                             || !level.insideMap(cell) || !level.adjacent(hero.pos, cell)
@@ -1054,7 +1126,14 @@ public final class CoopSession implements AutoCloseable {
             throw new IllegalStateException("No committed engine boundary");
         validateActorGraph();
         Bundle b = new Bundle();
-        b.put("schema",stairs.schema());
+        int format = stairs.schema();
+        b.put("schema",maskTrial == MaskTrial.OFF ? format : 16);
+        if (maskTrial != MaskTrial.OFF) {
+            b.put("floor_schema",format);
+            b.put("mask_trial",maskTrial.name());
+            b.put("mask_user",maskUser);
+            b.put("mask_rights",maskRights);
+        }
         stairs.save(b);
         b.put("world",Dungeon.worldState());
         b.put("documents",Document.coopState());
@@ -1064,7 +1143,7 @@ public final class CoopSession implements AutoCloseable {
         b.put("turn",turn);
         b.put("active",activeSeat);
         b.put("defeat",partyDefeated);
-        if (b.getInt("schema")>=14) b.put("ending",ending.name());
+        if (format>=14) b.put("ending",ending.name());
         b.put("schedule",Actor.schedulerState());
         b.put("random",Random.worldState());
         for (int i=0;i<2;i++) {
@@ -1223,7 +1302,7 @@ public final class CoopSession implements AutoCloseable {
     public static synchronized CoopSession restore(Bundle b) {
         if (Dungeon.coop!=null || Dungeon.hero!=null || Dungeon.level!=null) throw new IllegalStateException("Dungeon in use");
         Bundle world=b.getBundle("world"), floor=b.getBundle("floor");
-        int schema=b.getInt("schema"),depth=world.getInt("depth");
+        int schema=floorSchema(b),depth=world.getInt("depth");
         if ((schema<1 || schema>15) || world.getInt("version")!=com.watabou.noosa.Game.versionCode ||
                 (depth<1 || depth>CoopFloors.lastDepth(schema)) || (world.getInt("branch")!=0 && !(schema>=10 && world.getInt("branch")==1 && (CoopFloors.mineDepth(depth) || schema>=12 && CoopFloors.vaultDepth(depth)))) || world.getInt("challenges")!=0)
             throw new IllegalArgumentException("Unsupported world");
@@ -1283,7 +1362,7 @@ public final class CoopSession implements AutoCloseable {
         Actor.restoreSchedule(b.getBundle("schedule"),partyDefeated ? null : heroes[activeSeat]);
         for (Char ch : Actor.chars()) attachSprite(ch);
         HashSet<Long> ids=new HashSet<>();
-        restoreItems(physicalItems(b.getInt("schema")>=12),b.getBundle("items"),b.getLong("nextItem"),ids);
+        restoreItems(physicalItems(floorSchema(b)>=12),b.getBundle("items"),b.getLong("nextItem"),ids);
         if (Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel) {
             int holder=stairs.crystalHolder();
             if (holder<0 || heroes[1-holder].belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.quest.EscapeCrystal.class)!=null)
@@ -1291,7 +1370,21 @@ public final class CoopSession implements AutoCloseable {
             CoopVault.validate(this,heroes[holder].belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.quest.EscapeCrystal.class),holder,b.getLong("nextItem"),ids);
         }
         stairs.restore(b,ids);
-        int schema=b.getInt("schema");
+        int schema=floorSchema(b);
+        maskTrial = MaskTrial.OFF;
+        maskRights = 0;
+        maskUser = -1;
+        if (b.getInt("schema") == 16) {
+            if (!b.contains("mask_user") || !b.contains("mask_rights")) throw new IllegalArgumentException("Missing mask ledger");
+            maskTrial = MaskTrial.valueOf(b.getString("mask_trial"));
+            maskUser = b.getInt("mask_user");
+            maskRights = b.getInt("mask_rights");
+            if (maskTrial == MaskTrial.OFF || maskUser < -1 || maskUser > 1 ||
+                    maskUser >= 0 && heroes[maskUser].subClass == HeroSubClass.NONE ||
+                    maskRights != 0 && (maskUser < 0 || maskTrial != MaskTrial.ROSTER ||
+                    maskRights != (1 << (1-maskUser)) || heroes[1-maskUser].subClass != HeroSubClass.NONE))
+                throw new IllegalArgumentException("Invalid mask ledger");
+        }
         ending=schema>=14 ? Ending.valueOf(b.getString("ending")) : Ending.NONE;
         if ((ascentHistory() || stairs.hasVaultEncounter())!=(schema==15)) throw new IllegalArgumentException("Invalid ascent version");
         int curses=0;

@@ -117,9 +117,15 @@ public class TenguArenaTest extends HeadlessDungeon {
                 SewerSpecialActorTest.atGate(game,gate);
                 return gate;
             }
-            for (Heap heap:floor().heaps.valueList()) if (heap.peek() instanceof TengusMask) {
+            for (Heap heap:floor().heaps.valueList()) if (heap.items.stream().anyMatch(TengusMask.class::isInstance)) {
                 game.hero(game.activeSeat()).pos=heap.pos;
                 game.observe(game.activeSeat());
+                // The original iron key can land above the mask on the same heap.
+                while (!(heap.peek() instanceof TengusMask)) {
+                    game.hero(game.activeSeat()).pos=heap.pos;
+                    game.observe(game.activeSeat());
+                    assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,heap.pos,heap.peek()));
+                }
                 return heap.pos;
             }
             throw new AssertionError("Missing mask");

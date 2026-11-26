@@ -46,8 +46,31 @@ public final class VaultPublicRoute {
             }
             return closest;
         }
+        // Only retained public tiles can establish cover. An unknown tile never counts as a wall.
+        private boolean behindCover(PublicDungeon v,int shooter,int cell) {
+            int x=shooter%v.width,y=shooter/v.width,tx=cell%v.width,ty=cell/v.width;
+            int dx=Math.abs(tx-x),dy=Math.abs(ty-y),error=dx-dy;
+            while (x!=tx || y!=ty) {
+                int twice=2*error;
+                if (twice > -dy) { error-=dy; x+=Integer.signum(tx-x); }
+                if (twice < dx) { error+=dx; y+=Integer.signum(ty-y); }
+                if (x==tx && y==ty) return false;
+                int tile=v.terrain(y*v.width+x);
+                if (tile>=0 && (Terrain.flags[tile]&Terrain.SOLID)!=0) return true;
+            }
+            return false;
+        }
+        private int exposedTo(PublicDungeon v,int cell) {
+            int count=0;
+            for (Map.Entry<Integer,String> enemy:v.monsters.entrySet())
+                if ((enemy.getValue().equals("VaultDM100") || enemy.getValue().equals("VaultShaman"))
+                        && !behindCover(v,enemy.getKey(),cell)) count++;
+            return count;
+        }
         private int retreat(PublicDungeon v) {
-            if (!team || v.hp*3>v.maxHp*2 || dangerDistance(v,v.pos)>2) return -1;
+            if (!team) return -1;
+            int exposed=exposedTo(v,v.pos);
+            if (exposed==0 && (v.hp*3>v.maxHp*2 || dangerDistance(v,v.pos)>2)) return -1;
             int best=-1,score=Integer.MIN_VALUE;
             int previous=dangerDistance(v,v.pos);
             for (int dy=-1;dy<=1;dy++) for (int dx=-1;dx<=1;dx++) {
@@ -58,8 +81,9 @@ public final class VaultPublicRoute {
                         || v.source.rows.containsKey("aim"+c) || v.source.rows.containsKey("trap"+c)
                         || tile<0 || (Terrain.flags[tile]&Terrain.PASSABLE)==0) continue;
                 int gap=dangerDistance(v,c);
-                if (gap<=previous) continue;
-                int value=10*gap-4*(lastAlly<0?0:distance(lastAlly,c,v.width))-visits.getOrDefault(c,0);
+                int cover=exposed-exposedTo(v,c);
+                if (cover<0 || (cover==0 && (gap<=previous || previous>2))) continue;
+                int value=80*cover+10*gap-4*(lastAlly<0?0:distance(lastAlly,c,v.width))-visits.getOrDefault(c,0);
                 if (value>score) {score=value;best=c;}
             }
             return best;
@@ -142,7 +166,11 @@ public final class VaultPublicRoute {
                     if (v.ally>=0) value-=2*Math.max(Math.abs(c%v.width-v.ally%v.width), Math.abs(c/v.width-v.ally/v.width));
                     if (team && lastAlly>=0) value-=8*Math.max(0,distance(c,lastAlly,v.width)-3);
                     PublicDungeon.Loot item=v.floor.get(c);
-                    if (item!=null && !rejectedItems.contains(item.id)) value+=150;
+                    if (item!=null && !rejectedItems.contains(item.id)) {
+                        value+=150;
+                        if (team && v.visible(c) && (item.kind.equals("MELEE") || item.sprite==
+                                com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.DART)) value+=90;
+                    }
                     for (Map.Entry<Integer,String> m:v.monsters.entrySet()) {
                         if (adjacent(c,m.getKey(),v.width) && ("VaultMirror".equals(m.getValue()) || "VaultTokenDoor".equals(m.getValue()))
                                 && !adjacent(v.pos,m.getKey(),v.width)) value+=35;

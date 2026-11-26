@@ -33,7 +33,7 @@ public final class PublicDungeon {
             reference=ref==null ? "" : ref;
             String label=rows.get("label"+id);
             String family=rows.get("family"+id);
-            stackType=(kind.equals("STONE") || kind.equals("KNIFE")) && family!=null && family.matches(kind.toLowerCase(Locale.ROOT)+"\\.[0-9a-f]{32}") ? family : (kind.equals("FOOD") || kind.equals("HEALING") || kind.equals("UPGRADE") || kind.equals("IDENTIFY")) && label!=null ? label : "";
+            stackType=(isMissileKind(kind)) && family!=null && family.matches(kind.toLowerCase(Locale.ROOT)+"\\.[0-9a-f]{32}") ? family : (kind.equals("FOOD") || kind.equals("HEALING") || kind.equals("UPGRADE") || kind.equals("IDENTIFY")) && label!=null ? label : "";
             sprite=number(f[2],0,1023); quantity=number(f[3],1,Integer.MAX_VALUE); upgrade=f[4];
             charges=showsCharges() ? number(f[5],0,10) : 0;
             capacity=showsCharges() ? number(f[6],charges,10) : 0;
@@ -96,12 +96,16 @@ public final class PublicDungeon {
         if(n<low || n>high) throw new IllegalArgumentException("Public state range");
         return n;
     }
+    public static boolean isMissileKind(String kind) {
+        return "STONE".equals(kind) || "KNIFE".equals(kind) || "DART".equals(kind);
+    }
+
     public static String shortcutAction(Loot item) {
         switch (item.kind) {
             case "VAULT_BEACON": return "VAULT_RECALL";
             case "FOOD": return "EAT";
             case "HEALING": return "DRINK";
-            case "KNIFE": case "STONE": return "THROW";
+            case "DART": case "KNIFE": case "STONE": return "THROW";
             case "UPGRADE": case "IDENTIFY": return item.kind;
             case "BOW": return "SHOOT";
             case "WAND": return "ZAP";
@@ -130,8 +134,9 @@ public final class PublicDungeon {
         if((item.slot.equals("WEAPON") || item.kind.equals("WAND")) && item.charges>0) verbs.add("ZAP");
         if(item.slot.equals("BAG")) {
             if(item.kind.equals("UPGRADE") || item.kind.equals("IDENTIFY")) verbs.add(item.kind);
+            if(source.rows.containsKey("mask"+item.id)) verbs.add("USE_MASK");
             if(item.kind.equals("HEALING")) verbs.add("DRINK");
-            if(item.kind.equals("STONE") || item.kind.equals("KNIFE")) verbs.add("THROW");
+            if(isMissileKind(item.kind)) verbs.add("THROW");
             if(item.kind.equals("BOW")) verbs.add("SHOOT");
             if(item.kind.equals("FOOD")) verbs.add("EAT");
             if(inVault() && item.kind.equals("VAULT_BEACON")) verbs.add("VAULT_RECALL");

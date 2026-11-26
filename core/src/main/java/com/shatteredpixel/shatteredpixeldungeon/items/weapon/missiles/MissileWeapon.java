@@ -86,7 +86,7 @@ abstract public class MissileWeapon extends Weapon {
 	protected float durability = MAX_DURABILITY;
 	// Bound only while the engine resolves a detached coop projectile, including its durability roll.
 	private transient Hero coopThrower;
-	private Hero missileUser() { return coopThrower==null ? Dungeon.hero : coopThrower; }
+	protected final Hero missileUser() { return coopThrower==null ? Dungeon.hero : coopThrower; }
 
 	protected float baseUses = 8;
 	
@@ -302,7 +302,7 @@ abstract public class MissileWeapon extends Weapon {
 		}
 	}
 
-	private void resolveThrow(Hero user,int cell) {
+	protected void resolveThrow(Hero user,int cell) {
 		Char enemy = Actor.findChar( cell );
 		if (enemy == null || enemy == user) {
 			parent = null;
@@ -689,13 +689,17 @@ abstract public class MissileWeapon extends Weapon {
 		return levelKnown && cursedKnown;
 	}
 	
+	protected int displayedDamage(boolean maximum) {
+		return maximum ? max() : min();
+	}
+
 	@Override
 	public String info() {
 
 		String info = super.info();
 
 		if (levelKnown) {
-			info += "\n\n" + Messages.get(MissileWeapon.class, "stats_known", tier, augment.damageFactor(min()), augment.damageFactor(max()), STRReq());
+			info += "\n\n" + Messages.get(MissileWeapon.class, "stats_known", tier, augment.damageFactor(displayedDamage(false)), augment.damageFactor(displayedDamage(true)), STRReq());
 			if (Dungeon.hero != null) {
 				if (STRReq() > Dungeon.hero.STR()) {
 					info += " " + Messages.get(Weapon.class, "too_heavy");

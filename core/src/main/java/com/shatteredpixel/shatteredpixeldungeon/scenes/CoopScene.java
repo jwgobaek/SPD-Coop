@@ -5,6 +5,11 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTalent;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndChooseSubclass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.items.TengusMask;
 import com.shatteredpixel.shatteredpixeldungeon.lan.*;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.*;
@@ -34,6 +39,9 @@ public class CoopScene extends PixelScene {
     public void useItem(PublicDungeon view, PublicDungeon.Loot item, String action) {
         if (controller.frame().image!=view.source || !view.actions(item).contains(action)) return;
         switch (action) {
+            case "USE_MASK":
+                subclassWindow(view,item);
+                break;
             case "ZAP": case "SHOOT": case "THROW":
                 aim(view,item);
                 break;
@@ -105,7 +113,7 @@ public class CoopScene extends PixelScene {
         boolean bow=targetStaff.kind.equals("BOW");
         String actor=view.monsters.get(cell);
         boolean enemy=actor!=null && !"Imp".equals(actor) && !"Blacksmith".equals(actor) && !"Wandmaker".equals(actor) && !"Shopkeeper".equals(actor) && !"Sheep".equals(actor) && !"Sentry".equals(actor) && !"Ghost".equals(actor) && !"RatKing".equals(actor);
-        boolean missile=targetStaff.kind.equals("STONE") || targetStaff.kind.equals("KNIFE");
+        boolean missile=PublicDungeon.isMissileKind(targetStaff.kind);
         boolean areaWand = targetStaff.kind.equals("WAND") && (targetStaff.sprite == ItemSpriteSheet.WAND_BLAST_WAVE
                 || targetStaff.sprite == ItemSpriteSheet.WAND_FIREBOLT);
         if (targetView==view && (enemy || ((missile || areaWand) && actor==null && view.visible(cell)) || (!missile && !bow && view.chest(cell)))
@@ -453,6 +461,57 @@ public class CoopScene extends PixelScene {
                 msg("end_title"),msg(phase.equals("PROPOSED")?"end_proposed":"end_offer"),options) {
             protected void onSelect(int index) {
                 controller.act(f.image,canAccept && index==0 ? "END_RUN" : "CONTINUE_RUN",0,0);
+            }
+        });
+    }
+
+    private void subclassWindow(PublicDungeon view, PublicDungeon.Loot mask) {
+        add(new WndChooseSubclass(new TengusMask(), HeroClass.valueOf(view.heroClass), new WndChooseSubclass.SeatChoice() {
+            @Override public void show(Window window) { CoopScene.this.add(window); }
+            @Override public void choose(HeroSubClass choice) {
+                controller.act(view.source,mask == null ? "CLAIM_SUBCLASS" : "USE_MASK",choice.ordinal(),mask == null ? 0 : mask.id);
+            }
+        }));
+    }
+
+    void heroDetails(PublicDungeon view, int armorTier, String stats) {
+        String title = Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndHero.class, "talents");
+        HeroClass type = HeroClass.valueOf(view.heroClass);
+        add(new WndOptions(com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite.avatar(type, armorTier),
+                type.title(), "HP "+view.hp+"/"+view.maxHp+"\n"+stats,
+                view.offered && view.source.rows.containsKey("maskright")
+                        ? new String[]{title, msg("use_mask"), msg("back")} : new String[]{title, msg("back")} ) {
+            @Override protected void onSelect(int index) {
+                if (index == 0) showTalents(view, title);
+                else if (index == 1 && view.offered && view.source.rows.containsKey("maskright")) subclassWindow(view,null);
+            }
+        });
+    }
+
+    private void showTalents(PublicDungeon view, String title) {
+        java.util.ArrayList<Talent> choices = new java.util.ArrayList<>();
+        java.util.ArrayList<String> labels = new java.util.ArrayList<>();
+        for (Talent talent : Talent.values()) {
+            String invested = view.source.rows.get("learn"+talent.ordinal());
+            if (invested == null) continue;
+            choices.add(talent);
+            labels.add(Messages.titleCase(talent.title())+"  "+invested+"/"+talent.maxPoints());
+        }
+        labels.add(msg("back"));
+        int available = Integer.parseInt(view.source.rows.containsKey("freepoints1") ? view.source.rows.get("freepoints1") : "0");
+        add(new WndOptions(title, msg("talent_points", available), labels.toArray(new String[0])) {
+            @Override protected void onSelect(int index) {
+                if (index < 0 || index >= choices.size()) return;
+                Talent talent = choices.get(index);
+                int points = Integer.parseInt(view.source.rows.get("learn"+talent.ordinal()));
+                WndInfoTalent.TalentButtonCallback invest = null;
+                if (view.offered && available > 0 && points < talent.maxPoints()) {
+                    invest = new WndInfoTalent.TalentButtonCallback() {
+                        @Override public String prompt() { return Messages.get(WndInfoTalent.class, "upgrade"); }
+                        @Override public void call() { controller.act(view.source, "INVEST_TALENT", talent.ordinal(), 0); }
+                    };
+                }
+                CoopScene.this.add(new WndInfoTalent(talent, points, invest, false));
             }
         });
     }

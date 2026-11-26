@@ -151,7 +151,7 @@ public final class RestartClient {
                 assertEquals("ERROR VERSION", old.request("MODE SYNC12"));
             }
         }
-        if (special || mode.startsWith("tengu-setup-") || mode.equals("late-setup") || mode.startsWith("necro-setup-") || mode.startsWith("wand-setup-") || mode.startsWith("scribe") || RestartHost.kit(mode) || RestartHost.knife(mode) || RestartHost.newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
+        if (special || mode.startsWith("tengu-setup-") || mode.equals("late-setup") || mode.startsWith("necro-setup-") || mode.startsWith("wand-setup-") || mode.startsWith("scribe") || RestartHost.kit(mode) || RestartHost.pinProjectile(mode) || RestartHost.newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
             for(int i=0;i<2;i++) {
                 assertTrue(clients[i].request(i==0 ? RestartHost.read(path,"endpoint").split("\n")[1] : "JOIN").startsWith("JOINED"));
                 keys[i]=SeatCredential.generate();
@@ -161,6 +161,7 @@ public final class RestartClient {
                 models[i]=new DisplayReplica(session,i);
                 String character=(mode.equals("quest") || RestartHost.guardian(mode) || mode.equals("crystal-new"))?"MAGE":mode.startsWith("cast") && !mode.startsWith("cast-hand") && i==mode.charAt(mode.length()-1)-'0' ? "MAGE" : mode.equals("walk") ? (i==0?"MAGE":"WARRIOR") : i==0?"WARRIOR":"HUNTRESS";
                 if (mode.startsWith("tengu-setup-") || mode.equals("late-setup") || mode.startsWith("wand-setup-") || mode.startsWith("necro-setup-")) character=i==0?"WARRIOR":"MAGE";
+                if (mode.startsWith("tengu-setup-growth-")) character=i==0?"WARRIOR":"HUNTRESS";
                 if (RestartHost.newCampaign(mode)) character=i==0?"MAGE":"HUNTRESS";
                 if (mode.startsWith("scribe") && i==mode.charAt(6)-'0') character="WARRIOR";
                 if (RestartHost.kit(mode)) character=i==mode.charAt(3)-'0'?"HUNTRESS":"WARRIOR";
@@ -210,19 +211,19 @@ public final class RestartClient {
                 assertThrows(IOException.class,()->read.submit(clients[seat]));
                 return;
             }
-            if (RestartHost.knife(mode)) {
-                int seat=mode.charAt(5)-'0';
+            if (RestartHost.pinProjectile(mode)) {
+                int seat=mode.charAt(mode.length()-1)-'0';
                 int cell=Integer.parseInt(RestartHost.read(path,"pin-target").split(" ")[1]);
                 for (int n=0;n<7;n++) {
                     offer(seat);
-                    long handle=item(seat,"BAG","KNIFE"); assertTrue(handle>0);
+                    long handle=item(seat,"BAG",mode.startsWith("dart") ? "DART" : "KNIFE"); assertTrue(handle>0);
                     SeatActions.Pending shot=actions[seat].prepare(state(seat),"THROW",cell,handle);
                     RestartHost.write(path,"pin-pending",seat+" "+shot.id+" "+shot.command);
                     try { String result=shot.submit(clients[seat]); assertTrue(result,result.endsWith(" APPLIED")); }
                     catch (IOException lost) { return; }
                     refresh();
                 }
-                fail("No native knife lodged in the target");
+                fail("No native projectile lodged in the target");
             }
             if (RestartHost.kit(mode)) {
                 int seat=mode.charAt(3)-'0'; offer(seat);
@@ -460,6 +461,8 @@ public final class RestartClient {
             boolean travel=boundary.equals("ten") || boundary.equals("caves") || boundary.equals("return");
             String verb=boundary.equals("revive") ? "REVIVE" : boundary.equals("down") || boundary.equals("devices") ? "WAIT" : boundary.equals("claim") ? "PICK_UP"
                     : boundary.equals("enter") || boundary.equals("arena") ? "MOVE" : "ATTACK";
+            boolean growth=boundary.startsWith("growth-");
+            if (growth) verb=RestartHost.read(path,"growth-action");
             boolean interior=boundary.startsWith("interior-");
             boolean dm=boundary.startsWith("dm-");
             boolean mine=boundary.startsWith("mine-");
@@ -507,7 +510,8 @@ public final class RestartClient {
                     seat=boundary.equals("yog-win")?1-owner:owner;
                 }
                 PublicDungeon view=new PublicDungeon(state(seat));
-                if (ascent) assertEquals(0,view.branch);
+                if (growth) assertEquals(boundary.startsWith("growth-talent") ? 1 : 10,view.depth);
+                else if (ascent) assertEquals(0,view.branch);
                 else if (elemental) { assertEquals(18,view.depth); assertEquals(1,view.branch); }
                 else if (yog) assertTrue(view.depth==25 || view.depth==26);
                 else if (vault) assertEquals(boundary.matches("vault-(return|pick|full)") ? 1 : 0,view.branch);
@@ -518,6 +522,7 @@ public final class RestartClient {
                 else if (interior) assertEquals(travel ? Integer.parseInt(boundary.substring(9))-1 : boundary.contains("web")?12:13,view.depth);
                 else assertEquals(boundary.equals("ten") ? 9 : boundary.equals("return") ? 11 : 10,view.depth);
                 long handle=verb.equals("PICK_UP") ? view.floor.get(cell).id : 0;
+                if (verb.equals("USE_MASK")) handle=view.belongings.stream().filter(it -> view.actions(it).contains("USE_MASK")).findFirst().get().id;
                 if (verb.equals("VAULT_RECALL")) {
                     handle=view.belongings.stream().filter(item -> view.actions(item).contains("VAULT_RECALL"))
                             .findFirst().orElseThrow(AssertionError::new).id;

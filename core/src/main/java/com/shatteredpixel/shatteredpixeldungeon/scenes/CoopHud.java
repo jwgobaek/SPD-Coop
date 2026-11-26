@@ -81,9 +81,7 @@ final class CoopHud extends Group {
         health.x=hp.x+1; health.y=hp.y; health.scale.set(0.5f); health.alpha(0.8f);
         level.hardlight(0xFFFFAA);
         Button info=new Button(){ @Override protected void onClick() {
-            if(view!=null) scene.add(new WndTitledMessage(HeroSprite.avatar(HeroClass.valueOf(view.heroClass),tier()),
-                    HeroClass.valueOf(view.heroClass).title(),"HP "+view.hp+"/"+view.maxHp+"\n"+
-                    characterInfo()));
+            if (view != null) scene.heroDetails(view, tier(), characterInfo());
         }};
         info.setRect(left,top,82,35);add(info);
         Image menuBase=new Image(Assets.Interfaces.MENU,1,0,31,21);

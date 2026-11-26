@@ -69,6 +69,9 @@ final class RenderEncounter {
                     engine.set(lan,resumed);
                     source.set(replication,resumed);
                 }
+            } else if (destination.equals("growth-input")) {
+                com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"owner0");
+                game.hero(0).earnExp(game.hero(0).maxExp(),Rat.class);
             } else if (destination.equals("vault-warning")) {
                 com.shatteredpixel.shatteredpixeldungeon.ImpVaultTest.forScreen(game,"imp-vault");
                 com.shatteredpixel.shatteredpixeldungeon.VaultPlayTest.positionWarning(game,true,0);

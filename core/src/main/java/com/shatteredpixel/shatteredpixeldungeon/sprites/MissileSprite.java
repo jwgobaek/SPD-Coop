@@ -142,10 +142,13 @@ public class MissileSprite extends ItemSprite implements Tweener.Listener {
 	}
 
 	/** Public appearance of a confirmed seat attack. No engine item or completion action is needed. */
-	public void seatShot(PointF from, PointF to, boolean bow,boolean knife) {
+	public void seatShot(PointF from, PointF to, String cue) {
+		boolean bow = "SHOOT".equals(cue);
+		boolean knife = "KNIFE".equals(cue);
+		boolean dart = "DART".equals(cue);
 		revive();
-		view(bow ? ItemSpriteSheet.SPIRIT_ARROW : knife ? ItemSpriteSheet.THROWING_KNIFE : ItemSpriteSheet.THROWING_STONE,null);
-		startFlight(from,to,bow ? 0 : knife ? ANGULAR_SPEEDS.get(ThrowingKnife.class) : DEFAULT_ANGULAR_SPEED,bow ? SPEED*1.5f : SPEED,false,null);
+		view(bow ? ItemSpriteSheet.SPIRIT_ARROW : knife ? ItemSpriteSheet.THROWING_KNIFE : dart ? ItemSpriteSheet.DART : ItemSpriteSheet.THROWING_STONE,null);
+		startFlight(from,to,bow || dart ? 0 : knife ? ANGULAR_SPEEDS.get(ThrowingKnife.class) : DEFAULT_ANGULAR_SPEED,bow ? SPEED*1.5f : SPEED,false,null);
 	}
 
 	private void startFlight(PointF from, PointF to, int spin,float speed,boolean boulder,Callback listener) {

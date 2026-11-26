@@ -257,7 +257,7 @@ public abstract class Wand extends Item {
 				caster.subClass == HeroSubClass.WARLOCK &&
 				//standard 1 - 0.92^x chance, plus 7%. Starts at 15%
 				Random.Float() > (Math.pow(0.92f, (wandLevel*chargesUsed)+1) - 0.07f)){
-			SoulMark.prolong(target, SoulMark.class, SoulMark.DURATION + wandLevel);
+			SoulMark.applyFrom(caster, target, SoulMark.DURATION + wandLevel);
 		}
 
 		if (caster.subClass == HeroSubClass.PRIEST && target.buff(GuidingLight.Illuminated.class) != null) {

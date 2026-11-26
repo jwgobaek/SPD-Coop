@@ -570,7 +570,7 @@ public final class CoopFloors {
     void restore(Bundle state,HashSet<Long> itemIds) {
         dormant.clear();
         cancel();
-        int schema=state.getInt("schema"), bound=lastDepth(schema);
+        int schema=CoopSession.floorSchema(state), bound=lastDepth(schema);
         boolean multi=schema>=3;
         HashSet<Integer> generated=new HashSet<>(Dungeon.generatedLevels);
         int active=floorKey(Dungeon.depth,Dungeon.branch);

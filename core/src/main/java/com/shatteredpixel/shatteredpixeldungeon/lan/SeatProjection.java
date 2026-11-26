@@ -198,6 +198,14 @@ final class SeatProjection {
             rows.put("selftier",Integer.toString(hero.tier()));
             rows.put("strength",Integer.toString(hero.STR()));
             rows.put("subclass",hero.subClass.name());
+            if (game.mayClaimSubclass(seat)) rows.put("maskright","1");
+            if (!hero.talents.isEmpty()) {
+                rows.put("freepoints1", Integer.toString(hero.talentPointsAvailable(1)));
+                for (Talent talent : hero.talents.get(0).keySet()) {
+                    if (CoopSession.playableTalent(talent))
+                        rows.put("learn"+talent.ordinal(), Integer.toString(hero.pointsInTalent(talent)));
+                }
+            }
             for (Map<Talent,Integer> tier:hero.talents) for (Map.Entry<Talent,Integer> talent:tier.entrySet()) {
                 if (talent.getValue()>0) rows.put("talent"+talent.getKey().ordinal(),talent.getKey().name()+","+talent.getValue());
             }
@@ -355,11 +363,14 @@ final class SeatProjection {
                 selection++;
                 putItem(rows,visibleItems,item,slot(hero.belongings,item));
                 if (game.ownership.owner(item)==game.player(seat)) {
+                    if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.TengusMask && game.mayUseMask(seat))
+                        rows.put("mask"+ids.get(item),"1");
                     if (rows.containsKey("vaultscore") && com.shatteredpixel.shatteredpixeldungeon.items.quest.EscapeCrystal.rewardAllowed(item,Integer.parseInt(rows.get("vaultscore")))) rows.put("vaultpick"+ids.get(item),"1");
                     if (shop!=null && com.shatteredpixel.shatteredpixeldungeon.CoopTrade.maySell(hero,item))
                         rows.put("sell"+ids.get(item),item.value()+","+(com.shatteredpixel.shatteredpixeldungeon.CoopTrade.sellOne(item) ? 1 : 0));
                     if (CoopSession.basicMissile(item) && item.isIdentified()) {
-                        String family=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "knife" : "stone";
+                        String family=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "knife" :
+                        item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart ? "dart" : "stone";
                         rows.put("family"+ids.get(item),family+"."+StateImage.hash(shortcutSalt+"/"+family+"/"+
                                 ((com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon)item).setID).substring(0,32));
                     }
@@ -442,7 +453,8 @@ final class SeatProjection {
                 && ((com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll)item).isKnown())
             kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade ? "UPGRADE" : "IDENTIFY";
         if (!slot.startsWith("F") && CoopSession.basicMissile(item) && item.isIdentified())
-            kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "KNIFE" : "STONE";
+            kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "KNIFE" :
+                        item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart ? "DART" : "STONE";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle) kind="CANDLE";
         String charges="";
         if (!slot.startsWith("F") && CoopSession.supportedHandheldWand(item)) {

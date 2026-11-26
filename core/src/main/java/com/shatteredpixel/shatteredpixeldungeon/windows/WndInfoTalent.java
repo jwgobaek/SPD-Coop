@@ -40,6 +40,11 @@ public class WndInfoTalent extends Window {
 	private static final int WIDTH_MAX = 220;
 
 	public WndInfoTalent(Talent talent, int points, TalentButtonCallback buttonCallback){
+		this(talent, points, buttonCallback, (buttonCallback != null && buttonCallback.metamorphDesc()) ||
+				(Dungeon.hero != null && Dungeon.hero.metamorphedTalents.containsValue(talent)));
+	}
+
+	public WndInfoTalent(Talent talent, int points, TalentButtonCallback buttonCallback, boolean metaDesc) {
 		super();
 
 		int width = WIDTH_MIN;
@@ -55,8 +60,6 @@ public class WndInfoTalent extends Window {
 		titlebar.setRect( 0, 0, width, 0 );
 		add( titlebar );
 
-		boolean metaDesc = (buttonCallback != null && buttonCallback.metamorphDesc()) ||
-				(Dungeon.hero != null && Dungeon.hero.metamorphedTalents.containsValue(talent));
 
 		RenderedTextBlock txtInfo = PixelScene.renderTextBlock(talent.desc(metaDesc), 6);
 		txtInfo.maxWidth(width);

@@ -6,6 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultLaser;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultSentry;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sickle;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.VaultBeacon;
@@ -59,17 +60,25 @@ public class VaultPlayTest extends HeadlessDungeon {
     }
 
     @Test public void originalVaultSickleCanBePickedUpEquippedAndRestoredByEitherSeat() {
+        checkVaultMelee(572,Sickle.class);
+    }
+
+    @Test public void nativeVaultDirkIsUsableByEitherSeatAt578() {
+        checkVaultMelee(578,com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dirk.class);
+    }
+
+    private void checkVaultMelee(int seed,Class<? extends com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon> type) {
         for (int seat=0; seat<2; seat++) {
             long id;
             Bundle saved;
-            try (CoopSession game=ImpVaultTest.openAtVaultEntrance(572)) {
+            try (CoopSession game=ImpVaultTest.openAtVaultEntrance(seed)) {
                 Heap pile=Dungeon.level.heaps.valueList().stream()
-                        .filter(h -> h.peek() instanceof Sickle).findFirst().orElseThrow(AssertionError::new);
+                        .filter(h -> type.isInstance(h.peek())).findFirst().orElseThrow(AssertionError::new);
                 while (game.activeSeat()!=seat) TenguArenaTest.waitOne(game);
                 Hero hero=game.hero(seat);
                 hero.pos=pile.pos;
                 game.observe(seat);
-                Sickle weapon=(Sickle)pile.peek();
+                com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon weapon=type.cast(pile.peek());
                 assertNull(weapon.enchantment);
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,pile.pos,weapon));
                 while (game.activeSeat()!=seat) TenguArenaTest.waitOne(game);
@@ -81,10 +90,34 @@ public class VaultPlayTest extends HeadlessDungeon {
                 saved=game.checkpoint();
             }
             try (CoopSession game=CoopSession.restore(saved)) {
-                Sickle weapon=(Sickle)game.hero(seat).belongings.weapon;
+                com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon weapon=type.cast(game.hero(seat).belongings.weapon);
                 assertEquals(id,game.ownership.identity(weapon));
                 assertEquals(game.player(seat),game.ownership.owner(weapon));
-                assertNull(game.hero(1-seat).belongings.getItem(Sickle.class));
+                assertNull(game.hero(1-seat).belongings.getItem(type));
+            }
+        }
+    }
+
+    @Test public void actualVaultDartAt1872CanBePickedUpAndAimedByEitherSeat() {
+        for (int seat = 0; seat < 2; seat++) {
+            try (CoopSession game = ImpVaultTest.openAtVaultEntrance(572)) {
+                int cell = 1872;
+                Heap pile = Dungeon.level.heaps.get(cell);
+                assertNotNull(pile);
+                Item dart = pile.peek();
+                assertEquals(com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart.class, dart.getClass());
+                int quantity = dart.quantity();
+                while (game.activeSeat() != seat) TenguArenaTest.waitOne(game);
+                game.hero(seat).pos = cell;
+                game.observe(seat);
+                assertTrue(CoopFloorsTest.step(game, CoopSession.Action.PICK_UP, cell, dart));
+                assertEquals(game.player(seat), game.ownership.owner(dart));
+                assertEquals(quantity, dart.quantity());
+                com.shatteredpixel.shatteredpixeldungeon.lan.PublicDungeon view = ProjectionChecks.seatImage(game,seat);
+                assertTrue(view.belongings.stream().anyMatch(i -> i.kind.equals("DART") && i.quantity == quantity
+                        && i.stackType.startsWith("dart.") && "THROW".equals(view.shortcutAction(i))));
+                assertFalse(dart.collect(game.hero(1-seat).belongings.backpack));
+                game.checkpoint();
             }
         }
     }

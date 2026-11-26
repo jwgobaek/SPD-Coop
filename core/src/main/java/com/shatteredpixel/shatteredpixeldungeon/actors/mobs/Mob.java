@@ -911,20 +911,21 @@ public abstract class Mob extends Char {
 			}
 		}
 
-		if (buff(SoulMark.class) != null) {
+		Hero markOwner = SoulMark.source(this);
+		if (markOwner != null) {
 			int restoration = Math.min(damage, HP+shielding());
 			
 			//physical damage that doesn't come from the hero is less effective
-			if (enemy != Dungeon.hero){
-				restoration = Math.round(restoration * 0.4f*Dungeon.hero.pointsInTalent(Talent.SOUL_SIPHON)/3f);
+			if (enemy != markOwner){
+				restoration = Math.round(restoration * 0.4f*markOwner.pointsInTalent(Talent.SOUL_SIPHON)/3f);
 			}
 			if (restoration > 0) {
-				Buff.affect(Dungeon.hero, Hunger.class).affectHunger(restoration*Dungeon.hero.pointsInTalent(Talent.SOUL_EATER)/3f);
+				Buff.affect(markOwner, Hunger.class).affectHunger(restoration*markOwner.pointsInTalent(Talent.SOUL_EATER)/3f);
 
-				if (Dungeon.hero.HP < Dungeon.hero.HT) {
+				if (markOwner.HP < markOwner.HT) {
 					int heal = (int)Math.ceil(restoration * 0.4f);
-					Dungeon.hero.HP = Math.min(Dungeon.hero.HT, Dungeon.hero.HP + heal);
-					Dungeon.hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(heal), FloatingText.HEALING);
+					markOwner.HP = Math.min(markOwner.HT, markOwner.HP + heal);
+					markOwner.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(heal), FloatingText.HEALING);
 				}
 			}
 		}
@@ -1116,17 +1117,17 @@ public abstract class Mob extends Char {
 			GLog.i( Messages.get(this, "died") );
 		}
 
-		boolean soulMarked = buff(SoulMark.class) != null;
+		Hero markOwner = SoulMark.source(this);
 
 		super.die( cause );
 
 		if (!(this instanceof Wraith)
-				&& soulMarked
-				&& Random.Float() < (0.4f*Dungeon.hero.pointsInTalent(Talent.NECROMANCERS_MINIONS)/3f)){
+				&& markOwner != null
+				&& Random.Float() < (0.4f*markOwner.pointsInTalent(Talent.NECROMANCERS_MINIONS)/3f)){
 			Wraith w = Wraith.spawnAt(pos, Wraith.class);
 			if (w != null) {
 				Buff.affect(w, Corruption.class);
-				if (Dungeon.level.heroFOV[pos]) {
+				if (Dungeon.coop == null && Dungeon.level.heroFOV[pos]) {
 					CellEmitter.get(pos).burst(ShadowParticle.CURSE, 6);
 					Sample.INSTANCE.play(Assets.Sounds.CURSED);
 				}
@@ -1193,9 +1194,9 @@ public abstract class Mob extends Char {
 		}
 
 		//soul eater talent
-		if (buff(SoulMark.class) != null &&
-				Random.Int(10) < owner.pointsInTalent(Talent.SOUL_EATER)){
-			Talent.onFoodEaten(owner, 0, null);
+		Hero markOwner = SoulMark.source(this);
+		if (markOwner != null && Random.Int(10) < markOwner.pointsInTalent(Talent.SOUL_EATER)){
+			Talent.onFoodEaten(markOwner, 0, null);
 		}
 
 	}

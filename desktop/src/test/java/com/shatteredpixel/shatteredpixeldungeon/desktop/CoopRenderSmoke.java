@@ -31,7 +31,7 @@ public final class CoopRenderSmoke {
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -644,6 +644,35 @@ public final class CoopRenderSmoke {
             click("menu");click("saveexit");await(()->button("host")!=null);
         } finally { guest.destroy(); if(!guest.waitFor(5,TimeUnit.SECONDS)) guest.destroyForcibly(); }
     }
+    private static void openCharacter() throws Exception {
+        press(render(()->{
+            com.shatteredpixel.shatteredpixeldungeon.ui.Button info=(com.shatteredpixel.shatteredpixeldungeon.ui.Button)find(Game.scene(),
+                    g->g instanceof com.shatteredpixel.shatteredpixeldungeon.ui.Button && g.getClass().getEnclosingClass()!=null
+                            && g.getClass().getEnclosingClass().getSimpleName().equals("CoopHud")
+                            && ((com.shatteredpixel.shatteredpixeldungeon.ui.Button)g).width()==82);
+            return info.camera().cameraToScreen(info.left()+14,info.top()+14);
+        }));
+    }
+
+    private static void growthInputs() throws Exception {
+        await(()->{ PublicDungeon v=frame().dungeon; return v.offered && v.belongings.stream().anyMatch(i->v.actions(i).contains("USE_MASK")); });
+        openCharacter();
+        click("#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndHero.class,"talents"));
+        com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent food=com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.HEARTY_MEAL;
+        click("#"+Messages.titleCase(food.title())+"  0/"+food.maxPoints());
+        String upgrade="#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTalent.class,"upgrade");
+        waitForButton(upgrade);shot("native-talent");click(upgrade);
+        await(()->"1".equals(frame().image.rows.get("learn"+food.ordinal())));
+        PublicDungeon v=frame().dungeon;
+        long mask=v.belongings.stream().filter(i->v.actions(i).contains("USE_MASK")).findFirst().get().id;
+        click("bag");press(inventoryPoint(mask));click("use_mask");
+        com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass way=com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass.BERSERKER;
+        String choice="#"+way.shortDesc();
+        waitForButton(choice);shot("native-mask");click(choice);
+        click("#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndChooseSubclass.class,"yes"));
+        await(()->way.name().equals(frame().image.rows.get("subclass")));
+    }
+
     private static void exercise() throws Exception {
         await(()->Gdx.app!=null && render(()->Game.scene()!=null));
         render(()->{ShatteredPixelDungeon.switchNoFade(TitleScene.class);return null;});
@@ -657,7 +686,7 @@ public final class CoopRenderSmoke {
         render(()->{
             Field active=CoopScene.class.getDeclaredField("active"); active.setAccessible(true);
             active.set(null,new CoopController(CoopPlatform.root(),null,null,testPort,0,
-                    new java.util.Random(){@Override public long nextLong(){return !regionShot.isEmpty() ? (regionShot.startsWith("ascent-")?578:regionShot.startsWith("yog-")?572:regionShot.equals("mine-crystal")?570:(regionShot.startsWith("vault-") || regionShot.equals("imp-vault") || regionShot.equals("halls-21") || regionShot.equals("city-market") || regionShot.startsWith("king-"))?572:571) : latePrison ? 570 : wandmaker ? 577 : seventh ? 581 : deep ? 402 : armored ? 446 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
+                    new java.util.Random(){@Override public long nextLong(){return !regionShot.isEmpty() ? ((regionShot.equals("growth-input") || regionShot.startsWith("ascent-"))?578:regionShot.startsWith("yog-")?572:regionShot.equals("mine-crystal")?570:(regionShot.startsWith("vault-") || regionShot.equals("imp-vault") || regionShot.equals("halls-21") || regionShot.equals("city-market") || regionShot.startsWith("king-"))?572:571) : latePrison ? 570 : wandmaker ? 577 : seventh ? 581 : deep ? 402 : armored ? 446 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
             return null;
         });
         click("title"); await(()->button("host")!=null);
@@ -677,6 +706,7 @@ public final class CoopRenderSmoke {
             await(()->frame().dungeon!=null); await(()->button("bag")!=null);
             if (!regionShot.isEmpty()) {
                 RenderEncounter.tengu(hostController(),regionShot);
+                if (regionShot.equals("growth-input")) { growthInputs(); return; }
                 if (regionShot.equals("smith-services")) {
                     await(()->frame().dungeon.offered && frame().image.rows.containsKey("priceorder"));
                     PublicDungeon smithView=frame().dungeon;
@@ -715,18 +745,11 @@ public final class CoopRenderSmoke {
             sceneMetrics("first-floor");
             shot("dungeon");
             if (!mage && !hazards && !kit && !garden) {
-                Point portrait=render(()->{
-                    com.shatteredpixel.shatteredpixeldungeon.ui.Button info=(com.shatteredpixel.shatteredpixeldungeon.ui.Button)find(Game.scene(),
-                            g->g instanceof com.shatteredpixel.shatteredpixeldungeon.ui.Button
-                                    && g.getClass().getEnclosingClass()!=null && g.getClass().getEnclosingClass().getSimpleName().equals("CoopHud")
-                                    && ((com.shatteredpixel.shatteredpixeldungeon.ui.Button)g).width()==82);
-                    return info.camera().cameraToScreen(info.left()+14,info.top()+14);
-                });
-                press(portrait);
-                await(()->render(()->find(Game.scene(),g->g instanceof com.shatteredpixel.shatteredpixeldungeon.windows.WndTitledMessage)!=null));
+                openCharacter();
+                waitForButton("#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndHero.class,"talents"));
                 shot("character");
                 render(()->{((com.shatteredpixel.shatteredpixeldungeon.ui.Window)find(Game.scene(),
-                        g->g instanceof com.shatteredpixel.shatteredpixeldungeon.windows.WndTitledMessage)).hide();return null;});
+                        g->g instanceof com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions)).hide();return null;});
             }
             if (controls) { controlInputs(root); return; }
             if (shortcuts) { shortcutInputs(); return; }

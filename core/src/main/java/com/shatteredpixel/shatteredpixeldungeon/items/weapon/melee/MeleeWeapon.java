@@ -266,28 +266,25 @@ public class MeleeWeapon extends Weapon {
 		return req;
 	}
 
-	private static boolean evaluatingTwinUpgrades = false;
 	@Override
 	public int buffedLvl() {
-		if (!evaluatingTwinUpgrades && Dungeon.hero != null && isEquipped(Dungeon.hero) && Dungeon.hero.hasTalent(Talent.TWIN_UPGRADES)){
-			KindOfWeapon other = null;
-			if (Dungeon.hero.belongings.weapon() != this) other = Dungeon.hero.belongings.weapon();
-			if (Dungeon.hero.belongings.secondWep() != this) other = Dungeon.hero.belongings.secondWep();
+		return buffedLvlFor(Dungeon.hero);
+	}
 
-			if (other instanceof MeleeWeapon) {
-				evaluatingTwinUpgrades = true;
-				int otherLevel = other.buffedLvl();
-				evaluatingTwinUpgrades = false;
-
-				//weaker weapon needs to be 2/1/0 tiers lower, based on talent level
-				if ((tier + (3 - Dungeon.hero.pointsInTalent(Talent.TWIN_UPGRADES))) <= ((MeleeWeapon) other).tier
-						&& otherLevel > super.buffedLvl()) {
-					return otherLevel;
-				}
-
+	@Override
+	public int buffedLvlFor(Hero owner) {
+		int level = super.buffedLvlFor(owner);
+		if (owner != null && isEquipped(owner) && owner.hasTalent(Talent.TWIN_UPGRADES)) {
+			KindOfWeapon other = owner.belongings.weapon() == this ? owner.belongings.secondWep() : owner.belongings.weapon();
+			if (other instanceof MeleeWeapon && tier + 3 - owner.pointsInTalent(Talent.TWIN_UPGRADES) <= ((MeleeWeapon)other).tier) {
+				level = Math.max(level, ((MeleeWeapon)other).levelWithoutTwinUpgrades(owner));
 			}
 		}
-		return super.buffedLvl();
+		return level;
+	}
+
+	private int levelWithoutTwinUpgrades(Hero owner) {
+		return super.buffedLvlFor(owner);
 	}
 
 	@Override
