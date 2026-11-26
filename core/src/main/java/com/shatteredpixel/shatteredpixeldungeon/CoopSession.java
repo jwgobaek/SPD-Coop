@@ -46,6 +46,14 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.Sh
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpectralBlades;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.SmokeBomb;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MonkEnergy;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.DeathMark;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.ShadowClone;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Radiance;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Smite;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Sunray;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.DivineSense;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.ShieldOfLight;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.NaturesPower;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.ElementalBlast;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon;
@@ -157,12 +165,14 @@ import com.watabou.utils.FileUtils;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Rapier;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Quarterstaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Crossbow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSpike;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
@@ -177,9 +187,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { ASSASSINATE, FREERUN, GUIDING_LIGHT, HOLY_WEAPON, HOLY_WARD, WEAPON_ABILITY, IMBUE, CLOAK, USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
+    public enum Action { EQUIP_SECOND, SWAP_WEAPONS, MONK_FOCUS, RADIANCE, SMITE, ASSASSINATE, FREERUN, DIVINE_SENSE, SUNRAY, SHIELD_OF_LIGHT, GUIDING_LIGHT, HOLY_WEAPON, HOLY_WARD, WEAPON_ABILITY, IMBUE, CLOAK, USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
         public boolean requiresItem() {
-            return this==GUIDING_LIGHT || this==HOLY_WEAPON || this==HOLY_WARD || this==WEAPON_ABILITY || this==IMBUE || this==CLOAK || this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
+            return this==EQUIP_SECOND || this==RADIANCE || this==SMITE || this==DIVINE_SENSE || this==SUNRAY || this==SHIELD_OF_LIGHT || this==GUIDING_LIGHT || this==HOLY_WEAPON || this==HOLY_WARD || this==WEAPON_ABILITY || this==IMBUE || this==CLOAK || this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -257,7 +267,7 @@ public final class CoopSession implements AutoCloseable {
     }
 
     public static boolean playableArmorAbility(ArmorAbility ability) {
-        return ability instanceof SmokeBomb || ability instanceof SpiritHawk || ability instanceof WildMagic || ability instanceof HeroicLeap || ability instanceof WarpBeacon || ability instanceof Endure || ability instanceof Shockwave || ability instanceof SpectralBlades || ability instanceof NaturesPower || ability instanceof ElementalBlast;
+        return ability instanceof ShadowClone || ability instanceof DeathMark || ability instanceof SmokeBomb || ability instanceof SpiritHawk || ability instanceof WildMagic || ability instanceof HeroicLeap || ability instanceof WarpBeacon || ability instanceof Endure || ability instanceof Shockwave || ability instanceof SpectralBlades || ability instanceof NaturesPower || ability instanceof ElementalBlast;
     }
 
     public boolean mayChooseArmor(int seat, boolean useCrown) {
@@ -283,6 +293,7 @@ public final class CoopSession implements AutoCloseable {
             crownRights &= ~(1<<activeSeat);
         }
         // The partner right has no physical reward object.
+        if (choices[index] instanceof ShadowClone || choices[index] instanceof DeathMark) requireGrowthFormat();
         KingsCrown.applyForSeat(hero, armor, choices[index], useCrown ? (KingsCrown)item : null);
         ownership.replaceEquipped(armor,hero.belongings.armor(),players[activeSeat]);
         return true;
@@ -297,7 +308,7 @@ public final class CoopSession implements AutoCloseable {
     }
 
     private static boolean supportsMaskChoice(Hero hero) {
-        return hero.subClass == HeroSubClass.NONE && (hero.heroClass == HeroClass.WARRIOR || hero.heroClass == HeroClass.HUNTRESS || hero.heroClass == HeroClass.MAGE || hero.heroClass == HeroClass.ROGUE);
+        return hero.subClass == HeroSubClass.NONE && hero.heroClass != null;
     }
 
     private boolean chooseSubclass(Hero hero, int seat, Item item, int choice, boolean consumeMask) {
@@ -315,14 +326,21 @@ public final class CoopSession implements AutoCloseable {
             maskRights &= ~(1 << seat);
         }
         TengusMask.applySubclass(hero, way);
+        if (hero.heroClass == HeroClass.CLERIC || hero.heroClass == HeroClass.DUELIST) requireGrowthFormat();
         hero.sprite.operate(hero.pos);
         return true;
     }
 
     boolean wandIdentities;
+    private boolean extendedGrowth;
+
+    private void requireGrowthFormat() {
+        extendedGrowth = true;
+        wandIdentities = true;
+    }
 
     static int floorSchema(Bundle state) {
-        if (state.getInt("schema") < 16 || state.getInt("schema") > 19) return state.getInt("schema");
+        if (state.getInt("schema") < 16 || state.getInt("schema") > 20) return state.getInt("schema");
         int floor = state.getInt("floor_schema");
         if (floor < 1 || floor > 15) throw new IllegalArgumentException("Invalid growth floor format");
         return floor;
@@ -684,7 +702,7 @@ public final class CoopSession implements AutoCloseable {
 
     public static boolean basicMob(Actor actor) {
         Class<?> type = actor.getClass();
-        if (type==SpiritHawk.HawkAlly.class) return true;
+        if (type==ShadowClone.ShadowAlly.class || type==SpiritHawk.HawkAlly.class) return true;
         if (Dungeon.branch==1 && CoopFloors.vaultDepth(Dungeon.depth)) return CoopVault.resident(actor.getClass());
         if (Dungeon.branch == 1) {
             return type == CrystalGuardian.class || type == CrystalSpire.class || type == CrystalWisp.class
@@ -832,8 +850,11 @@ public final class CoopSession implements AutoCloseable {
             case FOLLOWUP_STRIKE: case SURVIVALISTS_INTUITION: case NATURES_AID: case NATURES_BOUNTY:
             case IRON_STOMACH: case ENERGIZING_MEAL: case INVIGORATING_MEAL:
             case LIQUID_WILLPOWER: case LETHAL_MOMENTUM: case INSCRIBED_POWER:
-            case WAND_PRESERVATION: case SHIELD_BATTERY: case LIQUID_NATURE: case REJUVENATING_STEPS: case DURABLE_PROJECTILES:
+            case ARCANE_VISION: case HEIGHTENED_SENSES: case WAND_PRESERVATION: case SHIELD_BATTERY: case LIQUID_NATURE: case REJUVENATING_STEPS: case DURABLE_PROJECTILES:
+            case DIVINE_SENSE: case SUNRAY: case SHIELD_OF_LIGHT:
             case PROTECTIVE_SHADOWS: case SUCKER_PUNCH:
+            case SHADOW_BLADE: case CLONED_ARMOR: case PERFECT_COPY:
+            case FEAR_THE_REAPER: case DOUBLE_MARK: case DEATHLY_DURABILITY:
             case CLEAVE: case ENHANCED_COMBO: case LETHAL_DEFENSE:
                 return true;
             default: return false;
@@ -874,7 +895,7 @@ public final class CoopSession implements AutoCloseable {
     }
 
     private static boolean supportedWandType(Item item) {
-        return item instanceof WandOfMagicMissile || item instanceof WandOfBlastWave || item instanceof WandOfFireblast;
+        return item instanceof WandOfMagicMissile || item instanceof WandOfBlastWave || item instanceof WandOfFireblast || item instanceof WandOfFrost;
     }
 
     public static boolean supportedHandheldWand(Item item) {
@@ -889,9 +910,13 @@ public final class CoopSession implements AutoCloseable {
         return null;
     }
 
+    public static boolean supportedWeaponAbility(Item item) {
+        return item instanceof Rapier || item instanceof Crossbow || item instanceof Quarterstaff || item instanceof RoundShield;
+    }
+
     public static boolean basicWeaponType(Item item) {
         return item!=null && ((item instanceof MagesStaff && ((MagesStaff)item).coopWand()!=null)
-                || item.getClass()==Gloves.class || item.getClass()==WornShortsword.class
+                || item.getClass()==Quarterstaff.class || item.getClass()==RoundShield.class || item.getClass()==Gloves.class || item.getClass()==WornShortsword.class
                 || item.getClass()==Rapier.class || item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Cudgel.class || item.getClass()==Shortsword.class || item.getClass()==Dagger.class || item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dirk.class || item.getClass()==Sickle.class
                 || item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Crossbow.class);
     }
@@ -936,7 +961,18 @@ public final class CoopSession implements AutoCloseable {
                             || !playableArmorAbility(hero.armorAbility)) return false;
                     ClassArmor armor=(ClassArmor)item;
                     if (armor.charge < hero.armorAbility.chargeUse(hero)) return false;
-                    if (hero.armorAbility instanceof SmokeBomb) {
+                    if (hero.armorAbility instanceof ShadowClone) {
+                        boolean command = ShadowClone.getShadowAlly(hero) != null;
+                        if (!((ShadowClone)hero.armorAbility).useForSeat(armor,hero,cell)) return false;
+                        if (command) return true;
+                    } else if (hero.armorAbility instanceof DeathMark) {
+                        Char foe = abilityTarget(hero,cell);
+                        if (foe == null) return false;
+                        DeathMark.DeathMarkTracker mark = foe.buff(DeathMark.DeathMarkTracker.class);
+                        if (mark != null && mark.caster() != hero) return false;
+                        ((DeathMark)hero.armorAbility).activate(armor,hero,cell);
+                        return true;
+                    } else if (hero.armorAbility instanceof SmokeBomb) {
                         if (!((SmokeBomb)hero.armorAbility).useAt(armor,hero,cell)) return false;
                     } else if (hero.armorAbility instanceof SpiritHawk) {
                         boolean command=SpiritHawk.getHawk(hero)!=null;
@@ -1020,37 +1056,84 @@ public final class CoopSession implements AutoCloseable {
                     attackTurn[activeSeat]=turn;
                     break;
                 }
-                case GUIDING_LIGHT: case HOLY_WEAPON: case HOLY_WARD: {
+                case RADIANCE: case SMITE: case DIVINE_SENSE: case SUNRAY: case SHIELD_OF_LIGHT: case GUIDING_LIGHT: case HOLY_WEAPON: case HOLY_WARD: {
                     if (!(item instanceof HolyTome) || hero.heroClass!=HeroClass.CLERIC
                             || item.cursed || ownership.owner(item)!=player || !hero.belongings.contains(item)) return false;
                     HolyTome tome=(HolyTome)item;
-                    ClericSpell spell=action==Action.GUIDING_LIGHT ? GuidingLight.INSTANCE :
+                    int tier = (action==Action.RADIANCE || action==Action.SMITE) ? 3 : action==Action.DIVINE_SENSE || action==Action.SUNRAY ? 2 : 1;
+                    ClericSpell spell=action==Action.RADIANCE ? Radiance.INSTANCE : action==Action.SMITE ? Smite.INSTANCE : action==Action.DIVINE_SENSE ? DivineSense.INSTANCE :
+                            action==Action.SUNRAY ? Sunray.INSTANCE : action==Action.SHIELD_OF_LIGHT ? ShieldOfLight.INSTANCE :
+                            action==Action.GUIDING_LIGHT ? GuidingLight.INSTANCE :
                             action==Action.HOLY_WEAPON ? HolyWeapon.INSTANCE : HolyWard.INSTANCE;
-                    if (!tome.canCast(hero,spell) || !ClericSpell.getSpellList(hero,1).contains(spell)) return false;
-                    if (spell==GuidingLight.INSTANCE) {
+                    if (!tome.canCast(hero,spell) || !ClericSpell.getSpellList(hero,tier).contains(spell)) return false;
+                    if (spell==Smite.INSTANCE) {
+                        Char enemy=abilityTarget(hero,cell);
+                        if (enemy==null || !hero.canAttack(enemy)) return false;
+                        Smite.INSTANCE.onTargetSelected(tome,hero,cell);
+                        break;
+                    }
+                    if (spell==Radiance.INSTANCE) {
+                        if (cell!=hero.pos) return false;
+                        spell.onCast(tome,hero);
+                        break;
+                    }
+                    if (spell==ShieldOfLight.INSTANCE) {
+                        if (abilityTarget(hero,cell)==null) return false;
+                        ShieldOfLight.INSTANCE.onTargetSelected(tome,hero,cell);
+                        return true;
+                    }
+                    if (spell==GuidingLight.INSTANCE || spell==Sunray.INSTANCE) {
                         if (cell==hero.pos || !level.insideMap(cell) || !knowledge(activeSeat).visible(cell)) return false;
-                        Ballistica ray=new Ballistica(hero.pos,cell,GuidingLight.INSTANCE.targetingFlags());
+                        Ballistica ray=new Ballistica(hero.pos,cell,spell.targetingFlags());
                         Char target=Actor.findChar(ray.collisionPos);
                         if (target!=null && (target.alignment!=Char.Alignment.ENEMY || target.invisible>0 || !basicMob(target))
                                 || target==null && !supportedLanding(ray.collisionPos)) return false;
-                        GuidingLight.INSTANCE.onTargetSelected(tome,hero,cell);
+                        if (spell==Sunray.INSTANCE) Sunray.INSTANCE.onTargetSelected(tome,hero,cell);
+                        else GuidingLight.INSTANCE.onTargetSelected(tome,hero,cell);
                         break;
                     }
                     if (cell!=hero.pos) return false;
                     spell.onCast(tome,hero);
                     return true; // The native holy weapon and ward spells are instantaneous.
                 }
+                case MONK_FOCUS: {
+                    MonkEnergy energy=hero.buff(MonkEnergy.class);
+                    MonkEnergy.MonkAbility focus=MonkEnergy.MonkAbility.abilities[1];
+                    if (hero.subClass!=HeroSubClass.MONK || cell!=hero.pos || item!=null || energy==null
+                            || energy.cooldown>0 || !focus.usable(energy)) return false;
+                    boolean instant=energy.abilitiesEmpowered(hero);
+                    focus.doAbility(hero,null);
+                    if (instant) return true;
+                    break;
+                }
+                case EQUIP_SECOND: {
+                    if (hero.subClass!=HeroSubClass.CHAMPION || item==null || !basicWeapon(item)
+                            || !hero.belongings.backpack.contains(item) || ownership.owner(item)!=player
+                            || hero.belongings.secondWep!=null && hero.belongings.secondWep.cursed) return false;
+                    if (!((MeleeWeapon)item).equipSecondary(hero)) return false;
+                    break;
+                }
+                case SWAP_WEAPONS: {
+                    MeleeWeapon.Charger charger=hero.buff(MeleeWeapon.Charger.class);
+                    return item==null && cell==hero.pos && charger!=null && charger.swapFor(hero);
+                }
                 case WEAPON_ABILITY: {
                     if (hero.heroClass!=HeroClass.DUELIST || item!=hero.belongings.weapon() || ownership.owner(item)!=player
-                            || !(item instanceof Rapier || item instanceof Crossbow)) return false;
+                            || !supportedWeaponAbility(item)) return false;
                     MeleeWeapon weapon=(MeleeWeapon)item;
                     MeleeWeapon.Charger pool=hero.buff(MeleeWeapon.Charger.class);
                     if (pool==null || weapon.STRReq()>hero.STR() || pool.charges+pool.partialCharge<weapon.abilityChargeUse(hero,null)) return false;
                     if (weapon instanceof Rapier) {
                         if (!level.insideMap(cell) || !((Rapier)weapon).lungeForSeat(hero,cell)) return false;
                     } else {
-                        if (cell!=hero.pos || hero.buff(Crossbow.ChargedShot.class)!=null) return false;
-                        ((Crossbow)weapon).duelistAbility(hero,cell);
+                        if (cell!=hero.pos) return false;
+                        if (weapon instanceof Crossbow) {
+                            if (hero.buff(Crossbow.ChargedShot.class)!=null) return false;
+                            ((Crossbow)weapon).duelistAbility(hero,cell);
+                        } else if (weapon instanceof Quarterstaff) {
+                            ((Quarterstaff)weapon).duelistAbility(hero,cell);
+                            return true;
+                        } else ((RoundShield)weapon).duelistAbility(hero,cell);
                     }
                     break;
                 }
@@ -1069,6 +1152,7 @@ public final class CoopSession implements AutoCloseable {
                             throw new IllegalStateException("Imbuement wand missing");
                         staff.imbueWand((Wand)candidate, hero);
                         wandIdentities = true;
+                        if (staff.imbuedWand() instanceof WandOfFrost) requireGrowthFormat();
                         return true; // The original confirmation spends no turn.
                     }
                     return false;
@@ -1081,6 +1165,9 @@ public final class CoopSession implements AutoCloseable {
                     if (!playableTalent(talent) || tier > hero.talents.size()
                             || hero.talentPointsAvailable(tier) <= 0 || hero.pointsInTalent(talent) >= talent.maxPoints()) return false;
                     hero.upgradeTalent(talent);
+                    if (talent == Talent.ARCANE_VISION || talent == Talent.HEIGHTENED_SENSES
+                            || talent == Talent.DIVINE_SENSE || talent == Talent.SUNRAY || talent == Talent.SHIELD_OF_LIGHT)
+                        requireGrowthFormat();
                     // The native talent button spends no game time. Retain the current offer.
                     return true;
                 }
@@ -1230,13 +1317,18 @@ public final class CoopSession implements AutoCloseable {
                         if (ownership.owner(item) != player || !wand.useShieldBattery(hero)) return false;
                         break;
                     }
-                    boolean groundTarget = (wand instanceof WandOfBlastWave || wand instanceof WandOfFireblast) && victim == null && !level.solid[cell];
-                    if (!groundTarget && !chestTarget && (!(victim instanceof Mob) || !basicMob(victim) || !victim.isAlive()
+                    Ballistica bolt=new Ballistica(hero.pos,cell,wand.collisionProperties(cell));
+                    boolean eternalFire = wand instanceof WandOfFrost && victim == null
+                            && bolt.path.size() > bolt.dist+1 && bolt.path.get(bolt.dist+1) == cell
+                            && com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob.volumeAt(cell,
+                                    com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.MagicalFireRoom.EternalFire.class) > 0;
+                    boolean groundTarget = (wand instanceof WandOfBlastWave || wand instanceof WandOfFireblast || wand instanceof WandOfFrost) && victim == null && !level.solid[cell];
+                    if (!eternalFire && !groundTarget && !chestTarget && (!(victim instanceof Mob) || !basicMob(victim) || !victim.isAlive()
                             || (!disguised(victim) && victim.alignment!=Char.Alignment.ENEMY)
                             || victim.invisible>0 || hero.isCharmedBy(victim))) return false;
-                    Ballistica bolt=new Ballistica(hero.pos,cell,wand.collisionProperties(cell));
                     // Fireblast aims its cone along a WONT_STOP ray. Its own spread checks each obstruction.
-                    if (!(wand instanceof WandOfFireblast) && bolt.collisionPos != cell) return false;
+                    if (!(wand instanceof WandOfFireblast) && bolt.collisionPos != cell && !eternalFire) return false;
+                    if (wand instanceof WandOfFrost && !WandOfFrost.safeImpact(bolt.collisionPos)) return false;
                     if (!wand.cast(hero,bolt)) return false;
                     lastOpponent[activeSeat]=(Mob)victim;
                     attackTurn[activeSeat]=turn;
@@ -1404,7 +1496,7 @@ public final class CoopSession implements AutoCloseable {
         Bundle b = new Bundle();
         int format = stairs.schema();
         boolean rogue = heroes[0].heroClass == HeroClass.ROGUE || heroes[1].heroClass == HeroClass.ROGUE;
-        b.put("schema", wandIdentities ? 19 : rogue ? 18 : crownTrial != MaskTrial.OFF ? 17 : maskTrial == MaskTrial.OFF ? format : 16);
+        b.put("schema", extendedGrowth ? 20 : wandIdentities ? 19 : rogue ? 18 : crownTrial != MaskTrial.OFF ? 17 : maskTrial == MaskTrial.OFF ? format : 16);
         if (rogue || wandIdentities) b.put("floor_schema", format);
         if (crownTrial != MaskTrial.OFF) {
             b.put("floor_schema",format);
@@ -1463,6 +1555,12 @@ public final class CoopSession implements AutoCloseable {
             int seat=hawk.belongsTo(heroes[0]) ? 0 : 1;
             if (!hawk.belongsTo(heroes[seat]) || !(heroes[seat].armorAbility instanceof SpiritHawk) || !summoners.add(seat))
                 throw new IllegalStateException("Invalid hawk owner");
+        }
+        for (Mob mob:Dungeon.level.mobs) if (mob instanceof ShadowClone.ShadowAlly) {
+            ShadowClone.ShadowAlly clone=(ShadowClone.ShadowAlly)mob;
+            int seat=clone.belongsTo(heroes[0]) ? 0 : 1;
+            if (!clone.belongsTo(heroes[seat]) || !(heroes[seat].armorAbility instanceof ShadowClone) || !summoners.add(seat))
+                throw new IllegalStateException("Invalid shadow clone owner");
         }
         persistent.addAll(Dungeon.level.mobs);
         for (Actor ch : new HashSet<>(persistent)) persistent.addAll(((Char)ch).buffs());
@@ -1629,7 +1727,8 @@ public final class CoopSession implements AutoCloseable {
     }
 
     private void load(Bundle b,Bundle world) {
-        wandIdentities = b.getInt("schema") == 19;
+        extendedGrowth = b.getInt("schema") == 20;
+        wandIdentities = extendedGrowth || b.getInt("schema") == 19;
         long[] roster=b.getLongArray("players");
         if (roster.length!=2 || roster[0]<=0 || roster[1]<=0 || roster[0]==roster[1])
             throw new IllegalArgumentException("Invalid roster");

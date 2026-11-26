@@ -87,7 +87,7 @@ public class GuidingLight extends TargetedClericSpell {
 					Sample.INSTANCE.play(Assets.Sounds.HIT_MAGIC, 1, Random.Float(0.87f, 1.15f));
 					if (Dungeon.coop == null) ch.sprite.burst(0xFFFFFF44, 3);
 					if (ch.isAlive()){
-						Buff.affect(ch, Illuminated.class);
+						illuminate(hero, ch);
 						Buff.affect(ch, WasIlluminatedTracker.class);
 					}
 				} else {
@@ -148,7 +148,28 @@ public class GuidingLight extends TargetedClericSpell {
 		}
 	}
 
+	static public void illuminate(Hero caster, Char target) {
+		Illuminated mark = Buff.affect(target, Illuminated.class);
+		if (Dungeon.coop != null) mark.source = caster.id();
+	}
+
 	public static class Illuminated extends Buff {
+		private int source;
+
+		public Hero caster() {
+			if (Dungeon.coop == null) return Dungeon.hero;
+			Actor actor = Actor.findById(source);
+			return actor instanceof Hero ? (Hero)actor : null;
+		}
+
+		@Override public void storeInBundle(com.watabou.utils.Bundle bundle) {
+			super.storeInBundle(bundle);
+			if (Dungeon.coop != null) bundle.put("illuminator",source);
+		}
+		@Override public void restoreFromBundle(com.watabou.utils.Bundle bundle) {
+			super.restoreFromBundle(bundle);
+			source = bundle.getInt("illuminator");
+		}
 
 		{
 			type = buffType.NEGATIVE;

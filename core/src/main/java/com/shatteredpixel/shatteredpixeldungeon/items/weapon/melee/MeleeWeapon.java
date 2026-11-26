@@ -559,25 +559,30 @@ public class MeleeWeapon extends Weapon {
 
 		@Override
 		public void doAction() {
-			if (Dungeon.hero.subClass != HeroSubClass.CHAMPION){
-				return;
+			swapFor(Dungeon.hero);
+		}
+
+		public boolean swapFor(Hero hero) {
+			if (target != hero || hero.subClass != HeroSubClass.CHAMPION || hero.belongings.weapon == null && hero.belongings.secondWep == null){
+				return false;
 			}
 
-			if (Dungeon.hero.belongings.secondWep == null && Dungeon.hero.belongings.backpack.items.size() >= Dungeon.hero.belongings.backpack.capacity()){
+			if (hero.belongings.secondWep == null && hero.belongings.backpack.items.size() >= hero.belongings.backpack.capacity()){
 				GLog.w(Messages.get(MeleeWeapon.class, "swap_full"));
-				return;
+				return false;
 			}
 
-			KindOfWeapon temp = Dungeon.hero.belongings.weapon;
-			Dungeon.hero.belongings.weapon = Dungeon.hero.belongings.secondWep;
-			Dungeon.hero.belongings.secondWep = temp;
+			KindOfWeapon temp = hero.belongings.weapon;
+			hero.belongings.weapon = hero.belongings.secondWep;
+			hero.belongings.secondWep = temp;
 
-			Dungeon.hero.sprite.operate(Dungeon.hero.pos);
+			if (Dungeon.coop == null) hero.sprite.operate(hero.pos);
 			Sample.INSTANCE.play(Assets.Sounds.UNLOCK);
 
 			ActionIndicator.setAction(this);
 			Item.updateQuickslot();
-			AttackIndicator.updateState();
+			if (Dungeon.coop == null) AttackIndicator.updateState();
+			return true;
 		}
 	}
 

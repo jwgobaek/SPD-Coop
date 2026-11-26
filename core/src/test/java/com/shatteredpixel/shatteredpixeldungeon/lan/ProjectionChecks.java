@@ -11,6 +11,25 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 public final class ProjectionChecks {
+    public static void sensedContact(CoopSession game, int seat, Rat rat) throws Exception {
+        UUID session = UUID.randomUUID();
+        SeatProjection[] views = {new SeatProjection(session, 0), new SeatProjection(session, 1)};
+        DisplayReplica[] clients = {new DisplayReplica(session, 0), new DisplayReplica(session, 1)};
+        int previous = rat.pos;
+        for (int version = 1; version <= 2; version++) {
+            if (version == 2) rat.pos -= 1;
+            for (int i = 0; i < 2; i++) {
+                views[i].capture(game, version, "IN_GAME", null, null);
+                clients[i].apply(views[i].current.encode(version == 1 ? null : views[i].previous, null));
+                Map<String,String> rows = clients[i].image().rows;
+                assertEquals(i == seat ? "mob" : null, rows.get("sense" + rat.pos));
+                assertFalse(rows.containsKey("m" + rat.id()));
+                assertFalse(new PublicDungeon(clients[i].image()).visible(rat.pos));
+                if (version == 2) assertFalse("mob".equals(rows.get("sense" + previous)));
+            }
+        }
+    }
+
     public static PublicDungeon seatImage(CoopSession game, int seat) {
         return seatImage(game,seat,UUID.randomUUID(),UUID.randomUUID());
     }

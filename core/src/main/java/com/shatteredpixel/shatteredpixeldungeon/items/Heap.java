@@ -201,7 +201,10 @@ public class Heap implements Bundlable {
 		int index = items.indexOf( a );
 		if (index != -1) {
 			items.remove( index );
-			if (Dungeon.coop != null) Dungeon.coop.ownership.split(a,b);
+			if (Dungeon.coop != null) {
+				if (b instanceof FrozenCarpaccio && a instanceof MysteryMeat) Dungeon.coop.ownership.transform(a,b);
+				else Dungeon.coop.ownership.split(a,b);
+			}
 			for (Item i : items) {
 				if (i.canStackWith( b )) {
 					i.merge( b );
@@ -335,16 +338,22 @@ public class Heap implements Bundlable {
 		}
 	}
 	
+	public boolean supportsFreezing() {
+		if (type != Type.HEAP) return true;
+		for (Item item : items) {
+			if (item instanceof Potion && !item.unique && !((Potion)item).supportsCoopShatter()) return false;
+			if (item instanceof Bomb && ((Bomb)item).fuse != null) return false;
+		}
+		return true;
+	}
+
 	public void freeze() {
 
 		if (type != Type.HEAP) {
 			return;
 		}
 		
-		if (Dungeon.coop != null) for (Item item : items) {
-			if ((item instanceof Potion && !item.unique && !((Potion)item).supportsCoopShatter()) || (item instanceof Bomb && ((Bomb)item).fuse != null))
-				throw new IllegalStateException("Unsupported frozen item: "+item.getClass().getSimpleName());
-		}
+		if (Dungeon.coop != null && !supportsFreezing()) throw new IllegalStateException("Unsupported frozen heap");
 		boolean frozen = false;
 		for (Item item : items.toArray( new Item[0] )) {
 			if (item instanceof MysteryMeat) {

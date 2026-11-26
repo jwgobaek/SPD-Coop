@@ -59,15 +59,15 @@ public class DivineSense extends ClericSpell {
 	@Override
 	public void onCast(HolyTome tome, Hero hero) {
 		Buff.prolong(hero, DivineSenseTracker.class, DivineSenseTracker.DURATION);
-		Dungeon.observe();
+		if (Dungeon.coop == null) Dungeon.observe();
 
 		Sample.INSTANCE.play(Assets.Sounds.READ);
 
-		SpellSprite.show(hero, SpellSprite.VISION);
-		hero.sprite.operate(hero.pos);
+		if (Dungeon.coop == null) SpellSprite.show(hero, SpellSprite.VISION);
+		if (Dungeon.coop == null) hero.sprite.operate(hero.pos);
 		hero.next();
 
-		Char ally = PowerOfMany.getPoweredAlly();
+		Char ally = Dungeon.coop == null ? PowerOfMany.getPoweredAlly() : null;
 		if (ally != null && ally.buff(LifeLinkSpell.LifeLinkSpellBuff.class) != null){
 			Buff.prolong(ally, DivineSenseTracker.class, DivineSenseTracker.DURATION);
 			SpellSprite.show(ally, SpellSprite.VISION);
@@ -101,8 +101,8 @@ public class DivineSense extends ClericSpell {
 		@Override
 		public void detach() {
 			super.detach();
-			Dungeon.observe();
-			GameScene.updateFog();
+			if (Dungeon.coop == null) Dungeon.observe();
+			if (Dungeon.coop == null) GameScene.updateFog();
 		}
 	}
 

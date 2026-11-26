@@ -190,7 +190,7 @@ public class PlayerGrowthTest extends HeadlessDungeon {
     }
 
     static boolean newAbility(String stage) {
-        return stage.matches("(smoke|ambush|freerun|lunge|spike|charged|light|ward|blessweapon|hawk|direct|imbue|volley|leaptrap|doubleparry|parryready|lethal|cloak|third|shock|battery|enhanced|blades|beacon|recall|endure|clobber|slam|parry|riposte|crush|fury|rage|sniper|crown|armorright|leap|blast|nature|meal|warlock|battlemage|soul)[01]");
+        return stage.matches("(ice|iceimbue|iceblast|icevolley|swap|monkfocus|radiance|smite|markdeath|clone|orderclone|sunray|divinesense|lightshield|guardshield|stance|smoke|ambush|freerun|lunge|spike|charged|light|ward|blessweapon|hawk|direct|imbue|volley|leaptrap|doubleparry|parryready|lethal|cloak|third|shock|battery|enhanced|blades|beacon|recall|endure|clobber|slam|parry|riposte|crush|fury|rage|sniper|crown|armorright|leap|blast|nature|meal|warlock|battlemage|soul)[01]");
     }
 
     public static String signature(CoopSession g, String stage) {

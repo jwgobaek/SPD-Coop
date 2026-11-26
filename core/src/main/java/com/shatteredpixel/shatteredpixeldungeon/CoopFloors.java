@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.DirectableAlly;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith;
@@ -214,12 +215,12 @@ public final class CoopFloors {
             if (Dungeon.branch==0) Blacksmith.Quest.start();
             else Blacksmith.Quest.completeFor(miner(),game.hero(0),game.hero(1));
         }
-        java.util.ArrayList<Mob> hawks=new java.util.ArrayList<>();
+        java.util.ArrayList<DirectableAlly> companions=new java.util.ArrayList<>();
         for (Mob mob : new java.util.ArrayList<>(old.mobs)) {
-            if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkAlly) {
-                ((com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkAlly)mob).followHero();
+            if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkAlly || mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.ShadowClone.ShadowAlly) {
+                ((DirectableAlly)mob).followHero();
                 old.mobs.remove(mob);
-                hawks.add(mob);
+                companions.add((DirectableAlly)mob);
             }
         }
         game.leaveFloor();
@@ -273,20 +274,18 @@ public final class CoopFloors {
             if (placed==2) break;
         }
         if (placed!=2) throw new IllegalStateException("No safe arrival pair");
-        for (Mob mob : hawks) {
-            com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkAlly hawk =
-                    (com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkAlly)mob;
-            Hero owner=hawk.belongsTo(game.hero(0)) ? game.hero(0) : game.hero(1);
+        for (DirectableAlly ally : companions) {
+            Hero owner=ally.commander();
             java.util.ArrayList<Integer> free=new java.util.ArrayList<>();
             for (int offset:PathFinder.NEIGHBOURS8) {
                 int candidate=owner.pos+offset;
                 if (next.insideMap(candidate) && !next.solid[candidate] && !next.avoid[candidate] && next.findMob(candidate)==null
                         && candidate!=game.hero(0).pos && candidate!=game.hero(1).pos) free.add(candidate);
             }
-            if (free.isEmpty()) throw new UnsupportedDestination("No free hawk arrival cell");
-            hawk.pos=com.watabou.utils.Random.element(free);
-            hawk.fieldOfView=new boolean[next.length()];
-            next.mobs.add(hawk);
+            if (free.isEmpty()) throw new UnsupportedDestination("No free companion arrival cell");
+            ally.pos=com.watabou.utils.Random.element(free);
+            ally.fieldOfView=new boolean[next.length()];
+            next.mobs.add(ally);
         }
         if (reward!=null && !reward.collect(game.hero(seat).belongings.backpack)) {
             Imp.Quest.reward=reward;

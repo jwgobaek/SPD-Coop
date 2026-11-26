@@ -186,7 +186,7 @@ public class SpiritHawk extends ArmorAbility {
 		public boolean belongsTo(Hero hero) {
 			return hero != null && (Dungeon.coop == null || summoner == hero.id());
 		}
-		@Override protected Hero commander() {
+		@Override public Hero commander() {
 			if (Dungeon.coop == null) return Dungeon.hero;
 			for (int seat=0;seat<2;seat++) {
 				Hero hero=Dungeon.coop.hero(seat);

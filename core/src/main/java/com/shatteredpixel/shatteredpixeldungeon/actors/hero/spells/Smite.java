@@ -73,7 +73,7 @@ public class Smite extends TargetedClericSpell {
 	}
 
 	@Override
-	protected void onTargetSelected(HolyTome tome, Hero hero, Integer target) {
+	public void onTargetSelected(HolyTome tome, Hero hero, Integer target) {
 		if (target == null) {
 			return;
 		}
@@ -86,16 +86,16 @@ public class Smite extends TargetedClericSpell {
 
 		//we apply here because of projecting
 		SmiteTracker tracker = Buff.affect(hero, SmiteTracker.class);
-		if (hero.isCharmedBy(enemy) || !Dungeon.level.heroFOV[target] || !hero.canAttack(enemy)) {
+		if (hero.isCharmedBy(enemy) || !(Dungeon.coop == null ? Dungeon.level.heroFOV[target] : Dungeon.coop.knowledge(hero).visible(target)) || !hero.canAttack(enemy)) {
 			GLog.w(Messages.get(this, "invalid_enemy"));
 			tracker.detach();
 			return;
 		}
 
-		hero.sprite.attack(enemy.pos, new Callback() {
+		Callback strike = new Callback() {
 			@Override
 			public void call() {
-				AttackIndicator.target(enemy);
+				if (Dungeon.coop == null) AttackIndicator.target(enemy);
 
 				float accMult = 1;
 				if (!(hero.belongings.attackingWeapon() instanceof Weapon)
@@ -104,16 +104,18 @@ public class Smite extends TargetedClericSpell {
 				}
 				if (hero.attack(enemy, 1, 0, accMult)){
 					Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
-					enemy.sprite.burst(0xFFFFFFFF, 10);
+					if (Dungeon.coop == null) enemy.sprite.burst(0xFFFFFFFF, 10);
 				}
 				tracker.detach();
 
-				Invisibility.dispel();
+				Invisibility.dispel(hero);
 
 				hero.spendAndNext(hero.attackDelay());
 				onSpellCast(tome, hero);
 			}
-		});
+		};
+		if (Dungeon.coop == null) hero.sprite.attack(enemy.pos,strike);
+		else strike.call();
 
 	}
 
@@ -123,7 +125,7 @@ public class Smite extends TargetedClericSpell {
 		if (Char.hasProp(defender, Char.Property.UNDEAD) || Char.hasProp(defender, Char.Property.DEMONIC)){
 			return max;
 		} else {
-			return Hero.heroDamageIntRange(min, max);
+			return Hero.heroDamageIntRange(attacker, min, max);
 		}
 	}
 

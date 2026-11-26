@@ -200,6 +200,14 @@ final class SeatProjection {
             rows.put("selftier",Integer.toString(hero.tier()));
             rows.put("strength",Integer.toString(hero.STR()));
             rows.put("subclass",hero.subClass.name());
+            if (hero.subClass == com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass.CHAMPION)
+                rows.put("weaponswap","1");
+            if (hero.subClass == com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass.MONK) {
+                com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MonkEnergy energy = hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MonkEnergy.class);
+                rows.put("monkenergy",Float.toString(energy==null ? 0 : energy.energy));
+                if (energy!=null && energy.cooldown==0 && com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MonkEnergy.MonkAbility.abilities[1].usable(energy))
+                    rows.put("monkfocus","1");
+            }
             if (game.mayChooseArmor(seat,false)) rows.put("crownright","1");
             if (game.mayClaimSubclass(seat)) rows.put("maskright","1");
             Combo combo = hero.buff(Combo.class);
@@ -223,7 +231,7 @@ final class SeatProjection {
                 if (marked instanceof Mob && ((Mob)marked).isAlive() && ((Mob)marked).invisible <= 0 && sight.visible(((Mob)marked).pos))
                     rows.put("snipercell", Integer.toString(((Mob)marked).pos));
             }
-            for (int tier=1; tier<=3 && tier<=hero.talents.size(); tier++) {
+            for (int tier=1; tier<=hero.talents.size(); tier++) {
                 rows.put("freepoints"+tier, Integer.toString(hero.talentPointsAvailable(tier)));
                 for (Talent talent : hero.talents.get(tier-1).keySet()) {
                     if (CoopSession.playableTalent(talent)) {
@@ -259,6 +267,7 @@ final class SeatProjection {
             }
             StenchGas stench = (StenchGas)level.blobs.get(StenchGas.class);
             for (int cell=0;cell<sight.length();cell++) {
+                if (sight.sensed(cell)) rows.put("sense"+cell, sight.sensedMob(cell) ? "mob" : "terrain");
                 if (!sight.visible(cell)) continue;
                 rows.put("t"+cell,Integer.toString(sight.terrain(cell)));
                 if (stench != null && stench.volume>0 && stench.cur[cell]>0) rows.put("stench"+cell,"1");
@@ -401,7 +410,7 @@ final class SeatProjection {
                         if (tome.actions(hero).contains("CAST")) rows.put("spells"+ids.get(item),"1");
                     }
                     if (hero.heroClass==HeroClass.DUELIST && item==hero.belongings.weapon()
-                            && (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Rapier || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Crossbow)) {
+                            && CoopSession.supportedWeaponAbility(item)) {
                         com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon.Charger pool=hero.buff(com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon.Charger.class);
                         if (pool!=null) rows.put("weaponpool"+ids.get(item),pool.charges+","+pool.chargeCap());
                     }
@@ -417,6 +426,9 @@ final class SeatProjection {
                     if (item instanceof KingsCrown && game.mayChooseArmor(seat,true)) rows.put("crown"+ids.get(item),"1");
                     if (item == hero.belongings.armor() && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor && CoopSession.playableArmorAbility(hero.armorAbility)) {
                         rows.put("ability"+ids.get(item),hero.armorAbility.getClass().getSimpleName());
+                        if (hero.armorAbility instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.ShadowClone
+                                && com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.ShadowClone.getShadowAlly(hero)!=null)
+                            rows.put("clonecommand","1");
                         if (hero.armorAbility instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk
                                 && com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.getHawk(hero)!=null)
                             rows.put("hawkcommand","1");

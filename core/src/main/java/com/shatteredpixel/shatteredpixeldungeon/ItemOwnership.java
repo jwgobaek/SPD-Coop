@@ -53,5 +53,11 @@ public final class ItemOwnership {
         entries.remove(original);
         entries.put(replacement,prior);
     }
+    /** The entire stack changed form on the floor. Keep its existing identity and bound owner. */
+    public void transform(Item original, Item replacement) {
+        long owner = entry(original).owner;
+        replaceEquipped(original, replacement, owner);
+    }
+
     public void split(Item original, Item part) { claim(part, owner(original)); }
 }

@@ -80,7 +80,7 @@ public class DirectableAlly extends NPC {
 		}
 	}
 
-	protected com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero commander() { return Dungeon.hero; }
+	public com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero commander() { return Dungeon.hero; }
 
 	private boolean commanderSees(int pos) {
 		return Dungeon.coop == null ? Dungeon.level.heroFOV[pos] : Dungeon.coop.knowledge(commander()).visible(pos);

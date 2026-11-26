@@ -67,7 +67,7 @@ public class Sunray extends TargetedClericSpell {
 	}
 
 	@Override
-	protected void onTargetSelected(HolyTome tome, Hero hero, Integer target) {
+	public void onTargetSelected(HolyTome tome, Hero hero, Integer target) {
 		if (target == null){
 			return;
 		}
@@ -80,22 +80,22 @@ public class Sunray extends TargetedClericSpell {
 		}
 
 		if (Actor.findChar(aim.collisionPos) != null) {
-			QuickSlotButton.target(Actor.findChar(aim.collisionPos));
+			if (Dungeon.coop == null) QuickSlotButton.target(Actor.findChar(aim.collisionPos));
 		} else {
-			QuickSlotButton.target(Actor.findChar(target));
+			if (Dungeon.coop == null) QuickSlotButton.target(Actor.findChar(target));
 		}
 
 		hero.busy();
 		Sample.INSTANCE.play( Assets.Sounds.RAY );
-		hero.sprite.zap(target);
+		if (Dungeon.coop == null) hero.sprite.zap(target);
 
-		hero.sprite.parent.add(
+		if (Dungeon.coop == null) hero.sprite.parent.add(
 				new Beam.SunRay(hero.sprite.center(), DungeonTilemap.raisedTileCenterToWorld(aim.collisionPos)));
 		Sample.INSTANCE.play( Assets.Sounds.RAY );
 
 		Char ch = Actor.findChar( aim.collisionPos );
 		if (ch != null) {
-			ch.sprite.burst(0xFFFFFF44, 5);
+			if (Dungeon.coop == null) ch.sprite.burst(0xFFFFFF44, 5);
 
 			if (Char.hasProp(ch, Char.Property.UNDEAD) || Char.hasProp(ch, Char.Property.DEMONIC)){
 				if (hero.pointsInTalent(Talent.SUNRAY) == 2) {
@@ -105,9 +105,9 @@ public class Sunray extends TargetedClericSpell {
 				}
 			} else {
 				if (hero.pointsInTalent(Talent.SUNRAY) == 2) {
-					ch.damage(Hero.heroDamageIntRange(6, 12), Sunray.this);
+					ch.damage(Hero.heroDamageIntRange(hero, 6, 12), Sunray.this);
 				} else {
-					ch.damage(Hero.heroDamageIntRange(4, 8), Sunray.this);
+					ch.damage(Hero.heroDamageIntRange(hero, 4, 8), Sunray.this);
 				}
 			}
 

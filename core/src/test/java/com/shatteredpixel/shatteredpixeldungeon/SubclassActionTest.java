@@ -189,6 +189,8 @@ public class SubclassActionTest extends HeadlessDungeon {
         Hero h=g.hero(seat);
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
+        case "swap": case "monkfocus": case "smite": case "radiance": case "ice": case "iceimbue": case "iceblast": case "icevolley": case "markdeath": case "clone": case "orderclone": case "sunray": case "divinesense": case "lightshield": case "guardshield": case "stance":
+            return FrostSensesTest.stage(g,type,seat,rat);
         case "smoke": case "ambush": case "freerun": case "spike": case "lunge": case "charged": case "light": case "ward": case "blessweapon":
         case "hawk": case "direct": case "imbue": case "volley": return WandArtsTest.stage(g,type,seat,rat);
         case "battery":
@@ -312,6 +314,8 @@ public class SubclassActionTest extends HeadlessDungeon {
         Combo combo=h.buff(Combo.class);
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
+        case "swap": case "monkfocus": case "smite": case "radiance": case "ice": case "iceimbue": case "iceblast": case "icevolley": case "markdeath": case "clone": case "orderclone": case "sunray": case "divinesense": case "lightshield": case "guardshield": case "stance":
+            return FrostSensesTest.published(g,type,seat);
         case "smoke": case "ambush": case "freerun": case "spike": case "lunge": case "charged": case "light": case "ward": case "blessweapon":
         case "hawk": case "direct": case "imbue": case "volley": return WandArtsTest.published(g,type,seat);
         case "battery": return h.buff(Barrier.class)!=null && ((com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff)h.belongings.weapon()).starterWand().curCharges==0;

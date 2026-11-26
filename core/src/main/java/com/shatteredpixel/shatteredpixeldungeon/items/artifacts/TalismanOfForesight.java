@@ -377,6 +377,7 @@ public class TalismanOfForesight extends Artifact {
 		@Override
 		public void detach() {
 			super.detach();
+			if (Dungeon.coop != null) return;
 			Dungeon.observe();
 			GameScene.updateFog();
 		}

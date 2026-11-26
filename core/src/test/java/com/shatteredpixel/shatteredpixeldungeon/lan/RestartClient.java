@@ -174,12 +174,12 @@ public final class RestartClient {
                 if (mode.startsWith("tengu-setup-") || mode.equals("late-setup") || mode.startsWith("wand-setup-") || mode.startsWith("necro-setup-")) character=i==0?"WARRIOR":"MAGE";
                 if (mode.startsWith("tengu-setup-growth-")) {
                     character=i==0?"WARRIOR":"HUNTRESS";
-                    if (mode.matches(".*-(light|blessweapon|ward)[01]")) character="CLERIC";
-                    if (mode.matches(".*-(lunge|spike|charged)[01]")) character="DUELIST";
-                    if (mode.matches(".*-(cloak|ambush|freerun|smoke)[01]")) character="ROGUE";
+                    if (mode.matches(".*-(radiance|smite|sunray|divinesense|lightshield|light|blessweapon|ward)[01]")) character="CLERIC";
+                    if (mode.matches(".*-(swap|monkfocus|guardshield|stance|lunge|spike|charged)[01]")) character="DUELIST";
+                    if (mode.matches(".*-(markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) character="ROGUE";
                     if (mode.matches(".*-(leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
                     if (mode.matches(".*-(hawk|direct|blades|sniper|nature)[01]")) character="HUNTRESS";
-                    if (mode.matches(".*-(imbue|volley|battery|recall|beacon|meal|blast|warlock|battlemage|soul)[01]")) character="MAGE";
+                    if (mode.matches(".*-(ice|iceimbue|iceblast|icevolley|imbue|volley|battery|recall|beacon|meal|blast|warlock|battlemage|soul)[01]")) character="MAGE";
                 }
                 if (RestartHost.newCampaign(mode)) character=i==0?"MAGE":"HUNTRESS";
                 if (mode.startsWith("scribe") && i==mode.charAt(6)-'0') character="WARRIOR";
@@ -551,7 +551,7 @@ public final class RestartClient {
                 long handle=verb.equals("PICK_UP") ? view.floor.get(cell).id : 0;
                 if (growth && verb.equals("ZAP")) handle=item(seat,"WEAPON","STAFF");
                 if (growth && verb.equals("THROW")) handle=item(seat,"BAG","SPIKE");
-                if (verb.matches("GUIDING_LIGHT|HOLY_WARD|HOLY_WEAPON")) handle=item(seat,"ARTIFACT","TOME");
+                if (verb.matches("RADIANCE|SMITE|SUNRAY|DIVINE_SENSE|SHIELD_OF_LIGHT|GUIDING_LIGHT|HOLY_WARD|HOLY_WEAPON")) handle=item(seat,"ARTIFACT","TOME");
                 if (verb.equals("WEAPON_ABILITY") || verb.equals("IMBUE") || verb.equals("CLOAK") || verb.equals("USE_CROWN") || verb.equals("ARMOR_ABILITY") || verb.equals("USE_MASK")) { String selected=verb; handle=view.belongings.stream().filter(it -> view.actions(it).contains(selected)).findFirst().get().id; }
                 if (verb.equals("VAULT_RECALL")) {
                     handle=view.belongings.stream().filter(item -> view.actions(item).contains("VAULT_RECALL"))

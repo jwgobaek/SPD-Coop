@@ -129,7 +129,7 @@ public final class DisplayReplica {
         if (!full && (image==null || image.version!=base)) throw new InvalidState();
         Map<String,String> rows=full ? new TreeMap<>() : new TreeMap<>(image.rows);
         Set<String> removed=new HashSet<>(), dead=new HashSet<>(), touched=new HashSet<>();
-        for (String op : f[6].split(";")) {
+        for (String op : f[6].isEmpty() && !full ? new String[0] : f[6].split(";")) {
             if (op.length()<2) throw new InvalidState();
             int split=op.indexOf('=');
             String key=op.substring(1,split<1 ? op.length() : split);

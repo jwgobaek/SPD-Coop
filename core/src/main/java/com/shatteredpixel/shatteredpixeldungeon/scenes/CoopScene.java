@@ -1,5 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.*;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
@@ -70,7 +72,7 @@ public class CoopScene extends PixelScene {
                                     com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.CLEAR,item.id);
                         }
                     });
-                } else if (("SpiritHawk".equals(ability) && view.source.rows.containsKey("hawkcommand")) || "SmokeBomb".equals(ability) || "WildMagic".equals(ability) || "HeroicLeap".equals(ability) || "Shockwave".equals(ability) || "SpectralBlades".equals(ability)) {
+                } else if (("SpiritHawk".equals(ability) && view.source.rows.containsKey("hawkcommand")) || ("ShadowClone".equals(ability) && view.source.rows.containsKey("clonecommand")) || "DeathMark".equals(ability) || "SmokeBomb".equals(ability) || "WildMagic".equals(ability) || "HeroicLeap".equals(ability) || "Shockwave".equals(ability) || "SpectralBlades".equals(ability)) {
                     targetView=view; targetMove=action; targetStaff=item; renderFrame();
                 } else controller.act(view.source,action,view.pos,item.id);
                 break;
@@ -92,19 +94,30 @@ public class CoopScene extends PixelScene {
     }
 
     private void showSpells(PublicDungeon view, PublicDungeon.Loot tome) {
-        com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.ClericSpell[] spells = {
-                com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.GuidingLight.INSTANCE,
-                com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyWeapon.INSTANCE,
-                com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyWard.INSTANCE};
-        String[] choices=new String[spells.length+1];
-        for (int i=0;i<spells.length;i++) choices[i]=spells[i].name();
-        choices[spells.length]=msg("back");
+        java.util.ArrayList<ClericSpell> spells = new java.util.ArrayList<>();
+        java.util.ArrayList<String> actions = new java.util.ArrayList<>();
+        spells.add(GuidingLight.INSTANCE); actions.add("GUIDING_LIGHT");
+        spells.add(HolyWeapon.INSTANCE); actions.add("HOLY_WEAPON");
+        spells.add(HolyWard.INSTANCE); actions.add("HOLY_WARD");
+        for (Talent talent : new Talent[]{Talent.SHIELD_OF_LIGHT, Talent.SUNRAY, Talent.DIVINE_SENSE}) {
+            if (!view.source.rows.containsKey("talent"+talent.ordinal())) continue;
+            spells.add(talent == Talent.SHIELD_OF_LIGHT ? ShieldOfLight.INSTANCE :
+                    talent == Talent.SUNRAY ? Sunray.INSTANCE : DivineSense.INSTANCE);
+            actions.add(talent.name());
+        }
+        String subclass = view.source.rows.get("subclass");
+        if ("PRIEST".equals(subclass)) { spells.add(Radiance.INSTANCE); actions.add("RADIANCE"); }
+        if ("PALADIN".equals(subclass)) { spells.add(Smite.INSTANCE); actions.add("SMITE"); }
+        String[] choices=new String[spells.size()+1];
+        for (int i=0;i<spells.size();i++) choices[i]=spells.get(i).name();
+        choices[spells.size()]=msg("back");
         add(new WndOptions(new com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite(tome.sprite),
                 Messages.get("items.artifacts.holytome.name"),msg("charges",tome.charges,tome.capacity),choices) {
             protected void onSelect(int index) {
-                if (index<0 || index>=spells.length || controller.frame().image!=view.source) return;
-                if (index==0) { targetView=view; targetMove="GUIDING_LIGHT"; targetStaff=tome; renderFrame(); }
-                else controller.act(view.source,index==1?"HOLY_WEAPON":"HOLY_WARD",view.pos,tome.id);
+                if (index<0 || index>=spells.size() || controller.frame().image!=view.source) return;
+                String action = actions.get(index);
+                if (spells.get(index) instanceof TargetedClericSpell) { targetView=view; targetMove=action; targetStaff=tome; renderFrame(); }
+                else controller.act(view.source,action,view.pos,tome.id);
             }
         });
     }
@@ -194,7 +207,7 @@ public class CoopScene extends PixelScene {
             return;
         }
         if (targetMove != null) {
-            boolean armor = "ARMOR_ABILITY".equals(targetMove) || "GUIDING_LIGHT".equals(targetMove);
+            boolean armor = "ARMOR_ABILITY".equals(targetMove) || "GUIDING_LIGHT".equals(targetMove) || "SHIELD_OF_LIGHT".equals(targetMove) || "SMITE".equals(targetMove) || "SUNRAY".equals(targetMove);
             boolean weapon = "WEAPON_ABILITY".equals(targetMove);
             if (targetView == view && (weapon || view.visible(cell) && (armor || view.monsters.containsKey(cell)))
                     && controller.act(view.source, targetMove, cell, armor || weapon ? targetStaff.id : 0)) cancelAim();
@@ -568,7 +581,18 @@ public class CoopScene extends PixelScene {
     }
 
     void subclassAction(PublicDungeon view) {
-        if (view.source.rows.containsKey("combocount")) {
+        if (view.offered && view.source.rows.containsKey("weaponswap")) {
+            controller.act(view.source,"SWAP_WEAPONS",view.pos,0);
+        } else if (view.offered && view.source.rows.containsKey("monkenergy")) {
+            String focus = com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MonkEnergy.MonkAbility.abilities[1].name();
+            add(new WndOptions(focus, msg("monk_energy",view.source.rows.get("monkenergy")),
+                    view.source.rows.containsKey("monkfocus") ? new String[]{focus,msg("back")} : new String[]{msg("back")}) {
+                protected void onSelect(int choice) {
+                    if (choice==0 && view.source.rows.containsKey("monkfocus") && controller.frame().image == view.source)
+                        controller.act(view.source,"MONK_FOCUS",view.pos,0);
+                }
+            });
+        } else if (view.source.rows.containsKey("combocount")) {
             add(new WndCombo(Integer.parseInt(view.source.rows.get("combocount")),Integer.parseInt(view.source.rows.get("comboenhanced")),
                     move -> view.offered && view.source.rows.containsKey("finish"+move.ordinal()), move -> {
                 if (controller.frame().image != view.source) return;
@@ -617,7 +641,7 @@ public class CoopScene extends PixelScene {
     private void showTalents(PublicDungeon view, String title) {
         java.util.ArrayList<Integer> tiers = new java.util.ArrayList<>();
         java.util.ArrayList<String> labels = new java.util.ArrayList<>();
-        for (int tier = 1; tier <= 3; tier++) {
+        for (int tier = 1; tier <= 4; tier++) {
             boolean present = false;
             for (Talent talent : Talent.values()) {
                 if (Integer.toString(tier).equals(view.source.rows.get("tier"+talent.ordinal()))) {

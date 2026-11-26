@@ -55,7 +55,7 @@ public class DungeonRenderMap {
         changedCells.setEmpty();
         for (int i=0;i<tiles.length;i++) {
             int terrain=view.terrain(i);
-            boolean seen=view.visible(i), mapOnly=!seen && terrain>=0 && view.source.mappedOnly(i);
+            boolean seen=view.visible(i) || view.source.rows.containsKey("sense"+i), mapOnly=!seen && terrain>=0 && view.source.mappedOnly(i);
             String detail=view.source.rows.get(((depth==10 || depth==15 || depth==20 || depth==25 || depth==26) ? "exitfloor" : "nest")+i);
             int frame=terrain>=0 && !mapOnly && detail!=null ? Integer.parseInt(detail) : -1;
             if (depth==26 && (frame==46 || frame==54) && variance[i]>=50) frame++;

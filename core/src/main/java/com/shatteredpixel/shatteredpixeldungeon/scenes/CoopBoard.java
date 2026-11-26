@@ -123,7 +123,11 @@ final class CoopBoard extends Group {
         for (Map.Entry<String,String> row : view.source.rows.entrySet()) {
             String key=row.getKey(), value=row.getValue();
             if (key.length()<2 || !Character.isDigit(key.charAt(key.length()-1))) continue;
-            if (key.startsWith("aim")) {
+            if (key.startsWith("sense") && value.equals("mob")) {
+                int cell = Integer.parseInt(key.substring(5));
+                object(keep, key, cell, () -> new com.shatteredpixel.shatteredpixeldungeon.ui.BuffIcon(
+                        com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator.MIND_VISION, true));
+            } else if (key.startsWith("aim")) {
                 int cell=Integer.parseInt(key.substring(3));
                 if (view.visible(cell)) object(keep,key,cell,()->{
                     Image target=com.shatteredpixel.shatteredpixeldungeon.ui.Icons.get(com.shatteredpixel.shatteredpixeldungeon.ui.Icons.TARGET);
@@ -374,6 +378,7 @@ final class CoopBoard extends Group {
                     case "GoldenMimic": sprite=new MimicSprite.Golden();break;
                     case "CrystalMimic": sprite=new MimicSprite.Crystal();break;
                     case "Mimic": sprite=new MimicSprite();break;
+                    case "ShadowAlly": sprite=new com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.ShadowClone.ShadowSprite();break;
                     case "HawkAlly": sprite=new com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkSprite();break;
                     case "Bee": sprite=new BeeSprite();break;
                     case "Ghost": sprite=new GhostSprite();break;

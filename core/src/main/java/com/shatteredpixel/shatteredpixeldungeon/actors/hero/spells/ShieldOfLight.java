@@ -62,22 +62,22 @@ public class ShieldOfLight extends TargetedClericSpell {
 	}
 
 	@Override
-	protected void onTargetSelected(HolyTome tome, Hero hero, Integer target) {
+	public void onTargetSelected(HolyTome tome, Hero hero, Integer target) {
 
 		if (target == null){
 			return;
 		}
 
 		Char ch = Actor.findChar(target);
-		if (ch == null || ch.alignment == Char.Alignment.ALLY || !Dungeon.level.heroFOV[target]){
+		if (ch == null || ch.alignment == Char.Alignment.ALLY || !(Dungeon.coop == null ? Dungeon.level.heroFOV[target] : Dungeon.coop.knowledge(hero).visible(target))){
 			GLog.w(Messages.get(this, "no_target"));
 			return;
 		}
 
-		QuickSlotButton.target(ch);
+		if (Dungeon.coop == null) QuickSlotButton.target(ch);
 
 		Sample.INSTANCE.play(Assets.Sounds.READ);
-		hero.sprite.operate(hero.pos);
+		if (Dungeon.coop == null) hero.sprite.operate(hero.pos);
 
 		//1 turn less as the casting is instant
 		Buff.prolong( hero, ShieldOfLightTracker.class, 4f).object = ch.id();
@@ -87,10 +87,10 @@ public class ShieldOfLight extends TargetedClericSpell {
 		}
 
 		hero.busy();
-		hero.sprite.operate(hero.pos);
-		hero.sprite.emitter().start(Speck.factory(Speck.LIGHT), 0.15f, 6);
+		if (Dungeon.coop == null) hero.sprite.operate(hero.pos);
+		if (Dungeon.coop == null) hero.sprite.emitter().start(Speck.factory(Speck.LIGHT), 0.15f, 6);
 
-		Char ally = PowerOfMany.getPoweredAlly();
+		Char ally = Dungeon.coop == null ? PowerOfMany.getPoweredAlly() : null;
 		if (ally != null && ally.buff(LifeLinkSpell.LifeLinkSpellBuff.class) != null){
 			Buff.prolong( ally, ShieldOfLightTracker.class, 3f).object = ch.id();
 			ally.sprite.emitter().start(Speck.factory(Speck.LIGHT), 0.15f, 6);

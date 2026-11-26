@@ -72,7 +72,7 @@ public class RoundShield extends MeleeWeapon {
 	}
 
 	@Override
-	protected void duelistAbility(Hero hero, Integer target) {
+	public void duelistAbility(Hero hero, Integer target) {
 		RoundShield.guardAbility(hero, 5+buffedLvl(), this);
 	}
 
@@ -93,7 +93,7 @@ public class RoundShield extends MeleeWeapon {
 	public static void guardAbility(Hero hero, int duration, MeleeWeapon wep){
 		wep.beforeAbilityUsed(hero, null);
 		Buff.prolong(hero, GuardTracker.class, duration).hasBlocked = false;
-		hero.sprite.operate(hero.pos);
+		if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop == null) hero.sprite.operate(hero.pos);
 		hero.spendAndNext(Actor.TICK);
 		wep.afterAbilityUsed(hero);
 	}

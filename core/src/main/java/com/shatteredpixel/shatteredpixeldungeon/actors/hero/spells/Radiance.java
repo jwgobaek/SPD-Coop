@@ -58,7 +58,7 @@ public class Radiance extends ClericSpell {
 	@Override
 	public void onCast(HolyTome tome, Hero hero) {
 
-		GameScene.flash( 0x80FFFFFF );
+		if (Dungeon.coop == null) GameScene.flash( 0x80FFFFFF );
 		Sample.INSTANCE.play(Assets.Sounds.BLAST);
 
 		if (Dungeon.level.viewDistance < 6 ){
@@ -66,12 +66,12 @@ public class Radiance extends ClericSpell {
 		}
 
 		for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] )) {
-			if (mob.alignment != Char.Alignment.ALLY && Dungeon.level.heroFOV[mob.pos]) {
+			if (mob.alignment != Char.Alignment.ALLY && (Dungeon.coop == null ? Dungeon.level.heroFOV[mob.pos] : Dungeon.coop.knowledge(hero).visible(mob.pos))) {
 
 				if (mob.buff(GuidingLight.Illuminated.class) != null){
 					mob.damage(hero.lvl+5, GuidingLight.INSTANCE);
 				} else {
-					Buff.affect(mob, GuidingLight.Illuminated.class);
+					GuidingLight.illuminate(hero,mob);
 					Buff.affect(mob, GuidingLight.WasIlluminatedTracker.class);
 				}
 				if (mob.isActive()) {
@@ -82,7 +82,8 @@ public class Radiance extends ClericSpell {
 
 		hero.spend( 1f );
 		hero.busy();
-		hero.sprite.operate(hero.pos);
+		if (Dungeon.coop == null) hero.sprite.operate(hero.pos);
+		else hero.next();
 
 		onSpellCast(tome, hero);
 

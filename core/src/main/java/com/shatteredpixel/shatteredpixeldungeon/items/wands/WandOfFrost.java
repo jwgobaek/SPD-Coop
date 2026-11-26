@@ -24,6 +24,8 @@ package com.shatteredpixel.shatteredpixeldungeon.items.wands;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.watabou.utils.Bundle;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -41,7 +43,7 @@ import com.watabou.utils.Callback;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
 
-public class WandOfFrost extends DamageWand {
+public class WandOfFrost extends TargetedDamageWand {
 
 	{
 		image = ItemSpriteSheet.WAND_FROST;
@@ -55,8 +57,14 @@ public class WandOfFrost extends DamageWand {
 		return 8+5*lvl;
 	}
 
+	public static boolean safeImpact(int cell) {
+		Heap heap = Dungeon.level.heaps.get(cell);
+		return (heap == null || heap.supportsFreezing())
+				&& (Actor.findChar(cell) != null || com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(cell));
+	}
+
 	@Override
-	public void onZap(Ballistica bolt) {
+	public void onZap(Hero caster, Ballistica bolt) {
 
 		Heap heap = Dungeon.level.heaps.get(bolt.collisionPos);
 		if (heap != null) {
@@ -81,7 +89,7 @@ public class WandOfFrost extends DamageWand {
 		Char ch = Actor.findChar(bolt.collisionPos);
 		if (ch != null){
 
-			int damage = damageRoll();
+			int damage = damageRoll(caster, buffedLvl());
 
 			if (ch.buff(Frost.class) != null){
 				return; //do nothing, can't affect a frozen target
@@ -90,11 +98,11 @@ public class WandOfFrost extends DamageWand {
 				//6.67% less damage per turn of chill remaining, to a max of 10 turns (50% dmg)
 				float chillturns = Math.min(10, ch.buff(Chill.class).cooldown());
 				damage = (int)Math.round(damage * Math.pow(0.9333f, chillturns));
-			} else {
+			} else if (Dungeon.coop == null) {
 				ch.sprite.burst( 0xFF99CCFF, buffedLvl() / 2 + 2 );
 			}
 
-			wandProc(ch, chargesPerCast());
+			wandProc(caster, ch, buffedLvl(), chargesPerCast());
 			ch.damage(damage, this);
 			Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, 1.1f * Random.Float(0.87f, 1.15f) );
 
@@ -139,17 +147,34 @@ public class WandOfFrost extends DamageWand {
 				float powerMulti = Math.max(1f, procChance);
 
 				//need to delay this through an actor so that the freezing isn't broken by taking damage from the staff hit.
-				new FlavourBuff() {
-					{
-						actPriority = VFX_PRIO;
-					}
-
-					public boolean act() {
-						Buff.affect(target, Frost.class, Math.round(Frost.DURATION * powerMulti));
-						return super.act();
-					}
-				}.attachTo(defender);
+				DelayedFreeze freeze = new DelayedFreeze();
+				freeze.duration = Math.round(Frost.DURATION * powerMulti);
+				freeze.attachTo(defender);
 			}
+		}
+	}
+
+	/** Resolves after the staff hit. The scheduler stores the target and remaining time. */
+	public static class DelayedFreeze extends FlavourBuff {
+		private int duration;
+		{ actPriority = VFX_PRIO; }
+
+		@Override
+		public boolean act() {
+			Buff.affect(target, Frost.class, duration);
+			return super.act();
+		}
+
+		@Override
+		public void storeInBundle(Bundle bundle) {
+			super.storeInBundle(bundle);
+			bundle.put("duration", duration);
+		}
+
+		@Override
+		public void restoreFromBundle(Bundle bundle) {
+			super.restoreFromBundle(bundle);
+			duration = bundle.getInt("duration");
 		}
 	}
 

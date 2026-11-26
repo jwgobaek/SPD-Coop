@@ -73,14 +73,14 @@ public class DeathMark extends ArmorAbility {
 	}
 
 	@Override
-	protected void activate(ClassArmor armor, Hero hero, Integer target) {
+	public void activate(ClassArmor armor, Hero hero, Integer target) {
 		if (target == null){
 			return;
 		}
 
 		Char ch = Actor.findChar(target);
 
-		if (ch == null || !Dungeon.level.heroFOV[target]){
+		if (ch == null || !(Dungeon.coop == null ? Dungeon.level.heroFOV[target] : Dungeon.coop.knowledge(hero).visible(target))){
 			GLog.w(Messages.get(this, "no_target"));
 			return;
 		} else if (ch.alignment != Char.Alignment.ENEMY){
@@ -89,12 +89,14 @@ public class DeathMark extends ArmorAbility {
 		}
 
 		if (ch != null){
-			Buff.affect(ch, DeathMarkTracker.class, DeathMarkTracker.DURATION).setInitialHP(ch.HP);
+			DeathMarkTracker mark = Buff.affect(ch, DeathMarkTracker.class, DeathMarkTracker.DURATION);
+			mark.casterId = hero.id();
+			mark.setInitialHP(ch.HP);
 		}
 
 		armor.charge -= chargeUse( hero );
 		armor.updateQuickslot();
-		hero.sprite.zap(target);
+		if (Dungeon.coop == null) hero.sprite.zap(target);
 
 		hero.next();
 
@@ -111,21 +113,23 @@ public class DeathMark extends ArmorAbility {
 			return;
 		}
 
-		if (Dungeon.hero.hasTalent(Talent.FEAR_THE_REAPER)) {
-			if (Dungeon.hero.pointsInTalent(Talent.FEAR_THE_REAPER) >= 2) {
-				Buff.prolong(ch, Terror.class, 5f).object = Dungeon.hero.id();
+		Hero caster = ch.buff(DeathMarkTracker.class).caster();
+		if (caster == null) return;
+		if (caster.hasTalent(Talent.FEAR_THE_REAPER)) {
+			if (caster.pointsInTalent(Talent.FEAR_THE_REAPER) >= 2) {
+				Buff.prolong(ch, Terror.class, 5f).object = caster.id();
 			}
 			Buff.prolong(ch, Cripple.class, 5f);
 
-			if (Dungeon.hero.pointsInTalent(Talent.FEAR_THE_REAPER) >= 3) {
+			if (caster.pointsInTalent(Talent.FEAR_THE_REAPER) >= 3) {
 				boolean[] passable = BArray.not(Dungeon.level.solid, null);
 				PathFinder.buildDistanceMap(ch.pos, passable, 3);
 
 				for (Char near : Actor.chars()) {
 					if (near != ch && near.alignment == Char.Alignment.ENEMY
 							&& PathFinder.distance[near.pos] != Integer.MAX_VALUE) {
-						if (Dungeon.hero.pointsInTalent(Talent.FEAR_THE_REAPER) == 4) {
-							Buff.prolong(near, Terror.class, 5f).object = Dungeon.hero.id();
+						if (caster.pointsInTalent(Talent.FEAR_THE_REAPER) == 4) {
+							Buff.prolong(near, Terror.class, 5f).object = caster.id();
 						}
 						Buff.prolong(near, Cripple.class, 5f);
 					}
@@ -151,6 +155,32 @@ public class DeathMark extends ArmorAbility {
 		public static float DURATION = 5f;
 
 		int initialHP = 0;
+		private int casterId;
+
+		public Hero caster() {
+			if (Dungeon.coop == null) return Dungeon.hero;
+			Actor caster = Actor.findById(casterId);
+			return caster instanceof Hero ? (Hero)caster : null;
+		}
+
+		private void deathEffects() {
+			if (Dungeon.coop == null) {
+				target.sprite.flash();
+				target.sprite.bloodBurstA(target.sprite.center(), target.HT*2);
+				Sample.INSTANCE.play(Assets.Sounds.HIT_STAB);
+				Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
+			}
+		}
+
+		private void grantBarrier() {
+			Hero hero = caster();
+			if (hero == null || !hero.isAlive() || target.alignment == Char.Alignment.ALLY) return;
+			int shield = Math.round(initialHP * (0.125f * hero.pointsInTalent(Talent.DEATHLY_DURABILITY)));
+			if (shield > 0) {
+				if (Dungeon.coop == null) hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shield), FloatingText.SHIELDING);
+				Buff.affect(hero, Barrier.class).setShield(shield);
+			}
+		}
 
 		{
 			type = buffType.NEGATIVE;
@@ -193,16 +223,9 @@ public class DeathMark extends ArmorAbility {
 			super.detach();
 			target.deathMarked = false;
 			if (!target.isAlive()){
-				target.sprite.flash();
-				target.sprite.bloodBurstA(target.sprite.center(), target.HT*2);
-				Sample.INSTANCE.play(Assets.Sounds.HIT_STAB);
-				Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
+				deathEffects();
 				target.die(this);
-				int shld = Math.round(initialHP * (0.125f*Dungeon.hero.pointsInTalent(Talent.DEATHLY_DURABILITY)));
-				if (shld > 0 && target.alignment != Char.Alignment.ALLY){
-					Dungeon.hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shld), FloatingText.SHIELDING);
-					Buff.affect(Dungeon.hero, Barrier.class).setShield(shld);
-				}
+				grantBarrier();
 			}
 		}
 
@@ -212,15 +235,8 @@ public class DeathMark extends ArmorAbility {
 			target.deathMarked = false;
 			//trigger death mark vfx and deathly durability if the target would have died with death mark ending normally
 			if (!target.isAlive()){
-				target.sprite.flash();
-				target.sprite.bloodBurstA(target.sprite.center(), target.HT*2);
-				Sample.INSTANCE.play(Assets.Sounds.HIT_STAB);
-				Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
-				int shld = Math.round(initialHP * (0.125f*Dungeon.hero.pointsInTalent(Talent.DEATHLY_DURABILITY)));
-				if (shld > 0 && target.alignment != Char.Alignment.ALLY){
-					Dungeon.hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shld), FloatingText.SHIELDING);
-					Buff.affect(Dungeon.hero, Barrier.class).setShield(shld);
-				}
+				deathEffects();
+				grantBarrier();
 			}
 		}
 
@@ -230,12 +246,14 @@ public class DeathMark extends ArmorAbility {
 		public void storeInBundle(Bundle bundle) {
 			super.storeInBundle(bundle);
 			bundle.put(INITIAL_HP, initialHP);
+			if (Dungeon.coop != null) bundle.put("caster_id",casterId);
 		}
 
 		@Override
 		public void restoreFromBundle(Bundle bundle) {
 			super.restoreFromBundle(bundle);
 			initialHP = bundle.getInt(INITIAL_HP);
+			casterId = bundle.getInt("caster_id");
 		}
 	}
 

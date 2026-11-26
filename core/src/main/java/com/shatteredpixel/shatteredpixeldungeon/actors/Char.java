@@ -422,12 +422,14 @@ public abstract class Char extends Actor {
 			dmg += dmgBonus;
 
 			if (enemy.buff(GuidingLight.Illuminated.class) != null){
-				enemy.buff(GuidingLight.Illuminated.class).detach();
-				if (this == Dungeon.hero && Dungeon.hero.hasTalent(Talent.SEARING_LIGHT)){
-					dmg += 1 + 2*Dungeon.hero.pointsInTalent(Talent.SEARING_LIGHT);
+				GuidingLight.Illuminated light = enemy.buff(GuidingLight.Illuminated.class);
+				Hero priest = light.caster();
+				light.detach();
+				if (this instanceof Hero && ((Hero)this).hasTalent(Talent.SEARING_LIGHT)){
+					dmg += 1 + 2*((Hero)this).pointsInTalent(Talent.SEARING_LIGHT);
 				}
-				if (this != Dungeon.hero && Dungeon.hero.subClass == HeroSubClass.PRIEST){
-					enemy.damage(5+Dungeon.hero.lvl, GuidingLight.INSTANCE);
+				if (priest != null && this != priest && priest.subClass == HeroSubClass.PRIEST){
+					enemy.damage(5+priest.lvl, GuidingLight.INSTANCE);
 				}
 			}
 
@@ -736,7 +738,7 @@ public abstract class Char extends Actor {
 
 		ShieldOfLight.ShieldOfLightTracker shield = buff( ShieldOfLight.ShieldOfLightTracker.class);
 		if (shield != null && shield.object == enemy.id()){
-			int min = 1 + Dungeon.hero.pointsInTalent(Talent.SHIELD_OF_LIGHT);
+			int min = 1 + (this instanceof Hero ? (Hero)this : Dungeon.hero).pointsInTalent(Talent.SHIELD_OF_LIGHT);
 			damage -= Random.NormalIntRange(min, 2*min);
 			damage = Math.max(damage, 0);
 		} else if (this == Dungeon.hero
