@@ -31,7 +31,7 @@ public final class CoopRenderSmoke {
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -654,6 +654,34 @@ public final class CoopRenderSmoke {
         }));
     }
 
+    private static void vaultDart() throws Exception {
+        await(()->frame().dungeon.branch==1 && frame().dungeon.pos==1872 && frame().dungeon.offered);
+        click("pick_up");
+        await(()->frame().dungeon.belongings.stream().anyMatch(i->i.kind.equals("DART")) && frame().dungeon.offered);
+        PublicDungeon v=frame().dungeon;
+        PublicDungeon.Loot dart=v.belongings.stream().filter(i->i.kind.equals("DART")).findFirst().get();
+        if (dart.quantity!=2) throw new AssertionError("Expected the original two darts");
+        hold("slot4"); press(inventoryPoint(dart.id));
+        await(()->frame().quickslots.item(3,frame().dungeon)!=null && frame().quickslots.item(3,frame().dungeon).id==dart.id);
+        long version=frame().image.version;
+        click("slot4"); waitForButton("cancel"); shot("vault-dart-aim"); click("cancel");
+        if (frame().image.version!=version) throw new AssertionError("Aim cancellation changed the game");
+        click("slot4"); waitForButton("cancel");
+        int landing=-1;
+        for (int dy=-1;dy<=1 && landing<0;dy++) for (int dx=-1;dx<=1;dx++) {
+            int cell=v.pos+dx+dy*v.width,tile=v.terrain(cell);
+            if (cell!=v.pos && cell!=v.ally && v.visible(cell) && tile>=0 && !v.monsters.containsKey(cell)
+                    && (com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.flags[tile]&com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.PASSABLE)!=0) {
+                landing=cell;break;
+            }
+        }
+        if (landing<0) throw new AssertionError("Missing visible landing cell");
+        press(mapPoint(v,landing));
+        await(()->frame().dungeon.belongings.stream().anyMatch(i->i.id==dart.id && i.quantity==1));
+        shot("vault-dart-thrown");
+        System.out.println("PASS seed 572 cell 1872 native vault HUD pickup, bind, aim, cancel and throw");
+    }
+
     private static void growthInputs() throws Exception {
         await(()->{ PublicDungeon v=frame().dungeon; return v.offered && v.belongings.stream().anyMatch(i->v.actions(i).contains("USE_MASK")); });
         openCharacter();
@@ -706,6 +734,7 @@ public final class CoopRenderSmoke {
             await(()->frame().dungeon!=null); await(()->button("bag")!=null);
             if (!regionShot.isEmpty()) {
                 RenderEncounter.tengu(hostController(),regionShot);
+                if (regionShot.equals("vault-dart")) { vaultDart(); return; }
                 if (regionShot.equals("growth-input")) { growthInputs(); return; }
                 if (regionShot.equals("smith-services")) {
                     await(()->frame().dungeon.offered && frame().image.rows.containsKey("priceorder"));

@@ -69,6 +69,12 @@ final class RenderEncounter {
                     engine.set(lan,resumed);
                     source.set(replication,resumed);
                 }
+            } else if (destination.equals("vault-dart")) {
+                com.shatteredpixel.shatteredpixeldungeon.ImpVaultTest.forScreen(game,"imp-vault");
+                if (!(Dungeon.level.heaps.get(1872).peek() instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart))
+                    throw new AssertionError("Expected seed 572 dart heap");
+                game.hero(0).pos=1872;
+                game.observe(0);
             } else if (destination.equals("growth-input")) {
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"owner0");
                 game.hero(0).earnExp(game.hero(0).maxExp(),Rat.class);
