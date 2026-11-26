@@ -5,6 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Piranha;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
@@ -24,6 +25,9 @@ public final class OfficialGrowthControl {
         FutureTask<T> work=new FutureTask<>(call);Gdx.app.postRunnable(work);return work.get(15,TimeUnit.SECONDS);
     }
     static int seed,depth,inputs,kills;
+    static final boolean useSupplies=Boolean.getBoolean("solo.useSupplies");
+    static final int actionBudget=Integer.getInteger("solo.inputs",180);
+    static final int targetDepth=Integer.getInteger("solo.depth",3);
     static int[] footfalls;
     static void record(String why) {
         Hero h=Dungeon.hero;
@@ -43,8 +47,15 @@ public final class OfficialGrowthControl {
         Hero h=Dungeon.hero;Level l=Dungeon.level;
         if (depth!=Dungeon.depth) {depth=Dungeon.depth;footfalls=new int[l.length()];record("entry");}
         footfalls[h.pos]++;
+        boolean[] riskyWater=new boolean[l.length()];
+        if (useSupplies && !l.water[h.pos]) {
+            for (Mob fish:l.mobs) if (fish instanceof Piranha && fish.invisible==0 && l.heroFOV[fish.pos]) {
+                for (int i=0;i<l.length();i++) if (l.heroFOV[i] && l.water[i] && l.distance(fish.pos,i)<=2)
+                    riskyWater[i]=true;
+            }
+        }
         Mob nearest=null;
-        for(Mob m:l.mobs) if(l.heroFOV[m.pos] && m.invisible==0 && m.alignment==Char.Alignment.ENEMY
+        for(Mob m:l.mobs) if(l.heroFOV[m.pos] && m.invisible==0 && m.alignment==Char.Alignment.ENEMY && !riskyWater[m.pos]
                 && (nearest==null || l.distance(h.pos,m.pos)<l.distance(h.pos,nearest.pos))) nearest=m;
         if(nearest!=null) return nearest.pos;
         if(l.heaps.get(h.pos)!=null && l.heaps.get(h.pos).type==com.shatteredpixel.shatteredpixeldungeon.items.Heap.Type.HEAP) return h.pos;
@@ -57,7 +68,7 @@ public final class OfficialGrowthControl {
             int cell=queue[head++];
             for (int d:PathFinder.NEIGHBOURS8) {
                 int n=cell+d;
-                if(!l.insideMap(n) || first[n]>=0 || !(l.visited[n] || l.heroFOV[n]) || !l.passable[n] || l.pit[n]) continue;
+                if(!l.insideMap(n) || riskyWater[n] || first[n]>=0 || !(l.visited[n] || l.heroFOV[n]) || !l.passable[n] || l.pit[n]) continue;
                 first[n]=cell==h.pos?n:first[cell];queue[tail++]=n;
                 if(footfalls[n]<lowest) {best=first[n];lowest=footfalls[n];}
                 if(lowest==0) return best;
@@ -80,13 +91,28 @@ public final class OfficialGrowthControl {
             ShatteredPixelDungeon.switchNoFade(GameScene.class);
             return null;
         });
-        long stop=System.nanoTime()+TimeUnit.SECONDS.toNanos(120);
-        while(inputs<180 && System.nanoTime()<stop) {
+        long stop=System.nanoTime()+TimeUnit.SECONDS.toNanos(useSupplies ? 210 : 120);
+        while(inputs<actionBudget && System.nanoTime()<stop) {
             boolean done=render(()->{
                 if(!Dungeon.hero.isAlive()) { record("defeat");return true;}
                 if(!(Game.scene() instanceof GameScene) || !Dungeon.hero.ready) return false;
                 int cell=choice();
-                if(Dungeon.depth>=3 || cell<0) {record(cell<0?"no route":"depth budget");return true;}
+                if(Dungeon.depth>=targetDepth || cell<0) {record(cell<0?"no route":"depth budget");return true;}
+                if (useSupplies) {
+                    Hero h=Dungeon.hero;
+                    for (Item item:h.belongings.backpack.items) {
+                        if (item instanceof PotionOfHealing && ((PotionOfHealing)item).isKnown() && h.HP*2<h.HT) {
+                            item.execute(h,com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion.AC_DRINK);
+                            inputs++; record("known healing"); return false;
+                        }
+                        if (item instanceof Food && h.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger.class)!=null
+                                && h.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger.class).isStarving()
+                                && h.visibleEnemies()==0) {
+                            item.execute(h,Food.AC_EAT);
+                            inputs++; record("food"); return false;
+                        }
+                    }
+                }
                 if(Dungeon.hero.handle(cell)) {Dungeon.hero.next();inputs++;}
                 if(Statistics.enemiesSlain!=kills) {kills=Statistics.enemiesSlain;record("kill observed");}
                 return false;
