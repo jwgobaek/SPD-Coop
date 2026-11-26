@@ -40,3 +40,16 @@ Windows 파일을 쓰지 않고 ADB 표준 출력과 메모리 스트림을 Clou
 Windows CPU 37%, 가용 메모리 3,129 / 16,085 MiB를 마지막에 관측했다. 두 화면과 ADB가 응답했다. 심각한 프리징은 관찰되지 않았다. 양쪽 Chromium 다운로드의 정확한 경로와 체크섬을 대조해 이번 설치 파일 두 개만 제거했다. 양쪽 Android 다운로드 위치를 다시 조회했다. 호스트 forward 및 게스트 reverse를 선택적으로 해제하고 이번 루프백 리스너 0개를 확인했다. 이번 작업에서 연결한 게스트 ADB 주소만 해제했다. 기존 호스트 ADB와 Remote Desktop Commander는 응답했다. MuMuManager가 #2와 #3의 Android 및 프로세스 실행을 모두 보고했고 마지막 MuMu 기기 프로세스 수는 2였다.
 
 Windows 프로젝트 파일 쓰기는 0건이었다. 화면은 메모리 스트림으로 전송했다. 정리 확인은 이번 세션의 명령·다운로드 경로·포트·프로세스를 대상으로 했다. 두 인스턴스를 계속 실행하는 승인은 이 세션에 적용했다.
+
+## Google Drive 최종 발행 — UPLOADED_AND_HASH_VERIFIED
+
+지정 계정의 기존 01_Latest에 APK 1회, 통합 ZIP 1회 전송했다. 두 기존 ID의 부모 폴더와 anyone/reader, allowFileDiscovery=false 메타데이터를 재조회했다. 계정 인증이나 쿠키를 전달하지 않은 별도 다운로드로 전체 파일을 다시 읽어 아래 크기와 SHA-256을 대조했다.
+
+| 파일 | 크기(바이트) | 실제 다운로드 SHA-256 |
+|---|---:|---|
+| [SPD-Coop-latest.apk](https://drive.google.com/file/d/1UhjuelcgZwugUyiGmAHco_dXdnTFuDZ2/view) | 35,329,774 | `a37c238d8adab0dd0186b9ee2562937a661e2fcf2a7903ab053da19cb45f2822` |
+| [SPD-Coop-latest-backup.zip](https://drive.google.com/file/d/1nxC-3dq29HUmt7pSuoYP8JGqUALNVvW8/view) | 73,287,221 | `154fa1e766be43e9dffaf7919ff1d24c4516a3a58e17dd9a7c008cdc6b02aa37` |
+
+통합 ZIP의 소스 2,301개가 APK 빌드 커밋 4c2054e와 일치했고 체크섬 2,586개를 검증했다. 문서 및 검증 자료의 기준 커밋은 bd91180이다. Android 증거는 이번 시험방의 표준 출력 캡처와 요약이다. 패키징 시 APK 중첩, 서명 키와 사용자 세이브를 제외했다.
+
+리비전 조회에서 직전 APK 35,329,331바이트와 직전 ZIP 73,819,931바이트가 이전 HEAD ID와 각각 일치했다. 두 직전 리비전 모두 keepForever=false였다. 연결 기능에서 리비전 고정을 수행할 수 없었다. 장기 보존과 실제 롤백은 미검증이다.
