@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.SacrificialFire;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.EbonyMimic;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.GoldenMimic;
@@ -704,6 +705,20 @@ public abstract class RegularLevel extends Level {
 		limitedDocs.put(Document.HALLS_KING, Dungeon.LimitedDrops.LORE_HALLS);
 	}
 	
+	public boolean hasSecretHint(Hero observer) {
+		if (Dungeon.branch != 0 || !observer.hasTalent(Talent.ROGUES_FORESIGHT)) return false;
+		int needed = feeling == Feeling.SECRETS ? 2 : 1;
+		for (Room room : rooms) if (room instanceof SecretRoom) needed--;
+		if (needed > 0) return false;
+
+		Random.pushGenerator(Dungeon.seedCurDepth() + 1);
+		try {
+			return Random.Int(4) < 2 + observer.pointsInTalent(Talent.ROGUES_FORESIGHT);
+		} finally {
+			Random.popGenerator();
+		}
+	}
+
 	public ArrayList<Room> rooms() {
 		return new ArrayList<>(rooms);
 	}

@@ -13,6 +13,80 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class SeatTalentTest extends HeadlessDungeon {
+    @Test public void foresightUsesOnlyItsOwnersRankAndFloorSeed() {
+        boolean hit = false, miss = false;
+        for (int seed = 570; seed <= 581; seed++) for (int seat = 0; seat < 2; seat++) {
+            try (CoopSession game = CoopSession.open(seed,11,HeroClass.ROGUE)) {
+                game.join(22,HeroClass.ROGUE);
+                Hero hero = game.hero(seat);
+                hero.lvl = 15;
+                SewerBeeTest.offer(game,seat);
+                boolean eligible = false;
+                for (int floor = 1; floor <= 4; floor++) {
+                    var level = (com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel)Dungeon.level;
+                    assertFalse(level.hasSecretHint(hero));
+                    long secrets = level.rooms().stream().filter(room -> room instanceof
+                            com.shatteredpixel.shatteredpixeldungeon.levels.rooms.secret.SecretRoom).count();
+                    eligible = secrets >= (level.feeling == com.shatteredpixel.shatteredpixeldungeon.levels.Level.Feeling.SECRETS ? 2 : 1);
+                    if (eligible || floor == 4) break;
+                    SewerSpecialActorTest.atGate(game, Dungeon.level.exit());
+                    CoopFloorsTest.cross(game);
+                }
+                SewerBeeTest.offer(game,seat);
+                com.watabou.utils.Random.pushGenerator(Dungeon.seedCurDepth()+1);
+                boolean rolled;
+                try { rolled = com.watabou.utils.Random.Int(4) < 3; }
+                finally { com.watabou.utils.Random.popGenerator(); }
+                hit |= eligible && rolled;
+                miss |= eligible && !rolled;
+                for (int rank = 1; rank <= 2; rank++) {
+                    assertTrue(CoopFloorsTest.step(game,CoopSession.Action.INVEST_TALENT,Talent.ROGUES_FORESIGHT.ordinal(),null));
+                    long[] rng = com.watabou.utils.Random.worldState();
+                    var own = com.shatteredpixel.shatteredpixeldungeon.lan.ProjectionChecks.seatImage(game,seat);
+                    var peer = com.shatteredpixel.shatteredpixeldungeon.lan.ProjectionChecks.seatImage(game,1-seat);
+                    assertEquals(eligible && (rank == 2 || rolled), own.source.rows.containsKey("secrethint"));
+                    assertFalse(peer.source.rows.containsKey("secrethint"));
+                    assertArrayEquals(rng, com.watabou.utils.Random.worldState());
+                }
+            }
+        }
+        assertTrue(hit && miss);
+    }
+
+    @Test public void sleepingEnemyTestsTheVisibleRogueOrClonesOwnSilentSteps() {
+        for (int seat = 0; seat < 2; seat++) for (int rank = 0; rank <= 2; rank++) {
+            try (CoopSession game = CoopSession.open(572, 11, HeroClass.ROGUE)) {
+                game.join(22, HeroClass.ROGUE);
+                Rat rat = CoopMageTest.encounter(game,seat);
+                SewerBeeTest.offer(game,seat);
+                Hero rogue = game.hero(seat);
+                rogue.lvl = 15;
+                for (int point = 0; point < rank; point++)
+                    assertTrue(CoopFloorsTest.step(game,CoopSession.Action.INVEST_TALENT,Talent.SILENT_STEPS.ordinal(),null));
+                var clone = new com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.ShadowClone.ShadowAlly(rogue);
+                clone.pos = rogue.pos + Dungeon.level.width() + 1;
+                com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.add(clone,2000);
+                for (var visible : new com.shatteredpixel.shatteredpixeldungeon.actors.Char[]{rogue,clone,game.hero(1-seat)}) {
+                    for (int distance = 2; distance <= 3; distance++) {
+                        rat.pos = visible.pos + distance;
+                        rat.fieldOfView = new boolean[Dungeon.level.length()];
+                        rat.fieldOfView[visible.pos] = true;
+                        rat.aggro(visible);
+                        rat.state = rat.SLEEPING;
+                        com.watabou.utils.Random.pushGenerator(572);
+                        try {
+                            for (int tick = 0; tick < 128 && rat.state == rat.SLEEPING; tick++) rat.SLEEPING.act(true,false);
+                        } finally {
+                            com.watabou.utils.Random.popGenerator();
+                        }
+                        boolean silent = visible != game.hero(1-seat) && rank > 0 && distance >= 4-rank;
+                        assertEquals("seat="+seat+" rank="+rank+" distance="+distance, silent, rat.state == rat.SLEEPING);
+                    }
+                }
+            }
+        }
+    }
+
     @Test public void heroicEnergyUsesOnlyTheSelectedArmorAndSurvivesRestore() {
         float[] costMultiplier = {1f, .88f, .77f, .68f, .60f};
         for (HeroClass role : HeroClass.values()) for (int ability = 0; ability < 3; ability++) {

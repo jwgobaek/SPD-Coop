@@ -810,8 +810,29 @@ public final class CoopRenderSmoke {
         shot("crown-leap");
     }
 
+    private static void investVisibleTalent(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent talent, int tier) throws Exception {
+        String balance = "freepoints" + tier;
+        String invested = "learn" + talent.ordinal();
+        int before = Integer.parseInt(frame().image.rows.get(balance));
+        if (before < 1 || !"0".equals(frame().image.rows.get(invested))) throw new AssertionError("Unexpected fixture balance");
+        openCharacter();
+        click("#" + Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndHero.class, "talents"));
+        click("#" + Messages.get(CoopScene.class, "tier_points", tier, before));
+        click("#" + tier + " · " + Messages.titleCase(talent.title()) + "  0/" + talent.maxPoints());
+        click("#" + Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTalent.class, "upgrade"));
+        await(() -> "1".equals(frame().image.rows.get(invested)) && frame().pending == 0);
+        if (Integer.parseInt(frame().image.rows.get(balance)) != before-1) throw new AssertionError("Tier balance mismatch");
+        shot("invested-" + talent.name().toLowerCase(java.util.Locale.ROOT));
+        System.out.println("PASS actual talent selection, receipt and tier balance " + talent.name() + " seat=" + frame().seat);
+    }
+
     private static void selectorInputs() throws Exception {
         await(() -> frame().dungeon.offered && frame().dungeon.monsters.containsValue("Rat"));
+        if (Boolean.getBoolean("spd.selector.talents")) {
+            investVisibleTalent(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.SEARING_LIGHT, 1);
+            investVisibleTalent(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.ENLIGHTENING_MEAL, 2);
+            investVisibleTalent(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.HEROIC_ENERGY, 4);
+        }
         PublicDungeon view = frame().dungeon;
         PublicDungeon.Loot tome = view.belongings.stream().filter(i -> view.actions(i).contains("CAST")).findFirst().get();
         Selector selector = selectorCase();

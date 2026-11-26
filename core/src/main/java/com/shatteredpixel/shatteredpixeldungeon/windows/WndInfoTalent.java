@@ -45,13 +45,17 @@ public class WndInfoTalent extends Window {
 	}
 
 	public WndInfoTalent(Talent talent, int points, TalentButtonCallback buttonCallback, boolean metaDesc) {
+		this(talent, points, buttonCallback, metaDesc, talent.icon());
+	}
+
+	public WndInfoTalent(Talent talent, int points, TalentButtonCallback buttonCallback, boolean metaDesc, int icon) {
 		super();
 
 		int width = WIDTH_MIN;
 
 		IconTitle titlebar = new IconTitle();
 
-		titlebar.icon( new TalentIcon( talent ) );
+		titlebar.icon( new TalentIcon( icon ) );
 		String title = Messages.titleCase(talent.title());
 		if (points > 0){
 			title += " +" + points;

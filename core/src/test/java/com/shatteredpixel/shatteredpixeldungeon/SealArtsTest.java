@@ -69,7 +69,7 @@ public class SealArtsTest extends HeadlessDungeon {
 
     static HeroClass role(String type) {
         if (type.startsWith("spark")) return HeroClass.MAGE;
-        if (type.startsWith("monk")) return HeroClass.DUELIST;
+        if (type.startsWith("monk") || type.startsWith("strike") || type.equals("heroicenergy")) return HeroClass.DUELIST;
         if (type.startsWith("seal") || type.equals("rationthrow")) return HeroClass.WARRIOR;
         if (type.equals("challenge") || type.equals("elestrike") || type.equals("feint")) return HeroClass.DUELIST;
         return HeroClass.CLERIC;
@@ -78,6 +78,26 @@ public class SealArtsTest extends HeadlessDungeon {
     static StagedInput stage(CoopSession game, String type, int seat, Rat rat) {
         Hero hero = game.hero(seat);
         Armor armor = hero.belongings.armor();
+        if (type.startsWith("strike") || type.equals("heroicenergy")) {
+            stage(game, "elestrike", seat, rat);
+            if (type.equals("heroicenergy")) {
+                hero.lvl = 30;
+                return new StagedInput(game, "INVEST_TALENT", Talent.HEROIC_ENERGY.ordinal());
+            }
+            MeleeWeapon weapon = (MeleeWeapon)hero.belongings.weapon();
+            switch (type) {
+                case "strikeblock": weapon.enchant(new com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blocking()); break;
+                case "strikeshock": weapon.enchant(new com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shocking()); break;
+                case "strikevenom": weapon.enchant(new com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Venomous()); break;
+                default: throw new IllegalArgumentException(type);
+            }
+            Rat second = new Rat();
+            second.pos = hero.pos+2;
+            second.HP = second.HT = 150;
+            com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.add(second,2000);
+            game.observe(seat);
+            return new StagedInput(game,"ARMOR_ABILITY",hero.pos+3);
+        }
         if (type.startsWith("monk")) {
             FrostSensesTest.stage(game,"monkfocus",seat,rat);
             for (int i=0;i<4;i++) {
@@ -233,6 +253,11 @@ public class SealArtsTest extends HeadlessDungeon {
         Armor armor = hero.belongings.armor();
         BrokenSeal seal = armor.checkSeal();
         switch (type) {
+        case "heroicenergy": return hero.pointsInTalent(Talent.HEROIC_ENERGY) == 1 && game.hero(1-seat).pointsInTalent(Talent.HEROIC_ENERGY) == 0;
+        case "strikeshock": return ((ClassArmor)armor).charge < 26 && com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob.volumeAt(
+                hero.pos+2,com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Electricity.class) > 0;
+        case "strikeblock": return ((ClassArmor)armor).charge < 26 && hero.buff(Barrier.class) != null && hero.buff(Barrier.class).shielding() >= 11;
+        case "strikevenom": return ((ClassArmor)armor).charge < 26 && Dungeon.level.mobs.stream().anyMatch(m -> m.pos == hero.pos+2 && m.buff(Poison.class) != null);
         case "monkflurry": return hero.buff(MonkEnergy.MonkAbility.FlurryCooldownTracker.class)!=null && Dungeon.level.mobs.stream().anyMatch(m->m.HP<m.HT);
         case "monkdragonkick": return Dungeon.level.mobs.stream().anyMatch(m -> m instanceof Rat && m.HP<m.HT);
         case "monkdash": return Dungeon.level.mobs.stream().anyMatch(m -> m instanceof Rat && m.pos==hero.pos+5);
@@ -306,6 +331,36 @@ public class SealArtsTest extends HeadlessDungeon {
         }
     }
 
+    @Test public void aBrokenProjectileRemainsPersonalDiscoveryWithoutUnlockingAnUnsupportedForm() {
+        for (int seat = 0; seat < 2; seat++) {
+            Bundle save;
+            try (CoopSession game = CoopSession.open(572,11,HeroClass.CLERIC)) {
+                game.join(22,HeroClass.CLERIC);
+                Rat rat = CoopMageTest.encounter(game,seat);
+                SewerBeeTest.offer(game,seat);
+                var spike = new com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSpike();
+                spike.quantity(1);
+                spike.identify();
+                spike.damage(spike.durabilityLeft());
+                assertTrue(spike.collect(game.hero(seat).belongings.backpack));
+                Buff.prolong(rat,Paralysis.class,20);
+                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.THROW,rat.pos,spike));
+                assertFalse(game.hero(seat).belongings.contains(spike));
+                assertTrue(rat.HP < rat.HT);
+                assertTrue(spike.durabilityLeft() <= 0);
+                save = game.checkpoint();
+            }
+            try (CoopSession restored = CoopSession.restore(save)) {
+                Bundle next = restored.checkpoint();
+                String name = com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSpike.class.getName();
+                assertTrue(java.util.Arrays.asList(next.getStringArray("discovered"+seat)).contains(name));
+                assertFalse(java.util.Arrays.asList(next.getStringArray("discovered"+(1-seat))).contains(name));
+                for (TrinityDiscoveries.Choice choice : TrinityDiscoveries.Choice.values())
+                    assertNotEquals(name, choice.effect.getName());
+            }
+        }
+    }
+
     @Test public void soldAndAbandonedReferencesSurviveTravelAndReload() {
         for (int seat = 0; seat < 2; seat++) {
             Bundle saved;
@@ -368,6 +423,16 @@ public class SealArtsTest extends HeadlessDungeon {
                         assertTrue(CoopFloorsTest.step(game, CoopSession.Action.ARMOR_ABILITY, hero.pos, hero.belongings.armor()));
                         assertTrue(hero.buff(BodyForm.BodyFormBuff.class).enchant() instanceof
                                 com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing);
+                        foe.pos = hero.pos+1;
+                        com.watabou.utils.Random.pushGenerator(572);
+                        try {
+                            for (int n = 0; n < 24 && foe.buff(Burning.class) == null; n++)
+                                assertTrue(hero.attack(foe, 0, 1, Hero.INFINITE_ACCURACY));
+                        } finally {
+                            com.watabou.utils.Random.popGenerator();
+                        }
+                        assertNotNull(foe.buff(Burning.class));
+                        assertNull(game.hero(1-seat).buff(BodyForm.BodyFormBuff.class));
                     }
                     saved = game.checkpoint();
                 }

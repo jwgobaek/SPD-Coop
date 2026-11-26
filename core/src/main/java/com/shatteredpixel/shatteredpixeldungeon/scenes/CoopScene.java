@@ -733,7 +733,8 @@ public class CoopScene extends PixelScene {
         final int mask=maskIndex, crown=crownIndex;
         options.add(msg("back"));
         add(new WndOptions(com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite.avatar(type, armorTier),
-                type.title(), "HP "+view.hp+"/"+view.maxHp+"\n"+stats,
+                type.title(), "HP "+view.hp+"/"+view.maxHp+"\n"+stats
+                        +(view.source.rows.containsKey("secrethint") ? "\n"+Messages.get(GameScene.class,"secret_hint") : ""),
                 options.toArray(new String[0]) ) {
             @Override protected void onSelect(int index) {
                 if (index == 0) showTalents(view, title);
@@ -790,7 +791,7 @@ public class CoopScene extends PixelScene {
                         @Override public void call() { controller.act(view.source, "INVEST_TALENT", talent.ordinal(), 0); }
                     };
                 }
-                CoopScene.this.add(new WndInfoTalent(talent, points, invest, false));
+                CoopScene.this.add(new WndInfoTalent(talent, points, invest, false, talent.icon(HeroClass.valueOf(view.heroClass))));
             }
         });
     }

@@ -1312,12 +1312,12 @@ public abstract class Mob extends Char {
 				for (Char ch : Actor.chars()){
 					if (fieldOfView[ch.pos] && ch.invisible == 0 && ch.alignment != alignment && ch.alignment != Alignment.NEUTRAL){
 						float bestChance = detectionChance(ch);
-						//silent steps rogue talent, which also applies to rogue's shadow clone
-						if ((ch instanceof Hero || ch instanceof ShadowClone.ShadowAlly)
-								&& Dungeon.hero.hasTalent(Talent.SILENT_STEPS)){
-							if (distance(ch) >= 4 - Dungeon.hero.pointsInTalent(Talent.SILENT_STEPS)) {
-								bestChance = Float.POSITIVE_INFINITY;
-							}
+						// A shadow clone uses its summoner's stealth talent.
+						Hero walker = ch instanceof Hero ? (Hero)ch : ch instanceof ShadowClone.ShadowAlly
+								? ((ShadowClone.ShadowAlly)ch).commander() : null;
+						if (walker != null && walker.hasTalent(Talent.SILENT_STEPS)
+								&& distance(ch) >= 4 - walker.pointsInTalent(Talent.SILENT_STEPS)) {
+							bestChance = Float.POSITIVE_INFINITY;
 						}
 						//flying characters are naturally stealthy
 						if (ch.flying && distance(ch) >= 2){

@@ -176,7 +176,7 @@ public final class RestartClient {
                 if (mode.startsWith("tengu-setup-growth-")) {
                     character=i==0?"WARRIOR":"HUNTRESS";
                     if (mode.matches(".*-(recallid|trinitymind|trinityspirit|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinitymindselect|trinityspiritselect|intuition|bless|trinityselect|trinity|ascendform|lightally|lightorder|radiance|smite|sunray|divinesense|lightshield|light|blessweapon|ward)[01]")) character="CLERIC";
-                    if (mode.matches(".*-(monkflurry|monkdash|monkmeditate|monkdragonkick|challenge|elestrike|feint|swap|monkfocus|guardshield|stance|lunge|spike|charged)[01]")) character="DUELIST";
+                    if (mode.matches(".*-(monkflurry|monkdash|monkmeditate|monkdragonkick|strikeshock|strikeblock|strikevenom|heroicenergy|challenge|elestrike|feint|swap|monkfocus|guardshield|stance|lunge|spike|charged)[01]")) character="DUELIST";
                     if (mode.matches(".*-(markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) character="ROGUE";
                     if (mode.matches(".*-(sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
                     if (mode.matches(".*-(hawk|direct|blades|sniper|nature)[01]")) character="HUNTRESS";

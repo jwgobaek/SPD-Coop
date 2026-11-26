@@ -123,6 +123,9 @@ final class SeatProjection {
         if (playing || status.equals("RECONNECTING")) {
             Hero hero = game.hero(seat);
             Level level = Dungeon.level;
+            if (level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel
+                    && ((com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel)level).hasSecretHint(hero))
+                rows.put("secrethint", "1");
             FloorKnowledge sight = game.observe(seat);
             writeMemory(rows, sight);
             if (level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel) {

@@ -445,27 +445,20 @@ public enum Talent {
 	}
 
 	public int icon(){
-		if (this == HEROIC_ENERGY){
-			if (Ratmogrify.useRatroicEnergy){
-				return 218;
-			}
-			HeroClass cls = Dungeon.hero != null ? Dungeon.hero.heroClass : GamesInProgress.selectedClass;
-			switch (cls){
-				case WARRIOR: default:
-					return 26;
-				case MAGE:
-					return 58;
-				case ROGUE:
-					return 90;
-				case HUNTRESS:
-					return 122;
-				case DUELIST:
-					return 154;
-				case CLERIC:
-					return 186;
-			}
-		} else {
-			return icon;
+		if (this != HEROIC_ENERGY) return icon;
+		if (Ratmogrify.useRatroicEnergy) return 218;
+		return icon(Dungeon.hero != null ? Dungeon.hero.heroClass : GamesInProgress.selectedClass);
+	}
+
+	public int icon(HeroClass cls) {
+		if (this != HEROIC_ENERGY) return icon;
+		switch (cls) {
+			case WARRIOR: default: return 26;
+			case MAGE:     return 58;
+			case ROGUE:    return 90;
+			case HUNTRESS: return 122;
+			case DUELIST:  return 154;
+			case CLERIC:   return 186;
 		}
 	}
 
