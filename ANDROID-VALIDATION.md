@@ -1,6 +1,10 @@
 # Android validation backlog
 
-## 성서 선택창 수정 후보
+## 배포 수정판 인수 완료
+
+두 Android 15 설치본의 해시가 9969d23 후보와 일치했다. 한국어 성서 선택 5경로를 방장·게스트로 실행하여 10/10을 통과했다. 두 앱을 재실행하고 실제 다음 행동을 확인했다. [설치 해시, 충전 변화, 복원과 시험 구간 로그](docs/coop/selector-android-acceptance.md)
+
+## 이전 체크포인트의 성서 선택창 수정 후보
 
 수정 후보의 실제 Android 인수는 다섯 경로 모두 NOT RUN이다. 두 Android 설치본은 기존 크래시 배포본이다. 준비한 다섯 격리 시험방과 기존 크래시 방을 보존했다. [당시 선택창 검증](docs/coop/selector-repair-results.md) · [이번 두 설치본의 해시와 역할별 판정](docs/coop/trinity-discovery-results.md)
 

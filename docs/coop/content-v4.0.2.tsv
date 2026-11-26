@@ -151,10 +151,10 @@ actors/hero/HeroSubClass.PRIEST	HeroSubClass	UNSUPPORTED		core/src/main/java/com
 actors/hero/HeroSubClass.SNIPER	HeroSubClass	PARTIAL	Marked target and own SpiritBow for three augments; actual follow-up and TCP replay, both seats. See combo-results.md. General mask policy is undecided.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.WARDEN	HeroSubClass	PARTIAL	Native barkskin and seven checked Warden plant effects; Fadeleaf interlevel effect gated. See combo-results.md. General mask policy is undecided.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.WARLOCK	HeroSubClass	PARTIAL	Trial mask selection over TCP; real wand applies saved first living caster, HP and Hunger on subsequent attacks; soul/mask crash tests. See combo-results.md. General mask policy is undecided.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
-actors/hero/Talent.ADVENTURERS_INTUITION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.AGGRESSIVE_BARRIER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.ADVENTURERS_INTUITION	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 실제 주무기 장착·감정 및 장비 감정 속도. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.AGGRESSIVE_BARRIER	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 저체력에서 실제 레이피어 능력을 사용한 좌석의 보호막. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ALLY_WARP	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.ARCANE_VISION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.ARCANE_VISION	Talent	PARTIAL	Seat investment and native host effect within tested scope. frost-senses-results.md. Limits: wall contact, own projection and movement verified; full rank matrix pending. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ASSASSINS_REACH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.AURA_OF_PROTECTION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.BACKUP_BARRIER	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -166,9 +166,9 @@ actors/hero/Talent.BODY_FORM	Talent	PARTIAL	Chilling or Swiftness in seal-arts-r
 actors/hero/Talent.BODY_REPLACEMENT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.BODY_SLAM	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.BOUNTY_HUNTER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.CACHED_RATIONS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.CACHED_RATIONS	Talent	PARTIAL	Seat investment and native host effect within tested scope. cache-growth-results.md. Limits: Single rogue only; two-rogue allocation trial only. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.CLEANSE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.CLEAVE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.CLEAVE	Talent	PARTIAL	Seat investment and native host effect within tested scope. upper-growth-results.md. Limits: Corruption exception unmeasured. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.CLONED_ARMOR	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.CLOSE_THE_GAP	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.COMBINED_ENERGY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -177,14 +177,14 @@ actors/hero/Talent.CONSERVED_MAGIC	Talent	UNSUPPORTED		core/src/main/java/com/sh
 actors/hero/Talent.COUNTER_ABILITY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.DEADLY_FOLLOWUP	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.DEATHLESS_FURY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.DEATHLY_DURABILITY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.DESPERATE_POWER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.DEATHLY_DURABILITY	Talent	PARTIAL	Seat investment and native host effect within tested scope. frost-senses-results.md. Limits: rank and equipment combinations. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.DESPERATE_POWER	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. cache-growth-results.md. Limits: Native final-charge level; each wand damage distribution remains. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.DIRECTED_POWER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.DIVINE_INTERVENTION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.DIVINE_SENSE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.DIVINE_SENSE	Talent	PARTIAL	Seat investment and native host effect within tested scope. frost-senses-results.md. Limits: rank and equipment combinations. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.DOUBLE_JUMP	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.DOUBLE_MARK	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.DURABLE_PROJECTILES	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.DURABLE_PROJECTILES	Talent	PARTIAL	Seat investment and native host effect within tested scope. upper-growth-results.md. Limits: rank and equipment combinations. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.DURABLE_TIPS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.EAGLE_EYE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ELEMENTAL_POWER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -192,12 +192,12 @@ actors/hero/Talent.ELEMENTAL_REACH	Talent	UNSUPPORTED		core/src/main/java/com/sh
 actors/hero/Talent.ELIMINATION_MATCH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.EMPOWERED_STRIKE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.EMPOWERING_MEAL	Talent	NATIVE_EFFECT	Native seat investment and trigger. PlayerGrowthTest and combo-results.md. Two Android seats restored investment and witnessed native meal buff, boost 2, left 3.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.ENDLESS_RAGE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.ENDLESS_RAGE	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. cache-growth-results.md. Limits: Native rage cap; activation and recovery with these ranks remain. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ENERGIZING_MEAL	Talent	NATIVE_EFFECT	Separate tier-2 point pool, investment and native food effect, both roles. SubclassActionTest. Android meal was tier 1.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.ENHANCED_COMBO	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.ENHANCED_COMBO	Talent	PARTIAL	Seat investment and native host effect within tested scope. upper-growth-results.md. Limits: not every landing trap or interrupted strike. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ENHANCED_LETHALITY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ENHANCED_RINGS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.ENLIGHTENING_MEAL	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.ENLIGHTENING_MEAL	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 식사한 성직자 본인의 성서 부분 충전. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ENRAGED_CATALYST	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.EVASIVE_ARMOR	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.EVEN_THE_ODDS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -210,105 +210,105 @@ actors/hero/Talent.FEAR_THE_REAPER	Talent	UNSUPPORTED		core/src/main/java/com/sh
 actors/hero/Talent.FEIGNED_RETREAT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.FIRE_EVERYTHING	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.FLASH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.FOCUSED_MEAL	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.FOCUSED_MEAL	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 식사자의 원래 무기 능력 충전 및 부분 충전. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.FOLLOWUP_STRIKE	Talent	NATIVE_EFFECT	Native seat investment and trigger. PlayerGrowthTest and combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.GO_FOR_THE_EYES	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.GROWING_POWER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.HALLOWED_GROUND	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.HASTY_RETREAT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.HEARTY_MEAL	Talent	NATIVE_EFFECT	Native seat investment and trigger. PlayerGrowthTest and combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.HEIGHTENED_SENSES	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.HEROIC_ENERGY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.HEIGHTENED_SENSES	Talent	PARTIAL	Seat investment and native host effect within tested scope. frost-senses-results.md. Limits: wall contact, own projection and movement verified; full rank matrix pending. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.HEROIC_ENERGY	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 18개 일반 갑옷 선택 후 1~4점 원본 비용과 저장. AscendedForm은 실제 시전 차감까지 대조. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.HOLD_FAST	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.HOLY_INTUITION	Talent	PARTIAL	own item via HolyTome in seal-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.HOLY_LANCE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.IMPACT_WAVE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.IMPROVISED_PROJECTILES	Talent	PARTIAL	Rank 0/1/2 bound Food, SmallRation and Berry throw path; blind and cooldown (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.INSCRIBED_POWER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.INSCRIBED_STEALTH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.INSCRIBED_POWER	Talent	PARTIAL	Seat investment and native host effect within tested scope. upper-growth-results.md. Limits: rank and equipment combinations. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.INSCRIBED_STEALTH	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 감정 주문서 사용 후 읽은 도적의 은신. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.INVIGORATING_MEAL	Talent	NATIVE_EFFECT	Separate tier-2 point pool, investment and native food effect, both roles. SubclassActionTest. Android meal was tier 1.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.INVIGORATING_VICTORY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.IRON_STOMACH	Talent	NATIVE_EFFECT	Separate tier-2 point pool, investment and native food effect, both roles. SubclassActionTest. Android meal was tier 1.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.IRON_WILL	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.JUDGEMENT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.LAY_ON_HANDS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.LETHAL_DEFENSE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.LETHAL_HASTE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.LETHAL_MOMENTUM	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.LETHAL_DEFENSE	Talent	PARTIAL	Seat investment and native host effect within tested scope. upper-growth-results.md. Limits: zero-rank control and other kill patterns not established here. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.LETHAL_HASTE	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 레이피어 능력으로 처치한 결투가의 가속과 남은 이동 횟수. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.LETHAL_MOMENTUM	Talent	PARTIAL	Seat investment and native host effect within tested scope. upper-growth-results.md. Limits: rank and equipment combinations. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.LIFE_LINK	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.LIGHT_CLOAK	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.LIGHT_READING	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.LINGERING_MAGIC	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.LIQUID_AGILITY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.LIQUID_NATURE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.LIQUID_WILLPOWER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.LIQUID_AGILITY	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 실제 회복 물약 음용 후 자기 명중 추적 버프·횟수와 명중 계산. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.LIQUID_NATURE	Talent	PARTIAL	Seat investment and native host effect within tested scope. upper-growth-results.md. Limits: rank and equipment combinations. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.LIQUID_WILLPOWER	Talent	PARTIAL	Seat investment and native host effect within tested scope. upper-growth-results.md. Limits: rank and equipment combinations. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.LONGRANGE_WARP	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.MIND_FORM	Talent	PARTIAL	WandOfLightning in seal-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.MNEMONIC_PRAYER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.MONASTIC_VIGOR	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.MYSTICAL_CHARGE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.MYSTICAL_MEAL	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.MYSTICAL_MEAL	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 식사자의 유물 충전 버프. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.NATURES_AID	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.NATURES_BOUNTY	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.NATURES_WRATH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.NECROMANCERS_MINIONS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.PATIENT_STRIKE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.PERFECT_COPY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.POINT_BLANK	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.PATIENT_STRIKE	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 대기 후 추적 버프와 원본 공격 proc의 보정 및 소비. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.PERFECT_COPY	Talent	PARTIAL	Seat investment and native host effect within tested scope. frost-senses-results.md. Limits: rank and equipment combinations. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.POINT_BLANK	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. cache-growth-results.md. Limits: Native adjacent accuracy factor; hit-rate campaign sample remains. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.PRECISE_ASSAULT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.PROJECTILE_MOMENTUM	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.PROJECTING_BLADES	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.PROTECTIVE_SHADOWS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.PROTECTIVE_SHADOWS	Talent	PARTIAL	Seat investment and native host effect within tested scope. upper-growth-results.md. Limits: rank and equipment combinations. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.PROVOKED_ANGER	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.RATFORCEMENTS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.RATLOMACY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.RATSISTANCE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.REACTIVE_BARRIER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.RECALL_INSCRIPTION	Talent	PARTIAL	identified scroll tracker only in seal-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.REJUVENATING_STEPS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.REJUVENATING_STEPS	Talent	PARTIAL	Seat investment and native host effect within tested scope. upper-growth-results.md. Limits: rank and equipment combinations. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.REMOTE_BEACON	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.ROGUES_FORESIGHT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.ROGUES_FORESIGHT	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest / trinity-discovery-results.md. Limits: 시드 570~581의 실제 생성 층, 자기 힌트 행과 상대 좌석, 원본 난수 보존. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.RUNIC_TRANSFERENCE	Talent	PARTIAL	Rank 0/1/2 detach and affix, both glyph options and bound full-bag drop (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.SATIATED_SPELLS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.SATIATED_SPELLS	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 식사 후 자기 HolyWeapon 시전으로 추적 버프를 소비하고 보호막 획득. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SCHOLARS_INTUITION	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.SEARING_LIGHT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.SEARING_LIGHT	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 인도하는 빛 표식을 소비한 실제 근접 공격 피해 차이. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SEER_SHOT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SHADOW_BLADE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SHADOW_STEP	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SHARED_ENCHANTMENT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SHARED_UPGRADES	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SHIELDING_DEW	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.SHIELD_BATTERY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.SHIELD_OF_LIGHT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.SHIELD_BATTERY	Talent	PARTIAL	Seat investment and native host effect within tested scope. upper-growth-results.md. Limits: rank and equipment combinations. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.SHIELD_OF_LIGHT	Talent	PARTIAL	Seat investment and native host effect within tested scope. frost-senses-results.md. Limits: rank and equipment combinations. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SHOCK_FORCE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SHRUG_IT_OFF	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.SILENT_STEPS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.SILENT_STEPS	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest / trinity-discovery-results.md. Limits: 원본 수면 판정, 실제 영웅·분신 소환자·동료, 거리 2와 3. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SOUL_EATER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SOUL_SIPHON	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SPEEDY_STEALTH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SPIRIT_BLADES	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SPIRIT_FORM	Talent	PARTIAL	RingOfHaste in seal-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.STASIS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.STRENGTHENING_MEAL	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.STRENGTHENING_MEAL	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 식사 후 물리 공격 강화량과 남은 횟수. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.STRIKING_FORCE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.STRIKING_WAVE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.STRONGMAN	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.SUCKER_PUNCH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.SUNRAY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.STRONGMAN	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. cache-growth-results.md. Limits: Native strength; combat equipment threshold combinations remain. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.SUCKER_PUNCH	Talent	PARTIAL	Seat investment and native host effect within tested scope. upper-growth-results.md. Limits: rank and equipment combinations. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.SUNRAY	Talent	PARTIAL	Seat investment and native host effect within tested scope. frost-senses-results.md. Limits: rank and equipment combinations. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SURVIVALISTS_INTUITION	Talent	PARTIAL	Tier-1 investment and native missile identification speed factor on both roles; full identification on all eligible items unverified.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SUSTAINED_RETRIBUTION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.SWIFT_EQUIP	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.SWIFT_EQUIP	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 실제 무기 교체 및 투자점에 따른 두 번째 즉시 장착권. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SWIFT_SPIRIT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.TELEFRAG	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.THIEFS_INTUITION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.THIEFS_INTUITION	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 자기 반지의 감정 속도와 장착 시 식별 및 2점 투자 때 자기 가방의 반지 종류 확인. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.TWIN_UPGRADES	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.UNENCUMBERED_SPIRIT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.VARIED_CHARGE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.VETERANS_INTUITION	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.WALL_OF_LIGHT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.WAND_PRESERVATION	Talent	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.WEAPON_RECHARGING	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.WIDE_SEARCH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.WEAPON_RECHARGING	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 원본 Recharging 중 자기 무기 Charger 한 틱의 추가 부분 충전. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.WIDE_SEARCH	Talent	NATIVE_EFFECT	Seat investment and native host effect within tested scope. SeatTalentTest; trinity-discovery-results.md. Limits: 실제 탐색 시 거리 3의 가장자리와 대각선 비밀문 발견 경계. See trinity-discovery-talents.tsv.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.WILD_MOMENTUM	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.WILD_POWER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/abilities/ArmorAbility	actors/hero/abilities	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/ArmorAbility.java
@@ -320,7 +320,7 @@ actors/hero/abilities/cleric/PowerOfMany	actors/hero/abilities/cleric	PARTIAL	Ow
 actors/hero/abilities/cleric/PowerOfMany.LightAlly	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/PowerOfMany.java
 actors/hero/abilities/cleric/PowerOfMany.LightAllySprite	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/PowerOfMany.java
 actors/hero/abilities/cleric/PowerOfMany.PowerBuff	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/PowerOfMany.java
-actors/hero/abilities/cleric/Trinity	actors/hero/abilities/cleric	PARTIAL	5 of 113 candidates via owned item or personal discovery, Body 3, Mind 1, Spirit 1 (trinity-discovery-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java
+actors/hero/abilities/cleric/Trinity	actors/hero/abilities/cleric	PARTIAL	6/113 personally discovered or held, Body 4, Mind 1, Spirit 1; Blocking native shield on hit (cache-growth-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java
 actors/hero/abilities/cleric/Trinity.WndItemConfirm	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java
 actors/hero/abilities/cleric/Trinity.WndItemtypeSelect	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java
 actors/hero/abilities/cleric/Trinity.WndUseTrinity	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java
@@ -328,9 +328,9 @@ actors/hero/abilities/duelist/Challenge	actors/hero/abilities/duelist	PARTIAL	On
 actors/hero/abilities/duelist/Challenge.DuelParticipant	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Challenge.java
 actors/hero/abilities/duelist/Challenge.EliminationMatchTracker	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Challenge.java
 actors/hero/abilities/duelist/Challenge.SpectatorFreeze	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Challenge.java
-actors/hero/abilities/duelist/ElementalStrike	actors/hero/abilities/duelist	PARTIAL	Native cone for unenchanted, Blazing, Chilling, Shocking, Blocking and Venomous (trinity-discovery-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/ElementalStrike.java
+actors/hero/abilities/duelist/ElementalStrike	actors/hero/abilities/duelist	PARTIAL	Unenchanted and Blazing, Chilling, Shocking, Blocking, Venomous, Kinetic, Blooming native cones (cache-growth-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/ElementalStrike.java
 actors/hero/abilities/duelist/ElementalStrike.DirectedPowerTracker	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/ElementalStrike.java
-actors/hero/abilities/duelist/ElementalStrike.ElementalStrikeFurrowCounter	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/ElementalStrike.java
+actors/hero/abilities/duelist/ElementalStrike.ElementalStrikeFurrowCounter	actors/hero/abilities/duelist	PARTIAL	Native counter on Blooming cone; tested first use and roots, late furrow transition pending (cache-growth-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/ElementalStrike.java
 actors/hero/abilities/duelist/ElementalStrike.ElementalStrikeLuckyTracker	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/ElementalStrike.java
 actors/hero/abilities/duelist/Feint	actors/hero/abilities/duelist	PARTIAL	Native adjacent move, owner-scoped afterimage and aggro (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Feint.java
 actors/hero/abilities/duelist/Feint.AfterImage	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Feint.java
@@ -399,7 +399,7 @@ actors/hero/spells/MindForm	actors/hero/spells	UNSUPPORTED		core/src/main/java/c
 actors/hero/spells/MindForm.targetSelector	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/MindForm.java
 actors/hero/spells/MnemonicPrayer	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/MnemonicPrayer.java
 actors/hero/spells/Radiance	actors/hero/spells	PARTIAL	native casting, own charge and independent TCP recovery (frost-senses-results.md) / Android Priest mask choice and tome cast (frost-senses-android.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Radiance.java
-actors/hero/spells/RecallInscription	actors/hero/spells	PARTIAL	Real ScrollOfIdentify tracker and owned target only (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/RecallInscription.java
+actors/hero/spells/RecallInscription	actors/hero/spells	PARTIAL	Native Identify with target and Recharging without target; one physical scroll read and one tome-funded anonymous replay (cache-growth-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/RecallInscription.java
 actors/hero/spells/RecallInscription.UsedItemTracker	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/RecallInscription.java
 actors/hero/spells/ShieldOfLight	actors/hero/spells	PARTIAL	native casting, own charge and independent TCP recovery (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/ShieldOfLight.java
 actors/hero/spells/ShieldOfLight.ShieldOfLightTracker	actors/hero/spells	PARTIAL	native casting, own charge and independent TCP recovery (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/ShieldOfLight.java
@@ -765,7 +765,7 @@ items/food/StewedMeat	items/food	UNSUPPORTED		core/src/main/java/com/shatteredpi
 items/food/StewedMeat.oneMeat	items/food	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/food/StewedMeat.java
 items/food/StewedMeat.threeMeat	items/food	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/food/StewedMeat.java
 items/food/StewedMeat.twoMeat	items/food	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/food/StewedMeat.java
-items/food/SupplyRation	items/food	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/food/SupplyRation.java
+items/food/SupplyRation	items/food	PARTIAL	Native special-room chest, original owner pickup/eating and dormant return for single-rogue rosters (cache-growth-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/food/SupplyRation.java
 items/journal/AlchemyPage	items/journal	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/journal/AlchemyPage.java
 items/journal/DocumentPage	items/journal	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/journal/DocumentPage.java
 items/journal/GuidePage	items/journal	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/journal/GuidePage.java
@@ -904,7 +904,7 @@ items/scrolls/ScrollOfLullaby	items/scrolls	UNSUPPORTED		core/src/main/java/com/
 items/scrolls/ScrollOfMagicMapping	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfMagicMapping.java
 items/scrolls/ScrollOfMirrorImage	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfMirrorImage.java
 items/scrolls/ScrollOfRage	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfRage.java
-items/scrolls/ScrollOfRecharging	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfRecharging.java
+items/scrolls/ScrollOfRecharging	items/scrolls	PARTIAL	Known owned scroll, read and recall, native timed buff, save and authenticated replay (cache-growth-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfRecharging.java
 items/scrolls/ScrollOfRemoveCurse	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfRemoveCurse.java
 items/scrolls/ScrollOfRetribution	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfRetribution.java
 items/scrolls/ScrollOfTeleportation	items/scrolls	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/scrolls/ScrollOfTeleportation.java

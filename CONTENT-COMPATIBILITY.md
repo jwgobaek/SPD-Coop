@@ -2,7 +2,7 @@
 
 ## 후속 Cloud 소스의 특성·형상 범위
 
-원본 초기화 목록 174개 슬롯 중 투자 가능한 슬롯은 단계별 23/24, 30/30, 3/48, 27/72다. HEROIC_ENERGY 한 특성이 18개 능력의 후보 목록에 등장한다. 원본 효과와 기기 실측은 표의 별도 열에 기록한다. [특성 174개 슬롯](docs/coop/trinity-discovery-talents.tsv) · [Trinity 원본 113개 후보](docs/coop/trinity-discovery-forms.tsv)
+원본 초기화 목록 174개 슬롯 중 투자 가능한 슬롯은 단계별 24/24, 30/30, 7/48, 27/72다. 도적 둘이 한 방에 있는 경우 비축 식량은 배분 정책 결정 전까지 제한한다. Trinity는 Body 4개, Mind 1개, Spirit 1개를 사용한다. HEROIC_ENERGY 한 특성이 18개 능력의 후보 목록에 등장한다. 원본 효과와 기기 실측은 표의 별도 열에 기록한다. [특성 174개 슬롯](docs/coop/trinity-discovery-talents.tsv) · [Trinity 원본 113개 후보](docs/coop/trinity-discovery-forms.tsv)
 
 ## 특성 슬롯과 증거의 범위
 
@@ -80,7 +80,7 @@
 
 421의 양 좌석 Unstable 14개 원본 분기, 427·428의 황금 미믹 및 네 개 석상 조합을 검증했다. WornDartTrap, 열 가지 추가 원본 함정의 기본 발동·복원, 원본 철 열쇠의 층별 공용 소비를 검증했다. 폭탄·물약 연쇄, 나머지 함정, 영웅의 특수 무기 능력, ArmoredStatue, 3–5층 협동은 미지원이다. 아래 이전 단계의 표와 설명은 당시 이력이다. [현재 선언별 콘텐츠 표](docs/coop/content-v4.0.2.tsv) · [효과별 시험 범위](docs/coop/unstable-effects.md)
 
-공식 v4.0.2 커밋 `57a4e06a4caf162446d1c28caa7983f0493fecf0`에서 원본 소스 경로, 클래스, 중첩 효과, 직업·특성 열거값과 지형 상수를 추출했다. 1,580개의 선언에는 공통 기반 클래스와 방 생성기 등도 포함된다. 예를 들어 Wand는 공통 기반 클래스이고 HeroClass.MAGE는 직업 열거값이다. 시작 지팡이의 마력탄 시전은 플레이어가 실제로 실행할 수 있는 개별 기능이다. 아래 상태는 각 행에서 명시한 **협동 동작**에 적용된다. [전체 TSV](docs/coop/content-v4.0.2.tsv) · [재생성 스크립트](scripts/coop-content-inventory.py)
+공식 v4.0.2 커밋 `57a4e06a4caf162446d1c28caa7983f0493fecf0`에서 원본 소스 경로, 클래스, 중첩 효과, 직업·특성 열거값과 지형 상수를 추출했다. 1,580개의 선언에는 공통 기반 클래스와 방 생성기 등도 포함된다. 예를 들어 Wand는 공통 기반 클래스이고 HeroClass.MAGE는 직업 열거값이다. 시작 지팡이의 마력탄 시전은 플레이어가 실제로 실행할 수 있는 개별 기능이다. 아래 상태는 각 행에서 명시한 **협동 동작**에 적용된다. 스크립트로 원본 선언을 다시 추출할 때는 기존 표와 대조해 후속 검증으로 갱신한 상태와 근거를 보존한다. [전체 TSV](docs/coop/content-v4.0.2.tsv) · [원본 선언 추출 스크립트](scripts/coop-content-inventory.py)
 
 | 상태 | 판정 기준 | 선언 수 |
 |---|---|---:|

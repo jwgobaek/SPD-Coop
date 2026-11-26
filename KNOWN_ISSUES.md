@@ -1,18 +1,12 @@
 # 미해결 문제
 
-## 수정 배포 승인과 성장 기능의 잔여 범위
+## 남은 배포 및 성장 항목
 
-기존 배포판에는 게스트의 성서 선택 크래시가 있다. 수정 후보의 두 Android 설치 및 10건 인수는 미실행이다. Trinity 잔여 원본 후보 108종, 도적의 비축 식량, 상위 주문 및 감옥 정상 완주는 후속 항목이다. [검증 체크포인트](docs/coop/trinity-discovery-results.md)
+Drive의 수정 APK는 SYNC32이고 ZIP의 대응 소스는 07b1889다. 새 기능판 SYNC34의 Android 시험은 NOT RUN이다. 두 도적의 보급품 분배, 나머지 상위 특성, 시드 572의 공동 퇴장 및 정상 시작 Tengu 진행은 후속 작업이다. [수정 APK 인수](docs/coop/selector-android-acceptance.md) · [최근 결과](docs/coop/cache-growth-results.md)
 
-## 현재 관리 APK의 게스트 종료
+## 이전 배포 오류 기록
 
-Drive와 두 MuMu에 설치된 `07b1889`의 신성한 직감은 FAIL이다. 수정 후보의 Desktop 회귀는 통과했고 Android는 NOT RUN이다. 미승인 후보 전달과 이미 사용한 발행 횟수가 기기 검증을 막고 있다. [수정 후보와 실제 시험 결과](docs/coop/selector-repair-results.md)
-
-## 이번 빌드의 제한
-
-Drive의 `07b1889`에서 성서의 신성한 직감 물품 선택 직후 Android 게스트 앱이 종료됐다. 각인 회수와 Trinity 참조 물품 선택도 같은 창 연결을 쓴다. `9969d23`은 다음 가방을 살아 있는 협동 장면에 붙인다. 수정된 Desktop의 실제 입력은 통과했고 수정 APK의 Android 재검증이 남았다. [Android 실측](docs/coop/seal-arts-android.md)
-
-Trinity에서 검증한 원본 후보는 몸 2개, 정신 1개, 영혼 1개다. ElementalStrike의 두 마법 부여 외 조합, PowerOfMany의 복합 동료, 모든 4단계 투자점과 운용 정책은 추가 시험이 필요하다. 시드 572 정상 금고에서 두 좌석 생존 통과와 4,000점은 미달이다. [근거](docs/coop/seal-arts-results.md)
+`07b1889`의 Android 게스트에서 신성한 직감 물품 선택이 GLThread 예외로 종료됐다. `9969d23`은 다음 선택창을 협동 장면에 연결한다. Desktop 20개와 Android 양쪽 10개 시나리오가 통과했다. 기존 ZIP에 포함된 소스는 이전 배포판에 대응한다. [오류 발생 당시 기록](docs/coop/seal-arts-android.md) · [수정 APK 인수](docs/coop/selector-android-acceptance.md)
 
 ## 현재 체크포인트의 제한
 

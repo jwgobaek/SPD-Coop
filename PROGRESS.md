@@ -1,5 +1,11 @@
 # SPD-Coop 개발 진행 기록
 
+## 수정 APK 인수와 개인 보급품
+
+9969d23은 Android 성서 선택 10/10을 통과했다. 개발판은 개인 보급품, 상위 특성 4종, Trinity Blocking, ElementalStrike 두 효과와 재충전 주문서 회수를 지원한다. [배포판 검증](docs/coop/selector-android-acceptance.md) · [개발 범위와 검증](docs/coop/cache-growth-results.md)
+
+최종 Cloud JUnit은 기존 292개와 신규 7개를 포함한 299/299, 추가 HEAD 응답 유실 경계는 22/22였다. 배치형 시드 570~581 일반 승리 12/12와 지상 귀환 회귀를 재실행했다.
+
 ## 수정 후보 Android 인수와 별도 Cloud 성장 개발
 
 후속 Cloud JUnit은 기존 279개와 신규 13개를 포함해 292/292 통과했다. GB2 두 부팅에서 설치 해시는 기존 배포판과 일치했다. 수정 후보 Android 인수는 0/10이다. 후속 소스는 Trinity의 개인 발견 이력, Blazing, 1·2단계 특성 18종, 공통 갑옷 특성 HEROIC_ENERGY와 ElementalStrike의 세 마법 부여를 연결했다. [실행 범위와 후보 상태](docs/coop/trinity-discovery-results.md)

@@ -1,5 +1,9 @@
 # 협동 게임 동기화 프로토콜
 
+## SYNC34
+
+일반 LAN 프레임은 v1이다. 좌석은 식별된 자기 가방 재충전 주문서를 RECHARGING_SCROLL로 받아 READ_RECHARGING을 요청한다. 물품 핸들·행동권·상태 버전을 서버에서 확인한다. 자기 UsedItemTracker가 이 주문서를 기억하는 동안에만 recallrecharging=1을 보낸다. RECALL_INSCRIPTION은 이 경우 자기 위치를 받으며 성서와 원본 각인 비용을 검사한다. 감정 주문서의 선택 핸들 경로도 유지한다. 개인 Trinity Blocking 선택은 discovery106과 대상 -106을 사용한다. 단일 도적 조건은 learn/tier 행과 실제 투자 양쪽에 적용한다. 배포 수정판은 SYNC32, 직전 개인 발견판은 SYNC33을 사용한다. [검증](cache-growth-results.md)
+
 ## SYNC33의 좌석별 Trinity 선택
 
 성서와 실제 형상 특성을 가진 좌석에만 현재 자기 가방 밖에서 선택할 수 있는 발견 후보를 보낸다. discovery101은 Chilling, 102는 Swiftness, 103은 WandOfLightning, 104는 RingOfHaste, 105는 Blazing이다. 각 행의 값은 1이다. 소유한 적격 물품은 기존 bodyitem·minditem·spirititem 경로로 고른다. BODY_FORM·MIND_FORM·SPIRIT_FORM으로 기억을 선택할 때 셀 인수는 각각의 음수 후보 코드다. 성서 핸들, 자기 발견 이력, 형상, 행동권과 상태 버전을 호스트가 검사한다. 도적의 예지가 원본 판정을 통과하면 자기 공개 상태에 secrethint=1을 추가하고 캐릭터 창에서 원본 안내문을 표시한다. 이 행에는 방 위치나 후보 개수가 없다. 전달 프레이밍은 LAN v1이다. 기존 수정 APK의 협상값은 SYNC32다. [선택과 복원](trinity-discovery-results.md)

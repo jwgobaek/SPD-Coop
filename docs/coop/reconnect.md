@@ -1,5 +1,9 @@
 # 협동 저장과 기존 좌석 재접속
 
+## 보급품과 재충전 각인
+
+개발판의 SYNC34와 이전 APK의 SYNC32는 별도로 인수했다. 7개 새 행동의 방장·게스트별 HEAD 발행 후 종료, 기존 좌석 재인증 및 영수증 재전송은 Cloud 기능판에서 실행했다. Android 수정판에서는 10개 성서·Trinity 선택의 앱 재실행과 다음 행동을 확인했다. [Cloud 장애 복구](cache-growth-results.md) · [Android 복원](selector-android-acceptance.md)
+
 ## 스키마 22와 개인 발견 이력의 행동 재전송
 
 양쪽 역할에서 Body의 Swiftness·Blazing, Mind의 번개 지팡이, Spirit의 신속 반지를 가방에서 제거한 뒤 형상을 선택했다. HEAD 발행 후 성공 응답 전에 호스트 JVM을 종료했다. 새 호스트는 기존 두 좌석을 인증하고 같은 Action ID의 영수증과 저장된 형상·충전을 복원했다. 소유 좌석과 동료의 공개 스냅샷 행도 대조했다. [시험 범위](trinity-discovery-results.md)

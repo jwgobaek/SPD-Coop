@@ -1,5 +1,9 @@
 # 최종 검증판 발행
 
+## 현재 Drive의 APK와 ZIP
+
+기존 APK ID에는 9969d23의 Android 인수 완료 수정판이 있다. 통합 ZIP의 source는 07b1889다. 승인된 APK 예외 1회를 사용했고 ZIP 전송은 0회였다. 개발 APK와 증거는 Cloud에 보존했다. [파일 ID, SHA-256과 실제 다운로드 확인](docs/coop/selector-android-acceptance.md)
+
 ## 후보 검증과 발행 순서
 
 후보 APK의 빌드 커밋, 크기, SHA-256, 패키지, 기존 서명과 JUnit XML을 Cloud에서 고정한다. 승인된 비공개 전달 경로가 있으면 두 Android의 기존 자료를 보존해 업데이트한 뒤 **각 base.apk의 해시가 후보와 일치하는 상태**에서 신규 기능과 기존 핵심 UI를 조작한다. 오류가 나오면 수정한 바이트를 새 후보로 취급하고 영향을 받는 Android 시험을 반복한다.
