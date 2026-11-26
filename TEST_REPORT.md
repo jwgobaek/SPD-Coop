@@ -1,5 +1,9 @@
 # SPD-Coop 클라우드 실행 보고
 
+**새 APK 4c2054e, 두 MuMu PASS.** Android 15 두 좌석이 같은 설치 해시에서 신규 방 생성·참가·직업 선택·준비·시작, 실제 이동·턴 동기화, 지팡이 및 돌 조준·사용, 게스트 프로세스 종료·재인증, 호스트 저장·닫기·양쪽 재개를 수행했다. 재인증 후 양쪽 진단 Turn 69, State Version 78, pending 0, PERSISTENT가 일치했다. [설치·시험·PC 정리](docs/coop/vault-play-delivery.md)
+
+**금고 플레이판 `4c2054e` 전체 회귀 PASS.** 시작 체크포인트 220/220, 신규판 230/230, JUnit XML 66개다. 독립 호스트 JVM을 이용한 HostRestartTest 41개가 포함됐다. 원본 몬스터가 보스 주위를 모두 점유한 배치형 시험은 실제 소환수를 공격해 접근하도록 고쳤다. DM-300 처치 뒤 마비·속박이 남았을 때 계단 시험은 원본 대기로 행동 제한이 끝날 때까지 진행한다. [검증 범위](docs/coop/vault-play-results.md) · [Android 및 발행](docs/coop/vault-play-delivery.md)
+
 570–581 강화 배치형 일반 승리 12/12. 기존 220개 기준 회귀와 새 좌석별 시험, 정상 시작 전멸, 금고 입구 시행 및 실제 Android 결과를 체크포인트별로 기록한다. [검증 기록](docs/coop/vault-play-results.md)
 
 시작 커밋 전체 213/213, APK 소스 ecccda0 전체 220/220 JUnit PASS(실패·오류·건너뜀 0). 금고 및 귀환 검증과 시드별 결과, 정상 시작 실패와 배치형 승리를 새 보고서에 기록했다. [실행 결과와 다음 작업](docs/coop/vault-ascent-results.md)

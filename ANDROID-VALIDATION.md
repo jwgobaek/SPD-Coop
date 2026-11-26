@@ -1,5 +1,7 @@
 # Android validation backlog
 
+**새 APK 4c2054e, 두 MuMu PASS.** Android 15 두 좌석이 같은 설치 해시에서 신규 방 생성·참가·직업 선택·준비·시작, 실제 이동·턴 동기화, 지팡이 및 돌 조준·사용, 게스트 프로세스 종료·재인증, 호스트 저장·닫기·양쪽 재개를 수행했다. 재인증 후 양쪽 진단 Turn 69, State Version 78, pending 0, PERSISTENT가 일치했다. [설치·시험·PC 정리](docs/coop/vault-play-delivery.md)
+
 **기준판 ecccda0, Android 15 두 좌석 PASS.** 사용자에게서 이미 실행 중인 MuMu 두 개를 이 세션 동안 사용할 승인을 받았다. Device-2와 Device-2-1의 부팅 ID가 달랐다. 두 인스턴스는 같은 가상 IP를 사용해 Windows 루프백에 제한한 ADB 중계로 연결했다. 게스트의 기존 prison-nine 설치를 Android 내부 다운로드로 업데이트한 뒤 두 base.apk가 배포 해시와 일치했다. 별도 검증 방에서 마법사가 실제 쥐에게 지팡이를 두 번 발사했고, 전사 게스트가 실제 적에게 돌을 던져 자기 가방 수량이 3에서 2로 줄었다. 강제 종료 후 기존 게스트 좌석 재인증, 저장·방 닫기·방장 재개·양쪽 동일 Turn 12와 State Version 17을 확인했다. 길게 누르기로 퀵슬롯 메뉴를 열었고 드래그로 카메라가 이동했다. 실제 휴대폰 Wi-Fi·핫스팟·멀티터치 핀치는 NOT RUN이다.
 
 **ecccda0 PASS**. Android 15 Device-2에서 기존과 같은 versionCode의 데이터 보존 업데이트, 설치본 SHA-256, 방장 자격·기존 저장 세대 17 재개, HUD·인벤토리·퀵슬롯, 저장·재실행 뒤 동일 슬롯 세대 19를 실측했다. 신규 보스와 귀환의 Android 두 좌석 실전은 NOT RUN이다. [설치·정리 기록](docs/coop/vault-ascent-delivery.md)
