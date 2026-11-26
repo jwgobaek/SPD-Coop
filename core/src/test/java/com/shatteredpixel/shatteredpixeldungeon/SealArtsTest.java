@@ -61,6 +61,8 @@ public class SealArtsTest extends HeadlessDungeon {
             reference.identify();
             assertTrue(reference.collect(hero.belongings.backpack));
             game.ownership.claim(reference, game.player(seat));
+            if (Boolean.getBoolean("spd.selector.history"))
+                Dungeon.level.drop(reference.detachAll(hero.belongings.backpack), hero.pos);
         }
         SewerBeeTest.offer(game, 0);
     }
@@ -138,6 +140,10 @@ public class SealArtsTest extends HeadlessDungeon {
                 game.ownership.claim(reference,game.player(seat));
                 int index=0;
                 for (Item entry : hero.belongings) { index++; if (entry==reference) break; }
+                if (type.endsWith("history")) {
+                    return historyInput(game, seat, reference, talent == Talent.MIND_FORM
+                            ? TrinityDiscoveries.Choice.LIGHTNING : TrinityDiscoveries.Choice.HASTE);
+                }
                 if (type.endsWith("select")) return new StagedInput(game, talent.name(), index);
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.valueOf(talent.name()),index,hero.belongings.artifact));
                 return new StagedInput(game,talent==Talent.MIND_FORM ? "TRINITY_MIND" : "TRINITY_SPIRIT",talent==Talent.MIND_FORM ? rat.pos : hero.pos);
@@ -156,6 +162,15 @@ public class SealArtsTest extends HeadlessDungeon {
             assertTrue(reference.collect(hero.belongings.backpack));
             game.ownership.claim(reference,game.player(seat));
             if (trinity) { reference.inscribe(new Swiftness()); reference.identify(); }
+            if (type.equals("trinitybodyhistory")) return historyInput(game, seat, reference, TrinityDiscoveries.Choice.SWIFTNESS);
+            if (type.equals("trinityfirehistory")) {
+                Quarterstaff staff = new Quarterstaff();
+                assertTrue(staff.collect(hero.belongings.backpack));
+                staff.enchant(new com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing());
+                assertFalse(game.discoveries(seat).knows(TrinityDiscoveries.Choice.BLAZING));
+                staff.identify();
+                return historyInput(game, seat, staff, TrinityDiscoveries.Choice.BLAZING);
+            }
             int index=0;
             for (Item entry : hero.belongings) { index++; if (entry==reference) break; }
             if (type.equals("trinity")) {
@@ -203,6 +218,16 @@ public class SealArtsTest extends HeadlessDungeon {
         return new StagedInput(game, "ARMOR_ABILITY", cell);
     }
 
+    static StagedInput historyInput(CoopSession game, int seat, Item reference, TrinityDiscoveries.Choice choice) {
+        Hero hero = game.hero(seat);
+        assertTrue(game.discoveries(seat).knows(choice));
+        assertFalse(game.discoveries(1 - seat).knows(choice));
+        Item removed = reference.detachAll(hero.belongings.backpack);
+        Dungeon.level.drop(removed, hero.pos);
+        assertFalse(hero.belongings.contains(reference));
+        return new StagedInput(game, choice.form.name(), choice.target);
+    }
+
     static boolean published(CoopSession game, String type, int seat) {
         Hero hero = game.hero(seat);
         Armor armor = hero.belongings.armor();
@@ -217,6 +242,13 @@ public class SealArtsTest extends HeadlessDungeon {
         case "recallid": return hero.belongings.backpack.items.stream().anyMatch(i -> i instanceof ClothArmor && i.isIdentified()) && hero.buff(RecallInscription.UsedItemTracker.class)==null;
         case "intuition": return hero.belongings.backpack.items.stream().anyMatch(i -> i instanceof ClothArmor && i.cursedKnown && !i.levelKnown);
         case "bless": return hero.buff(Bless.class)!=null && hero.buff(Barrier.class)!=null && game.hero(1-seat).buff(Bless.class)==null;
+        case "trinitybodyhistory": case "trinityfirehistory": case "trinitymindhistory": case "trinityspirithistory": {
+            TrinityDiscoveries.Choice choice = type.equals("trinitybodyhistory") ? TrinityDiscoveries.Choice.SWIFTNESS :
+                    type.equals("trinityfirehistory") ? TrinityDiscoveries.Choice.BLAZING :
+                    type.equals("trinitymindhistory") ? TrinityDiscoveries.Choice.LIGHTNING : TrinityDiscoveries.Choice.HASTE;
+            return game.discoveries(seat).knows(choice) && !game.discoveries(1 - seat).knows(choice)
+                    && ((Trinity)hero.armorAbility).hasForm(choice.form) && ((HolyTome)hero.belongings.artifact).charges() < 3;
+        }
         case "trinitymindselect": case "trinityspiritselect":
             Talent form = type.equals("trinitymindselect") ? Talent.MIND_FORM : Talent.SPIRIT_FORM;
             HolyTome tome = (HolyTome) hero.belongings.artifact;
@@ -266,10 +298,82 @@ public class SealArtsTest extends HeadlessDungeon {
                         assertTrue("input "+input.verb+" energy "+(hero.buff(MonkEnergy.class)==null ? "-" : hero.buff(MonkEnergy.class).energy)+" active "+game.activeSeat()+" pos "+hero.pos+" cell "+input.cell,CoopFloorsTest.step(game,CoopSession.Action.valueOf(input.verb),input.cell,item));
                         assertTrue("effect",published(game,type,seat));
                         saved=game.checkpoint();
-                        assertEquals(21,saved.getInt("schema"));
+                        assertEquals(21,CoopSession.growthSchema(saved));
                     }
                     try (CoopSession game=CoopSession.restore(saved)) { assertTrue("restore",published(game,type,seat)); }
                 } catch (Throwable e) { throw new AssertionError(type+" seat "+seat,e); }
+            }
+        }
+    }
+
+    @Test public void soldAndAbandonedReferencesSurviveTravelAndReload() {
+        for (int seat = 0; seat < 2; seat++) {
+            Bundle saved;
+            try (CoopSession game = CoopSession.open(572, 11, HeroClass.CLERIC)) {
+                game.join(22, HeroClass.CLERIC);
+                Rat rat = CoopMageTest.encounter(game,seat);
+                SewerBeeTest.offer(game,seat);
+                stage(game,"trinitymindselect",seat,rat);
+                Hero hero = game.hero(seat);
+                var merchant = new com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper();
+                merchant.pos = hero.pos - 1;
+                com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.add(merchant,2000);
+                game.observe(seat);
+                WandOfLightning wand = hero.belongings.getItem(WandOfLightning.class);
+                long id = game.ownership.identity(wand);
+                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.SELL,merchant.pos,wand));
+                assertFalse(hero.belongings.contains(wand));
+                assertTrue(merchant.buybackItems.contains(wand));
+                assertEquals(id,game.ownership.identity(wand));
+                var ring = new com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste();
+                ring.identify();
+                assertTrue(ring.collect(hero.belongings.backpack));
+                Dungeon.level.drop(ring.detachAll(hero.belongings.backpack),hero.pos);
+                SewerSpecialActorTest.atGate(game,Dungeon.level.exit());
+                CoopFloorsTest.cross(game);
+                assertEquals(2,Dungeon.depth);
+                assertTrue(game.discoveries(seat).knows(TrinityDiscoveries.Choice.HASTE));
+                assertFalse(game.discoveries(1-seat).knows(TrinityDiscoveries.Choice.HASTE));
+                SewerBeeTest.offer(game,seat);
+                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.MIND_FORM,
+                        TrinityDiscoveries.Choice.LIGHTNING.target, hero.belongings.artifact));
+                saved = game.checkpoint();
+            }
+            try (CoopSession restored = CoopSession.restore(saved)) {
+                assertEquals(2,Dungeon.depth);
+                assertTrue(restored.discoveries(seat).knows(TrinityDiscoveries.Choice.LIGHTNING));
+                assertFalse(restored.discoveries(1-seat).knows(TrinityDiscoveries.Choice.LIGHTNING));
+                assertTrue(((Trinity)restored.hero(seat).armorAbility).hasForm(Talent.MIND_FORM));
+            }
+        }
+    }
+
+    @Test public void absentTrinityReferencesUseOnlyTheSelectingSeatsHistory() {
+        for (String kind : new String[]{"trinitybodyhistory", "trinitymindhistory", "trinityspirithistory", "trinityfirehistory"}) {
+            for (int seat = 0; seat < 2; seat++) {
+                Bundle saved;
+                try (CoopSession game = CoopSession.open(572, 11, HeroClass.CLERIC)) {
+                    game.join(22, HeroClass.CLERIC);
+                    Rat foe = CoopMageTest.encounter(game, seat);
+                    SewerBeeTest.offer(game, seat);
+                    StagedInput pick = stage(game, kind, seat, foe);
+                    assertEquals(22, pick.before.getInt("schema"));
+                    HolyTome tome = (HolyTome) game.hero(seat).belongings.artifact;
+                    assertFalse(CoopFloorsTest.step(game, CoopSession.Action.valueOf(pick.verb), -999, tome));
+                    assertTrue(CoopFloorsTest.step(game, CoopSession.Action.valueOf(pick.verb), pick.cell, tome));
+                    assertTrue(published(game, kind, seat));
+                    if (kind.equals("trinityfirehistory")) {
+                        SewerBeeTest.offer(game, seat);
+                        Hero hero = game.hero(seat);
+                        assertTrue(CoopFloorsTest.step(game, CoopSession.Action.ARMOR_ABILITY, hero.pos, hero.belongings.armor()));
+                        assertTrue(hero.buff(BodyForm.BodyFormBuff.class).enchant() instanceof
+                                com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing);
+                    }
+                    saved = game.checkpoint();
+                }
+                try (CoopSession game = CoopSession.restore(saved)) {
+                    assertTrue(published(game, kind, seat));
+                }
             }
         }
     }
@@ -422,6 +526,53 @@ public class SealArtsTest extends HeadlessDungeon {
                 assertTrue(com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob.volumeAt(rat.pos,fire ?
                         com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire.class : com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Freezing.class)>0);
                 game.checkpoint();
+            }
+        }
+    }
+
+    @Test public void elementalStrikeStoresItsElectricityShieldOrSecondaryPoison() {
+        for (int seat = 0; seat < 2; seat++) {
+            for (var enchantment : new com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon.Enchantment[]{
+                    new com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shocking(),
+                    new com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blocking(),
+                    new com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Venomous()}) {
+                Bundle saved;
+                int secondaryId, cell;
+                try (CoopSession game = CoopSession.open(572, 11, HeroClass.DUELIST)) {
+                    game.join(22, HeroClass.DUELIST);
+                    Rat foe = CoopMageTest.encounter(game,seat);
+                    SewerBeeTest.offer(game,seat);
+                    stage(game,"elestrike",seat,foe);
+                    Hero hero = game.hero(seat);
+                    Rat second = new Rat();
+                    second.pos = hero.pos + 2;
+                    second.HT = second.HP = 150;
+                    com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.add(second,2000);
+                    cell = second.pos;
+                    secondaryId = second.id();
+                    ((MeleeWeapon)hero.belongings.weapon()).enchant(enchantment);
+                    game.observe(seat);
+                    ClassArmor armor = (ClassArmor)hero.belongings.armor();
+                    float charge = armor.charge;
+                    assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ARMOR_ABILITY,hero.pos+3,armor));
+                    assertTrue(armor.charge <= charge-24);
+                    assertNull(game.hero(1-seat).buff(Barrier.class));
+                    saved = game.checkpoint();
+                }
+                try (CoopSession resumed = CoopSession.restore(saved)) {
+                    if (enchantment instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shocking) {
+                        assertTrue(com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob.volumeAt(cell,
+                                com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Electricity.class) > 0);
+                    } else if (enchantment instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blocking) {
+                        Barrier shield = resumed.hero(seat).buff(Barrier.class);
+                        assertNotNull(shield);
+                        assertTrue(shield.shielding() >= 11 && shield.shielding() <= 12);
+                    } else {
+                        Rat second = (Rat)com.shatteredpixel.shatteredpixeldungeon.actors.Actor.findById(secondaryId);
+                        assertNotNull(second.buff(Poison.class));
+                        assertNull(resumed.hero(1-seat).buff(Poison.class));
+                    }
+                }
             }
         }
     }

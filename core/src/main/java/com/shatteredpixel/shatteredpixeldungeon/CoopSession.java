@@ -213,9 +213,38 @@ public final class CoopSession implements AutoCloseable {
         for (int seat = 0; seat < heroes.length; seat++) if (owner != null && owner == heroes[seat]) return players[seat];
         return 0;
     }
+    private final TrinityDiscoveries[] discoveries = {new TrinityDiscoveries(), new TrinityDiscoveries()};
+
+    public TrinityDiscoveries discoveries(int seat) { return discoveries[seat]; }
+
+    /** Called only after a native collect, identification, or inscription on this physical item. */
+    public void witnessOwned(Item item) {
+        if (restoring) return;
+        long owner = ownership.owner(item);
+        if (owner == 0) return;
+        for (int seat = 0; seat < heroes.length; seat++) {
+            Hero hero = heroes[seat];
+            if (players[seat] == owner && hero != null && hero.belongings.contains(item)) {
+                discoveries[seat].witness(item);
+                return;
+            }
+        }
+    }
+
+    /** Knowing the type of a held ring is a native discovery before its level becomes known. */
+    public void witnessRingType(Hero finder, com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring ring) {
+        if (restoring || finder == null || !ring.isKnown()) return;
+        long player = playerOf(finder);
+        if (player != 0 && ownership.owner(ring) == player)
+            discoveries[finder == heroes[0] ? 0 : 1].record(ring.getClass());
+    }
+
     private void bindGear(int seat) {
         if (heroes[seat].heroClass == HeroClass.DUELIST || heroes[seat].heroClass == HeroClass.CLERIC) wandIdentities=true;
-        for (Item item : heroes[seat].belongings) ownership.claim(item, players[seat]);
+        for (Item item : heroes[seat].belongings) {
+            ownership.claim(item, players[seat]);
+            discoveries[seat].witness(item);
+        }
     }
 
     private final java.util.Map<Long, FloorKnowledge[]> floors = new java.util.HashMap<>();
@@ -361,8 +390,18 @@ public final class CoopSession implements AutoCloseable {
         wandIdentities = true;
     }
 
+    public static int growthSchema(Bundle state) {
+        int version = state.getInt("schema");
+        if (version != 22) return version;
+        int growth = state.getInt("growth_schema");
+        // Discovery envelopes are written for rosters with a cleric (introduced in 19).
+        if (growth < 19 || growth > 21) throw new IllegalArgumentException("Invalid discovery growth format");
+        return growth;
+    }
+
     static int floorSchema(Bundle state) {
-        if (state.getInt("schema") < 16 || state.getInt("schema") > 21) return state.getInt("schema");
+        int growth = growthSchema(state);
+        if (growth < 16 || growth > 21) return growth;
         int floor = state.getInt("floor_schema");
         if (floor < 1 || floor > 15) throw new IllegalArgumentException("Invalid growth floor format");
         return floor;
@@ -874,7 +913,10 @@ public final class CoopSession implements AutoCloseable {
             case RUNIC_TRANSFERENCE: case IMPROVISED_PROJECTILES: case LIQUID_WILLPOWER: case LETHAL_MOMENTUM: case INSCRIBED_POWER:
             case ARCANE_VISION: case HEIGHTENED_SENSES: case WAND_PRESERVATION: case SHIELD_BATTERY: case LIQUID_NATURE: case REJUVENATING_STEPS: case DURABLE_PROJECTILES:
             case DIVINE_SENSE: case SUNRAY: case SHIELD_OF_LIGHT:
-            case PROTECTIVE_SHADOWS: case SUCKER_PUNCH:
+            case PROTECTIVE_SHADOWS: case SUCKER_PUNCH: case MYSTICAL_MEAL: case INSCRIBED_STEALTH: case THIEFS_INTUITION:
+            case HEROIC_ENERGY: case SEARING_LIGHT: case LIQUID_AGILITY: case SWIFT_EQUIP: case WEAPON_RECHARGING:
+            case PATIENT_STRIKE: case AGGRESSIVE_BARRIER: case LETHAL_HASTE: case WIDE_SEARCH:
+            case ADVENTURERS_INTUITION: case STRENGTHENING_MEAL: case FOCUSED_MEAL: case SATIATED_SPELLS: case ENLIGHTENING_MEAL:
             case RECALL_INSCRIPTION: case MIND_FORM: case SPIRIT_FORM: case BODY_FORM: case HOLY_INTUITION: case BLESS: case SHADOW_BLADE: case CLONED_ARMOR: case PERFECT_COPY:
             case FEAR_THE_REAPER: case DOUBLE_MARK: case DEATHLY_DURABILITY:
             case CLEAVE: case ENHANCED_COMBO: case LETHAL_DEFENSE:
@@ -1003,8 +1045,7 @@ public final class CoopSession implements AutoCloseable {
                         if (!level.insideMap(cell) || !knowledge(activeSeat).visible(cell) || cell==hero.pos
                                 || !(hero.belongings.weapon() instanceof MeleeWeapon)) return false;
                         Weapon.Enchantment ench=((MeleeWeapon)hero.belongings.weapon()).enchantment;
-                        if (ench!=null && !(ench instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling)
-                                && !(ench instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing)) return false;
+                        if (!ElementalStrike.supportsCoopEnchantment(ench)) return false;
                         ((ElementalStrike)hero.armorAbility).activate(armor,hero,cell);
                     } else if (hero.armorAbility instanceof PowerOfMany) {
                         if (!level.insideMap(cell) || !knowledge(activeSeat).visible(cell) || !supportedLanding(cell)) return false;
@@ -1118,6 +1159,26 @@ public final class CoopSession implements AutoCloseable {
                         Char target=Actor.findChar(cell);
                         if (target==null || target instanceof Hero && target!=hero || target!=hero && !basicMob(target)) return false;
                         BlessSpell.INSTANCE.onTargetSelected(tome,hero,cell);
+                    } else if (spell == BodyForm.INSTANCE || spell == MindForm.INSTANCE || spell == SpiritForm.INSTANCE) {
+                        if (!(hero.armorAbility instanceof Trinity)) return false;
+                        Talent form = Talent.valueOf(action.name());
+                        Item held = null;
+                        if (cell > 0) {
+                            int index = 0;
+                            for (Item entry : hero.belongings) if (++index == cell) { held = entry; break; }
+                            if (held == null || ownership.owner(held) != player) return false;
+                        }
+                        for (TrinityDiscoveries.Choice choice : TrinityDiscoveries.Choice.values()) {
+                            if (choice.form != form) continue;
+                            boolean valid = held != null ? choice.matches(held)
+                                    : choice.target == cell && discoveries[activeSeat].knows(choice);
+                            if (valid) {
+                                ((Trinity)hero.armorAbility).selectEffect(hero, tome, choice, spell);
+                                if (held != null) discoveries[activeSeat].witness(held);
+                                return true;
+                            }
+                        }
+                        return false;
                     } else {
                         Item reference=null;
                         int index=0;
@@ -1135,15 +1196,6 @@ public final class CoopSession implements AutoCloseable {
                             imprint.detach();
                             requireSealFormat();
                             break;
-                        }
-                        if (action==Action.MIND_FORM || action==Action.SPIRIT_FORM) {
-                            if (!(hero.armorAbility instanceof Trinity) || !((Trinity)hero.armorAbility).selectReference(hero,tome,reference,
-                                    action==Action.MIND_FORM ? Talent.MIND_FORM : Talent.SPIRIT_FORM)) return false;
-                            return true;
-                        }
-                        if (action==Action.BODY_FORM) {
-                            if (!(hero.armorAbility instanceof Trinity) || !((Trinity)hero.armorAbility).selectBody(hero,tome,reference)) return false;
-                            return true;
                         }
                         if (!HolyIntuition.INSTANCE.usableOnItem(reference)) return false;
                         HolyIntuition.INSTANCE.onItemSelected(tome,hero,reference);
@@ -1646,6 +1698,12 @@ public final class CoopSession implements AutoCloseable {
         int format = stairs.schema();
         boolean rogue = heroes[0].heroClass == HeroClass.ROGUE || heroes[1].heroClass == HeroClass.ROGUE;
         b.put("schema", sealIdentities ? 21 : extendedGrowth ? 20 : wandIdentities ? 19 : rogue ? 18 : crownTrial != MaskTrial.OFF ? 17 : maskTrial == MaskTrial.OFF ? format : 16);
+        if ((heroes[0].heroClass == HeroClass.CLERIC || heroes[1].heroClass == HeroClass.CLERIC)
+                && (!discoveries[0].isEmpty() || !discoveries[1].isEmpty())) {
+            b.put("growth_schema", b.getInt("schema"));
+            b.put("schema", 22);
+            for (int seat = 0; seat < heroes.length; seat++) discoveries[seat].save(b, "discovered" + seat);
+        }
         if (rogue || wandIdentities) b.put("floor_schema", format);
         if (crownTrial != MaskTrial.OFF) {
             b.put("floor_schema",format);
@@ -1889,9 +1947,9 @@ public final class CoopSession implements AutoCloseable {
     }
 
     private void load(Bundle b,Bundle world) {
-        sealIdentities = b.getInt("schema") == 21;
-        extendedGrowth = sealIdentities || b.getInt("schema") == 20;
-        wandIdentities = extendedGrowth || b.getInt("schema") == 19;
+        sealIdentities = growthSchema(b) == 21;
+        extendedGrowth = sealIdentities || growthSchema(b) == 20;
+        wandIdentities = extendedGrowth || growthSchema(b) == 19;
         long[] roster=b.getLongArray("players");
         if (roster.length!=2 || roster[0]<=0 || roster[1]<=0 || roster[0]==roster[1])
             throw new IllegalArgumentException("Invalid roster");
@@ -1900,6 +1958,12 @@ public final class CoopSession implements AutoCloseable {
         if (b.contains("documents")) Document.restore(b.getBundle("documents"));
         heroes[0]=Dungeon.hero;
         heroes[1]=(Hero)b.get("guest");
+        if (b.getInt("schema") == 22) {
+            if (heroes[0].heroClass != HeroClass.CLERIC && heroes[1].heroClass != HeroClass.CLERIC)
+                throw new IllegalArgumentException("Discovery roster has no cleric");
+            for (int seat = 0; seat < heroes.length; seat++) discoveries[seat].restore(b, "discovered" + seat);
+            if (discoveries[0].isEmpty() && discoveries[1].isEmpty()) throw new IllegalArgumentException("Empty discovery envelope");
+        }
         Level level=Dungeon.level=(Level)b.get("floor");
         PathFinder.setMapSize(level.width(),level.height());
         activeSeat=b.getInt("active");
@@ -1911,7 +1975,7 @@ public final class CoopSession implements AutoCloseable {
             Hero h=heroes[i];
             validatePlayer(players[i],h.heroClass);
             if ((h.heroClass==HeroClass.DUELIST || h.heroClass==HeroClass.CLERIC) && !wandIdentities) throw new IllegalArgumentException("Unsupported roster format");
-            if (h.heroClass == HeroClass.ROGUE && b.getInt("schema") < 18) throw new IllegalArgumentException("Rogue floor format");
+            if (h.heroClass == HeroClass.ROGUE && growthSchema(b) < 18) throw new IllegalArgumentException("Rogue floor format");
             lives[i]=Life.valueOf(b.getString("life"+i));
             preDeath[i]=b.getInt("before"+i);
             if (!level.insideMap(h.pos) || h.HT<=0 || h.HP<0 || h.HP>h.HT || preDeath[i]<0 ||
@@ -1924,7 +1988,7 @@ public final class CoopSession implements AutoCloseable {
         }
         // Original bag restoration in co-op preserves object identity and skips collect().
         for (Hero hero : heroes) restorePackCharge(hero);
-        if (b.getInt("schema")==18 && heroes[0].heroClass!=HeroClass.ROGUE && heroes[1].heroClass!=HeroClass.ROGUE)
+        if (growthSchema(b)==18 && heroes[0].heroClass!=HeroClass.ROGUE && heroes[1].heroClass!=HeroClass.ROGUE)
             throw new IllegalArgumentException("Missing Rogue in roster");
         if (heroes[0].pos==heroes[1].pos) throw new IllegalArgumentException("Overlapping heroes");
         Actor.add(heroes[1]);
@@ -1948,7 +2012,7 @@ public final class CoopSession implements AutoCloseable {
         crownUser=-1;
         crownRights=0;
         crownTrial=MaskTrial.OFF;
-        if (b.getInt("schema")==17 || b.getInt("schema")>=18 && b.contains("crown_trial")) {
+        if (growthSchema(b)==17 || growthSchema(b)>=18 && b.contains("crown_trial")) {
             if (!b.contains("crown_user") || !b.contains("crown_rights") || !b.contains("crown_trial"))
                 throw new IllegalArgumentException("Missing crown trial ledger");
             crownTrial=MaskTrial.valueOf(b.getString("crown_trial"));
@@ -1959,7 +2023,7 @@ public final class CoopSession implements AutoCloseable {
                     || crownRights!=0 && (crownUser<0 || crownTrial!=MaskTrial.ROSTER || crownRights!=(1<<(1-crownUser))
                     || heroes[1-crownUser].armorAbility!=null)) throw new IllegalArgumentException("Invalid crown trial ledger");
         }
-        if (b.getInt("schema") == 16 || b.getInt("schema")>=17 && b.contains("mask_trial")) {
+        if (growthSchema(b) == 16 || growthSchema(b)>=17 && b.contains("mask_trial")) {
             if (!b.contains("mask_user") || !b.contains("mask_rights")) throw new IllegalArgumentException("Missing mask ledger");
             maskTrial = MaskTrial.valueOf(b.getString("mask_trial"));
             maskUser = b.getInt("mask_user");

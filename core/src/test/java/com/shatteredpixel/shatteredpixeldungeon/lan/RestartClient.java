@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.lan;
 
+import com.shatteredpixel.shatteredpixeldungeon.TrinityDiscoveries;
 import java.io.*;
 import java.net.*;
 import java.nio.file.*;
@@ -174,7 +175,7 @@ public final class RestartClient {
                 if (mode.startsWith("tengu-setup-") || mode.equals("late-setup") || mode.startsWith("wand-setup-") || mode.startsWith("necro-setup-")) character=i==0?"WARRIOR":"MAGE";
                 if (mode.startsWith("tengu-setup-growth-")) {
                     character=i==0?"WARRIOR":"HUNTRESS";
-                    if (mode.matches(".*-(recallid|trinitymind|trinityspirit|trinitymindselect|trinityspiritselect|intuition|bless|trinityselect|trinity|ascendform|lightally|lightorder|radiance|smite|sunray|divinesense|lightshield|light|blessweapon|ward)[01]")) character="CLERIC";
+                    if (mode.matches(".*-(recallid|trinitymind|trinityspirit|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinitymindselect|trinityspiritselect|intuition|bless|trinityselect|trinity|ascendform|lightally|lightorder|radiance|smite|sunray|divinesense|lightshield|light|blessweapon|ward)[01]")) character="CLERIC";
                     if (mode.matches(".*-(monkflurry|monkdash|monkmeditate|monkdragonkick|challenge|elestrike|feint|swap|monkfocus|guardshield|stance|lunge|spike|charged)[01]")) character="DUELIST";
                     if (mode.matches(".*-(markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) character="ROGUE";
                     if (mode.matches(".*-(sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
@@ -526,6 +527,13 @@ public final class RestartClient {
                 verb=name.equals("smith")?"ACCEPT_BLACKSMITH":"WAIT";
             }
             int cell=Integer.parseInt(RestartHost.read(path,"tengu-target"));
+            if (growth && boundary.matches("growth-trinity(body|fire|mind|spirit)history[01]")) {
+                int owner = boundary.charAt(boundary.length()-1) - '0';
+                TrinityDiscoveries.Choice choice = Arrays.stream(TrinityDiscoveries.Choice.values())
+                        .filter(candidate -> candidate.target == cell).findFirst().orElseThrow(AssertionError::new);
+                assertTrue(state(owner).rows.containsKey(choice.rowKey()));
+                assertFalse(state(1-owner).rows.containsKey(choice.rowKey()));
+            }
             for (int i=0;i<40;i++) {
                 int seat=active();
                 if (ascent && verb.equals("START_ASCENT")) {

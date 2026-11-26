@@ -24,6 +24,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
+import com.shatteredpixel.shatteredpixeldungeon.TrinityDiscoveries;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
@@ -107,38 +108,17 @@ public class Trinity extends ArmorAbility {
 		return super.targetedPos(user, dst);
 	}
 
-    // An identified item in this seat's belongings proves the discovery without sharing its partner's catalogue.
-    public static Bundlable seatBodyEffect(Item item) {
-        if (!item.isIdentified()) return null;
-        Bundlable effect=item instanceof MeleeWeapon ? ((MeleeWeapon)item).enchantment :
-                item instanceof Armor ? ((Armor)item).glyph : null;
-        if (!(effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling)
-                && !(effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Swiftness)) return null;
-        return Statistics.itemTypesDiscovered.contains(effect.getClass()) ? effect : null;
-    }
-
-    public boolean selectBody(Hero hero, HolyTome tome, Item reference) {
-        Bundlable candidate=seatBodyEffect(reference);
-        if (candidate==null || !tome.canCast(hero,BodyForm.INSTANCE)) return false;
-        bodyForm=(Bundlable) Reflection.newInstance(candidate.getClass());
-        BodyForm.INSTANCE.onSpellCast(tome,hero);
-        return true;
-    }
-
-    public static boolean seatReference(Item item, Talent form) {
-        if (!item.isIdentified() || !Statistics.itemTypesDiscovered.contains(item.getClass())) return false;
-        return form==Talent.MIND_FORM ? item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning :
-                form==Talent.SPIRIT_FORM && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste;
-    }
-
-    public boolean selectReference(Hero hero,HolyTome tome,Item item,Talent form) {
-        ClericSpell spell=form==Talent.MIND_FORM ? MindForm.INSTANCE : SpiritForm.INSTANCE;
-        if (!seatReference(item,form) || !tome.canCast(hero,spell)) return false;
-        Item effect=Reflection.newInstance(item.getClass());
-        effect.identify(false);
-        if (form==Talent.MIND_FORM) mindForm=effect; else spiritForm=effect;
-        spell.onSpellCast(tome,hero);
-        return true;
+    // The host has verified a personally discovered type or an identified item owned by this seat.
+    public void selectEffect(Hero hero, HolyTome tome, TrinityDiscoveries.Choice choice, ClericSpell spell) {
+        Bundlable effect = Reflection.newInstance(choice.effect);
+        if (effect instanceof Item) ((Item)effect).identify(false);
+        switch (choice.form) {
+            case BODY_FORM: bodyForm = effect; break;
+            case MIND_FORM: mindForm = effect; break;
+            case SPIRIT_FORM: spiritForm = effect; break;
+            default: throw new IllegalArgumentException("Unknown Trinity form");
+        }
+        spell.onSpellCast(tome, hero);
     }
 
     public boolean hasForm(Talent form) {

@@ -9,7 +9,7 @@ import java.util.*;
 
 /** Host-private generations. Only the small HEAD rename publishes an image. */
 public final class CoopSaves {
-    static final int SCHEMA = 21, LIMIT = 4 * 1024 * 1024;
+    static final int SCHEMA = 22, LIMIT = 4 * 1024 * 1024;
     private final File root;
     interface Barrier { void reached(String stage) throws IOException; }
     final Barrier barrier;

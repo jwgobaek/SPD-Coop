@@ -44,7 +44,7 @@ public final class LanClient implements Closeable {
         } catch (IOException failure) { close(); throw failure; }
     }
 
-    static final String PLAY_MODE="SYNC32";
+    static final String PLAY_MODE="SYNC33";
 
     /** Negotiate the synchronized protocol before joining a seat. */
     public static LanClient synchronizedGame(InetSocketAddress address) throws IOException {

@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.desktop;
 
 import com.badlogic.gdx.Gdx;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.TrinityDiscoveries;
 import com.shatteredpixel.shatteredpixeldungeon.lan.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.*;
@@ -816,6 +817,28 @@ public final class CoopRenderSmoke {
         Selector selector = selectorCase();
         String spell = selector.spell.name();
         String key = selector.key;
+        if (Boolean.getBoolean("spd.selector.history")) {
+            TrinityDiscoveries.Choice memory = Arrays.stream(TrinityDiscoveries.Choice.values())
+                    .filter(c -> view.source.rows.containsKey(c.rowKey())).findFirst().orElseThrow();
+            String label = "#" + Messages.titleCase(Messages.get(memory.effect, "name", "").trim());
+            if (view.belongings.stream().anyMatch(i -> view.source.rows.containsKey(key+i.id)))
+                throw new AssertionError("Physical reference still in the bag");
+            click("bag"); press(inventoryPoint(tome.id)); click("cast"); click("#"+spell);
+            waitForButton(label);
+            shot("discovered-selection");
+            Robot keyboard = new Robot();
+            keyboard.keyPress(java.awt.event.KeyEvent.VK_ESCAPE);
+            keyboard.keyRelease(java.awt.event.KeyEvent.VK_ESCAPE);
+            await(() -> button(label) == null);
+            if (frame().image.version != view.source.version || ownTome().charges != tome.charges)
+                throw new AssertionError("Cancelling discovery selection spent a charge");
+            click("bag"); press(inventoryPoint(tome.id)); click("cast"); click("#"+spell); click(label);
+            await(() -> frame().image.version > view.source.version && "APPLIED".equals(frame().lastResult)
+                    && frame().pending == 0 && ownTome().charges < tome.charges && frame().image.rows.containsKey("trinity"+memory.form.ordinal()));
+            shot("discovered-committed");
+            System.out.println("PASS discovery picker, cancel and native charge " + memory);
+            return;
+        }
         PublicDungeon.Loot target = view.belongings.stream().filter(i -> view.source.rows.containsKey(key+i.id)).findFirst().get();
         openSelector(tome.id, spell);
         shot("owned-selection");

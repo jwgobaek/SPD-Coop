@@ -152,6 +152,11 @@ public class ElementalStrike extends ArmorAbility {
 		baseChargeUse = 25;
 	}
 
+    public static boolean supportsCoopEnchantment(Weapon.Enchantment enchantment) {
+        return enchantment == null || enchantment instanceof Blazing || enchantment instanceof Chilling
+                || enchantment instanceof Shocking || enchantment instanceof Blocking || enchantment instanceof Venomous;
+    }
+
 	@Override
 	public String targetingPrompt() {
 		return Messages.get(this, "prompt");

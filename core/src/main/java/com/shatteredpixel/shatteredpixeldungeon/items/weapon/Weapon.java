@@ -456,6 +456,7 @@ abstract public class Weapon extends KindOfWeapon {
 	public Weapon enchant( Enchantment ench ) {
 		if (ench == null || !ench.curse()) curseInfusionBonus = false;
 		enchantment = ench;
+        if (Dungeon.coop != null) Dungeon.coop.witnessOwned(this);
 		updateQuickslot();
 		if (ench != null && isIdentified() && Dungeon.hero != null
 				&& Dungeon.hero.isAlive() && Dungeon.hero.belongings.contains(this)){

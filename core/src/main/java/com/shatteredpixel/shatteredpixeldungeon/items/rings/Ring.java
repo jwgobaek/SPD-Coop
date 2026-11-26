@@ -161,6 +161,12 @@ public class Ring extends KindofMisc {
 				handler.know(this);
 			}
 
+            if (Dungeon.coop != null && !Dungeon.coop.restoring()) {
+                for (int seat = 0; seat < 2; seat++) {
+                    Hero owner = Dungeon.coop.hero(seat);
+                    if (owner != null && owner.belongings.contains(this)) Dungeon.coop.witnessRingType(owner, this);
+                }
+            }
 			if (Dungeon.hero.isAlive()) {
 				Catalog.setSeen(getClass());
 				Statistics.itemTypesDiscovered.add(getClass());

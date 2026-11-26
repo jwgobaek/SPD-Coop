@@ -735,6 +735,7 @@ public class Armor extends EquipableItem {
 	public Armor inscribe( Glyph glyph ) {
 		if (glyph == null || !glyph.curse()) curseInfusionBonus = false;
 		this.glyph = glyph;
+        if (Dungeon.coop != null) Dungeon.coop.witnessOwned(this);
 		updateQuickslot();
 		//the hero needs runic transference to actually transfer, but we still attach the glyph here
 		// in case they take that talent in the future

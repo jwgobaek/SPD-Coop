@@ -247,6 +247,7 @@ public class Item implements Bundlable {
 			for (Item item:items) {
 				if (canStackWith(item)) {
 					item.merge( this );
+                    if (Dungeon.coop != null) Dungeon.coop.witnessOwned(item);
 					item.updateQuickslot();
 					if (Dungeon.hero != null && Dungeon.hero.isAlive()) {
 						Badges.validateItemLevelAquired( this );
@@ -288,6 +289,7 @@ public class Item implements Bundlable {
 		}
 
 		items.add( this );
+        if (Dungeon.coop != null) Dungeon.coop.witnessOwned(this);
 		if (Dungeon.coop == null || owner == Dungeon.hero) Dungeon.quickslot.replacePlaceholder(this);
 		Collections.sort( items, itemComparator );
 		updateQuickslot();
@@ -495,6 +497,7 @@ public class Item implements Bundlable {
 
 		levelKnown = true;
 		cursedKnown = true;
+		if (byHero && Dungeon.coop != null) Dungeon.coop.witnessOwned(this);
 		Item.updateQuickslot();
 		
 		return this;

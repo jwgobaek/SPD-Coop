@@ -1,6 +1,9 @@
 package com.shatteredpixel.shatteredpixeldungeon.lan;
 
 import com.shatteredpixel.shatteredpixeldungeon.CoopSession;
+import com.shatteredpixel.shatteredpixeldungeon.TrinityDiscoveries;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning;
+import com.watabou.utils.Bundle;
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -10,7 +13,7 @@ import java.util.UUID;
 /** Export the two disposable credentials of a fresh RestartHost fixture to disjoint QA profiles. */
 public final class AndroidTrialTickets {
     /** Smoke a copy of a prior QA generation and both original ticket bindings in a new JVM. */
-    public static void checkArchivedRoom(Path root, int expectedSchema) throws Exception {
+    public static void checkArchivedRoom(Path root, int expectedSchema, boolean checkDiscoveryUpgrade) throws Exception {
         CoopSaves saves = new CoopSaves(root.resolve("seat0").toFile());
         if (saves.sessions().size() != 1) throw new IllegalArgumentException("Expected one archived QA room");
         UUID room = saves.sessions().get(0);
@@ -18,6 +21,7 @@ public final class AndroidTrialTickets {
             com.watabou.utils.Bundle state = slot.read(false);
             com.watabou.utils.Bundle engine = state.getBundle("engine");
             if (engine.getInt("schema") != expectedSchema) throw new IllegalArgumentException("Unexpected schema");
+            Bundle upgraded = null;
             try (CoopSession game = CoopSession.restore(engine)) {
                 for (int seat = 0; seat < 2; seat++) {
                     SeatTickets.Ticket ticket = new SeatTickets(root.resolve("seat"+seat).toFile(), null).read(room);
@@ -32,6 +36,30 @@ public final class AndroidTrialTickets {
                     throw new IllegalStateException("Unexpected change of schema");
                 System.out.println("PASS archived schema="+expectedSchema+" floor_schema="+engine.getInt("floor_schema")
                         +" roster="+game.hero(0).heroClass+"/"+game.hero(1).heroClass+" two ticket bindings and next WAIT");
+                if (checkDiscoveryUpgrade) {
+                    if (expectedSchema != 21) throw new IllegalArgumentException("Expected a previous schema 21 QA generation");
+                    for (int seat = 0; seat < 2; seat++)
+                        for (TrinityDiscoveries.Choice choice : TrinityDiscoveries.Choice.values())
+                            if (game.discoveries(seat).knows(choice)) throw new IllegalStateException("Inferred a legacy discoverer");
+                    WandOfLightning wand = new WandOfLightning();
+                    if (!wand.collect(game.hero(1).belongings.backpack)) throw new IllegalStateException("QA bag full");
+                    wand.identify();
+                    upgraded = game.checkpoint();
+                    if (upgraded.getInt("schema") != 22 || CoopSession.growthSchema(upgraded) != expectedSchema
+                            || engine.getInt("floor_schema") != upgraded.getInt("floor_schema"))
+                        throw new IllegalStateException("Invalid migration");
+                }
+            }
+            if (upgraded != null) {
+                try (CoopSession next = CoopSession.restore(upgraded)) {
+                    if (!next.discoveries(1).knows(TrinityDiscoveries.Choice.LIGHTNING)
+                            || next.discoveries(0).knows(TrinityDiscoveries.Choice.LIGHTNING))
+                        throw new IllegalStateException("Discovery did not restore to its owner");
+                    int active = next.activeSeat();
+                    if (!next.act(next.player(active), next.turn(), CoopSession.Action.WAIT, 0, null))
+                        throw new IllegalStateException("No valid next action after migration");
+                    System.out.println("PASS schema 21 to 22 after a new guest identification, original floor format, owner-only history, restored next WAIT");
+                }
             }
         }
     }

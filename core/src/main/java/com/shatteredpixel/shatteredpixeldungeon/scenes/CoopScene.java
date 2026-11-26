@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
+import com.shatteredpixel.shatteredpixeldungeon.TrinityDiscoveries;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.MindForm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.SpiritForm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.RecallInscription;
@@ -147,18 +148,49 @@ public class CoopScene extends PixelScene {
                 if (index<0 || index>=spells.size() || controller.frame().image!=view.source) return;
                 String action = actions.get(index);
                 if (action.equals("HOLY_INTUITION") || action.equals("RECALL_INSCRIPTION") || action.endsWith("_FORM")) {
-                    String prefix=action.equals("RECALL_INSCRIPTION") ? "recallitem" : action.equals("MIND_FORM") ? "minditem" : action.equals("SPIRIT_FORM") ? "spirititem" : action.equals("BODY_FORM") ? "bodyitem" : "intuition";
-                    CoopScene.this.add(WndSeatInventory.select(view,controller,new WndSeatInventory.Selection() {
-                        public boolean accepts(PublicDungeon.Loot candidate) { return view.source.rows.containsKey(prefix+candidate.id); }
-                        public void select(PublicDungeon.Loot candidate) {
-                            if (controller.frame().image==view.source && accepts(candidate))
-                                controller.act(view.source,action,Integer.parseInt(view.source.rows.get(prefix+candidate.id)),tome.id);
-                        }
-                    }));
+                    showSpellTargets(view, tome, action, spells.get(index));
                 } else if (spells.get(index) instanceof TargetedClericSpell) { targetView=view; targetMove=action; targetStaff=tome; renderFrame(); }
                 else controller.act(view.source,action,view.pos,tome.id);
             }
         });
+    }
+
+    private void showSpellTargets(PublicDungeon view, PublicDungeon.Loot tome, String action, ClericSpell spell) {
+        java.util.ArrayList<TrinityDiscoveries.Choice> remembered = new java.util.ArrayList<>();
+        if (action.endsWith("_FORM")) {
+            for (TrinityDiscoveries.Choice choice : TrinityDiscoveries.Choice.values()) {
+                if (choice.form.name().equals(action) && view.source.rows.containsKey(choice.rowKey()))
+                    remembered.add(choice);
+            }
+        }
+        if (remembered.isEmpty()) {
+            showSpellInventory(view, tome, action);
+            return;
+        }
+        String[] options = new String[remembered.size() + 1];
+        options[0] = msg("bag");
+        for (int i = 0; i < remembered.size(); i++) {
+            options[i + 1] = Messages.titleCase(Messages.get(remembered.get(i).effect, "name", "").trim());
+        }
+        add(new WndOptions(spell.name(), Messages.get(Trinity.WndItemtypeSelect.class, "text"), options) {
+            @Override protected void onSelect(int index) {
+                if (index < 0 || index >= options.length || controller.frame().image != view.source) return;
+                if (index == 0) showSpellInventory(view, tome, action);
+                else controller.act(view.source, action, remembered.get(index - 1).target, tome.id);
+            }
+        });
+    }
+
+    private void showSpellInventory(PublicDungeon view, PublicDungeon.Loot tome, String action) {
+        String prefix = action.equals("RECALL_INSCRIPTION") ? "recallitem" : action.equals("MIND_FORM") ? "minditem" :
+                action.equals("SPIRIT_FORM") ? "spirititem" : action.equals("BODY_FORM") ? "bodyitem" : "intuition";
+        add(WndSeatInventory.select(view, controller, new WndSeatInventory.Selection() {
+            public boolean accepts(PublicDungeon.Loot candidate) { return view.source.rows.containsKey(prefix + candidate.id); }
+            public void select(PublicDungeon.Loot candidate) {
+                if (controller.frame().image == view.source && accepts(candidate))
+                    controller.act(view.source, action, Integer.parseInt(view.source.rows.get(prefix + candidate.id)), tome.id);
+            }
+        }));
     }
 
     private void selectSealArmor(PublicDungeon view, PublicDungeon.Loot seal) {

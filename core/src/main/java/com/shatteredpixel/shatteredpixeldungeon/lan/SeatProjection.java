@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.lan;
 
+import com.shatteredpixel.shatteredpixeldungeon.TrinityDiscoveries;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Preparation;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Momentum;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith;
@@ -402,6 +403,12 @@ final class SeatProjection {
                 for (Talent form : new Talent[]{Talent.BODY_FORM,Talent.MIND_FORM,Talent.SPIRIT_FORM})
                     if (trinity.hasForm(form)) rows.put("trinity"+form.ordinal(),"1");
             }
+            java.util.EnumSet<TrinityDiscoveries.Choice> remembered = java.util.EnumSet.noneOf(TrinityDiscoveries.Choice.class);
+            if (hero.armorAbility instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.Trinity) {
+                for (TrinityDiscoveries.Choice choice : TrinityDiscoveries.Choice.values()) {
+                    if (hero.hasTalent(choice.form) && game.discoveries(seat).knows(choice)) remembered.add(choice);
+                }
+            }
             int selection=0;
             for (Item item : hero.belongings) {
                 selection++;
@@ -416,15 +423,15 @@ final class SeatProjection {
                 if (game.ownership.owner(item)==game.player(seat)) {
                     if (hero.hasTalent(Talent.HOLY_INTUITION) && com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyIntuition.INSTANCE.usableOnItem(item))
                         rows.put("intuition"+ids.get(item),Integer.toString(selection));
-                    if (hero.hasTalent(Talent.MIND_FORM) && com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.Trinity.seatReference(item,Talent.MIND_FORM))
-                        rows.put("minditem"+ids.get(item),Integer.toString(selection));
-                    if (hero.hasTalent(Talent.SPIRIT_FORM) && com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.Trinity.seatReference(item,Talent.SPIRIT_FORM))
-                        rows.put("spirititem"+ids.get(item),Integer.toString(selection));
+                    for (TrinityDiscoveries.Choice choice : TrinityDiscoveries.Choice.values()) {
+                        if (!hero.hasTalent(choice.form) || !choice.matches(item)) continue;
+                        String prefix = choice.form == Talent.BODY_FORM ? "bodyitem" : choice.form == Talent.MIND_FORM ? "minditem" : "spirititem";
+                        rows.put(prefix + ids.get(item), Integer.toString(selection));
+                        remembered.remove(choice);
+                    }
                     com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.RecallInscription.UsedItemTracker imprint=hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.RecallInscription.UsedItemTracker.class);
                     if (imprint!=null && imprint.item==com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify.class && CoopSession.equipmentForScroll(item) && !item.isIdentified())
                         rows.put("recallitem"+ids.get(item),Integer.toString(selection));
-                    if (hero.hasTalent(Talent.BODY_FORM) && com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.Trinity.seatBodyEffect(item)!=null)
-                        rows.put("bodyitem"+ids.get(item),Integer.toString(selection));
                     if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome && hero.heroClass==HeroClass.CLERIC) {
                         com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome tome=(com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome)item;
                         if (tome.actions(hero).contains("CAST")) rows.put("spells"+ids.get(item),"1");
@@ -492,6 +499,7 @@ final class SeatProjection {
                     rows.put("ref"+ids.get(item),token);
                 }
             }
+            for (TrinityDiscoveries.Choice choice : remembered) rows.put(choice.rowKey(), "1");
             int tab=0;
             for (com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag bag:hero.belongings.getBags()) {
                 rows.put("bagtab"+tab,bag.getClass().getSimpleName());

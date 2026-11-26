@@ -512,7 +512,7 @@ public enum Talent {
 			if (hero.belongings.misc instanceof Ring && !ShardOfOblivion.passiveIDDisabled(hero)) {
 				hero.belongings.misc.identify();
 			}
-			for (Item item : Dungeon.hero.belongings){
+			for (Item item : hero.belongings){
 				if (item instanceof Ring){
 					((Ring) item).setKnown();
 				}
@@ -861,7 +861,11 @@ public enum Talent {
 
 	public static void onItemCollected( Hero hero, Item item ){
 		if (hero.pointsInTalent(THIEFS_INTUITION) == 2){
-			if (item instanceof Ring) ((Ring) item).setKnown();
+			if (item instanceof Ring) {
+                Ring ring = (Ring)item;
+                ring.setKnown();
+                if (Dungeon.coop != null) Dungeon.coop.witnessRingType(hero, ring);
+            }
 		}
 	}
 
