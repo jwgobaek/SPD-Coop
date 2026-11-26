@@ -324,10 +324,14 @@ public class Armor extends EquipableItem {
 	}
 
 	public BrokenSeal detachSeal(){
+		return detachSeal(Dungeon.hero);
+	}
+
+	public BrokenSeal detachSeal(Hero owner){
 		if (seal != null){
 
-			if (isEquipped(Dungeon.hero)) {
-				BrokenSeal.WarriorShield sealBuff = Dungeon.hero.buff(BrokenSeal.WarriorShield.class);
+			if (isEquipped(owner)) {
+				BrokenSeal.WarriorShield sealBuff = owner.buff(BrokenSeal.WarriorShield.class);
 				if (sealBuff != null) sealBuff.setArmor(null);
 			}
 
@@ -337,7 +341,7 @@ public class Armor extends EquipableItem {
 			if (detaching.level() > 0){
 				degrade();
 			}
-			if (detaching.canTransferGlyph()){
+			if (detaching.canTransferGlyph(owner)){
 				inscribe(null);
 			} else {
 				detaching.setGlyph(null);
@@ -504,9 +508,11 @@ public class Armor extends EquipableItem {
 		if (defender.buff(MagicImmune.class) == null) {
 			Glyph trinityGlyph = null;
 			//only when it's the hero or a char that uses the hero's armor
-			if (Dungeon.hero.buff(BodyForm.BodyFormBuff.class) != null
-					&& (defender == Dungeon.hero || defender instanceof PrismaticImage || defender instanceof ShadowClone.ShadowAlly)){
-				trinityGlyph = Dungeon.hero.buff(BodyForm.BodyFormBuff.class).glyph();
+			Hero effectOwner = Dungeon.coop == null ? Dungeon.hero : defender instanceof Hero ? (Hero)defender :
+					defender instanceof ShadowClone.ShadowAlly ? ((ShadowClone.ShadowAlly)defender).commander() : null;
+			if (effectOwner != null && effectOwner.buff(BodyForm.BodyFormBuff.class) != null
+					&& (defender == effectOwner || defender instanceof PrismaticImage || defender instanceof ShadowClone.ShadowAlly)){
+				trinityGlyph = effectOwner.buff(BodyForm.BodyFormBuff.class).glyph();
 				if (glyph != null && trinityGlyph != null && trinityGlyph.getClass() == glyph.getClass()){
 					trinityGlyph = null;
 				}

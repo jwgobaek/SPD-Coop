@@ -174,12 +174,12 @@ public final class RestartClient {
                 if (mode.startsWith("tengu-setup-") || mode.equals("late-setup") || mode.startsWith("wand-setup-") || mode.startsWith("necro-setup-")) character=i==0?"WARRIOR":"MAGE";
                 if (mode.startsWith("tengu-setup-growth-")) {
                     character=i==0?"WARRIOR":"HUNTRESS";
-                    if (mode.matches(".*-(radiance|smite|sunray|divinesense|lightshield|light|blessweapon|ward)[01]")) character="CLERIC";
-                    if (mode.matches(".*-(swap|monkfocus|guardshield|stance|lunge|spike|charged)[01]")) character="DUELIST";
+                    if (mode.matches(".*-(recallid|trinitymind|trinityspirit|intuition|bless|trinityselect|trinity|ascendform|lightally|lightorder|radiance|smite|sunray|divinesense|lightshield|light|blessweapon|ward)[01]")) character="CLERIC";
+                    if (mode.matches(".*-(monkflurry|monkdash|monkmeditate|monkdragonkick|challenge|elestrike|feint|swap|monkfocus|guardshield|stance|lunge|spike|charged)[01]")) character="DUELIST";
                     if (mode.matches(".*-(markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) character="ROGUE";
-                    if (mode.matches(".*-(leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
+                    if (mode.matches(".*-(sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
                     if (mode.matches(".*-(hawk|direct|blades|sniper|nature)[01]")) character="HUNTRESS";
-                    if (mode.matches(".*-(ice|iceimbue|iceblast|icevolley|imbue|volley|battery|recall|beacon|meal|blast|warlock|battlemage|soul)[01]")) character="MAGE";
+                    if (mode.matches(".*-(spark|sparkimbue|sparkblast|sparkvolley|ice|iceimbue|iceblast|icevolley|imbue|volley|battery|recall|beacon|meal|blast|warlock|battlemage|soul)[01]")) character="MAGE";
                 }
                 if (RestartHost.newCampaign(mode)) character=i==0?"MAGE":"HUNTRESS";
                 if (mode.startsWith("scribe") && i==mode.charAt(6)-'0') character="WARRIOR";
@@ -550,8 +550,15 @@ public final class RestartClient {
                 else assertEquals(boundary.equals("ten") ? 9 : boundary.equals("return") ? 11 : 10,view.depth);
                 long handle=verb.equals("PICK_UP") ? view.floor.get(cell).id : 0;
                 if (growth && verb.equals("ZAP")) handle=item(seat,"WEAPON","STAFF");
-                if (growth && verb.equals("THROW")) handle=item(seat,"BAG","SPIKE");
-                if (verb.matches("RADIANCE|SMITE|SUNRAY|DIVINE_SENSE|SHIELD_OF_LIGHT|GUIDING_LIGHT|HOLY_WARD|HOLY_WEAPON")) handle=item(seat,"ARTIFACT","TOME");
+                if (growth && verb.equals("THROW")) handle=boundary.contains("rationthrow")
+                        ? view.belongings.stream().filter(it -> it.kind.equals("FOOD") && view.actions(it).contains("THROW")).findFirst().get().id
+                        : item(seat,"BAG","SPIKE");
+                if (verb.equals("DETACH_SEAL") || verb.equals("AFFIX_SEAL") || verb.equals("KEEP_ARMOR_GLYPH") || verb.equals("TRANSFER_SEAL_GLYPH")) {
+                    String selected=verb.equals("DETACH_SEAL") ? verb : "AFFIX_SEAL";
+                    handle=view.belongings.stream().filter(it -> view.actions(it).contains(selected)).findFirst().get().id;
+                }
+                if (verb.matches("RECALL_INSCRIPTION|HOLY_INTUITION|BODY_FORM|BLESS|RADIANCE|SMITE|SUNRAY|DIVINE_SENSE|SHIELD_OF_LIGHT|GUIDING_LIGHT|HOLY_WARD|HOLY_WEAPON")) handle=item(seat,"ARTIFACT","TOME");
+                if (verb.equals("TRINITY_MIND") || verb.equals("TRINITY_SPIRIT")) handle=view.belongings.stream().filter(it -> view.actions(it).contains("ARMOR_ABILITY")).findFirst().get().id;
                 if (verb.equals("WEAPON_ABILITY") || verb.equals("IMBUE") || verb.equals("CLOAK") || verb.equals("USE_CROWN") || verb.equals("ARMOR_ABILITY") || verb.equals("USE_MASK")) { String selected=verb; handle=view.belongings.stream().filter(it -> view.actions(it).contains(selected)).findFirst().get().id; }
                 if (verb.equals("VAULT_RECALL")) {
                     handle=view.belongings.stream().filter(item -> view.actions(item).contains("VAULT_RECALL"))

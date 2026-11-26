@@ -61,13 +61,13 @@ public class BlessSpell extends TargetedClericSpell {
 	}
 
 	@Override
-	protected void onTargetSelected(HolyTome tome, Hero hero, Integer target) {
+	public void onTargetSelected(HolyTome tome, Hero hero, Integer target) {
 		if (target == null){
 			return;
 		}
 
 		Char ch = Actor.findChar(target);
-		if (ch == null || !Dungeon.level.heroFOV[target]){
+		if (ch == null || !(Dungeon.coop==null ? Dungeon.level.heroFOV[target] : Dungeon.coop.knowledge(hero).visible(target))){
 			GLog.w(Messages.get(this, "no_target"));
 			return;
 		}
@@ -76,7 +76,8 @@ public class BlessSpell extends TargetedClericSpell {
 
 		affectChar(hero, ch);
 
-		if (ch == hero){
+		if (Dungeon.coop!=null) hero.spendAndNext(1f);
+		else if (ch == hero){
 			hero.busy();
 			hero.sprite.operate(ch.pos);
 			hero.spend( 1f );
@@ -85,7 +86,7 @@ public class BlessSpell extends TargetedClericSpell {
 			hero.spendAndNext( 1f );
 		}
 
-		Char ally = PowerOfMany.getPoweredAlly();
+		Char ally = PowerOfMany.getPoweredAlly(hero);
 		if (ally != null && ally.buff(LifeLinkSpell.LifeLinkSpellBuff.class) != null){
 			if (ch == hero){
 				affectChar(hero, ally); //if cast on hero, duplicate to ally
@@ -98,11 +99,11 @@ public class BlessSpell extends TargetedClericSpell {
 	}
 
 	private void affectChar(Hero hero, Char ch){
-		new Flare(6, 32).color(0xFFFF00, true).show(ch.sprite, 2f);
+		if (Dungeon.coop==null) new Flare(6, 32).color(0xFFFF00, true).show(ch.sprite, 2f);
 		if (ch == hero){
 			Buff.prolong(ch, Bless.class, 2f + 4*hero.pointsInTalent(Talent.BLESS));
 			Buff.affect(ch, Barrier.class).setShield(5 + 5*hero.pointsInTalent(Talent.BLESS));
-			ch.sprite.showStatusWithIcon( CharSprite.POSITIVE, Integer.toString(5 + 5*hero.pointsInTalent(Talent.BLESS)), FloatingText.SHIELDING );
+			if (Dungeon.coop==null) ch.sprite.showStatusWithIcon( CharSprite.POSITIVE, Integer.toString(5 + 5*hero.pointsInTalent(Talent.BLESS)), FloatingText.SHIELDING );
 		} else {
 			Buff.prolong(ch, Bless.class, 5f + 5*hero.pointsInTalent(Talent.BLESS));
 			int totalHeal = 5 + 5*hero.pointsInTalent(Talent.BLESS);
@@ -111,20 +112,20 @@ public class BlessSpell extends TargetedClericSpell {
 				barrier = Math.max(barrier, 0);
 				if (ch.HP != ch.HT) {
 					ch.HP = ch.HT;
-					ch.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(totalHeal - barrier), FloatingText.HEALING);
+					if (Dungeon.coop==null) ch.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(totalHeal - barrier), FloatingText.HEALING);
 				}
 				if (barrier > 0) {
 					Buff.affect(ch, Barrier.class).setShield(barrier);
-					ch.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(barrier), FloatingText.SHIELDING);
+					if (Dungeon.coop==null) ch.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(barrier), FloatingText.SHIELDING);
 				}
 			} else {
 				ch.HP = ch.HP + totalHeal;
-				ch.sprite.showStatusWithIcon( CharSprite.POSITIVE, Integer.toString(totalHeal), FloatingText.HEALING );
+				if (Dungeon.coop==null) ch.sprite.showStatusWithIcon( CharSprite.POSITIVE, Integer.toString(totalHeal), FloatingText.HEALING );
 			}
 		}
 
 		if (ch.alignment != Char.Alignment.ALLY && hero.subClass == HeroSubClass.PRIEST){
-			Buff.affect(ch, GuidingLight.Illuminated.class);
+			GuidingLight.illuminate(hero,ch);
 		}
 	}
 

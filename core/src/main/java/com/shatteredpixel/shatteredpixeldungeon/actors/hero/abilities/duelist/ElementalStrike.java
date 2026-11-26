@@ -163,7 +163,7 @@ public class ElementalStrike extends ArmorAbility {
 	}
 
 	@Override
-	protected void activate(ClassArmor armor, Hero hero, Integer target) {
+	public void activate(ClassArmor armor, Hero hero, Integer target) {
 		if (target == null){
 			return;
 		}
@@ -192,7 +192,7 @@ public class ElementalStrike extends ArmorAbility {
 		}
 
 		//cast to cells at the tip, rather than all cells, better performance.
-		for (Ballistica ray : cone.outerRays){
+		if (Dungeon.coop == null) for (Ballistica ray : cone.outerRays){
 			((MagicMissile)hero.sprite.parent.recycle( MagicMissile.class )).reset(
 					effectTypes.get(enchCls),
 					hero.sprite,
@@ -202,7 +202,7 @@ public class ElementalStrike extends ArmorAbility {
 		}
 
 		Weapon.Enchantment finalEnchantment = enchantment;
-		hero.sprite.attack(target, new Callback() {
+		Callback attack = new Callback() {
 			@Override
 			public void call() {
 
@@ -221,21 +221,26 @@ public class ElementalStrike extends ArmorAbility {
 				preAttackEffect(cone, hero, finalEnchantment);
 
 				if (enemy != null){
-					AttackIndicator.target(enemy);
+					if (Dungeon.coop == null) AttackIndicator.target(enemy);
 					oldEnemyPos = enemy.pos;
 					if (hero.attack(enemy, 1, 0, Char.INFINITE_ACCURACY)) {
 						Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
 					}
 				}
 
-				perCellEffect(cone, finalEnchantment);
+				perCellEffect(cone, hero, finalEnchantment);
 
 				perCharEffect(cone, hero, enemy, finalEnchantment);
 
-				Invisibility.dispel();
+				Invisibility.dispel(hero);
 				hero.spendAndNext(hero.attackDelay());
 			}
-		});
+		};
+		if (Dungeon.coop != null) {
+			attack.call();
+			return;
+		}
+		hero.sprite.attack(target, attack);
 
 		Sample.INSTANCE.play(Assets.Sounds.CHARGEUP);
 		hero.busy();
@@ -257,7 +262,7 @@ public class ElementalStrike extends ArmorAbility {
 			Buff.affect(hero, DirectedPowerTracker.class, 0f).enchBoost = enchBoost;
 		}
 
-		float powerMulti = 1f + 0.30f*Dungeon.hero.pointsInTalent(Talent.STRIKING_FORCE);
+		float powerMulti = 1f + 0.30f*hero.pointsInTalent(Talent.STRIKING_FORCE);
 
 		//*** Kinetic ***
 		if (ench instanceof Kinetic){
@@ -302,7 +307,7 @@ public class ElementalStrike extends ArmorAbility {
 	public static class ElementalStrikeFurrowCounter extends CounterBuff{{revivePersists = true;}};
 
 	//effects that affect the cells of the environment themselves
-	private void perCellEffect(ConeAOE cone, Weapon.Enchantment ench){
+	private void perCellEffect(ConeAOE cone, Hero hero, Weapon.Enchantment ench){
 
 		int targetsHit = 0;
 		for (Char ch : Actor.chars()){
@@ -311,7 +316,7 @@ public class ElementalStrike extends ArmorAbility {
 			}
 		}
 
-		float powerMulti = 1f + 0.30f*Dungeon.hero.pointsInTalent(Talent.STRIKING_FORCE);
+		float powerMulti = 1f + 0.30f*hero.pointsInTalent(Talent.STRIKING_FORCE);
 
 		//*** Blazing ***
 		if (ench instanceof Blazing){
@@ -341,13 +346,13 @@ public class ElementalStrike extends ArmorAbility {
 			// each hero level is worth 20 normal uses, but just 5 if no enemies are present
 			// cap of 40/10 uses
 			int highGrassType = Terrain.HIGH_GRASS;
-			if (Buff.affect(Dungeon.hero, ElementalStrikeFurrowCounter.class).count() >= 40){
+			if (Buff.affect(hero, ElementalStrikeFurrowCounter.class).count() >= 40){
 				highGrassType = Terrain.FURROWED_GRASS;
 			} else {
-				if (Dungeon.hero.visibleEnemies() == 0 && targetsHit == 0) {
-					Buff.count(Dungeon.hero, ElementalStrikeFurrowCounter.class, 4f);
+				if (hero.visibleEnemies() == 0 && targetsHit == 0) {
+					Buff.count(hero, ElementalStrikeFurrowCounter.class, 4f);
 				} else {
-					Buff.count(Dungeon.hero, ElementalStrikeFurrowCounter.class, 1f);
+					Buff.count(hero, ElementalStrikeFurrowCounter.class, 1f);
 				}
 			}
 
@@ -384,7 +389,7 @@ public class ElementalStrike extends ArmorAbility {
 	//effects that affect the characters within the cone AOE
 	private void perCharEffect(ConeAOE cone, Hero hero, Char primaryTarget, Weapon.Enchantment ench) {
 
-		float powerMulti = 1f + 0.30f * Dungeon.hero.pointsInTalent(Talent.STRIKING_FORCE);
+		float powerMulti = 1f + 0.30f * hero.pointsInTalent(Talent.STRIKING_FORCE);
 
 		ArrayList<Char> affected = new ArrayList<>();
 
@@ -397,7 +402,7 @@ public class ElementalStrike extends ArmorAbility {
 		//*** no enchantment ***
 		if (ench == null) {
 			for (Char ch : affected){
-				ch.damage(Math.round(powerMulti* Hero.heroDamageIntRange(6, 12)), ElementalStrike.this);
+				ch.damage(Math.round(powerMulti* Hero.heroDamageIntRange(hero, 6, 12)), ElementalStrike.this);
 			}
 
 		//*** Kinetic ***
@@ -525,7 +530,7 @@ public class ElementalStrike extends ArmorAbility {
 		} else if (ench instanceof Crystal){
 			for (Char ch : affected){
 				if (ch != primaryTarget) {
-					ch.damage(Math.round(powerMulti* Hero.heroDamageIntRange(10, 20)), ElementalStrike.this);
+					ch.damage(Math.round(powerMulti* Hero.heroDamageIntRange(hero, 10, 20)), ElementalStrike.this);
 					((Crystal) ench).repair(null, false, 4f*powerMulti);
 				}
 			}
@@ -602,7 +607,7 @@ public class ElementalStrike extends ArmorAbility {
 		} else if (ench instanceof Polarized){
 			for (Char ch : affected){
 				if (Random.Float() < 0.5f*powerMulti){
-					ch.damage(Hero.heroDamageIntRange(24, 36), ElementalStrike.this);
+					ch.damage(Hero.heroDamageIntRange(hero, 24, 36), ElementalStrike.this);
 				}
 			}
 

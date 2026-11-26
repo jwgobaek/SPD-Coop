@@ -85,25 +85,32 @@ public class Challenge extends ArmorAbility {
 
 	@Override
 	protected void activate(ClassArmor armor, Hero hero, Integer target) {
+		challenge(armor,hero,target);
+	}
+
+	public boolean challenge(ClassArmor armor, Hero hero, Integer target){
 		if (target == null){
-			return;
+			return false;
 		}
 
 		Char targetCh = Actor.findChar(target);
-		if (targetCh == null || !Dungeon.level.heroFOV[target]){
+		if (targetCh == null || !(Dungeon.coop==null ? Dungeon.level.heroFOV[target] : Dungeon.coop.knowledge(hero).visible(target))){
 			GLog.w(Messages.get(this, "no_target"));
-			return;
+			return false;
 		}
 
+		if (Dungeon.coop != null) {
+			for (Char c : Actor.chars()) if (c.buff(DuelParticipant.class)!=null) return false;
+		}
 		if (hero.buff(DuelParticipant.class) != null){
 			GLog.w(Messages.get(this, "already_dueling"));
-			return;
+			return false;
 		}
 
 		if (targetCh.alignment != Char.Alignment.ENEMY
 				&& !(targetCh instanceof Mimic && targetCh.alignment == Char.Alignment.NEUTRAL)){
 			GLog.w(Messages.get(this, "ally_target"));
-			return;
+			return false;
 		}
 
 		boolean[] passable = BArray.or(Dungeon.level.passable, Dungeon.level.avoid, null);
@@ -123,7 +130,7 @@ public class Challenge extends ArmorAbility {
 				if (PathFinder.distance[i] == Integer.MAX_VALUE
 						|| reachable[i] == Integer.MAX_VALUE
 						|| (!Dungeon.level.passable[i] && !(hero.flying && Dungeon.level.avoid[i]))
-						|| i == targetCh.pos){
+						|| i == targetCh.pos || Dungeon.coop!=null && (Actor.findChar(i)!=null && i!=hero.pos || !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(i))){
 					continue;
 				}
 
@@ -140,25 +147,25 @@ public class Challenge extends ArmorAbility {
 		if (reachable[blinkpos] == Integer.MAX_VALUE){
 			GLog.w(Messages.get(this, "unreachable_target"));
 			if (hero.rooted) PixelScene.shake( 1, 1f );
-			return;
+			return false;
 		}
 
 		if (Dungeon.level.distance(blinkpos, targetCh.pos) > 5){
 			GLog.w(Messages.get(this, "distant_target"));
 			if (hero.rooted) PixelScene.shake( 1, 1f );
-			return;
+			return false;
 		}
 
 		if (blinkpos != hero.pos){
-			Dungeon.hero.pos = blinkpos;
-			Dungeon.level.occupyCell(Dungeon.hero);
+			hero.pos = blinkpos;
+			Dungeon.level.occupyCell(hero);
 			//prevents the hero from being interrupted by seeing new enemies
-			Dungeon.observe();
-			GameScene.updateFog();
-			Dungeon.hero.checkVisibleMobs();
+			if (Dungeon.coop==null) Dungeon.observe();
+			if (Dungeon.coop==null) GameScene.updateFog();
+			hero.checkVisibleMobs();
 
-			Dungeon.hero.sprite.place( Dungeon.hero.pos );
-			CellEmitter.get( Dungeon.hero.pos ).burst( Speck.factory( Speck.WOOL ), 6 );
+			if (Dungeon.coop==null) hero.sprite.place(hero.pos);
+			if (Dungeon.coop==null) CellEmitter.get(hero.pos).burst( Speck.factory( Speck.WOOL ), 6 );
 			Sample.INSTANCE.play( Assets.Sounds.PUFF );
 		}
 
@@ -171,25 +178,26 @@ public class Challenge extends ArmorAbility {
 			}
 		}
 
-		Buff.affect(targetCh, DuelParticipant.class);
-		Buff.affect(hero, DuelParticipant.class);
+		Buff.affect(targetCh, DuelParticipant.class).bind(hero,hero);
+		Buff.affect(hero, DuelParticipant.class).bind(hero,targetCh);
 		if (targetCh instanceof Mob){
 			((Mob) targetCh).aggro(hero);
 		}
 
-		GameScene.flash(0x80FFFFFF);
+		if (Dungeon.coop==null) GameScene.flash(0x80FFFFFF);
 		Sample.INSTANCE.play(Assets.Sounds.DESCEND);
 
 		armor.charge -= chargeUse( hero );
 		armor.updateQuickslot();
-		Invisibility.dispel();
-		hero.sprite.zap(target);
+		Invisibility.dispel(hero);
+		if (Dungeon.coop==null) hero.sprite.zap(target);
 
 		hero.next();
 
 		if (hero.buff(EliminationMatchTracker.class) != null){
 			hero.buff(EliminationMatchTracker.class).detach();
 		}
+		return true;
 	}
 
 	@Override
@@ -205,6 +213,12 @@ public class Challenge extends ArmorAbility {
 
 		private int left = (int)DURATION;
 		private int takenDmg = 0;
+		private int ownerId, opponentId;
+
+		private void bind(Hero hero, Char opponent) {
+			ownerId=hero.id();
+			opponentId=opponent.id();
+		}
 
 		@Override
 		public int icon() {
@@ -234,12 +248,12 @@ public class Challenge extends ArmorAbility {
 			} else {
 				Char other = null;
 				for (Char ch : Actor.chars()){
-					if (ch != target && ch.buff(DuelParticipant.class) != null){
+					if (ch != target && ch.buff(DuelParticipant.class) != null && (Dungeon.coop==null || ch.id()==opponentId)){
 						other = ch;
 					}
 				}
 
-				if (other == null
+				if (other == null || Dungeon.coop!=null && (!other.isAlive() || !target.isAlive())
 					|| target.alignment == other.alignment
 					|| Dungeon.level.distance(target.pos, other.pos) > 5) {
 					detach();
@@ -252,13 +266,18 @@ public class Challenge extends ArmorAbility {
 
 		@Override
 		public void detach() {
+			Hero owner=Dungeon.hero;
+			if (Dungeon.coop!=null) {
+				owner=Dungeon.coop.hero(0).id()==ownerId ? Dungeon.coop.hero(0) : Dungeon.coop.hero(1);
+				if (owner.id()!=ownerId) throw new IllegalStateException("Missing Challenge owner");
+			}
 			super.detach();
-			if (target != Dungeon.hero){
-				if (!target.isAlive() || target.alignment == Dungeon.hero.alignment){
+			if (target != owner){
+				if (!target.isAlive() || target.alignment == owner.alignment){
 					Sample.INSTANCE.play(Assets.Sounds.BOSS);
 
-					if (Dungeon.hero.hasTalent(Talent.INVIGORATING_VICTORY)){
-						DuelParticipant heroBuff = Dungeon.hero.buff(DuelParticipant.class);
+					if (owner.hasTalent(Talent.INVIGORATING_VICTORY)){
+						DuelParticipant heroBuff = owner.buff(DuelParticipant.class);
 
 						int hpToHeal = 0;
 						if (heroBuff != null){
@@ -266,22 +285,22 @@ public class Challenge extends ArmorAbility {
 						}
 
 						//heals for 30%/50%/65%/75% of taken damage plus 5/10/15/20 bonus, based on talent points
-						hpToHeal = (int)Math.round(hpToHeal * (1f - Math.pow(0.707f, Dungeon.hero.pointsInTalent(Talent.INVIGORATING_VICTORY))));
-						hpToHeal += 5*Dungeon.hero.pointsInTalent(Talent.INVIGORATING_VICTORY);
-						hpToHeal = Math.min(hpToHeal, Dungeon.hero.HT - Dungeon.hero.HP);
+						hpToHeal = (int)Math.round(hpToHeal * (1f - Math.pow(0.707f, owner.pointsInTalent(Talent.INVIGORATING_VICTORY))));
+						hpToHeal += 5*owner.pointsInTalent(Talent.INVIGORATING_VICTORY);
+						hpToHeal = Math.min(hpToHeal, owner.HT - owner.HP);
 						if (hpToHeal > 0){
-							Dungeon.hero.HP += hpToHeal;
-							Dungeon.hero.sprite.emitter().start( Speck.factory( Speck.HEALING ), 0.33f, 6 );
-							Dungeon.hero.sprite.showStatusWithIcon( CharSprite.POSITIVE, Integer.toString(hpToHeal), FloatingText.HEALING );
+							owner.HP += hpToHeal;
+							if (Dungeon.coop==null) owner.sprite.emitter().start( Speck.factory( Speck.HEALING ), 0.33f, 6 );
+							if (Dungeon.coop==null) owner.sprite.showStatusWithIcon( CharSprite.POSITIVE, Integer.toString(hpToHeal), FloatingText.HEALING );
 						}
 					}
 				}
 
 			} else {
-				if (Dungeon.hero.isAlive()) {
-					GameScene.flash(0x80FFFFFF);
+				if (owner.isAlive()) {
+					if (Dungeon.coop==null) GameScene.flash(0x80FFFFFF);
 
-					if (Dungeon.hero.hasTalent(Talent.ELIMINATION_MATCH)){
+					if (owner.hasTalent(Talent.ELIMINATION_MATCH)){
 						Buff.affect(target, EliminationMatchTracker.class, 3);
 					}
 				}
@@ -310,6 +329,7 @@ public class Challenge extends ArmorAbility {
 			super.storeInBundle(bundle);
 			bundle.put(LEFT, left);
 			bundle.put(TAKEN_DMG, takenDmg);
+			if (Dungeon.coop!=null) { bundle.put("duelist", ownerId); bundle.put("opponent", opponentId); }
 		}
 
 		@Override
@@ -317,6 +337,7 @@ public class Challenge extends ArmorAbility {
 			super.restoreFromBundle(bundle);
 			left = bundle.getInt(LEFT);
 			takenDmg = bundle.getInt(TAKEN_DMG);
+			ownerId=bundle.getInt("duelist"); opponentId=bundle.getInt("opponent");
 		}
 	}
 

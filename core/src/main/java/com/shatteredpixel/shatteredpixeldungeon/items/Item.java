@@ -685,24 +685,7 @@ public class Item implements Bundlable {
 							new Callback() {
 						@Override
 						public void call() {
-							curUser = user;
-							Item i = Item.this.detach(user.belongings.backpack);
-							if (i != null) i.onThrow(cell);
-							if (curUser.hasTalent(Talent.IMPROVISED_PROJECTILES)
-									&& !(Item.this instanceof MissileWeapon)
-									&& curUser.buff(Talent.ImprovisedProjectileCooldown.class) == null){
-								if (enemy != null && enemy.alignment != curUser.alignment){
-									Sample.INSTANCE.play(Assets.Sounds.HIT);
-									Buff.affect(enemy, Blindness.class, 1f + curUser.pointsInTalent(Talent.IMPROVISED_PROJECTILES));
-									Buff.affect(curUser, Talent.ImprovisedProjectileCooldown.class, 50f);
-								}
-							}
-							if (user.buff(Talent.LethalMomentumTracker.class) != null){
-								user.buff(Talent.LethalMomentumTracker.class).detach();
-								user.next();
-							} else {
-								user.spendAndNext(delay);
-							}
+							finishThrow(user, cell, enemy, delay);
 						}
 					});
 		} else {
@@ -713,16 +696,38 @@ public class Item implements Bundlable {
 							new Callback() {
 						@Override
 						public void call() {
-							curUser = user;
-							Item i = Item.this.detach(user.belongings.backpack);
-							user.spend(delay);
-							if (i != null) i.onThrow(cell);
-							user.next();
+							finishThrow(user, cell, null, delay);
 						}
 					});
 		}
 	}
 	
+	/** Resolve the native landing and action time once the projectile reaches its collision cell. */
+	public void finishThrow(Hero user, int cell, Char enemy, float delay) {
+		curUser = user;
+		Item unit = detach(user.belongings.backpack);
+		if (enemy == null) {
+			user.spend(delay);
+			if (unit != null) unit.onThrow(cell);
+			user.next();
+			return;
+		}
+		if (unit != null) unit.onThrow(cell);
+		if (user.hasTalent(Talent.IMPROVISED_PROJECTILES) && !(this instanceof MissileWeapon)
+				&& user.buff(Talent.ImprovisedProjectileCooldown.class) == null && enemy.alignment != user.alignment) {
+			Sample.INSTANCE.play(Assets.Sounds.HIT);
+			Buff.affect(enemy, Blindness.class, 1f + user.pointsInTalent(Talent.IMPROVISED_PROJECTILES));
+			Buff.affect(user, Talent.ImprovisedProjectileCooldown.class, 50f);
+		}
+		Talent.LethalMomentumTracker momentum = user.buff(Talent.LethalMomentumTracker.class);
+		if (momentum != null) {
+			momentum.detach();
+			user.next();
+		} else {
+			user.spendAndNext(delay);
+		}
+	}
+
 	public float castDelay( Char user, int cell ){
 		return TIME_TO_THROW;
 	}

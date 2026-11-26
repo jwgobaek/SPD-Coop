@@ -305,7 +305,9 @@ public class MonkEnergy extends Buff implements ActionIndicator.Action {
 			}
 		}
 
-		public abstract int energyCost();
+		public String seatAction() { return "MONK_"+getClass().getSimpleName().toUpperCase(java.util.Locale.ROOT); }
+
+        public abstract int energyCost();
 
 		public boolean usable(MonkEnergy buff){
 			return buff.energy >= energyCost();
@@ -359,7 +361,7 @@ public class MonkEnergy extends Buff implements ActionIndicator.Action {
 				}
 
 				Char enemy = Actor.findChar(target);
-				if (enemy == null || enemy == hero || hero.isCharmedBy(enemy) || !Dungeon.level.heroFOV[target]) {
+				if (enemy == null || enemy == hero || hero.isCharmedBy(enemy) || !(Dungeon.coop == null ? Dungeon.level.heroFOV[target] : Dungeon.coop.knowledge(hero).visible(target))) {
 					GLog.w(Messages.get(MeleeWeapon.class, "ability_no_target"));
 					return;
 				}
@@ -378,39 +380,30 @@ public class MonkEnergy extends Buff implements ActionIndicator.Action {
 					return;
 				}
 
-				hero.sprite.attack(enemy.pos, new Callback() {
-					@Override
-					public void call() {
-						AttackIndicator.target(enemy);
-						hero.attack(enemy, 1.5f, 0, Char.INFINITE_ACCURACY);
-
-						if (enemy.isAlive()){
-							hero.sprite.attack(enemy.pos, new Callback() {
-								@Override
-								public void call() {
-									hero.attack(enemy, 1.5f, 0, Char.INFINITE_ACCURACY);
-									Invisibility.dispel();
-									hero.next();
-									tracker.detach();
-									Buff.affect(hero, MonkEnergy.class).abilityUsed(Flurry.this);
-									if (hero.buff(FlurryEmpowerTracker.class) != null){
-										hero.buff(FlurryEmpowerTracker.class).detach();
-									}
-									Buff.affect(hero, FlurryCooldownTracker.class, 0f);
-								}
-							});
-						} else {
-							Invisibility.dispel();
-							hero.next();
-							tracker.detach();
-							Buff.affect(hero, MonkEnergy.class).abilityUsed(Flurry.this);
-							if (hero.buff(FlurryEmpowerTracker.class) != null){
-								hero.buff(FlurryEmpowerTracker.class).detach();
-							}
-							Buff.affect(hero, FlurryCooldownTracker.class, 0f);
-						}
-					}
-				});
+				Callback finish = new Callback() {
+                    public void call() {
+                        Invisibility.dispel(hero);
+                        hero.next();
+                        tracker.detach();
+                        Buff.affect(hero, MonkEnergy.class).abilityUsed(Flurry.this);
+                        FlurryEmpowerTracker empower=hero.buff(FlurryEmpowerTracker.class);
+                        if (empower!=null) empower.detach();
+                        Buff.affect(hero,FlurryCooldownTracker.class,0f);
+                    }
+                };
+                Callback strike = new Callback() {
+                    public void call() {
+                        if (Dungeon.coop==null) AttackIndicator.target(enemy);
+                        hero.attack(enemy,1.5f,0,Char.INFINITE_ACCURACY);
+                        if (!enemy.isAlive()) { finish.call(); return; }
+                        Callback second=() -> {
+                            hero.attack(enemy,1.5f,0,Char.INFINITE_ACCURACY);
+                            finish.call();
+                        };
+                        if (Dungeon.coop==null) hero.sprite.attack(enemy.pos,second); else second.call();
+                    }
+                };
+                if (Dungeon.coop==null) hero.sprite.attack(enemy.pos,strike); else strike.call();
 			}
 		}
 
@@ -482,7 +475,7 @@ public class MonkEnergy extends Buff implements ActionIndicator.Action {
 					range += 4;
 				}
 
-				if (Dungeon.hero.rooted){
+				if (hero.rooted){
 					PixelScene.shake( 1, 1f );
 					GLog.w(Messages.get(MeleeWeapon.class, "ability_target_range"));
 					return;
@@ -508,8 +501,7 @@ public class MonkEnergy extends Buff implements ActionIndicator.Action {
 
 				hero.busy();
 				Sample.INSTANCE.play(Assets.Sounds.MISS);
-				hero.sprite.emitter().start(Speck.factory(Speck.JET), 0.01f, Math.round(4 + 2*Dungeon.level.trueDistance(hero.pos, target)));
-				hero.sprite.jump(hero.pos, target, 0, 0.1f, new Callback() {
+				Callback land = new Callback() {
 					@Override
 					public void call() {
 						if (Dungeon.level.map[hero.pos] == Terrain.OPEN_DOOR) {
@@ -519,13 +511,29 @@ public class MonkEnergy extends Buff implements ActionIndicator.Action {
 						Dungeon.level.occupyCell(hero);
 						hero.next();
 					}
-				});
+				};
+                if (Dungeon.coop==null) {
+                    hero.sprite.emitter().start(Speck.factory(Speck.JET),0.01f,Math.round(4+2*Dungeon.level.trueDistance(hero.pos,target)));
+                    hero.sprite.jump(hero.pos,target,0,0.1f,land);
+                } else land.call();
 
 				Buff.affect(hero, MonkEnergy.class).abilityUsed(this);
 			}
 		}
 
 		public static class DragonKick extends MonkAbility {
+            public static boolean safeLandings(Hero hero, Char foe, boolean empowered) {
+                for (Char ch : Actor.chars()) {
+                    if (ch!=foe && !(empowered && ch.alignment==Char.Alignment.ENEMY && Dungeon.level.adjacent(ch.pos,hero.pos))) continue;
+                    if (ch.rooted || Char.hasProp(ch,Char.Property.IMMOVABLE)) continue;
+                    Ballistica aim=new Ballistica(hero.pos,ch.pos,Ballistica.STOP_TARGET);
+                    Ballistica beyond=new Ballistica(aim.collisionPos,aim.path.get(aim.path.size()-1),Ballistica.PROJECTILE);
+                    int distance=Math.min(beyond.dist,Char.hasProp(ch,Char.Property.BOSS) ? 3 : 6);
+                    for (int i=1;i<=distance;i++) if (!com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(beyond.path.get(i))) return false;
+                }
+                return true;
+            }
+
 
 			@Override
 			public int energyCost() {
@@ -555,7 +563,7 @@ public class MonkEnergy extends Buff implements ActionIndicator.Action {
 				}
 
 				Char enemy = Actor.findChar(target);
-				if (enemy == null || enemy == hero || hero.isCharmedBy(enemy) || !Dungeon.level.heroFOV[target]) {
+				if (enemy == null || enemy == hero || hero.isCharmedBy(enemy) || !(Dungeon.coop == null ? Dungeon.level.heroFOV[target] : Dungeon.coop.knowledge(hero).visible(target))) {
 					GLog.w(Messages.get(MeleeWeapon.class, "ability_no_target"));
 					return;
 				}
@@ -567,10 +575,10 @@ public class MonkEnergy extends Buff implements ActionIndicator.Action {
 					return;
 				}
 
-				hero.sprite.attack(enemy.pos, new Callback() {
+				Callback kick = new Callback() {
 					@Override
 					public void call() {
-						AttackIndicator.target(enemy);
+						if (Dungeon.coop==null) AttackIndicator.target(enemy);
 						boolean empowered = Buff.affect(hero, MonkEnergy.class).abilitiesEmpowered(hero);
 
 						int oldPos = enemy.pos;
@@ -590,7 +598,7 @@ public class MonkEnergy extends Buff implements ActionIndicator.Action {
 								Buff.affect(enemy, Paralysis.class, Math.min( 6, trajectory.dist));
 							}
 						}
-						Invisibility.dispel();
+						Invisibility.dispel(hero);
 						hero.spendAndNext(hero.attackDelay());
 						tracker.detach();
 						Buff.affect(hero, MonkEnergy.class).abilityUsed(DragonKick.this);
@@ -614,7 +622,8 @@ public class MonkEnergy extends Buff implements ActionIndicator.Action {
 							}
 						}
 					}
-				});
+				};
+                if (Dungeon.coop==null) hero.sprite.attack(enemy.pos,kick); else kick.call();
 			}
 		}
 
@@ -628,8 +637,7 @@ public class MonkEnergy extends Buff implements ActionIndicator.Action {
 			@Override
 			public void doAbility(Hero hero, Integer target) {
 
-				hero.sprite.operate(hero.pos);
-				GameScene.flash(0x88000000, false);
+				if (Dungeon.coop==null) { hero.sprite.operate(hero.pos); GameScene.flash(0x88000000,false); }
 				Sample.INSTANCE.play(Assets.Sounds.SCAN);
 
 				for (Buff b : hero.buffs()){
@@ -652,7 +660,10 @@ public class MonkEnergy extends Buff implements ActionIndicator.Action {
 					Buff.affect(hero, MeditateResistance.class, hero.cooldown());
 				}
 
-				Actor.addDelayed(new Actor() {
+				if (Dungeon.coop!=null) {
+                    MeditationRecharge pending=Buff.affect(hero,MeditationRecharge.class);
+                    pending.postpone(hero.cooldown()-1);
+                } else Actor.addDelayed(new Actor() {
 
 					{
 						actPriority = VFX_PRIO;
@@ -672,7 +683,18 @@ public class MonkEnergy extends Buff implements ActionIndicator.Action {
 				Buff.affect(hero, MonkEnergy.class).abilityUsed(this);
 			}
 
-			public static class MeditateResistance extends FlavourBuff{
+			public static class MeditationRecharge extends Buff {
+                { actPriority=VFX_PRIO; }
+                @Override public boolean act() {
+                    Buff.affect(target,Recharging.class,8f);
+                    Buff.affect(target,ArtifactRecharge.class).extend(8f).ignoreHornOfPlenty=false;
+                    detach();
+                    return true;
+                }
+                public void postpone(float time) { super.postpone(time); }
+            }
+
+            public static class MeditateResistance extends FlavourBuff{
 				{
 					actPriority = HERO_PRIO+1; //ends just before the hero acts
 				}

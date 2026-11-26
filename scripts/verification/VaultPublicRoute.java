@@ -31,7 +31,7 @@ public final class VaultPublicRoute {
         int allyDoor = -1;
         int previousPos = -1, recentlyExited = -1, regroupSteps;
         int walkedDoor=-1, crossingDoor=-1, crossingTurns;
-        boolean doorwayStrategy() { return regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover") || regroup.equals("trail") || regroup.equals("handoff"); }
+        boolean doorwayStrategy() { return regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover") || regroup.equals("trail") || regroup.equals("safeexit") || regroup.equals("handoff"); }
         private boolean visibleDoor(PublicDungeon v, int cell) {
             if (cell<0 || !v.visible(cell)) return false;
             int tile=v.terrain(cell);
@@ -135,7 +135,7 @@ public final class VaultPublicRoute {
                 return new Input("REVIVE",v.ally,0);
             }
             // Remember a threatened exit only after this seat has already crossed another observed door.
-            if (team && escortFollower && regroup.equals("handoff")) {
+            if (team && escortFollower && (regroup.equals("handoff") || regroup.equals("safeexit"))) {
                 if (visibleDoor(v,v.pos)) walkedDoor=v.pos;
                 if (v.hp*3<v.maxHp && !v.monsters.isEmpty() && walkedDoor>=0 && v.ally!=walkedDoor
                         && visibleDoor(v,v.ally) && adjacent(v.pos,v.ally,v.width)) {
@@ -172,7 +172,7 @@ public final class VaultPublicRoute {
                 returning=true;
                 meetingCell=lastAlly;
             }
-            boolean protectExit = (regroup.equals("exitcover") || trail) && escortFollower && v.hp*3<v.maxHp;
+            boolean protectExit = (regroup.equals("exitcover") || regroup.equals("safeexit") || trail) && escortFollower && v.hp*3<v.maxHp;
             if ((regroup.equals("followdoor") || protectExit) && escortFollower && team) {
                 // Follow a door actually seen under the ally. Give the ally a chance to clear it.
                 if (visibleDoor(v,v.ally) && v.hp*3<v.maxHp) allyDoor=v.ally;
@@ -304,6 +304,18 @@ public final class VaultPublicRoute {
             for (int attempts=0;attempts<budget && !game.defeated() && !game.stopped();attempts++) {
                 int seat=game.activeSeat();
                 PublicDungeon v=view(room,replica[seat],seat);
+                String savePath=System.getProperty("vault.guide.checkpoint");
+                if (savePath!=null && v.hp>0 && v.ally>=0 && v.monsters.isEmpty()) {
+                    PublicDungeon partner=view(room,replica[1-seat],1-seat);
+                    if (partner.hp>0 && partner.monsters.isEmpty()) {
+                        // Record an observer-only save; neither guide receives the partner image.
+                        java.nio.file.Path file=java.nio.file.Paths.get(savePath);
+                        try (java.io.OutputStream out=java.nio.file.Files.newOutputStream(file)) {
+                            com.watabou.utils.Bundle.write(game.checkpoint(),out);
+                        }
+                        System.out.printf("SAFE_STATE\t%d\t%d\t%s\t%s%n",applied,seat,v.source.checksum,partner.source.checksum);
+                    }
+                }
                 int escapeThreshold=Integer.getInteger("vault.guide.escapeAt",0);
                 String score=v.source.rows.get("vaultscore");
                 if (escapeThreshold>0 && score!=null && Integer.parseInt(score)>=escapeThreshold && Integer.parseInt(score)<500) {

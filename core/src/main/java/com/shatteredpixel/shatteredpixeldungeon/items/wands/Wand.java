@@ -499,7 +499,7 @@ public abstract class Wand extends Item {
 		wandUsed(curUser);
 	}
 
-	protected void wandUsed(Hero caster) {
+	public void wandUsed(Hero caster) {
 		if (!isIdentified()) {
 			float uses = Math.min( availableUsesToID, Talent.itemIDSpeedFactor(caster, this) );
 			availableUsesToID -= uses;

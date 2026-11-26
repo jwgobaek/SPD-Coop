@@ -134,7 +134,7 @@ public class SpiritForm extends ClericSpell {
 		public void setEffect(Bundlable effect){
 			this.effect = effect;
 			if (effect instanceof RingOfMight){
-				((Ring) effect).level(ringLevel());
+				((Ring) effect).level(Dungeon.coop!=null && target instanceof Hero ? ((Hero)target).pointsInTalent(Talent.SPIRIT_FORM) : ringLevel());
 				Dungeon.hero.updateHT( false );
 			}
 		}
@@ -149,7 +149,7 @@ public class SpiritForm extends ClericSpell {
 
 		public Ring ring(){
 			if (effect instanceof Ring){
-				((Ring) effect).level(ringLevel());
+				((Ring) effect).level(Dungeon.coop!=null && target instanceof Hero ? ((Hero)target).pointsInTalent(Talent.SPIRIT_FORM) : ringLevel());
 				return (Ring) effect;
 			}
 			return null;

@@ -205,6 +205,10 @@ final class SeatProjection {
             if (hero.subClass == com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass.MONK) {
                 com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MonkEnergy energy = hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MonkEnergy.class);
                 rows.put("monkenergy",Float.toString(energy==null ? 0 : energy.energy));
+                if (energy!=null && energy.cooldown==0) {
+                    for (com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MonkEnergy.MonkAbility ability : com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MonkEnergy.MonkAbility.abilities)
+                        if (ability.usable(energy)) rows.put(ability.seatAction().substring(5).toLowerCase(java.util.Locale.ROOT),"1");
+                }
                 if (energy!=null && energy.cooldown==0 && com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MonkEnergy.MonkAbility.abilities[1].usable(energy))
                     rows.put("monkfocus","1");
             }
@@ -393,6 +397,11 @@ final class SeatProjection {
                 String old = current.rows.get(key);
                 if (old != null && old.startsWith(attacked.pos+",")) witnessedDeath = key;
             }
+            if (hero.armorAbility instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.Trinity) {
+                com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.Trinity trinity=(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.Trinity)hero.armorAbility;
+                for (Talent form : new Talent[]{Talent.BODY_FORM,Talent.MIND_FORM,Talent.SPIRIT_FORM})
+                    if (trinity.hasForm(form)) rows.put("trinity"+form.ordinal(),"1");
+            }
             int selection=0;
             for (Item item : hero.belongings) {
                 selection++;
@@ -405,9 +414,34 @@ final class SeatProjection {
                         rows.put("cloaked"+ids.get(item), "1");
                 }
                 if (game.ownership.owner(item)==game.player(seat)) {
+                    if (hero.hasTalent(Talent.HOLY_INTUITION) && com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyIntuition.INSTANCE.usableOnItem(item))
+                        rows.put("intuition"+ids.get(item),Integer.toString(selection));
+                    if (hero.hasTalent(Talent.MIND_FORM) && com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.Trinity.seatReference(item,Talent.MIND_FORM))
+                        rows.put("minditem"+ids.get(item),Integer.toString(selection));
+                    if (hero.hasTalent(Talent.SPIRIT_FORM) && com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.Trinity.seatReference(item,Talent.SPIRIT_FORM))
+                        rows.put("spirititem"+ids.get(item),Integer.toString(selection));
+                    com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.RecallInscription.UsedItemTracker imprint=hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.RecallInscription.UsedItemTracker.class);
+                    if (imprint!=null && imprint.item==com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify.class && CoopSession.equipmentForScroll(item) && !item.isIdentified())
+                        rows.put("recallitem"+ids.get(item),Integer.toString(selection));
+                    if (hero.hasTalent(Talent.BODY_FORM) && com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.Trinity.seatBodyEffect(item)!=null)
+                        rows.put("bodyitem"+ids.get(item),Integer.toString(selection));
                     if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome && hero.heroClass==HeroClass.CLERIC) {
                         com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome tome=(com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome)item;
                         if (tome.actions(hero).contains("CAST")) rows.put("spells"+ids.get(item),"1");
+                    }
+                    if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor) {
+                        com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor armor=(com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor)item;
+                        if (armor.checkSeal()!=null) rows.put("detachseal"+ids.get(item),"1");
+                        else if (armor.cursedKnown) {
+                            rows.put("sealarmor"+ids.get(item),Integer.toString(selection));
+                            if (armor.cursed) rows.put("sealcursetarget"+ids.get(item),"1");
+                            if (armor.glyph!=null) rows.put("armorglyph"+ids.get(item),armor.glyph.getClass().getName().replace("com.shatteredpixel.shatteredpixeldungeon.","").toLowerCase(java.util.Locale.ROOT));
+                        }
+                    }
+                    if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal && hero.belongings.backpack.contains(item)) {
+                        com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor.Glyph glyph=((com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal)item).getGlyph();
+                        rows.put("affixseal"+ids.get(item),glyph==null ? "none" : glyph.getClass().getName().replace("com.shatteredpixel.shatteredpixeldungeon.","").toLowerCase(java.util.Locale.ROOT));
+                        if (glyph!=null && glyph.curse()) rows.put("sealcursed"+ids.get(item),"1");
                     }
                     if (hero.heroClass==HeroClass.DUELIST && item==hero.belongings.weapon()
                             && CoopSession.supportedWeaponAbility(item)) {

@@ -49,7 +49,7 @@ import com.watabou.utils.Random;
 
 import java.util.ArrayList;
 
-public class WandOfLightning extends DamageWand {
+public class WandOfLightning extends TargetedDamageWand {
 
 	{
 		image = ItemSpriteSheet.WAND_LIGHTNING;
@@ -68,10 +68,11 @@ public class WandOfLightning extends DamageWand {
 	}
 	
 	@Override
-	public void onZap(Ballistica bolt) {
+	public void onZap(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero caster, Ballistica bolt) {
+        if (Dungeon.coop != null) trace(caster,bolt,false);
 
 		for (Char ch : affected.toArray(new Char[0])){
-			if (ch != curUser && ch.alignment == curUser.alignment && ch.pos != bolt.collisionPos){
+			if (ch != caster && ch.alignment == caster.alignment && ch.pos != bolt.collisionPos){
 				affected.remove(ch);
 			} else if (ch.buff(LightningCharge.class) != null){
 				affected.remove(ch);
@@ -84,20 +85,22 @@ public class WandOfLightning extends DamageWand {
 		if (Dungeon.level.water[bolt.collisionPos]) multiplier = 1f;
 
 		for (Char ch : affected){
-			if (ch == Dungeon.hero) PixelScene.shake( 2, 0.3f );
+			if (Dungeon.coop==null) {
+                if (ch == caster) PixelScene.shake(2,0.3f);
 			ch.sprite.centerEmitter().burst( SparkParticle.FACTORY, 3 );
 			ch.sprite.flash();
+            }
 
-			wandProc(ch, chargesPerCast());
-			if (ch == curUser && ch.isAlive()) {
-				ch.damage(Math.round(damageRoll() * multiplier * 0.5f), this);
-				if (!curUser.isAlive()) {
+			wandProc(caster, ch, buffedLvl(), chargesPerCast());
+			if (ch == caster && ch.isAlive()) {
+				ch.damage(Math.round(damageRoll(caster,buffedLvl()) * multiplier * 0.5f), this);
+				if (Dungeon.coop==null && !caster.isAlive()) {
 					Badges.validateDeathFromFriendlyMagic();
 					Dungeon.fail( this );
 					GLog.n(Messages.get(this, "ondeath"));
 				}
 			} else {
-				ch.damage(Math.round(damageRoll() * multiplier), this);
+				ch.damage(Math.round(damageRoll(caster,buffedLvl()) * multiplier), this);
 			}
 		}
 	}
@@ -114,8 +117,10 @@ public class WandOfLightning extends DamageWand {
 			float powerMulti = Math.max(1f, procChance);
 
 			FlavourBuff.prolong(attacker, LightningCharge.class, powerMulti*LightningCharge.DURATION);
-			attacker.sprite.centerEmitter().burst( SparkParticle.FACTORY, 10 );
-			attacker.sprite.flash();
+			if (Dungeon.coop==null) {
+                attacker.sprite.centerEmitter().burst(SparkParticle.FACTORY,10);
+                attacker.sprite.flash();
+            }
 			Sample.INSTANCE.play( Assets.Sounds.LIGHTNING );
 
 		}
@@ -140,11 +145,11 @@ public class WandOfLightning extends DamageWand {
 		}
 	}
 
-	private void arc( Char ch ) {
+	private void arc(Char caster, Char ch, boolean visual) {
 
 		int dist = Dungeon.level.water[ch.pos] ? 2 : 1;
 
-		if (curUser.buff(LightningCharge.class) != null){
+		if (caster.buff(LightningCharge.class) != null){
 			dist++;
 		}
 
@@ -153,7 +158,7 @@ public class WandOfLightning extends DamageWand {
 		for (int i = 0; i < PathFinder.distance.length; i++) {
 			if (PathFinder.distance[i] < Integer.MAX_VALUE){
 				Char n = Actor.findChar( i );
-				if (n == Dungeon.hero && PathFinder.distance[i] > 1)
+				if (n == caster && PathFinder.distance[i] > 1)
 					//the hero is only zapped if they are adjacent
 					continue;
 				else if (n != null && !affected.contains( n )) {
@@ -164,13 +169,12 @@ public class WandOfLightning extends DamageWand {
 		
 		affected.addAll(hitThisArc);
 		for (Char hit : hitThisArc){
-			arcs.add(new Lightning.Arc(ch.sprite.center(), hit.sprite.center()));
-			arc(hit);
+			if (visual) arcs.add(new Lightning.Arc(ch.sprite.center(), hit.sprite.center()));
+			arc(caster,hit,visual);
 		}
 	}
 	
-	@Override
-	public void fx(Ballistica bolt, Callback callback) {
+	private void trace(Char caster, Ballistica bolt, boolean visual) {
 
 		affected.clear();
 		arcs.clear();
@@ -184,14 +188,19 @@ public class WandOfLightning extends DamageWand {
 			}
 
 			affected.add( ch );
-			arcs.add( new Lightning.Arc(curUser.sprite.center(), ch.sprite.center()));
-			arc(ch);
-		} else {
-			arcs.add( new Lightning.Arc(curUser.sprite.center(), DungeonTilemap.raisedTileCenterToWorld(bolt.collisionPos)));
+			if (visual) arcs.add(new Lightning.Arc(caster.sprite.center(),ch.sprite.center()));
+			arc(caster,ch,visual);
+		} else if (visual) {
+			arcs.add( new Lightning.Arc(caster.sprite.center(), DungeonTilemap.raisedTileCenterToWorld(bolt.collisionPos)));
 			CellEmitter.center( cell ).burst( SparkParticle.FACTORY, 3 );
 		}
 
-		//don't want to wait for the effect before processing damage.
+    }
+
+    @Override
+    public void fx(Ballistica bolt, Callback callback) {
+        trace(curUser,bolt,true);
+        //don't want to wait for the effect before processing damage.
 		curUser.sprite.parent.addToFront( new Lightning( arcs, null ) );
 		Sample.INSTANCE.play( Assets.Sounds.LIGHTNING );
 		callback.call();

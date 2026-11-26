@@ -28,6 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbility;
@@ -106,7 +107,91 @@ public class Trinity extends ArmorAbility {
 		return super.targetedPos(user, dst);
 	}
 
-	public class WndUseTrinity extends WndTitledMessage {
+    // An identified item in this seat's belongings proves the discovery without sharing its partner's catalogue.
+    public static Bundlable seatBodyEffect(Item item) {
+        if (!item.isIdentified()) return null;
+        Bundlable effect=item instanceof MeleeWeapon ? ((MeleeWeapon)item).enchantment :
+                item instanceof Armor ? ((Armor)item).glyph : null;
+        if (!(effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling)
+                && !(effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Swiftness)) return null;
+        return Statistics.itemTypesDiscovered.contains(effect.getClass()) ? effect : null;
+    }
+
+    public boolean selectBody(Hero hero, HolyTome tome, Item reference) {
+        Bundlable candidate=seatBodyEffect(reference);
+        if (candidate==null || !tome.canCast(hero,BodyForm.INSTANCE)) return false;
+        bodyForm=(Bundlable) Reflection.newInstance(candidate.getClass());
+        BodyForm.INSTANCE.onSpellCast(tome,hero);
+        return true;
+    }
+
+    public static boolean seatReference(Item item, Talent form) {
+        if (!item.isIdentified() || !Statistics.itemTypesDiscovered.contains(item.getClass())) return false;
+        return form==Talent.MIND_FORM ? item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning :
+                form==Talent.SPIRIT_FORM && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste;
+    }
+
+    public boolean selectReference(Hero hero,HolyTome tome,Item item,Talent form) {
+        ClericSpell spell=form==Talent.MIND_FORM ? MindForm.INSTANCE : SpiritForm.INSTANCE;
+        if (!seatReference(item,form) || !tome.canCast(hero,spell)) return false;
+        Item effect=Reflection.newInstance(item.getClass());
+        effect.identify(false);
+        if (form==Talent.MIND_FORM) mindForm=effect; else spiritForm=effect;
+        spell.onSpellCast(tome,hero);
+        return true;
+    }
+
+    public boolean hasForm(Talent form) {
+        return form==Talent.BODY_FORM ? bodyForm!=null : form==Talent.MIND_FORM ? mindForm!=null : spiritForm!=null;
+    }
+
+    public boolean useMind(Hero hero,ClassArmor armor,int cell) {
+        if (!(mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning)
+                || hero.buff(MagicImmune.class)!=null || hero.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.trinkets.WondrousResin.class)!=null) return false;
+        com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning wand=(com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning)mindForm;
+        float cost=trinityChargeUsePerEffect(hero,wand.getClass());
+        com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica shot=new com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica(hero.pos,cell,wand.collisionProperties(cell));
+        Char target=Actor.findChar(shot.collisionPos);
+        if (armor.charge<cost || shot.collisionPos==hero.pos || target!=null && target.alignment==Char.Alignment.ALLY) return false;
+        wand.level(2+hero.pointsInTalent(Talent.MIND_FORM));
+        wand.curCharges=wand.maxCharges;
+        wand.onZap(hero,shot);
+        com.watabou.utils.Random.Float(); // Native Wondrous Resin roll for an eligible owner without the trinket.
+        armor.charge-=cost;
+        armor.updateQuickslot();
+        wand.wandUsed(hero);
+        return true;
+    }
+
+    public boolean useSpirit(Hero hero,ClassArmor armor) {
+        if (!(spiritForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste) || hero.buff(MagicImmune.class)!=null) return false;
+        float cost=trinityChargeUsePerEffect(hero,spiritForm.getClass());
+        if (armor.charge<cost || hero.belongings.ring()!=null && hero.belongings.ring().getClass()==spiritForm.getClass()
+                || hero.belongings.misc()!=null && hero.belongings.misc().getClass()==spiritForm.getClass()) return false;
+        Buff.prolong(hero,SpiritForm.SpiritFormBuff.class,SpiritForm.SpiritFormBuff.DURATION).setEffect(spiritForm);
+        armor.charge-=cost;
+        armor.updateQuickslot();
+        Invisibility.dispel(hero);
+        hero.spendAndNext(1f);
+        return true;
+    }
+
+    public boolean useBody(Hero hero, ClassArmor armor) {
+        if (bodyForm==null || hero.buff(MagicImmune.class)!=null) return false;
+        float cost=trinityChargeUsePerEffect(hero,bodyForm.getClass());
+        if (armor.charge<cost) return false;
+        Weapon.Enchantment enchantment=hero.belongings.weapon() instanceof Weapon ? ((Weapon)hero.belongings.weapon()).enchantment : null;
+        if (enchantment!=null && enchantment.getClass()==bodyForm.getClass()
+                || armor.glyph!=null && armor.glyph.getClass()==bodyForm.getClass()) return false;
+        Buff.prolong(hero,BodyForm.BodyFormBuff.class,BodyForm.duration(hero)).setEffect(bodyForm);
+        armor.charge-=cost;
+        armor.updateQuickslot();
+        Invisibility.dispel(hero);
+        hero.spendAndNext(1f);
+        return true;
+    }
+
+    public class WndUseTrinity extends WndTitledMessage {
 
 		public WndUseTrinity(ClassArmor armor) {
 			super(new HeroIcon(Trinity.this),
@@ -531,7 +616,11 @@ public class Trinity extends ArmorAbility {
 	}
 
 	public static float trinityChargeUsePerEffect(Class<?> cls){
-		float chargeUse = Dungeon.hero.armorAbility.chargeUse(Dungeon.hero);
+        return trinityChargeUsePerEffect(Dungeon.hero,cls);
+    }
+
+    public static float trinityChargeUsePerEffect(Hero hero, Class<?> cls){
+        float chargeUse = hero.armorAbility.chargeUse(hero);
 		if (Weapon.Enchantment.class.isAssignableFrom(cls) || Armor.Glyph.class.isAssignableFrom(cls)) {
 			for (Class ench : Weapon.Enchantment.rare) {
 				if (ench.equals(cls)) {

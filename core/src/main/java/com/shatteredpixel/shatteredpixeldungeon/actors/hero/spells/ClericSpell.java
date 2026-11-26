@@ -78,7 +78,7 @@ public abstract class ClericSpell {
 		if (hero.hasTalent(Talent.SATIATED_SPELLS) && hero.buff(Talent.SatiatedSpellsTracker.class) != null){
 			int amount = 1 + 2*hero.pointsInTalent(Talent.SATIATED_SPELLS);
 			Buff.affect(hero, Barrier.class).setShield(amount);
-			Char ally = PowerOfMany.getPoweredAlly();
+			Char ally = PowerOfMany.getPoweredAlly(hero);
 			if (ally != null && ally.buff(LifeLinkSpell.LifeLinkSpellBuff.class) != null){
 				Buff.affect(ally, Barrier.class).setShield(amount);
 			}

@@ -70,12 +70,16 @@ public class BrokenSeal extends Item {
 	private Armor.Glyph glyph;
 
 	public boolean canTransferGlyph(){
+		return canTransferGlyph(Dungeon.hero);
+	}
+
+	public boolean canTransferGlyph(Hero owner){
 		if (glyph == null){
 			return false;
 		}
-		if (Dungeon.hero.pointsInTalent(Talent.RUNIC_TRANSFERENCE) == 2){
+		if (owner.pointsInTalent(Talent.RUNIC_TRANSFERENCE) == 2){
 			return true;
-		} else if (Dungeon.hero.pointsInTalent(Talent.RUNIC_TRANSFERENCE) == 1
+		} else if (owner.pointsInTalent(Talent.RUNIC_TRANSFERENCE) == 1
 			&& (Arrays.asList(Armor.Glyph.common).contains(glyph.getClass())
 				|| Arrays.asList(Armor.Glyph.uncommon).contains(glyph.getClass()))){
 			return true;

@@ -20,6 +20,7 @@
  */
 
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
@@ -50,13 +51,13 @@ public class AscendedForm extends ArmorAbility {
 	protected void activate(ClassArmor armor, Hero hero, Integer target) {
 
 		Buff.affect(hero, AscendBuff.class).reset();
-		hero.sprite.operate(hero.pos);
+		if (Dungeon.coop == null) hero.sprite.operate(hero.pos);
 		Sample.INSTANCE.play(Assets.Sounds.CHARGEUP);
-		new Flare(6, 48).color(0xFFFF00, true).show(hero.sprite, 2f);
+		if (Dungeon.coop == null) new Flare(6, 48).color(0xFFFF00, true).show(hero.sprite, 2f);
 
 		armor.charge -= chargeUse(hero);
 		armor.updateQuickslot();
-		Invisibility.dispel();
+		Invisibility.dispel(hero);
 		hero.spendAndNext(Actor.TICK);
 
 	}
@@ -121,8 +122,10 @@ public class AscendedForm extends ArmorAbility {
 		public boolean act() {
 			left--;
 			if (left <= 0){
+                Char caster=target;
 				detach();
 				for (Char ch : Actor.chars()){
+					if (Dungeon.coop != null && ch != caster) continue;
 					if (ch.buff(DivineIntervention.DivineShield.class) != null){
 						ch.buff(DivineIntervention.DivineShield.class).detach();
 					}

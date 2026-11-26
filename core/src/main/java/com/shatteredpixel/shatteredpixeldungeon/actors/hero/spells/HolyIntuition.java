@@ -45,7 +45,7 @@ public class HolyIntuition extends InventoryClericSpell {
 	}
 
 	@Override
-	protected boolean usableOnItem(Item item) {
+	public boolean usableOnItem(Item item) {
 		return (item instanceof EquipableItem || item instanceof Wand) && !item.isIdentified() && !item.cursedKnown;
 	}
 
@@ -60,7 +60,7 @@ public class HolyIntuition extends InventoryClericSpell {
 	}
 
 	@Override
-	protected void onItemSelected(HolyTome tome, Hero hero, Item item) {
+	public void onItemSelected(HolyTome tome, Hero hero, Item item) {
 		if (item == null){
 			return;
 		}
@@ -75,8 +75,10 @@ public class HolyIntuition extends InventoryClericSpell {
 
 		hero.spend( 1f );
 		hero.busy();
-		hero.sprite.operate(hero.pos);
-		hero.sprite.parent.add( new Identification( hero.sprite.center().offset( 0, -16 ) ) );
+		if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop==null) {
+            hero.sprite.operate(hero.pos);
+            hero.sprite.parent.add(new Identification(hero.sprite.center().offset(0,-16)));
+        } else hero.next();
 
 		Sample.INSTANCE.play( Assets.Sounds.READ );
 		onSpellCast(tome, hero);

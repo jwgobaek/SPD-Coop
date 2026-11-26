@@ -79,7 +79,7 @@ public class Feint extends ArmorAbility {
 	}
 
 	@Override
-	protected void activate(ClassArmor armor, Hero hero, Integer target) {
+	public void activate(ClassArmor armor, Hero hero, Integer target) {
 		if (target == null){
 			return;
 		}
@@ -89,7 +89,7 @@ public class Feint extends ArmorAbility {
 			return;
 		}
 
-		if (Dungeon.hero.rooted){
+		if (hero.rooted){
 			PixelScene.shake( 1, 1f );
 			GLog.w(Messages.get(this, "bad_location"));
 			return;
@@ -102,7 +102,7 @@ public class Feint extends ArmorAbility {
 
 		hero.busy();
 		Sample.INSTANCE.play(Assets.Sounds.MISS);
-		hero.sprite.jump(hero.pos, target, 0, 0.1f, new Callback() {
+		Callback landing = new Callback() {
 			@Override
 			public void call() {
 				if (Dungeon.level.map[hero.pos] == Terrain.OPEN_DOOR) {
@@ -110,10 +110,11 @@ public class Feint extends ArmorAbility {
 				}
 				hero.pos = target;
 				Dungeon.level.occupyCell(hero);
-				Invisibility.dispel();
+				Invisibility.dispel(hero);
 				hero.next();
 			}
-		});
+		};
+		if (Dungeon.coop == null) hero.sprite.jump(hero.pos, target, 0, 0.1f, landing);
 		hero.spend(1f);
 
 		AfterImage image = new AfterImage();
@@ -121,6 +122,7 @@ public class Feint extends ArmorAbility {
 		GameScene.add(image);
 		image.syncToHero(hero);
 
+		if (Dungeon.coop == null) {
 		int imageAttackPos;
 		Char enemyTarget = TargetHealthIndicator.instance.target();
 		if (enemyTarget != null && enemyTarget.alignment == Char.Alignment.ENEMY){
@@ -141,6 +143,8 @@ public class Feint extends ArmorAbility {
 			}
 		});
 
+		}
+
 		for (Mob m : Dungeon.level.mobs.toArray( new Mob[0] )){
 			if ((m.isTargeting(hero) && m.state == m.HUNTING) ||
 					(m.alignment == Char.Alignment.ENEMY && m.state != m.PASSIVE && m.state != m.SLEEPING && Dungeon.level.distance(m.pos, image.pos) <= 2)){
@@ -148,6 +152,7 @@ public class Feint extends ArmorAbility {
 			}
 		}
 
+		if (Dungeon.coop != null) landing.call();
 		armor.charge -= chargeUse(hero);
 		Item.updateQuickslot();
 	}
@@ -196,7 +201,26 @@ public class Feint extends ArmorAbility {
 			return true;
 		}
 
+		private int ownerId;
+
+		public Hero owner(){
+			if (Dungeon.coop==null) return Dungeon.hero;
+			for (int seat=0;seat<2;seat++) if (Dungeon.coop.hero(seat).id()==ownerId) return Dungeon.coop.hero(seat);
+			throw new IllegalStateException("Missing afterimage owner");
+		}
+
+		@Override public void storeInBundle(com.watabou.utils.Bundle b) {
+			super.storeInBundle(b);
+			if (Dungeon.coop!=null) b.put("summoner",ownerId);
+		}
+
+		@Override public void restoreFromBundle(com.watabou.utils.Bundle b) {
+			super.restoreFromBundle(b);
+			ownerId=b.getInt("summoner");
+		}
+
 		public void syncToHero(Hero hero){
+			ownerId=hero.id();
 			if (cooldown() != hero.cooldown()){
 				spendConstant(hero.cooldown() - cooldown());
 			}
@@ -209,21 +233,22 @@ public class Feint extends ArmorAbility {
 
 		@Override
 		public int defenseSkill(Char enemy) {
+			Hero owner=owner();
 			if (enemy.alignment == Alignment.ENEMY) {
 				if (enemy instanceof Mob) {
 					((Mob) enemy).clearEnemy();
 				}
 				Buff.affect(enemy, FeintConfusion.class, 1);
 				if (enemy.sprite != null) enemy.sprite.showLost();
-				if (Dungeon.hero.hasTalent(Talent.FEIGNED_RETREAT)) {
-					Buff.prolong(Dungeon.hero, Haste.class, 2f * Dungeon.hero.pointsInTalent(Talent.FEIGNED_RETREAT));
+				if (owner.hasTalent(Talent.FEIGNED_RETREAT)) {
+					Buff.prolong(owner, Haste.class, 2f * owner.pointsInTalent(Talent.FEIGNED_RETREAT));
 				}
-				if (Dungeon.hero.hasTalent(Talent.EXPOSE_WEAKNESS)) {
-					Buff.prolong(enemy, Vulnerable.class, 2f * Dungeon.hero.pointsInTalent(Talent.EXPOSE_WEAKNESS));
-					Buff.prolong(enemy, Weakness.class, 2f * Dungeon.hero.pointsInTalent(Talent.EXPOSE_WEAKNESS));
+				if (owner.hasTalent(Talent.EXPOSE_WEAKNESS)) {
+					Buff.prolong(enemy, Vulnerable.class, 2f * owner.pointsInTalent(Talent.EXPOSE_WEAKNESS));
+					Buff.prolong(enemy, Weakness.class, 2f * owner.pointsInTalent(Talent.EXPOSE_WEAKNESS));
 				}
-				if (Dungeon.hero.hasTalent(Talent.COUNTER_ABILITY)) {
-					Buff.prolong(Dungeon.hero, Talent.CounterAbilityTacker.class, 3f);
+				if (owner.hasTalent(Talent.COUNTER_ABILITY)) {
+					Buff.prolong(owner, Talent.CounterAbilityTacker.class, 3f);
 				}
 			}
 			return 0;

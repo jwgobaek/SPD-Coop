@@ -63,7 +63,7 @@ public class PowerOfMany extends ArmorAbility {
 
 	@Override
 	public float chargeUse(Hero hero) {
-		if (getPoweredAlly() instanceof LightAlly){
+		if (getPoweredAlly(hero) instanceof LightAlly){
 			return 0;
 		}
 		return super.chargeUse(hero);
@@ -105,7 +105,11 @@ public class PowerOfMany extends ArmorAbility {
 	@Override
 	protected void activate(ClassArmor armor, Hero hero, Integer target) {
 
-		Char ally = getPoweredAlly();
+		empower(armor,hero,target);
+	}
+
+	public boolean empower(ClassArmor armor, Hero hero, Integer target) {
+		Char ally = getPoweredAlly(hero);
 
 		boolean allyExists = ally != null;
 
@@ -119,26 +123,27 @@ public class PowerOfMany extends ArmorAbility {
 			allyExists = true;
 		}
 
-		if (Stasis.getStasisAlly() != null){
+		if (Dungeon.coop==null && Stasis.getStasisAlly() != null){
 			allyExists = true;
 		}
 
 		if (ally instanceof LightAlly){
 			if (target == null){
-				return;
+				return false;
 			} else {
 				((LightAlly) ally).directTocell(target);
 			}
 		} else if (allyExists) {
 			GLog.w( Messages.get(this, "ally_exists"));
+			return false;
 		} else {
 			if (target == null){
-				return;
+				return false;
 			}
 
-			if (!Dungeon.level.heroFOV[target]){
+			if (!(Dungeon.coop==null ? Dungeon.level.heroFOV[target] : Dungeon.coop.knowledge(hero).visible(target))){
 				GLog.w(Messages.get(this, "no_vision"));
-				return;
+				return false;
 			}
 
 			//pre-calculate as cost becomes 0 if light ally starts to exist
@@ -146,37 +151,39 @@ public class PowerOfMany extends ArmorAbility {
 
 			Char ch = Actor.findChar(target);
 			if (ch != null){
-				if (ch.alignment != Char.Alignment.ALLY || ch == Dungeon.hero){
+				if (ch.alignment != Char.Alignment.ALLY || ch == hero || Dungeon.coop!=null && (!(ch instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkAlly || ch instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.ShadowClone.ShadowAlly) || ((DirectableAlly)ch).commander()!=hero || ch.buff(PowerBuff.class)!=null)){
 					GLog.w(Messages.get(this, "only_allies"));
-					return;
+					return false;
 				}
 			} else {
 
 				if (!Dungeon.level.passable[target] || Dungeon.level.avoid[target]){
 					GLog.w(Messages.get(ClericSpell.class, "invalid_target"));
-					return;
+					return false;
 				}
 
 				ch = new LightAlly(hero.lvl);
+				((LightAlly)ch).ownerId=hero.id();
 				ch.pos = target;
 				GameScene.add((Mob) ch);
-				ScrollOfTeleportation.appear(ch, ch.pos);
+				if (Dungeon.coop==null) ScrollOfTeleportation.appear(ch, ch.pos);
 			}
 
-			Buff.affect(ch, PowerBuff.class, 100f);
+			Buff.affect(ch, PowerBuff.class, 100f).ownerId=hero.id();
 			Buff.affect(ch, Barrier.class).setShield(25);
 
 			armor.charge -= chargeUse;
 			armor.updateQuickslot();
 
-			hero.sprite.zap(target);
+			if (Dungeon.coop==null) hero.sprite.zap(target);
 			Sample.INSTANCE.play(Assets.Sounds.CHARGEUP);
 
-			Invisibility.dispel();
+			Invisibility.dispel(hero);
 			hero.spendAndNext(Actor.TICK);
 
 		}
 
+		return true;
 	}
 
 	@Override
@@ -190,8 +197,13 @@ public class PowerOfMany extends ArmorAbility {
 	}
 
 	public static Char getPoweredAlly(){
+		return getPoweredAlly(Dungeon.hero);
+	}
+
+	public static Char getPoweredAlly(Hero hero){
+		if (hero==null) return null;
 		for (Char ch : Actor.chars()){
-			if (ch.buff(PowerBuff.class) != null){
+			if (ch.buff(PowerBuff.class) != null && (Dungeon.coop==null || ch.buff(PowerBuff.class).ownerId==hero.id())){
 				return ch;
 			}
 		}
@@ -199,7 +211,17 @@ public class PowerOfMany extends ArmorAbility {
 	}
 
 	public static class PowerBuff extends FlavourBuff {
+        public boolean belongsTo(Hero hero) { return Dungeon.coop==null || ownerId==hero.id(); }
 
+		private int ownerId;
+		@Override public void storeInBundle(Bundle b) {
+			super.storeInBundle(b);
+			if (Dungeon.coop!=null) b.put("summoner",ownerId);
+		}
+		@Override public void restoreFromBundle(Bundle b) {
+			super.restoreFromBundle(b);
+			ownerId=b.getInt("summoner");
+		}
 		public static float DURATION = 100f;
 
 		{
@@ -236,6 +258,7 @@ public class PowerOfMany extends ArmorAbility {
 		@Override
 		public void detach() {
 			super.detach();
+			if (Dungeon.coop!=null) return;
 			Dungeon.observe();
 			GameScene.updateFog();
 		}
@@ -254,6 +277,12 @@ public class PowerOfMany extends ArmorAbility {
 		}
 
 		HeroClass cls;
+		private int ownerId;
+		@Override public Hero commander() {
+			if (Dungeon.coop==null) return Dungeon.hero;
+			for (int seat=0;seat<2;seat++) if (Dungeon.coop.hero(seat).id()==ownerId) return Dungeon.coop.hero(seat);
+			throw new IllegalStateException("Missing light ally summoner");
+		}
 
 		public LightAlly(){
 			super();
@@ -274,7 +303,7 @@ public class PowerOfMany extends ArmorAbility {
 			int oldPos = pos;
 			boolean result = super.act();
 			//partially simulates how the hero switches to idle animation
-			if ((pos == target || oldPos == pos) && sprite.looping()){
+			if ((pos == target || oldPos == pos) && Dungeon.coop==null && sprite.looping()){
 				sprite.idle();
 			}
 			return result;
@@ -320,7 +349,7 @@ public class PowerOfMany extends ArmorAbility {
 			//moves 2 tiles at a time when returning to the hero
 			if (state == WANDERING
 					&& defendingPos == -1
-					&& Dungeon.level.distance(pos, Dungeon.hero.pos) > 1){
+					&& Dungeon.level.distance(pos, commander().pos) > 1){
 				speed *= 2;
 			}
 
@@ -341,6 +370,7 @@ public class PowerOfMany extends ArmorAbility {
 		public void storeInBundle(Bundle bundle) {
 			super.storeInBundle(bundle);
 			bundle.put(HERO_CLS, cls);
+			if (Dungeon.coop!=null) bundle.put("summoner",ownerId);
 			bundle.put(DEF_SKILL, defenseSkill);
 		}
 
@@ -348,6 +378,7 @@ public class PowerOfMany extends ArmorAbility {
 		public void restoreFromBundle(Bundle bundle) {
 			super.restoreFromBundle(bundle);
 			cls = bundle.getEnum(HERO_CLS, HeroClass.class);
+			ownerId=bundle.getInt("summoner");
 			defenseSkill = bundle.getInt(DEF_SKILL);
 		}
 	}

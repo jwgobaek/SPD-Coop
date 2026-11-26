@@ -217,7 +217,7 @@ public final class CoopFloors {
         }
         java.util.ArrayList<DirectableAlly> companions=new java.util.ArrayList<>();
         for (Mob mob : new java.util.ArrayList<>(old.mobs)) {
-            if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkAlly || mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.ShadowClone.ShadowAlly) {
+            if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.PowerOfMany.LightAlly || mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkAlly || mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.ShadowClone.ShadowAlly) {
                 ((DirectableAlly)mob).followHero();
                 old.mobs.remove(mob);
                 companions.add((DirectableAlly)mob);
@@ -231,8 +231,9 @@ public final class CoopFloors {
         leaving.put("branch",Dungeon.branch);
         leaving.put("depth",Dungeon.depth);
         leaving.put("level",old);
+        if (game.sealIdentities) leaving.put("seal_parts",true);
         if (game.wandIdentities) leaving.put("wand_parts",true);
-        leaving.put("items",game.itemState(CoopSession.floorItems(old, game.wandIdentities)));
+        leaving.put("items",game.itemState(CoopSession.floorItems(old, game.wandIdentities, game.sealIdentities)));
         for(int i=0;i<2;i++) leaving.put("sight"+i,game.knowledge(game.hero(i)).save());
         validateFloor(leaving, Dungeon.depth, Dungeon.branch);
         int from=floorKey(Dungeon.depth,Dungeon.branch);
@@ -252,7 +253,7 @@ public final class CoopFloors {
         Dungeon.level=next;
         PathFinder.setMapSize(next.width(),next.height());
         if (parked!=null) {
-            game.restoreItems(CoopSession.floorItems(next, parked.getBoolean("wand_parts")),parked.getBundle("items"),game.ownership.sequence(),new HashSet<>());
+            game.restoreItems(CoopSession.floorItems(next, parked.getBoolean("wand_parts"), parked.getBoolean("seal_parts")),parked.getBundle("items"),game.ownership.sequence(),new HashSet<>());
             for(int i=0;i<2;i++) game.knowledge(game.hero(i)).load(parked.getBundle("sight"+i));
         }
         LevelTransition arrival=next.getTransition(transition.destType);
@@ -514,7 +515,12 @@ public final class CoopFloors {
             throw new IllegalArgumentException("Parked actor identity or clock");
     }
 
-    private static int inspectFloorItem(Bundle item, Bundle entries, String path, boolean parts) {
+    private static int inspectFloorItem(Bundle item, Bundle entries, String path, boolean parts, boolean seals) {
+        if (seals && !item.getBundle("seal").isNull()) {
+            inspectItem(item,entries.getBundle(path));
+            inspectItem(item.getBundle("seal"),entries.getBundle(path+"_seal"));
+            return 2;
+        }
         inspectItem(item,entries.getBundle(path));
         if (parts && item.getString("__className").equals(com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff.class.getName()) && item.contains("wand")) {
             inspectItem(item.getBundle("wand"),entries.getBundle(path+"_wand"));
@@ -685,28 +691,30 @@ public final class CoopFloors {
         Bundle entries=parked.getBundle("items");
         int count=0;
         boolean parts=parked.getBoolean("wand_parts");
+        boolean seals=parked.getBoolean("seal_parts");
+        if (seals && (!game.sealIdentities || !parts)) throw new IllegalArgumentException("Unexpected floor seal records");
         if (parts && !game.wandIdentities) throw new IllegalArgumentException("Unexpected floor wand records");
         if (parked.getInt("depth")==10) {
             inspectOffFloorBoss(floor,actors,nextId);
             int index=0;
-            for (Bundle item:floor.getBundleArray("storeditems")) count+=inspectFloorItem(item,entries,"encounter"+index++,parts);
+            for (Bundle item:floor.getBundleArray("storeditems")) count+=inspectFloorItem(item,entries,"encounter"+index++,parts,seals);
         }
         for(Bundle heap:floor.getBundleArray("heaps")) {
             int pos=heap.getInt("pos"), index=0;
             if(pos<0 || pos>=floor.getInt("width")*floor.getInt("height")) throw new IllegalArgumentException("Parked heap cell");
             for(Bundle item:heap.getBundleArray("items")) {
-                count+=inspectFloorItem(item,entries,"f"+pos+"_"+index++,parts);
+                count+=inspectFloorItem(item,entries,"f"+pos+"_"+index++,parts,seals);
             }
         }
         for(Bundle mob:floor.getBundleArray("mobs")) {
             if (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultMirror.class.getName().equals(mob.getString("__className")) && mob.contains("reward")) {
-                count+=inspectFloorItem(mob.getBundle("reward"),entries,"mirror"+mob.getInt("id"),parts);
+                count+=inspectFloorItem(mob.getBundle("reward"),entries,"mirror"+mob.getInt("id"),parts,seals);
             }
             for (Bundle buff:mob.getBundleArray("buffs")) {
                 if (!buff.getString("__className").equals(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PinCushion.class.getName())) continue;
                 int index=0;
                 for (Bundle item:buff.getBundleArray("items")) {
-                    count+=inspectFloorItem(item,entries,"pin"+mob.getInt("id")+"_"+index++,parts);
+                    count+=inspectFloorItem(item,entries,"pin"+mob.getInt("id")+"_"+index++,parts,seals);
                 }
             }
             if (mob.getString("__className").equals(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.class.getName())) {
@@ -716,23 +724,23 @@ public final class CoopFloors {
                     Bundle entry=entries.getBundle(path);
                     if (index>com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper.MAX_BUYBACK_HISTORY || entry.getLong("owner")==0)
                         throw new IllegalArgumentException("Buyback history");
-                    count+=inspectFloorItem(item,entries,path,parts);
+                    count+=inspectFloorItem(item,entries,path,parts,seals);
                 }
             }
             boolean armored=mob.getString("__className").equals(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue.class.getName());
             if (armored) {
-                count+=inspectFloorItem(mob.getBundle("armor"),entries,"arm"+mob.getInt("id"),parts);
+                count+=inspectFloorItem(mob.getBundle("armor"),entries,"arm"+mob.getInt("id"),parts,seals);
             }
             if (armored || mob.getString("__className").equals(Statue.class.getName())) {
-                count+=inspectFloorItem(mob.getBundle("weapon"),entries,"w"+mob.getInt("id"),parts);
+                count+=inspectFloorItem(mob.getBundle("weapon"),entries,"w"+mob.getInt("id"),parts,seals);
             }
             if (mob.getString("__className").equals(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Thief.class.getName()) && !mob.getBundle("item").isNull()) {
-                count+=inspectFloorItem(mob.getBundle("item"),entries,"th"+mob.getInt("id"),parts);
+                count+=inspectFloorItem(mob.getBundle("item"),entries,"th"+mob.getInt("id"),parts,seals);
             }
             if (!mob.contains("items")) continue;
             int index=0;
             for(Bundle item:mob.getBundleArray("items")) {
-                count+=inspectFloorItem(item,entries,"m"+mob.getInt("id")+"_"+index++,parts);
+                count+=inspectFloorItem(item,entries,"m"+mob.getInt("id")+"_"+index++,parts,seals);
             }
         }
         if(count!=entries.getKeys().size()) throw new IllegalArgumentException("Parked inventory size");

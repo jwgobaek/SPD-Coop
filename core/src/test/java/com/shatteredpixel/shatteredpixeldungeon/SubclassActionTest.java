@@ -191,6 +191,9 @@ public class SubclassActionTest extends HeadlessDungeon {
         Hero h=g.hero(seat);
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
+        case "recallid": case "trinitymind": case "trinityspirit": case "intuition": case "bless": case "trinityselect": case "trinity": case "monkflurry": case "monkdash": case "monkdragonkick": case "monkmeditate": case "sparkimbue": case "spark": case "sparkblast": case "sparkvolley":
+        case "sealdetach": case "sealattach": case "sealkeep": case "sealtransfer": case "rationthrow": case "challenge": case "elestrike": case "feint": case "ascendform": case "lightally": case "lightorder":
+            return SealArtsTest.stage(g,type,seat,rat);
         case "swap": case "monkfocus": case "smite": case "radiance": case "ice": case "iceimbue": case "iceblast": case "icevolley": case "markdeath": case "clone": case "orderclone": case "sunray": case "divinesense": case "lightshield": case "guardshield": case "stance":
             return FrostSensesTest.stage(g,type,seat,rat);
         case "smoke": case "ambush": case "freerun": case "spike": case "lunge": case "charged": case "light": case "ward": case "blessweapon":
@@ -316,6 +319,9 @@ public class SubclassActionTest extends HeadlessDungeon {
         Combo combo=h.buff(Combo.class);
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
+        case "recallid": case "trinitymind": case "trinityspirit": case "intuition": case "bless": case "trinityselect": case "trinity": case "monkflurry": case "monkdash": case "monkdragonkick": case "monkmeditate": case "sparkimbue": case "spark": case "sparkblast": case "sparkvolley":
+        case "sealdetach": case "sealattach": case "sealkeep": case "sealtransfer": case "rationthrow": case "challenge": case "elestrike": case "feint": case "ascendform": case "lightally": case "lightorder":
+            return SealArtsTest.published(g,type,seat);
         case "swap": case "monkfocus": case "smite": case "radiance": case "ice": case "iceimbue": case "iceblast": case "icevolley": case "markdeath": case "clone": case "orderclone": case "sunray": case "divinesense": case "lightshield": case "guardshield": case "stance":
             return FrostSensesTest.published(g,type,seat);
         case "smoke": case "ambush": case "freerun": case "spike": case "lunge": case "charged": case "light": case "ward": case "blessweapon":

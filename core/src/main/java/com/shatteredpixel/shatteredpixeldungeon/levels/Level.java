@@ -1466,7 +1466,7 @@ public abstract class Level implements Bundlable {
 			if (mindVisRange >= 1) {
 
 				//power of many's life link spell allows allies to get divine sense
-				Char ally = PowerOfMany.getPoweredAlly();
+				Char ally = PowerOfMany.getPoweredAlly((Hero)c);
 				if (ally != null && ally.buff(DivineSense.DivineSenseTracker.class) == null) {
 					ally = null;
 				}
@@ -1510,7 +1510,7 @@ public abstract class Level implements Bundlable {
 				if (m instanceof WandOfWarding.Ward
 						|| m instanceof WandOfRegrowth.Lotus
 						|| m instanceof SpiritHawk.HawkAlly && ((SpiritHawk.HawkAlly)m).belongsTo((Hero)c)
-						|| m.buff(PowerOfMany.PowerBuff.class) != null){
+						|| m.buff(PowerOfMany.PowerBuff.class) != null && m.buff(PowerOfMany.PowerBuff.class).belongsTo((Hero)c)){
 					if (m.fieldOfView == null || m.fieldOfView.length != length()){
 						m.fieldOfView = new boolean[length()];
 						Dungeon.level.updateFieldOfView( m, m.fieldOfView );

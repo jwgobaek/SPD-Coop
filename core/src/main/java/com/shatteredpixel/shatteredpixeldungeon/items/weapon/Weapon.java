@@ -139,9 +139,11 @@ abstract public class Weapon extends KindOfWeapon {
 		if (attacker.buff(MagicImmune.class) == null) {
 			Enchantment trinityEnchant = null;
 			//only when it's the hero or a char that uses the hero's weapon
-			if (Dungeon.hero.buff(BodyForm.BodyFormBuff.class) != null && this instanceof MeleeWeapon
-					&& (attacker == Dungeon.hero || attacker instanceof MirrorImage || attacker instanceof ShadowClone.ShadowAlly)){
-				trinityEnchant = Dungeon.hero.buff(BodyForm.BodyFormBuff.class).enchant();
+			Hero effectOwner = Dungeon.coop == null ? Dungeon.hero : attacker instanceof Hero ? (Hero)attacker :
+					attacker instanceof ShadowClone.ShadowAlly ? ((ShadowClone.ShadowAlly)attacker).commander() : null;
+			if (effectOwner != null && effectOwner.buff(BodyForm.BodyFormBuff.class) != null && this instanceof MeleeWeapon
+					&& (attacker == effectOwner || attacker instanceof MirrorImage || attacker instanceof ShadowClone.ShadowAlly)){
+				trinityEnchant = effectOwner.buff(BodyForm.BodyFormBuff.class).enchant();
 				if (enchantment != null && trinityEnchant != null && trinityEnchant.getClass() == enchantment.getClass()){
 					trinityEnchant = null;
 				}

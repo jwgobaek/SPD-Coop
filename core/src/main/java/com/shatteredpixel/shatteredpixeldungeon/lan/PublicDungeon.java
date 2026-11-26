@@ -80,7 +80,7 @@ public final class PublicDungeon {
                 break;
             case 'm':
                 String[] mob=value.split(",");
-                if(!mob[1].matches("ShadowAlly|HawkAlly|Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Sheep|Statue|ArmoredStatue|GnollExile|PhantomPiranha|Crab|HermitCrab|Swarm|Slime|CausticSlime|Thief|GnollTrickster|GreatCrab|RatKing|Goo|Tengu|Brute|RedShaman|BlueShaman|PurpleShaman|Spinner|Blacksmith|DM200|DM201|DM300|Pylon|Succubus|DemonSpawner|YogDzewa|BurningFist|SoiledFist|RottingFist|RustedFist|BrightFist|DarkFist|Larva|YogRipper|RipperDemon|Eye|Scorpio|Acidic|VaultShaman|VaultFire|VaultFrost|VaultBossElemental|VaultDM100|VaultDM200|VaultGhoul|VaultGolem|VaultLaser|VaultMirror|VaultSentry|VaultSkeleton|VaultTokenDoor|DwarfKing|DKGhoul|DKMonk|DKWarlock|DKGolem|Monk|Golem|Imp|FireElemental|ShockElemental|Ghoul|Warlock|FrostElemental|GnollGeomancer|GnollSapper|GnollGuard|CrystalSpire|CrystalWisp|CrystalGuardian|Skeleton|Necromancer|NecroSkeleton|SpectralNecromancer|Bat|DM100|Guard|Shopkeeper|RotHeart|RotLasher|Wandmaker|DustWraith|Wraith|TormentedSpirit|NewbornFireElemental")) throw new IllegalArgumentException("Monster");
+                if(!mob[1].matches("AfterImage|LightAlly|ShadowAlly|HawkAlly|Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Sheep|Statue|ArmoredStatue|GnollExile|PhantomPiranha|Crab|HermitCrab|Swarm|Slime|CausticSlime|Thief|GnollTrickster|GreatCrab|RatKing|Goo|Tengu|Brute|RedShaman|BlueShaman|PurpleShaman|Spinner|Blacksmith|DM200|DM201|DM300|Pylon|Succubus|DemonSpawner|YogDzewa|BurningFist|SoiledFist|RottingFist|RustedFist|BrightFist|DarkFist|Larva|YogRipper|RipperDemon|Eye|Scorpio|Acidic|VaultShaman|VaultFire|VaultFrost|VaultBossElemental|VaultDM100|VaultDM200|VaultGhoul|VaultGolem|VaultLaser|VaultMirror|VaultSentry|VaultSkeleton|VaultTokenDoor|DwarfKing|DKGhoul|DKMonk|DKWarlock|DKGolem|Monk|Golem|Imp|FireElemental|ShockElemental|Ghoul|Warlock|FrostElemental|GnollGeomancer|GnollSapper|GnollGuard|CrystalSpire|CrystalWisp|CrystalGuardian|Skeleton|Necromancer|NecroSkeleton|SpectralNecromancer|Bat|DM100|Guard|Shopkeeper|RotHeart|RotLasher|Wandmaker|DustWraith|Wraith|TormentedSpirit|NewbornFireElemental")) throw new IllegalArgumentException("Monster");
                 enemies.put(number(mob[0],0,65535),mob[1]); break;
             case 'b': effects.add(number(value.split(",")[0],0,255)); break;
             case 't': number(value,0,63); break;
@@ -142,6 +142,8 @@ public final class PublicDungeon {
         if (weapon && item.slot.equals("BAG") && "CHAMPION".equals(source.rows.get("subclass"))) verbs.add("EQUIP_SECOND");
         if (source.rows.containsKey("spells"+item.id)) verbs.add("CAST");
         if (source.rows.containsKey("weaponpool"+item.id)) verbs.add("WEAPON_ABILITY");
+        if (source.rows.containsKey("detachseal"+item.id)) verbs.add("DETACH_SEAL");
+        if (source.rows.containsKey("affixseal"+item.id)) verbs.add("AFFIX_SEAL");
         if (source.rows.containsKey("imbue"+item.id)) verbs.add("IMBUE");
         if (source.rows.containsKey("stealth"+item.id)) verbs.add("CLOAK");
         if (source.rows.containsKey("ability"+item.id)) verbs.add("ARMOR_ABILITY");
@@ -150,7 +152,7 @@ public final class PublicDungeon {
             if(item.kind.equals("UPGRADE") || item.kind.equals("IDENTIFY")) verbs.add(item.kind);
             if(source.rows.containsKey("mask"+item.id)) verbs.add("USE_MASK");
             if(item.kind.equals("HEALING")) verbs.add("DRINK");
-            if(isMissileKind(item.kind)) verbs.add("THROW");
+            if(isMissileKind(item.kind) || item.kind.equals("FOOD")) verbs.add("THROW");
             if(item.kind.equals("BOW")) verbs.add("SHOOT");
             if(item.kind.equals("FOOD")) verbs.add("EAT");
             if(inVault() && item.kind.equals("VAULT_BEACON")) verbs.add("VAULT_RECALL");

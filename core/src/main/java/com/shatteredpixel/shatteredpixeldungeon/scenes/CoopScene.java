@@ -1,5 +1,12 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.MindForm;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.SpiritForm;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.RecallInscription;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.BodyForm;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyIntuition;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.BlessSpell;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.Trinity;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
@@ -54,6 +61,9 @@ public class CoopScene extends PixelScene {
                     targetView=view; targetMove=action; targetStaff=item; renderFrame();
                 } else controller.act(view.source,action,view.pos,item.id);
                 break;
+            case "AFFIX_SEAL":
+                selectSealArmor(view,item);
+                break;
             case "IMBUE":
                 chooseWand(view,item);
                 break;
@@ -62,7 +72,21 @@ public class CoopScene extends PixelScene {
                 break;
             case "ARMOR_ABILITY":
                 String ability = view.source.rows.get("ability"+item.id);
-                if ("WarpBeacon".equals(ability) && view.source.rows.containsKey("beacondepth")) {
+                if ("Trinity".equals(ability)) {
+                    java.util.ArrayList<Talent> forms=new java.util.ArrayList<>();
+                    java.util.ArrayList<String> names=new java.util.ArrayList<>();
+                    for (Talent form : new Talent[]{Talent.BODY_FORM,Talent.MIND_FORM,Talent.SPIRIT_FORM}) if (view.source.rows.containsKey("trinity"+form.ordinal())) {
+                        forms.add(form); names.add(form.title());
+                    }
+                    names.add(msg("back"));
+                    add(new WndOptions(Messages.get(Trinity.class,"name"),Messages.get(Trinity.WndUseTrinity.class,"text"),names.toArray(new String[0])) {
+                        protected void onSelect(int index) {
+                            if (index<0 || index>=forms.size() || controller.frame().image!=view.source) return;
+                            if (forms.get(index)==Talent.MIND_FORM) { targetView=view;targetMove="TRINITY_MIND";targetStaff=item;renderFrame(); }
+                            else controller.act(view.source,forms.get(index)==Talent.BODY_FORM ? action : "TRINITY_SPIRIT",view.pos,item.id);
+                        }
+                    });
+                } else if ("WarpBeacon".equals(ability) && view.source.rows.containsKey("beacondepth")) {
                     Class<?> warp=com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.class;
                     add(new WndOptions(Messages.get(warp,"name"), Messages.get(warp,"window_desc",Integer.parseInt(view.source.rows.get("beacondepth"))),
                             Messages.get(warp,"window_tele"),Messages.get(warp,"window_clear"),Messages.get(warp,"window_cancel")) {
@@ -72,7 +96,7 @@ public class CoopScene extends PixelScene {
                                     com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.CLEAR,item.id);
                         }
                     });
-                } else if (("SpiritHawk".equals(ability) && view.source.rows.containsKey("hawkcommand")) || ("ShadowClone".equals(ability) && view.source.rows.containsKey("clonecommand")) || "DeathMark".equals(ability) || "SmokeBomb".equals(ability) || "WildMagic".equals(ability) || "HeroicLeap".equals(ability) || "Shockwave".equals(ability) || "SpectralBlades".equals(ability)) {
+                } else if (("SpiritHawk".equals(ability) && view.source.rows.containsKey("hawkcommand")) || ("ShadowClone".equals(ability) && view.source.rows.containsKey("clonecommand")) || "Challenge".equals(ability) || "ElementalStrike".equals(ability) || "Feint".equals(ability) || "PowerOfMany".equals(ability) || "DeathMark".equals(ability) || "SmokeBomb".equals(ability) || "WildMagic".equals(ability) || "HeroicLeap".equals(ability) || "Shockwave".equals(ability) || "SpectralBlades".equals(ability)) {
                     targetView=view; targetMove=action; targetStaff=item; renderFrame();
                 } else controller.act(view.source,action,view.pos,item.id);
                 break;
@@ -105,6 +129,12 @@ public class CoopScene extends PixelScene {
                     talent == Talent.SUNRAY ? Sunray.INSTANCE : DivineSense.INSTANCE);
             actions.add(talent.name());
         }
+        for (Talent talent : new Talent[]{Talent.HOLY_INTUITION,Talent.BLESS,Talent.RECALL_INSCRIPTION,Talent.BODY_FORM,Talent.MIND_FORM,Talent.SPIRIT_FORM}) {
+            if (view.source.rows.containsKey("talent"+talent.ordinal())) {
+                spells.add(talent==Talent.RECALL_INSCRIPTION ? RecallInscription.INSTANCE : talent==Talent.SPIRIT_FORM ? SpiritForm.INSTANCE : talent==Talent.MIND_FORM ? MindForm.INSTANCE : talent==Talent.BODY_FORM ? BodyForm.INSTANCE : talent==Talent.BLESS ? BlessSpell.INSTANCE : HolyIntuition.INSTANCE);
+                actions.add(talent.name());
+            }
+        }
         String subclass = view.source.rows.get("subclass");
         if ("PRIEST".equals(subclass)) { spells.add(Radiance.INSTANCE); actions.add("RADIANCE"); }
         if ("PALADIN".equals(subclass)) { spells.add(Smite.INSTANCE); actions.add("SMITE"); }
@@ -116,10 +146,46 @@ public class CoopScene extends PixelScene {
             protected void onSelect(int index) {
                 if (index<0 || index>=spells.size() || controller.frame().image!=view.source) return;
                 String action = actions.get(index);
-                if (spells.get(index) instanceof TargetedClericSpell) { targetView=view; targetMove=action; targetStaff=tome; renderFrame(); }
+                if (action.equals("HOLY_INTUITION") || action.equals("RECALL_INSCRIPTION") || action.endsWith("_FORM")) {
+                    String prefix=action.equals("RECALL_INSCRIPTION") ? "recallitem" : action.equals("MIND_FORM") ? "minditem" : action.equals("SPIRIT_FORM") ? "spirititem" : action.equals("BODY_FORM") ? "bodyitem" : "intuition";
+                    add(WndSeatInventory.select(view,controller,new WndSeatInventory.Selection() {
+                        public boolean accepts(PublicDungeon.Loot candidate) { return view.source.rows.containsKey(prefix+candidate.id); }
+                        public void select(PublicDungeon.Loot candidate) {
+                            if (controller.frame().image==view.source && accepts(candidate))
+                                controller.act(view.source,action,Integer.parseInt(view.source.rows.get(prefix+candidate.id)),tome.id);
+                        }
+                    }));
+                } else if (spells.get(index) instanceof TargetedClericSpell) { targetView=view; targetMove=action; targetStaff=tome; renderFrame(); }
                 else controller.act(view.source,action,view.pos,tome.id);
             }
         });
+    }
+
+    private void selectSealArmor(PublicDungeon view, PublicDungeon.Loot seal) {
+        add(WndSeatInventory.select(view,controller,new WndSeatInventory.Selection() {
+            public boolean accepts(PublicDungeon.Loot target) {
+                return view.source.rows.containsKey("sealarmor"+target.id)
+                        && (!view.source.rows.containsKey("sealcursetarget"+target.id) || view.source.rows.containsKey("sealcursed"+seal.id));
+            }
+            public void select(PublicDungeon.Loot target) {
+                if (controller.frame().image!=view.source) return;
+                int index=Integer.parseInt(view.source.rows.get("sealarmor"+target.id));
+                String armor=view.source.rows.get("armorglyph"+target.id);
+                String glyph=view.source.rows.get("affixseal"+seal.id);
+                if (armor==null || glyph.equals("none") || armor.equals(glyph)) {
+                    controller.act(view.source,"AFFIX_SEAL",index,seal.id);
+                    return;
+                }
+                String a=Messages.get(armor+".name",new Object[]{""}).trim(), b=Messages.get(glyph+".name",new Object[]{""}).trim();
+                Class<?> type=com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal.class;
+                add(new WndOptions(Messages.get(type,"choose_title"),Messages.get(type,"choose_desc",a,b),a,b,msg("cancel")) {
+                    protected void onSelect(int choice) {
+                        if ((choice==0 || choice==1) && controller.frame().image==view.source)
+                            controller.act(view.source,choice==0 ? "KEEP_ARMOR_GLYPH" : "TRANSFER_SEAL_GLYPH",index,seal.id);
+                    }
+                });
+            }
+        }));
     }
 
     private void chooseWand(PublicDungeon view, PublicDungeon.Loot staff) {
@@ -207,17 +273,17 @@ public class CoopScene extends PixelScene {
             return;
         }
         if (targetMove != null) {
-            boolean armor = "ARMOR_ABILITY".equals(targetMove) || "GUIDING_LIGHT".equals(targetMove) || "SHIELD_OF_LIGHT".equals(targetMove) || "SMITE".equals(targetMove) || "SUNRAY".equals(targetMove);
+            boolean armor = "TRINITY_MIND".equals(targetMove) || "BLESS".equals(targetMove) || "ARMOR_ABILITY".equals(targetMove) || "GUIDING_LIGHT".equals(targetMove) || "SHIELD_OF_LIGHT".equals(targetMove) || "SMITE".equals(targetMove) || "SUNRAY".equals(targetMove);
             boolean weapon = "WEAPON_ABILITY".equals(targetMove);
-            if (targetView == view && (weapon || view.visible(cell) && (armor || view.monsters.containsKey(cell)))
+            if (targetView == view && (weapon || view.visible(cell) && (armor || "MONK_DASH".equals(targetMove) || view.monsters.containsKey(cell)))
                     && controller.act(view.source, targetMove, cell, armor || weapon ? targetStaff.id : 0)) cancelAim();
             return;
         }
         boolean bow=targetStaff.kind.equals("BOW");
         String actor=view.monsters.get(cell);
         boolean enemy=actor!=null && !"Imp".equals(actor) && !"Blacksmith".equals(actor) && !"Wandmaker".equals(actor) && !"Shopkeeper".equals(actor) && !"Sheep".equals(actor) && !"Sentry".equals(actor) && !"Ghost".equals(actor) && !"RatKing".equals(actor);
-        boolean missile=PublicDungeon.isMissileKind(targetStaff.kind);
-        boolean areaWand = view.source.rows.containsKey("areawand"+targetStaff.id) || (targetStaff.kind.equals("WAND") || targetStaff.kind.equals("UNIDENTIFIED_WAND")) && (targetStaff.sprite == ItemSpriteSheet.WAND_BLAST_WAVE
+        boolean missile=PublicDungeon.isMissileKind(targetStaff.kind) || targetStaff.kind.equals("FOOD");
+        boolean areaWand = view.source.rows.containsKey("areawand"+targetStaff.id) || (targetStaff.kind.equals("WAND") || targetStaff.kind.equals("UNIDENTIFIED_WAND")) && (targetStaff.sprite == ItemSpriteSheet.WAND_LIGHTNING || targetStaff.sprite == ItemSpriteSheet.WAND_FROST || targetStaff.sprite == ItemSpriteSheet.WAND_BLAST_WAVE
                 || targetStaff.sprite == ItemSpriteSheet.WAND_FIREBOLT);
         boolean selfBattery = !missile && !bow && cell == view.pos && view.source.rows.containsKey("talent"+Talent.SHIELD_BATTERY.ordinal());
         if (targetView==view && (selfBattery || enemy || ((missile || areaWand) && actor==null && view.visible(cell)) || (!missile && !bow && view.chest(cell)))
@@ -584,12 +650,19 @@ public class CoopScene extends PixelScene {
         if (view.offered && view.source.rows.containsKey("weaponswap")) {
             controller.act(view.source,"SWAP_WEAPONS",view.pos,0);
         } else if (view.offered && view.source.rows.containsKey("monkenergy")) {
-            String focus = com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MonkEnergy.MonkAbility.abilities[1].name();
-            add(new WndOptions(focus, msg("monk_energy",view.source.rows.get("monkenergy")),
-                    view.source.rows.containsKey("monkfocus") ? new String[]{focus,msg("back")} : new String[]{msg("back")}) {
+            java.util.ArrayList<String> names=new java.util.ArrayList<>();
+            java.util.ArrayList<String> verbs=new java.util.ArrayList<>();
+            for (com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MonkEnergy.MonkAbility ability : com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MonkEnergy.MonkAbility.abilities) {
+                if (view.source.rows.containsKey(ability.seatAction().substring(5).toLowerCase(java.util.Locale.ROOT))) { names.add(ability.name()); verbs.add(ability.seatAction()); }
+            }
+            names.add(msg("back"));
+            add(new WndOptions(Messages.get(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MonkEnergy.class,"name"),
+                    msg("monk_energy",view.source.rows.get("monkenergy")),names.toArray(new String[0])) {
                 protected void onSelect(int choice) {
-                    if (choice==0 && view.source.rows.containsKey("monkfocus") && controller.frame().image == view.source)
-                        controller.act(view.source,"MONK_FOCUS",view.pos,0);
+                    if (choice<0 || choice>=verbs.size() || controller.frame().image!=view.source) return;
+                    String action=verbs.get(choice);
+                    if (action.equals("MONK_FOCUS") || action.equals("MONK_MEDITATE")) controller.act(view.source,action,view.pos,0);
+                    else { targetView=view; targetMove=action; targetStaff=null; renderFrame(); }
                 }
             });
         } else if (view.source.rows.containsKey("combocount")) {

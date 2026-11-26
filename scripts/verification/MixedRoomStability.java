@@ -56,15 +56,18 @@ public final class MixedRoomStability {
 
     static final String[] WAND_ARTS={"imbue0","volley1","hawk0","direct1","lunge0","spike1","charged0","light1","ward0","blessweapon1","ambush1","freerun0","smoke1","third1","floor","mine"};
 
+    static final String[] SEAL_ARTS = {"sealdetach0","sealattach1","sealkeep0","sealtransfer1","rationthrow0","challenge1",
+            "elestrike0","feint1","ascendform0","trinity1","trinitymind0","trinityspirit1","lightally0","lightorder1",
+            "monkflurry0","monkdash1","monkdragonkick0","monkmeditate1","intuition0","bless1","recallid0","spark1","floor","mine"};
     static final String[] FROST_SENSES = {"iceimbue0", "ice1", "iceblast0", "icevolley1", "markdeath0", "clone1",
             "orderclone0", "stance1", "guardshield0", "lightshield1", "divinesense0", "sunray1",
             "radiance0", "smite1", "swap0", "monkfocus1", "floor", "mine"};
 
     static String stageClass(String stage,int seat) {
         if (stage==null) return seat==0 && Boolean.getBoolean("stability.rogue")?"ROGUE":seat==0?"MAGE":"HUNTRESS";
-        if (stage.matches("(ice|iceimbue|iceblast|icevolley|imbue|volley)[01]")) return "MAGE";
-        if (stage.matches("(swap|monkfocus|stance|guardshield|lunge|spike|charged)[01]")) return "DUELIST";
-        if (stage.matches("(radiance|smite|divinesense|sunray|lightshield|light|ward|blessweapon)[01]")) return "CLERIC";
+        if (stage.matches("(spark|ice|iceimbue|iceblast|icevolley|imbue|volley)[01]")) return "MAGE";
+        if (stage.matches("(challenge|elestrike|feint|monkflurry|monkdash|monkdragonkick|monkmeditate|swap|monkfocus|stance|guardshield|lunge|spike|charged)[01]")) return "DUELIST";
+        if (stage.matches("(trinity|trinitymind|trinityspirit|lightally|lightorder|ascendform|intuition|bless|recallid|radiance|smite|divinesense|sunray|lightshield|light|ward|blessweapon)[01]")) return "CLERIC";
         if (stage.matches("(hawk|direct)[01]") || stage.startsWith("blades")) return "HUNTRESS";
         if (stage.matches("(markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) return "ROGUE";
         if (stage.startsWith("beacon") || stage.startsWith("recall") || stage.startsWith("battery")) return "MAGE";
@@ -109,10 +112,16 @@ public final class MixedRoomStability {
     static VaultPublicRoute.Input fromView(PublicDungeon view,VaultPublicRoute.Input staged) {
         String verb=staged.action;
         long item=0;
-        if (verb.matches("SMITE|RADIANCE|DIVINE_SENSE|SUNRAY|SHIELD_OF_LIGHT|GUIDING_LIGHT|HOLY_WEAPON|HOLY_WARD")) item=view.belongings.stream().filter(it->view.actions(it).contains("CAST")).findFirst().get().id;
+        if (verb.matches("BLESS|HOLY_INTUITION|RECALL_INSCRIPTION|SMITE|RADIANCE|DIVINE_SENSE|SUNRAY|SHIELD_OF_LIGHT|GUIDING_LIGHT|HOLY_WEAPON|HOLY_WARD")) item=view.belongings.stream().filter(it->view.actions(it).contains("CAST")).findFirst().get().id;
+        if (verb.equals("TRINITY_MIND") || verb.equals("TRINITY_SPIRIT"))
+            item=view.belongings.stream().filter(it->view.actions(it).contains("ARMOR_ABILITY")).findFirst().get().id;
+        if (verb.equals("DETACH_SEAL") || verb.equals("AFFIX_SEAL") || verb.endsWith("_GLYPH")) {
+            String visible=verb.equals("DETACH_SEAL") ? verb : "AFFIX_SEAL";
+            item=view.belongings.stream().filter(it->view.actions(it).contains(visible)).findFirst().get().id;
+        }
         if(Arrays.asList("WEAPON_ABILITY","IMBUE","THROW","EAT","DRINK","ZAP","USE_CROWN","CLOAK","ARMOR_ABILITY").contains(verb)) {
             item=view.belongings.stream().filter(it->view.actions(it).contains(verb))
-                    .filter(it->!verb.equals("THROW") || it.kind.equals("DART") || it.kind.equals("SPIKE"))
+                    .filter(it->!verb.equals("THROW") || it.kind.equals("DART") || it.kind.equals("SPIKE") || it.kind.equals("FOOD") && view.heroClass.equals("WARRIOR"))
                     .findFirst().orElseThrow(()->new AssertionError("missing public action "+verb)).id;
         }
         return new VaultPublicRoute.Input(verb,staged.cell,item);
@@ -290,7 +299,7 @@ public final class MixedRoomStability {
                 return;
             }
             for(int i=0;i<Integer.parseInt(args[0]);i++) {
-                String stage=Boolean.getBoolean("stability.frostSenses") ? FROST_SENSES[i%FROST_SENSES.length] : Boolean.getBoolean("stability.wandArts") ? WAND_ARTS[i%WAND_ARTS.length] : Boolean.getBoolean("stability.growth")?GROWTH[i%GROWTH.length]:null;
+                String stage=Boolean.getBoolean("stability.sealArts") ? SEAL_ARTS[i%SEAL_ARTS.length] : Boolean.getBoolean("stability.frostSenses") ? FROST_SENSES[i%FROST_SENSES.length] : Boolean.getBoolean("stability.wandArts") ? WAND_ARTS[i%WAND_ARTS.length] : Boolean.getBoolean("stability.growth")?GROWTH[i%GROWTH.length]:null;
                 trial.room(fixture.temporary.getRoot(),"mine".equals(stage)?571:570+i%12,Integer.parseInt(args[1]),stage);
                 trial.observe(fixture.temporary.getRoot(),i+1);
             }
