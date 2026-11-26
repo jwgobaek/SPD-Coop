@@ -1,0 +1,13 @@
+seed	policy	seat	depth	accepted_inputs	native_kills	party_falls	seat_xp	level	max_hp	hp	strength	food	healing_potions	upgrade_scrolls	party_gold	cell	weapon_level	armor_level	end
+581	last	0	1	70	4	2	2	1	20	0	10	1	0	0	0	233	WornShortsword/0	ClothArmor/0	defeat
+581	last	1	1	70	4	2	0	1	20	0	10	1	0	0	0	199	Gloves/0	ClothArmor/0	defeat
+581	split	0	1	70	4	2	1	1	20	0	10	1	0	0	0	233	WornShortsword/0	ClothArmor/0	defeat
+581	split	1	1	70	4	2	1	1	20	0	10	1	0	0	0	199	Gloves/0	ClothArmor/0	defeat
+581	each	0	1	70	4	2	2	1	20	0	10	1	0	0	0	233	WornShortsword/0	ClothArmor/0	defeat
+581	each	1	1	70	4	2	2	1	20	0	10	1	0	0	0	199	Gloves/0	ClothArmor/0	defeat
+1105	last	0	1	1165	8	0	7	1	20	20	10	0	0	1	142	355	WornShortsword/0	ClothArmor/0	budget
+1105	last	1	1	1165	8	0	3	1	20	20	10	1	0	0	142	972	Gloves/0	ClothArmor/0	budget
+1105	split	0	1	1165	8	0	5	1	20	20	10	0	0	1	142	355	WornShortsword/0	ClothArmor/0	budget
+1105	split	1	1	1165	8	0	5	1	20	20	10	1	0	0	142	972	Gloves/0	ClothArmor/0	budget
+1105	each	0	1	1165	8	0	10	2	25	25	10	0	0	1	142	355	WornShortsword/0	ClothArmor/0	budget
+1105	each	1	1	1165	8	0	10	2	25	25	10	1	0	0	142	972	Gloves/0	ClothArmor/0	budget

@@ -1,5 +1,7 @@
 # 협동 콘텐츠 지원표
 
+새 지원 범위는 Halls의 원본 Acidic과 다섯 석상 장비 조합, 금고 비콘·이슬·낫 및 가시 경고다. [검증 기록](docs/coop/vault-play-results.md)
+
 원본 FIRE·FROST·SHOCK 최종 정령, 두 좌석의 Ascension, 시드 578의 VaultShaman·VaultElemental.Fire/Frost, 검증한 석상 조합을 추가했다. [실행 결과와 다음 작업](docs/coop/vault-ascent-results.md)
 
 일반 모드 HallsBossLevel, YogDzewa, 여섯 YogFist, Larva·YogRipper, LastLevel, 아뮬렛 획득과 일반 승리를 검증했다. 운영 범위는 검증된 생성 조합의 본편 1~26층과 기존 분기다. 도전 모드와 Ascension은 별도 항목이다. [최종 보스·승리 검증 기록](docs/coop/yog-victory-results.md)

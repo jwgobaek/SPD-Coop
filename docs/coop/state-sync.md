@@ -1,5 +1,7 @@
 # 협동 게임 동기화 프로토콜
 
+SYNC26은 VAULT_RECALL과 소유 좌석의 비콘 사용 메뉴를 추가한다. Acidic을 공개 주민으로 해석하며 금고 발사 장치의 원본 경고는 보이는 발사자와 수신자가 보는 칸에만 표시한다. LAN은 v1이다. [검증 기록](vault-play-results.md)
+
 SYNC25에서 START_ASCENT, ASCENT_PROPOSED, ASCENT_READY, ASCENDING, ASCENDED를 구분한다. ascentgate는 양쪽이 계단 범위에 있을 때 아뮬렛 소유자에게만 전달한다. aim은 수신 좌석의 시야로 제한한다. [실행 결과와 다음 작업](vault-ascent-results.md)
 
 SYNC24는 ending과 amuletowner를 공개하고, 각 좌석에는 자기 시야에 들어온 광선 예고 셀만 보낸다. END_RUN과 CONTINUE_RUN은 인증된 Action ID와 최신 상태에 결합한다. 이미 발행된 영수증은 동일 결과를 반환한다. WON 이후 새 일반 행동은 REJECT_ENDING으로 거부한다. LAN 프레이밍 v1을 유지한다. [최종 보스·승리 검증 기록](yog-victory-results.md)

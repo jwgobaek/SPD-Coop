@@ -25,6 +25,45 @@ public final class VaultPublicRoute {
         final Set<Integer> blocked = new HashSet<>();
         final Set<Integer> rejectedChests = new HashSet<>();
         boolean reviveDenied;
+        final boolean team=Boolean.getBoolean("vault.guide.team");
+        int lastAlly=-1;
+        final Set<String> blockedShots=new HashSet<>();
+
+        private int distance(int a,int b,int width) {
+            return Math.max(Math.abs(a%width-b%width),Math.abs(a/width-b/width));
+        }
+        private String shotKey(long item,int from,int to) {
+            return item+"/"+from+"/"+to;
+        }
+        private boolean hostile(String kind) {
+            return !(kind.equals("VaultLaser") || kind.equals("VaultSentry") || kind.equals("VaultMirror") ||
+                    kind.equals("VaultTokenDoor") || kind.equals("Ghost") || kind.equals("Shopkeeper") || kind.equals("Sheep"));
+        }
+        private int dangerDistance(PublicDungeon v,int cell) {
+            int closest=v.width+v.height;
+            for (Map.Entry<Integer,String> m:v.monsters.entrySet()) {
+                if (hostile(m.getValue())) closest=Math.min(closest,distance(m.getKey(),cell,v.width));
+            }
+            return closest;
+        }
+        private int retreat(PublicDungeon v) {
+            if (!team || v.hp*3>v.maxHp*2 || dangerDistance(v,v.pos)>2) return -1;
+            int best=-1,score=Integer.MIN_VALUE;
+            int previous=dangerDistance(v,v.pos);
+            for (int dy=-1;dy<=1;dy++) for (int dx=-1;dx<=1;dx++) {
+                int x=v.pos%v.width+dx,y=v.pos/v.width+dy;
+                if (x<0 || x>=v.width || y<0 || y>=v.height) continue;
+                int c=y*v.width+x, tile=v.terrain(c);
+                if (!v.visible(c) || c==v.ally || blocked.contains(c) || v.monsters.containsKey(c)
+                        || v.source.rows.containsKey("aim"+c) || v.source.rows.containsKey("trap"+c)
+                        || tile<0 || (Terrain.flags[tile]&Terrain.PASSABLE)==0) continue;
+                int gap=dangerDistance(v,c);
+                if (gap<=previous) continue;
+                int value=10*gap-4*(lastAlly<0?0:distance(lastAlly,c,v.width))-visits.getOrDefault(c,0);
+                if (value>score) {score=value;best=c;}
+            }
+            return best;
+        }
         final Set<Integer> investigated = new HashSet<>();
         private boolean investigateWalls(PublicDungeon v) {
             if (v.branch!=0 || !v.monsters.isEmpty()) return false;
@@ -40,6 +79,7 @@ public final class VaultPublicRoute {
         }
         Input choose(PublicDungeon v) {
             visits.merge(v.pos, 1, Integer::sum);
+            if (v.ally>=0) lastAlly=v.ally;
             if (!reviveDenied && v.ally>=0 && adjacent(v.pos,v.ally,v.width) && "DOWNED".equals(v.source.rows.get("allylife"))) {
                 return new Input("REVIVE",v.ally,0);
             }
@@ -64,14 +104,16 @@ public final class VaultPublicRoute {
                 String offer=v.source.rows.get("vaultnpc"+cell);
                 if ("take".equals(offer) || "open".equals(offer)) return new Input("VAULT_INTERACT",cell,0);
             }
+            int retreatCell=retreat(v);
+            if (retreatCell>=0) return new Input("MOVE",retreatCell,0);
             for (Map.Entry<Integer,String> monster : new TreeMap<>(v.monsters).entrySet()) {
                 String kind=monster.getValue();
-                if (kind.equals("Ghost") || kind.equals("Shopkeeper") || kind.equals("Sheep") || kind.equals("VaultLaser") || kind.equals("VaultSentry") || kind.equals("VaultMirror") || kind.equals("VaultTokenDoor")) continue;
+                if (!hostile(kind)) continue;
                 int cell=monster.getKey();
                 if (adjacent(v.pos,cell,v.width) && !v.source.rows.containsKey("aim"+v.pos)) return new Input("ATTACK",cell,0);
                 for (PublicDungeon.Loot item : v.belongings) {
                     for (String verb : Arrays.asList("ZAP","SHOOT","THROW")) {
-                        if (v.actions(item).contains(verb) && !rejectedItems.contains(item.id)) return new Input(verb,cell,item.id);
+                        if (v.actions(item).contains(verb) && !rejectedItems.contains(item.id) && !blockedShots.contains(shotKey(item.id,v.pos,cell))) return new Input(verb,cell,item.id);
                     }
                 }
             }
@@ -98,6 +140,7 @@ public final class VaultPublicRoute {
                     }
                     if (v.branch==0 && tile==Terrain.EXIT) value+=220;
                     if (v.ally>=0) value-=2*Math.max(Math.abs(c%v.width-v.ally%v.width), Math.abs(c/v.width-v.ally/v.width));
+                    if (team && lastAlly>=0) value-=8*Math.max(0,distance(c,lastAlly,v.width)-3);
                     PublicDungeon.Loot item=v.floor.get(c);
                     if (item!=null && !rejectedItems.contains(item.id)) value+=150;
                     for (Map.Entry<Integer,String> m:v.monsters.entrySet()) {
@@ -145,6 +188,8 @@ public final class VaultPublicRoute {
                 if (outcome.equals("APPLIED") || outcome.equals("PARTY_DEFEATED")) applied++;
                 else if (i.action.equals("OPEN")) guide[seat].rejectedChests.add(i.cell);
                 else if (i.action.equals("REVIVE")) guide[seat].reviveDenied=true;
+                else if (guide[seat].team && (i.action.equals("THROW") || i.action.equals("ZAP") || i.action.equals("SHOOT")))
+                    guide[seat].blockedShots.add(guide[seat].shotKey(i.item,v.pos,i.cell));
                 else if (i.item!=0) guide[seat].rejectedItems.add(i.item);
                 else if (i.action.equals("MOVE")) guide[seat].blocked.add(i.cell);
                 else throw new AssertionError(result);

@@ -1,6 +1,8 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Healing;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.*;
 import com.shatteredpixel.shatteredpixeldungeon.levels.*;
@@ -188,6 +190,13 @@ public class YogArenaTest extends HeadlessDungeon {
             }
             previous=fist;
             phaseFive |= boss.phase()==5;
+            Hero acting=game.hero(game.activeSeat());
+            PotionOfHealing potion=acting.belongings.getItem(PotionOfHealing.class);
+            if (acting.HP<acting.HT/2 && acting.buff(Healing.class)==null && potion!=null && potion.isKnown()) {
+                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.DRINK,0,potion));
+                assertFalse("party lost while healing",game.defeated());
+                continue;
+            }
             if (fist!=null && fist.isInvulnerable(Hero.class)) {
                 if (Dungeon.level.distance(game.hero(0).pos,boss.pos)<11 ||
                         Dungeon.level.distance(game.hero(1).pos,boss.pos)<11) {
@@ -409,6 +418,14 @@ public class YogArenaTest extends HeadlessDungeon {
             int winner;
             try (CoopSession game=CavesInteriorTest.open(578)) {
                 arrive(game,seed);
+                // This isolated arena already stages equipment and HP. Give the pair a finite
+                // supply and exercise the real drink action when the native fight wears them down.
+                for (int seat=0;seat<2;seat++) {
+                    PotionOfHealing potions=new PotionOfHealing();
+                    potions.quantity(3);
+                    potions.setKnown();
+                    assertTrue(potions.collect(game.hero(seat).belongings.backpack));
+                }
                 start(game);
                 java.util.ArrayList<String> defeated=new java.util.ArrayList<>();
                 fight(game,defeated);

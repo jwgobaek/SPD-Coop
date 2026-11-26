@@ -1,0 +1,7 @@
+guide	seed	actions	score	hp0	hp1	defeat	halt	accepted_action_counts	observed_fatal_hits_seat_cell_preHP_source_room
+public-1	572	202	150	0	0	true	null	ATTACK=14,DRINK=2,EQUIP=1,MOVE=172,PICK_UP=11,VAULT_RECALL=2	not sampled
+public-2	572	220	150	0	0	true	null	ATTACK=28,DRINK=2,MOVE=179,PICK_UP=9,VAULT_RECALL=2	not sampled
+public-3	572	141	100	0	0	true	null	ATTACK=15,DRINK=2,EQUIP=1,MOVE=112,PICK_UP=9,VAULT_RECALL=2	not sampled
+fatal-hit-audit	572	155	150	0	0	true	null	ATTACK=16,DRINK=2,EQUIP=1,MOVE=126,PICK_UP=8,VAULT_RECALL=2	1/997/3/VaultSkeleton/VaultRingRoom,0/812/1/VaultSkeleton/VaultRingRoom
+fatal-hit-audit	578	108	200	0	0	true	null	ATTACK=8,MOVE=95,PICK_UP=3,VAULT_RECALL=2	0/144/1/VaultShaman/VaultRingsRoom,1/1391/4/LightningBolt/VaultManyScansRoom
+team	572	231	150	0	0	true	null	ATTACK=13,DRINK=2,EQUIP=1,MOVE=198,PICK_UP=15,VAULT_RECALL=2	0/1005/6/VaultSkeleton/VaultRingRoom,1/942/5/VaultSkeleton/VaultRingRoom

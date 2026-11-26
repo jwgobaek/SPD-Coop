@@ -141,10 +141,10 @@ actors/hero/HeroClass.ROGUE	HeroClass	UNSUPPORTED		core/src/main/java/com/shatte
 actors/hero/HeroClass.WARRIOR	HeroClass	VERIFIED	first-floor basic actions / CoopControllerTest, CoopPlayInputTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
 actors/hero/HeroSubClass.ASSASSIN	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.BATTLEMAGE	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
-actors/hero/HeroSubClass.BERSERKER	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
+actors/hero/HeroSubClass.BERSERKER	HeroSubClass	ISOLATED_CALLBACK	WarriorGrowthCombat: owner-only mask choice on either seat, native Guard rage / melee combo across save	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.CHAMPION	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.FREERUNNER	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
-actors/hero/HeroSubClass.GLADIATOR	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
+actors/hero/HeroSubClass.GLADIATOR	HeroSubClass	ISOLATED_CALLBACK	WarriorGrowthCombat: owner-only mask choice on either seat, native Guard rage / melee combo across save	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.MONK	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.PALADIN	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.PRIEST	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
@@ -415,11 +415,11 @@ actors/hero/spells/Sunray.SunRayUsedTracker	actors/hero/spells	UNSUPPORTED		core
 actors/hero/spells/TargetedClericSpell	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/TargetedClericSpell.java
 actors/hero/spells/WallOfLight	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/WallOfLight.java
 actors/hero/spells/WallOfLight.LightWall	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/WallOfLight.java
-actors/mobs/Acidic	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Acidic.java
+actors/mobs/Acidic	actors/mobs	VERIFIED	570 floor 24, native ranged ooze and melee retaliation on both seats, dormant and active restore, XP potion and recipient monster image / AcidicTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Acidic.java
 actors/mobs/Albino	actors/mobs	IMPLEMENTED	basicMob allowlist	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Albino.java
 actors/mobs/ArmoredBrute	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/ArmoredBrute.java
 actors/mobs/ArmoredBrute.ArmoredRage	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/ArmoredBrute.java
-actors/mobs/ArmoredStatue	actors/mobs	VERIFIED	716 Mail/Potential, 446 Leather/Repulsion, 571 Leather/AntiMagic and 578 Leather/Swiftness; two seats, parked equipment IDs, loot and confirmed strike after restart / SewerGuardiansTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/ArmoredStatue.java
+actors/mobs/ArmoredStatue	actors/mobs	VERIFIED	716 Mail/Potential, 446 Leather/Repulsion, 571 Leather/AntiMagic and 578 Leather/Swiftness; two seats, parked equipment IDs, loot and confirmed strike after restart / SewerGuardiansTest, HostRestartTest / generated late equipment and unique drops in HallsStatueTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/ArmoredStatue.java
 actors/mobs/Bandit	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bandit.java
 actors/mobs/Bat	actors/mobs	VERIFIED	native prison 9 generation and life-steal proc against both seats / LatePrisonTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bat.java
 actors/mobs/Bee	actors/mobs	VERIFIED	host and guest, guarding a pot or holder, parked and active targets / SewerBeeTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Bee.java
@@ -540,7 +540,7 @@ actors/mobs/SpectralNecromancer	actors/mobs	VERIFIED	isolated native wraith summ
 actors/mobs/Spinner	actors/mobs	VERIFIED	two seats, targeted web and poison, original AI and cooldown, park and restore / CavesInteriorTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java
 actors/mobs/Spinner.Fleeing	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java
 actors/mobs/Spinner.Hunting	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Spinner.java
-actors/mobs/Statue	actors/mobs	VERIFIED	seeds 416/420/421/428/434/435/437/444; passive base statistics, native on-hit effect, held identity and drop / SewerGuardiansTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Statue.java
+actors/mobs/Statue	actors/mobs	VERIFIED	seeds 416/420/421/428/434/435/437/444; passive base statistics, native on-hit effect, held identity and drop / SewerGuardiansTest, HostRestartTest / generated late equipment and unique drops in HallsStatueTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Statue.java
 actors/mobs/Succubus	actors/mobs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Succubus.java
 actors/mobs/Swarm	actors/mobs	VERIFIED	native split, health division and distinct scheduled actor ID / SewerResidentsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Swarm.java
 actors/mobs/Tengu	actors/mobs	VERIFIED	native staged two-seat combat, teleports, two fights, victory, published receipts / TenguArenaTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/Tengu.java
@@ -586,10 +586,10 @@ actors/mobs/npcs/PrismaticImage.Wandering	NPC	UNSUPPORTED		core/src/main/java/co
 actors/mobs/npcs/RatKing	NPC	IMPLEMENTED	resident on the fifth floor, audience and crown quest unavailable	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/RatKing.java
 actors/mobs/npcs/Sheep	NPC	VERIFIED	FlockTrap spawn, actor identity across restore and native expiry / SewerHazardsTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Sheep.java
 actors/mobs/npcs/Shopkeeper	NPC	VERIFIED	floor six native stock, price, sale and seller-bound buyback on both seats after process death / HostRestartTest; special merchandise and theft remain gated	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Shopkeeper.java
-actors/mobs/npcs/VaultLaser	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultLaser.java
+actors/mobs/npcs/VaultLaser	NPC	VERIFIED	Native beam warning, visible cells only, actual firing after restore / VaultPlayTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultLaser.java
 actors/mobs/npcs/VaultMirror	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultMirror.java
 actors/mobs/npcs/VaultMirror.MirrorSword	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultMirror.java
-actors/mobs/npcs/VaultSentry	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultSentry.java
+actors/mobs/npcs/VaultSentry	NPC	VERIFIED	Native scan cone, seat visibility and actual damage after restore / VaultPlayTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultSentry.java
 actors/mobs/npcs/VaultTokenDoor	NPC	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/VaultTokenDoor.java
 actors/mobs/npcs/Wandmaker	NPC	VERIFIED	adjacent accept and owned turn-in, two native candidates, both seats / WandmakerTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/npcs/Wandmaker.java
 actors/mobs/quest/vault/VaultBossElemental	actors/mobs/quest/vault	VERIFIED	native 600 HP final fight, three forms, saved weights and future RNG, death and existing treasure / VaultElementalTest and verify-vault-elemental.py	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/mobs/quest/vault/VaultBossElemental.java
@@ -617,7 +617,7 @@ items/ArcaneResin	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatt
 items/ArcaneResin.Recipe	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/ArcaneResin.java
 items/BrokenSeal	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/BrokenSeal.java
 items/BrokenSeal.WarriorShield	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/BrokenSeal.java
-items/Dewdrop	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Dewdrop.java
+items/Dewdrop	items	VERIFIED	Native loose dew pickup in the vault, either seat, full-health refusal and heal / VaultPlayTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Dewdrop.java
 items/EnergyCrystal	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/EnergyCrystal.java
 items/EquipableItem	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/EquipableItem.java
 items/Generator	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Generator.java
@@ -664,7 +664,7 @@ items/armor/curses/Overgrowth	items/armor/curses	UNSUPPORTED		core/src/main/java
 items/armor/curses/Stench	items/armor/curses	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/curses/Stench.java
 items/armor/glyphs/Affection	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Affection.java
 items/armor/glyphs/AntiMagic	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/AntiMagic.java
-items/armor/glyphs/Brimstone	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Brimstone.java
+items/armor/glyphs/Brimstone	items/armor/glyphs	VERIFIED	581 generated PlateArmor on hostile statue, original burn immunity and physical drop / HallsStatueTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Brimstone.java
 items/armor/glyphs/Camouflage	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Camouflage.java
 items/armor/glyphs/Entanglement	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Entanglement.java
 items/armor/glyphs/Flow	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Flow.java
@@ -674,7 +674,7 @@ items/armor/glyphs/Repulsion	items/armor/glyphs	VERIFIED	native statue proc queu
 items/armor/glyphs/Stone	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Stone.java
 items/armor/glyphs/Swiftness	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Swiftness.java
 items/armor/glyphs/Thorns	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Thorns.java
-items/armor/glyphs/Viscosity	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Viscosity.java
+items/armor/glyphs/Viscosity	items/armor/glyphs	VERIFIED	572 generated ScaleArmor on hostile statue, native deferred damage and physical drop / HallsStatueTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Viscosity.java
 items/armor/glyphs/Viscosity.DeferedDamage	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Viscosity.java
 items/armor/glyphs/Viscosity.ViscosityTracker	items/armor/glyphs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/glyphs/Viscosity.java
 items/artifacts/AlchemistsToolkit	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/AlchemistsToolkit.java
@@ -857,7 +857,7 @@ items/quest/GooBlob	items/quest	VERIFIED	original 2–4 quantity across host ter
 items/quest/ImpStatue	items/quest	VERIFIED	original treasure pickup and 4000 tier in staged seed 572 fight / VaultElementalTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/ImpStatue.java
 items/quest/MetalShard	items/quest	VERIFIED	two to four original shards, owned pickup and idempotent receipt / CavesBossTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/MetalShard.java
 items/quest/Pickaxe	items/quest	VERIFIED	Original issue, owner-authorized mining, quest escrow and buyback; MiningBranchTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/Pickaxe.java
-items/quest/VaultBeacon	items/quest	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/VaultBeacon.java
+items/quest/VaultBeacon	items/quest	VERIFIED	Generated physical item, owner recall, blocked landing refusal, both lost-reply TCP boundaries / VaultPlayTest, verify-vault-elemental.py beacon-host beacon-guest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/quest/VaultBeacon.java
 items/remains/BowFragment	items/remains	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/remains/BowFragment.java
 items/remains/BrokenHilt	items/remains	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/remains/BrokenHilt.java
 items/remains/BrokenStaff	items/remains	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/remains/BrokenStaff.java
@@ -1123,11 +1123,11 @@ items/weapon/melee/Dagger	items/weapon/melee	IMPLEMENTED	basicWeapon allowlist	c
 items/weapon/melee/Dirk	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Dirk.java
 items/weapon/melee/Flail	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Flail.java
 items/weapon/melee/Flail.SpinAbilityTracker	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Flail.java
-items/weapon/melee/Gauntlet	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Gauntlet.java
+items/weapon/melee/Gauntlet	items/weapon/melee	VERIFIED	Hostile statue only, 572 Blazing and 579 Unstable / HallsStatueTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Gauntlet.java
 items/weapon/melee/Glaive	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Glaive.java
 items/weapon/melee/Gloves	items/weapon/melee	VERIFIED	starter equip and unequip / CoopPlayInputTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Gloves.java
 items/weapon/melee/Greataxe	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Greataxe.java
-items/weapon/melee/Greatshield	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Greatshield.java
+items/weapon/melee/Greatshield	items/weapon/melee	VERIFIED	574 hostile Kinetic statue, passive defense and conserved damage / HallsStatueTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Greatshield.java
 items/weapon/melee/Greatsword	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Greatsword.java
 items/weapon/melee/HandAxe	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/HandAxe.java
 items/weapon/melee/Katana	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Katana.java
@@ -1149,7 +1149,7 @@ items/weapon/melee/Sai.ComboStrikeTracker	items/weapon/melee	UNSUPPORTED		core/s
 items/weapon/melee/Scimitar	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Scimitar.java
 items/weapon/melee/Scimitar.SwordDance	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Scimitar.java
 items/weapon/melee/Shortsword	items/weapon/melee	VERIFIED	pickup and equip / SyncIntegrationTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Shortsword.java
-items/weapon/melee/Sickle	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Sickle.java
+items/weapon/melee/Sickle	items/weapon/melee	VERIFIED	Plain identified vault sickle, pickup, equip and restore by either seat. No Duelist ability / VaultPlayTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Sickle.java
 items/weapon/melee/Sickle.HarvestBleedTracker	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Sickle.java
 items/weapon/melee/Spear	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Spear.java
 items/weapon/melee/Sword	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Sword.java

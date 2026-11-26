@@ -1,5 +1,7 @@
 # 단계와 다음 작업
 
+다음 구현은 시드 572 금고의 실제 Dart 투척·회수, 링 방에서의 동료 엄호, 이어서 가면·왕관의 좌석별 소비 경계다. [검증 기록](docs/coop/vault-play-results.md)
+
 다음 순서는 실제 입구부터 시드 572의 4,000점 완주, 남은 여섯 시드 차단, 전직·왕관 정책별 격리 검증이다. [실행 결과와 다음 작업](docs/coop/vault-ascent-results.md)
 
 다음 체크포인트는 시드 572의 VaultBossElemental이다. 세 속성 전환과 실제 ImpStatue 획득을 저장 경계에서 검증한 뒤 최고 점수 탈출과 보상을 연결한다. 정상 성장 및 귀환은 별도 시험으로 진행한다. [최종 보스·승리 검증 기록](docs/coop/yog-victory-results.md)

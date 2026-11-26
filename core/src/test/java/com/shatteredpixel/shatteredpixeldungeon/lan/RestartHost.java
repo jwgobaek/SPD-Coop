@@ -26,7 +26,8 @@ import static org.junit.Assert.*;
 /** Fresh host process for every invocation. Control files are confined to a test-private directory. */
 public final class RestartHost {
     static boolean measureBoundary(String mode) {
-        return Boolean.getBoolean("spd.measureElemental") && (mode.equals("tengu-read-elemental-warning") || mode.equals("tengu-read-ascent-24"))
+        return Boolean.getBoolean("spd.measureElemental") && (mode.equals("tengu-read-elemental-warning") || mode.equals("tengu-read-ascent-24")
+                || mode.startsWith("tengu-read-elemental-beacon-"))
                 || Boolean.getBoolean("spd.measureYog") && (mode.equals("tengu-read-yog-warning") || mode.equals("tengu-read-yog-last"))
                 || Boolean.getBoolean("spd.measureVault") && (mode.equals("tengu-read-vault-enter") || mode.equals("tengu-read-vault-hall24"))
                 || mode.equals("tengu-read-devices") || mode.equals("tengu-read-city-19")
