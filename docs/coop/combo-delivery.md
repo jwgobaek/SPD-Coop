@@ -27,3 +27,14 @@ GB2의 기본 인스턴스는 127.0.0.1:5559와 16448에서 같은 부팅 ID를 
 두 Android의 이번 다운로드 경로와 해시를 확인하고 해당 설치 파일만 삭제했다. 5559의 forward와 16480의 reverse를 개별 해제했다. 임시 57955번 리스너는 0개였고 이번에 붙인 16480 ADB만 연결 해제했다. 기존 5559 ADB와 Remote Desktop Commander가 응답했다. Windows에 프로젝트 파일을 만들지 않았고 사용자 디스크 전체 검사는 수행하지 않았다. 두 MuMu 프로세스가 실행 중이었고 심각한 프리징은 관측되지 않았다. 종료 CPU 1%, 가용 메모리 2,973 / 16,085 MiB였다.
 
 [Cloud 기능 및 후속 작업](combo-results.md)
+
+## 발행 후 실제 다운로드
+
+| 기존 파일 | 이번 내용 갱신 | 다운로드 바이트 | 다운로드 SHA-256 |
+|---|---:|---:|---|
+| [SPD-Coop-latest.apk](https://drive.google.com/file/d/1UhjuelcgZwugUyiGmAHco_dXdnTFuDZ2/view) | 1회 | 35,341,108 | `74e8f3f48912e2f5676cf9412685c845dc112fb70853dd5a09c07cd0708abc53` |
+| [SPD-Coop-latest-backup.zip](https://drive.google.com/file/d/1nxC-3dq29HUmt7pSuoYP8JGqUALNVvW8/view) | 1회 | 74,434,438 | `d274120c10f790e88e82bcea5cd2df167c0be1ee1ca80e8bf054a62f84daad16` |
+
+두 파일의 기존 ID와 폴더를 유지했다. 각 파일은 anyone/reader, allowFileDiscovery=false였다. Cloud에서 쿠키 없는 HTTP 요청으로 두 파일을 끝까지 다운로드해 배포 파일과 바이트 단위로 대조했다. APK는 별도로 두 Android Chromium의 다운로드와 설치본 해시까지 확인했다.
+
+소스 2,316개를 빌드 커밋과 대조하고 체크섬 2,635개를 검증했다. ZIP의 검증 기록 커밋은 `fa764d71d80f79ae8221b22649f100b3c12f2087`이다. 이전 APK와 ZIP의 최종 리비전 ID가 각각 발행 후의 직전 리비전 ID와 일치했다. 두 직전 리비전의 keepForever는 false이고 장기 보존과 실제 롤백은 미검증이다.
