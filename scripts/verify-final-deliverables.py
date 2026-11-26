@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Check the final APK and its combined backup locally without writing to Drive."""
+import csv
 import hashlib
 import re
 import subprocess
 import sys
 import tarfile
+import uuid
 import zipfile
 from pathlib import Path, PurePosixPath
 
@@ -23,6 +25,39 @@ def allowed(name):
 
 def digest(stream):
     return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
+def verify_selector_candidate(apk, observations):
+    """Compare the candidate to measured installations and completed device trials."""
+    with apk.open("rb") as source:
+        candidate_hash = digest(source)
+    selectors = {"HolyIntuition", "RecallInscription", "BodyForm", "MindForm", "SpiritForm"}
+    expected = {(role, selector) for role in ("host", "guest") for selector in selectors}
+    boots = {}
+    seen = set()
+    with observations.open(encoding="utf-8", newline="") as stream:
+        rows = csv.DictReader(stream, delimiter="\t")
+        columns = ["role", "boot_id", "base_apk_sha256", "selector", "result", "crashes", "anrs"]
+        if rows.fieldnames != columns:
+            raise ValueError("Unexpected selector evidence header")
+        for row in rows:
+            if None in row or any(not row[col] for col in columns):
+                raise ValueError("Malformed selector evidence row")
+            role = row["role"]
+            pair = (role, row["selector"])
+            if pair not in expected or pair in seen:
+                raise ValueError(f"Unknown or duplicate selector trial: {pair}")
+            seen.add(pair)
+            boot = uuid.UUID(row["boot_id"])
+            if not boot.int or boots.setdefault(role, boot) != boot:
+                raise ValueError(f"The device changed during the {role} trials")
+            if row["base_apk_sha256"] != candidate_hash:
+                raise ValueError(f"Installed {role} APK differs from the candidate")
+            if row["result"] != "PASS" or row["crashes"] != "0" or row["anrs"] != "0":
+                raise ValueError(f"Incomplete or failed Android trial: {pair}")
+    if seen != expected or len(set(boots.values())) != 2:
+        raise ValueError("Require all five trials on each of two distinct Android boots")
+    print(f"PASS candidate {candidate_hash} matches both installations and 10 recorded Android trials")
 
 
 def verify(directory, commit):
@@ -73,6 +108,13 @@ def verify(directory, commit):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        sys.exit("Usage: python3 scripts/verify-final-deliverables.py DIRECTORY FULL_APK_COMMIT")
-    verify(Path(sys.argv[1]), sys.argv[2])
+    if len(sys.argv) == 4 and sys.argv[1] == "--selector-candidate":
+        try:
+            verify_selector_candidate(Path(sys.argv[2]), Path(sys.argv[3]))
+        except (ValueError, OSError) as error:
+            sys.exit(f"Selector candidate not certified: {error}")
+    elif len(sys.argv) == 3:
+        verify(Path(sys.argv[1]), sys.argv[2])
+    else:
+        sys.exit("Usage: verify-final-deliverables.py DIRECTORY FULL_APK_COMMIT\n"
+                 "   or: verify-final-deliverables.py --selector-candidate APK ANDROID_OBSERVATIONS.tsv")

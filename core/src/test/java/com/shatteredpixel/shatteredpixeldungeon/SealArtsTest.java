@@ -19,6 +19,52 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class SealArtsTest extends HeadlessDungeon {
+    /** Disposable profiles stop before the selector, leaving the actual cast to the client. */
+    public static void prepareSelectors(CoopSession game, String kind, int seats) {
+        Rat enemy = CoopMageTest.encounter(game, 0);
+        for (int seat = 0; seat < seats; seat++) {
+            SewerBeeTest.offer(game, seat);
+            if (kind.equals("intuition") || kind.equals("recall")) {
+                stage(game, kind.equals("recall") ? "recallid" : "intuition", seat, enemy);
+                continue;
+            }
+            Hero hero = game.hero(seat);
+            hero.lvl = 30;
+            if (seat == 0) {
+                KingsCrown crown = CrownAbilityTest.crown(game, seat, CoopSession.MaskTrial.ROSTER);
+                assertTrue(CoopFloorsTest.step(game, CoopSession.Action.USE_CROWN, 1, crown));
+            } else {
+                assertTrue(CoopFloorsTest.step(game, CoopSession.Action.CLAIM_ARMOR, 1, null));
+            }
+            SewerBeeTest.offer(game, seat);
+            Talent talent;
+            Item reference;
+            switch (kind) {
+            case "body":
+                talent = Talent.BODY_FORM;
+                reference = new ClothArmor().inscribe(new Swiftness());
+                break;
+            case "mind":
+                talent = Talent.MIND_FORM;
+                reference = new WandOfLightning();
+                break;
+            case "spirit":
+                talent = Talent.SPIRIT_FORM;
+                reference = new com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste();
+                break;
+            default: throw new IllegalArgumentException("Unknown selector " + kind);
+            }
+            assertTrue(CoopFloorsTest.step(game, CoopSession.Action.INVEST_TALENT, talent.ordinal(), null));
+            HolyTome tome = (HolyTome) hero.belongings.artifact;
+            tome.upgrade();
+            tome.charge(hero, 10);
+            reference.identify();
+            assertTrue(reference.collect(hero.belongings.backpack));
+            game.ownership.claim(reference, game.player(seat));
+        }
+        SewerBeeTest.offer(game, 0);
+    }
+
     static HeroClass role(String type) {
         if (type.startsWith("spark")) return HeroClass.MAGE;
         if (type.startsWith("monk")) return HeroClass.DUELIST;
@@ -77,7 +123,7 @@ public class SealArtsTest extends HeadlessDungeon {
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.USE_CROWN,1,CrownAbilityTest.crown(game,seat,CoopSession.MaskTrial.OWNER)));
                 SewerBeeTest.offer(game,seat);
             }
-            Talent talent=type.equals("trinitymind") ? Talent.MIND_FORM : type.equals("trinityspirit") ? Talent.SPIRIT_FORM :
+            Talent talent=type.startsWith("trinitymind") ? Talent.MIND_FORM : type.startsWith("trinityspirit") ? Talent.SPIRIT_FORM :
                     type.equals("recallid") ? Talent.RECALL_INSCRIPTION : trinity ? Talent.BODY_FORM : type.equals("intuition") ? Talent.HOLY_INTUITION : Talent.BLESS;
             assertTrue(CoopFloorsTest.step(game,CoopSession.Action.INVEST_TALENT,talent.ordinal(),null));
             if (talent==Talent.BLESS) return new StagedInput(game,"BLESS",hero.pos);
@@ -92,6 +138,7 @@ public class SealArtsTest extends HeadlessDungeon {
                 game.ownership.claim(reference,game.player(seat));
                 int index=0;
                 for (Item entry : hero.belongings) { index++; if (entry==reference) break; }
+                if (type.endsWith("select")) return new StagedInput(game, talent.name(), index);
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.valueOf(talent.name()),index,hero.belongings.artifact));
                 return new StagedInput(game,talent==Talent.MIND_FORM ? "TRINITY_MIND" : "TRINITY_SPIRIT",talent==Talent.MIND_FORM ? rat.pos : hero.pos);
             }
@@ -170,6 +217,11 @@ public class SealArtsTest extends HeadlessDungeon {
         case "recallid": return hero.belongings.backpack.items.stream().anyMatch(i -> i instanceof ClothArmor && i.isIdentified()) && hero.buff(RecallInscription.UsedItemTracker.class)==null;
         case "intuition": return hero.belongings.backpack.items.stream().anyMatch(i -> i instanceof ClothArmor && i.cursedKnown && !i.levelKnown);
         case "bless": return hero.buff(Bless.class)!=null && hero.buff(Barrier.class)!=null && game.hero(1-seat).buff(Bless.class)==null;
+        case "trinitymindselect": case "trinityspiritselect":
+            Talent form = type.equals("trinitymindselect") ? Talent.MIND_FORM : Talent.SPIRIT_FORM;
+            HolyTome tome = (HolyTome) hero.belongings.artifact;
+            return ((Trinity) hero.armorAbility).hasForm(form) && tome.charges() < tome.capacity()
+                    && game.hero(1-seat).armorAbility == null;
         case "trinityselect": return ((Trinity)hero.armorAbility).hasForm(Talent.BODY_FORM) && ((HolyTome)hero.belongings.artifact).charges()<3 && hero.armorAbility instanceof Trinity;
         case "trinity": return hero.buff(BodyForm.BodyFormBuff.class)!=null && hero.buff(BodyForm.BodyFormBuff.class).glyph() instanceof Swiftness
                 && armor.hasGlyph(Swiftness.class,hero) && !game.hero(1-seat).belongings.armor().hasGlyph(Swiftness.class,game.hero(1-seat));
@@ -195,7 +247,7 @@ public class SealArtsTest extends HeadlessDungeon {
     }
 
     @Test public void nativeSeatActionsKeepEffectsAndOwnershipAcrossRestore() {
-        for (String type : new String[]{"sealdetach","sealattach","sealkeep","sealtransfer","rationthrow","challenge","elestrike","feint","ascendform","lightally","lightorder","trinitymind","trinityspirit","recallid","intuition","bless","trinityselect","trinity","monkflurry","monkdash","monkdragonkick","monkmeditate","sparkimbue","spark","sparkblast","sparkvolley"}) {
+        for (String type : new String[]{"sealdetach","sealattach","sealkeep","sealtransfer","rationthrow","challenge","elestrike","feint","ascendform","lightally","lightorder","trinitymind","trinityspirit","trinitymindselect","trinityspiritselect","recallid","intuition","bless","trinityselect","trinity","monkflurry","monkdash","monkdragonkick","monkmeditate","sparkimbue","spark","sparkblast","sparkvolley"}) {
             for (int seat=0;seat<2;seat++) {
                 try {
                     Bundle saved;
@@ -208,7 +260,7 @@ public class SealArtsTest extends HeadlessDungeon {
                         Item item=hero.belongings.armor();
                         if (!CoopSession.Action.valueOf(input.verb).requiresItem()) item=null;
                         else if (input.verb.equals("ZAP") || input.verb.equals("IMBUE")) item=hero.belongings.weapon();
-                        else if (input.verb.matches("BODY_FORM|BLESS|HOLY_INTUITION|RECALL_INSCRIPTION")) item=hero.belongings.artifact;
+                        else if (input.verb.matches("BODY_FORM|MIND_FORM|SPIRIT_FORM|BLESS|HOLY_INTUITION|RECALL_INSCRIPTION")) item=hero.belongings.artifact;
                         else if (type.equals("rationthrow")) item=hero.belongings.getItem(Food.class);
                         else if (type.startsWith("seal") && !type.equals("sealdetach")) item=hero.belongings.getItem(BrokenSeal.class);
                         assertTrue("input "+input.verb+" energy "+(hero.buff(MonkEnergy.class)==null ? "-" : hero.buff(MonkEnergy.class).energy)+" active "+game.activeSeat()+" pos "+hero.pos+" cell "+input.cell,CoopFloorsTest.step(game,CoopSession.Action.valueOf(input.verb),input.cell,item));
@@ -218,6 +270,35 @@ public class SealArtsTest extends HeadlessDungeon {
                     }
                     try (CoopSession game=CoopSession.restore(saved)) { assertTrue("restore",published(game,type,seat)); }
                 } catch (Throwable e) { throw new AssertionError(type+" seat "+seat,e); }
+            }
+        }
+    }
+
+    @Test public void itemSelectorsRejectOtherSeatsTomeAndMissingTargetBeforeAnyEffect() {
+        String[] selectors = {"intuition", "recallid", "trinityselect", "trinitymindselect", "trinityspiritselect"};
+        for (String selector : selectors) for (int seat = 0; seat < 2; seat++) {
+            try (CoopSession game = CoopSession.open(572, 11, HeroClass.CLERIC)) {
+                game.join(22, HeroClass.CLERIC);
+                Rat foe = CoopMageTest.encounter(game, seat);
+                SewerBeeTest.offer(game, seat);
+                StagedInput choice = stage(game, selector, seat, foe);
+                CoopSession.Action spell = CoopSession.Action.valueOf(choice.verb);
+                HolyTome mine = (HolyTome) game.hero(seat).belongings.artifact;
+                HolyTome theirs = (HolyTome) game.hero(1-seat).belongings.artifact;
+                int before = mine.charges(), other = theirs.charges();
+                long turn = game.turn();
+
+                assertFalse(selector, CoopFloorsTest.step(game, spell, choice.cell, theirs));
+                assertFalse(selector, CoopFloorsTest.step(game, spell, Integer.MAX_VALUE, mine));
+                assertEquals(turn, game.turn());
+                assertEquals(before, mine.charges());
+                assertEquals(other, theirs.charges());
+                assertFalse(selector, published(game, selector, seat));
+
+                assertTrue(selector, CoopFloorsTest.step(game, spell, choice.cell, mine));
+                assertTrue(selector, published(game, selector, seat));
+                assertTrue(mine.charges() < before);
+                assertEquals(other, theirs.charges());
             }
         }
     }

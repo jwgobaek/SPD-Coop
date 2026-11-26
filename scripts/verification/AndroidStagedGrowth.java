@@ -14,13 +14,28 @@ public class AndroidStagedGrowth extends HeadlessDungeon {
         AndroidStagedGrowth fixture = new AndroidStagedGrowth();
         fixture.temporary.create();
         fixture.startBackend();
+        if (args.length == 3 && args[0].equals("--check-archive")) {
+            try {
+                AndroidTrialTickets.checkArchivedRoom(Path.of(args[1]), Integer.parseInt(args[2]));
+            } finally {
+                fixture.stopBackend();
+                fixture.temporary.delete();
+            }
+            return;
+        }
+        boolean selectors = args.length == 3 && args[2].startsWith("selector-");
         boolean seals=args.length==3 && args[2].equals("seal");
         boolean armor=args.length==3 && args[2].equals("armor");
         boolean monkTrinity=args.length==3 && args[2].equals("monk-trinity");
         boolean sparkRogue=args.length==3 && args[2].equals("spark-rogue");
-        HeroClass host=seals ? HeroClass.WARRIOR : (armor || monkTrinity) ? HeroClass.DUELIST : HeroClass.MAGE;
+        HeroClass host=selectors ? HeroClass.CLERIC : seals ? HeroClass.WARRIOR : (armor || monkTrinity) ? HeroClass.DUELIST : HeroClass.MAGE;
         try (CoopSession game = CoopSession.open(572, 1, host)) {
             game.join(2, sparkRogue ? HeroClass.ROGUE : HeroClass.CLERIC);
+            if (selectors) {
+                SealArtsTest.prepareSelectors(game, args[2].substring("selector-".length()), 2);
+                AndroidTrialTickets.export(Path.of(args[0]), Path.of(args[1]), game);
+                return;
+            }
             Rat target = CoopMageTest.encounter(game, 0);
             SewerBeeTest.offer(game, 0);
             if (monkTrinity || sparkRogue) {

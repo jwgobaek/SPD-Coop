@@ -1,5 +1,24 @@
 # 최종 검증판 발행
 
+## 후보 검증과 발행 순서
+
+후보 APK의 빌드 커밋, 크기, SHA-256, 패키지, 기존 서명과 JUnit XML을 Cloud에서 고정한다. 승인된 비공개 전달 경로가 있으면 두 Android의 기존 자료를 보존해 업데이트한 뒤 **각 base.apk의 해시가 후보와 일치하는 상태**에서 신규 기능과 기존 핵심 UI를 조작한다. 오류가 나오면 수정한 바이트를 새 후보로 취급하고 영향을 받는 Android 시험을 반복한다.
+
+검증한 후보를 기존 Drive APK ID에 한 번 갱신하고 비로그인으로 내려받아 대조한다. Android 시험 결과까지 확정한 뒤 동일 APK 커밋의 소스와 증거로 통합 ZIP을 만들어 기존 ID에 한 번 갱신한다. 발행 전 두 파일의 최신 리비전과 이번 작업의 전송 횟수를 확인한다. 이전 작업의 완료 기록과 이번 작업의 전송을 구분하되 같은 발행 작업의 재시도는 별도 회차로 세지 않는다.
+
+비공개 전달이 불가능한 경우 사용자가 허용한 검증 전 발행 예외는 **해당 발행 작업에 APK 갱신 기회가 남아 있을 때** 적용한다. 사전 검증의 제한을 기록하고, 서명과 수정 회귀를 확인한 정확한 후보를 발행한 뒤 Android에서 검사한다. 이 예외로 먼저 발행한 APK가 실패하면 같은 작업의 두 번째 APK 교체는 할 수 없다. 이번 수정 후보의 관리 파일 교체는 자동 승인 검토가 이미 소비한 전송과 미완료 Android 인수를 이유로 거절했다. 현재 APK와 ZIP의 추가 전송 횟수는 각각 0회다. [이번 검사 기록](docs/coop/selector-repair-results.md)
+
+성서 오류의 사전 검증에는 Cloud에서 아래 검사를 사용한다.
+
+```sh
+python3 scripts/verify-final-deliverables.py --selector-candidate CANDIDATE.apk ANDROID_OBSERVATIONS.tsv
+```
+
+비공개 관측 파일의 탭 구분 헤더는 `role boot_id base_apk_sha256 selector result crashes anrs` 순서다. 부팅 ID는 시험 Android 자체에서 읽고 SHA-256은 설치된 base.apk에서 읽는다. `role`은 host 또는 guest, `selector`는 HolyIntuition, RecallInscription, BodyForm, MindForm, SpiritForm 중 하나다. 실제 조작·취소·재선택·시전·충전·저장·재인증·다음 행동을 확인한 후에만 해당 행에 PASS를 기록한다. 같은 시험 구간의 앱 크래시와 ANR을 센다. 명령은 후보 파일을 해시하고 관측표의 두 부팅, 설치본 및 열 개 결과를 대조한다. 화면이나 로그의 판독은 직접 수행한다. [기기 절차](ANDROID-REMOTE-TESTING.md)
+
+최종 ZIP이 생기면 기존 `python3 scripts/verify-final-deliverables.py DIRECTORY FULL_APK_COMMIT` 검사로 관리 APK, ZIP의 체크섬과 실제 소스를 대조한다.
+
+
 인장·갑옷판의 실제 배포 소스, Android에서 찾은 오류, 후속 수정 소스와 두 결과물의 검사값은 [이번 발행 기록](docs/coop/seal-arts-delivery.md)에 있다.
 
 Yog 일반 승리판도 기존 두 관리 파일의 ID를 유지한다. 통합 ZIP 안에 APK 빌드 소스와 후속 검증 커밋의 테스트 및 보고서를 별도 경로로 수록한다. [최종 보스·승리 검증 기록](docs/coop/yog-victory-results.md)
@@ -21,10 +40,10 @@ GitHub의 coop/phase8에는 검증된 소스 체크포인트를 기록한다. Go
 
 ## 빌드와 발행 순서
 
-1. 전체 JUnit 회귀, APK 패키지·서명·빌드 커밋, 일반 Git 푸시 및 원격 커밋을 확인한다. APK와 ZIP 각각의 로컬 크기와 SHA-256을 기록한다.
-2. 통합 ZIP에는 APK 빌드 커밋의 소스, 에셋, Gradle Wrapper JAR, 라이선스·크레딧, 빌드 도구와 문서, 실제 JUnit XML·빌드·서명 로그·화면·체크섬·BUILD-INFO.txt·남은 작업을 포함한다. APK와 이전 증거 압축 파일을 제외한다. 서명 개인 키, 인증값 및 사용자 세이브를 제외하고 압축 내부를 검사한다.
-3. 지정 계정과 실제 프로젝트·대상 폴더 ID, 기존 파일 ID와 소유자을 확인한다. 기존 백업 기록과 해시가 같으면 해당 링크를 재사용한다. 과거 폴더를 소급 조사하지 않는다.
-4. 지정된 두 기존 파일 ID를 확인하고 같은 ID의 내용만 갱신한다. 파일 접근 또는 내용 갱신이 불가능하면 Cloud 결과물과 사유를 기록한다. 두 파일만 링크 뷰어(anyone/reader, allowFileDiscovery=false) 및 다운로드를 허용한다. 폴더와 이전 파일의 권한은 보존한다. 공개 전 개인 PC 경로·좌석 키·로그·화면을 검사한다. 이전 리비전의 복구 가능성을 확인하고 APK 갱신 후 MuMu 안에서 로그아웃 다운로드와 크기·SHA-256을 검사한 뒤 Android 결과를 포함한 ZIP을 갱신한다.
-5. 응답 유실·시간 초과 시 먼저 대상 ID나 부모 폴더에서 파일을 다시 조회한다. 전송 후 원격 파일 크기와 SHA-256을 비교하고 접근 범위를 확인한다. 실제 APK·ZIP 전송 횟수, 신규 생성 또는 갱신, 검증 수준과 각 링크를 보고한다. 실패 시 검증된 Cloud 파일을 제공한다.
+1. 전체 JUnit, 패키지, 기존 서명과 APK 빌드 커밋을 확인한다. 개발 브랜치에 일반 푸시하고 원격 커밋을 대조한다.
+2. 두 관리 파일의 소유 계정·폴더·ID와 현재 리비전, 남은 갱신 횟수를 확인한다. 이미 같은 파일이면 링크를 재사용한다.
+3. 위 후보 검증 절차에 따라 실제 Android 인수를 수행한다. 설치본과 같은 SHA-256의 APK를 기존 ID에 발행하고 비로그인 다운로드의 바이트 수와 SHA-256을 대조한다. 검증 전 발행 예외를 사용했다면 해당 상태와 후속 기기 판정을 기록한다.
+4. Android 결과가 확정되면 소스·에셋·Gradle Wrapper JAR·라이선스·크레딧·전체 JUnit XML·빌드·서명·화면·체크섬·BUILD-INFO와 남은 작업을 통합 ZIP에 담는다. 서명 키, 개인 저장, 인증값, APK 및 과거 ZIP을 제외한다.
+5. ZIP을 검사해 기존 ID에 한 번 발행한다. 비로그인 다운로드의 크기와 SHA-256, 두 파일의 접근 권한과 실제 전송 횟수를 보고한다. 전송이 막히면 Cloud 보존 경로와 검증한 마지막 해시를 기록한다.
 
 통합 ZIP의 source/는 APK 빌드 커밋의 Git 트리에서 구성하고, 검증 문서와 검증 당시 자료는 documentation/ 및 evidence/에 둔다. Python 3.11 이상에서 `python3 scripts/verify-final-deliverables.py <두 파일이 있는 디렉터리> <APK의 전체 커밋>`을 실행하면 모든 구성 파일, 독립 APK의 SHA-256 및 빌드 커밋과의 소스 일치를 게시 전에 검사할 수 있다.

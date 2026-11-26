@@ -1,5 +1,9 @@
 # 미해결 문제
 
+## 현재 관리 APK의 게스트 종료
+
+Drive와 두 MuMu에 설치된 `07b1889`의 신성한 직감은 FAIL이다. 수정 후보의 Desktop 회귀는 통과했고 Android는 NOT RUN이다. 미승인 후보 전달과 이미 사용한 발행 횟수가 기기 검증을 막고 있다. [수정 후보와 실제 시험 결과](docs/coop/selector-repair-results.md)
+
 ## 이번 빌드의 제한
 
 Drive의 `07b1889`에서 성서의 신성한 직감 물품 선택 직후 Android 게스트 앱이 종료됐다. 각인 회수와 Trinity 참조 물품 선택도 같은 창 연결을 쓴다. `9969d23`은 다음 가방을 살아 있는 협동 장면에 붙인다. 수정된 Desktop의 실제 입력은 통과했고 수정 APK의 Android 재검증이 남았다. [Android 실측](docs/coop/seal-arts-android.md)

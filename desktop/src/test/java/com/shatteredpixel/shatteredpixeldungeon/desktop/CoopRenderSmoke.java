@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.lan.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.*;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.*;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
@@ -30,8 +31,12 @@ public final class CoopRenderSmoke {
     private static boolean caves,tengu,latePrison,wandmaker,seventh,knife,market,armored,scribe,prison,controls,shortcutKit,shortcuts,mage,floors,sentry,ghost,mimic,crystal,golden,statue,hazards,unstable,deep,kit,garden;
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
+        if (args[0].equals("selector-host")) {
+            selectorHost(new File(args[1]), Integer.parseInt(args[2]));
+            return;
+        }
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -69,6 +74,73 @@ public final class CoopRenderSmoke {
         },"Desktop UI test");
         driver.setDaemon(true); driver.start(); DesktopLauncher.main(new String[0]);
     }
+    // Resume the original staged server and tickets through the normal LAN protocol.
+    // The GUI process only has the guest profile. The host uses its own engine and storage.
+    private static void selectorHost(File directory, int port) throws Exception {
+        var backend = new com.shatteredpixel.shatteredpixeldungeon.SealArtsTest();
+        backend.temporary.create();
+        backend.startBackend();
+        CoopController host = new CoopController(new File(directory, "seat0"), null, InetAddress.getLoopbackAddress(), port, 0);
+        try {
+            host.saved(false);
+            await(() -> host.frame().page == CoopController.Page.SAVES && !host.busy());
+            if (host.frame().list.size() != 1) throw new AssertionError("Expected one isolated test room");
+            host.resume(host.frame().list.get(0).id, false);
+            await(() -> host.frame().dungeon != null);
+            java.nio.file.Files.createFile(new File(directory, "host-ready").toPath());
+            long deadline = System.nanoTime() + 4*LIMIT;
+            ProcessHandle gui = ProcessHandle.current().parent().orElseThrow();
+            while (gui.isAlive() && System.nanoTime() < deadline && !new File(directory, "complete").exists()) {
+                CoopController.Frame offered = host.frame();
+                if (!host.busy() && offered.dungeon != null && offered.dungeon.offered)
+                    host.act(offered.image, "WAIT", 0, 0);
+                Thread.sleep(35);
+            }
+        } finally {
+            host.shutdown();
+            backend.stopBackend();
+            backend.temporary.delete();
+        }
+    }
+
+    private static void guestSelectors(File directory, int port) throws Exception {
+        String address = "127.0.0.1:" + port;
+        Process host = new ProcessBuilder(System.getProperty("java.home")+"/bin/java", "-cp",
+                System.getProperty("java.class.path"), CoopRenderSmoke.class.getName(), "selector-host",
+                directory.toString(), Integer.toString(port)).inheritIO().start();
+        try {
+            await(() -> new File(directory, "host-ready").isFile());
+            CoopController client = hostController();
+            client.saved(true);
+            await(() -> client.frame().page == CoopController.Page.TICKETS && !client.busy());
+            if (client.frame().list.size() != 1) throw new AssertionError("Expected one guest ticket");
+            java.util.UUID room = client.frame().list.get(0).id;
+            client.reconnect(room, address);
+            await(() -> client.frame().dungeon != null && client.frame().seat == 1);
+            await(() -> client.frame().dungeon.offered);
+            int unopenedCharge = ownTome().charges;
+            openSelector(ownTome().id, selectorCase().spell.name());
+            client.leave(false);
+            await(() -> client.frame().page == CoopController.Page.MENU && !selectorOpen() && !client.busy());
+            client.reconnect(room, address);
+            await(() -> client.frame().dungeon != null && client.frame().dungeon.offered);
+            if (ownTome().charges != unopenedCharge) throw new AssertionError("Leaving an open selector spent charge");
+            selectorInputs();
+            int charge = ownTome().charges;
+            client.leave(false);
+            await(() -> client.frame().page == CoopController.Page.MENU && !client.busy());
+            client.reconnect(room, address);
+            await(() -> client.frame().dungeon != null && client.frame().seat == 1 && client.frame().dungeon.offered);
+            if (ownTome().charges != charge || frame().pending != 0) throw new AssertionError("Guest charge or receipt changed on reconnect");
+            waitAndRegainTurn();
+            shot("guest-restored-next-action");
+            System.out.println("PASS guest reauthentication, charge and next action: " + regionShot);
+        } finally {
+            java.nio.file.Files.createFile(new File(directory, "complete").toPath());
+            if (!host.waitFor(8, TimeUnit.SECONDS)) host.destroyForcibly();
+        }
+    }
+
     private static void guest(File root,boolean resume) throws Exception {
         CoopController c=new CoopController(root,null,InetAddress.getLoopbackAddress(),0,0);
         String endpoint="127.0.0.1:"+java.nio.file.Files.readString(new File(root,"port").toPath()).trim();
@@ -737,24 +809,125 @@ public final class CoopRenderSmoke {
         shot("crown-leap");
     }
 
-    private static void intuitionInputs() throws Exception {
+    private static void selectorInputs() throws Exception {
         await(() -> frame().dungeon.offered && frame().dungeon.monsters.containsValue("Rat"));
         PublicDungeon view = frame().dungeon;
         PublicDungeon.Loot tome = view.belongings.stream().filter(i -> view.actions(i).contains("CAST")).findFirst().get();
-        PublicDungeon.Loot target = view.belongings.stream().filter(i -> view.source.rows.containsKey("intuition"+i.id)).findFirst().get();
-        String spell = "#" + com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyIntuition.INSTANCE.name();
-        click("bag");
-        press(inventoryPoint(tome.id));
-        click("cast");
-        click(spell);
-        await(() -> render(() -> find(Game.scene(), node -> node instanceof WndSeatInventory) != null));
+        Selector selector = selectorCase();
+        String spell = selector.spell.name();
+        String key = selector.key;
+        PublicDungeon.Loot target = view.belongings.stream().filter(i -> view.source.rows.containsKey(key+i.id)).findFirst().get();
+        openSelector(tome.id, spell);
         shot("owned-selection");
+        if (Boolean.getBoolean("spd.selector.resize")) {
+            int width = render(() -> Gdx.graphics.getWidth()), height = render(() -> Gdx.graphics.getHeight());
+            render(() -> Gdx.graphics.setWindowedMode(620, 800));
+            await(() -> render(() -> Gdx.graphics.getHeight() > Gdx.graphics.getWidth()));
+            render(() -> Gdx.graphics.setWindowedMode(width, height));
+            await(() -> render(() -> Gdx.graphics.getWidth() == width && Gdx.graphics.getHeight() == height));
+            if (frame().image != view.source || ownTome().charges != tome.charges)
+                throw new AssertionError("Resize submitted a spell");
+            if (!selectorOpen()) openSelector(tome.id, spell);
+            System.out.println("PASS Desktop selector resize and restore");
+        }
+        Robot keyboard = new Robot();
+        keyboard.keyPress(java.awt.event.KeyEvent.VK_ESCAPE);
+        keyboard.keyRelease(java.awt.event.KeyEvent.VK_ESCAPE);
+        await(() -> !selectorOpen());
+        if (frame().image != view.source) throw new AssertionError("Cancel changed authoritative state");
+
+        // Invalidate the open menu through the actual client, then click the old handle.
+        openSelector(tome.id, spell);
+        long action = frame().lastAction;
+        if (!hostController().act(view.source, "WAIT", 0, 0)) throw new AssertionError("Missing test offer");
+        await(() -> frame().lastAction == action+1 && frame().dungeon.offered && frame().image != view.source);
         press(inventoryPoint(target.id));
+        await(() -> !selectorOpen());
+        PublicDungeon fresh = frame().dungeon;
+        if (frame().pending != 0 || frame().lastAction != action+1 ||
+                fresh.belongings.stream().noneMatch(i -> i.id==tome.id && i.charges==tome.charges))
+            throw new AssertionError("Stale selector spent charge or submitted an action");
+
+        PublicDungeon.Loot current = fresh.belongings.stream().filter(i -> fresh.source.rows.containsKey(key+i.id)).findFirst().get();
+        openSelector(tome.id, spell);
+        Point targetPoint = inventoryPoint(current.id);
+        if (Boolean.getBoolean("spd.selector.doubleTap")) {
+            Point screen = render(() -> {
+                var window = ((com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics)Gdx.graphics).getWindow();
+                return new Point(window.getPositionX()+targetPoint.x, window.getPositionY()+targetPoint.y);
+            });
+            Robot mouse = new Robot();
+            mouse.mouseMove(screen.x, screen.y);
+            for (int tap = 0; tap < 2; tap++) {
+                mouse.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
+                mouse.delay(24);
+                mouse.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
+                mouse.delay(32);
+            }
+        } else press(targetPoint);
         await(() -> {
             PublicDungeon next = frame().dungeon;
-            return next.source.version > view.source.version && next.belongings.stream().anyMatch(i -> i.id==tome.id && i.charges<tome.charges);
+            return next.source.version > fresh.source.version && frame().lastAction == action+2 &&
+                    "APPLIED".equals(frame().lastResult) && frame().pending == 0 &&
+                    next.belongings.stream().anyMatch(i -> i.id==tome.id && i.charges<tome.charges);
         });
         shot("spell-committed");
+        if (frame().lastAction != action+2 || frame().pending != 0)
+            throw new AssertionError("A second action followed the selection");
+        System.out.println("PASS selector cancel, stale handle, reselect and spend: "+regionShot);
+    }
+
+    private enum Selector {
+        INTUITION("intuition", HolyIntuition.INSTANCE), RECALL("recallitem", RecallInscription.INSTANCE),
+        BODY("bodyitem", BodyForm.INSTANCE), MIND("minditem", MindForm.INSTANCE), SPIRIT("spirititem", SpiritForm.INSTANCE);
+
+        final String key;
+        final ClericSpell spell;
+        Selector(String key, ClericSpell spell) { this.key = key; this.spell = spell; }
+    }
+
+    private static Selector selectorCase() {
+        return regionShot.equals("intuition-input") ? Selector.INTUITION :
+                Selector.valueOf(regionShot.substring("selector-".length()).toUpperCase(java.util.Locale.ROOT));
+    }
+
+    private static PublicDungeon.Loot ownTome() throws Exception {
+        return frame().dungeon.belongings.stream().filter(i -> i.kind.equals("TOME") && i.slot.equals("ARTIFACT"))
+                .findFirst().orElseThrow();
+    }
+
+    private static void resumeSelectorHost(File root, Process previousGuest) throws Exception {
+        int charged = ownTome().charges;
+        click("menu"); click("saveexit"); await(() -> button("saves") != null);
+        if (!previousGuest.waitFor(5, TimeUnit.SECONDS)) throw new AssertionError("Old guest still running");
+        click("saves"); await(() -> frame().page == CoopController.Page.SAVES && frame().list.size() == 1);
+        CoopController.Entry saved = frame().list.get(0);
+        click("#"+saved.id.toString().substring(0,8)+"  "+Messages.get(CoopScene.class,"floor",saved.current.depth,saved.current.generation));
+        click("resume"); await(() -> frame().dungeon != null);
+        Process guest = new ProcessBuilder(System.getProperty("java.home")+"/bin/java", "-cp", System.getProperty("java.class.path"),
+                CoopRenderSmoke.class.getName(), "guest", root.toString(), "resume").inheritIO().start();
+        try {
+            await(() -> frame().dungeon.offered);
+            if (ownTome().charges != charged || frame().pending != 0) throw new AssertionError("Host charge or receipt changed on resume");
+            waitAndRegainTurn();
+            shot("host-restored-next-action");
+            System.out.println("PASS host save, two seats resumed and next action: "+regionShot);
+        } finally {
+            guest.destroy();
+            if (!guest.waitFor(5, TimeUnit.SECONDS)) guest.destroyForcibly();
+        }
+    }
+
+    private static boolean selectorOpen() throws Exception {
+        return render(() -> find(Game.scene(), node -> node instanceof WndSeatInventory) != null);
+    }
+
+    private static void openSelector(long tomeId, String spell) throws Exception {
+        click("bag");
+        press(inventoryPoint(tomeId));
+        click("cast");
+        click("#"+spell);
+        await(CoopRenderSmoke::selectorOpen);
     }
 
     private static void sealInputs() throws Exception {
@@ -927,18 +1100,24 @@ public final class CoopRenderSmoke {
         await(()->render(()->Game.scene() instanceof HeroSelectScene || Game.scene() instanceof StartScene));
         shot("solo-entry");
         render(()->{ShatteredPixelDungeon.switchNoFade(TitleScene.class);return null;});
+        String guestProfile = System.getProperty("spd.selector.guestProfile");
         int testPort;
         try (java.net.ServerSocket port=new java.net.ServerSocket(0)) { testPort=port.getLocalPort(); }
         render(()->{
             Field active=CoopScene.class.getDeclaredField("active"); active.setAccessible(true);
-            active.set(null,new CoopController(CoopPlatform.root(),null,null,testPort,0,
+            active.set(null,new CoopController(guestProfile == null ? CoopPlatform.root() : new File(guestProfile, "seat1"),null,null,testPort,0,
                     new java.util.Random(){@Override public long nextLong(){return !regionShot.isEmpty() ? ((regionShot.endsWith("-input") || regionShot.startsWith("ascent-"))?578:regionShot.startsWith("yog-")?572:regionShot.equals("mine-crystal")?570:(regionShot.startsWith("vault-") || regionShot.equals("imp-vault") || regionShot.equals("halls-21") || regionShot.equals("city-market") || regionShot.startsWith("king-"))?572:571) : latePrison ? 570 : wandmaker ? 577 : seventh ? 581 : deep ? 402 : armored ? 446 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
             return null;
         });
         click("title"); await(()->button("host")!=null);
+        if (guestProfile != null) {
+            if (!regionShot.startsWith("selector-")) throw new IllegalArgumentException("Expected a selector scenario");
+            guestSelectors(new File(guestProfile), testPort);
+            return;
+        }
         sceneMetrics("before-room");
         shot("multiplayer"); click("host"); await(()->button("warriorClass")!=null);
-        shot("lobby"); click(regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("tome-input") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
+        shot("lobby"); click(regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("tome-input") || regionShot.startsWith("selector-") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
         if(mage) shot("mage-selected");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
         java.nio.file.Files.writeString(new File(root,"port").toPath(),Integer.toString(testPort));
@@ -955,7 +1134,11 @@ public final class CoopRenderSmoke {
                 if (regionShot.equals("vault-dart")) { vaultDart(); return; }
                 if (regionShot.equals("growth-input")) { growthInputs(); return; }
                 if (regionShot.equals("upper-input")) { upperInputs(); return; }
-                if (regionShot.equals("intuition-input")) { intuitionInputs(); return; }
+                if (regionShot.equals("intuition-input") || regionShot.startsWith("selector-")) {
+                    selectorInputs();
+                    if (regionShot.startsWith("selector-")) resumeSelectorHost(root, child);
+                    return;
+                }
                 if (regionShot.equals("seal-input") || regionShot.equals("ration-input")) { sealInputs(); return; }
                 if (regionShot.equals("frost-input") || regionShot.equals("sunray-input")) { frostInputs(); return; }
                 if (regionShot.equals("lunge-input") || regionShot.equals("tome-input")) { starterSpellInputs(regionShot.equals("lunge-input")); return; }

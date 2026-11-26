@@ -174,7 +174,7 @@ public final class RestartClient {
                 if (mode.startsWith("tengu-setup-") || mode.equals("late-setup") || mode.startsWith("wand-setup-") || mode.startsWith("necro-setup-")) character=i==0?"WARRIOR":"MAGE";
                 if (mode.startsWith("tengu-setup-growth-")) {
                     character=i==0?"WARRIOR":"HUNTRESS";
-                    if (mode.matches(".*-(recallid|trinitymind|trinityspirit|intuition|bless|trinityselect|trinity|ascendform|lightally|lightorder|radiance|smite|sunray|divinesense|lightshield|light|blessweapon|ward)[01]")) character="CLERIC";
+                    if (mode.matches(".*-(recallid|trinitymind|trinityspirit|trinitymindselect|trinityspiritselect|intuition|bless|trinityselect|trinity|ascendform|lightally|lightorder|radiance|smite|sunray|divinesense|lightshield|light|blessweapon|ward)[01]")) character="CLERIC";
                     if (mode.matches(".*-(monkflurry|monkdash|monkmeditate|monkdragonkick|challenge|elestrike|feint|swap|monkfocus|guardshield|stance|lunge|spike|charged)[01]")) character="DUELIST";
                     if (mode.matches(".*-(markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) character="ROGUE";
                     if (mode.matches(".*-(sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
@@ -557,7 +557,7 @@ public final class RestartClient {
                     String selected=verb.equals("DETACH_SEAL") ? verb : "AFFIX_SEAL";
                     handle=view.belongings.stream().filter(it -> view.actions(it).contains(selected)).findFirst().get().id;
                 }
-                if (verb.matches("RECALL_INSCRIPTION|HOLY_INTUITION|BODY_FORM|BLESS|RADIANCE|SMITE|SUNRAY|DIVINE_SENSE|SHIELD_OF_LIGHT|GUIDING_LIGHT|HOLY_WARD|HOLY_WEAPON")) handle=item(seat,"ARTIFACT","TOME");
+                if (verb.matches("RECALL_INSCRIPTION|HOLY_INTUITION|BODY_FORM|MIND_FORM|SPIRIT_FORM|BLESS|RADIANCE|SMITE|SUNRAY|DIVINE_SENSE|SHIELD_OF_LIGHT|GUIDING_LIGHT|HOLY_WARD|HOLY_WEAPON")) handle=item(seat,"ARTIFACT","TOME");
                 if (verb.equals("TRINITY_MIND") || verb.equals("TRINITY_SPIRIT")) handle=view.belongings.stream().filter(it -> view.actions(it).contains("ARMOR_ABILITY")).findFirst().get().id;
                 if (verb.equals("WEAPON_ABILITY") || verb.equals("IMBUE") || verb.equals("CLOAK") || verb.equals("USE_CROWN") || verb.equals("ARMOR_ABILITY") || verb.equals("USE_MASK")) { String selected=verb; handle=view.belongings.stream().filter(it -> view.actions(it).contains(selected)).findFirst().get().id; }
                 if (verb.equals("VAULT_RECALL")) {

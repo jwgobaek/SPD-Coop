@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.lan;
 
 import com.shatteredpixel.shatteredpixeldungeon.CoopSession;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ImpVaultTest;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
@@ -31,7 +32,8 @@ public final class VaultPublicRoute {
         int allyDoor = -1;
         int previousPos = -1, recentlyExited = -1, regroupSteps;
         int walkedDoor=-1, crossingDoor=-1, crossingTurns;
-        boolean doorwayStrategy() { return regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover") || regroup.equals("trail") || regroup.equals("safeexit") || regroup.equals("handoff"); }
+        int lastDoorSide = -1, doorEntry = -1, holdDirection;
+        boolean doorwayStrategy() { return regroup.equals("crossonce") || regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover") || regroup.equals("trail") || regroup.equals("safeexit") || regroup.equals("handoff"); }
         private boolean visibleDoor(PublicDungeon v, int cell) {
             if (cell<0 || !v.visible(cell)) return false;
             int tile=v.terrain(cell);
@@ -131,6 +133,21 @@ public final class VaultPublicRoute {
             boolean escort=regroup.equals("escort") || doorwayStrategy();
             if (escort && v.ally>=0)
                 returning=escortFollower && distance(v.pos,v.ally,v.width)>2;
+            // A player remembers their own last step onto a threshold, even if the ally disappears.
+            boolean crossing = team && regroup.equals("crossonce");
+            if (crossing) {
+                if (holdDirection > 0) holdDirection--;
+                if (previousPos >= 0 && v.pos != previousPos && visibleDoor(v, v.pos)) {
+                    lastDoorSide = previousPos;
+                    doorEntry = v.pos;
+                    holdDirection = 5;
+                }
+                previousPos = v.pos;
+                if (escortFollower && lastAlly >= 0 && (v.ally >= 0 || missingTurns <= 6)) {
+                    meetingCell = lastAlly;
+                    returning = v.ally < 0 || distance(v.pos, lastAlly, v.width) > 1;
+                }
+            }
             if (!reviveDenied && v.ally>=0 && adjacent(v.pos,v.ally,v.width) && "DOWNED".equals(v.source.rows.get("allylife"))) {
                 return new Input("REVIVE",v.ally,0);
             }
@@ -172,7 +189,7 @@ public final class VaultPublicRoute {
                 returning=true;
                 meetingCell=lastAlly;
             }
-            boolean protectExit = (regroup.equals("exitcover") || regroup.equals("safeexit") || trail) && escortFollower && v.hp*3<v.maxHp;
+            boolean protectExit = (regroup.equals("exitcover") || regroup.equals("safeexit") || crossing || trail) && escortFollower && v.hp*3<v.maxHp;
             if ((regroup.equals("followdoor") || protectExit) && escortFollower && team) {
                 // Follow a door actually seen under the ally. Give the ally a chance to clear it.
                 if (visibleDoor(v,v.ally) && v.hp*3<v.maxHp) allyDoor=v.ally;
@@ -199,6 +216,7 @@ public final class VaultPublicRoute {
                         && v.belongings.stream().noneMatch(e -> e.slot.equals(i.kind.equals("MELEE")?"WEAPON":"ARMOR"))) return new Input("EQUIP",0,i.id);
             }
             PublicDungeon.Loot feet = v.floor.get(v.pos);
+            if (crossing && !v.monsters.isEmpty() && (v.hp*2 < v.maxHp || returning)) feet = null;
             if (feet!=null && !(feet.sprite==com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.DEWDROP && v.hp==v.maxHp) && !rejectedItems.contains(feet.id) && !v.chest(v.pos)) return new Input("PICK_UP",v.pos,feet.id);
             for (Map.Entry<Integer,String> monster : new TreeMap<>(v.monsters).entrySet()) {
                 int cell=monster.getKey();
@@ -223,6 +241,7 @@ public final class VaultPublicRoute {
                 return new Input("WAIT",0,0);
             if (returning && v.pos==meetingCell && v.monsters.isEmpty()) return new Input("WAIT",0,0);
             if (investigateWalls(v)) return new Input("SEARCH",v.pos,0);
+            boolean avoidBacktrack = crossing && holdDirection > 0 && !returning && exposedTo(v, v.pos) == 0;
             int n=v.width*v.height;
             int[] first=new int[n], dist=new int[n], queue=new int[n];
             Arrays.fill(first,-1); queue[0]=v.pos; first[v.pos]=v.pos;
@@ -267,6 +286,10 @@ public final class VaultPublicRoute {
                         value-=35*Math.max(0,distance(c,lastAlly,v.width)-1);
                     if (trail && !escortFollower && c==recentlyExited && v.pos!=recentlyExited && v.monsters.isEmpty())
                         value-=75;
+                    if (avoidBacktrack) {
+                        int backward = v.pos == doorEntry ? lastDoorSide : doorEntry;
+                        if (first[c] == backward) value -= 160;
+                    }
                     if (value>high) {best=first[c]; bestCell=c; high=value;}
                 }
             }
@@ -293,7 +316,20 @@ public final class VaultPublicRoute {
     }
 
     private static void run(int seed, int budget) throws Exception {
-        try (CoopSession game=ImpVaultTest.openAtVaultEntrance(seed)) {
+        String resume = System.getProperty("vault.guide.resume");
+        CoopSession initial;
+        if (resume == null) {
+            initial = ImpVaultTest.openAtVaultEntrance(seed);
+        } else {
+            try (java.io.InputStream input = java.nio.file.Files.newInputStream(java.nio.file.Paths.get(resume))) {
+                initial = CoopSession.restore(com.watabou.utils.Bundle.read(input));
+            }
+        }
+        try (CoopSession game = initial) {
+            if (resume != null && (Dungeon.seed != seed || Dungeon.branch != 1
+                    || !(Dungeon.level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel))) {
+                throw new IllegalArgumentException("Checkpoint does not match the requested vault seed");
+            }
             UUID session=UUID.randomUUID();
             RoomSync room=new RoomSync(session,game);
             DisplayReplica[] replica={new DisplayReplica(session,0),new DisplayReplica(session,1)};
@@ -378,6 +414,14 @@ public final class VaultPublicRoute {
                 Map<Integer,String> floor=new TreeMap<>();
                 v.floor.forEach((c,it)->floor.put(c,it.kind+"/"+it.sprite));
                 System.out.printf("INPUT\t%d\t%d\t%d\t%d\t%d\t%s\t%s\t%s\t%s\t%d\t%s%n",applied,seat,v.pos,v.hp,v.maxHp,bag,floor,new TreeMap<>(v.monsters),i.action,i.cell,outcome);
+            }
+            String finalCheckpoint = System.getProperty("vault.guide.endCheckpoint");
+            if (finalCheckpoint != null) {
+                // Engine-only research checkpoint. Never overwrite the input or another branch.
+                try (java.io.OutputStream out = java.nio.file.Files.newOutputStream(
+                        java.nio.file.Paths.get(finalCheckpoint), java.nio.file.StandardOpenOption.CREATE_NEW)) {
+                    com.watabou.utils.Bundle.write(game.checkpoint(), out);
+                }
             }
             System.out.printf("OBSERVED_REUNIONS\t%d\t%d%n",guide[0].reunions,guide[1].reunions);
             System.out.printf("PUBLIC_ROUTE\t%d\t%d\t%d\t%d\t%d\t%s\t%s%n",seed,applied,game.stairs.vaultScore(),

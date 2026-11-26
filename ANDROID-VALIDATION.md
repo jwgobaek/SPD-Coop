@@ -1,5 +1,9 @@
 # Android validation backlog
 
+## 성서 선택창 수정 후보
+
+수정 후보의 실제 Android 인수는 다섯 경로 모두 NOT RUN이다. 두 Android 설치본은 기존 크래시 배포본이다. 준비한 다섯 격리 시험방과 기존 크래시 방을 보존했다. [수정 후보와 실제 시험 결과](docs/coop/selector-repair-results.md)
+
 ## 인장·비무기 투척·후반 갑옷 능력
 
 두 Android에서 인장 문양 선택, 식량 투척·회수, 양쪽 재인증과 후반 갑옷 능력을 실제 입력했다. 배포판의 신성한 직감 물품 선택에서 게스트 앱이 종료됐다. [실제 설치본과 기능별 결과](docs/coop/seal-arts-android.md)

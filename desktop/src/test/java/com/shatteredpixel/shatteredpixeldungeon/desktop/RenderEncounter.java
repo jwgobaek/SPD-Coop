@@ -75,6 +75,8 @@ final class RenderEncounter {
                     throw new AssertionError("Expected seed 572 dart heap");
                 game.hero(0).pos=1872;
                 game.observe(0);
+            } else if (destination.startsWith("selector-")) {
+                com.shatteredpixel.shatteredpixeldungeon.SealArtsTest.prepareSelectors(game, destination.substring("selector-".length()), 1);
             } else if (destination.equals("intuition-input")) {
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"intuition0");
             } else if (destination.equals("seal-input") || destination.equals("ration-input")) {

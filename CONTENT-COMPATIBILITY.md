@@ -1,5 +1,9 @@
 # 협동 콘텐츠 지원표
 
+## 특성 슬롯과 증거의 범위
+
+일반 방과 개발 시험방을 합쳐 투자 경로가 있는 슬롯은 47/174개다. 표의 `host_effect`는 실제 원본 효과의 호스트 관측, `full_rank_sweep`는 관측한 투자점·조건, `player_ui`와 `tcp_action`은 각각 입력과 권위 실행을 나타낸다. 같은 행에서 저장과 Android의 증거를 따로 확인할 수 있다. [특성별 지원표](docs/coop/seal-arts-talents.tsv) · [수정 APK와 검증 범위](docs/coop/selector-repair-results.md)
+
 ## 인장과 직업별 갑옷
 
 일반 로비 6직업, 가면 시험방에서 전직별 한 가지 이상 효과 12/12, 왕관 시험방에서 기본 동작 18/18, 기존 세 직업의 2단계 특성 15/15. 각 수치의 분모와 제한은 아래 자료에 있다. [능력별 범위](docs/coop/seal-arts-results.md) · [Trinity 후보 113종](docs/coop/seal-arts-trinity.tsv)
