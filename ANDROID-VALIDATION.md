@@ -1,5 +1,9 @@
 # Android validation backlog
 
+## 도적과 실제 식사 강화 발사
+
+두 Android의 데이터 보존 업데이트, 일반 도적 망토 3→2, 게스트 프로세스 재접속과 스키마 18의 70세대 재개, 기존 시험방의 실제 강화 발사 및 잔여 3→2를 확인했다. [Android 실측](docs/coop/upper-growth-android.md)
+
 ## 두 Android의 전직 능력 빌드
 
 두 설치본의 데이터를 보존해 4d93a1f로 갱신했다. 2층 별도 시험방에서 마법사의 실제 식사 후 지팡이 강화, 새 특성 창, 405세대 재개 및 두 좌석의 후속 행동을 확인했다. [Android 실측](docs/coop/combo-delivery.md)
