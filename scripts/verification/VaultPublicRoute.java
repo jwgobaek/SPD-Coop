@@ -154,6 +154,23 @@ public final class VaultPublicRoute {
         }
     }
 
+    private static PublicDungeon view(RoomSync room, DisplayReplica replica, int seat) throws java.io.IOException {
+        replica.refresh(cmd -> {
+            String[] f=cmd.split(" ");
+            return f[0].equals("SYNC") ? room.sync(seat,Long.parseLong(f[1]),f[2])
+                    : room.part(seat,Long.parseLong(f[1]),Integer.parseInt(f[2]));
+        });
+        return new PublicDungeon(replica.image());
+    }
+
+    private static String send(CoopSession game, RoomSync room, PublicDungeon v, int seat, long id, Input input) {
+        String[] action={"","","","",Long.toString(game.player(seat)),Integer.toString(seat),
+                v.source.rows.get("self").split(",")[0],Long.toString(id),Long.toString(v.source.version),
+                v.source.rows.get("turn"),input.action,Integer.toString(input.cell),Long.toString(input.item)};
+        String result=room.action(seat,action);
+        return result.substring(result.lastIndexOf(' ')+1);
+    }
+
     private static void run(int seed, int budget) throws Exception {
         try (CoopSession game=ImpVaultTest.openAtVaultEntrance(seed)) {
             UUID session=UUID.randomUUID();
@@ -164,18 +181,25 @@ public final class VaultPublicRoute {
             int applied=0;
             for (int attempts=0;attempts<budget && !game.defeated() && !game.stopped();attempts++) {
                 int seat=game.activeSeat();
-                replica[seat].refresh(cmd -> {
-                    String[] f=cmd.split(" ");
-                    return f[0].equals("SYNC") ? room.sync(seat,Long.parseLong(f[1]),f[2])
-                            : room.part(seat,Long.parseLong(f[1]),Integer.parseInt(f[2]));
-                });
-                PublicDungeon v=new PublicDungeon(replica[seat].image());
+                PublicDungeon v=view(room,replica[seat],seat);
+                int escapeThreshold=Integer.getInteger("vault.guide.escapeAt",0);
+                String score=v.source.rows.get("vaultscore");
+                if (escapeThreshold>0 && score!=null && Integer.parseInt(score)>=escapeThreshold && Integer.parseInt(score)<500) {
+                    int cell=Integer.parseInt(v.source.rows.get("stair").split(",")[0]);
+                    int ally=1-seat;
+                    PublicDungeon other=view(room,replica[ally],ally);
+                    if (!score.equals(other.source.rows.get("vaultscore"))) throw new AssertionError("disagreeing offers");
+                    String consent=send(game,room,other,ally,++ids[ally],new Input("CONSENT",cell,0));
+                    String travel=send(game,room,view(room,replica[seat],seat),seat,++ids[seat],new Input("TRAVEL",cell,0));
+                    if (!consent.equals("APPLIED") || !travel.equals("APPLIED")) throw new AssertionError(consent+"/"+travel);
+                    PublicDungeon city=view(room,replica[seat],seat);
+                    if (city.branch!=0 || city.depth!=v.depth || !com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp.Quest.isCompleted())
+                        throw new AssertionError("escape did not complete");
+                    System.out.printf("PUBLIC_ESCAPE\t%d\t%d\t%s\t%d\t%d\t%d\t%d%n",seed,applied,score,city.branch,city.depth,game.hero(0).HP,game.hero(1).HP);
+                    return;
+                }
                 Input i=guide[seat].choose(v);
-                String[] action={"","","","",Long.toString(game.player(seat)),Integer.toString(seat),
-                        v.source.rows.get("self").split(",")[0],Long.toString(++ids[seat]),Long.toString(v.source.version),
-                        v.source.rows.get("turn"),i.action,Integer.toString(i.cell),Long.toString(i.item)};
-                String result=room.action(seat,action);
-                String outcome=result.substring(result.lastIndexOf(' ')+1);
+                String outcome=send(game,room,v,seat,++ids[seat],i);
                 if (outcome.equals("REJECT_INVALID") && i.action.equals("PICK_UP")) {
                     // Diagnostics only, after the public decision. Never identify a potion, scroll or ring here.
                     com.shatteredpixel.shatteredpixeldungeon.items.Item item =
@@ -192,7 +216,7 @@ public final class VaultPublicRoute {
                     guide[seat].blockedShots.add(guide[seat].shotKey(i.item,v.pos,i.cell));
                 else if (i.item!=0) guide[seat].rejectedItems.add(i.item);
                 else if (i.action.equals("MOVE")) guide[seat].blocked.add(i.cell);
-                else throw new AssertionError(result);
+                else throw new AssertionError(outcome);
                 ArrayList<String> bag=new ArrayList<>();
                 for (PublicDungeon.Loot it:v.belongings) bag.add(it.slot+"/"+it.kind+"/"+it.sprite+"x"+it.quantity);
                 Map<Integer,String> floor=new TreeMap<>();
