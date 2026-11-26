@@ -89,14 +89,14 @@ actors/buffs/MagicalSight	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatt
 actors/buffs/MagicalSleep	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MagicalSleep.java
 actors/buffs/MindVision	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MindVision.java
 actors/buffs/Momentum	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Momentum.java
-actors/buffs/MonkEnergy	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
+actors/buffs/MonkEnergy	actors/buffs	PARTIAL	native kill energy, Focus cost/buff and restore in mask trial (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
 actors/buffs/MonkEnergy.Dash	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
 actors/buffs/MonkEnergy.DragonKick	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
 actors/buffs/MonkEnergy.Flurry	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
 actors/buffs/MonkEnergy.FlurryCooldownTracker	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
 actors/buffs/MonkEnergy.FlurryEmpowerTracker	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
-actors/buffs/MonkEnergy.Focus	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
-actors/buffs/MonkEnergy.FocusBuff	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
+actors/buffs/MonkEnergy.Focus	actors/buffs	PARTIAL	native kill energy, Focus cost/buff and restore in mask trial (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
+actors/buffs/MonkEnergy.FocusBuff	actors/buffs	PARTIAL	native kill energy, Focus cost/buff and restore in mask trial (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
 actors/buffs/MonkEnergy.Meditate	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
 actors/buffs/MonkEnergy.MeditateResistance	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
 actors/buffs/MonkEnergy.UnarmedAbilityTracker	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/MonkEnergy.java
@@ -347,11 +347,11 @@ actors/hero/abilities/mage/WarpBeacon	actors/hero/abilities/mage	PARTIAL	Set and
 actors/hero/abilities/mage/WarpBeacon.WarpBeaconTracker	actors/hero/abilities/mage	PARTIAL	Set and return on the same branch and depth, original cost. Occupied and cross-floor destinations unsupported. UpperGrowthTest.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/WarpBeacon.java
 actors/hero/abilities/mage/WildMagic	actors/hero/abilities/mage	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/WildMagic.java
 actors/hero/abilities/mage/WildMagic.WildMagicTracker	actors/hero/abilities/mage	PARTIAL	Native shot chain and tracker termination for the three admitted wand types / docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/WildMagic.java
-actors/hero/abilities/rogue/DeathMark	actors/hero/abilities/rogue	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/DeathMark.java
-actors/hero/abilities/rogue/DeathMark.DeathMarkTracker	actors/hero/abilities/rogue	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/DeathMark.java
+actors/hero/abilities/rogue/DeathMark	actors/hero/abilities/rogue	PARTIAL	native paid mark, caster-only payout and restore in crown trial (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/DeathMark.java
+actors/hero/abilities/rogue/DeathMark.DeathMarkTracker	actors/hero/abilities/rogue	PARTIAL	native paid mark, caster-only payout and restore in crown trial (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/DeathMark.java
 actors/hero/abilities/rogue/DeathMark.DoubleMarkTracker	actors/hero/abilities/rogue	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/DeathMark.java
-actors/hero/abilities/rogue/ShadowClone	actors/hero/abilities/rogue	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/ShadowClone.java
-actors/hero/abilities/rogue/ShadowClone.ShadowAlly	actors/hero/abilities/rogue	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/ShadowClone.java
+actors/hero/abilities/rogue/ShadowClone	actors/hero/abilities/rogue	PARTIAL	native summon, owner command, swap and restore in crown trial (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/ShadowClone.java
+actors/hero/abilities/rogue/ShadowClone.ShadowAlly	actors/hero/abilities/rogue	PARTIAL	native summon, owner command, swap and restore in crown trial (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/ShadowClone.java
 actors/hero/abilities/rogue/ShadowClone.ShadowSprite	actors/hero/abilities/rogue	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/ShadowClone.java
 actors/hero/abilities/rogue/SmokeBomb	actors/hero/abilities/rogue	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/SmokeBomb.java
 actors/hero/abilities/rogue/SmokeBomb.NinjaLog	actors/hero/abilities/rogue	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/SmokeBomb.java
@@ -372,8 +372,8 @@ actors/hero/spells/Cleanse	actors/hero/spells	UNSUPPORTED		core/src/main/java/co
 actors/hero/spells/ClericSpell	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/ClericSpell.java
 actors/hero/spells/DivineIntervention	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/DivineIntervention.java
 actors/hero/spells/DivineIntervention.DivineShield	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/DivineIntervention.java
-actors/hero/spells/DivineSense	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/DivineSense.java
-actors/hero/spells/DivineSense.DivineSenseTracker	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/DivineSense.java
+actors/hero/spells/DivineSense	actors/hero/spells	PARTIAL	native casting, own charge and independent TCP recovery (frost-senses-results.md) / Android talent purchase, natural charge recovery, cast and private wall contact (frost-senses-android.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/DivineSense.java
+actors/hero/spells/DivineSense.DivineSenseTracker	actors/hero/spells	PARTIAL	native casting, own charge and independent TCP recovery (frost-senses-results.md) / Android native tracker only on the caster (frost-senses-android.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/DivineSense.java
 actors/hero/spells/Flash	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Flash.java
 actors/hero/spells/GuidingLight	actors/hero/spells	PARTIAL	Android targeted shot and a second cast after both apps restarted / docs/coop/wand-arts-android.md, docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/GuidingLight.java
 actors/hero/spells/GuidingLight.GuidingLightPriestCooldown	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/GuidingLight.java
@@ -398,20 +398,20 @@ actors/hero/spells/LifeLinkSpell.LifeLinkSpellBuff	actors/hero/spells	UNSUPPORTE
 actors/hero/spells/MindForm	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/MindForm.java
 actors/hero/spells/MindForm.targetSelector	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/MindForm.java
 actors/hero/spells/MnemonicPrayer	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/MnemonicPrayer.java
-actors/hero/spells/Radiance	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Radiance.java
+actors/hero/spells/Radiance	actors/hero/spells	PARTIAL	native casting, own charge and independent TCP recovery (frost-senses-results.md) / Android Priest mask choice and tome cast (frost-senses-android.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Radiance.java
 actors/hero/spells/RecallInscription	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/RecallInscription.java
 actors/hero/spells/RecallInscription.UsedItemTracker	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/RecallInscription.java
-actors/hero/spells/ShieldOfLight	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/ShieldOfLight.java
-actors/hero/spells/ShieldOfLight.ShieldOfLightTracker	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/ShieldOfLight.java
-actors/hero/spells/Smite	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Smite.java
+actors/hero/spells/ShieldOfLight	actors/hero/spells	PARTIAL	native casting, own charge and independent TCP recovery (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/ShieldOfLight.java
+actors/hero/spells/ShieldOfLight.ShieldOfLightTracker	actors/hero/spells	PARTIAL	native casting, own charge and independent TCP recovery (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/ShieldOfLight.java
+actors/hero/spells/Smite	actors/hero/spells	PARTIAL	native casting, own charge and independent TCP recovery (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Smite.java
 actors/hero/spells/Smite.SmiteTracker	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Smite.java
 actors/hero/spells/SpiritForm	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/SpiritForm.java
 actors/hero/spells/SpiritForm.SpiritFormBuff	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/SpiritForm.java
 actors/hero/spells/Stasis	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Stasis.java
 actors/hero/spells/Stasis.StasisBuff	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Stasis.java
-actors/hero/spells/Sunray	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Sunray.java
-actors/hero/spells/Sunray.SunRayRecentlyBlindedTracker	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Sunray.java
-actors/hero/spells/Sunray.SunRayUsedTracker	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Sunray.java
+actors/hero/spells/Sunray	actors/hero/spells	PARTIAL	native casting, own charge and independent TCP recovery (frost-senses-results.md) / Android selection, targeting, blindness and charge consumption (frost-senses-android.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Sunray.java
+actors/hero/spells/Sunray.SunRayRecentlyBlindedTracker	actors/hero/spells	PARTIAL	Native tracker observed on the Sunray target in an isolated Android room (frost-senses-android.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Sunray.java
+actors/hero/spells/Sunray.SunRayUsedTracker	actors/hero/spells	PARTIAL	Native tracker observed on the Sunray target before and after Android restart (frost-senses-android.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Sunray.java
 actors/hero/spells/TargetedClericSpell	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/TargetedClericSpell.java
 actors/hero/spells/WallOfLight	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/WallOfLight.java
 actors/hero/spells/WallOfLight.LightWall	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/WallOfLight.java
@@ -711,7 +711,7 @@ items/artifacts/SkeletonKey.KeyReplacementTracker	items/artifacts	UNSUPPORTED		c
 items/artifacts/SkeletonKey.KeyWall	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/SkeletonKey.java
 items/artifacts/SkeletonKey.keyRecharge	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/SkeletonKey.java
 items/artifacts/TalismanOfForesight	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/TalismanOfForesight.java
-items/artifacts/TalismanOfForesight.CharAwareness	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/TalismanOfForesight.java
+items/artifacts/TalismanOfForesight.CharAwareness	items/artifacts	PARTIAL	Arcane Vision, owner-only contact, full/delta and restore (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/TalismanOfForesight.java
 items/artifacts/TalismanOfForesight.Foresight	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/TalismanOfForesight.java
 items/artifacts/TalismanOfForesight.HeapAwareness	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/TalismanOfForesight.java
 items/artifacts/TimekeepersHourglass	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/TimekeepersHourglass.java
@@ -1054,7 +1054,7 @@ items/wands/WandOfCorrosion	items/wands	UNSUPPORTED		core/src/main/java/com/shat
 items/wands/WandOfCorruption	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfCorruption.java
 items/wands/WandOfDisintegration	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfDisintegration.java
 items/wands/WandOfFireblast	items/wands	VERIFIED	native cone, all three charge bands, burning, Cripple and Paralysis, cold restore and lost reply on each seat / CoopMageTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfFireblast.java
-items/wands/WandOfFrost	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfFrost.java
+items/wands/WandOfFrost	items/wands	PARTIAL	Frost ZAP, imbue, native blast and volley; staged staff freeze; KO/EN Desktop and two-seat TCP (frost-senses-results.md) / Android staff imbue, ZAP, frost blast and next ZAP after both processes restart (frost-senses-android.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfFrost.java
 items/wands/WandOfLightning	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLightning.java
 items/wands/WandOfLightning.LightningCharge	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLightning.java
 items/wands/WandOfLivingEarth	items/wands	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/wands/WandOfLivingEarth.java
@@ -1137,10 +1137,10 @@ items/weapon/melee/MagesStaff	items/weapon/melee	PARTIAL	Starting cast and charg
 items/weapon/melee/MagesStaff.StaffParticle	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/MagesStaff.java
 items/weapon/melee/MeleeWeapon	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/MeleeWeapon.java
 items/weapon/melee/MeleeWeapon.Charger	items/weapon/melee	PARTIAL	Rapier and Crossbow ability charges for the actual Duelist, including restored distinct charges / docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/MeleeWeapon.java
-items/weapon/melee/Quarterstaff	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Quarterstaff.java
+items/weapon/melee/Quarterstaff	items/weapon/melee	PARTIAL	native stance/guard, own weapon charge and restore (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Quarterstaff.java
 items/weapon/melee/Quarterstaff.DefensiveStance	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Quarterstaff.java
 items/weapon/melee/Rapier	items/weapon/melee	PARTIAL	Android normal first-floor Lunge, legal landing and charge 2 to 1 / docs/coop/wand-arts-android.md, docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Rapier.java
-items/weapon/melee/RoundShield	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RoundShield.java
+items/weapon/melee/RoundShield	items/weapon/melee	PARTIAL	native stance/guard, own weapon charge and restore (frost-senses-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RoundShield.java
 items/weapon/melee/RoundShield.GuardTracker	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RoundShield.java
 items/weapon/melee/RunicBlade	items/weapon/melee	VERIFIED	seed 572 cave armored statue only, passive damage, chain proc, mail and blade IDs and drops; duelist ability excluded / CavesEntranceTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RunicBlade.java
 items/weapon/melee/RunicBlade.RunicSlashTracker	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RunicBlade.java
