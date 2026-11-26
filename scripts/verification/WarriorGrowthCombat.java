@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 
 /** Owner-only isolated trial. Runs the actual generated mask and native subclass combat on either seat. */
 public class WarriorGrowthCombat extends HeadlessDungeon {
-    private static class Callback extends TengusMask {
+    static class Callback extends TengusMask {
         static void select(TengusMask original,Hero owner,HeroSubClass choice) {
             Hero prior=curUser;
             CharSprite live=owner.sprite;

@@ -8,6 +8,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.KingsCrown;
 import com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.PathFinder;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -80,6 +81,27 @@ public class CityKingTest extends HeadlessDungeon {
             default: throw new IllegalArgumentException(stage);
         }
     }
+    private static boolean canApproach(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero hero, int cell) {
+        for (int offset : PathFinder.NEIGHBOURS8) {
+            int next=cell+offset;
+            if (Dungeon.level.insideMap(next) && Dungeon.level.passable[next]
+                    && (Actor.findChar(next)==null || Actor.findChar(next)==hero)) return true;
+        }
+        return false;
+    }
+
+    /** Clear a surrounded boss's perimeter by fighting its actual minions. */
+    static Mob reachableOpponent(CoopSession game, Mob target) {
+        if (target==null) return null;
+        com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero hero=game.hero(game.activeSeat());
+        if (canApproach(hero,target.pos)) return target;
+        for (int offset:PathFinder.NEIGHBOURS8) {
+            com.shatteredpixel.shatteredpixeldungeon.actors.Char blocker=Actor.findChar(target.pos+offset);
+            if (blocker instanceof Mob && blocker.alignment==Mob.Alignment.ENEMY && canApproach(hero,blocker.pos)) return (Mob)blocker;
+        }
+        return null;
+    }
+
     public static StagedInput prepareBoundary(CoopSession game,String stage) {
         if (stage.equals("visit") || stage.equals("return") || stage.equals("revisit")) {
             if (stage.equals("visit")) reach(game,19);
@@ -114,7 +136,7 @@ public class CityKingTest extends HeadlessDungeon {
                 input=new StagedInput(game,"PICK_UP",cell);
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,cell,Dungeon.level.heaps.get(cell).peek()));
             } else {
-                Mob target=king.phase()==2 ? subject() : king;
+                Mob target=reachableOpponent(game,king.phase()==2 ? subject() : king);
                 if(target==null || king.phase()==1 && king.buffs(LifeLink.class).isEmpty() && i<30) {
                     input=new StagedInput(game,"WAIT",0);TenguArenaTest.waitOne(game);
                 } else {

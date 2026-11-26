@@ -148,8 +148,8 @@ actors/hero/HeroSubClass.GLADIATOR	HeroSubClass	ISOLATED_CALLBACK	WarriorGrowthC
 actors/hero/HeroSubClass.MONK	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.PALADIN	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.PRIEST	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
-actors/hero/HeroSubClass.SNIPER	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
-actors/hero/HeroSubClass.WARDEN	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
+actors/hero/HeroSubClass.SNIPER	HeroSubClass	ISOLATED_CALLBACK	HuntressGrowthCombat: actual owner mask, THROW mark / Earthroot MOVE, actor IDs across restore	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
+actors/hero/HeroSubClass.WARDEN	HeroSubClass	ISOLATED_CALLBACK	HuntressGrowthCombat: actual owner mask, THROW mark / Earthroot MOVE, actor IDs across restore	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.WARLOCK	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/Talent.ADVENTURERS_INTUITION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.AGGRESSIVE_BARRIER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
