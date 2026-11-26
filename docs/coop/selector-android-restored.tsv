@@ -1,0 +1,11 @@
+selector	role	generation_after_cast	after_restart_and_action	receipt_after_cast	after_restart_and_action	remaining_tome_charge	restored_effect
+HolyIntuition	host	8	14	1	3	0	curseKnown=True levelKnown=False
+HolyIntuition	guest	8	14	1	3	0	curseKnown=True levelKnown=False
+RecallInscription	host	5	11	1	3	0	curseKnown=True levelKnown=True
+RecallInscription	guest	5	11	1	3	0	curseKnown=True levelKnown=True
+BodyForm	host	6	11	2	3	2	body_form=Swiftness
+BodyForm	guest	6	11	1	3	2	body_form=Swiftness
+MindForm	host	6	11	2	3	1	mind_form=WandOfLightning
+MindForm	guest	6	11	1	3	1	mind_form=WandOfLightning
+SpiritForm	host	6	11	2	3	0	spirit_form=RingOfHaste
+SpiritForm	guest	6	11	1	3	0	spirit_form=RingOfHaste
