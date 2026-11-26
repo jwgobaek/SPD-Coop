@@ -19,7 +19,7 @@ public final class PublicDungeon {
         public final String slot,kind,upgrade,reference,stackType;
         public final int sprite,quantity,charges,capacity,bagIndex,order;
         public boolean showsCharges() {
-            return kind.equals("WAND") || kind.equals("STAFF");
+            return kind.equals("WAND") || kind.equals("STAFF") || kind.equals("CLOAK");
         }
         Loot(String key,String value,Map<String,String> rows) {
             String[] f=value.split(",");
@@ -88,7 +88,7 @@ public final class PublicDungeon {
         belongings=Collections.unmodifiableList(bag); buffs=Collections.unmodifiableList(effects);
     }
     private static String profession(String s) {
-        if(!s.equals("WARRIOR") && !s.equals("HUNTRESS") && !s.equals("MAGE")) throw new IllegalArgumentException("Class");
+        if(!s.equals("WARRIOR") && !s.equals("HUNTRESS") && !s.equals("MAGE") && !s.equals("ROGUE")) throw new IllegalArgumentException("Class");
         return s;
     }
     private static int number(String s,int low,int high) {
@@ -109,6 +109,7 @@ public final class PublicDungeon {
             case "UPGRADE": case "IDENTIFY": return item.kind;
             case "BOW": return "SHOOT";
             case "UNIDENTIFIED_WAND": case "WAND": return "ZAP";
+            case "CLOAK": return item.slot.equals("BAG") ? "EQUIP" : "CLOAK";
             case "STAFF": return item.slot.equals("WEAPON") ? "ZAP" : "EQUIP";
             case "MELEE": case "CLASS_ARMOR": case "ARMOR": return item.slot.equals("BAG") ? "EQUIP" : "UNEQUIP";
             case "HONEYPOT": return "SHATTER";
@@ -132,6 +133,7 @@ public final class PublicDungeon {
         }
         boolean weapon=item.kind.equals("MELEE") || item.kind.equals("STAFF");
         if(item.kind.equals("UNIDENTIFIED_WAND") || (item.slot.equals("WEAPON") || item.kind.equals("WAND")) && item.charges>0) verbs.add("ZAP");
+        if (source.rows.containsKey("stealth"+item.id)) verbs.add("CLOAK");
         if (source.rows.containsKey("ability"+item.id)) verbs.add("ARMOR_ABILITY");
         if(item.slot.equals("BAG")) {
             if (source.rows.containsKey("crown"+item.id)) verbs.add("USE_CROWN");
@@ -142,10 +144,10 @@ public final class PublicDungeon {
             if(item.kind.equals("BOW")) verbs.add("SHOOT");
             if(item.kind.equals("FOOD")) verbs.add("EAT");
             if(inVault() && item.kind.equals("VAULT_BEACON")) verbs.add("VAULT_RECALL");
-            if(weapon || item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")) verbs.add("EQUIP");
+            if(weapon || item.kind.equals("CLOAK") || item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")) verbs.add("EQUIP");
             if(item.kind.equals("HONEYPOT")) verbs.add("SHATTER");
             if(item.kind.equals("CANDLE") || item.kind.equals("FOOD") || weapon || item.kind.equals("ARMOR") || item.kind.equals("INSCRIBED") || item.kind.equals("HONEYPOT") || item.kind.equals("SHELL")) verbs.add("DROP");
-        } else if((item.slot.equals("WEAPON") && weapon) || (item.slot.equals("ARMOR") && (item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")))) verbs.add("UNEQUIP");
+        } else if(item.kind.equals("CLOAK") || (item.slot.equals("WEAPON") && weapon) || (item.slot.equals("ARMOR") && (item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")))) verbs.add("UNEQUIP");
         return verbs;
     }
     public boolean use(CoopController c,Loot item,String verb) {

@@ -215,18 +215,51 @@ public class WarpBeacon extends ArmorAbility {
 				return;
 			}
 
-			WarpBeaconTracker tracker = new WarpBeaconTracker();
-			tracker.pos = target;
-			tracker.depth = Dungeon.depth;
-			tracker.branch = Dungeon.branch;
-			tracker.attachTo(hero);
+            place(hero, target);
+        }
+    }
 
-			hero.sprite.operate(target);
-			Sample.INSTANCE.play(Assets.Sounds.TELEPORT);
-			Invisibility.dispel();
-			hero.spendAndNext(Actor.TICK);
-		}
-	}
+    private void place(Hero hero, int pos) {
+        WarpBeaconTracker tracker = new WarpBeaconTracker();
+        tracker.pos = pos;
+        tracker.depth = Dungeon.depth;
+        tracker.branch = Dungeon.branch;
+        tracker.attachTo(hero);
+        if (Dungeon.coop == null) {
+            hero.sprite.operate(pos);
+            Sample.INSTANCE.play(Assets.Sounds.TELEPORT);
+        }
+        Invisibility.dispel(hero);
+        hero.spendAndNext(Actor.TICK);
+    }
+
+    /** Authority receives the native window choice after the owning seat has confirmed it. */
+    public boolean useForSeat(ClassArmor armor, Hero hero, int choice) {
+        WarpBeaconTracker mark = hero.buff(WarpBeaconTracker.class);
+        if (mark == null) {
+            if (choice != hero.pos || !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(choice)) return false;
+            place(hero, choice);
+            return true;
+        }
+        if (choice == CLEAR) {
+            mark.detach();
+            return true;
+        }
+        if (choice != RECALL || mark.depth != Dungeon.depth || mark.branch != Dungeon.branch
+                || !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(mark.pos)
+                || !(Dungeon.level.passable[mark.pos] || Dungeon.level.avoid[mark.pos])) return false;
+        Char occupant = Actor.findChar(mark.pos);
+        if (occupant != null && occupant != hero) return false;
+        armor.charge -= chargeUse(hero);
+        armor.updateQuickslot();
+        ScrollOfTeleportation.appear(hero, mark.pos);
+        Invisibility.dispel(hero);
+        Dungeon.coop.observe(0);
+        Dungeon.coop.observe(1);
+        hero.checkVisibleMobs();
+        return true;
+    }
+    public static final int RECALL = -1, CLEAR = -2;
 
 	public static class WarpBeaconTracker extends Buff {
 
@@ -235,13 +268,14 @@ public class WarpBeacon extends ArmorAbility {
 		}
 
 		int pos;
-		int depth;
+		public int depth;
 		int branch;
 
 		Emitter e;
 
 		@Override
 		public void fx(boolean on) {
+			if (Dungeon.coop != null) return;
 			if (on && depth == Dungeon.depth) {
 				e = CellEmitter.center(pos);
 				e.pour(MagicMissile.WardParticle.UP, 0.05f);

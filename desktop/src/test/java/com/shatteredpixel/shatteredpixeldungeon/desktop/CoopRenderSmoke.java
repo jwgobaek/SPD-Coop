@@ -31,7 +31,7 @@ public final class CoopRenderSmoke {
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -735,11 +735,27 @@ public final class CoopRenderSmoke {
         shot("crown-leap");
     }
 
+    private static void upperInputs() throws Exception {
+        com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent cleave=com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.CLEAVE;
+        await(()->frame().dungeon.offered && frame().image.rows.containsKey("learn"+cleave.ordinal()));
+        openCharacter();
+        click("#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndHero.class,"talents"));
+        String tier="#"+Messages.get(CoopScene.class,"tier_points",3,Integer.parseInt(frame().image.rows.get("freepoints3")));
+        waitForButton(tier); shot("upper-tier-balances"); click(tier);
+        String ability="#3 · "+Messages.titleCase(cleave.title())+"  0/"+cleave.maxPoints();
+        waitForButton(ability); shot("gladiator-talents"); click(ability);
+        String invest="#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTalent.class,"upgrade");
+        waitForButton(invest); shot("cleave-invest"); click(invest);
+        await(()->"1".equals(frame().image.rows.get("learn"+cleave.ordinal())));
+        shot("cleave-confirmed");
+    }
+
     private static void growthInputs() throws Exception {
         await(()->{ PublicDungeon v=frame().dungeon; return v.offered && v.belongings.stream().anyMatch(i->v.actions(i).contains("USE_MASK")); });
         openCharacter();
         click("#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndHero.class,"talents"));
         com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent food=com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.HEARTY_MEAL;
+        click("#"+Messages.get(CoopScene.class,"tier_points",1,Integer.parseInt(frame().image.rows.get("freepoints1"))));
         click("#1 · "+Messages.titleCase(food.title())+"  0/"+food.maxPoints());
         String upgrade="#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTalent.class,"upgrade");
         waitForButton(upgrade);shot("native-talent");click(upgrade);
@@ -789,6 +805,7 @@ public final class CoopRenderSmoke {
                 RenderEncounter.tengu(hostController(),regionShot);
                 if (regionShot.equals("vault-dart")) { vaultDart(); return; }
                 if (regionShot.equals("growth-input")) { growthInputs(); return; }
+                if (regionShot.equals("upper-input")) { upperInputs(); return; }
                 if (regionShot.equals("combo-input")) { comboInputs(); return; }
                 if (regionShot.equals("crown-input")) { crownInputs(); return; }
                 if (regionShot.equals("smith-services")) {

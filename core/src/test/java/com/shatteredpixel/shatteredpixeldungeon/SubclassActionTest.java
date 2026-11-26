@@ -189,6 +189,40 @@ public class SubclassActionTest extends HeadlessDungeon {
         Hero h=g.hero(seat);
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
+        case "battery":
+            h.lvl=9;
+            assertTrue(CoopFloorsTest.step(g, CoopSession.Action.INVEST_TALENT,Talent.SHIELD_BATTERY.ordinal(),null));
+            return new StagedInput(g,"ZAP",h.pos);
+        case "enhanced":
+            prepare(g,seat,rat,10);
+            h.lvl=25;
+            for (int i=0;i<3;i++) assertTrue(CoopFloorsTest.step(g,CoopSession.Action.INVEST_TALENT,Talent.ENHANCED_COMBO.ordinal(),null));
+            h.pos=rat.pos-3;
+            g.observe(seat);
+            return new StagedInput(g,"CLOBBER",rat.pos);
+        case "blades": case "beacon": case "recall": case "endure":
+            int ability=type.equals("blades")?0:2;
+            assertTrue(CoopFloorsTest.step(g,CoopSession.Action.USE_CROWN,ability,CrownAbilityTest.crown(g,seat,CoopSession.MaskTrial.OWNER)));
+            SewerBeeTest.offer(g,seat);
+            if (type.equals("recall")) {
+                assertTrue(CoopFloorsTest.step(g,CoopSession.Action.ARMOR_ABILITY,h.pos,h.belongings.armor()));
+                SewerBeeTest.offer(g,seat);
+                assertTrue(CoopFloorsTest.step(g,CoopSession.Action.MOVE,h.pos-1,null));
+                SewerBeeTest.offer(g,seat);
+                return new StagedInput(g,"ARMOR_ABILITY",-1);
+            }
+            return new StagedInput(g,"ARMOR_ABILITY",type.equals("blades")?rat.pos:h.pos);
+        case "cloak":
+            return new StagedInput(g,"CLOAK",0);
+        case "third":
+            h.subClass=HeroSubClass.GLADIATOR;
+            Talent.initSubclassTalents(h);
+            h.lvl=18;
+            return new StagedInput(g,"INVEST_TALENT",Talent.CLEAVE.ordinal());
+        case "shock":
+            assertTrue(CoopFloorsTest.step(g,CoopSession.Action.USE_CROWN,1,CrownAbilityTest.crown(g,seat,CoopSession.MaskTrial.OWNER)));
+            SewerBeeTest.offer(g,seat);
+            return new StagedInput(g,"ARMOR_ABILITY",rat.pos);
         case "clobber": case "slam": case "crush": case "fury": case "parry": case "riposte":
             Combo.ComboMove move=type.equals("riposte")?Combo.ComboMove.PARRY:Combo.ComboMove.valueOf(type.toUpperCase(java.util.Locale.ROOT));
             prepare(g,seat,rat,move.comboReq);
@@ -247,6 +281,19 @@ public class SubclassActionTest extends HeadlessDungeon {
         Combo combo=h.buff(Combo.class);
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
+        case "battery": return h.buff(Barrier.class)!=null && ((com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff)h.belongings.weapon()).starterWand().curCharges==0;
+        case "enhanced": return combo!=null && !combo.canUseMove(Combo.ComboMove.CLOBBER)
+                && Dungeon.level.mobs.stream().anyMatch(m->m.buff(Vertigo.class)!=null);
+        case "blades": return h.armorAbility instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpectralBlades
+                && ((com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor)h.belongings.armor()).charge<20;
+        case "endure": return h.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.Endure.EndureTracker.class)!=null;
+        case "beacon": return h.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.WarpBeaconTracker.class)!=null;
+        case "recall": return h.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.WarpBeaconTracker.class)!=null
+                && ((com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor)h.belongings.armor()).charge<20;
+        case "cloak": return h.invisible==1 && h.buff(com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows.cloakStealth.class)!=null;
+        case "third": return h.pointsInTalent(Talent.CLEAVE)==1 && g.hero(1-seat).pointsInTalent(Talent.CLEAVE)==0;
+        case "shock": return h.armorAbility instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.Shockwave
+                && Dungeon.level.mobs.stream().anyMatch(m->m.HP<m.HT && m.buff(Cripple.class)!=null);
         case "clobber": return combo!=null && !combo.canUseMove(Combo.ComboMove.CLOBBER);
         case "warlock": case "battlemage": return h.subClass==HeroSubClass.valueOf(type.toUpperCase(java.util.Locale.ROOT)) &&
                 h.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.TengusMask.class)==null;

@@ -28,6 +28,13 @@ public final class MixedRoomStability {
                     Integer.parseInt(view.source.rows.getOrDefault("freepoints"+tier,"0"))>0)
                 return new VaultPublicRoute.Input("INVEST_TALENT",t.ordinal(),0);
         }
+        if (Boolean.getBoolean("stability.rogue") && "ROGUE".equals(view.heroClass) && !view.monsters.isEmpty()) {
+            for (PublicDungeon.Loot item : view.belongings) {
+                if ("1".equals(view.source.rows.get("stealth"+item.id)) && item.charges>0
+                        && !view.source.rows.containsKey("cloaked"+item.id))
+                    return new VaultPublicRoute.Input("CLOAK",0,item.id);
+            }
+        }
         return guide.choose(view);
     }
     void play(LanRoom room,InetSocketAddress addr,int budget) throws Exception {
@@ -42,7 +49,7 @@ public final class MixedRoomStability {
                 assertTrue(clients[i].request(i==0?room.hostJoinCommand():"JOIN").startsWith("JOINED "));
                 UUID seated=UUID.fromString(keys[i].enroll(clients[i]).split(" ")[1]);
                 if(i==0) epoch=seated; else assertEquals(epoch,seated);
-                clients[i].request(i==0?"SELECT MAGE":"SELECT HUNTRESS");
+                clients[i].request(i==0 && Boolean.getBoolean("stability.rogue") ? "SELECT ROGUE" : i==0?"SELECT MAGE":"SELECT HUNTRESS");
                 images[i]=new DisplayReplica(room.session,i);
                 actions[i]=new SeatActions(room.session,i,i+1);
             }

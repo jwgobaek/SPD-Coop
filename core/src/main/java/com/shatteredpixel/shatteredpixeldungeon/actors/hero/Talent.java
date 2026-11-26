@@ -712,7 +712,7 @@ public enum Talent {
 		if (hero.hasTalent(LIQUID_WILLPOWER)){
 			// 6.5/10% of max HP
 			int shieldToGive = Math.round( factor * hero.HT * (0.030f + 0.035f*hero.pointsInTalent(LIQUID_WILLPOWER)));
-			hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shieldToGive), FloatingText.SHIELDING);
+			if (Dungeon.coop == null) hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shieldToGive), FloatingText.SHIELDING);
 			Buff.affect(hero, Barrier.class).setShield(shieldToGive);
 		}
 		if (hero.hasTalent(LIQUID_NATURE)){
@@ -733,7 +733,7 @@ public enum Talent {
 					Level.set(grassCell, Terrain.GRASS);
 					GameScene.updateMap(grassCell);
 				}
-				CellEmitter.get(grassCell).burst(LeafParticle.LEVEL_SPECIFIC, 4);
+				if (Dungeon.coop == null) CellEmitter.get(grassCell).burst(LeafParticle.LEVEL_SPECIFIC, 4);
 			}
 			// 4/6 cells total
 			int totalGrassCells = (int) (factor * (2 + 2 * hero.pointsInTalent(LIQUID_NATURE)));

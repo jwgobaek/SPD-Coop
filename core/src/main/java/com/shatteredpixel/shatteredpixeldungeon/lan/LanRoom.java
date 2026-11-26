@@ -44,6 +44,7 @@ public final class LanRoom implements AutoCloseable {
     private boolean locked;
     private RoomSync sync;
     private final boolean synchronizedRoom;
+    private final CoopSession.MaskTrial maskPolicy, crownPolicy;
 
     public LanRoom(long seed) throws IOException {
         this(null, LanClient.TCP_PORT, LanClient.UDP_PORT, seed);
@@ -62,13 +63,25 @@ public final class LanRoom implements AutoCloseable {
     }
 
     private LanRoom(InetAddress bind,int tcp,int udp,long seed,boolean synchronizedRoom,UUID session) throws IOException {
+        this(bind,tcp,udp,seed,synchronizedRoom,session,CoopSession.MaskTrial.OFF,CoopSession.MaskTrial.OFF);
+    }
+
+    private LanRoom(InetAddress bind,int tcp,int udp,long seed,boolean synchronizedRoom,UUID session,
+                    CoopSession.MaskTrial mask,CoopSession.MaskTrial crown) throws IOException {
+        this.maskPolicy=java.util.Objects.requireNonNull(mask);
+        this.crownPolicy=java.util.Objects.requireNonNull(crown);
         this.session=session;
         this.synchronizedRoom=synchronizedRoom;
         this.seed = seed;
         io = new LanTransport(bind,tcp,udp,session);
     }
     public static LanRoom persistentGame(InetAddress bind,int tcp,int udp,long seed,CoopSaves saves) throws IOException {
-        LanRoom room=new LanRoom(bind,tcp,udp,seed,true);
+        return persistentGame(bind,tcp,udp,seed,saves,CoopSession.MaskTrial.OFF,CoopSession.MaskTrial.OFF);
+    }
+
+    static LanRoom persistentGame(InetAddress bind,int tcp,int udp,long seed,CoopSaves saves,
+                                  CoopSession.MaskTrial mask,CoopSession.MaskTrial crown) throws IOException {
+        LanRoom room=new LanRoom(bind,tcp,udp,seed,true,UUID.randomUUID(),mask,crown);
         try {
             room.slot=saves.open(room.session);
             if (room.slot.currentGeneration()!=0) throw new IOException("Session already exists");
@@ -223,7 +236,7 @@ public final class LanRoom implements AutoCloseable {
             if (!host && f.length != 4) return "ERROR FORMAT";
             seat = host ? 0 : 1;
             if (seats[seat] != null) return "ERROR FULL";
-            if (!peer.extended && mageRoster()) return "ERROR VERSION";
+            if (!peer.extended && extendedRoster()) return "ERROR VERSION";
             if (peer.syncMode != synchronizedRoom) return "ERROR MODE";
             seats[seat] = new Seat(peer, ++playerSequence);
             lobby();
@@ -292,8 +305,8 @@ public final class LanRoom implements AutoCloseable {
         if (verb.equals("ACT")) return action(seat,f);
         if (locked) return "ERROR LOCKED";
         if (verb.equals("SELECT") && f.length == 5) {
-            if (!f[4].equals("WARRIOR") && !f[4].equals("HUNTRESS") && !(peer.extended && f[4].equals("MAGE"))) return "ERROR CLASS";
-            if (f[4].equals("MAGE") && seats[1-seat]!=null && !seats[1-seat].peer.extended) return "ERROR VERSION";
+            if (!f[4].equals("WARRIOR") && !f[4].equals("HUNTRESS") && !(peer.extended && (f[4].equals("MAGE") || f[4].equals("ROGUE")))) return "ERROR CLASS";
+            if ((f[4].equals("MAGE") || f[4].equals("ROGUE")) && seats[1-seat]!=null && !seats[1-seat].peer.extended) return "ERROR VERSION";
             self.type = HeroClass.valueOf(f[4]);
             self.ready = false;
         } else if (verb.equals("READY") && f.length == 5) {
@@ -307,7 +320,7 @@ public final class LanRoom implements AutoCloseable {
             io.discoverable = false;
             state = State.ROSTER_LOCKED;
             try {
-                game = CoopSession.open(seed,self.player,self.type);
+                game = CoopSession.open(seed,self.player,self.type,maskPolicy,crownPolicy);
                 game.join(seats[1].player,seats[1].type);
                 if (peer.syncMode) sync = new RoomSync(session,game);
             } catch (com.shatteredpixel.shatteredpixeldungeon.CoopFloors.UnsupportedDestination unsupported) {
@@ -326,13 +339,13 @@ public final class LanRoom implements AutoCloseable {
         return "OK";
     }
 
-    private boolean mageRoster() {
-        for (Seat seat : seats) if (seat!=null && seat.type==HeroClass.MAGE) return true;
+    private boolean extendedRoster() {
+        for (Seat seat : seats) if (seat!=null && (seat.type==HeroClass.MAGE || seat.type==HeroClass.ROGUE)) return true;
         return false;
     }
     private String authenticate(LanTransport.Peer peer,int attached,String[] f) {
         if (persistenceFailed || sync==null || sync.paused) return "ERROR PAUSED";
-        if ((!peer.extended && mageRoster()) || (!peer.stairs && game.stairs.hasParkedFloor())) return "ERROR VERSION";
+        if ((!peer.extended && extendedRoster()) || (!peer.stairs && game.stairs.hasParkedFloor())) return "ERROR VERSION";
         if (attached>=0) return "ERROR DUPLICATE";
         if (f[3].equals("CHALLENGE")) {
             peer.nonce=null;

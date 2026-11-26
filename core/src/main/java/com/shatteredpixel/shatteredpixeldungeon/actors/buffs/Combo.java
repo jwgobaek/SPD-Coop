@@ -307,10 +307,15 @@ public class Combo extends Buff implements ActionIndicator.Action {
 			Ballistica path = new Ballistica(hero.pos, enemy.pos, Ballistica.PROJECTILE);
 			if (path.collisionPos != enemy.pos || path.dist < 1) return false;
 			int landing = path.path.get(path.dist - 1);
-			if (!Dungeon.level.passable[landing] && !(hero.flying && Dungeon.level.avoid[landing])) return false;
-			hero.move(landing);
-			Dungeon.level.occupyCell(hero);
-			if (!hero.isAlive()) return true;
+			if (Dungeon.level.plants.get(landing) instanceof com.shatteredpixel.shatteredpixeldungeon.plants.Fadeleaf
+                    && com.shatteredpixel.shatteredpixeldungeon.plants.Fadeleaf.requiresWardenReturn(hero)) return false;
+            if (Actor.findChar(landing) != null || !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(landing)
+                    || (!Dungeon.level.passable[landing] && !(hero.flying && Dungeon.level.avoid[landing]))) return false;
+			hero.move(landing); // move invokes the trap or plant at the landing cell once.
+            if (!hero.isAlive() || !enemy.isAlive() || !hero.canAttack(enemy)) {
+                hero.spendAndNext(hero.attackDelay());
+                return true;
+            }
 		}
 		moveBeingUsed = move;
 		hero.busy();

@@ -51,8 +51,9 @@ public class YogBoundaryTest extends HeadlessDungeon {
             assertTrue(game.hero(targetedSeat).rooted);
             int points=Statistics.bossScores[4];
             int a=game.hero(0).HP,b=game.hero(1).HP;
-            for (int i=0;i<50 && boss.aimedCells().length!=0;i++) TenguArenaTest.waitOne(game);
-            assertEquals(0,boss.aimedCells().length);
+            // A delayed beam can fire and queue the next warning in the same native act.
+            // Stop at the first scored discharge, including when a new warning is already visible.
+            for (int i=0;i<50 && Statistics.bossScores[4]==points;i++) TenguArenaTest.waitOne(game);
             assertEquals(points-1000,Statistics.bossScores[4]);
             assertTrue(game.hero(0).HP<a && game.hero(1).HP<b);
         }

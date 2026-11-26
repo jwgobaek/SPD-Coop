@@ -55,13 +55,17 @@ public class SpectralBlades extends ArmorAbility {
 
 	@Override
 	protected void activate(ClassArmor armor, Hero hero, Integer target) {
-		if (target == null){
-			return;
+		resolve(armor, hero, target);
+    }
+
+    public boolean resolve(ClassArmor armor, Hero hero, Integer target) {
+        if (target == null){
+			return false;
 		}
 
 		if (Actor.findChar(target) == hero){
 			GLog.w(Messages.get(this, "self_target"));
-			return;
+			return false;
 		}
 
 		Ballistica b = new Ballistica(hero.pos, target, Ballistica.WONT_STOP);
@@ -71,7 +75,7 @@ public class SpectralBlades extends ArmorAbility {
 
 		if (enemy == null || !hero.fieldOfView[enemy.pos]){
 			GLog.w(Messages.get(this, "no_target"));
-			return;
+			return false;
 		}
 
 		targets.add(enemy);
@@ -101,7 +105,15 @@ public class SpectralBlades extends ArmorAbility {
 		armor.charge -= chargeUse(hero);
 		Item.updateQuickslot();
 
-		Item proto = new Shuriken();
+		if (Dungeon.coop != null) {
+            java.util.ArrayList<Char> ordered = new java.util.ArrayList<>(targets);
+            ordered.sort(java.util.Comparator.comparingInt(Char::id));
+            for (Char ch : ordered) strike(hero, ch, enemy);
+            Invisibility.dispel(hero);
+            hero.spendAndNext(hero.attackDelay());
+            return true;
+        }
+        Item proto = new Shuriken();
 
 		final HashSet<Callback> callbacks = new HashSet<>();
 
@@ -109,13 +121,8 @@ public class SpectralBlades extends ArmorAbility {
 			Callback callback = new Callback() {
 				@Override
 				public void call() {
-					float dmgMulti = ch == enemy ? 1f : 0.5f;
-					float accmulti = 1f + 0.25f*hero.pointsInTalent(Talent.PROJECTING_BLADES);
-					if (hero.hasTalent(Talent.SPIRIT_BLADES)){
-						Buff.affect(hero, Talent.SpiritBladesTracker.class, 0f);
-					}
-					hero.attack( ch, dmgMulti, 0, accmulti );
-					callbacks.remove( this );
+					strike(hero, ch, enemy);
+                    callbacks.remove( this );
 					if (callbacks.isEmpty()) {
 						Invisibility.dispel();
 						hero.spendAndNext( hero.attackDelay() );
@@ -133,7 +140,17 @@ public class SpectralBlades extends ArmorAbility {
 
 		hero.sprite.zap( enemy.pos );
 		hero.busy();
-	}
+        return true;
+    }
+
+    private void strike(Hero hero, Char ch, Char enemy) {
+        float dmgMulti = ch == enemy ? 1f : 0.5f;
+        float accmulti = 1f + 0.25f*hero.pointsInTalent(Talent.PROJECTING_BLADES);
+        if (hero.hasTalent(Talent.SPIRIT_BLADES)){
+            Buff.affect(hero, Talent.SpiritBladesTracker.class, 0f);
+        }
+        hero.attack( ch, dmgMulti, 0, accmulti );
+    }
 
 	private Char findChar(Ballistica path, Hero hero, int wallPenetration, HashSet<Char> existingTargets){
 		for (int cell : path.path){

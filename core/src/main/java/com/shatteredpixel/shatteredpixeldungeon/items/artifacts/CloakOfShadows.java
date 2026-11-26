@@ -95,11 +95,12 @@ public class CloakOfShadows extends Artifact {
 				else {
 					hero.spend( 1f );
 					hero.busy();
-					Sample.INSTANCE.play(Assets.Sounds.MELD);
+					if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.MELD);
 					activeBuff = activeBuff();
 					activeBuff.attachTo(hero);
-					Talent.onArtifactUsed(Dungeon.hero);
-					hero.sprite.operate(hero.pos);
+					Talent.onArtifactUsed(hero);
+					if (Dungeon.coop == null) hero.sprite.operate(hero.pos);
+                    else hero.next();
 				}
 			} else {
 				activeBuff.detach();
@@ -107,7 +108,7 @@ public class CloakOfShadows extends Artifact {
 				if (hero.invisible <= 0 && hero.buff(Preparation.class) != null){
 					hero.buff(Preparation.class).detach();
 				}
-				hero.sprite.operate( hero.pos );
+				if (Dungeon.coop == null) hero.sprite.operate( hero.pos );
 			}
 
 		}
@@ -166,7 +167,12 @@ public class CloakOfShadows extends Artifact {
 
 	@Override
 	protected ArtifactBuff passiveBuff() {
-		return new cloakRecharge();
+		cloakRecharge buff = new cloakRecharge();
+        if (savedRecharge != null) {
+            buff.restoreFromBundle(savedRecharge);
+            savedRecharge = null;
+        }
+        return buff;
 	}
 
 	@Override
@@ -204,19 +210,32 @@ public class CloakOfShadows extends Artifact {
 		return super.upgrade();
 	}
 
-	private static final String STEALTHED = "stealthed";
+	private Bundle savedRecharge;
+
+    public int charges() { return charge; }
+    public int capacity() { return chargeCap; }
+    public boolean stealthed() { return activeBuff != null; }
+
+    private static final String STEALTHED = "stealthed";
 	private static final String BUFF = "buff";
 
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle(bundle);
 		if (activeBuff != null) bundle.put(BUFF, activeBuff);
+        if (Dungeon.coop != null && passiveBuff != null && passiveBuff.target != null) {
+            Bundle state = new Bundle();
+            passiveBuff.storeInBundle(state);
+            bundle.put("coop_recharge", state);
+        }
 	}
 
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle(bundle);
-		if (bundle.contains(BUFF)){
+		if (Dungeon.coop != null && bundle.contains("coop_recharge"))
+            savedRecharge = bundle.getBundle("coop_recharge");
+        if (bundle.contains(BUFF)){
 			activeBuff = new cloakStealth();
 			activeBuff.restoreFromBundle(bundle.getBundle(BUFF));
 		}
@@ -231,14 +250,14 @@ public class CloakOfShadows extends Artifact {
 		@Override
 		public boolean act() {
 			if (charge < chargeCap && !cursed && target.buff(MagicImmune.class) == null) {
-				if (activeBuff == null && Regeneration.regenOn()) {
+				if (activeBuff == null && Regeneration.regenOn((Hero)target)) {
 					float missing = (chargeCap - charge);
 					if (level() > 7) missing += 5*(level() - 7)/3f;
 					float turnsToCharge = (45 - missing);
 					turnsToCharge /= RingOfEnergy.artifactChargeMultiplier(target);
 					float chargeToGain = (1f / turnsToCharge);
-					if (!isEquipped(Dungeon.hero)){
-						chargeToGain *= 0.75f*Dungeon.hero.pointsInTalent(Talent.LIGHT_CLOAK)/3f;
+					if (!isEquipped((Hero)target)){
+						chargeToGain *= 0.75f*((Hero)target).pointsInTalent(Talent.LIGHT_CLOAK)/3f;
 					}
 					partialCharge += chargeToGain;
 				}
@@ -367,6 +386,7 @@ public class CloakOfShadows extends Artifact {
 
 		@Override
 		public void fx(boolean on) {
+			if (Dungeon.coop != null) return;
 			if (on) target.sprite.add( CharSprite.State.INVISIBLE );
 			else if (target.invisible == 0) target.sprite.remove( CharSprite.State.INVISIBLE );
 		}

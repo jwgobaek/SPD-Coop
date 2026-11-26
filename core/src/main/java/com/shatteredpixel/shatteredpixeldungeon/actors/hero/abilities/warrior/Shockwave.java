@@ -22,6 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -64,7 +65,7 @@ public class Shockwave extends ArmorAbility {
 	}
 
 	@Override
-	protected void activate(ClassArmor armor, Hero hero, Integer target) {
+	public void activate(ClassArmor armor, Hero hero, Integer target) {
 		if (target == null){
 			return;
 		}
@@ -87,6 +88,10 @@ public class Shockwave extends ArmorAbility {
 				60 + 15*hero.pointsInTalent(Talent.EXPANDING_WAVE),
 				Ballistica.STOP_SOLID | Ballistica.STOP_TARGET);
 
+        if (Dungeon.coop != null) {
+            resolve(hero, cone);
+            return;
+        }
 		//cast to cells at the tip, rather than all cells, better performance.
 		for (Ballistica ray : cone.outerRays){
 			((MagicMissile)hero.sprite.parent.recycle( MagicMissile.class )).reset(
@@ -105,50 +110,47 @@ public class Shockwave extends ArmorAbility {
 				MagicMissile.FORCE_CONE,
 				hero.sprite,
 				cone.coreRay.path.get(dist * 2 / 3),
-				new Callback() {
-					@Override
-					public void call() {
+                () -> resolve(hero, cone));
+	}
 
-						for (int cell : cone.cells){
+    private void resolve(Hero hero, ConeAOE cone) {
+		for (int cell : cone.cells){
 
-							Char ch = Actor.findChar(cell);
-							if (ch != null && ch.alignment != hero.alignment){
-								int scalingStr = hero.STR()-10;
-								int damage = Hero.heroDamageIntRange(5 + scalingStr, 10 + 2*scalingStr);
-								damage = Math.round(damage * (1f + 0.2f*hero.pointsInTalent(Talent.SHOCK_FORCE)));
-								damage -= ch.drRoll();
+			Char ch = Actor.findChar(cell);
+			if (ch != null && ch.alignment != hero.alignment){
+				int scalingStr = hero.STR()-10;
+				int damage = Hero.heroDamageIntRange(5 + scalingStr, 10 + 2*scalingStr);
+				damage = Math.round(damage * (1f + 0.2f*hero.pointsInTalent(Talent.SHOCK_FORCE)));
+				damage -= ch.drRoll();
 
-								if (hero.pointsInTalent(Talent.STRIKING_WAVE) == 4){
-									Buff.affect(hero, Talent.StrikingWaveTracker.class, 0f);
-								}
+				if (hero.pointsInTalent(Talent.STRIKING_WAVE) == 4){
+					Buff.affect(hero, Talent.StrikingWaveTracker.class, 0f);
+				}
 
-								if (Random.Int(10) < 3*hero.pointsInTalent(Talent.STRIKING_WAVE)){
-									boolean wasEnemy = ch.alignment == Char.Alignment.ENEMY
-											|| (ch instanceof Mimic && ch.alignment == Char.Alignment.NEUTRAL);
-									damage = hero.attackProc(ch, damage);
-									ch.damage(damage, hero);
-									if (hero.subClass == HeroSubClass.GLADIATOR && wasEnemy){
-										Buff.affect( hero, Combo.class ).hit( ch );
-									}
-								} else {
-									ch.damage(damage, hero);
-								}
-								if (ch.isAlive()){
-									if (Random.Int(4) < hero.pointsInTalent(Talent.SHOCK_FORCE)){
-										Buff.affect(ch, Paralysis.class, 5f);
-									} else {
-										Buff.affect(ch, Cripple.class, 5f);
-									}
-								}
-
-							}
-						}
-
-						Invisibility.dispel();
-						hero.spendAndNext(Actor.TICK);
-
+				if (Random.Int(10) < 3*hero.pointsInTalent(Talent.STRIKING_WAVE)){
+					boolean wasEnemy = ch.alignment == Char.Alignment.ENEMY
+							|| (ch instanceof Mimic && ch.alignment == Char.Alignment.NEUTRAL);
+					damage = hero.attackProc(ch, damage);
+					ch.damage(damage, hero);
+					if (hero.subClass == HeroSubClass.GLADIATOR && wasEnemy){
+						Buff.affect( hero, Combo.class ).hit( ch );
 					}
-				});
+				} else {
+					ch.damage(damage, hero);
+				}
+				if (ch.isAlive()){
+					if (Random.Int(4) < hero.pointsInTalent(Talent.SHOCK_FORCE)){
+						Buff.affect(ch, Paralysis.class, 5f);
+					} else {
+						Buff.affect(ch, Cripple.class, 5f);
+					}
+				}
+
+			}
+		}
+
+		Invisibility.dispel(hero);
+		hero.spendAndNext(Actor.TICK);
 	}
 
 	@Override

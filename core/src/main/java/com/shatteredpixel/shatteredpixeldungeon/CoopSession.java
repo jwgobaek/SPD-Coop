@@ -33,8 +33,13 @@ import com.shatteredpixel.shatteredpixeldungeon.items.quest.CorpseDust;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.HeroicLeap;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.Endure;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.Shockwave;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpectralBlades;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.NaturesPower;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.ElementalBlast;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon;
 import com.shatteredpixel.shatteredpixeldungeon.items.KingsCrown;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Combo;
@@ -158,9 +163,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
+    public enum Action { CLOAK, USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
         public boolean requiresItem() {
-            return this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
+            return this==CLOAK || this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -237,13 +242,13 @@ public final class CoopSession implements AutoCloseable {
     }
 
     public static boolean playableArmorAbility(ArmorAbility ability) {
-        return ability instanceof HeroicLeap || ability instanceof NaturesPower || ability instanceof ElementalBlast;
+        return ability instanceof HeroicLeap || ability instanceof WarpBeacon || ability instanceof Endure || ability instanceof Shockwave || ability instanceof SpectralBlades || ability instanceof NaturesPower || ability instanceof ElementalBlast;
     }
 
     public boolean mayChooseArmor(int seat, boolean useCrown) {
         Hero hero = heroes[seat];
         Armor armor = hero.belongings.armor();
-        return crownTrial != MaskTrial.OFF && hero.armorAbility == null && armor != null
+        return crownTrial != MaskTrial.OFF && hero.heroClass != HeroClass.ROGUE && hero.armorAbility == null && armor != null
                 && !(armor instanceof ClassArmor) && ownership.owner(armor) == players[seat]
                 && (useCrown ? crownUser < 0 : (crownRights & (1<<seat)) != 0);
     }
@@ -300,7 +305,7 @@ public final class CoopSession implements AutoCloseable {
     }
 
     static int floorSchema(Bundle state) {
-        if (state.getInt("schema") != 16 && state.getInt("schema") != 17) return state.getInt("schema");
+        if (state.getInt("schema") < 16 || state.getInt("schema") > 18) return state.getInt("schema");
         int floor = state.getInt("floor_schema");
         if (floor < 1 || floor > 15) throw new IllegalArgumentException("Invalid growth floor format");
         return floor;
@@ -482,7 +487,12 @@ public final class CoopSession implements AutoCloseable {
     }
 
     /** Enter from a fresh engine host with initialized libGDX services. */
-    public static synchronized CoopSession open(long seed, long player, HeroClass type) {
+    public static CoopSession open(long seed, long player, HeroClass type) {
+        return open(seed, player, type, MaskTrial.OFF, MaskTrial.OFF);
+    }
+
+    public static synchronized CoopSession open(long seed, long player, HeroClass type, MaskTrial mask, MaskTrial crown) {
+        if (mask == null || crown == null) throw new IllegalArgumentException("Growth policy");
         validatePlayer(player, type);
         if (Dungeon.coop != null || Dungeon.hero != null || Dungeon.level != null) {
             throw new IllegalStateException("A dungeon is already loaded");
@@ -491,6 +501,8 @@ public final class CoopSession implements AutoCloseable {
         CoopSession session = new CoopSession();
         Dungeon.coop = session;
         try {
+            session.maskTrial = mask;
+            session.crownTrial = crown;
             Dungeon.seed = seed;
             Dungeon.init(type);
             session.players[0] = player;
@@ -508,7 +520,7 @@ public final class CoopSession implements AutoCloseable {
 
     private static void validatePlayer(long player, HeroClass type) {
         if (player <= 0) throw new IllegalArgumentException("Player ID must be positive");
-        if (type != HeroClass.WARRIOR && type != HeroClass.HUNTRESS && type != HeroClass.MAGE) {
+        if (type != HeroClass.WARRIOR && type != HeroClass.HUNTRESS && type != HeroClass.MAGE && type != HeroClass.ROGUE) {
             throw new UnsupportedOperationException("Unsupported co-op hero class");
         }
     }
@@ -801,6 +813,10 @@ public final class CoopSession implements AutoCloseable {
             case EMPOWERING_MEAL: case SCHOLARS_INTUITION: case LINGERING_MAGIC: case BACKUP_BARRIER:
             case FOLLOWUP_STRIKE: case SURVIVALISTS_INTUITION: case NATURES_AID: case NATURES_BOUNTY:
             case IRON_STOMACH: case ENERGIZING_MEAL: case INVIGORATING_MEAL:
+            case LIQUID_WILLPOWER: case LETHAL_MOMENTUM: case INSCRIBED_POWER:
+            case SHIELD_BATTERY: case LIQUID_NATURE: case REJUVENATING_STEPS: case DURABLE_PROJECTILES:
+            case PROTECTIVE_SHADOWS: case SUCKER_PUNCH:
+            case CLEAVE: case ENHANCED_COMBO: case LETHAL_DEFENSE:
                 return true;
             default: return false;
         }
@@ -899,12 +915,22 @@ public final class CoopSession implements AutoCloseable {
                             || !playableArmorAbility(hero.armorAbility)) return false;
                     ClassArmor armor=(ClassArmor)item;
                     if (armor.charge < hero.armorAbility.chargeUse(hero)) return false;
-                    if (hero.armorAbility instanceof HeroicLeap) {
+                    if (hero.armorAbility instanceof WarpBeacon) {
+                        boolean selecting = hero.buff(WarpBeacon.WarpBeaconTracker.class) != null;
+                        if (!((WarpBeacon)hero.armorAbility).useForSeat(armor, hero, cell)) return false;
+                        // Native local recall and removal cost no game time.
+                        if (selecting) return true;
+                    } else if (hero.armorAbility instanceof HeroicLeap) {
                         if (hero.rooted || !level.insideMap(cell) || !knowledge(activeSeat).visible(cell)
                                 || !level.passable[cell] || !supportedLanding(cell)) return false;
                         int landing=HeroicLeap.landing(hero,cell);
                         if (!supportedLanding(landing) || !level.passable[landing]) return false;
                         ((HeroicLeap)hero.armorAbility).activate(armor,hero,cell);
+                    } else if (hero.armorAbility instanceof SpectralBlades) {
+                        if (abilityTarget(hero,cell) == null || !((SpectralBlades)hero.armorAbility).resolve(armor, hero, cell)) return false;
+                    } else if (hero.armorAbility instanceof Shockwave) {
+                        if (cell == hero.pos || !level.insideMap(cell) || !knowledge(activeSeat).visible(cell)) return false;
+                        ((Shockwave)hero.armorAbility).activate(armor, hero, cell);
                     } else {
                         if (cell!=hero.pos) return false;
                         if (hero.armorAbility instanceof ElementalBlast &&
@@ -950,8 +976,9 @@ public final class CoopSession implements AutoCloseable {
                 case INVEST_TALENT: {
                     if (cell < 0 || cell >= Talent.values().length || item != null) return false;
                     Talent talent = Talent.values()[cell];
-                    int tier = hero.talents.size() > 1 && hero.talents.get(1).containsKey(talent) ? 2 : 1;
-                    if (!playableTalent(talent) || hero.talents.isEmpty() || !hero.talents.get(tier-1).containsKey(talent)
+                    int tier = 1;
+                    while (tier <= hero.talents.size() && !hero.talents.get(tier-1).containsKey(talent)) tier++;
+                    if (!playableTalent(talent) || tier > hero.talents.size()
                             || hero.talentPointsAvailable(tier) <= 0 || hero.pointsInTalent(talent) >= talent.maxPoints()) return false;
                     hero.upgradeTalent(talent);
                     // The native talent button spends no game time. Retain the current offer.
@@ -1099,6 +1126,10 @@ public final class CoopSession implements AutoCloseable {
                             && (targetHeap.type==Heap.Type.CHEST || targetHeap.type==Heap.Type.CRYSTAL_CHEST || targetHeap.type==Heap.Type.LOCKED_CHEST)
                             && level.traps.get(cell)==null && level.plants.get(cell)==null && !level.pit[cell];
                     if (wand==null || level.distance(hero.pos,cell)>hero.viewDistance) return false;
+                    if (cell == hero.pos) {
+                        if (ownership.owner(item) != player || !wand.useShieldBattery(hero)) return false;
+                        break;
+                    }
                     boolean groundTarget = (wand instanceof WandOfBlastWave || wand instanceof WandOfFireblast) && victim == null && !level.solid[cell];
                     if (!groundTarget && !chestTarget && (!(victim instanceof Mob) || !basicMob(victim) || !victim.isAlive()
                             || (!disguised(victim) && victim.alignment!=Char.Alignment.ENEMY)
@@ -1173,7 +1204,22 @@ public final class CoopSession implements AutoCloseable {
                     if (!basicFood(item) || !hero.belongings.backpack.contains(item)) return false;
                     item.execute(hero, Food.AC_EAT);
                     break;
+                case CLOAK: {
+                    if (!(item instanceof CloakOfShadows) || ownership.owner(item) != player || cell != 0) return false;
+                    CloakOfShadows cloak = (CloakOfShadows)item;
+                    if (!cloak.actions(hero).contains(CloakOfShadows.AC_STEALTH)) return false;
+                    boolean cancelling = cloak.stealthed();
+                    cloak.execute(hero, CloakOfShadows.AC_STEALTH);
+                    if (cancelling) return true;
+                    break;
+                }
                 case EQUIP:
+                    if (item instanceof CloakOfShadows) {
+                        if (ownership.owner(item) != player || !hero.belongings.backpack.contains(item)
+                                || hero.belongings.artifact != null && hero.belongings.misc != null
+                                || !((CloakOfShadows)item).doEquip(hero)) return false;
+                        break;
+                    }
                     if (basicArmor(item) || item instanceof ClassArmor && hero.armorAbility!=null && ownership.owner(item)==player) {
                         Armor old=hero.belongings.armor;
                         // A seal transfer normally opens a selection dialog. Explicit unequip keeps it with its armor.
@@ -1189,6 +1235,11 @@ public final class CoopSession implements AutoCloseable {
                     if (!revive(hero, cell)) return false;
                     break;
                 case UNEQUIP:
+                    if (item instanceof CloakOfShadows) {
+                        if (ownership.owner(item) != player || !item.isEquipped(hero) || item.cursed
+                                || !hero.belongings.backpack.canHold(item) || !((CloakOfShadows)item).doUnequip(hero,true)) return false;
+                        break;
+                    }
                     if (item!=null && item==hero.belongings.armor && (basicArmor(item) || item instanceof ClassArmor && ownership.owner(item)==player)) {
                         if (item.cursed || !hero.belongings.backpack.canHold(item)
                                 || !hero.belongings.armor.doUnequip(hero,true)) return false;
@@ -1252,7 +1303,9 @@ public final class CoopSession implements AutoCloseable {
         validateActorGraph();
         Bundle b = new Bundle();
         int format = stairs.schema();
-        b.put("schema",crownTrial != MaskTrial.OFF ? 17 : maskTrial == MaskTrial.OFF ? format : 16);
+        boolean rogue = heroes[0].heroClass == HeroClass.ROGUE || heroes[1].heroClass == HeroClass.ROGUE;
+        b.put("schema", rogue ? 18 : crownTrial != MaskTrial.OFF ? 17 : maskTrial == MaskTrial.OFF ? format : 16);
+        if (rogue) b.put("floor_schema", format);
         if (crownTrial != MaskTrial.OFF) {
             b.put("floor_schema",format);
             b.put("crown_trial",crownTrial.name());
@@ -1474,6 +1527,7 @@ public final class CoopSession implements AutoCloseable {
         for (int i=0;i<2;i++) {
             Hero h=heroes[i];
             validatePlayer(players[i],h.heroClass);
+            if (h.heroClass == HeroClass.ROGUE && b.getInt("schema") != 18) throw new IllegalArgumentException("Rogue floor format");
             lives[i]=Life.valueOf(b.getString("life"+i));
             preDeath[i]=b.getInt("before"+i);
             if (!level.insideMap(h.pos) || h.HT<=0 || h.HP<0 || h.HP>h.HT || preDeath[i]<0 ||
@@ -1486,6 +1540,8 @@ public final class CoopSession implements AutoCloseable {
         }
         // Original bag restoration in co-op preserves object identity and skips collect().
         for (Hero hero : heroes) restorePackCharge(hero);
+        if (b.getInt("schema")==18 && heroes[0].heroClass!=HeroClass.ROGUE && heroes[1].heroClass!=HeroClass.ROGUE)
+            throw new IllegalArgumentException("Missing Rogue in roster");
         if (heroes[0].pos==heroes[1].pos) throw new IllegalArgumentException("Overlapping heroes");
         Actor.add(heroes[1]);
         Actor.init();
@@ -1508,7 +1564,7 @@ public final class CoopSession implements AutoCloseable {
         crownUser=-1;
         crownRights=0;
         crownTrial=MaskTrial.OFF;
-        if (b.getInt("schema")==17) {
+        if (b.getInt("schema")==17 || b.getInt("schema")==18 && b.contains("crown_trial")) {
             if (!b.contains("crown_user") || !b.contains("crown_rights") || !b.contains("crown_trial"))
                 throw new IllegalArgumentException("Missing crown trial ledger");
             crownTrial=MaskTrial.valueOf(b.getString("crown_trial"));
@@ -1519,7 +1575,7 @@ public final class CoopSession implements AutoCloseable {
                     || crownRights!=0 && (crownUser<0 || crownTrial!=MaskTrial.ROSTER || crownRights!=(1<<(1-crownUser))
                     || heroes[1-crownUser].armorAbility!=null)) throw new IllegalArgumentException("Invalid crown trial ledger");
         }
-        if (b.getInt("schema") == 16 || b.getInt("schema")==17 && b.contains("mask_trial")) {
+        if (b.getInt("schema") == 16 || b.getInt("schema")>=17 && b.contains("mask_trial")) {
             if (!b.contains("mask_user") || !b.contains("mask_rights")) throw new IllegalArgumentException("Missing mask ledger");
             maskTrial = MaskTrial.valueOf(b.getString("mask_trial"));
             maskUser = b.getInt("mask_user");

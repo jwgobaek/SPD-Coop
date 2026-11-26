@@ -48,7 +48,18 @@ public class CoopScene extends PixelScene {
                 crownWindow(view,item);
                 break;
             case "ARMOR_ABILITY":
-                if ("HeroicLeap".equals(view.source.rows.get("ability"+item.id))) {
+                String ability = view.source.rows.get("ability"+item.id);
+                if ("WarpBeacon".equals(ability) && view.source.rows.containsKey("beacondepth")) {
+                    Class<?> warp=com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.class;
+                    add(new WndOptions(Messages.get(warp,"name"), Messages.get(warp,"window_desc",Integer.parseInt(view.source.rows.get("beacondepth"))),
+                            Messages.get(warp,"window_tele"),Messages.get(warp,"window_clear"),Messages.get(warp,"window_cancel")) {
+                        @Override protected void onSelect(int index) {
+                            if (index==0 || index==1) controller.act(view.source,action,index==0 ?
+                                    com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.RECALL :
+                                    com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.CLEAR,item.id);
+                        }
+                    });
+                } else if ("HeroicLeap".equals(ability) || "Shockwave".equals(ability) || "SpectralBlades".equals(ability)) {
                     targetView=view; targetMove=action; targetStaff=item; renderFrame();
                 } else controller.act(view.source,action,view.pos,item.id);
                 break;
@@ -135,7 +146,8 @@ public class CoopScene extends PixelScene {
         boolean missile=PublicDungeon.isMissileKind(targetStaff.kind);
         boolean areaWand = (targetStaff.kind.equals("WAND") || targetStaff.kind.equals("UNIDENTIFIED_WAND")) && (targetStaff.sprite == ItemSpriteSheet.WAND_BLAST_WAVE
                 || targetStaff.sprite == ItemSpriteSheet.WAND_FIREBOLT);
-        if (targetView==view && (enemy || ((missile || areaWand) && actor==null && view.visible(cell)) || (!missile && !bow && view.chest(cell)))
+        boolean selfBattery = !missile && !bow && cell == view.pos && view.source.rows.containsKey("talent"+Talent.SHIELD_BATTERY.ordinal());
+        if (targetView==view && (selfBattery || enemy || ((missile || areaWand) && actor==null && view.visible(cell)) || (!missile && !bow && view.chest(cell)))
                 && controller.act(view.source,missile?"THROW":bow?"SHOOT":"ZAP",cell,targetStaff.id)) cancelAim();
     }
     void offerStairs(PublicDungeon view,int cell) {
@@ -375,9 +387,9 @@ public class CoopScene extends PixelScene {
                     String name=member.length==3 ? (member[1].equals("null")?msg("select"):HeroClass.valueOf(member[1]).title()) : msg("waiting");
                     label(msg(i==0?"hostseat":"guestseat")+"  "+name+(member.length==3 && member[2].equals("1")?" / "+msg("ready"):""),7,0xCCCCCC);
                 }
-                float third=(width-4)/3;
-                hero(HeroClass.WARRIOR,left,third); hero(HeroClass.MAGE,left+third+2,third);
-                hero(HeroClass.HUNTRESS,left+2*third+4,third); top+=20;
+                float half=(width-2)/2;
+                hero(HeroClass.WARRIOR,left,half); hero(HeroClass.MAGE,left+half+2,half); top+=20;
+                hero(HeroClass.ROGUE,left,half); hero(HeroClass.HUNTRESS,left+half+2,half); top+=20;
                 boolean ready=roster.length>2+f.seat && f.seat>=0 && roster[2+f.seat].endsWith(":1");
                 button(msg(ready?"unready":"ready"),()->controller.ready(!ready));
                 if(f.seat==0) button(msg("start"),()->controller.start()).enable(roster.length>1 && roster[1].equals("READY"));
@@ -539,17 +551,41 @@ public class CoopScene extends PixelScene {
     }
 
     private void showTalents(PublicDungeon view, String title) {
+        java.util.ArrayList<Integer> tiers = new java.util.ArrayList<>();
+        java.util.ArrayList<String> labels = new java.util.ArrayList<>();
+        for (int tier = 1; tier <= 3; tier++) {
+            boolean present = false;
+            for (Talent talent : Talent.values()) {
+                if (Integer.toString(tier).equals(view.source.rows.get("tier"+talent.ordinal()))) {
+                    present = true;
+                    break;
+                }
+            }
+            if (present) {
+                tiers.add(tier);
+                labels.add(msg("tier_points", tier, Integer.parseInt(view.source.rows.get("freepoints"+tier))));
+            }
+        }
+        labels.add(msg("back"));
+        add(new WndOptions(title, "", labels.toArray(new String[0])) {
+            @Override protected void onSelect(int index) {
+                if (index >= 0 && index < tiers.size()) showTalentTier(view, title, tiers.get(index));
+            }
+        });
+    }
+
+    private void showTalentTier(PublicDungeon view, String title, int tier) {
         java.util.ArrayList<Talent> choices = new java.util.ArrayList<>();
         java.util.ArrayList<String> labels = new java.util.ArrayList<>();
         for (Talent talent : Talent.values()) {
             String invested = view.source.rows.get("learn"+talent.ordinal());
-            if (invested == null) continue;
+            if (invested == null || !Integer.toString(tier).equals(view.source.rows.get("tier"+talent.ordinal()))) continue;
             choices.add(talent);
             labels.add(view.source.rows.get("tier"+talent.ordinal())+" · "+Messages.titleCase(talent.title())+"  "+invested+"/"+talent.maxPoints());
         }
         labels.add(msg("back"));
-        int available = Integer.parseInt(view.source.rows.containsKey("freepoints1") ? view.source.rows.get("freepoints1") : "0");
-        add(new WndOptions(title, msg("tier_points",1,available)+"\n"+msg("tier_points",2,Integer.parseInt(view.source.rows.get("freepoints2"))), labels.toArray(new String[0])) {
+        int available = Integer.parseInt(view.source.rows.get("freepoints"+tier));
+        add(new WndOptions(title, msg("tier_points",tier,available), labels.toArray(new String[0])) {
             @Override protected void onSelect(int index) {
                 if (index < 0 || index >= choices.size()) return;
                 Talent talent = choices.get(index);

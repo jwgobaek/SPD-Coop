@@ -217,7 +217,7 @@ final class SeatProjection {
                 if (marked instanceof Mob && ((Mob)marked).isAlive() && ((Mob)marked).invisible <= 0 && sight.visible(((Mob)marked).pos))
                     rows.put("snipercell", Integer.toString(((Mob)marked).pos));
             }
-            for (int tier=1; tier<=2 && tier<=hero.talents.size(); tier++) {
+            for (int tier=1; tier<=3 && tier<=hero.talents.size(); tier++) {
                 rows.put("freepoints"+tier, Integer.toString(hero.talentPointsAvailable(tier)));
                 for (Talent talent : hero.talents.get(tier-1).keySet()) {
                     if (CoopSession.playableTalent(talent)) {
@@ -382,10 +382,20 @@ final class SeatProjection {
             for (Item item : hero.belongings) {
                 selection++;
                 putItem(rows,visibleItems,item,slot(hero.belongings,item));
+                if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows
+                        && item.actions(hero).contains(com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows.AC_STEALTH))
+                    {
+                    rows.put("stealth"+ids.get(item), "1");
+                    if (((com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows)item).stealthed())
+                        rows.put("cloaked"+ids.get(item), "1");
+                }
                 if (game.ownership.owner(item)==game.player(seat)) {
                     if (item instanceof KingsCrown && game.mayChooseArmor(seat,true)) rows.put("crown"+ids.get(item),"1");
                     if (item == hero.belongings.armor() && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor && CoopSession.playableArmorAbility(hero.armorAbility)) {
                         rows.put("ability"+ids.get(item),hero.armorAbility.getClass().getSimpleName());
+                        com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.WarpBeaconTracker beacon =
+                                hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.WarpBeaconTracker.class);
+                        if (beacon != null) rows.put("beacondepth", Integer.toString(beacon.depth));
                         rows.put("armorcharge"+ids.get(item),Integer.toString((int)((com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor)item).charge));
                     }
                     if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.TengusMask && game.mayUseMask(seat))
@@ -483,7 +493,11 @@ final class SeatProjection {
                         item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart ? "DART" : "STONE";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle) kind="CANDLE";
         String charges="";
-        if (!slot.startsWith("F") && CoopSession.supportedHandheldWand(item)) {
+        if (!slot.startsWith("F") && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows) {
+            com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows cloak = (com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows)item;
+            kind = "CLOAK";
+            charges = ","+cloak.charges()+","+cloak.capacity();
+        } else if (!slot.startsWith("F") && CoopSession.supportedHandheldWand(item)) {
             com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand wand = (com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand)item;
             if (wand.isIdentified()) {
                 kind = "WAND";

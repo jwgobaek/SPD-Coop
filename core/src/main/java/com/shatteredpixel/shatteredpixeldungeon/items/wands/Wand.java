@@ -644,6 +644,28 @@ public abstract class Wand extends Item {
 	private static final String CURSE_INFUSION_BONUS= "curse_infusion_bonus";
 	private static final String RESIN_BONUS         = "resin_bonus";
 
+    /** Original self-zap, resolved against the wand and talent of the acting hero. */
+    public boolean useShieldBattery(Hero hero) {
+        if (!hero.hasTalent(Talent.SHIELD_BATTERY)) return false;
+        if (hero.buff(MagicImmune.class) != null || curCharges == 0) {
+            if (Dungeon.coop == null) GLog.w(Messages.get(Wand.class, curCharges == 0 ? "fizzles" : "no_magic"));
+            return false;
+        }
+        float shield = hero.HT * (0.04f * curCharges);
+        if (hero.pointsInTalent(Talent.SHIELD_BATTERY) == 2) shield *= 1.5f;
+        Buff.affect(hero, Barrier.class).setShield(Math.round(shield));
+        curCharges = 0;
+        if (Dungeon.coop == null) {
+            hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(Math.round(shield)), FloatingText.SHIELDING);
+            hero.sprite.operate(hero.pos);
+            Sample.INSTANCE.play(Assets.Sounds.CHARGEUP);
+            ScrollOfRecharging.charge(hero);
+        }
+        updateQuickslot();
+        hero.spendAndNext(Actor.TICK);
+        return true;
+    }
+
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle( bundle );
@@ -735,26 +757,7 @@ public abstract class Wand extends Item {
 				if (target == curUser.pos || cell == curUser.pos) {
 					if (target == curUser.pos && curUser.hasTalent(Talent.SHIELD_BATTERY)){
 
-						if (curUser.buff(MagicImmune.class) != null){
-							GLog.w( Messages.get(Wand.class, "no_magic") );
-							return;
-						}
-
-						if (curWand.curCharges == 0){
-							GLog.w( Messages.get(Wand.class, "fizzles") );
-							return;
-						}
-
-						float shield = curUser.HT * (0.04f*curWand.curCharges);
-						if (curUser.pointsInTalent(Talent.SHIELD_BATTERY) == 2) shield *= 1.5f;
-						Buff.affect(curUser, Barrier.class).setShield(Math.round(shield));
-						curUser.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(Math.round(shield)), FloatingText.SHIELDING);
-						curWand.curCharges = 0;
-						curUser.sprite.operate(curUser.pos);
-						Sample.INSTANCE.play(Assets.Sounds.CHARGEUP);
-						ScrollOfRecharging.charge(curUser);
-						updateQuickslot();
-						curUser.spendAndNext(Actor.TICK);
+						curWand.useShieldBattery(curUser);
 						return;
 					}
 					GLog.i( Messages.get(Wand.class, "self_target") );

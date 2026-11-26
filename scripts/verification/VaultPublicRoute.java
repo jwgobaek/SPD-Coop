@@ -119,7 +119,7 @@ public final class VaultPublicRoute {
             boolean returning = rendezvous>=0 && !regroup.equals("off") && (missingTurns>0
                     || regroup.equals("cover") && v.ally>=0 && distance(v.pos,v.ally,v.width)>3);
             int meetingCell = v.ally>=0 ? v.ally : rendezvous;
-            boolean escort=regroup.equals("escort");
+            boolean escort=regroup.equals("escort") || regroup.equals("doorway");
             if (escort && v.ally>=0)
                 returning=escortFollower && distance(v.pos,v.ally,v.width)>2;
             if (!reviveDenied && v.ally>=0 && adjacent(v.pos,v.ally,v.width) && "DOWNED".equals(v.source.rows.get("allylife"))) {
@@ -198,6 +198,9 @@ public final class VaultPublicRoute {
                                 && !adjacent(v.pos,m.getKey(),v.width)) value+=35;
                     }
                     // Retain an observed objective between adjacent moves even as the ally takes a turn.
+                    if (regroup.equals("doorway") && v.ally>=0 && escortFollower && v.visible(c) &&
+                            (tile==Terrain.DOOR || tile==Terrain.OPEN_DOOR) && adjacent(c,v.ally,v.width))
+                        value+=30/(1+visits.getOrDefault(c,0));
                     if (team && c==destination && !v.monsters.containsKey(c)) value+=20;
                     if (returning) value=-100*distance(c,meetingCell,v.width)-dist[c]-20*exposedTo(v,c);
                     if (value>high) {best=first[c]; bestCell=c; high=value;}
@@ -273,6 +276,10 @@ public final class VaultPublicRoute {
                             (com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel)com.shatteredpixel.shatteredpixeldungeon.Dungeon.level;
                     for (com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room ring:level.rooms()) {
                         if (!(ring instanceof com.shatteredpixel.shatteredpixeldungeon.levels.rooms.quest.vault.VaultRingRoom)) continue;
+                        boolean wasInside=ring.inside(level.cellToPoint(v.pos));
+                        boolean nowInside=ring.inside(level.cellToPoint(game.hero(seat).pos));
+                        if (wasInside!=nowInside) System.out.printf("RING_CROSS\t%d\t%d\t%d,%d\t%s\t%d\t%d\t%d/%d%n",
+                                applied+1,seat,ring.left,ring.top,nowInside?"ENTER":"EXIT",v.pos,game.hero(seat).pos,game.hero(0).HP,game.hero(1).HP);
                         for (com.watabou.utils.Point door:ring.connected.values()) {
                             int cell=level.pointToCell(door), pos=game.hero(seat).pos;
                             if (pos==cell || v.pos==cell) {

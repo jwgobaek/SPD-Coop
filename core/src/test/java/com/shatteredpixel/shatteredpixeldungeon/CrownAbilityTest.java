@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 public class CrownAbilityTest extends HeadlessDungeon {
     static int choice(Hero hero) {
         ArmorAbility[] choices=hero.heroClass.armorAbilities();
-        for(int i=0;i<choices.length;i++) if(CoopSession.playableArmorAbility(choices[i])) return i;
+        for(int i=0;i<choices.length;i++) if(CoopSession.playableArmorAbility(choices[i]) && !(choices[i] instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpectralBlades)) return i;
         throw new AssertionError(hero.heroClass);
     }
 
@@ -114,10 +114,10 @@ public class CrownAbilityTest extends HeadlessDungeon {
             }
     }
 
-    @Test public void sevenWardenPlantEffectsFollowTheActualOccupantAcrossRestore() {
+    @Test public void wardenPlantEffectsFollowTheActualOccupantAcrossRestore() {
         for(int seat=0;seat<2;seat++) {
-            Plant.Seed[] seeds={new Blindweed.Seed(),new Stormvine.Seed(),new Mageroyal.Seed(),new Firebloom.Seed(),new Icecap.Seed(),new Starflower.Seed(),new Sorrowmoss.Seed()};
-            Class<?>[] effects={Invisibility.class,Levitation.class,BlobImmunity.class,FireImbue.class,FrostImbue.class,Recharging.class,ToxicImbue.class};
+            Plant.Seed[] seeds={new Blindweed.Seed(),new Stormvine.Seed(),new Mageroyal.Seed(),new Firebloom.Seed(),new Icecap.Seed(),new Starflower.Seed(),new Sorrowmoss.Seed(),new Earthroot.Seed(),new Sungrass.Seed(),new Swiftthistle.Seed()};
+            Class<?>[] effects={Invisibility.class,Levitation.class,BlobImmunity.class,FireImbue.class,FrostImbue.class,Recharging.class,ToxicImbue.class,Barkskin.class,Healing.class,Swiftthistle.TimeBubble.class};
             for(int i=0;i<seeds.length;i++) {
                 Class<? extends Buff> type=effects[i].asSubclass(Buff.class);
                 Bundle save;
