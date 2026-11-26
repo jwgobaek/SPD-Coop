@@ -10,12 +10,13 @@ root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser()
 parser.add_argument('classpath')
 parser.add_argument('--pairs', type=int, default=5)
+parser.add_argument('--actions', nargs='+', default=['dart', 'talent', 'owner', 'right'])
 args = parser.parse_args()
 runner = runpy.run_path(str(root / 'scripts/verify-alpha-migration.py'))['run']
 os.environ['JAVA_TOOL_OPTIONS'] = os.environ.get('JAVA_TOOL_OPTIONS', '') + ' -Dspd.timePlayerAction=true'
 for pair in range(args.pairs):
     for seat in range(2):
-        for action in ('dart', 'talent', 'owner', 'right'):
+        for action in args.actions:
             with TemporaryDirectory(prefix='coop-player-cost-') as tmp:
                 directory = Path(tmp)
                 if action == 'dart':

@@ -172,6 +172,106 @@ public final class WandArtsBoundaries extends HeadlessDungeon {
         }
     }
 
+    private static void blindLunge(int seat) {
+        try (CoopSession game=CoopSession.open(571,11,HeroClass.DUELIST)) {
+            game.join(22,HeroClass.DUELIST);
+            Rat rat=CoopMageTest.encounter(game,seat);
+            SewerBeeTest.offer(game,seat);
+            Hero hero=game.hero(seat);
+            int target=hero.pos+2;
+            int start=hero.pos;
+            assertNull(Actor.findChar(target));
+            com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff.prolong(hero,com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness.class,5f);
+            game.observe(seat);
+            PublicDungeon image=ProjectionChecks.seatImage(game,seat);
+            assertFalse(image.visible(target));
+            assertFalse(image.monsters.containsKey(rat.pos));
+            assertTrue(CoopFloorsTest.step(game,CoopSession.Action.WEAPON_ABILITY,target,hero.belongings.weapon()));
+            assertTrue(start!=hero.pos);
+            assertEquals(1,hero.buff(com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon.Charger.class).charges);
+            assertNull(hero.belongings.abilityWeapon);
+            assertEquals(rat.HT,rat.HP);
+            assertFalse(ProjectionChecks.seatImage(game,seat).monsters.containsKey(rat.pos));
+            game.checkpoint();
+        }
+    }
+
+    private static void fallenHawkOwner(int seat, boolean hasAnkh) {
+        Bundle saved;
+        int actor;
+        try (CoopSession game=CoopSession.open(572,11,HeroClass.HUNTRESS)) {
+            game.join(22,HeroClass.HUNTRESS);
+            Rat target=CoopMageTest.encounter(game,seat);
+            SewerBeeTest.offer(game,seat);
+            WandArtsTest.stage(game,"hawk",seat,target);
+            Hero hero=game.hero(seat);
+            assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ARMOR_ABILITY,hero.pos,hero.belongings.armor()));
+            actor=SpiritHawk.getHawk(hero).id();
+            SewerBeeTest.offer(game,1-seat);
+            if (hasAnkh) {
+                com.shatteredpixel.shatteredpixeldungeon.items.Ankh ankh=new com.shatteredpixel.shatteredpixeldungeon.items.Ankh();
+                assertTrue(ankh.collect(hero.belongings.backpack));
+                game.ownership.claim(ankh,game.player(seat));
+            }
+            hero.damage(999,Rat.class);
+            assertEquals(hasAnkh?CoopSession.Life.DOWNED:CoopSession.Life.DEAD,game.life(seat));
+            saved=game.checkpoint();
+        }
+        try (CoopSession game=CoopSession.restore(saved)) {
+            SpiritHawk.HawkAlly hawk=SpiritHawk.getHawk(game.hero(seat));
+            assertEquals(actor,hawk.id());
+            assertNull(SpiritHawk.getHawk(game.hero(1-seat)));
+            TenguArenaTest.waitOne(game);
+            if (hasAnkh) hawk.damage(999,Rat.class);
+            else for(int i=0;i<160 && SpiritHawk.getHawk(game.hero(seat))!=null;i++) TenguArenaTest.waitOne(game);
+            assertNull(SpiritHawk.getHawk(game.hero(seat)));
+            saved=game.checkpoint();
+        }
+        try (CoopSession game=CoopSession.restore(saved)) {
+            assertNull(Actor.findById(actor));
+            assertNull(SpiritHawk.getHawk(game.hero(seat)));
+            assertNull(SpiritHawk.getHawk(game.hero(1-seat)));
+        }
+    }
+
+    private static void nativeVolleyLimit(int seat) {
+        try (CoopSession game=CoopSession.open(572,11,HeroClass.MAGE)) {
+            game.join(22,HeroClass.MAGE);
+            Rat target=CoopMageTest.encounter(game,seat);
+            SewerBeeTest.offer(game,seat);
+            StagedInput selection=WandArtsTest.stage(game,"volley",seat,target);
+            Hero hero=game.hero(seat);
+            Wand first=hero.belongings.getItem(WandOfMagicMissile.class);
+            first.curCharges=0;
+            first.partialCharge=0.25f;
+            float armor=((com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor)hero.belongings.armor()).charge;
+            long[] rng=Random.worldState();
+            assertFalse(CoopFloorsTest.step(game,CoopSession.Action.ARMOR_ABILITY,selection.cell,hero.belongings.armor()));
+            assertArrayEquals(rng,Random.worldState());
+            assertEquals(armor,((com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor)hero.belongings.armor()).charge,0f);
+            for(int rank=0;rank<4;rank++) {
+                hero.upgradeTalent(Talent.FIRE_EVERYTHING);
+                hero.upgradeTalent(Talent.CONSERVED_MAGIC);
+            }
+            assertEquals(4,hero.pointsInTalent(Talent.FIRE_EVERYTHING));
+            assertEquals(4,hero.pointsInTalent(Talent.CONSERVED_MAGIC));
+            Wand second=WandArtsTest.give(game,seat,new WandOfMagicMissile());
+            Wand third=WandArtsTest.give(game,seat,new WandOfMagicMissile());
+            Wand[] own={first,second,third};
+            for(Wand wand:own) {
+                wand.curCharges=1;
+                wand.partialCharge=0.25f;
+            }
+            assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ARMOR_ABILITY,selection.cell,hero.belongings.armor()));
+            float remaining=0;
+            for(Wand wand:own) remaining+=wand.curCharges+wand.partialCharge;
+            float cost=(float)(0.5*Math.pow(0.67,4));
+            assertEquals(8*cost,3.75f-remaining,0.0001f);
+            assertTrue(target.HP<target.HT);
+            game.checkpoint();
+        }
+    }
+
     private static void twoPreservationCounters() {
         Bundle checkpoint;
         SeatQuickslots[] layouts=new SeatQuickslots[2];
@@ -267,6 +367,8 @@ public final class WandArtsBoundaries extends HeadlessDungeon {
             twoPreservationCounters();
             System.out.println("PASS two independent preservation counters and restored staff shortcuts");
             for (int seat=0;seat<2;seat++) {
+                blindLunge(seat);
+                System.out.println("PASS unseen empty Lunge spends only the caster charge without revealing a distant enemy seat "+seat);
                 parrySeparateAttackers(seat,false);
                 parrySeparateAttackers(seat,true);
                 System.out.println("PASS scheduled distinct attackers and two ripostes seat "+seat);
@@ -278,8 +380,13 @@ public final class WandArtsBoundaries extends HeadlessDungeon {
                 fullInventory(seat,false);
                 fullInventory(seat,true);
                 System.out.println("PASS full inventory and staged overflow, restore and owner pickup seat "+seat);
+                nativeVolleyLimit(seat);
+                System.out.println("PASS staged rank-four native eight-shot charge cost and insufficient-charge rejection seat "+seat);
                 replayVolley(seat);
                 System.out.println("PASS restored heterogeneous four-shot volley seat "+seat);
+                fallenHawkOwner(seat,true);
+                fallenHawkOwner(seat,false);
+                System.out.println("PASS hawk death and expiry after downed and dead owner seat "+seat);
                 travelWithHawk(seat);
                 System.out.println("PASS hawk stairs, restart and return seat "+seat);
             }

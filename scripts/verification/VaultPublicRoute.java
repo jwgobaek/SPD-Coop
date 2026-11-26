@@ -30,7 +30,8 @@ public final class VaultPublicRoute {
         int rendezvous = -1;
         int allyDoor = -1;
         int previousPos = -1, recentlyExited = -1, regroupSteps;
-        boolean doorwayStrategy() { return regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover") || regroup.equals("trail"); }
+        int walkedDoor=-1, crossingDoor=-1, crossingTurns;
+        boolean doorwayStrategy() { return regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover") || regroup.equals("trail") || regroup.equals("handoff"); }
         private boolean visibleDoor(PublicDungeon v, int cell) {
             if (cell<0 || !v.visible(cell)) return false;
             int tile=v.terrain(cell);
@@ -132,6 +133,27 @@ public final class VaultPublicRoute {
                 returning=escortFollower && distance(v.pos,v.ally,v.width)>2;
             if (!reviveDenied && v.ally>=0 && adjacent(v.pos,v.ally,v.width) && "DOWNED".equals(v.source.rows.get("allylife"))) {
                 return new Input("REVIVE",v.ally,0);
+            }
+            // Remember a threatened exit only after this seat has already crossed another observed door.
+            if (team && escortFollower && regroup.equals("handoff")) {
+                if (visibleDoor(v,v.pos)) walkedDoor=v.pos;
+                if (v.hp*3<v.maxHp && !v.monsters.isEmpty() && walkedDoor>=0 && v.ally!=walkedDoor
+                        && visibleDoor(v,v.ally) && adjacent(v.pos,v.ally,v.width)) {
+                    crossingDoor=v.ally;
+                    crossingTurns=4;
+                }
+                if (crossingTurns>0) {
+                    crossingTurns--;
+                    if (v.pos!=crossingDoor && v.ally!=crossingDoor && visibleDoor(v,crossingDoor)
+                            && adjacent(v.pos,crossingDoor,v.width) && !blocked.contains(crossingDoor)
+                            && !v.monsters.containsKey(crossingDoor) && !v.source.rows.containsKey("aim"+crossingDoor)
+                            && !v.source.rows.containsKey("trap"+crossingDoor))
+                        return new Input("MOVE",crossingDoor,0);
+                    if (v.pos==crossingDoor && v.ally>=0 && !visibleDoor(v,v.ally)) {
+                        returning=true;
+                        meetingCell=v.ally;
+                    }
+                }
             }
             boolean trail=team && regroup.equals("trail");
             if (trail && previousPos!=v.pos) {

@@ -7,6 +7,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Piranha;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
+import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
@@ -26,6 +28,7 @@ public final class OfficialGrowthControl {
     }
     static int seed,depth,inputs,kills;
     static final boolean useSupplies=Boolean.getBoolean("solo.useSupplies");
+    static final boolean useStaff=Boolean.getBoolean("solo.useStaff");
     static final int actionBudget=Integer.getInteger("solo.inputs",180);
     static final int targetDepth=Integer.getInteger("solo.depth",3);
     static int[] footfalls;
@@ -111,6 +114,18 @@ public final class OfficialGrowthControl {
                             item.execute(h,Food.AC_EAT);
                             inputs++; record("food"); return false;
                         }
+                    }
+                }
+                if(useStaff && Dungeon.level.heroFOV[cell] && Dungeon.level.distance(Dungeon.hero.pos,cell)>1
+                        && com.shatteredpixel.shatteredpixeldungeon.actors.Actor.findChar(cell) instanceof Mob
+                        && new Ballistica(Dungeon.hero.pos,cell,Ballistica.MAGIC_BOLT).collisionPos==cell) {
+                    MagesStaff staff=Dungeon.hero.belongings.getItem(MagesStaff.class);
+                    if (staff!=null && staff.actions(Dungeon.hero).contains(MagesStaff.AC_ZAP)) {
+                        staff.execute(Dungeon.hero,MagesStaff.AC_ZAP);
+                        GameScene.handleCell(cell);
+                        inputs++;
+                        record("staff zap");
+                        return false;
                     }
                 }
                 if(Dungeon.hero.handle(cell)) {Dungeon.hero.next();inputs++;}

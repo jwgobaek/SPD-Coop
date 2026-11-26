@@ -32,6 +32,7 @@ public final class MixedRoomStability {
     final List<WeakReference<LanRoom>> closed=new ArrayList<>();
     int rejected,duplicates,rejoins;
     long saveNanos;
+    String[] normalRoster;
     private static VaultPublicRoute.Input input(PublicDungeon view,VaultPublicRoute.Guide guide) {
         for(Talent t:Talent.values()) {
             String rank=view.source.rows.get("learn"+t.ordinal());
@@ -125,12 +126,31 @@ public final class MixedRoomStability {
                 assertTrue(clients[i].request(i==0?room.hostJoinCommand():"JOIN").startsWith("JOINED "));
                 UUID seated=UUID.fromString(keys[i].enroll(clients[i]).split(" ")[1]);
                 if(i==0) epoch=seated; else assertEquals(epoch,seated);
-                assertEquals("OK",clients[i].request("SELECT "+stageClass(stage,i)));
+                assertEquals("OK",clients[i].request("SELECT "+(normalRoster==null ? stageClass(stage,i) : normalRoster[i])));
                 images[i]=new DisplayReplica(room.session,i);
                 actions[i]=new SeatActions(room.session,i,i+1);
             }
             for(LanClient c:clients)c.request("READY 1");
             assertEquals("GAME_STARTED",clients[0].request("START"));
+            if (normalRoster!=null) {
+                for (int role=0;role<2;role++) {
+                    images[role].refresh(clients[role]);
+                    PublicDungeon view=new PublicDungeon(images[role].image());
+                    assertEquals(normalRoster[role],view.heroClass);
+                    SeatQuickslots shortcuts=SeatQuickslots.defaults(view);
+                    if ("DUELIST".equals(view.heroClass)) {
+                        assertEquals("WEAPON_ABILITY",PublicDungeon.shortcutAction(shortcuts.item(0,view)));
+                        assertEquals(view.offered,view.actions(shortcuts.item(0,view)).contains("WEAPON_ABILITY"));
+                        assertEquals("SPIKE",shortcuts.item(1,view).kind);
+                        assertEquals(2,shortcuts.item(1,view).quantity);
+                    }
+                    if ("CLERIC".equals(view.heroClass)) {
+                        assertEquals("CAST",PublicDungeon.shortcutAction(shortcuts.item(0,view)));
+                        assertEquals(view.offered,view.actions(shortcuts.item(0,view)).contains("CAST"));
+                        assertEquals(3,shortcuts.item(0,view).charges);
+                    }
+                }
+            }
             VaultPublicRoute.Input first=stage==null?null:ready.get(90,TimeUnit.SECONDS);
             int seat=0;
             for(int n=0;n<budget;n++) {
@@ -253,6 +273,18 @@ public final class MixedRoomStability {
         fixture.temporary.create();fixture.startBackend();
         try {
             MixedRoomStability trial=new MixedRoomStability();
+            if (Boolean.getBoolean("stability.newRosters")) {
+                String[] classes={"WARRIOR","MAGE","HUNTRESS","ROGUE","DUELIST","CLERIC"};
+                int count=0;
+                for (int host=0;host<classes.length;host++) for (int guest=0;guest<classes.length;guest++) {
+                    if (host<4 && guest<4) continue;
+                    trial.normalRoster=new String[]{classes[host],classes[guest]};
+                    trial.room(fixture.temporary.getRoot(),570+count%12,Integer.parseInt(args[1]),null);
+                    trial.observe(fixture.temporary.getRoot(),++count);
+                    System.out.println("ROSTER "+classes[host]+"/"+classes[guest]+" normal admission, starting shortcuts and guest reauthentication");
+                }
+                return;
+            }
             for(int i=0;i<Integer.parseInt(args[0]);i++) {
                 String stage=Boolean.getBoolean("stability.wandArts") ? WAND_ARTS[i%WAND_ARTS.length] : Boolean.getBoolean("stability.growth")?GROWTH[i%GROWTH.length]:null;
                 trial.room(fixture.temporary.getRoot(),"mine".equals(stage)?571:570+i%12,Integer.parseInt(args[1]),stage);

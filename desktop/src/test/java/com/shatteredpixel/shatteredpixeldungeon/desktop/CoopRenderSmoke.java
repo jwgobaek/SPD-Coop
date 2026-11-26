@@ -31,7 +31,7 @@ public final class CoopRenderSmoke {
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -57,7 +57,7 @@ public final class CoopRenderSmoke {
         kit=shortcutKit || (args.length>1 && args[1].equals("kit"));
         deep=prison || (args.length>1 && args[1].equals("deep"));
         floors=deep || statue || mimic || ghost || sentry || (args.length>1 && args[1].equals("floors"));
-        mage=regionShot.equals("wand-input") || floors || (args.length>1 && args[1].equals("mage"));
+        mage=regionShot.equals("volley-input") || regionShot.equals("wand-input") || floors || (args.length>1 && args[1].equals("mage"));
         shots=new File(args[0]); if(!shots.isDirectory() && !shots.mkdirs()) throw new AssertionError();
         // Test classes share the launcher's package but do not carry release-manifest attributes.
         java.util.jar.Manifest manifest=new java.util.jar.Manifest(DesktopLauncher.class.getResourceAsStream("/META-INF/MANIFEST.MF"));
@@ -128,6 +128,8 @@ public final class CoopRenderSmoke {
         return null;
     }
     private static String label(String key) {
+        if(key.equals("duelistClass")) return HeroClass.DUELIST.title();
+        if(key.equals("clericClass")) return HeroClass.CLERIC.title();
         if(key.equals("warriorClass")) return HeroClass.WARRIOR.title();
         if(key.equals("huntressClass")) return HeroClass.HUNTRESS.title();
         if(key.equals("mageClass")) return HeroClass.MAGE.title();
@@ -735,6 +737,53 @@ public final class CoopRenderSmoke {
         shot("crown-leap");
     }
 
+    private static void starterSpellInputs(boolean rapier) throws Exception {
+        String action=rapier?"WEAPON_ABILITY":"CAST";
+        await(()->{ PublicDungeon v=frame().dungeon; return v.offered && v.monsters.containsValue("Rat") && v.belongings.stream().anyMatch(i->v.actions(i).contains(action)); });
+        PublicDungeon view=frame().dungeon;
+        PublicDungeon.Loot source=view.belongings.stream().filter(i->view.actions(i).contains(action)).findFirst().get();
+        int target=view.monsters.entrySet().stream().filter(e->"Rat".equals(e.getValue())).findFirst().get().getKey();
+        click("bag");press(inventoryPoint(source.id));click(rapier?"weapon_ability":"cast");
+        if (!rapier) {
+            String light="#"+com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.GuidingLight.INSTANCE.name();
+            waitForButton(light);
+            shot("holy-tome-spells");
+            click(light);
+        }
+        shot(rapier?"rapier-aim":"guiding-light-aim");
+        press(mapPoint(view,target));
+        await(()->frame().image.version>view.source.version && frame().dungeon.belongings.stream().anyMatch(i->i.id==source.id && i.charges<source.charges));
+        if (rapier && frame().dungeon.pos==view.pos) throw new AssertionError("Lunge did not move");
+        shot(rapier?"rapier-strike":"guiding-light-hit");
+    }
+
+    private static void armorSpellInputs(boolean hawk) throws Exception {
+        await(()->{ PublicDungeon v=frame().dungeon; return v.offered && v.belongings.stream().anyMatch(i->v.actions(i).contains("ARMOR_ABILITY")); });
+        PublicDungeon before=frame().dungeon;
+        long armor=before.belongings.stream().filter(i->before.actions(i).contains("ARMOR_ABILITY")).findFirst().get().id;
+        String chargeKey="armorcharge"+armor;
+        int initial=Integer.parseInt(before.source.rows.get(chargeKey));
+        click("bag");press(inventoryPoint(armor));click("armor_ability");
+        if (!hawk) {
+            int cell=before.monsters.entrySet().stream().filter(e->e.getValue().equals("Rat")).findFirst().get().getKey();
+            shot("wild-magic-aim");
+            press(mapPoint(before,cell));
+        }
+        await(()->Integer.parseInt(frame().image.rows.get(chargeKey))<initial);
+        shot(hawk?"summoned-hawk":"wild-magic-applied");
+        if (hawk) {
+            await(()->frame().dungeon.offered && frame().image.rows.containsKey("hawkcommand"));
+            PublicDungeon active=frame().dungeon;
+            int charge=Integer.parseInt(active.source.rows.get(chargeKey));
+            click("bag");press(inventoryPoint(armor));click("armor_ability");
+            shot("hawk-command-aim");
+            press(mapPoint(active,active.pos));
+            await(()->frame().image.version>active.source.version);
+            if (Integer.parseInt(frame().image.rows.get(chargeKey))!=charge) throw new AssertionError("command spent armor charge");
+            shot("hawk-command-applied");
+        }
+    }
+
     private static void wandInputs() throws Exception {
         await(()->frame().dungeon.offered && frame().image.rows.keySet().stream().anyMatch(k->k.startsWith("wandchoice")));
         PublicDungeon v=frame().dungeon;
@@ -808,7 +857,7 @@ public final class CoopRenderSmoke {
         click("title"); await(()->button("host")!=null);
         sceneMetrics("before-room");
         shot("multiplayer"); click("host"); await(()->button("warriorClass")!=null);
-        shot("lobby"); click(kit?"huntressClass":mage?"mageClass":"warriorClass");
+        shot("lobby"); click(regionShot.equals("lunge-input")?"duelistClass":regionShot.equals("tome-input")?"clericClass":kit || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
         if(mage) shot("mage-selected");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
         java.nio.file.Files.writeString(new File(root,"port").toPath(),Integer.toString(testPort));
@@ -825,6 +874,8 @@ public final class CoopRenderSmoke {
                 if (regionShot.equals("vault-dart")) { vaultDart(); return; }
                 if (regionShot.equals("growth-input")) { growthInputs(); return; }
                 if (regionShot.equals("upper-input")) { upperInputs(); return; }
+                if (regionShot.equals("lunge-input") || regionShot.equals("tome-input")) { starterSpellInputs(regionShot.equals("lunge-input")); return; }
+                if (regionShot.equals("hawk-input") || regionShot.equals("volley-input")) { armorSpellInputs(regionShot.equals("hawk-input")); return; }
                 if (regionShot.equals("wand-input")) { wandInputs(); return; }
                 if (regionShot.equals("combo-input")) { comboInputs(); return; }
                 if (regionShot.equals("crown-input")) { crownInputs(); return; }

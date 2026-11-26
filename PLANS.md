@@ -1,5 +1,9 @@
 # 단계와 다음 작업
 
+## 다음 개발 시작점
+
+마법사 지팡이 유형을 추가할 때 주입 후의 실제 ZAP, 근접 전직 효과, ElementalBlast 및 WildMagic을 같은 물품 ID·부분 충전·시전자 기준으로 검증한다. 이후 ARCANE_VISION과 HEIGHTENED_SENSES의 감지 전용 공개 상태를 설계하고 직접 시야와 구분한다. 결투가 무기 능력과 성서의 다음 주문은 재접속 뒤 소유자·충전·다음 시전부터 확인한다. [이번 검증](docs/coop/wand-arts-results.md)
+
 ## 상위 성장과 도적
 
 다음 개발은 강화 받아치기의 다중 반격, 지팡이 주입·보존, WildMagic과 SpiritHawk, 결투가의 레이피어 능력 순서로 이어간다. 금고의 다음 관찰 대상은 두 번째 출구에 남은 게스트다. [상위 성장 검증](docs/coop/upper-growth-results.md)
