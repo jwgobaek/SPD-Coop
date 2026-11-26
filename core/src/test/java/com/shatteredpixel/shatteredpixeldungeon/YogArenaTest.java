@@ -175,6 +175,14 @@ public class YogArenaTest extends HeadlessDungeon {
     }
 
     static StagedInput fight(CoopSession game, java.util.List<String> defeated,String boundary) {
+        return fight(game, defeated, boundary, null);
+    }
+
+    interface TrialAttack {
+        boolean use(CoopSession game, Mob visibleTarget);
+    }
+
+    static StagedInput fight(CoopSession game, java.util.List<String> defeated, String boundary, TrialAttack special) {
         YogDzewa boss=resident(YogDzewa.class);
         boolean phaseFive=false;
         YogFist previous=null;
@@ -220,7 +228,10 @@ public class YogArenaTest extends HeadlessDungeon {
                              && fist!=null && fist.HP<=100;
                 boolean visible=game.observe(game.activeSeat()).visible(target.pos) && target.invisible==0;
                 StagedInput before=capture ? new StagedInput(game,visible?"ATTACK":"WAIT",visible?target.pos:0) : null;
-                if (visible) assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ATTACK,target.pos,null));
+                if (visible) {
+                    if (special==null || !special.use(game,target))
+                        assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ATTACK,target.pos,null));
+                }
                 else TenguArenaTest.waitOne(game);
                 if (before!=null && published(boundary)) return before;
             }

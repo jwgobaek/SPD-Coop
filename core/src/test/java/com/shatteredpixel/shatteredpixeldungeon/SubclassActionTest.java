@@ -189,7 +189,7 @@ public class SubclassActionTest extends HeadlessDungeon {
         Hero h=g.hero(seat);
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
-        case "slam": case "fury": case "parry": case "riposte":
+        case "clobber": case "slam": case "crush": case "fury": case "parry": case "riposte":
             Combo.ComboMove move=type.equals("riposte")?Combo.ComboMove.PARRY:Combo.ComboMove.valueOf(type.toUpperCase(java.util.Locale.ROOT));
             prepare(g,seat,rat,move.comboReq);
             if(type.equals("riposte")) {
@@ -210,6 +210,25 @@ public class SubclassActionTest extends HeadlessDungeon {
             Talent.initSubclassTalents(h);
             Buff.prolong(h,SnipersMark.class,4f).set(rat.id(),0.25f);
             return new StagedInput(g,"SNIPER_SHOT",rat.pos);
+        case "warlock": case "battlemage":
+            g.beginMaskTrial(CoopSession.MaskTrial.OWNER);
+            com.shatteredpixel.shatteredpixeldungeon.items.TengusMask mask=new com.shatteredpixel.shatteredpixeldungeon.items.TengusMask();
+            assertTrue(mask.collect(h.belongings.backpack));
+            g.ownership.claim(mask,g.player(seat));
+            return new StagedInput(g,"USE_MASK",HeroSubClass.valueOf(type.toUpperCase(java.util.Locale.ROOT)).ordinal());
+        case "soul":
+            h.subClass=HeroSubClass.WARLOCK;
+            Talent.initSubclassTalents(h);
+            // A staged high-level staff makes the native mark chance certain. Damage still comes from the original wand.
+            h.belongings.weapon().upgrade(33);
+            rat.HT=rat.HP=1000;
+            return new StagedInput(g,"ZAP",rat.pos);
+        case "armorright":
+            SewerBeeTest.offer(g,1-seat);
+            com.shatteredpixel.shatteredpixeldungeon.items.KingsCrown ownerCrown=CrownAbilityTest.crown(g,1-seat,CoopSession.MaskTrial.ROSTER);
+            assertTrue(CoopFloorsTest.step(g,CoopSession.Action.USE_CROWN,CrownAbilityTest.choice(g.hero(1-seat)),ownerCrown));
+            SewerBeeTest.offer(g,seat);
+            return new StagedInput(g,"CLAIM_ARMOR",CrownAbilityTest.choice(h));
         case "meal":
             while(h.lvl<7) h.earnExp(h.maxExp(),Rat.class);
             return new StagedInput(g,"INVEST_TALENT",Talent.ENERGIZING_MEAL.ordinal());
@@ -228,7 +247,12 @@ public class SubclassActionTest extends HeadlessDungeon {
         Combo combo=h.buff(Combo.class);
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
-        case "slam": case "fury":
+        case "clobber": return combo!=null && !combo.canUseMove(Combo.ComboMove.CLOBBER);
+        case "warlock": case "battlemage": return h.subClass==HeroSubClass.valueOf(type.toUpperCase(java.util.Locale.ROOT)) &&
+                h.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.TengusMask.class)==null;
+        case "soul": return Dungeon.level.mobs.stream().anyMatch(m->SoulMark.source(m)==h);
+        case "armorright": return h.armorAbility!=null && !g.mayChooseArmor(seat,false) && g.hero(1-seat).armorAbility!=null;
+        case "slam": case "crush": case "fury":
             return combo==null && Dungeon.level.mobs.stream().anyMatch(m->m.HP<m.HT);
         case "parry": return combo==null || !combo.canUseMove(Combo.ComboMove.PARRY);
         case "riposte": return h.buff(Combo.RiposteTracker.class)==null && Dungeon.level.mobs.stream().anyMatch(m->m.HP<m.HT);
@@ -251,7 +275,7 @@ public class SubclassActionTest extends HeadlessDungeon {
                   .append(h.belongings.armor() instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor
                           ? ((com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor)h.belongings.armor()).charge:0).append('/');
         }
-        Dungeon.level.mobs.stream().sorted(java.util.Comparator.comparingInt(Actor::id)).forEach(m->result.append(m.id()).append('/').append(m.HP).append('/').append(m.pos).append('|'));
+        Dungeon.level.mobs.stream().sorted(java.util.Comparator.comparingInt(Actor::id)).forEach(m->result.append(m.id()).append('/').append(m.HP).append('/').append(m.pos).append('/').append(SoulMark.source(m)==null?0:SoulMark.source(m).id()).append('|'));
         return result.toString();
     }
 }

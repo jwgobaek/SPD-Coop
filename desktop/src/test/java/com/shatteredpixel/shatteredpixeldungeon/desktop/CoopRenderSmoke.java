@@ -709,6 +709,30 @@ public final class CoopRenderSmoke {
         click("#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndChooseAbility.class,"yes"));
         await(()->frame().dungeon.belongings.stream().anyMatch(i->i.kind.equals("CLASS_ARMOR")));
         shot("crown-equipped");
+        await(()->frame().dungeon.offered);
+        PublicDungeon equipped=frame().dungeon;
+        long armor=equipped.belongings.stream().filter(i->equipped.actions(i).contains("ARMOR_ABILITY")).findFirst().get().id;
+        int charge=Integer.parseInt(equipped.source.rows.get("armorcharge"+armor));
+        int tile=-1;
+        for(int y=-1;y<=1 && tile<0;y++) for(int x=-1;x<=1;x++) {
+            int cell=equipped.pos+y*equipped.width+x;
+            int terrain=equipped.terrain(cell);
+            if (cell!=equipped.pos && cell!=equipped.ally && terrain>=0 && equipped.visible(cell)
+                    && !equipped.monsters.containsKey(cell) && !equipped.source.rows.containsKey("trap"+cell)
+                    && (com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.flags[terrain]
+                          & com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.PASSABLE)!=0) {
+                tile=cell; break;
+            }
+        }
+        if(tile<0) throw new AssertionError("Missing visible landing");
+        final int destination=tile;
+        click("bag");press(inventoryPoint(armor));click("armor_ability");
+        shot("crown-aim");click("cancel");
+        if(frame().image.version!=equipped.source.version) throw new AssertionError("Cancelled leap changed the game");
+        click("bag");press(inventoryPoint(armor));click("armor_ability");
+        press(mapPoint(equipped,destination));
+        await(()->frame().dungeon.pos==destination && Integer.parseInt(frame().image.rows.get("armorcharge"+armor))<charge);
+        shot("crown-leap");
     }
 
     private static void growthInputs() throws Exception {

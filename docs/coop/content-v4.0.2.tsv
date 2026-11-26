@@ -130,7 +130,7 @@ actors/buffs/TimeStasis	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatter
 actors/buffs/ToxicImbue	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/ToxicImbue.java
 actors/buffs/Vertigo	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Vertigo.java
 actors/buffs/Vulnerable	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Vulnerable.java
-actors/buffs/WandEmpower	actors/buffs	VERIFIED	damage and charge effects belong to the caster / CoopMageTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/WandEmpower.java
+actors/buffs/WandEmpower	actors/buffs	VERIFIED	CoopMageTest; Android combo build earned Mage meal, HUD and test generation boost=2 left=3 after restart / combo-delivery.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/WandEmpower.java
 actors/buffs/Weakness	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Weakness.java
 actors/buffs/WellFed	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/WellFed.java
 actors/hero/HeroClass.CLERIC	HeroClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
@@ -140,24 +140,24 @@ actors/hero/HeroClass.MAGE	HeroClass	VERIFIED	starting staff, two seats, disk re
 actors/hero/HeroClass.ROGUE	HeroClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
 actors/hero/HeroClass.WARRIOR	HeroClass	VERIFIED	first-floor basic actions / CoopControllerTest, CoopPlayInputTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
 actors/hero/HeroSubClass.ASSASSIN	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
-actors/hero/HeroSubClass.BATTLEMAGE	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
-actors/hero/HeroSubClass.BERSERKER	HeroSubClass	TRIAL_SELECTION	WarriorGrowthCombat: owner-only mask choice on either seat, native Guard rage / melee combo across save; isolated mask policy trials now use authoritative actions and durable TCP receipts. Explicit combat abilities remain partial.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
+actors/hero/HeroSubClass.BATTLEMAGE	HeroSubClass	PARTIAL	Trial mask selection over TCP, starter magic missile staff melee and native charge; other imbued effects unverified. See combo-results.md. General mask policy is undecided.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
+actors/hero/HeroSubClass.BERSERKER	HeroSubClass	PARTIAL	Native owner rage, seal, shield and recovery; both TCP roles and restart. See combo-results.md. General mask policy is undecided.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.CHAMPION	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.FREERUNNER	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
-actors/hero/HeroSubClass.GLADIATOR	HeroSubClass	TRIAL_SELECTION	WarriorGrowthCombat: owner-only mask choice on either seat, native Guard rage / melee combo across save; isolated mask policy trials now use authoritative actions and durable TCP receipts. Explicit combat abilities remain partial.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
+actors/hero/HeroSubClass.GLADIATOR	HeroSubClass	PARTIAL	Five native combo moves, reprisal ownership; real WndCombo selection, TCP and persisted receipts. See combo-results.md. General mask policy is undecided.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.MONK	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.PALADIN	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.PRIEST	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
-actors/hero/HeroSubClass.SNIPER	HeroSubClass	TRIAL_SELECTION	HuntressGrowthCombat: actual owner mask, THROW mark / Earthroot MOVE, actor IDs across restore; isolated mask policy trials now use authoritative actions and durable TCP receipts. Explicit combat abilities remain partial.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
-actors/hero/HeroSubClass.WARDEN	HeroSubClass	TRIAL_SELECTION	HuntressGrowthCombat: actual owner mask, THROW mark / Earthroot MOVE, actor IDs across restore; isolated mask policy trials now use authoritative actions and durable TCP receipts. Explicit combat abilities remain partial.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
-actors/hero/HeroSubClass.WARLOCK	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
+actors/hero/HeroSubClass.SNIPER	HeroSubClass	PARTIAL	Marked target and own SpiritBow for three augments; actual follow-up and TCP replay, both seats. See combo-results.md. General mask policy is undecided.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
+actors/hero/HeroSubClass.WARDEN	HeroSubClass	PARTIAL	Native barkskin and seven checked Warden plant effects; Fadeleaf interlevel effect gated. See combo-results.md. General mask policy is undecided.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
+actors/hero/HeroSubClass.WARLOCK	HeroSubClass	PARTIAL	Trial mask selection over TCP; real wand applies saved first living caster, HP and Hunger on subsequent attacks; soul/mask crash tests. See combo-results.md. General mask policy is undecided.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/Talent.ADVENTURERS_INTUITION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.AGGRESSIVE_BARRIER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ALLY_WARP	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ARCANE_VISION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ASSASSINS_REACH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.AURA_OF_PROTECTION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.BACKUP_BARRIER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.BACKUP_BARRIER	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.BARKSKIN	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.BEAMING_RAY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.BLAST_RADIUS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -191,9 +191,9 @@ actors/hero/Talent.ELEMENTAL_POWER	Talent	UNSUPPORTED		core/src/main/java/com/sh
 actors/hero/Talent.ELEMENTAL_REACH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ELIMINATION_MATCH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.EMPOWERED_STRIKE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.EMPOWERING_MEAL	Talent	PLAYER_TCP	Both mage seats, native food effect, WandEmpower duration and bonus after restore. Android two-seat run: earned, invested and restored a point. PlayerGrowthTest, dart-growth-delivery.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.EMPOWERING_MEAL	Talent	NATIVE_EFFECT	Native seat investment and trigger. PlayerGrowthTest and combo-results.md. Two Android seats restored investment and witnessed native meal buff, boost 2, left 3.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ENDLESS_RAGE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.ENERGIZING_MEAL	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.ENERGIZING_MEAL	Talent	NATIVE_EFFECT	Separate tier-2 point pool, investment and native food effect, both roles. SubclassActionTest. Android meal was tier 1.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ENHANCED_COMBO	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ENHANCED_LETHALITY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.ENHANCED_RINGS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -211,12 +211,12 @@ actors/hero/Talent.FEIGNED_RETREAT	Talent	UNSUPPORTED		core/src/main/java/com/sh
 actors/hero/Talent.FIRE_EVERYTHING	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.FLASH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.FOCUSED_MEAL	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.FOLLOWUP_STRIKE	Talent	PLAYER_TCP	Tier-one investment and TCP restore. Seat-owned follow-up marks consumed after real dart and melee attacks. Matched damage host 2 to 4 and guest 3 to 5. dart-growth-results.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.FOLLOWUP_STRIKE	Talent	NATIVE_EFFECT	Native seat investment and trigger. PlayerGrowthTest and combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.GO_FOR_THE_EYES	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.GROWING_POWER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.HALLOWED_GROUND	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.HASTY_RETREAT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.HEARTY_MEAL	Talent	PLAYER_TCP	Seat-local tier-one purchase and meal healing, zero-time purchase. PlayerGrowthTest, desktop growth-input, independent TCP recovery.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.HEARTY_MEAL	Talent	NATIVE_EFFECT	Native seat investment and trigger. PlayerGrowthTest and combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.HEIGHTENED_SENSES	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.HEROIC_ENERGY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.HOLD_FAST	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -226,10 +226,10 @@ actors/hero/Talent.IMPACT_WAVE	Talent	UNSUPPORTED		core/src/main/java/com/shatte
 actors/hero/Talent.IMPROVISED_PROJECTILES	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.INSCRIBED_POWER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.INSCRIBED_STEALTH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.INVIGORATING_MEAL	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.INVIGORATING_MEAL	Talent	NATIVE_EFFECT	Separate tier-2 point pool, investment and native food effect, both roles. SubclassActionTest. Android meal was tier 1.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.INVIGORATING_VICTORY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.IRON_STOMACH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.IRON_WILL	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.IRON_STOMACH	Talent	NATIVE_EFFECT	Separate tier-2 point pool, investment and native food effect, both roles. SubclassActionTest. Android meal was tier 1.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.IRON_WILL	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.JUDGEMENT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.LAY_ON_HANDS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.LETHAL_DEFENSE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -238,7 +238,7 @@ actors/hero/Talent.LETHAL_MOMENTUM	Talent	UNSUPPORTED		core/src/main/java/com/sh
 actors/hero/Talent.LIFE_LINK	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.LIGHT_CLOAK	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.LIGHT_READING	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.LINGERING_MAGIC	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.LINGERING_MAGIC	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.LIQUID_AGILITY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.LIQUID_NATURE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.LIQUID_WILLPOWER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -248,8 +248,8 @@ actors/hero/Talent.MNEMONIC_PRAYER	Talent	UNSUPPORTED		core/src/main/java/com/sh
 actors/hero/Talent.MONASTIC_VIGOR	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.MYSTICAL_CHARGE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.MYSTICAL_MEAL	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.NATURES_AID	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.NATURES_BOUNTY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.NATURES_AID	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.NATURES_BOUNTY	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.NATURES_WRATH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.NECROMANCERS_MINIONS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.PATIENT_STRIKE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -259,7 +259,7 @@ actors/hero/Talent.PRECISE_ASSAULT	Talent	UNSUPPORTED		core/src/main/java/com/sh
 actors/hero/Talent.PROJECTILE_MOMENTUM	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.PROJECTING_BLADES	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.PROTECTIVE_SHADOWS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.PROVOKED_ANGER	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.PROVOKED_ANGER	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.RATFORCEMENTS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.RATLOMACY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.RATSISTANCE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -270,7 +270,7 @@ actors/hero/Talent.REMOTE_BEACON	Talent	UNSUPPORTED		core/src/main/java/com/shat
 actors/hero/Talent.ROGUES_FORESIGHT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.RUNIC_TRANSFERENCE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SATIATED_SPELLS	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.SCHOLARS_INTUITION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.SCHOLARS_INTUITION	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SEARING_LIGHT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SEER_SHOT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SHADOW_BLADE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -295,7 +295,7 @@ actors/hero/Talent.STRIKING_WAVE	Talent	UNSUPPORTED		core/src/main/java/com/shat
 actors/hero/Talent.STRONGMAN	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SUCKER_PUNCH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SUNRAY	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.SURVIVALISTS_INTUITION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.SURVIVALISTS_INTUITION	Talent	PARTIAL	Tier-1 investment and native missile identification speed factor on both roles; full identification on all eligible items unverified.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SUSTAINED_RETRIBUTION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SWIFT_EQUIP	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.SWIFT_SPIRIT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -304,7 +304,7 @@ actors/hero/Talent.THIEFS_INTUITION	Talent	UNSUPPORTED		core/src/main/java/com/s
 actors/hero/Talent.TWIN_UPGRADES	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.UNENCUMBERED_SPIRIT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.VARIED_CHARGE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.VETERANS_INTUITION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.VETERANS_INTUITION	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.WALL_OF_LIGHT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.WAND_PRESERVATION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.WEAPON_RECHARGING	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java

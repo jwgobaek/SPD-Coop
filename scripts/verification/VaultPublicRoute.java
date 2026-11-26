@@ -29,6 +29,7 @@ public final class VaultPublicRoute {
         final String regroup = System.getProperty("vault.guide.regroup","off");
         int rendezvous = -1;
         int missingTurns;
+        boolean escortFollower;
         int reunions;
         int lastAlly=-1;
         int destination=-1;
@@ -118,6 +119,9 @@ public final class VaultPublicRoute {
             boolean returning = rendezvous>=0 && !regroup.equals("off") && (missingTurns>0
                     || regroup.equals("cover") && v.ally>=0 && distance(v.pos,v.ally,v.width)>3);
             int meetingCell = v.ally>=0 ? v.ally : rendezvous;
+            boolean escort=regroup.equals("escort");
+            if (escort && v.ally>=0)
+                returning=escortFollower && distance(v.pos,v.ally,v.width)>2;
             if (!reviveDenied && v.ally>=0 && adjacent(v.pos,v.ally,v.width) && "DOWNED".equals(v.source.rows.get("allylife"))) {
                 return new Input("REVIVE",v.ally,0);
             }
@@ -155,6 +159,8 @@ public final class VaultPublicRoute {
                     }
                 }
             }
+            if (escort && escortFollower && v.ally>=0 && !returning && v.monsters.isEmpty() && v.floor.isEmpty())
+                return new Input("WAIT",0,0);
             if (returning && v.pos==meetingCell && v.monsters.isEmpty()) return new Input("WAIT",0,0);
             if (investigateWalls(v)) return new Input("SEARCH",v.pos,0);
             int n=v.width*v.height;
@@ -225,6 +231,7 @@ public final class VaultPublicRoute {
             RoomSync room=new RoomSync(session,game);
             DisplayReplica[] replica={new DisplayReplica(session,0),new DisplayReplica(session,1)};
             Guide[] guide={new Guide(),new Guide()};
+            guide[1].escortFollower=true;
             long[] ids={0,0};
             int applied=0;
             for (int attempts=0;attempts<budget && !game.defeated() && !game.stopped();attempts++) {
@@ -259,6 +266,21 @@ public final class VaultPublicRoute {
                             || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll
                             || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring ? "unidentified" : item.getClass().getSimpleName();
                     System.out.printf("AUDIT_PICKUP\t%d\t%s%n",v.pos,publicKind);
+                }
+                if (i.action.equals("MOVE") && outcome.equals("APPLIED")) {
+                    // Observer-only traversal evidence. The guide never receives room identities or layouts.
+                    com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel level =
+                            (com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel)com.shatteredpixel.shatteredpixeldungeon.Dungeon.level;
+                    for (com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room ring:level.rooms()) {
+                        if (!(ring instanceof com.shatteredpixel.shatteredpixeldungeon.levels.rooms.quest.vault.VaultRingRoom)) continue;
+                        for (com.watabou.utils.Point door:ring.connected.values()) {
+                            int cell=level.pointToCell(door), pos=game.hero(seat).pos;
+                            if (pos==cell || v.pos==cell) {
+                                System.out.printf("RING_DOOR_MOVE\t%d\t%d\t%d,%d\t%d\t%d\t%d\t%d/%d%n",
+                                        applied+1,seat,ring.left,ring.top,cell,v.pos,pos,game.hero(0).HP,game.hero(1).HP);
+                            }
+                        }
+                    }
                 }
                 if (outcome.equals("APPLIED") || outcome.equals("PARTY_DEFEATED")) applied++;
                 else if (i.action.equals("OPEN")) guide[seat].rejectedChests.add(i.cell);

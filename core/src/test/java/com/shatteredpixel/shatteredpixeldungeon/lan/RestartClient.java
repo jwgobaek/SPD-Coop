@@ -174,9 +174,9 @@ public final class RestartClient {
                 if (mode.startsWith("tengu-setup-") || mode.equals("late-setup") || mode.startsWith("wand-setup-") || mode.startsWith("necro-setup-")) character=i==0?"WARRIOR":"MAGE";
                 if (mode.startsWith("tengu-setup-growth-")) {
                     character=i==0?"WARRIOR":"HUNTRESS";
-                    if (mode.matches(".*-(slam|fury|parry|riposte|rage|leap|crown)[01]")) character="WARRIOR";
+                    if (mode.matches(".*-(clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
                     if (mode.matches(".*-(sniper|nature)[01]")) character="HUNTRESS";
-                    if (mode.matches(".*-(meal|blast)[01]")) character="MAGE";
+                    if (mode.matches(".*-(meal|blast|warlock|battlemage|soul)[01]")) character="MAGE";
                 }
                 if (RestartHost.newCampaign(mode)) character=i==0?"MAGE":"HUNTRESS";
                 if (mode.startsWith("scribe") && i==mode.charAt(6)-'0') character="WARRIOR";
@@ -546,6 +546,7 @@ public final class RestartClient {
                 else if (interior) assertEquals(travel ? Integer.parseInt(boundary.substring(9))-1 : boundary.contains("web")?12:13,view.depth);
                 else assertEquals(boundary.equals("ten") ? 9 : boundary.equals("return") ? 11 : 10,view.depth);
                 long handle=verb.equals("PICK_UP") ? view.floor.get(cell).id : 0;
+                if (growth && verb.equals("ZAP")) handle=item(seat,"WEAPON","STAFF");
                 if (verb.equals("USE_CROWN") || verb.equals("ARMOR_ABILITY") || verb.equals("USE_MASK")) { String selected=verb; handle=view.belongings.stream().filter(it -> view.actions(it).contains(selected)).findFirst().get().id; }
                 if (verb.equals("VAULT_RECALL")) {
                     handle=view.belongings.stream().filter(item -> view.actions(item).contains("VAULT_RECALL"))

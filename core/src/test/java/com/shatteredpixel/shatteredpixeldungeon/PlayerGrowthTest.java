@@ -187,7 +187,7 @@ public class PlayerGrowthTest extends HeadlessDungeon {
     }
 
     static boolean newAbility(String stage) {
-        return stage.matches("(slam|parry|riposte|fury|rage|sniper|crown|leap|blast|nature|meal)[01]");
+        return stage.matches("(clobber|slam|parry|riposte|crush|fury|rage|sniper|crown|armorright|leap|blast|nature|meal|warlock|battlemage|soul)[01]");
     }
 
     public static String signature(CoopSession g, String stage) {

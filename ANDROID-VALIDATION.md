@@ -1,5 +1,9 @@
 # Android validation backlog
 
+## 두 Android의 전직 능력 빌드
+
+두 설치본의 데이터를 보존해 4d93a1f로 갱신했다. 2층 별도 시험방에서 마법사의 실제 식사 후 지팡이 강화, 새 특성 창, 405세대 재개 및 두 좌석의 후속 행동을 확인했다. [Android 실측](docs/coop/combo-delivery.md)
+
 **1c47efc, 두 MuMu PASS.** 두 설치본 모두 같은 서명·SHA-256으로 데이터 보존 업데이트했다. 마법사가 정상 전투로 획득한 초기 특성 포인트를 투자하고 호스트·게스트 앱 재시작 후 391세대에서 특성 1/2와 잔액 0을 복원했다. 게스트 가로 화면에서 초상화 터치, 저장 후 다음 행동 및 양쪽 앱의 이벤트 로그를 확인했다. [Android 시험과 PC 정리](docs/coop/dart-growth-delivery.md)
 
 **새 APK 4c2054e, 두 MuMu PASS.** Android 15 두 좌석이 같은 설치 해시에서 신규 방 생성·참가·직업 선택·준비·시작, 실제 이동·턴 동기화, 지팡이 및 돌 조준·사용, 게스트 프로세스 종료·재인증, 호스트 저장·닫기·양쪽 재개를 수행했다. 재인증 후 양쪽 진단 Turn 69, State Version 78, pending 0, PERSISTENT가 일치했다. [설치·시험·PC 정리](docs/coop/vault-play-delivery.md)

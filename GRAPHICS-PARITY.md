@@ -1,5 +1,9 @@
 # 원본과 협동 던전 화면 대조
 
+## 전직과 갑옷 능력 체크포인트
+
+한국어·영어 Desktop의 원본 콤보 메뉴, 조준·취소·메치기, 왕관 선택과 변환 후 화면을 확보했다. [실행 결과](docs/coop/combo-results.md)
+
 영어·한국어 Desktop에서 원본 정령 속성 스프라이트와 보이는 공격 예고, 귀환 제안, 지상 승리를 촬영했다. 픽셀 일치나 Android 보스전은 별도 검증 대상이다. [실행 결과와 다음 작업](docs/coop/vault-ascent-results.md)
 
 최종층은 HallsBossLevel과 LastLevel의 원본 바닥·벽 프레임과 좌석 시야를 사용한다. 1364×1024 한국어·영어 실제 Desktop에서 광선 예고, 첫 주먹, 26층 승리 제안 및 실제 클릭 후 승리 화면을 촬영했다. 보이는 광선 칸만 각 좌석에 전송한다. [최종 보스·승리 검증 기록](docs/coop/yog-victory-results.md)
