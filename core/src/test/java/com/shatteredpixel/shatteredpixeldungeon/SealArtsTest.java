@@ -47,7 +47,8 @@ public class SealArtsTest extends HeadlessDungeon {
             switch (kind) {
             case "body":
                 talent = Talent.BODY_FORM;
-                reference = new ClothArmor().inscribe(new Swiftness());
+                reference = Boolean.getBoolean("spd.selector.blocking")
+                        ? new Quarterstaff().enchant(new Blocking()) : new ClothArmor().inscribe(new Swiftness());
                 break;
             case "mind":
                 talent = Talent.MIND_FORM;

@@ -180,9 +180,9 @@ public final class RestartClient {
                     if (mode.matches(".*-(monkflurry|monkdash|monkmeditate|monkdragonkick|strikeshock|strikeblock|strikevenom|strikekinetic|strikebloom|heroicenergy|challenge|elestrike|feint|swap|monkfocus|guardshield|stance|lunge|spike|charged)[01]")) character="DUELIST";
                     if (mode.matches(".*-(cacheinvest|cachepickup)[01]")) character=i==mode.charAt(mode.length()-1)-'0'?"ROGUE":"MAGE";
                     if (mode.matches(".*-(markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) character="ROGUE";
-                    if (mode.matches(".*-(sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
-                    if (mode.matches(".*-(hawk|direct|blades|sniper|nature)[01]")) character="HUNTRESS";
-                    if (mode.matches(".*-(spark|sparkimbue|sparkblast|sparkvolley|ice|iceimbue|iceblast|icevolley|imbue|volley|battery|recall|beacon|meal|blast|warlock|battlemage|soul)[01]")) character="MAGE";
+                    if (mode.matches(".*-(strongman|endless_rage|sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
+                    if (mode.matches(".*-(point_blank|hawk|direct|blades|sniper|nature)[01]")) character="HUNTRESS";
+                    if (mode.matches(".*-(desperate_power|spark|sparkimbue|sparkblast|sparkvolley|ice|iceimbue|iceblast|icevolley|imbue|volley|battery|recall|beacon|meal|blast|warlock|battlemage|soul)[01]")) character="MAGE";
                 }
                 if (RestartHost.newCampaign(mode)) character=i==0?"MAGE":"HUNTRESS";
                 if (mode.startsWith("scribe") && i==mode.charAt(6)-'0') character="WARRIOR";

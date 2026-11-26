@@ -127,6 +127,22 @@ public final class VaultPublicRoute {
             }
             return best;
         }
+        // Post-decision diagnostic uses exactly the same public snapshot as the acting seat.
+        private void auditNeighbours(PublicDungeon view, int step, int seat) {
+            int col = view.pos % view.width, row = view.pos / view.width;
+            for (int y = Math.max(0, row-1); y <= Math.min(view.height-1, row+1); y++) {
+                for (int x = Math.max(0, col-1); x <= Math.min(view.width-1, col+1); x++) {
+                    int cell = x + y * view.width;
+                    if (cell == view.pos || !view.visible(cell)) continue;
+                    int terrain = view.terrain(cell);
+                    boolean passable = terrain >= 0 && (Terrain.flags[terrain] & Terrain.PASSABLE) != 0;
+                    System.out.printf("PUBLIC_NEIGHBOUR\t%d\t%d\t%d\t%d\t%d\t%d\t%b\t%b\t%d\t%d\t%b\t%b%n",
+                            step, seat, view.pos, cell, view.ally, terrain, passable,
+                            blocked.contains(cell), exposedTo(view, cell), dangerDistance(view, cell),
+                            view.source.rows.containsKey("aim"+cell), view.source.rows.containsKey("trap"+cell));
+                }
+            }
+        }
         final Set<Integer> investigated = new HashSet<>();
         private boolean investigateWalls(PublicDungeon v) {
             if (v.branch!=0 || !v.monsters.isEmpty()) return false;
@@ -327,7 +343,12 @@ public final class VaultPublicRoute {
                     if (avoidFire && !recentShooters.isEmpty() && v.hp*3 < v.maxHp*2) {
                         value -= 140*rememberedExposure(v,first[c]) + 100*rememberedExposure(v,c);
                     }
-                    if (value>high) {best=first[c]; bestCell=c; high=value;}
+                    // Two equally good regroup paths sometimes differ only in the first step.
+                    // Use the recently crossed doorway last if the other first step is just as safe.
+                    boolean forwardTie = value == high && regroup.equals("sidecover") && escortFollower
+                            && holdDirection > 0 && best == doorEntry && first[c] != doorEntry
+                            && rememberedExposure(v,first[c]) <= rememberedExposure(v,best);
+                    if (value>high || forwardTie) {best=first[c]; bestCell=c; high=value;}
                 }
             }
             destination=bestCell;
@@ -406,6 +427,9 @@ public final class VaultPublicRoute {
                     return;
                 }
                 Input i=guide[seat].choose(v);
+                if (v.pos == Integer.getInteger("vault.guide.auditCell", -1)) {
+                    guide[seat].auditNeighbours(v, applied+1, seat);
+                }
                 if (applied==123 || applied==124) System.out.printf("SIGHT\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s%n",
                         applied,seat,v.pos,v.ally,guide[seat].lastAlly,guide[seat].rendezvous,v.hp,v.source.checksum);
 

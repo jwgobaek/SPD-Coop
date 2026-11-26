@@ -1188,7 +1188,16 @@ public final class CoopRenderSmoke {
         }
         sceneMetrics("before-room");
         shot("multiplayer"); click("host"); await(()->button("warriorClass")!=null);
-        shot("lobby"); click(regionShot.equals("cache-input")?"rogueClass":regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("tome-input") || regionShot.equals("recharging-input") || regionShot.startsWith("selector-") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
+        shot("lobby");
+        String upperTalent = System.getProperty("spd.upper.talent", "STRONGMAN");
+        if (regionShot.equals("strength-input")) {
+            switch (upperTalent) {
+                case "STRONGMAN": case "ENDLESS_RAGE": click("warriorClass"); break;
+                case "DESPERATE_POWER": click("mageClass"); break;
+                case "POINT_BLANK": click("huntressClass"); break;
+                default: throw new IllegalArgumentException("Unknown upper talent fixture " + upperTalent);
+            }
+        } else click(regionShot.equals("cache-input")?"rogueClass":regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("tome-input") || regionShot.equals("recharging-input") || regionShot.startsWith("selector-") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
         if(mage) shot("mage-selected");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
         java.nio.file.Files.writeString(new File(root,"port").toPath(),Integer.toString(testPort));
@@ -1207,7 +1216,7 @@ public final class CoopRenderSmoke {
                 if (regionShot.equals("cache-input") || regionShot.equals("strength-input")) {
                     boolean cache = regionShot.equals("cache-input");
                     var talent = cache ? com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.CACHED_RATIONS
-                            : com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.STRONGMAN;
+                            : com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.valueOf(upperTalent);
                     await(() -> frame().dungeon.offered && frame().image.rows.containsKey("learn"+talent.ordinal())
                             && Integer.parseInt(frame().image.rows.get("freepoints"+(cache ? 1 : 3))) > 0);
                     investVisibleTalent(talent,cache ? 1 : 3);

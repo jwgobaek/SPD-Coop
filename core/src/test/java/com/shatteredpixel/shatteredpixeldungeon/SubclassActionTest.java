@@ -256,6 +256,11 @@ public class SubclassActionTest extends HeadlessDungeon {
         case "cacheinvest":
             h.lvl=5;
             return new StagedInput(g,"INVEST_TALENT",Talent.CACHED_RATIONS.ordinal());
+        case "strongman": case "endless_rage": case "desperate_power": case "point_blank":
+            h.subClass = h.heroClass.subClasses()[0];
+            Talent.initSubclassTalents(h);
+            h.lvl = 25;
+            return new StagedInput(g, "INVEST_TALENT", Talent.valueOf(type.toUpperCase(java.util.Locale.ROOT)).ordinal());
         case "third":
             h.subClass=HeroSubClass.GLADIATOR;
             Talent.initSubclassTalents(h);
@@ -350,6 +355,9 @@ public class SubclassActionTest extends HeadlessDungeon {
         case "cloak": return h.invisible==1 && h.buff(com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows.cloakStealth.class)!=null;
         case "cachepickup": return CachedRationsTest.ownsCollectedCache(g,seat);
         case "cacheinvest": return h.pointsInTalent(Talent.CACHED_RATIONS)==1 && g.hero(1-seat).pointsInTalent(Talent.CACHED_RATIONS)==0;
+        case "strongman": case "endless_rage": case "desperate_power": case "point_blank":
+            Talent invested = Talent.valueOf(type.toUpperCase(java.util.Locale.ROOT));
+            return h.pointsInTalent(invested) == 1 && g.hero(1-seat).pointsInTalent(invested) == 0;
         case "third": return h.pointsInTalent(Talent.CLEAVE)==1 && g.hero(1-seat).pointsInTalent(Talent.CLEAVE)==0;
         case "shock": return h.armorAbility instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.Shockwave
                 && Dungeon.level.mobs.stream().anyMatch(m->m.HP<m.HT && m.buff(Cripple.class)!=null);

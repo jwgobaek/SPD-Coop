@@ -8,6 +8,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.lan.CoopController;
 import com.shatteredpixel.shatteredpixeldungeon.levels.*;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.concurrent.*;
@@ -78,7 +79,15 @@ final class RenderEncounter {
             } else if (destination.equals("cache-input")) {
                 game.hero(0).lvl=5;
             } else if (destination.equals("strength-input")) {
-                com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"third0");
+                var hero = game.hero(0);
+                hero.lvl = 25;
+                switch (hero.heroClass) {
+                    case WARRIOR: hero.subClass = HeroSubClass.BERSERKER; break;
+                    case MAGE: hero.subClass = HeroSubClass.BATTLEMAGE; break;
+                    case HUNTRESS: hero.subClass = HeroSubClass.SNIPER; break;
+                    default: throw new IllegalStateException("Unexpected upper talent fixture class");
+                }
+                com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.initSubclassTalents(hero);
             } else if (destination.equals("recharging-input")) {
                 var hero=game.hero(0);
                 hero.lvl=15;
@@ -107,7 +116,15 @@ final class RenderEncounter {
                 if (!wand.collect(game.hero(0).belongings.backpack)) throw new AssertionError("Missing inventory space");
                 game.ownership.claim(wand,game.player(0));
             } else if (destination.equals("upper-input")) {
-                com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"third0");
+                var hero = game.hero(0);
+                hero.lvl = 25;
+                switch (hero.heroClass) {
+                    case WARRIOR: hero.subClass = HeroSubClass.BERSERKER; break;
+                    case MAGE: hero.subClass = HeroSubClass.BATTLEMAGE; break;
+                    case HUNTRESS: hero.subClass = HeroSubClass.SNIPER; break;
+                    default: throw new IllegalStateException("Unexpected upper talent fixture class");
+                }
+                com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.initSubclassTalents(hero);
             } else if (destination.equals("combo-input") || destination.equals("crown-input")) {
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,destination.equals("combo-input")?"slam0":"crown0");
             } else if (destination.equals("growth-input")) {
