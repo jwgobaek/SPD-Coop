@@ -35,3 +35,14 @@
 ## 검증 자료
 
 통합 ZIP의 evidence/android에는 실제 Android 화면, evidence/desktop에는 한국어·영어 다트 조준과 투척, 전직 및 특성 화면이 있다. Cloud의 독립 JVM 장애 복구, 정상 금고 진행과 성장 정책 비교도 포함한다. [플레이 결과와 남은 범위](dart-growth-results.md)
+
+## 발행 후 대조
+
+| 기존 파일 | 전송 | 비로그인 다운로드 바이트 | 실제 다운로드 SHA-256 |
+|---|---:|---:|---|
+| [SPD-Coop-latest.apk](https://drive.google.com/file/d/1UhjuelcgZwugUyiGmAHco_dXdnTFuDZ2/view) | 1 | 35,333,366 | `d9e7729435344672f5dbf95fd57c980afe919ccc4c93571f18b676be6e81ab92` |
+| [SPD-Coop-latest-backup.zip](https://drive.google.com/file/d/1nxC-3dq29HUmt7pSuoYP8JGqUALNVvW8/view) | 1 | 73,093,194 | `65dcb6c222755711efa023211bee51256baa913eae95a78c1f36270f9cbbfe57` |
+
+기존 두 ID에서만 내용을 갱신했다. 두 항목 모두 anyone/reader, allowFileDiscovery=false이고 쿠키 없는 HTTP 다운로드로 위 크기와 SHA-256을 재확인했다. ZIP에는 빌드 커밋 1c47efc의 소스 파일 2,306개와 검증 문서 커밋 f341a6a가 들어 있다. 패키지 검증기는 APK와 ZIP 내용의 체크섬 2,587개를 검증했다. APK는 별도로 제공한다.
+
+두 파일 모두 갱신 전의 마지막 리비전 ID가 갱신 후 직전 리비전 ID와 일치했다. 두 직전 리비전의 keepForever는 false다. 장기 보존은 보장되지 않으며 실제 롤백은 실행하지 않았다.
