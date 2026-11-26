@@ -25,4 +25,4 @@
 
 두 설치본의 base.apk가 표의 APK와 일치했다. 패키지는 org.spdcoop.dungeon.indev, versionCode는 922, 개발 인증서의 SHA-256은 0dd9070b5f17192a8b07e5ddb6735161b0d2bb6e49013e4d61ca5ee6216ddb53이다. 배포판은 스키마 1~21과 SYNC32를 사용한다. 기존 배포판에서 재현됐던 게스트 GLThread 크래시는 이 수정판에서 인수 기준을 통과했다. 이전 Desktop 20/20, 후보 JUnit 278/278은 별도 체크포인트다.
 
-시험에 사용한 Android 다운로드 2개를 경로와 해시로 확인해 제거하고, 이번 양방향 중계와 게스트 ADB 연결을 해제했다. 호스트 ADB와 Desktop Commander를 유지했다. 두 MuMu 모두 타이틀에서 응답했다. 종료 관측은 CPU 30%, 가용 RAM 3,686/16,085 MiB였다. Windows에 프로젝트 파일을 쓰지 않았다.
+시험에 사용한 Android 다운로드 2개를 경로와 해시로 확인해 제거하고, 이번 양방향 중계와 게스트 ADB 연결을 해제했다. 호스트 ADB와 Desktop Commander를 유지했다. 두 MuMu 모두 타이틀에서 응답했다. Android 시험 정리 직후 CPU는 30%, 가용 RAM은 3,686/16,085 MiB였다. Cloud 개발 종료 후 08:58:38 KST에 다시 확인했을 때 두 MuMu 프로세스 모두 응답했고 CPU는 33%, 가용 RAM은 3,745/16,085 MiB였다. Windows에 프로젝트 파일을 쓰지 않았다.
