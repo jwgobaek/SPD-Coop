@@ -1,5 +1,7 @@
 # Android validation backlog
 
+**기준판 ecccda0, Android 15 두 좌석 PASS.** 사용자에게서 이미 실행 중인 MuMu 두 개를 이 세션 동안 사용할 승인을 받았다. Device-2와 Device-2-1의 부팅 ID가 달랐다. 두 인스턴스는 같은 가상 IP를 사용해 Windows 루프백에 제한한 ADB 중계로 연결했다. 게스트의 기존 prison-nine 설치를 Android 내부 다운로드로 업데이트한 뒤 두 base.apk가 배포 해시와 일치했다. 별도 검증 방에서 마법사가 실제 쥐에게 지팡이를 두 번 발사했고, 전사 게스트가 실제 적에게 돌을 던져 자기 가방 수량이 3에서 2로 줄었다. 강제 종료 후 기존 게스트 좌석 재인증, 저장·방 닫기·방장 재개·양쪽 동일 Turn 12와 State Version 17을 확인했다. 길게 누르기로 퀵슬롯 메뉴를 열었고 드래그로 카메라가 이동했다. 실제 휴대폰 Wi-Fi·핫스팟·멀티터치 핀치는 NOT RUN이다.
+
 **ecccda0 PASS**. Android 15 Device-2에서 기존과 같은 versionCode의 데이터 보존 업데이트, 설치본 SHA-256, 방장 자격·기존 저장 세대 17 재개, HUD·인벤토리·퀵슬롯, 저장·재실행 뒤 동일 슬롯 세대 19를 실측했다. 신규 보스와 귀환의 Android 두 좌석 실전은 NOT RUN이다. [설치·정리 기록](docs/coop/vault-ascent-delivery.md)
 
 Yog 일반 승리판 f1e1bb2를 GB2의 MuMu Android 15에서 실제 설치했다. 비로그인 다운로드, 기존 앱 및 1층 방장 저장 보존 업데이트, 원본 HUD·가방·퀵슬롯, 저장·앱 강제 종료·재실행·재개가 PASS다. 25·26층 Android 실전과 두 번째 좌석, 실기기 무선 LAN은 NOT RUN이다. [설치 해시와 시험 범위](docs/coop/yog-victory-delivery.md)
