@@ -31,7 +31,7 @@ public final class CoopRenderSmoke {
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -737,6 +737,63 @@ public final class CoopRenderSmoke {
         shot("crown-leap");
     }
 
+    private static void intuitionInputs() throws Exception {
+        await(() -> frame().dungeon.offered && frame().dungeon.monsters.containsValue("Rat"));
+        PublicDungeon view = frame().dungeon;
+        PublicDungeon.Loot tome = view.belongings.stream().filter(i -> view.actions(i).contains("CAST")).findFirst().get();
+        PublicDungeon.Loot target = view.belongings.stream().filter(i -> view.source.rows.containsKey("intuition"+i.id)).findFirst().get();
+        String spell = "#" + com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyIntuition.INSTANCE.name();
+        click("bag");
+        press(inventoryPoint(tome.id));
+        click("cast");
+        click(spell);
+        await(() -> render(() -> find(Game.scene(), node -> node instanceof WndSeatInventory) != null));
+        shot("owned-selection");
+        press(inventoryPoint(target.id));
+        await(() -> {
+            PublicDungeon next = frame().dungeon;
+            return next.source.version > view.source.version && next.belongings.stream().anyMatch(i -> i.id==tome.id && i.charges<tome.charges);
+        });
+        shot("spell-committed");
+    }
+
+    private static void sealInputs() throws Exception {
+        boolean seal = regionShot.equals("seal-input");
+        String action = seal ? "DETACH_SEAL" : "THROW";
+        await(() -> frame().dungeon.offered && frame().dungeon.monsters.containsValue("Rat"));
+        PublicDungeon view = frame().dungeon;
+        PublicDungeon.Loot item = view.belongings.stream().filter(i -> view.actions(i).contains(action)
+                && (seal || i.kind.equals("FOOD"))).findFirst().get();
+        click("bag");
+        press(inventoryPoint(item.id));
+        String button = seal ? "detach_seal" : "throw";
+        waitForButton(button);
+        shot("item-menu");
+        click(button);
+        if (!seal) {
+            shot("ration-aim");
+            int target = view.monsters.entrySet().stream().filter(e -> e.getValue().equals("Rat")).findFirst().get().getKey();
+            press(mapPoint(view,target));
+        }
+        await(() -> {
+            PublicDungeon next = frame().dungeon;
+            return next.source.version > view.source.version && (!seal ||
+                    next.belongings.stream().anyMatch(i -> next.actions(i).contains("AFFIX_SEAL")));
+        });
+        shot("after-action");
+        if (seal) {
+            PublicDungeon latest = frame().dungeon;
+            PublicDungeon.Loot loose = latest.belongings.stream().filter(i -> latest.actions(i).contains("AFFIX_SEAL")).findFirst().get();
+            click("bag");
+            press(inventoryPoint(loose.id));
+            String title = com.shatteredpixel.shatteredpixeldungeon.messages.Messages.titleCase(
+                    com.shatteredpixel.shatteredpixeldungeon.messages.Messages.get("items.brokenseal.name"));
+            await(() -> render(() -> find(Game.scene(), node -> node instanceof com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock
+                    && title.equals(((com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock)node).text())) != null));
+            shot("loose-seal-name");
+        }
+    }
+
     private static void frostInputs() throws Exception {
         boolean spell = regionShot.equals("sunray-input");
         String action = spell ? "CAST" : "ZAP";
@@ -881,7 +938,7 @@ public final class CoopRenderSmoke {
         click("title"); await(()->button("host")!=null);
         sceneMetrics("before-room");
         shot("multiplayer"); click("host"); await(()->button("warriorClass")!=null);
-        shot("lobby"); click(regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("tome-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
+        shot("lobby"); click(regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("tome-input") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
         if(mage) shot("mage-selected");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
         java.nio.file.Files.writeString(new File(root,"port").toPath(),Integer.toString(testPort));
@@ -898,6 +955,8 @@ public final class CoopRenderSmoke {
                 if (regionShot.equals("vault-dart")) { vaultDart(); return; }
                 if (regionShot.equals("growth-input")) { growthInputs(); return; }
                 if (regionShot.equals("upper-input")) { upperInputs(); return; }
+                if (regionShot.equals("intuition-input")) { intuitionInputs(); return; }
+                if (regionShot.equals("seal-input") || regionShot.equals("ration-input")) { sealInputs(); return; }
                 if (regionShot.equals("frost-input") || regionShot.equals("sunray-input")) { frostInputs(); return; }
                 if (regionShot.equals("lunge-input") || regionShot.equals("tome-input")) { starterSpellInputs(regionShot.equals("lunge-input")); return; }
                 if (regionShot.equals("hawk-input") || regionShot.equals("volley-input")) { armorSpellInputs(regionShot.equals("hawk-input")); return; }

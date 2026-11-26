@@ -148,7 +148,7 @@ public class CoopScene extends PixelScene {
                 String action = actions.get(index);
                 if (action.equals("HOLY_INTUITION") || action.equals("RECALL_INSCRIPTION") || action.endsWith("_FORM")) {
                     String prefix=action.equals("RECALL_INSCRIPTION") ? "recallitem" : action.equals("MIND_FORM") ? "minditem" : action.equals("SPIRIT_FORM") ? "spirititem" : action.equals("BODY_FORM") ? "bodyitem" : "intuition";
-                    add(WndSeatInventory.select(view,controller,new WndSeatInventory.Selection() {
+                    CoopScene.this.add(WndSeatInventory.select(view,controller,new WndSeatInventory.Selection() {
                         public boolean accepts(PublicDungeon.Loot candidate) { return view.source.rows.containsKey(prefix+candidate.id); }
                         public void select(PublicDungeon.Loot candidate) {
                             if (controller.frame().image==view.source && accepts(candidate))

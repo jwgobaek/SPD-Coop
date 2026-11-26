@@ -75,6 +75,10 @@ final class RenderEncounter {
                     throw new AssertionError("Expected seed 572 dart heap");
                 game.hero(0).pos=1872;
                 game.observe(0);
+            } else if (destination.equals("intuition-input")) {
+                com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"intuition0");
+            } else if (destination.equals("seal-input") || destination.equals("ration-input")) {
+                com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,destination.equals("seal-input") ? "sealdetach0" : "rationthrow0");
             } else if (destination.equals("sunray-input") || destination.equals("frost-input")) {
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,destination.equals("frost-input")?"ice0":"sunray0");
             } else if (destination.equals("lunge-input") || destination.equals("tome-input")) {
