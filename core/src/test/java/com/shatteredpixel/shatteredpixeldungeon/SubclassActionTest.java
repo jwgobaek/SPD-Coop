@@ -81,6 +81,8 @@ public class SubclassActionTest extends HeadlessDungeon {
                 Rat rat=CoopMageTest.encounter(g,seat);
                 Combo combo=prepare(g,seat,rat,6);
                 Hero h=g.hero(seat);
+                // A base sword and a rat can both roll 1. Give this damage assertion a positive lower bound.
+                h.belongings.weapon().upgrade(2);
                 Buff.affect(h,Combo.ParryTracker.class,Actor.TICK);
                 int hp=h.HP;
                 rat.attack(h,1,0,1f);
@@ -93,9 +95,9 @@ public class SubclassActionTest extends HeadlessDungeon {
             try(CoopSession g=CoopSession.restore(saved)) {
                 Rat rat=(Rat)Actor.findById(targetId);
                 int hp=rat.HP;
-                TenguArenaTest.waitOne(g);
-                assertTrue(rat.HP<hp);
+                for (int i=0;i<3 && g.hero(seat).buff(Combo.RiposteTracker.class)!=null;i++) TenguArenaTest.waitOne(g);
                 assertNull(g.hero(seat).buff(Combo.RiposteTracker.class));
+                assertTrue(rat.HP<hp);
             }
         }
     }

@@ -31,7 +31,7 @@ public final class CoopRenderSmoke {
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -57,7 +57,7 @@ public final class CoopRenderSmoke {
         kit=shortcutKit || (args.length>1 && args[1].equals("kit"));
         deep=prison || (args.length>1 && args[1].equals("deep"));
         floors=deep || statue || mimic || ghost || sentry || (args.length>1 && args[1].equals("floors"));
-        mage=regionShot.equals("volley-input") || regionShot.equals("wand-input") || floors || (args.length>1 && args[1].equals("mage"));
+        mage=regionShot.equals("frost-input") || regionShot.equals("volley-input") || regionShot.equals("wand-input") || floors || (args.length>1 && args[1].equals("mage"));
         shots=new File(args[0]); if(!shots.isDirectory() && !shots.mkdirs()) throw new AssertionError();
         // Test classes share the launcher's package but do not carry release-manifest attributes.
         java.util.jar.Manifest manifest=new java.util.jar.Manifest(DesktopLauncher.class.getResourceAsStream("/META-INF/MANIFEST.MF"));
@@ -737,6 +737,30 @@ public final class CoopRenderSmoke {
         shot("crown-leap");
     }
 
+    private static void frostInputs() throws Exception {
+        boolean spell = regionShot.equals("sunray-input");
+        String action = spell ? "CAST" : "ZAP";
+        await(() -> {
+            PublicDungeon current = frame().dungeon;
+            return current.offered && current.monsters.containsValue("Rat")
+                    && current.belongings.stream().anyMatch(i -> current.actions(i).contains(action));
+        });
+        PublicDungeon view = frame().dungeon;
+        PublicDungeon.Loot item = view.belongings.stream().filter(i -> view.actions(i).contains(action)
+                && (spell || i.kind.equals("STAFF"))).findFirst().get();
+        int target = view.monsters.entrySet().stream().filter(e -> e.getValue().equals("Rat")).findFirst().get().getKey();
+        click("bag"); press(inventoryPoint(item.id)); click(spell ? "cast" : "zap");
+        if (spell) {
+            String name = "#" + com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Sunray.INSTANCE.name();
+            waitForButton(name); shot("learned-spell"); click(name);
+        }
+        shot(spell ? "sunray-aim" : "frost-aim");
+        press(mapPoint(view,target));
+        await(() -> frame().image.version > view.source.version && frame().dungeon.belongings.stream()
+                .anyMatch(i -> i.id == item.id && i.charges < item.charges));
+        shot(spell ? "sunray-hit" : "frost-hit");
+    }
+
     private static void starterSpellInputs(boolean rapier) throws Exception {
         String action=rapier?"WEAPON_ABILITY":"CAST";
         await(()->{ PublicDungeon v=frame().dungeon; return v.offered && v.monsters.containsValue("Rat") && v.belongings.stream().anyMatch(i->v.actions(i).contains(action)); });
@@ -857,7 +881,7 @@ public final class CoopRenderSmoke {
         click("title"); await(()->button("host")!=null);
         sceneMetrics("before-room");
         shot("multiplayer"); click("host"); await(()->button("warriorClass")!=null);
-        shot("lobby"); click(regionShot.equals("lunge-input")?"duelistClass":regionShot.equals("tome-input")?"clericClass":kit || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
+        shot("lobby"); click(regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("tome-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
         if(mage) shot("mage-selected");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
         java.nio.file.Files.writeString(new File(root,"port").toPath(),Integer.toString(testPort));
@@ -874,6 +898,7 @@ public final class CoopRenderSmoke {
                 if (regionShot.equals("vault-dart")) { vaultDart(); return; }
                 if (regionShot.equals("growth-input")) { growthInputs(); return; }
                 if (regionShot.equals("upper-input")) { upperInputs(); return; }
+                if (regionShot.equals("frost-input") || regionShot.equals("sunray-input")) { frostInputs(); return; }
                 if (regionShot.equals("lunge-input") || regionShot.equals("tome-input")) { starterSpellInputs(regionShot.equals("lunge-input")); return; }
                 if (regionShot.equals("hawk-input") || regionShot.equals("volley-input")) { armorSpellInputs(regionShot.equals("hawk-input")); return; }
                 if (regionShot.equals("wand-input")) { wandInputs(); return; }
