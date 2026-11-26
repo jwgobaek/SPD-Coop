@@ -533,32 +533,8 @@ public abstract class RegularLevel extends Level {
 		//cached rations try to drop in a special room on floors 2/4/7, to a max of 2/3
 		//we increment dropped by 2 for compatibility with old saves, when the talent dropped 4/6 items
 		Random.pushGenerator( Random.Long() );
-			if (Dungeon.hero.hasTalent(Talent.CACHED_RATIONS)){
-				Talent.CachedRationsDropped dropped = Buff.affect(Dungeon.hero, Talent.CachedRationsDropped.class);
-				int targetFloor = (int)(2 + dropped.count());
-				if (dropped.count() > 4) targetFloor++;
-				if (Dungeon.depth >= targetFloor && dropped.count() < 2 + 2*Dungeon.hero.pointsInTalent(Talent.CACHED_RATIONS)){
-					int cell;
-					int tries = 100;
-					boolean valid;
-					do {
-						cell = randomDropCell(SpecialRoom.class);
-						valid = cell != -1 && !(room(cell) instanceof SecretRoom)
-								&& !(room(cell) instanceof ShopRoom)
-								&& map[cell] != Terrain.EMPTY_SP
-								&& map[cell] != Terrain.WATER
-								&& map[cell] != Terrain.PEDESTAL;
-					} while (tries-- > 0 && !valid);
-					if (valid) {
-						if (map[cell] == Terrain.HIGH_GRASS || map[cell] == Terrain.FURROWED_GRASS) {
-							map[cell] = Terrain.GRASS;
-							losBlocking[cell] = false;
-						}
-						drop(new SupplyRation(), cell).type = Heap.Type.CHEST;
-						dropped.countUp(2);
-					}
-				}
-			}
+			Hero cacheOwner = Dungeon.coop == null ? Dungeon.hero : Dungeon.coop.cachedRationsOwner();
+			dropCachedRation(cacheOwner);
 		Random.popGenerator();
 
 		//guide pages
@@ -746,6 +722,38 @@ public abstract class RegularLevel extends Level {
 		}
 		
 		return null;
+	}
+
+	// Caller owns the native floor-generation RNG scope. Count only an actual placement.
+	void dropCachedRation(Hero cacheOwner) {
+		if (cacheOwner != null && cacheOwner.hasTalent(Talent.CACHED_RATIONS)){
+			Talent.CachedRationsDropped dropped = Buff.affect(cacheOwner, Talent.CachedRationsDropped.class);
+			int targetFloor = (int)(2 + dropped.count());
+			if (dropped.count() > 4) targetFloor++;
+			if (Dungeon.depth >= targetFloor && dropped.count() < 2 + 2*cacheOwner.pointsInTalent(Talent.CACHED_RATIONS)){
+				int cell;
+				int tries = 100;
+				boolean valid;
+				do {
+					cell = randomDropCell(SpecialRoom.class);
+					valid = cell != -1 && !(room(cell) instanceof SecretRoom)
+							&& !(room(cell) instanceof ShopRoom)
+							&& map[cell] != Terrain.EMPTY_SP
+							&& map[cell] != Terrain.WATER
+							&& map[cell] != Terrain.PEDESTAL;
+				} while (tries-- > 0 && !valid);
+				if (valid) {
+					if (map[cell] == Terrain.HIGH_GRASS || map[cell] == Terrain.FURROWED_GRASS) {
+						map[cell] = Terrain.GRASS;
+						losBlocking[cell] = false;
+					}
+					SupplyRation ration = new SupplyRation();
+					drop(ration, cell).type = Heap.Type.CHEST;
+					if (Dungeon.coop != null) Dungeon.coop.ownership.claim(ration, Dungeon.coop.playerOf(cacheOwner));
+					dropped.countUp(2);
+				}
+			}
+		}
 	}
 
 	protected int randomDropCell(){

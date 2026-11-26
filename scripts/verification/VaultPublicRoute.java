@@ -34,7 +34,7 @@ public final class VaultPublicRoute {
         int walkedDoor=-1, crossingDoor=-1, crossingTurns;
         int lastDoorSide = -1, doorEntry = -1, holdDirection;
         int recoveryWaits;
-        boolean doorwayStrategy() { return regroup.equals("recoverexit") || regroup.equals("coverexit") || regroup.equals("crossonce") || regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover") || regroup.equals("trail") || regroup.equals("safeexit") || regroup.equals("handoff"); }
+        boolean doorwayStrategy() { return regroup.equals("sidecover") || regroup.equals("recoverexit") || regroup.equals("coverexit") || regroup.equals("crossonce") || regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover") || regroup.equals("trail") || regroup.equals("safeexit") || regroup.equals("handoff"); }
         private boolean visibleDoor(PublicDungeon v, int cell) {
             if (cell<0 || !v.visible(cell)) return false;
             int tile=v.terrain(cell);
@@ -119,6 +119,10 @@ public final class VaultPublicRoute {
                 int cover=exposed-exposedTo(v,c);
                 if (cover<0 || (cover==0 && (gap<=previous || previous>2))) continue;
                 int value=80*cover+10*gap-4*(lastAlly<0?0:distance(lastAlly,c,v.width))-visits.getOrDefault(c,0);
+                // When equally safe, guard the injured follower's route past a known threshold.
+                // Greater safety still wins immediately when the entry is the only cover.
+                if (regroup.equals("sidecover") && escortFollower && holdDirection > 0 && v.hp*3 < v.maxHp
+                        && (c == doorEntry || c == lastDoorSide)) value -= 7;
                 if (value>score) {score=value;best=c;}
             }
             return best;
@@ -153,7 +157,7 @@ public final class VaultPublicRoute {
                 returning=escortFollower && distance(v.pos,v.ally,v.width)>2;
             // A player remembers their own last step onto a threshold, even if the ally disappears.
             boolean restUnderCover = team && regroup.equals("recoverexit");
-            boolean avoidFire = team && (regroup.equals("coverexit") || restUnderCover);
+            boolean avoidFire = team && (regroup.equals("coverexit") || regroup.equals("sidecover") || restUnderCover);
             if (avoidFire) rememberShooters(v);
             boolean crossing = team && (regroup.equals("crossonce") || avoidFire);
             if (crossing) {

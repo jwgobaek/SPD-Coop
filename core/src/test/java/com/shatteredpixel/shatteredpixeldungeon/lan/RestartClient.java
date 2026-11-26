@@ -161,6 +161,7 @@ public final class RestartClient {
                 assertEquals("ERROR VERSION",old.request("MODE SYNC16"));
                 assertEquals("ERROR VERSION", old.request("MODE SYNC3"));
                 assertEquals("ERROR VERSION", old.request("MODE SYNC12"));
+                assertEquals("ERROR VERSION", old.request("MODE SYNC33"));
             }
         }
         if (special || mode.startsWith("tengu-setup-") || mode.equals("late-setup") || mode.startsWith("necro-setup-") || mode.startsWith("wand-setup-") || mode.startsWith("scribe") || RestartHost.kit(mode) || RestartHost.pinProjectile(mode) || RestartHost.newCampaign(mode) || mode.equals("new") || mode.equals("walk") || mode.startsWith("cast")) {
@@ -175,8 +176,9 @@ public final class RestartClient {
                 if (mode.startsWith("tengu-setup-") || mode.equals("late-setup") || mode.startsWith("wand-setup-") || mode.startsWith("necro-setup-")) character=i==0?"WARRIOR":"MAGE";
                 if (mode.startsWith("tengu-setup-growth-")) {
                     character=i==0?"WARRIOR":"HUNTRESS";
-                    if (mode.matches(".*-(recallid|trinitymind|trinityspirit|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinitymindselect|trinityspiritselect|intuition|bless|trinityselect|trinity|ascendform|lightally|lightorder|radiance|smite|sunray|divinesense|lightshield|light|blessweapon|ward)[01]")) character="CLERIC";
-                    if (mode.matches(".*-(monkflurry|monkdash|monkmeditate|monkdragonkick|strikeshock|strikeblock|strikevenom|heroicenergy|challenge|elestrike|feint|swap|monkfocus|guardshield|stance|lunge|spike|charged)[01]")) character="DUELIST";
+                    if (mode.matches(".*-(recallid|recallrecharge|trinitymind|trinityspirit|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinityblockhistory|trinitymindselect|trinityspiritselect|intuition|bless|trinityselect|trinity|ascendform|lightally|lightorder|radiance|smite|sunray|divinesense|lightshield|light|blessweapon|ward)[01]")) character="CLERIC";
+                    if (mode.matches(".*-(monkflurry|monkdash|monkmeditate|monkdragonkick|strikeshock|strikeblock|strikevenom|strikekinetic|strikebloom|heroicenergy|challenge|elestrike|feint|swap|monkfocus|guardshield|stance|lunge|spike|charged)[01]")) character="DUELIST";
+                    if (mode.matches(".*-(cacheinvest|cachepickup)[01]")) character=i==mode.charAt(mode.length()-1)-'0'?"ROGUE":"MAGE";
                     if (mode.matches(".*-(markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) character="ROGUE";
                     if (mode.matches(".*-(sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
                     if (mode.matches(".*-(hawk|direct|blades|sniper|nature)[01]")) character="HUNTRESS";
@@ -545,7 +547,8 @@ public final class RestartClient {
                     seat=boundary.equals("yog-win")?1-owner:owner;
                 }
                 PublicDungeon view=new PublicDungeon(state(seat));
-                if (growth) assertEquals(boundary.matches("growth-(owner|grant|right)[01]") ? 10 : 1,view.depth);
+                if (growth && boundary.startsWith("growth-cachepickup")) assertEquals(2,view.depth);
+                else if (growth) assertEquals(boundary.matches("growth-(owner|grant|right)[01]") ? 10 : 1,view.depth);
                 else if (ascent) assertEquals(0,view.branch);
                 else if (elemental) { assertEquals(18,view.depth); assertEquals(1,view.branch); }
                 else if (yog) assertTrue(view.depth==25 || view.depth==26);

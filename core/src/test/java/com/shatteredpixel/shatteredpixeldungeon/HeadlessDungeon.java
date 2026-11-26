@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
-abstract class HeadlessDungeon {
+public abstract class HeadlessDungeon {
     @Rule public TemporaryFolder temporary = new TemporaryFolder();
     private final CountDownLatch stopped = new CountDownLatch(1);
     private HeadlessApplication app;

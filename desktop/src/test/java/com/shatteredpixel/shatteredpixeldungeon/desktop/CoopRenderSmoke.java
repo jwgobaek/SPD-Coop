@@ -37,7 +37,7 @@ public final class CoopRenderSmoke {
             return;
         }
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|strength-input|recharging-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -206,6 +206,7 @@ public final class CoopRenderSmoke {
         return null;
     }
     private static String label(String key) {
+        if(key.equals("rogueClass")) return HeroClass.ROGUE.title();
         if(key.equals("duelistClass")) return HeroClass.DUELIST.title();
         if(key.equals("clericClass")) return HeroClass.CLERIC.title();
         if(key.equals("warriorClass")) return HeroClass.WARRIOR.title();
@@ -1187,7 +1188,7 @@ public final class CoopRenderSmoke {
         }
         sceneMetrics("before-room");
         shot("multiplayer"); click("host"); await(()->button("warriorClass")!=null);
-        shot("lobby"); click(regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("tome-input") || regionShot.startsWith("selector-") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
+        shot("lobby"); click(regionShot.equals("cache-input")?"rogueClass":regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("tome-input") || regionShot.equals("recharging-input") || regionShot.startsWith("selector-") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
         if(mage) shot("mage-selected");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
         java.nio.file.Files.writeString(new File(root,"port").toPath(),Integer.toString(testPort));
@@ -1203,6 +1204,29 @@ public final class CoopRenderSmoke {
                 RenderEncounter.tengu(hostController(),regionShot);
                 if (regionShot.equals("vault-dart")) { vaultDart(); return; }
                 if (regionShot.equals("growth-input")) { growthInputs(); return; }
+                if (regionShot.equals("cache-input") || regionShot.equals("strength-input")) {
+                    boolean cache = regionShot.equals("cache-input");
+                    var talent = cache ? com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.CACHED_RATIONS
+                            : com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.STRONGMAN;
+                    await(() -> frame().dungeon.offered && frame().image.rows.containsKey("learn"+talent.ordinal())
+                            && Integer.parseInt(frame().image.rows.get("freepoints"+(cache ? 1 : 3))) > 0);
+                    investVisibleTalent(talent,cache ? 1 : 3);
+                    return;
+                }
+                if (regionShot.equals("recharging-input")) {
+                    await(() -> frame().dungeon.belongings.stream().anyMatch(i -> i.kind.equals("RECHARGING_SCROLL")));
+                    var scroll=frame().dungeon.belongings.stream().filter(i -> i.kind.equals("RECHARGING_SCROLL")).findFirst().get();
+                    click("bag"); press(inventoryPoint(scroll.id)); click("read_recharging");
+                    await(() -> frame().image.rows.containsKey("recallrecharging") && frame().dungeon.offered);
+                    shot("read-recharging");
+                    int initial=ownTome().charges;
+                    openSpellPicker(ownTome().id,RecallInscription.INSTANCE.name());
+                    await(() -> !frame().image.rows.containsKey("recallrecharging") && frame().pending == 0);
+                    if (ownTome().charges != initial-3) throw new AssertionError("Recall charge");
+                    shot("recalled-recharging");
+                    System.out.println("PASS actual read, recall of recharging, consumed imprint and three tome charges");
+                    return;
+                }
                 if (regionShot.equals("upper-input")) { upperInputs(); return; }
                 if (regionShot.equals("intuition-input") || regionShot.startsWith("selector-")) {
                     selectorInputs();

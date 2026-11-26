@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Enchanting;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTransmutation;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ExoticScroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfEnchantment;
@@ -68,15 +69,19 @@ public class RecallInscription extends ClericSpell {
 
 		Item item = Reflection.newInstance(hero.buff(UsedItemTracker.class).item);
 
-		item.setCurrent(hero);
+		if (Dungeon.coop == null) item.setCurrent(hero);
 
 		hero.sprite.operate(hero.pos);
-		Enchanting.show(hero, item);
+		if (Dungeon.coop == null) Enchanting.show(hero, item);
 
 		if (item instanceof Scroll){
 			((Scroll) item).anonymize();
 			((Scroll) item).talentChance = 0; //does not trigger on-scroll effects
-			((Scroll) item).doRead();
+			if (Dungeon.coop != null && item instanceof ScrollOfRecharging) {
+                ((ScrollOfRecharging)item).readFor(hero);
+            } else {
+                ((Scroll)item).doRead();
+            }
 		} else if (item instanceof Runestone){
 			((Runestone) item).anonymize();
 			if (item instanceof InventoryStone){
@@ -126,6 +131,11 @@ public class RecallInscription extends ClericSpell {
 		}
 		return 0;
 	}
+
+    public static boolean remembersRecharging(Hero hero) {
+        UsedItemTracker tracker = hero.buff(UsedItemTracker.class);
+        return tracker != null && tracker.item == ScrollOfRecharging.class;
+    }
 
 	@Override
 	public boolean canCast(Hero hero) {

@@ -147,7 +147,8 @@ public class CoopScene extends PixelScene {
             protected void onSelect(int index) {
                 if (index<0 || index>=spells.size() || controller.frame().image!=view.source) return;
                 String action = actions.get(index);
-                if (action.equals("HOLY_INTUITION") || action.equals("RECALL_INSCRIPTION") || action.endsWith("_FORM")) {
+                boolean recallNeedsItem = action.equals("RECALL_INSCRIPTION") && !view.source.rows.containsKey("recallrecharging");
+                if (action.equals("HOLY_INTUITION") || recallNeedsItem || action.endsWith("_FORM")) {
                     showSpellTargets(view, tome, action, spells.get(index));
                 } else if (spells.get(index) instanceof TargetedClericSpell) { targetView=view; targetMove=action; targetStaff=tome; renderFrame(); }
                 else controller.act(view.source,action,view.pos,tome.id);

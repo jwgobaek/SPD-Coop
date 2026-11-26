@@ -13,7 +13,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class CoopFloorsTest extends HeadlessDungeon {
-    static boolean step(CoopSession game,CoopSession.Action verb,int cell,Item item) {
+    public static boolean step(CoopSession game,CoopSession.Action verb,int cell,Item item) {
         return game.act(game.player(game.activeSeat()),game.turn(),verb,cell,item);
     }
 

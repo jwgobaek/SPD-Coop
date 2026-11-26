@@ -9,6 +9,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blocking;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.watabou.utils.Bundlable;
@@ -26,7 +27,8 @@ public final class TrinityDiscoveries {
         SWIFTNESS(-102, Talent.BODY_FORM, Swiftness.class),
         LIGHTNING(-103, Talent.MIND_FORM, WandOfLightning.class),
         HASTE(-104, Talent.SPIRIT_FORM, RingOfHaste.class),
-        BLAZING(-105, Talent.BODY_FORM, Blazing.class);
+        BLAZING(-105, Talent.BODY_FORM, Blazing.class),
+        BLOCKING(-106, Talent.BODY_FORM, Blocking.class);
 
         public final int target;
         public final Talent form;

@@ -75,6 +75,20 @@ final class RenderEncounter {
                     throw new AssertionError("Expected seed 572 dart heap");
                 game.hero(0).pos=1872;
                 game.observe(0);
+            } else if (destination.equals("cache-input")) {
+                game.hero(0).lvl=5;
+            } else if (destination.equals("strength-input")) {
+                com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"third0");
+            } else if (destination.equals("recharging-input")) {
+                var hero=game.hero(0);
+                hero.lvl=15;
+                var talent=com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.RECALL_INSCRIPTION;
+                if (!com.shatteredpixel.shatteredpixeldungeon.CoopFloorsTest.step(game,CoopSession.Action.INVEST_TALENT,talent.ordinal(),null))
+                    throw new AssertionError("Recall investment");
+                var scroll=new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging();
+                scroll.setKnown();
+                if (!scroll.collect(hero.belongings.backpack)) throw new AssertionError("Backpack full");
+                game.ownership.claim(scroll,game.player(0));
             } else if (destination.startsWith("selector-")) {
                 com.shatteredpixel.shatteredpixeldungeon.SealArtsTest.prepareSelectors(game, destination.substring("selector-".length()), 1);
             } else if (destination.equals("intuition-input")) {

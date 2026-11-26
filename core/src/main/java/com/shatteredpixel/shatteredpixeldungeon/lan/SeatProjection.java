@@ -239,10 +239,12 @@ final class SeatProjection {
                 if (marked instanceof Mob && ((Mob)marked).isAlive() && ((Mob)marked).invisible <= 0 && sight.visible(((Mob)marked).pos))
                     rows.put("snipercell", Integer.toString(((Mob)marked).pos));
             }
+            if (com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.RecallInscription.remembersRecharging(hero))
+                rows.put("recallrecharging","1");
             for (int tier=1; tier<=hero.talents.size(); tier++) {
                 rows.put("freepoints"+tier, Integer.toString(hero.talentPointsAvailable(tier)));
                 for (Talent talent : hero.talents.get(tier-1).keySet()) {
-                    if (CoopSession.playableTalent(talent)) {
+                    if (game.offersTalent(hero, talent)) {
                         rows.put("learn"+talent.ordinal(), Integer.toString(hero.pointsInTalent(talent)));
                         rows.put("tier"+talent.ordinal(), Integer.toString(tier));
                     }
@@ -571,7 +573,8 @@ final class SeatProjection {
                 && ((com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor)item).glyph!=null) kind="INSCRIBED";
         if (!slot.startsWith("F") && CoopSession.supportedScroll(item)
                 && ((com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll)item).isKnown())
-            kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade ? "UPGRADE" : "IDENTIFY";
+            kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging ? "RECHARGING_SCROLL"
+                    : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade ? "UPGRADE" : "IDENTIFY";
         if (!slot.startsWith("F") && CoopSession.basicMissile(item) && item.isIdentified())
             kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSpike ? "SPIKE" : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "KNIFE" :
                         item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart ? "DART" : "STONE";

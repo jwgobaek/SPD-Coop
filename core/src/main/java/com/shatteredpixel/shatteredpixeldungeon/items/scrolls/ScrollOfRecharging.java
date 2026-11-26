@@ -25,6 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Recharging;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.EnergyParticle;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -41,19 +42,23 @@ public class ScrollOfRecharging extends Scroll {
 
 	@Override
 	public void doRead() {
+		readFor(curUser);
+	}
 
-		detach(curUser.belongings.backpack);
-		Buff.affect(curUser, Recharging.class, Recharging.DURATION);
-		charge(curUser);
+	public void readFor(Hero reader) {
+
+		detach(reader.belongings.backpack);
+		Buff.affect(reader, Recharging.class, Recharging.DURATION);
+		charge(reader);
 
 		Sample.INSTANCE.play( Assets.Sounds.READ );
 		Sample.INSTANCE.play( Assets.Sounds.CHARGEUP );
 
 		GLog.i( Messages.get(this, "surge") );
-		SpellSprite.show( curUser, SpellSprite.CHARGE );
+		SpellSprite.show( reader, SpellSprite.CHARGE );
 		identify();
 
-		readAnimation();
+		finishReading(reader);
 	}
 	
 	public static void charge( Char user ) {

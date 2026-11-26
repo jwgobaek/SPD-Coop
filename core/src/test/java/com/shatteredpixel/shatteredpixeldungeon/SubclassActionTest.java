@@ -191,8 +191,8 @@ public class SubclassActionTest extends HeadlessDungeon {
         Hero h=g.hero(seat);
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
-        case "recallid": case "trinitymind": case "trinityspirit": case "intuition": case "bless": case "trinitybodyhistory": case "trinitymindhistory": case "trinityspirithistory": case "trinityfirehistory": case "trinitymindselect": case "trinityspiritselect": case "trinityselect": case "trinity": case "monkflurry": case "monkdash": case "monkdragonkick": case "monkmeditate": case "sparkimbue": case "spark": case "sparkblast": case "sparkvolley":
-        case "sealdetach": case "sealattach": case "sealkeep": case "sealtransfer": case "rationthrow": case "strikeshock": case "strikeblock": case "strikevenom": case "heroicenergy": case "challenge": case "elestrike": case "feint": case "ascendform": case "lightally": case "lightorder":
+        case "recallrecharge": case "recallid": case "trinitymind": case "trinityspirit": case "intuition": case "bless": case "trinitybodyhistory": case "trinitymindhistory": case "trinityspirithistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindselect": case "trinityspiritselect": case "trinityselect": case "trinity": case "monkflurry": case "monkdash": case "monkdragonkick": case "monkmeditate": case "sparkimbue": case "spark": case "sparkblast": case "sparkvolley":
+        case "sealdetach": case "sealattach": case "sealkeep": case "sealtransfer": case "rationthrow": case "strikeshock": case "strikeblock": case "strikevenom": case "strikekinetic": case "strikebloom": case "heroicenergy": case "challenge": case "elestrike": case "feint": case "ascendform": case "lightally": case "lightorder":
             return SealArtsTest.stage(g,type,seat,rat);
         case "swap": case "monkfocus": case "smite": case "radiance": case "ice": case "iceimbue": case "iceblast": case "icevolley": case "markdeath": case "clone": case "orderclone": case "sunray": case "divinesense": case "lightshield": case "guardshield": case "stance":
             return FrostSensesTest.stage(g,type,seat,rat);
@@ -252,6 +252,10 @@ public class SubclassActionTest extends HeadlessDungeon {
             return new StagedInput(g,"ARMOR_ABILITY",type.equals("blades")?rat.pos:h.pos);
         case "cloak":
             return new StagedInput(g,"CLOAK",0);
+        case "cachepickup": return CachedRationsTest.preparePickup(g,seat);
+        case "cacheinvest":
+            h.lvl=5;
+            return new StagedInput(g,"INVEST_TALENT",Talent.CACHED_RATIONS.ordinal());
         case "third":
             h.subClass=HeroSubClass.GLADIATOR;
             Talent.initSubclassTalents(h);
@@ -319,8 +323,8 @@ public class SubclassActionTest extends HeadlessDungeon {
         Combo combo=h.buff(Combo.class);
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
-        case "recallid": case "trinitymind": case "trinityspirit": case "intuition": case "bless": case "trinitybodyhistory": case "trinitymindhistory": case "trinityspirithistory": case "trinityfirehistory": case "trinitymindselect": case "trinityspiritselect": case "trinityselect": case "trinity": case "monkflurry": case "monkdash": case "monkdragonkick": case "monkmeditate": case "sparkimbue": case "spark": case "sparkblast": case "sparkvolley":
-        case "sealdetach": case "sealattach": case "sealkeep": case "sealtransfer": case "rationthrow": case "strikeshock": case "strikeblock": case "strikevenom": case "heroicenergy": case "challenge": case "elestrike": case "feint": case "ascendform": case "lightally": case "lightorder":
+        case "recallrecharge": case "recallid": case "trinitymind": case "trinityspirit": case "intuition": case "bless": case "trinitybodyhistory": case "trinitymindhistory": case "trinityspirithistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindselect": case "trinityspiritselect": case "trinityselect": case "trinity": case "monkflurry": case "monkdash": case "monkdragonkick": case "monkmeditate": case "sparkimbue": case "spark": case "sparkblast": case "sparkvolley":
+        case "sealdetach": case "sealattach": case "sealkeep": case "sealtransfer": case "rationthrow": case "strikeshock": case "strikeblock": case "strikevenom": case "strikekinetic": case "strikebloom": case "heroicenergy": case "challenge": case "elestrike": case "feint": case "ascendform": case "lightally": case "lightorder":
             return SealArtsTest.published(g,type,seat);
         case "swap": case "monkfocus": case "smite": case "radiance": case "ice": case "iceimbue": case "iceblast": case "icevolley": case "markdeath": case "clone": case "orderclone": case "sunray": case "divinesense": case "lightshield": case "guardshield": case "stance":
             return FrostSensesTest.published(g,type,seat);
@@ -344,6 +348,8 @@ public class SubclassActionTest extends HeadlessDungeon {
         case "recall": return h.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.WarpBeaconTracker.class)!=null
                 && ((com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor)h.belongings.armor()).charge<20;
         case "cloak": return h.invisible==1 && h.buff(com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows.cloakStealth.class)!=null;
+        case "cachepickup": return CachedRationsTest.ownsCollectedCache(g,seat);
+        case "cacheinvest": return h.pointsInTalent(Talent.CACHED_RATIONS)==1 && g.hero(1-seat).pointsInTalent(Talent.CACHED_RATIONS)==0;
         case "third": return h.pointsInTalent(Talent.CLEAVE)==1 && g.hero(1-seat).pointsInTalent(Talent.CLEAVE)==0;
         case "shock": return h.armorAbility instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.Shockwave
                 && Dungeon.level.mobs.stream().anyMatch(m->m.HP<m.HT && m.buff(Cripple.class)!=null);

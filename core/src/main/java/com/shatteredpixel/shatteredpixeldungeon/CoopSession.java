@@ -160,8 +160,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.Pow
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation;
+import com.shatteredpixel.shatteredpixeldungeon.items.food.SupplyRation;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gloves;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
@@ -201,9 +203,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { TRINITY_MIND, TRINITY_SPIRIT, RECALL_INSCRIPTION, MIND_FORM, SPIRIT_FORM, BODY_FORM, HOLY_INTUITION, BLESS, DETACH_SEAL, AFFIX_SEAL, KEEP_ARMOR_GLYPH, TRANSFER_SEAL_GLYPH, EQUIP_SECOND, SWAP_WEAPONS, MONK_FLURRY, MONK_DASH, MONK_DRAGONKICK, MONK_MEDITATE, MONK_FOCUS, RADIANCE, SMITE, ASSASSINATE, FREERUN, DIVINE_SENSE, SUNRAY, SHIELD_OF_LIGHT, GUIDING_LIGHT, HOLY_WEAPON, HOLY_WARD, WEAPON_ABILITY, IMBUE, CLOAK, USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
+    public enum Action { TRINITY_MIND, TRINITY_SPIRIT, RECALL_INSCRIPTION, MIND_FORM, SPIRIT_FORM, BODY_FORM, HOLY_INTUITION, BLESS, DETACH_SEAL, AFFIX_SEAL, KEEP_ARMOR_GLYPH, TRANSFER_SEAL_GLYPH, READ_RECHARGING, EQUIP_SECOND, SWAP_WEAPONS, MONK_FLURRY, MONK_DASH, MONK_DRAGONKICK, MONK_MEDITATE, MONK_FOCUS, RADIANCE, SMITE, ASSASSINATE, FREERUN, DIVINE_SENSE, SUNRAY, SHIELD_OF_LIGHT, GUIDING_LIGHT, HOLY_WEAPON, HOLY_WARD, WEAPON_ABILITY, IMBUE, CLOAK, USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
         public boolean requiresItem() {
-            return this==TRINITY_MIND || this==TRINITY_SPIRIT || this==RECALL_INSCRIPTION || this==MIND_FORM || this==SPIRIT_FORM || this==BODY_FORM || this==HOLY_INTUITION || this==BLESS || this==DETACH_SEAL || this==AFFIX_SEAL || this==KEEP_ARMOR_GLYPH || this==TRANSFER_SEAL_GLYPH || this==EQUIP_SECOND || this==RADIANCE || this==SMITE || this==DIVINE_SENSE || this==SUNRAY || this==SHIELD_OF_LIGHT || this==GUIDING_LIGHT || this==HOLY_WEAPON || this==HOLY_WARD || this==WEAPON_ABILITY || this==IMBUE || this==CLOAK || this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
+            return this==READ_RECHARGING || this==TRINITY_MIND || this==TRINITY_SPIRIT || this==RECALL_INSCRIPTION || this==MIND_FORM || this==SPIRIT_FORM || this==BODY_FORM || this==HOLY_INTUITION || this==BLESS || this==DETACH_SEAL || this==AFFIX_SEAL || this==KEEP_ARMOR_GLYPH || this==TRANSFER_SEAL_GLYPH || this==EQUIP_SECOND || this==RADIANCE || this==SMITE || this==DIVINE_SENSE || this==SUNRAY || this==SHIELD_OF_LIGHT || this==GUIDING_LIGHT || this==HOLY_WEAPON || this==HOLY_WARD || this==WEAPON_ABILITY || this==IMBUE || this==CLOAK || this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -876,7 +878,7 @@ public final class CoopSession implements AutoCloseable {
 
     /** Foods with an authoritative eating path. */
     public static boolean basicFood(Item item) {
-        return item!=null && (item.getClass()==Food.class || item.getClass()==SmallRation.class || item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.food.Berry.class);
+        return item!=null && (item.getClass()==Food.class || item.getClass()==SmallRation.class || item.getClass()==SupplyRation.class || item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.food.Berry.class);
     }
 
     public static boolean basicArmorType(Item item) {
@@ -904,8 +906,23 @@ public final class CoopSession implements AutoCloseable {
         return foe;
     }
 
+    /** A single rogue in a locked roster owns the native cache. Two-rogue allocation is undecided. */
+    public Hero cachedRationsOwner() {
+        if (heroes[0] == null || heroes[1] == null) return null;
+        boolean first = heroes[0].heroClass == HeroClass.ROGUE;
+        boolean second = heroes[1].heroClass == HeroClass.ROGUE;
+        if (first == second) return null;
+        return first ? heroes[0] : heroes[1];
+    }
+
+    public boolean offersTalent(Hero hero, Talent talent) {
+        return talent == Talent.CACHED_RATIONS ? hero == cachedRationsOwner() : playableTalent(talent);
+    }
+
     public static boolean playableTalent(Talent talent) {
         switch (talent) {
+            case CACHED_RATIONS:
+            case STRONGMAN: case ENDLESS_RAGE: case DESPERATE_POWER: case POINT_BLANK:
             case HEARTY_MEAL: case IRON_WILL: case PROVOKED_ANGER: case VETERANS_INTUITION:
             case EMPOWERING_MEAL: case SCHOLARS_INTUITION: case LINGERING_MAGIC: case BACKUP_BARRIER:
             case FOLLOWUP_STRIKE: case SURVIVALISTS_INTUITION: case NATURES_AID: case NATURES_BOUNTY:
@@ -926,11 +943,11 @@ public final class CoopSession implements AutoCloseable {
     }
 
     public static boolean supportedScroll(Item item) {
-        return item!=null && (item.getClass()==ScrollOfUpgrade.class || item.getClass()==ScrollOfIdentify.class);
+        return item!=null && (item.getClass()==ScrollOfUpgrade.class || item.getClass()==ScrollOfIdentify.class || item.getClass()==ScrollOfRecharging.class);
     }
 
     private boolean readEquipmentScroll(Hero reader, Action action, Item source, int selection) {
-        if (!supportedScroll(source) || !(reader.belongings.backpack.contains(source))
+        if (!(source instanceof ScrollOfIdentify || source instanceof ScrollOfUpgrade) || !(reader.belongings.backpack.contains(source))
                 || !((Scroll)source).isKnown() || ownership.owner(source)!=playerOf(reader)
                 || (action==Action.UPGRADE)!=(source instanceof ScrollOfUpgrade)
                 || reader.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness.class)!=null
@@ -1154,7 +1171,11 @@ public final class CoopSession implements AutoCloseable {
                     ClericSpell spell=action==Action.RECALL_INSCRIPTION ? RecallInscription.INSTANCE : action==Action.MIND_FORM ? MindForm.INSTANCE : action==Action.SPIRIT_FORM ? SpiritForm.INSTANCE : action==Action.BODY_FORM ? BodyForm.INSTANCE : action==Action.BLESS ? BlessSpell.INSTANCE : HolyIntuition.INSTANCE;
                     int tier=spell==HolyIntuition.INSTANCE ? 1 : spell==BlessSpell.INSTANCE || spell==RecallInscription.INSTANCE ? 2 : 4;
                     if (!ClericSpell.getSpellList(hero,tier).contains(spell) || !tome.canCast(hero,spell)) return false;
-                    if (action==Action.BLESS) {
+                    if (action == Action.RECALL_INSCRIPTION && RecallInscription.remembersRecharging(hero)) {
+                        if (cell != hero.pos) return false;
+                        // The native spell reads its anonymous scroll, charges the tome, and clears the imprint.
+                        spell.onCast(tome, hero);
+                    } else if (action==Action.BLESS) {
                         if (!level.insideMap(cell) || !knowledge(activeSeat).visible(cell)) return false;
                         Char target=Actor.findChar(cell);
                         if (target==null || target instanceof Hero && target!=hero || target!=hero && !basicMob(target)) return false;
@@ -1352,7 +1373,7 @@ public final class CoopSession implements AutoCloseable {
                     Talent talent = Talent.values()[cell];
                     int tier = 1;
                     while (tier <= hero.talents.size() && !hero.talents.get(tier-1).containsKey(talent)) tier++;
-                    if (!playableTalent(talent) || tier > hero.talents.size()
+                    if (!offersTalent(hero, talent) || tier > hero.talents.size()
                             || hero.talentPointsAvailable(tier) <= 0 || hero.pointsInTalent(talent) >= talent.maxPoints()) return false;
                     hero.upgradeTalent(talent);
                     if (talent==Talent.RUNIC_TRANSFERENCE || talent==Talent.IMPROVISED_PROJECTILES || talent==Talent.HOLY_INTUITION
@@ -1537,6 +1558,15 @@ public final class CoopSession implements AutoCloseable {
                     break;
                 case BUY: case SELL: case SELL_ONE: case BUYBACK:
                     if (!CoopTrade.execute(this,hero,action,cell,item)) return false;
+                    break;
+                case READ_RECHARGING:
+                    if (cell != 0 || !(item instanceof ScrollOfRecharging) || !((Scroll)item).isKnown()
+                            || ownership.owner(item) != player || !hero.belongings.backpack.contains(item)
+                            || hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness.class) != null
+                            || hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune.class) != null) return false;
+                    com.shatteredpixel.shatteredpixeldungeon.items.artifacts.UnstableSpellbook.bookRecharge spellbook = hero.buff(com.shatteredpixel.shatteredpixeldungeon.items.artifacts.UnstableSpellbook.bookRecharge.class);
+                    if (spellbook != null && spellbook.isCursed()) return false;
+                    ((ScrollOfRecharging)item).readFor(hero);
                     break;
                 case IDENTIFY:
                 case UPGRADE:

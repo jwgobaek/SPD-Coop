@@ -154,7 +154,8 @@ public class ElementalStrike extends ArmorAbility {
 
     public static boolean supportsCoopEnchantment(Weapon.Enchantment enchantment) {
         return enchantment == null || enchantment instanceof Blazing || enchantment instanceof Chilling
-                || enchantment instanceof Shocking || enchantment instanceof Blocking || enchantment instanceof Venomous;
+                || enchantment instanceof Shocking || enchantment instanceof Blocking || enchantment instanceof Venomous
+                || enchantment instanceof Kinetic || enchantment instanceof Blooming;
     }
 
 	@Override

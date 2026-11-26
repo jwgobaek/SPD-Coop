@@ -61,6 +61,9 @@ public final class MixedRoomStability {
             "trinityfirehistory1", "strikeblock0", "strikeblock1", "strikeshock0", "strikeshock1",
             "strikevenom0", "strikevenom1", "heroicenergy0", "heroicenergy1", "food", "floor"};
 
+    static final String[] CACHE_GROWTH = {"cacheinvest0","cacheinvest1","trinityblockhistory0","trinityblockhistory1",
+            "strikekinetic0","strikekinetic1","strikebloom0","strikebloom1","recallrecharge0","recallrecharge1","food","floor"};
+
     static final String[] SELECTORS = {"intuition0","intuition1","recallid0","recallid1",
             "trinityselect0","trinityselect1","trinitymindselect0","trinitymindselect1",
             "trinityspiritselect0","trinityspiritselect1","trinity0","trinity1",
@@ -74,9 +77,10 @@ public final class MixedRoomStability {
 
     static String stageClass(String stage,int seat) {
         if (stage==null) return seat==0 && Boolean.getBoolean("stability.rogue")?"ROGUE":seat==0?"MAGE":"HUNTRESS";
+        if (stage.startsWith("cacheinvest")) return seat == stage.charAt(stage.length()-1)-'0' ? "ROGUE" : "MAGE";
         if (stage.matches("(spark|ice|iceimbue|iceblast|icevolley|imbue|volley)[01]")) return "MAGE";
-        if (stage.matches("(strikeblock|strikeshock|strikevenom|heroicenergy|challenge|elestrike|feint|monkflurry|monkdash|monkdragonkick|monkmeditate|swap|monkfocus|stance|guardshield|lunge|spike|charged)[01]")) return "DUELIST";
-        if (stage.matches("(trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinity|trinityselect|trinitymind|trinitymindselect|trinityspirit|trinityspiritselect|lightally|lightorder|ascendform|intuition|bless|recallid|radiance|smite|divinesense|sunray|lightshield|light|ward|blessweapon)[01]")) return "CLERIC";
+        if (stage.matches("(strikekinetic|strikebloom|strikeblock|strikeshock|strikevenom|heroicenergy|challenge|elestrike|feint|monkflurry|monkdash|monkdragonkick|monkmeditate|swap|monkfocus|stance|guardshield|lunge|spike|charged)[01]")) return "DUELIST";
+        if (stage.matches("(trinityblockhistory|recallrecharge|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinity|trinityselect|trinitymind|trinitymindselect|trinityspirit|trinityspiritselect|lightally|lightorder|ascendform|intuition|bless|recallid|radiance|smite|divinesense|sunray|lightshield|light|ward|blessweapon)[01]")) return "CLERIC";
         if (stage.matches("(hawk|direct)[01]") || stage.startsWith("blades")) return "HUNTRESS";
         if (stage.matches("(markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) return "ROGUE";
         if (stage.startsWith("beacon") || stage.startsWith("recall") || stage.startsWith("battery")) return "MAGE";
@@ -311,6 +315,7 @@ public final class MixedRoomStability {
                 String stage=Boolean.getBoolean("stability.sealArts") ? SEAL_ARTS[i%SEAL_ARTS.length] : Boolean.getBoolean("stability.frostSenses") ? FROST_SENSES[i%FROST_SENSES.length] : Boolean.getBoolean("stability.wandArts") ? WAND_ARTS[i%WAND_ARTS.length] : Boolean.getBoolean("stability.growth")?GROWTH[i%GROWTH.length]:null;
                 if (Boolean.getBoolean("stability.selectors")) stage = SELECTORS[i % SELECTORS.length];
                 if (Boolean.getBoolean("stability.discoveries")) stage = DISCOVERIES[i % DISCOVERIES.length];
+                if (Boolean.getBoolean("stability.cacheGrowth")) stage = CACHE_GROWTH[i % CACHE_GROWTH.length];
                 trial.room(fixture.temporary.getRoot(),"mine".equals(stage)?571:570+i%12,Integer.parseInt(args[1]),stage);
                 trial.observe(fixture.temporary.getRoot(),i+1);
             }
