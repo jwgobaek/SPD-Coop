@@ -241,7 +241,8 @@ final class RoomSync {
             }
             Mob defeated=target instanceof Mob && ((Mob)target).wasDefeatedBy(game.hero(seat)) ? (Mob)target : null;
             String displayVerb=action==CoopSession.Action.THROW && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "KNIFE" :
-                    action==CoopSession.Action.THROW && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart ? "DART" : verb;
+                    action==CoopSession.Action.THROW && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart ? "DART" :
+                    action==CoopSession.Action.THROW && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSpike ? "SPIKE" : verb;
             String detail=targeted || action==CoopSession.Action.THROW ? displayVerb+","+cell : verb;
             commit(defeated,seat,id+","+detail+",APPLIED","IN_GAME");
             return "APPLIED";

@@ -27,7 +27,7 @@ public final class SeatQuickslots {
     public static SeatQuickslots empty() { return new SeatQuickslots(new Binding[COUNT]); }
     public static SeatQuickslots defaults(PublicDungeon view) {
         SeatQuickslots layout=empty();
-        String[] defaults = "ROGUE".equals(view.heroClass) ? ROGUE_KINDS : DEFAULT_KINDS;
+        String[] defaults = "CLERIC".equals(view.heroClass) ? new String[]{"TOME","","FOOD","HEALING"} : "DUELIST".equals(view.heroClass) ? new String[]{"MELEE","SPIKE","FOOD","HEALING"} : "ROGUE".equals(view.heroClass) ? ROGUE_KINDS : DEFAULT_KINDS;
         for (int i=0;i<COUNT;i++) {
             for (PublicDungeon.Loot item:view.belongings) {
                 if (defaults[i].equals(item.kind) && !item.reference.isEmpty()) {

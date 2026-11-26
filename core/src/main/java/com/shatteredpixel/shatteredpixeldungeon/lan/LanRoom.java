@@ -305,8 +305,8 @@ public final class LanRoom implements AutoCloseable {
         if (verb.equals("ACT")) return action(seat,f);
         if (locked) return "ERROR LOCKED";
         if (verb.equals("SELECT") && f.length == 5) {
-            if (!f[4].equals("WARRIOR") && !f[4].equals("HUNTRESS") && !(peer.extended && (f[4].equals("MAGE") || f[4].equals("ROGUE")))) return "ERROR CLASS";
-            if ((f[4].equals("MAGE") || f[4].equals("ROGUE")) && seats[1-seat]!=null && !seats[1-seat].peer.extended) return "ERROR VERSION";
+            if (!f[4].equals("WARRIOR") && !f[4].equals("HUNTRESS") && !(peer.extended && (f[4].equals("MAGE") || f[4].equals("ROGUE") || f[4].equals("DUELIST") || f[4].equals("CLERIC")))) return "ERROR CLASS";
+            if ((f[4].equals("MAGE") || f[4].equals("ROGUE") || f[4].equals("DUELIST") || f[4].equals("CLERIC")) && seats[1-seat]!=null && !seats[1-seat].peer.extended) return "ERROR VERSION";
             self.type = HeroClass.valueOf(f[4]);
             self.ready = false;
         } else if (verb.equals("READY") && f.length == 5) {
@@ -340,7 +340,7 @@ public final class LanRoom implements AutoCloseable {
     }
 
     private boolean extendedRoster() {
-        for (Seat seat : seats) if (seat!=null && (seat.type==HeroClass.MAGE || seat.type==HeroClass.ROGUE)) return true;
+        for (Seat seat : seats) if (seat!=null && (seat.type==HeroClass.MAGE || seat.type==HeroClass.ROGUE || seat.type==HeroClass.DUELIST || seat.type==HeroClass.CLERIC)) return true;
         return false;
     }
     private String authenticate(LanTransport.Peer peer,int attached,String[] f) {

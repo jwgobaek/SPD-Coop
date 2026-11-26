@@ -189,6 +189,8 @@ public class SubclassActionTest extends HeadlessDungeon {
         Hero h=g.hero(seat);
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
+        case "smoke": case "ambush": case "freerun": case "spike": case "lunge": case "charged": case "light": case "ward": case "blessweapon":
+        case "hawk": case "direct": case "imbue": case "volley": return WandArtsTest.stage(g,type,seat,rat);
         case "battery":
             h.lvl=9;
             assertTrue(CoopFloorsTest.step(g, CoopSession.Action.INVEST_TALENT,Talent.SHIELD_BATTERY.ordinal(),null));
@@ -310,6 +312,8 @@ public class SubclassActionTest extends HeadlessDungeon {
         Combo combo=h.buff(Combo.class);
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
+        case "smoke": case "ambush": case "freerun": case "spike": case "lunge": case "charged": case "light": case "ward": case "blessweapon":
+        case "hawk": case "direct": case "imbue": case "volley": return WandArtsTest.published(g,type,seat);
         case "battery": return h.buff(Barrier.class)!=null && ((com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff)h.belongings.weapon()).starterWand().curCharges==0;
         case "lethal":
             Bundle seal=new Bundle();

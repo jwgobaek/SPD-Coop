@@ -1,5 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.lan;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Preparation;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Momentum;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultLaser;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultSentry;
@@ -209,6 +211,10 @@ final class SeatProjection {
                     if (combo.canUseMove(move)) rows.put("finish" + move.ordinal(), "1");
             }
             Berserk rage = hero.buff(Berserk.class);
+            if (hero.subClass==HeroSubClass.ASSASSIN && hero.invisible>0 && hero.buff(Preparation.class)!=null)
+                rows.put("ambush",Integer.toString(hero.buff(Preparation.class).attackLevel()));
+            if (hero.subClass==HeroSubClass.FREERUNNER && hero.buff(Momentum.class)!=null && hero.buff(Momentum.class).canStart())
+                rows.put("freerun","1");
             if (hero.subClass == HeroSubClass.BERSERKER && rage != null && rage.readyForSeat()) rows.put("rage", "1");
             SnipersMark mark = hero.buff(SnipersMark.class);
             if (hero.subClass == HeroSubClass.SNIPER && mark != null) {
@@ -390,9 +396,30 @@ final class SeatProjection {
                         rows.put("cloaked"+ids.get(item), "1");
                 }
                 if (game.ownership.owner(item)==game.player(seat)) {
+                    if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome && hero.heroClass==HeroClass.CLERIC) {
+                        com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome tome=(com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome)item;
+                        if (tome.actions(hero).contains("CAST")) rows.put("spells"+ids.get(item),"1");
+                    }
+                    if (hero.heroClass==HeroClass.DUELIST && item==hero.belongings.weapon()
+                            && (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Rapier || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Crossbow)) {
+                        com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon.Charger pool=hero.buff(com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon.Charger.class);
+                        if (pool!=null) rows.put("weaponpool"+ids.get(item),pool.charges+","+pool.chargeCap());
+                    }
+                    if (item instanceof MagesStaff && ((MagesStaff)item).coopWand()!=null)
+                        rows.put("imbue"+ids.get(item), hero.hasTalent(Talent.WAND_PRESERVATION)
+                                && hero.buff(Talent.WandPreservationCounter.class)==null ? "KEEP" : "REPLACE");
+                    if (CoopSession.supportedHandheldWand(item) && hero.belongings.backpack.contains(item)) {
+                        rows.put("wandchoice"+ids.get(item),Integer.toString(selection));
+                        if (item.isIdentified()) rows.put("imbuelevel"+ids.get(item),Integer.toString(item.trueLevel()));
+                    }
+                    if (item instanceof MagesStaff && item.levelKnown)
+                        rows.put("imbuelevel"+ids.get(item),Integer.toString(item.trueLevel()));
                     if (item instanceof KingsCrown && game.mayChooseArmor(seat,true)) rows.put("crown"+ids.get(item),"1");
                     if (item == hero.belongings.armor() && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor && CoopSession.playableArmorAbility(hero.armorAbility)) {
                         rows.put("ability"+ids.get(item),hero.armorAbility.getClass().getSimpleName());
+                        if (hero.armorAbility instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk
+                                && com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.getHawk(hero)!=null)
+                            rows.put("hawkcommand","1");
                         com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.WarpBeaconTracker beacon =
                                 hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.WarpBeaconTracker.class);
                         if (beacon != null) rows.put("beacondepth", Integer.toString(beacon.depth));
@@ -404,7 +431,7 @@ final class SeatProjection {
                     if (shop!=null && com.shatteredpixel.shatteredpixeldungeon.CoopTrade.maySell(hero,item))
                         rows.put("sell"+ids.get(item),item.value()+","+(com.shatteredpixel.shatteredpixeldungeon.CoopTrade.sellOne(item) ? 1 : 0));
                     if (CoopSession.basicMissile(item) && item.isIdentified()) {
-                        String family=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "knife" :
+                        String family=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSpike ? "spike" : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "knife" :
                         item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart ? "dart" : "stone";
                         rows.put("family"+ids.get(item),family+"."+StateImage.hash(shortcutSalt+"/"+family+"/"+
                                 ((com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon)item).setID).substring(0,32));
@@ -489,11 +516,15 @@ final class SeatProjection {
                 && ((com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll)item).isKnown())
             kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade ? "UPGRADE" : "IDENTIFY";
         if (!slot.startsWith("F") && CoopSession.basicMissile(item) && item.isIdentified())
-            kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "KNIFE" :
+            kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSpike ? "SPIKE" : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "KNIFE" :
                         item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart ? "DART" : "STONE";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle) kind="CANDLE";
         String charges="";
-        if (!slot.startsWith("F") && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows) {
+        if (!slot.startsWith("F") && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome) {
+            com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome tome=(com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome)item;
+            kind="TOME";
+            charges=","+tome.charges()+","+tome.capacity();
+        } else if (!slot.startsWith("F") && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows) {
             com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows cloak = (com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows)item;
             kind = "CLOAK";
             charges = ","+cloak.charges()+","+cloak.capacity();
@@ -506,8 +537,12 @@ final class SeatProjection {
                 kind = "UNIDENTIFIED_WAND";
             }
         } else if (!slot.startsWith("F") && item instanceof MagesStaff) {
-            WandOfMagicMissile wand=((MagesStaff)item).starterWand();
-            if (wand!=null) { kind="STAFF"; charges=","+wand.curCharges+","+wand.maxCharges; }
+            com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand wand=((MagesStaff)item).coopWand();
+            if (wand!=null) {
+                kind="STAFF";
+                charges=","+wand.curCharges+","+wand.maxCharges;
+                if (!(wand instanceof WandOfMagicMissile)) rows.put("areawand"+id,"1");
+            }
         }
         if (!slot.startsWith("F") && !kind.equals("OTHER") && item.getClass().getEnclosingClass()==null) {
             String label=item.getClass().getName();

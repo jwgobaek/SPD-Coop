@@ -53,10 +53,15 @@ public final class MixedRoomStability {
     static final String[] GROWTH = {"third0","enhanced1","shock0","endure1","blades0","beacon1",
             "recall0","crown0","battery1","cloak0","dart","food","healing","floor","mine"};
 
+    static final String[] WAND_ARTS={"imbue0","volley1","hawk0","direct1","lunge0","spike1","charged0","light1","ward0","blessweapon1","ambush1","freerun0","smoke1","third1","floor","mine"};
+
     static String stageClass(String stage,int seat) {
         if (stage==null) return seat==0 && Boolean.getBoolean("stability.rogue")?"ROGUE":seat==0?"MAGE":"HUNTRESS";
-        if (stage.startsWith("blades")) return "HUNTRESS";
-        if (stage.startsWith("cloak")) return "ROGUE";
+        if (stage.matches("(imbue|volley)[01]")) return "MAGE";
+        if (stage.matches("(lunge|spike|charged)[01]")) return "DUELIST";
+        if (stage.matches("(light|ward|blessweapon)[01]")) return "CLERIC";
+        if (stage.matches("(hawk|direct)[01]") || stage.startsWith("blades")) return "HUNTRESS";
+        if (stage.matches("(cloak|ambush|freerun|smoke)[01]")) return "ROGUE";
         if (stage.startsWith("beacon") || stage.startsWith("recall") || stage.startsWith("battery")) return "MAGE";
         return "WARRIOR";
     }
@@ -99,9 +104,10 @@ public final class MixedRoomStability {
     static VaultPublicRoute.Input fromView(PublicDungeon view,VaultPublicRoute.Input staged) {
         String verb=staged.action;
         long item=0;
-        if(Arrays.asList("THROW","EAT","DRINK","ZAP","USE_CROWN","CLOAK","ARMOR_ABILITY").contains(verb)) {
+        if (verb.matches("GUIDING_LIGHT|HOLY_WEAPON|HOLY_WARD")) item=view.belongings.stream().filter(it->view.actions(it).contains("CAST")).findFirst().get().id;
+        if(Arrays.asList("WEAPON_ABILITY","IMBUE","THROW","EAT","DRINK","ZAP","USE_CROWN","CLOAK","ARMOR_ABILITY").contains(verb)) {
             item=view.belongings.stream().filter(it->view.actions(it).contains(verb))
-                    .filter(it->!verb.equals("THROW") || it.kind.equals("DART"))
+                    .filter(it->!verb.equals("THROW") || it.kind.equals("DART") || it.kind.equals("SPIKE"))
                     .findFirst().orElseThrow(()->new AssertionError("missing public action "+verb)).id;
         }
         return new VaultPublicRoute.Input(verb,staged.cell,item);
@@ -248,7 +254,7 @@ public final class MixedRoomStability {
         try {
             MixedRoomStability trial=new MixedRoomStability();
             for(int i=0;i<Integer.parseInt(args[0]);i++) {
-                String stage=Boolean.getBoolean("stability.growth")?GROWTH[i%GROWTH.length]:null;
+                String stage=Boolean.getBoolean("stability.wandArts") ? WAND_ARTS[i%WAND_ARTS.length] : Boolean.getBoolean("stability.growth")?GROWTH[i%GROWTH.length]:null;
                 trial.room(fixture.temporary.getRoot(),"mine".equals(stage)?571:570+i%12,Integer.parseInt(args[1]),stage);
                 trial.observe(fixture.temporary.getRoot(),i+1);
             }

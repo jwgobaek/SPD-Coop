@@ -17,6 +17,8 @@ public class PlayerGrowthTest extends HeadlessDungeon {
             case MAGE: return Talent.EMPOWERING_MEAL;
             case HUNTRESS: return Talent.FOLLOWUP_STRIKE;
             case ROGUE: return Talent.PROTECTIVE_SHADOWS;
+            case DUELIST: return Talent.AGGRESSIVE_BARRIER;
+            case CLERIC: return Talent.SATIATED_SPELLS;
             default: throw new AssertionError();
         }
     }
@@ -188,12 +190,14 @@ public class PlayerGrowthTest extends HeadlessDungeon {
     }
 
     static boolean newAbility(String stage) {
-        return stage.matches("(leaptrap|doubleparry|parryready|lethal|cloak|third|shock|battery|enhanced|blades|beacon|recall|endure|clobber|slam|parry|riposte|crush|fury|rage|sniper|crown|armorright|leap|blast|nature|meal|warlock|battlemage|soul)[01]");
+        return stage.matches("(smoke|ambush|freerun|lunge|spike|charged|light|ward|blessweapon|hawk|direct|imbue|volley|leaptrap|doubleparry|parryready|lethal|cloak|third|shock|battery|enhanced|blades|beacon|recall|endure|clobber|slam|parry|riposte|crush|fury|rage|sniper|crown|armorright|leap|blast|nature|meal|warlock|battlemage|soul)[01]");
     }
 
     public static String signature(CoopSession g, String stage) {
         return g.turn()+"/"+g.hero(0).subClass+"/"+g.hero(1).subClass+"/"+
                 g.hero(0).pointsInTalent(first(g.hero(0)))+"/"+g.hero(1).pointsInTalent(first(g.hero(1)))+"/"+
-                g.mayClaimSubclass(0)+"/"+g.mayClaimSubclass(1)+(newAbility(stage)?"/"+SubclassActionTest.signature(g):"");
+                g.mayClaimSubclass(0)+"/"+g.mayClaimSubclass(1)+(newAbility(stage)?"/"+SubclassActionTest.signature(g):"")
+                +(stage.matches("(imbue|volley|hawk|direct|lunge|spike|charged|light|ward|blessweapon)[01]")
+                        ? "/"+WandArtsTest.artsSignature(g) : "");
     }
 }

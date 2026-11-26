@@ -224,12 +224,14 @@ public class MagesStaff extends MeleeWeapon {
 
 		int oldStaffcharges = this.wand != null ? this.wand.curCharges : 0;
 
-		if (owner == Dungeon.hero && this.wand != null && Dungeon.hero.hasTalent(Talent.WAND_PRESERVATION)){
-			Talent.WandPreservationCounter counter = Buff.affect(Dungeon.hero, Talent.WandPreservationCounter.class);
+		Hero wearer = owner instanceof Hero ? (Hero)owner : null;
+		if (Dungeon.coop != null && this.wand != null) this.wand.stopCharging();
+		if (wearer != null && this.wand != null && wearer.hasTalent(Talent.WAND_PRESERVATION)){
+			Talent.WandPreservationCounter counter = Buff.affect(wearer, Talent.WandPreservationCounter.class);
 			if (counter.count() == 0){
 				counter.countUp(1);
 				this.wand.level(0);
-				if (!this.wand.collect()) {
+				if (!this.wand.collect(wearer.belongings.backpack)) {
 					Dungeon.level.drop(this.wand, owner.pos);
 				}
 				GLog.newLine();
@@ -260,14 +262,14 @@ public class MagesStaff extends MeleeWeapon {
 		}
 
 		if (wand.cursed && (!this.cursed || !this.hasCurseEnchant())){
-			equipCursed(Dungeon.hero);
+			equipCursed(wearer != null ? wearer : Dungeon.hero);
 			this.cursed = this.cursedKnown = true;
 			enchant(Enchantment.randomCurse());
 		}
 
 		//This is necessary to reset any particles.
 		//FIXME this is gross, should implement a better way to fully reset quickslot visuals
-		int slot = Dungeon.quickslot.getSlot(this);
+		int slot = Dungeon.coop == null ? Dungeon.quickslot.getSlot(this) : -1;
 		if (slot != -1){
 			Dungeon.quickslot.clearSlot(slot);
 			updateQuickslot();
@@ -275,7 +277,7 @@ public class MagesStaff extends MeleeWeapon {
 			updateQuickslot();
 		}
 		
-		Badges.validateItemLevelAquired(this);
+		if (Dungeon.coop == null) Badges.validateItemLevelAquired(this);
 
 		return this;
 	}
@@ -299,6 +301,11 @@ public class MagesStaff extends MeleeWeapon {
 	public WandOfMagicMissile starterWand() {
 		return wand != null && wand.getClass() == WandOfMagicMissile.class
 				&& !cursed && enchantment == null && !wand.cursed ? (WandOfMagicMissile)wand : null;
+	}
+
+	public com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand coopWand() {
+		if (cursed || enchantment != null || !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedHandheldWand(wand)) return null;
+		return (com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand)wand;
 	}
 
 	public Wand imbuedWand() { return wand; }

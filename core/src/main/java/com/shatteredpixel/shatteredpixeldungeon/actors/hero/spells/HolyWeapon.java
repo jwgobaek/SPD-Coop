@@ -57,8 +57,8 @@ public class HolyWeapon extends ClericSpell {
 
 		Sample.INSTANCE.play(Assets.Sounds.READ);
 
-		hero.sprite.operate(hero.pos);
-		if (hero.belongings.weapon() != null) Enchanting.show(hero, hero.belongings.weapon());
+		if (Dungeon.coop == null) hero.sprite.operate(hero.pos);
+		if (Dungeon.coop == null && hero.belongings.weapon() != null) Enchanting.show(hero, hero.belongings.weapon());
 
 		onSpellCast(tome, hero);
 	}

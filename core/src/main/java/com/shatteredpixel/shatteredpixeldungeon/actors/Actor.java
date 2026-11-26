@@ -197,7 +197,7 @@ public abstract class Actor implements Bundlable {
         for (Actor a : all) {
             Bundle e=b.getBundle("a"+a.id());
             if (!unique.add(a.id()) || a.id()>=nextID || e.isNull() || !e.getString("type").equals(a.getClass().getName()))
-                throw new IllegalArgumentException("Actor identity");
+                throw new IllegalArgumentException("Actor identity: "+a.getClass().getSimpleName()+" #"+a.id());
             a.time=e.getFloat("time");
             a.coopFrozen=e.getBoolean("frozen");
             a.actPriority=e.getInt("priority");

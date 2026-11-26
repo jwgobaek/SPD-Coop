@@ -74,7 +74,7 @@ public abstract class ClericSpell {
 	}
 
 	public void onSpellCast(HolyTome tome, Hero hero){
-		Invisibility.dispel();
+		Invisibility.dispel(hero);
 		if (hero.hasTalent(Talent.SATIATED_SPELLS) && hero.buff(Talent.SatiatedSpellsTracker.class) != null){
 			int amount = 1 + 2*hero.pointsInTalent(Talent.SATIATED_SPELLS);
 			Buff.affect(hero, Barrier.class).setShield(amount);
@@ -84,7 +84,7 @@ public abstract class ClericSpell {
 			}
 			hero.buff(Talent.SatiatedSpellsTracker.class).detach();
 		}
-		tome.spendCharge(chargeUse(hero));
+		tome.spendCharge(hero,chargeUse(hero));
 		Talent.onArtifactUsed(hero);
 		if (hero.subClass == HeroSubClass.PALADIN){
 			if (this != HolyWeapon.INSTANCE && hero.buff(HolyWeapon.HolyWepBuff.class) != null){

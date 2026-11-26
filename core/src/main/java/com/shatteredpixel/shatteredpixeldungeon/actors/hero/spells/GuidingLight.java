@@ -56,7 +56,7 @@ public class GuidingLight extends TargetedClericSpell {
 	}
 
 	@Override
-	protected void onTargetSelected(HolyTome tome, Hero hero, Integer target) {
+	public void onTargetSelected(HolyTome tome, Hero hero, Integer target) {
 		if (target == null){
 			return;
 		}
@@ -76,16 +76,16 @@ public class GuidingLight extends TargetedClericSpell {
 
 		hero.busy();
 		Sample.INSTANCE.play( Assets.Sounds.ZAP );
-		hero.sprite.zap(target);
-		MagicMissile.boltFromChar(hero.sprite.parent, MagicMissile.LIGHT_MISSILE, hero.sprite, aim.collisionPos, new Callback() {
+		if (Dungeon.coop == null) hero.sprite.zap(target);
+		Callback impact = new Callback() {
 			@Override
 			public void call() {
 
 				Char ch = Actor.findChar( aim.collisionPos );
 				if (ch != null) {
-					ch.damage(Hero.heroDamageIntRange(2, 8), GuidingLight.this);
+					ch.damage(Hero.heroDamageIntRange(hero,2,8), GuidingLight.this);
 					Sample.INSTANCE.play(Assets.Sounds.HIT_MAGIC, 1, Random.Float(0.87f, 1.15f));
-					ch.sprite.burst(0xFFFFFF44, 3);
+					if (Dungeon.coop == null) ch.sprite.burst(0xFFFFFF44, 3);
 					if (ch.isAlive()){
 						Buff.affect(ch, Illuminated.class);
 						Buff.affect(ch, WasIlluminatedTracker.class);
@@ -104,7 +104,9 @@ public class GuidingLight extends TargetedClericSpell {
 				}
 
 			}
-		});
+		};
+		if (Dungeon.coop != null) impact.call();
+		else MagicMissile.boltFromChar(hero.sprite.parent, MagicMissile.LIGHT_MISSILE, hero.sprite, aim.collisionPos, impact);
 	}
 
 	@Override

@@ -172,3 +172,7 @@ The shop checkpoint used MODE SYNC15 and rejected older peers with ERROR VERSION
 BUY takes the stock cell and handle. SELL, SELL_ONE and BUYBACK take the merchant cell and a seat-scoped handle. All four reuse the ordinary turn, State Version, Action ID, item resolution and durable receipt path. Opening and cancelling a quote send no game action. A full bag, insufficient funds, mismatched location, ownership, expired offer or missing stock prevents the transaction. No client supplies a price.
 
 Plain throwing knives use the existing THROW action. An identified owned knife has the KNIFE inventory kind and a seat-salted stack family. A confirmed visible self throw carries KNIFE and the aimed cell in the private display receipt, allowing the renderer to use the original knife image and spin. A replay or full snapshot does not animate it again.
+
+## SYNC30
+
+새 버전의 두 좌석만 같은 방에 참가한다. 각 좌석의 현재 소지품에서 wandchoice는 주입 후보, imbuelevel은 원본이 공개할 수 있는 강화값이다. 무기 충전, 성서, 매 명령, 급습과 가속은 각 소유자의 공개 상태에서 가져온다. 매가 관측한 지형은 소환자의 관측에만 포함한다. 로비에는 결투가와 성직자가 추가됐다. LAN v1 프레이밍을 유지한다.

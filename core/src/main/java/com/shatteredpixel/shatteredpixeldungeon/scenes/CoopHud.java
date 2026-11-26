@@ -182,6 +182,8 @@ final class CoopHud extends Group {
             PixelScene.align(portrait);lastPortrait=appearance;
         }
         int skill = view.source.rows.containsKey("combocount") ? HeroIcon.COMBO
+                : view.source.rows.containsKey("ambush") ? HeroIcon.PREPARATION
+                : view.source.rows.containsKey("freerun") ? HeroIcon.MOMENTUM
                 : view.source.rows.containsKey("rage") ? HeroIcon.BERSERK
                 : view.source.rows.containsKey("snipercell") ? HeroIcon.SNIPERS_MARK : -1;
         subclass.visible = skill>=0 && !aiming;

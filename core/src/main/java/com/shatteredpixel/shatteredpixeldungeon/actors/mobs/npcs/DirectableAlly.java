@@ -80,15 +80,21 @@ public class DirectableAlly extends NPC {
 		}
 	}
 
+	protected com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero commander() { return Dungeon.hero; }
+
+	private boolean commanderSees(int pos) {
+		return Dungeon.coop == null ? Dungeon.level.heroFOV[pos] : Dungeon.coop.knowledge(commander()).visible(pos);
+	}
+
 	public void directTocell( int cell ){
-		if (!Dungeon.level.heroFOV[cell]
+		if (!commanderSees(cell)
 				|| Actor.findChar(cell) == null
-				|| (Actor.findChar(cell) != Dungeon.hero && Actor.findChar(cell).alignment != Char.Alignment.ENEMY)){
+				|| (Actor.findChar(cell) != commander() && Actor.findChar(cell).alignment != Char.Alignment.ENEMY)){
 			defendPos( cell );
 			return;
 		}
 
-		if (Actor.findChar(cell) == Dungeon.hero){
+		if (Actor.findChar(cell) == commander()){
 			followHero();
 
 		} else if (Actor.findChar(cell).alignment == Char.Alignment.ENEMY){
@@ -121,7 +127,7 @@ public class DirectableAlly extends NPC {
 			if ( enemyInFOV
 					&& attacksAutomatically
 					&& !movingToDefendPos
-					&& (defendingPos == -1 || !Dungeon.level.heroFOV[defendingPos] || canAttack(enemy))) {
+					&& (defendingPos == -1 || !commanderSees(defendingPos) || canAttack(enemy))) {
 
 				enemySeen = true;
 
@@ -135,7 +141,7 @@ public class DirectableAlly extends NPC {
 				enemySeen = false;
 
 				int oldPos = pos;
-				target = defendingPos != -1 ? defendingPos : Dungeon.hero.pos;
+				target = defendingPos != -1 ? defendingPos : commander().pos;
 				//always move towards the hero when wandering
 				if (getCloser( target )) {
 					spend( 1 / speed() );
@@ -160,7 +166,7 @@ public class DirectableAlly extends NPC {
 
 		@Override
 		public boolean act(boolean enemyInFOV, boolean justAlerted) {
-			if (enemyInFOV && defendingPos != -1 && Dungeon.level.heroFOV[defendingPos] && !canAttack(enemy)){
+			if (enemyInFOV && defendingPos != -1 && commanderSees(defendingPos) && !canAttack(enemy)){
 				target = defendingPos;
 				state = WANDERING;
 				return true;

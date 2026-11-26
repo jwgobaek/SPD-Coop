@@ -56,7 +56,7 @@ public class SpiritHawk extends ArmorAbility {
 
 	@Override
 	public String targetingPrompt() {
-		if (getHawk() == null) {
+		if (getHawk(Dungeon.hero) == null) {
 			return super.targetingPrompt();
 		} else {
 			return Messages.get(this, "prompt");
@@ -74,7 +74,7 @@ public class SpiritHawk extends ArmorAbility {
 
 	@Override
 	public float chargeUse(Hero hero) {
-		if (getHawk() == null) {
+		if (getHawk(hero) == null) {
 			return super.chargeUse(hero);
 		} else {
 			return 0;
@@ -83,7 +83,7 @@ public class SpiritHawk extends ArmorAbility {
 
 	@Override
 	protected void activate(ClassArmor armor, Hero hero, Integer target) {
-		HawkAlly ally = getHawk();
+		HawkAlly ally = getHawk(hero);
 
 		if (ally != null){
 			if (target == null){
@@ -105,13 +105,15 @@ public class SpiritHawk extends ArmorAbility {
 				armor.updateQuickslot();
 
 				ally = new HawkAlly();
+				ally.summoner = hero.id();
+				ally.configure(hero);
 				ally.pos = Random.element(spawnPoints);
 				GameScene.add(ally);
 
 				ScrollOfTeleportation.appear(ally, ally.pos);
 				Dungeon.observe();
 
-				Invisibility.dispel();
+				Invisibility.dispel(hero);
 				hero.spendAndNext(Actor.TICK);
 
 			} else {
@@ -119,6 +121,28 @@ public class SpiritHawk extends ArmorAbility {
 			}
 		}
 
+	}
+
+	/** The original summon spends a turn. A command to an existing hawk costs no time. */
+	public boolean useForSeat(ClassArmor armor, Hero hero, int cell) {
+		HawkAlly ally=getHawk(hero);
+		if (ally!=null) {
+			if (!Dungeon.level.insideMap(cell) || !Dungeon.coop.knowledge(hero).visible(cell)) return false;
+			ally.directTocell(cell);
+			return true;
+		}
+		if (cell!=hero.pos) return false;
+		boolean room=false;
+		for (int offset : PathFinder.NEIGHBOURS8) {
+			int p=hero.pos+offset;
+			if (Actor.findChar(p)==null && (Dungeon.level.passable[p] || Dungeon.level.avoid[p])) {
+				if (!com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(p)) return false;
+				room=true;
+			}
+		}
+		if (!room) return false;
+		activate(armor,hero,cell);
+		return true;
 	}
 
 	@Override
@@ -131,9 +155,9 @@ public class SpiritHawk extends ArmorAbility {
 		return new Talent[]{Talent.EAGLE_EYE, Talent.GO_FOR_THE_EYES, Talent.SWIFT_SPIRIT, Talent.HEROIC_ENERGY};
 	}
 
-	private static HawkAlly getHawk(){
+	public static HawkAlly getHawk(Hero hero){
 		for (Char ch : Actor.chars()){
-			if (ch instanceof HawkAlly){
+			if (ch instanceof HawkAlly && ((HawkAlly)ch).belongsTo(hero)){
 				return (HawkAlly) ch;
 			}
 		}
@@ -149,18 +173,32 @@ public class SpiritHawk extends ArmorAbility {
 			defenseSkill = 60;
 
 			flying = true;
-			if (Dungeon.hero != null) {
-				viewDistance = (int) GameMath.gate(6, 6 + Dungeon.hero.pointsInTalent(Talent.EAGLE_EYE), 8);
-				baseSpeed = 2f + Dungeon.hero.pointsInTalent(Talent.SWIFT_SPIRIT) / 2f;
-			} else {
-				viewDistance = 6;
-				baseSpeed = 2f;
-			}
+			viewDistance = 6;
+			baseSpeed = 2f;
+			if (Dungeon.coop == null && Dungeon.hero != null) configure(Dungeon.hero);
 			attacksAutomatically = false;
 
 			immunities.addAll(new BlobImmunity().immunities());
 			immunities.add(AllyBuff.class);
 		}
+
+		private int summoner;
+		public boolean belongsTo(Hero hero) {
+			return hero != null && (Dungeon.coop == null || summoner == hero.id());
+		}
+		@Override protected Hero commander() {
+			if (Dungeon.coop == null) return Dungeon.hero;
+			for (int seat=0;seat<2;seat++) {
+				Hero hero=Dungeon.coop.hero(seat);
+				if (belongsTo(hero)) return hero;
+			}
+			throw new IllegalStateException("Missing hawk summoner");
+		}
+		private void configure(Hero hero) {
+			viewDistance = (int)GameMath.gate(6, 6 + hero.pointsInTalent(Talent.EAGLE_EYE), 8);
+			baseSpeed = 2f + hero.pointsInTalent(Talent.SWIFT_SPIRIT)/2f;
+		}
+		public int eagleEye() { return commander().pointsInTalent(Talent.EAGLE_EYE); }
 
 		@Override
 		public int attackSkill(Char target) {
@@ -172,8 +210,8 @@ public class SpiritHawk extends ArmorAbility {
 
 		@Override
 		public int defenseSkill(Char enemy) {
-			if (Dungeon.hero.hasTalent(Talent.SWIFT_SPIRIT) &&
-					dodgesUsed < 2*Dungeon.hero.pointsInTalent(Talent.SWIFT_SPIRIT)) {
+			if (commander().hasTalent(Talent.SWIFT_SPIRIT) &&
+					dodgesUsed < 2*commander().pointsInTalent(Talent.SWIFT_SPIRIT)) {
 				dodgesUsed++;
 				return Char.INFINITE_EVASION;
 			}
@@ -188,7 +226,7 @@ public class SpiritHawk extends ArmorAbility {
 		@Override
 		public int attackProc(Char enemy, int damage) {
 			damage = super.attackProc( enemy, damage );
-			switch (Dungeon.hero.pointsInTalent(Talent.GO_FOR_THE_EYES)){
+			switch (commander().pointsInTalent(Talent.GO_FOR_THE_EYES)){
 				case 1:
 					Buff.prolong( enemy, Blindness.class, 2);
 					break;
@@ -214,11 +252,11 @@ public class SpiritHawk extends ArmorAbility {
 		protected boolean act() {
 			if (timeRemaining <= 0){
 				die(null);
-				Dungeon.hero.interrupt();
+				commander().interrupt();
 				return true;
 			}
-			viewDistance = 6+Dungeon.hero.pointsInTalent(Talent.EAGLE_EYE);
-			baseSpeed = 2f + Dungeon.hero.pointsInTalent(Talent.SWIFT_SPIRIT)/2f;
+			viewDistance = 6+commander().pointsInTalent(Talent.EAGLE_EYE);
+			baseSpeed = 2f + commander().pointsInTalent(Talent.SWIFT_SPIRIT)/2f;
 			boolean result = super.act();
 			Dungeon.level.updateFieldOfView( this, fieldOfView );
 			GameScene.updateFog(pos, viewDistance+(int)Math.ceil(speed()));
@@ -267,8 +305,8 @@ public class SpiritHawk extends ArmorAbility {
 			String message = Messages.get(this, "desc", (int)timeRemaining);
 			if (Actor.chars().contains(this)){
 				message += "\n\n" + Messages.get(this, "desc_remaining", (int)timeRemaining);
-				if (dodgesUsed < 2*Dungeon.hero.pointsInTalent(Talent.SWIFT_SPIRIT)){
-					message += "\n" + Messages.get(this, "desc_dodges", (2*Dungeon.hero.pointsInTalent(Talent.SWIFT_SPIRIT) - dodgesUsed));
+				if (dodgesUsed < 2*commander().pointsInTalent(Talent.SWIFT_SPIRIT)){
+					message += "\n" + Messages.get(this, "desc_dodges", (2*commander().pointsInTalent(Talent.SWIFT_SPIRIT) - dodgesUsed));
 				}
 			}
 			return message;
@@ -280,6 +318,7 @@ public class SpiritHawk extends ArmorAbility {
 		@Override
 		public void storeInBundle(Bundle bundle) {
 			super.storeInBundle(bundle);
+			if (Dungeon.coop != null) bundle.put("summoner",summoner);
 			bundle.put(DODGES_USED, dodgesUsed);
 			bundle.put(TIME_REMAINING, timeRemaining);
 		}
@@ -287,8 +326,10 @@ public class SpiritHawk extends ArmorAbility {
 		@Override
 		public void restoreFromBundle(Bundle bundle) {
 			super.restoreFromBundle(bundle);
+			summoner = bundle.getInt("summoner");
 			dodgesUsed = bundle.getInt(DODGES_USED);
 			timeRemaining = bundle.getFloat(TIME_REMAINING);
+			if (Dungeon.coop != null) configure(commander());
 		}
 	}
 

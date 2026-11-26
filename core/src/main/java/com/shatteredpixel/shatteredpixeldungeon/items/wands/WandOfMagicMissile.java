@@ -54,7 +54,7 @@ public class WandOfMagicMissile extends TargetedDamageWand {
 	}
 	
 	@Override
-	protected void onZap(Hero caster, Ballistica bolt) {
+	public void onZap(Hero caster, Ballistica bolt) {
 				
 		Char ch = Actor.findChar( bolt.collisionPos );
 		if (ch != null) {

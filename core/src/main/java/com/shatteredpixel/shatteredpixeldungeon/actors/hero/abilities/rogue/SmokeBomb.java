@@ -85,21 +85,27 @@ public class SmokeBomb extends ArmorAbility {
 
 	@Override
 	protected void activate(ClassArmor armor, Hero hero, Integer target) {
+		useAt(armor,hero,target);
+	}
+
+	public boolean useAt(ClassArmor armor, Hero hero, Integer target) {
 		if (target != null) {
+			if (Dungeon.coop != null && (!Dungeon.level.insideMap(target) || hero.hasTalent(Talent.BODY_REPLACEMENT)
+					|| !Dungeon.coop.knowledge(hero).visible(target) || !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(target))) return false;
 
 			if (target != hero.pos && hero.rooted){
 				PixelScene.shake( 1, 1f );
-				return;
+				return false;
 			}
 
 			PathFinder.buildDistanceMap(hero.pos, BArray.or(Dungeon.level.passable, Dungeon.level.avoid, null), 6);
 
 			if ( PathFinder.distance[target] == Integer.MAX_VALUE ||
-					!Dungeon.level.heroFOV[target] ||
+					(Dungeon.coop == null && !Dungeon.level.heroFOV[target]) ||
 					(target != hero.pos && Actor.findChar( target ) != null)) {
 
 				GLog.w( Messages.get(this, "fov") );
-				return;
+				return false;
 			}
 
 			armor.charge -= chargeUse(hero);
@@ -112,7 +118,7 @@ public class SmokeBomb extends ArmorAbility {
 					if (Dungeon.level.adjacent(mob.pos, hero.pos) && mob.alignment != Char.Alignment.ALLY) {
 						Buff.prolong(mob, Blindness.class, Blindness.DURATION / 2f);
 						if (mob.state == mob.HUNTING) mob.state = mob.WANDERING;
-						mob.sprite.emitter().burst(Speck.factory(Speck.LIGHT), 4);
+						if (Dungeon.coop == null) mob.sprite.emitter().burst(Speck.factory(Speck.LIGHT), 4);
 					}
 				}
 
@@ -137,19 +143,21 @@ public class SmokeBomb extends ArmorAbility {
 				}
 			}
 
-			CellEmitter.get( hero.pos ).burst( Speck.factory( Speck.WOOL ), 10 );
+			if (Dungeon.coop == null) CellEmitter.get( hero.pos ).burst( Speck.factory( Speck.WOOL ), 10 );
 			ScrollOfTeleportation.appear( hero, target );
-			Sample.INSTANCE.play( Assets.Sounds.PUFF );
+			if (Dungeon.coop == null) Sample.INSTANCE.play( Assets.Sounds.PUFF );
 			Dungeon.level.occupyCell( hero );
 			Dungeon.observe();
-			GameScene.updateFog();
+			if (Dungeon.coop == null) GameScene.updateFog();
 
 			if (!shadowStepping) {
 				hero.spendAndNext(Actor.TICK);
 			} else {
 				hero.next();
 			}
+			return true;
 		}
+		return false;
 	}
 
 	@Override

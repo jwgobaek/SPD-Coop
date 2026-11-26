@@ -144,13 +144,20 @@ public class HolyTome extends Artifact {
 	}
 
 	public boolean canCast( Hero hero, ClericSpell spell ){
-		return (isEquipped(hero) || (Dungeon.hero.hasTalent(Talent.LIGHT_READING) && hero.belongings.contains(this)))
+		return (isEquipped(hero) || (hero.hasTalent(Talent.LIGHT_READING) && hero.belongings.contains(this)))
 				&& hero.buff(MagicImmune.class) == null
 				&& charge >= spell.chargeUse(hero)
 				&& spell.canCast(hero);
 	}
 
+	public int charges() { return charge; }
+	public int capacity() { return chargeCap; }
+
 	public void spendCharge( float chargesSpent ){
+		spendCharge(Dungeon.hero,chargesSpent);
+	}
+
+	public void spendCharge(Hero caster, float chargesSpent){
 		partialCharge -= chargesSpent;
 		while (partialCharge < 0){
 			charge--;
@@ -158,7 +165,7 @@ public class HolyTome extends Artifact {
 		}
 
 		//target hero level is 1 + 2*tome level
-		int lvlDiffFromTarget = Dungeon.hero.lvl - (1+level()*2);
+		int lvlDiffFromTarget = caster.lvl - (1+level()*2);
 		//plus an extra one for each level after 6
 		if (level() >= 7){
 			lvlDiffFromTarget -= level()-6;
@@ -172,7 +179,7 @@ public class HolyTome extends Artifact {
 
 		if (exp >= (level() + 1) * 50 && level() < levelCap) {
 			upgrade();
-			Catalog.countUse(HolyTome.class);
+			if (Dungeon.coop == null) Catalog.countUse(HolyTome.class);
 			exp -= level() * 50;
 			GLog.p(Messages.get(this, "levelup"));
 
@@ -205,7 +212,12 @@ public class HolyTome extends Artifact {
 
 	@Override
 	protected ArtifactBuff passiveBuff() {
-		return new TomeRecharge();
+		TomeRecharge buff=new TomeRecharge();
+		if (savedRecharge!=null) {
+			buff.restoreFromBundle(savedRecharge);
+			savedRecharge=null;
+		}
+		return buff;
 	}
 
 	@Override
@@ -245,9 +257,16 @@ public class HolyTome extends Artifact {
 
 	private static final String QUICK_CLS = "quick_cls";
 
+	private Bundle savedRecharge;
+
 	@Override
 	public void storeInBundle(Bundle bundle) {
 		super.storeInBundle(bundle);
+		if (Dungeon.coop!=null && passiveBuff!=null && passiveBuff.target!=null) {
+			Bundle state=new Bundle();
+			passiveBuff.storeInBundle(state);
+			bundle.put("coop_recharge",state);
+		}
 		if (quickSpell != null) {
 			bundle.put(QUICK_CLS, quickSpell.getClass());
 		}
@@ -256,6 +275,8 @@ public class HolyTome extends Artifact {
 	@Override
 	public void restoreFromBundle(Bundle bundle) {
 		super.restoreFromBundle(bundle);
+		if (Dungeon.coop!=null && bundle.contains("coop_recharge"))
+			savedRecharge=bundle.getBundle("coop_recharge");
 		if (bundle.contains(QUICK_CLS)){
 			Class quickCls = bundle.getClass(QUICK_CLS);
 			for (ClericSpell spell : ClericSpell.getAllSpells()){
@@ -287,14 +308,14 @@ public class HolyTome extends Artifact {
 		@Override
 		public boolean act() {
 			if (charge < chargeCap && !cursed && target.buff(MagicImmune.class) == null) {
-				if (Regeneration.regenOn()) {
+				if (Regeneration.regenOn((Hero)target)) {
 					float missing = (chargeCap - charge);
 					if (level() > 7) missing += 5*(level() - 7)/3f;
 					float turnsToCharge = (45 - missing);
 					turnsToCharge /= RingOfEnergy.artifactChargeMultiplier(target);
 					float chargeToGain = (1f / turnsToCharge);
-					if (!isEquipped(Dungeon.hero)){
-						chargeToGain *= 0.75f*Dungeon.hero.pointsInTalent(Talent.LIGHT_READING)/3f;
+					if (!isEquipped((Hero)target)){
+						chargeToGain *= 0.75f*((Hero)target).pointsInTalent(Talent.LIGHT_READING)/3f;
 					}
 					partialCharge += chargeToGain;
 				}

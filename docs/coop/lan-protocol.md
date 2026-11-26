@@ -107,3 +107,5 @@ SYNC8은 수정 미믹을 추가한다. 위장 중에는 CRYSTAL_CHEST만, 노�
 ## SYNC9 하수도 거주자
 
 SYNC9 호스트와 클라이언트는 같은 공개 몬스터 목록을 사용한다. 열린 상태에서만 Mimic·CrystalMimic을 m행으로 보낸다. 새 공개 종류는 Statue, GnollExile 및 PhantomPiranha다. 상자를 건드리는 OPEN은 인접 셀과 행동자의 직접 시야를 검사한다. 일반 상자의 내용물은 열기 전에 공개하지 않는다. 열쇠가 필요한 원본 수정 상자의 내용물 획득은 미지원이다. 시작 층 검증 실패 응답은 ERROR UNSUPPORTED_FLOOR이며 방장은 다른 방을 만들 수 있다. 진행 중 층 이동 실패는 기존 REJECT_FLOOR 및 원복 경로를 따른다.
+
+SYNC30의 IMBUE는 소유한 스태프 핸들과 현재 좌석 가방의 후보 순번을 사용한다. WEAPON_ABILITY는 현재 무기 핸들, GUIDING_LIGHT·HOLY_WEAPON·HOLY_WARD는 자신의 성서 핸들을 사용한다. ASSASSINATE와 FREERUN은 소지품 핸들 없이 현재 전직 버프를 검증한다.

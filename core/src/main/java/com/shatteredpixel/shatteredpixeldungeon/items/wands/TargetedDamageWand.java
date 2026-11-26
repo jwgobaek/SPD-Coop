@@ -45,5 +45,5 @@ public abstract class TargetedDamageWand extends DamageWand {
 		return true;
 	}
 
-	protected abstract void onZap(Hero caster, Ballistica bolt);
+	public abstract void onZap(Hero caster, Ballistica bolt);
 }

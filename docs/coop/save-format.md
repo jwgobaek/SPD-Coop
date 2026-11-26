@@ -138,3 +138,7 @@ Schema 4 keeps the shared gold in the native world bundle and the latest three s
 ### Projectiles held by monsters
 
 A supported knife in PinCushion stays in the original buff's items array. Its owner and physical ID are recorded as pin<monster ID>_<array index>. Both active and dormant object walks use that ordering. A surviving missile may merge only with a compatible stack belonging to the same owner. Native death/drop and native durability decide whether a floor object exists. The renderer receives no list of projectiles hidden in monsters.
+
+## 스키마 19
+
+결투가·성직자 로스터 또는 지팡이 주입을 확정한 방에서 사용한다. floor_schema는 기존 1~15의 깊이·분기 규칙을 사용한다. 활성 장비 ID 표에는 저층에서도 스태프 내부 지팡이를 포함한다. 새로 작성한 휴면 층의 wand_parts 표시는 바닥 스태프의 내부 물품을 함께 복원하도록 한다. 기존 휴면 레코드는 기존 형식으로 읽는다. 가면·왕관 시험 정책과 소비·권리는 기존 방식대로 별도 저장한다. 매는 소환자 Actor ID를 저장한다. 세대 4 MiB, 휴면 레코드 1,500,000 UTF-8바이트 한도를 유지한다.

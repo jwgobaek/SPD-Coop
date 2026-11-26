@@ -82,7 +82,7 @@ public class WandOfFireblast extends TargetedDamageWand {
 	ConeAOE cone;
 
 	@Override
-	protected void onZap(Hero caster, Ballistica bolt) {
+	public void onZap(Hero caster, Ballistica bolt) {
 		if (Dungeon.coop != null) cone = spread(bolt);
 
 		ArrayList<Char> affectedChars = new ArrayList<>();

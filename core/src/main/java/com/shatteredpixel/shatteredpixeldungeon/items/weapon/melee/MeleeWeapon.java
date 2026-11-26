@@ -423,17 +423,17 @@ public class MeleeWeapon extends Weapon {
 		@Override
 		public boolean act() {
 			if (charges < chargeCap()){
-				if (Regeneration.regenOn()){
+				if (Regeneration.regenOn((Hero)target)){
 					//60 to 45 turns per charge
 					float chargeToGain = 1/(60f-1.5f*(chargeCap()-charges));
 
 					//40 to 30 turns per charge for champion
-					if (Dungeon.hero.subClass == HeroSubClass.CHAMPION){
+					if (((Hero)target).subClass == HeroSubClass.CHAMPION){
 						chargeToGain *= 1.5f;
 					}
 
 					//50% slower charge gain with brawler's stance enabled, even if buff is inactive
-					if (Dungeon.hero.buff(RingOfForce.BrawlersStance.class) != null){
+					if (target.buff(RingOfForce.BrawlersStance.class) != null){
 						chargeToGain *= 0.50f;
 					}
 
@@ -455,7 +455,7 @@ public class MeleeWeapon extends Weapon {
 				partialCharge = 0;
 			}
 
-			if (ActionIndicator.action != this && Dungeon.hero.subClass == HeroSubClass.CHAMPION) {
+			if (ActionIndicator.action != this && ((Hero)target).subClass == HeroSubClass.CHAMPION) {
 				ActionIndicator.setAction(this);
 			}
 
@@ -465,7 +465,7 @@ public class MeleeWeapon extends Weapon {
 
 		@Override
 		public void fx(boolean on) {
-			if (on && Dungeon.hero.subClass == HeroSubClass.CHAMPION) {
+			if (on && target instanceof Hero && ((Hero)target).subClass == HeroSubClass.CHAMPION) {
 				ActionIndicator.setAction(this);
 			}
 		}
@@ -478,10 +478,10 @@ public class MeleeWeapon extends Weapon {
 
 		public int chargeCap(){
 			//caps at level 19 with 8 or 10 charges
-			if (Dungeon.hero.subClass == HeroSubClass.CHAMPION){
-				return Math.min(10, 4 + (Dungeon.hero.lvl - 1) / 3);
+			if (((Hero)target).subClass == HeroSubClass.CHAMPION){
+				return Math.min(10, 4 + (((Hero)target).lvl - 1) / 3);
 			} else {
-				return Math.min(8, 2 + (Dungeon.hero.lvl - 1) / 3);
+				return Math.min(8, 2 + (((Hero)target).lvl - 1) / 3);
 			}
 		}
 

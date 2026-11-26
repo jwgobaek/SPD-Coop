@@ -29,7 +29,7 @@ public final class VaultPublicRoute {
         final String regroup = System.getProperty("vault.guide.regroup","off");
         int rendezvous = -1;
         int allyDoor = -1;
-        boolean doorwayStrategy() { return regroup.equals("doorway") || regroup.equals("followdoor"); }
+        boolean doorwayStrategy() { return regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover"); }
         private boolean visibleDoor(PublicDungeon v, int cell) {
             if (cell<0 || !v.visible(cell)) return false;
             int tile=v.terrain(cell);
@@ -132,7 +132,8 @@ public final class VaultPublicRoute {
             if (!reviveDenied && v.ally>=0 && adjacent(v.pos,v.ally,v.width) && "DOWNED".equals(v.source.rows.get("allylife"))) {
                 return new Input("REVIVE",v.ally,0);
             }
-            if (regroup.equals("followdoor") && escortFollower && team) {
+            boolean protectExit = regroup.equals("exitcover") && escortFollower && v.hp*3<v.maxHp;
+            if ((regroup.equals("followdoor") || protectExit) && escortFollower && team) {
                 // Follow a door actually seen under the ally. Give the ally a chance to clear it.
                 if (visibleDoor(v,v.ally) && v.hp*3<v.maxHp) allyDoor=v.ally;
                 if (allyDoor==v.pos || allyDoor>=0 && (visits.getOrDefault(allyDoor,0)>2
@@ -206,7 +207,7 @@ public final class VaultPublicRoute {
                     if (v.ally>=0) value-=2*Math.max(Math.abs(c%v.width-v.ally%v.width), Math.abs(c/v.width-v.ally/v.width));
                     if (team && lastAlly>=0) value-=8*Math.max(0,distance(c,lastAlly,v.width)-3);
                     PublicDungeon.Loot item=v.floor.get(c);
-                    if (item!=null && !rejectedItems.contains(item.id) && !(item.sprite==
+                    if (!protectExit && item!=null && !rejectedItems.contains(item.id) && !(item.sprite==
                             com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.DEWDROP && v.hp==v.maxHp)) {
                         value+=150;
                         if (team && v.visible(c) && (item.kind.equals("MELEE") || item.sprite==
@@ -222,6 +223,8 @@ public final class VaultPublicRoute {
                         value+=30/(1+visits.getOrDefault(c,0));
                     if (team && c==destination && !v.monsters.containsKey(c)) value+=20;
                     if (returning) value=-100*distance(c,meetingCell,v.width)-dist[c]-20*exposedTo(v,c);
+                    if (protectExit && lastAlly>=0 && (v.ally>=0 || missingTurns<=6))
+                        value-=35*Math.max(0,distance(c,lastAlly,v.width)-1);
                     if (value>high) {best=first[c]; bestCell=c; high=value;}
                 }
             }

@@ -18,6 +18,15 @@ public final class FloorKnowledge {
 
     void observe(Level level, Hero observer) {
         level.updateDirectSight(observer, visible);
+        if (observer.isAlive()) {
+            for (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob mob : level.mobs) {
+                if (!(mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkAlly)
+                        || !((com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkAlly)mob).belongsTo(observer)) continue;
+                if (mob.fieldOfView==null || mob.fieldOfView.length!=level.length()) mob.fieldOfView=new boolean[level.length()];
+                level.updateFieldOfView(mob,mob.fieldOfView);
+                for (int i=0;i<visible.length;i++) visible[i] |= mob.fieldOfView[i];
+            }
+        }
         visible[observer.pos] = observer.isAlive();
         for (int cell = 0; cell < visible.length; cell++) {
             visible[cell] &= level.discoverable[cell];

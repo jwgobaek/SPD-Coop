@@ -127,6 +127,34 @@ public class ElementalBlast extends ArmorAbility {
 		baseChargeUse = 35f;
 	}
 
+	/** Reject an unsupported forced landing before spending the owner's charge or drawing damage. */
+	public static boolean safeForceBlast(Hero hero) {
+		int radius = 4 + hero.pointsInTalent(Talent.BLAST_RADIUS);
+		float multiplier = 1f + 0.25f * hero.pointsInTalent(Talent.ELEMENTAL_POWER);
+		for (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob mob : Dungeon.level.mobs) {
+			if (mob.alignment == Char.Alignment.ALLY || mob.rooted || Char.hasProp(mob, Char.Property.IMMOVABLE)
+					|| Dungeon.level.trueDistance(hero.pos, mob.pos) > radius) continue;
+			Ballistica trajectory = forceTrajectory(hero, mob);
+			int power = forceDistance(hero, mob, radius, multiplier);
+			if (Char.hasProp(mob, Char.Property.BOSS)) power = (power+1)/2;
+			// An earlier knockback can change occupancy. All possible shorter landings must be usable.
+			for (int i=1; i<=Math.min(trajectory.dist, power); i++) {
+				if (!com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(trajectory.path.get(i)))
+					return false;
+			}
+		}
+		return true;
+	}
+
+	private static Ballistica forceTrajectory(Hero hero, Char target) {
+		Ballistica outward = new Ballistica(hero.pos, target.pos, Ballistica.WONT_STOP);
+		return new Ballistica(target.pos, outward.collisionPos, Ballistica.MAGIC_BOLT);
+	}
+
+	private static int forceDistance(Hero hero, Char target, int radius, float multiplier) {
+		return (int)((radius + 1 - (int)Dungeon.level.trueDistance(hero.pos, target.pos)) * multiplier);
+	}
+
 	@Override
 	protected void activate(ClassArmor armor, Hero hero, Integer target) {
 		Ballistica aim;
@@ -297,12 +325,8 @@ public class ElementalBlast extends ArmorAbility {
 								//*** Wand of Blast Wave ***
 								} else if (finalWandCls == WandOfBlastWave.class){
 									if (mob.alignment != Char.Alignment.ALLY) {
-										Ballistica aim = new Ballistica(hero.pos, mob.pos, Ballistica.WONT_STOP);
-										int knockback = aoeSize + 1 - (int)Dungeon.level.trueDistance(hero.pos, mob.pos);
-										knockback *= effectMulti;
-										WandOfBlastWave.throwChar(mob,
-												new Ballistica(mob.pos, aim.collisionPos, Ballistica.MAGIC_BOLT),
-												knockback,
+										WandOfBlastWave.throwChar(mob, forceTrajectory(hero, mob),
+												forceDistance(hero, mob, aoeSize, effectMulti),
 												true,
 												true,
 												ElementalBlast.this);

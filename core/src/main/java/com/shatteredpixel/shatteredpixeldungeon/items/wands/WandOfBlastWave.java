@@ -70,7 +70,7 @@ public class WandOfBlastWave extends TargetedDamageWand {
 	}
 
 	@Override
-	protected void onZap(Hero caster, Ballistica bolt) {
+	public void onZap(Hero caster, Ballistica bolt) {
 		if (Dungeon.coop == null) {
 			Sample.INSTANCE.play(Assets.Sounds.BLAST);
 			BlastWave.blast(bolt.collisionPos);

@@ -210,7 +210,7 @@ final class CoopBoard extends Group {
         }
         int facing=view.pos;
         String receipt=view.source.rows.get("receipt");
-        if (advanced && receipt!=null && (cue.equals("ZAP") || cue.equals("SHOOT") || cue.equals("THROW") || cue.equals("KNIFE") || cue.equals("DART") || cue.equals("ATTACK"))) {
+        if (advanced && receipt!=null && (cue.equals("ZAP") || cue.equals("SHOOT") || cue.equals("THROW") || cue.equals("KNIFE") || cue.equals("SPIKE") || cue.equals("DART") || cue.equals("ATTACK"))) {
             String[] fields=receipt.split(",");
             if (fields.length==4) {
                 int target=Integer.parseInt(fields[2]);
@@ -226,7 +226,7 @@ final class CoopBoard extends Group {
                 sprite.parent.remove(sprite); sprite.destroy(); it.remove();
             }
         }
-        if (advanced && ("SHOOT".equals(cue) || "THROW".equals(cue) || "KNIFE".equals(cue) || "DART".equals(cue)) && facing!=view.pos) {
+        if (advanced && ("SHOOT".equals(cue) || "THROW".equals(cue) || "KNIFE".equals(cue) || "SPIKE".equals(cue) || "DART".equals(cue)) && facing!=view.pos) {
             MissileSprite shot=(MissileSprite)effects.recycle(MissileSprite.class);
             shot.seatShot(center(view.pos),center(facing),cue);
         }
@@ -374,6 +374,7 @@ final class CoopBoard extends Group {
                     case "GoldenMimic": sprite=new MimicSprite.Golden();break;
                     case "CrystalMimic": sprite=new MimicSprite.Crystal();break;
                     case "Mimic": sprite=new MimicSprite();break;
+                    case "HawkAlly": sprite=new com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkSprite();break;
                     case "Bee": sprite=new BeeSprite();break;
                     case "Ghost": sprite=new GhostSprite();break;
                     case "FetidRat": sprite=new FetidRatSprite();break;

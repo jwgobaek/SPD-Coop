@@ -133,17 +133,17 @@ actors/buffs/Vulnerable	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatter
 actors/buffs/WandEmpower	actors/buffs	VERIFIED	CoopMageTest; Android combo build earned Mage meal, HUD and test generation boost=2 left=3 after restart / combo-delivery.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/WandEmpower.java
 actors/buffs/Weakness	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Weakness.java
 actors/buffs/WellFed	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/WellFed.java
-actors/hero/HeroClass.CLERIC	HeroClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
-actors/hero/HeroClass.DUELIST	HeroClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
+actors/hero/HeroClass.CLERIC	HeroClass	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
+actors/hero/HeroClass.DUELIST	HeroClass	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
 actors/hero/HeroClass.HUNTRESS	HeroClass	VERIFIED	first-floor basic actions / CoopControllerTest, CoopPlayInputTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
 actors/hero/HeroClass.MAGE	HeroClass	VERIFIED	starting staff, two seats, disk restart / CoopMageTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
-actors/hero/HeroClass.ROGUE	HeroClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
+actors/hero/HeroClass.ROGUE	HeroClass	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
 actors/hero/HeroClass.WARRIOR	HeroClass	VERIFIED	first-floor basic actions / CoopControllerTest, CoopPlayInputTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroClass.java
-actors/hero/HeroSubClass.ASSASSIN	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
+actors/hero/HeroSubClass.ASSASSIN	HeroSubClass	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.BATTLEMAGE	HeroSubClass	PARTIAL	Trial mask selection over TCP, starter magic missile staff melee and native charge; other imbued effects unverified. See combo-results.md. General mask policy is undecided.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.BERSERKER	HeroSubClass	PARTIAL	Native owner rage, seal, shield and recovery; both TCP roles and restart. See combo-results.md. General mask policy is undecided.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.CHAMPION	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
-actors/hero/HeroSubClass.FREERUNNER	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
+actors/hero/HeroSubClass.FREERUNNER	HeroSubClass	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.GLADIATOR	HeroSubClass	PARTIAL	Five native combo moves, reprisal ownership; real WndCombo selection, TCP and persisted receipts. See combo-results.md. General mask policy is undecided.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.MONK	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
 actors/hero/HeroSubClass.PALADIN	HeroSubClass	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/HeroSubClass.java
@@ -306,7 +306,7 @@ actors/hero/Talent.UNENCUMBERED_SPIRIT	Talent	UNSUPPORTED		core/src/main/java/co
 actors/hero/Talent.VARIED_CHARGE	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.VETERANS_INTUITION	Talent	NATIVE_EFFECT	SeatTalentEffectsTest, both roles, native tier-1 investment and original effect. See combo-results.md.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.WALL_OF_LIGHT	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
-actors/hero/Talent.WAND_PRESERVATION	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
+actors/hero/Talent.WAND_PRESERVATION	Talent	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.WEAPON_RECHARGING	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.WIDE_SEARCH	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
 actors/hero/Talent.WILD_MOMENTUM	Talent	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/Talent.java
@@ -339,13 +339,13 @@ actors/hero/abilities/duelist/Feint.FeintConfusion	actors/hero/abilities/duelist
 actors/hero/abilities/huntress/NaturesPower	actors/hero/abilities/huntress	PARTIAL	Explicit crown trials; native buff and owner charge, CrownAbilityTest and TCP nature.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/NaturesPower.java
 actors/hero/abilities/huntress/NaturesPower.naturesPowerTracker	actors/hero/abilities/huntress	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/NaturesPower.java
 actors/hero/abilities/huntress/SpectralBlades	actors/hero/abilities/huntress	PARTIAL	Owned-weapon strike, original charge cost and fresh-host TCP replay on both seats. Other blade talents unverified.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/SpectralBlades.java
-actors/hero/abilities/huntress/SpiritHawk	actors/hero/abilities/huntress	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/SpiritHawk.java
-actors/hero/abilities/huntress/SpiritHawk.HawkAlly	actors/hero/abilities/huntress	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/SpiritHawk.java
+actors/hero/abilities/huntress/SpiritHawk	actors/hero/abilities/huntress	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/SpiritHawk.java
+actors/hero/abilities/huntress/SpiritHawk.HawkAlly	actors/hero/abilities/huntress	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/SpiritHawk.java
 actors/hero/abilities/huntress/SpiritHawk.HawkSprite	actors/hero/abilities/huntress	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/SpiritHawk.java
 actors/hero/abilities/mage/ElementalBlast	actors/hero/abilities/mage	PARTIAL	Starter magic-missile staff only; native blast and charge, CrownAbilityTest and TCP blast.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/ElementalBlast.java
 actors/hero/abilities/mage/WarpBeacon	actors/hero/abilities/mage	PARTIAL	Set and return on the same branch and depth, original cost. Occupied and cross-floor destinations unsupported. UpperGrowthTest.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/WarpBeacon.java
 actors/hero/abilities/mage/WarpBeacon.WarpBeaconTracker	actors/hero/abilities/mage	PARTIAL	Set and return on the same branch and depth, original cost. Occupied and cross-floor destinations unsupported. UpperGrowthTest.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/WarpBeacon.java
-actors/hero/abilities/mage/WildMagic	actors/hero/abilities/mage	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/WildMagic.java
+actors/hero/abilities/mage/WildMagic	actors/hero/abilities/mage	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/WildMagic.java
 actors/hero/abilities/mage/WildMagic.WildMagicTracker	actors/hero/abilities/mage	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/WildMagic.java
 actors/hero/abilities/rogue/DeathMark	actors/hero/abilities/rogue	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/DeathMark.java
 actors/hero/abilities/rogue/DeathMark.DeathMarkTracker	actors/hero/abilities/rogue	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/DeathMark.java
@@ -353,7 +353,7 @@ actors/hero/abilities/rogue/DeathMark.DoubleMarkTracker	actors/hero/abilities/ro
 actors/hero/abilities/rogue/ShadowClone	actors/hero/abilities/rogue	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/ShadowClone.java
 actors/hero/abilities/rogue/ShadowClone.ShadowAlly	actors/hero/abilities/rogue	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/ShadowClone.java
 actors/hero/abilities/rogue/ShadowClone.ShadowSprite	actors/hero/abilities/rogue	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/ShadowClone.java
-actors/hero/abilities/rogue/SmokeBomb	actors/hero/abilities/rogue	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/SmokeBomb.java
+actors/hero/abilities/rogue/SmokeBomb	actors/hero/abilities/rogue	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/SmokeBomb.java
 actors/hero/abilities/rogue/SmokeBomb.NinjaLog	actors/hero/abilities/rogue	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/SmokeBomb.java
 actors/hero/abilities/rogue/SmokeBomb.NinjaLogSprite	actors/hero/abilities/rogue	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/SmokeBomb.java
 actors/hero/abilities/warrior/Endure	actors/hero/abilities/warrior	PARTIAL	Native damage tracking and charge, two role TCP checkpoints. UpperGrowthTest.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/warrior/Endure.java
@@ -375,7 +375,7 @@ actors/hero/spells/DivineIntervention.DivineShield	actors/hero/spells	UNSUPPORTE
 actors/hero/spells/DivineSense	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/DivineSense.java
 actors/hero/spells/DivineSense.DivineSenseTracker	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/DivineSense.java
 actors/hero/spells/Flash	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Flash.java
-actors/hero/spells/GuidingLight	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/GuidingLight.java
+actors/hero/spells/GuidingLight	actors/hero/spells	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/GuidingLight.java
 actors/hero/spells/GuidingLight.GuidingLightPriestCooldown	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/GuidingLight.java
 actors/hero/spells/GuidingLight.Illuminated	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/GuidingLight.java
 actors/hero/spells/GuidingLight.WasIlluminatedTracker	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/GuidingLight.java
@@ -386,9 +386,9 @@ actors/hero/spells/HolyIntuition	actors/hero/spells	UNSUPPORTED		core/src/main/j
 actors/hero/spells/HolyLance	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyLance.java
 actors/hero/spells/HolyLance.HolyLanceVFX	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyLance.java
 actors/hero/spells/HolyLance.LanceCooldown	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyLance.java
-actors/hero/spells/HolyWard	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyWard.java
+actors/hero/spells/HolyWard	actors/hero/spells	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyWard.java
 actors/hero/spells/HolyWard.HolyArmBuff	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyWard.java
-actors/hero/spells/HolyWeapon	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyWeapon.java
+actors/hero/spells/HolyWeapon	actors/hero/spells	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyWeapon.java
 actors/hero/spells/HolyWeapon.HolyWepBuff	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyWeapon.java
 actors/hero/spells/InventoryClericSpell	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/InventoryClericSpell.java
 actors/hero/spells/Judgement	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Judgement.java
@@ -695,7 +695,7 @@ items/artifacts/DriedRose.WndGhostHero	items/artifacts	UNSUPPORTED		core/src/mai
 items/artifacts/DriedRose.roseRecharge	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/DriedRose.java
 items/artifacts/EtherealChains	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/EtherealChains.java
 items/artifacts/EtherealChains.chainsRecharge	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/EtherealChains.java
-items/artifacts/HolyTome	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/HolyTome.java
+items/artifacts/HolyTome	items/artifacts	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/HolyTome.java
 items/artifacts/HolyTome.TomeRecharge	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/HolyTome.java
 items/artifacts/HornOfPlenty	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/HornOfPlenty.java
 items/artifacts/HornOfPlenty.hornRecharge	items/artifacts	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/artifacts/HornOfPlenty.java
@@ -1139,7 +1139,7 @@ items/weapon/melee/MeleeWeapon	items/weapon/melee	UNSUPPORTED		core/src/main/jav
 items/weapon/melee/MeleeWeapon.Charger	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/MeleeWeapon.java
 items/weapon/melee/Quarterstaff	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Quarterstaff.java
 items/weapon/melee/Quarterstaff.DefensiveStance	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Quarterstaff.java
-items/weapon/melee/Rapier	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Rapier.java
+items/weapon/melee/Rapier	items/weapon/melee	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/Rapier.java
 items/weapon/melee/RoundShield	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RoundShield.java
 items/weapon/melee/RoundShield.GuardTracker	items/weapon/melee	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RoundShield.java
 items/weapon/melee/RunicBlade	items/weapon/melee	VERIFIED	seed 572 cave armored statue only, passive damage, chain proc, mail and blade IDs and drops; duelist ability excluded / CavesEntranceTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/melee/RunicBlade.java
@@ -1174,7 +1174,7 @@ items/weapon/missiles/ThrowingClub	items/weapon/missiles	UNSUPPORTED		core/src/m
 items/weapon/missiles/ThrowingHammer	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingHammer.java
 items/weapon/missiles/ThrowingKnife	items/weapon/missiles	VERIFIED	plain unmodified native projectile, both seats, lodging and durable receipt after host death / PrisonProjectileTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingKnife.java
 items/weapon/missiles/ThrowingSpear	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingSpear.java
-items/weapon/missiles/ThrowingSpike	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingSpike.java
+items/weapon/missiles/ThrowingSpike	items/weapon/missiles	PARTIAL	Seat UI/TCP and native actions; scope and trial policy in docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingSpike.java
 items/weapon/missiles/ThrowingStone	items/weapon/missiles	VERIFIED	plain unupgraded stone, native hit, wear, break, pickup, own-only stack and shortcut / CoopPlayInputTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/ThrowingStone.java
 items/weapon/missiles/Tomahawk	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/Tomahawk.java
 items/weapon/missiles/Trident	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/Trident.java

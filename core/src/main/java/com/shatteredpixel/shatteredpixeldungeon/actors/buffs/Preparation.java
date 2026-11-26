@@ -21,6 +21,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
@@ -83,8 +84,8 @@ public class Preparation extends Buff implements ActionIndicator.Action {
 				{.50f, .67f, .83f, 1.0f}
 		};
 
-		public float KOThreshold(){
-			return KOThresholds[ordinal()][Dungeon.hero.pointsInTalent(Talent.ENHANCED_LETHALITY)];
+		public float KOThreshold(Hero hero){
+			return KOThresholds[ordinal()][hero.pointsInTalent(Talent.ENHANCED_LETHALITY)];
 		}
 
 		//1st index is prep level, 2nd is talent level
@@ -95,16 +96,16 @@ public class Preparation extends Buff implements ActionIndicator.Action {
 				{4, 6, 8, 10}
 		};
 
-		public int blinkDistance(){
-			return blinkRanges[ordinal()][Dungeon.hero.pointsInTalent(Talent.ASSASSINS_REACH)];
+		public int blinkDistance(Hero hero){
+			return blinkRanges[ordinal()][hero.pointsInTalent(Talent.ASSASSINS_REACH)];
 		}
 		
-		public boolean canKO(Char defender){
+		public boolean canKO(Hero hero, Char defender){
 			if (defender.properties().contains(Char.Property.MINIBOSS)
 					|| defender.properties().contains(Char.Property.BOSS)){
-				return (defender.HP/(float)defender.HT) < (KOThreshold()/5f);
+				return (defender.HP/(float)defender.HT) < (KOThreshold(hero)/5f);
 			} else {
-				return (defender.HP/(float)defender.HT) < KOThreshold();
+				return (defender.HP/(float)defender.HT) < KOThreshold(hero);
 			}
 		}
 		
@@ -135,7 +136,7 @@ public class Preparation extends Buff implements ActionIndicator.Action {
 	public boolean act() {
 		if (target.invisible > 0){
 			turnsInvis++;
-			if (AttackLevel.getLvl(turnsInvis).blinkDistance() > 0 && target == Dungeon.hero){
+			if (AttackLevel.getLvl(turnsInvis).blinkDistance((Hero)target) > 0 && target == Dungeon.hero){
 				ActionIndicator.setAction(this);
 			}
 			spend(TICK);
@@ -160,7 +161,7 @@ public class Preparation extends Buff implements ActionIndicator.Action {
 	}
 
 	public boolean canKO( Char defender ){
-		return !defender.isInvulnerable(target.getClass()) && AttackLevel.getLvl(turnsInvis).canKO(defender);
+		return !defender.isInvulnerable(target.getClass()) && AttackLevel.getLvl(turnsInvis).canKO((Hero)target,defender);
 	}
 	
 	@Override
@@ -194,15 +195,15 @@ public class Preparation extends Buff implements ActionIndicator.Action {
 
 		desc += "\n\n" + Messages.get(this, "desc_dmg",
 				(int)(lvl.baseDmgBonus*100),
-				(int)(lvl.KOThreshold()*100),
-				(int)(lvl.KOThreshold()*20));
+				(int)(lvl.KOThreshold((Hero)target)*100),
+				(int)(lvl.KOThreshold((Hero)target)*20));
 		
 		if (lvl.damageRolls > 1){
 			desc += " " + Messages.get(this, "desc_dmg_likely");
 		}
 		
-		if (lvl.blinkDistance() > 0){
-			desc += "\n\n" + Messages.get(this, "desc_blink", lvl.blinkDistance());
+		if (lvl.blinkDistance((Hero)target) > 0){
+			desc += "\n\n" + Messages.get(this, "desc_blink", lvl.blinkDistance((Hero)target));
 		}
 		
 		desc += "\n\n" + Messages.get(this, "desc_invis_time", turnsInvis);
@@ -266,6 +267,47 @@ public class Preparation extends Buff implements ActionIndicator.Action {
 		GameScene.selectCell(attack);
 	}
 	
+	private static int blinkDestination(Hero hero, int cell, AttackLevel lvl) {
+		PathFinder.buildDistanceMap(hero.pos,BArray.or(Dungeon.level.passable, Dungeon.level.avoid, null), lvl.blinkDistance(hero));
+		int dest = -1;
+		for (int i : PathFinder.NEIGHBOURS8){
+			//cannot blink into a cell that's occupied or impassable, only over them
+			if (Actor.findChar(cell+i) != null)     continue;
+			if (!Dungeon.level.passable[cell+i] && !(hero.flying && Dungeon.level.avoid[cell+i])) {
+				continue;
+			}
+
+			if (dest == -1 || PathFinder.distance[dest] > PathFinder.distance[cell+i]){
+				dest = cell+i;
+			//if two cells have the same pathfinder distance, prioritize the one with the closest true distance to the hero
+			} else if (PathFinder.distance[dest] == PathFinder.distance[cell+i]){
+				if (Dungeon.level.trueDistance(hero.pos, dest) > Dungeon.level.trueDistance(hero.pos, cell+i)){
+					dest = cell+i;
+				}
+			}
+
+		}
+		return dest;
+	}
+
+	public boolean strikeForSeat(Hero hero, Char enemy) {
+		if (target != hero || hero.invisible <= 0) return false;
+		if (!hero.canAttack(enemy)) {
+			int dest=blinkDestination(hero, enemy.pos, AttackLevel.getLvl(turnsInvis));
+			if (dest < 0 || PathFinder.distance[dest] == Integer.MAX_VALUE || hero.rooted
+					|| !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(dest)) return false;
+			hero.pos=dest;
+			Dungeon.level.occupyCell(hero);
+			Dungeon.observe();
+		}
+		if (hero.isAlive() && enemy.isAlive() && hero.canAttack(enemy)) {
+			hero.checkVisibleMobs();
+			hero.curAction=new HeroAction.Attack(enemy);
+			hero.act();
+		}
+		return true;
+	}
+
 	private CellSelector.Listener attack = new CellSelector.Listener() {
 		
 		@Override
@@ -285,26 +327,7 @@ public class Preparation extends Buff implements ActionIndicator.Action {
 				
 				AttackLevel lvl = AttackLevel.getLvl(turnsInvis);
 
-				PathFinder.buildDistanceMap(Dungeon.hero.pos,BArray.or(Dungeon.level.passable, Dungeon.level.avoid, null), lvl.blinkDistance());
-				int dest = -1;
-				for (int i : PathFinder.NEIGHBOURS8){
-					//cannot blink into a cell that's occupied or impassable, only over them
-					if (Actor.findChar(cell+i) != null)     continue;
-					if (!Dungeon.level.passable[cell+i] && !(target.flying && Dungeon.level.avoid[cell+i])) {
-						continue;
-					}
-
-					if (dest == -1 || PathFinder.distance[dest] > PathFinder.distance[cell+i]){
-						dest = cell+i;
-					//if two cells have the same pathfinder distance, prioritize the one with the closest true distance to the hero
-					} else if (PathFinder.distance[dest] == PathFinder.distance[cell+i]){
-						if (Dungeon.level.trueDistance(Dungeon.hero.pos, dest) > Dungeon.level.trueDistance(Dungeon.hero.pos, cell+i)){
-							dest = cell+i;
-						}
-					}
-
-				}
-
+				int dest = blinkDestination(Dungeon.hero, cell, lvl);
 				if (dest == -1 || PathFinder.distance[dest] == Integer.MAX_VALUE || Dungeon.hero.rooted){
 					GLog.w(Messages.get(Preparation.class, "out_of_reach"));
 					if (Dungeon.hero.rooted) PixelScene.shake( 1, 1f );
@@ -330,7 +353,7 @@ public class Preparation extends Buff implements ActionIndicator.Action {
 		
 		@Override
 		public String prompt() {
-			return Messages.get(Preparation.class, "prompt", AttackLevel.getLvl(turnsInvis).blinkDistance());
+			return Messages.get(Preparation.class, "prompt", AttackLevel.getLvl(turnsInvis).blinkDistance((Hero)target));
 		}
 	};
 }

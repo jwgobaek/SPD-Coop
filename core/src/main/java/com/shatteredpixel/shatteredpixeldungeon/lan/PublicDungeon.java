@@ -17,9 +17,10 @@ public final class PublicDungeon {
     public static final class Loot {
         public final long id;
         public final String slot,kind,upgrade,reference,stackType;
+        public final boolean weaponSkill;
         public final int sprite,quantity,charges,capacity,bagIndex,order;
         public boolean showsCharges() {
-            return kind.equals("WAND") || kind.equals("STAFF") || kind.equals("CLOAK");
+            return weaponSkill || kind.equals("WAND") || kind.equals("STAFF") || kind.equals("CLOAK") || kind.equals("TOME");
         }
         Loot(String key,String value,Map<String,String> rows) {
             String[] f=value.split(",");
@@ -35,8 +36,11 @@ public final class PublicDungeon {
             String family=rows.get("family"+id);
             stackType=(isMissileKind(kind)) && family!=null && family.matches(kind.toLowerCase(Locale.ROOT)+"\\.[0-9a-f]{32}") ? family : (kind.equals("FOOD") || kind.equals("HEALING") || kind.equals("UPGRADE") || kind.equals("IDENTIFY")) && label!=null ? label : "";
             sprite=number(f[2],0,1023); quantity=number(f[3],1,Integer.MAX_VALUE); upgrade=f[4];
-            charges=showsCharges() ? number(f[5],0,10) : 0;
-            capacity=showsCharges() ? number(f[6],charges,10) : 0;
+            String pool=rows.get("weaponpool"+id);
+            weaponSkill=pool!=null;
+            String[] numbers=weaponSkill ? pool.split(",") : f;
+            charges=showsCharges() ? number(numbers[weaponSkill ? 0 : 5],0,10) : 0;
+            capacity=showsCharges() ? number(numbers[weaponSkill ? 1 : 6],charges,10) : 0;
         }
     }
     public PublicDungeon(StateImage source) {
@@ -76,7 +80,7 @@ public final class PublicDungeon {
                 break;
             case 'm':
                 String[] mob=value.split(",");
-                if(!mob[1].matches("Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Sheep|Statue|ArmoredStatue|GnollExile|PhantomPiranha|Crab|HermitCrab|Swarm|Slime|CausticSlime|Thief|GnollTrickster|GreatCrab|RatKing|Goo|Tengu|Brute|RedShaman|BlueShaman|PurpleShaman|Spinner|Blacksmith|DM200|DM201|DM300|Pylon|Succubus|DemonSpawner|YogDzewa|BurningFist|SoiledFist|RottingFist|RustedFist|BrightFist|DarkFist|Larva|YogRipper|RipperDemon|Eye|Scorpio|Acidic|VaultShaman|VaultFire|VaultFrost|VaultBossElemental|VaultDM100|VaultDM200|VaultGhoul|VaultGolem|VaultLaser|VaultMirror|VaultSentry|VaultSkeleton|VaultTokenDoor|DwarfKing|DKGhoul|DKMonk|DKWarlock|DKGolem|Monk|Golem|Imp|FireElemental|ShockElemental|Ghoul|Warlock|FrostElemental|GnollGeomancer|GnollSapper|GnollGuard|CrystalSpire|CrystalWisp|CrystalGuardian|Skeleton|Necromancer|NecroSkeleton|SpectralNecromancer|Bat|DM100|Guard|Shopkeeper|RotHeart|RotLasher|Wandmaker|DustWraith|Wraith|TormentedSpirit|NewbornFireElemental")) throw new IllegalArgumentException("Monster");
+                if(!mob[1].matches("HawkAlly|Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Sheep|Statue|ArmoredStatue|GnollExile|PhantomPiranha|Crab|HermitCrab|Swarm|Slime|CausticSlime|Thief|GnollTrickster|GreatCrab|RatKing|Goo|Tengu|Brute|RedShaman|BlueShaman|PurpleShaman|Spinner|Blacksmith|DM200|DM201|DM300|Pylon|Succubus|DemonSpawner|YogDzewa|BurningFist|SoiledFist|RottingFist|RustedFist|BrightFist|DarkFist|Larva|YogRipper|RipperDemon|Eye|Scorpio|Acidic|VaultShaman|VaultFire|VaultFrost|VaultBossElemental|VaultDM100|VaultDM200|VaultGhoul|VaultGolem|VaultLaser|VaultMirror|VaultSentry|VaultSkeleton|VaultTokenDoor|DwarfKing|DKGhoul|DKMonk|DKWarlock|DKGolem|Monk|Golem|Imp|FireElemental|ShockElemental|Ghoul|Warlock|FrostElemental|GnollGeomancer|GnollSapper|GnollGuard|CrystalSpire|CrystalWisp|CrystalGuardian|Skeleton|Necromancer|NecroSkeleton|SpectralNecromancer|Bat|DM100|Guard|Shopkeeper|RotHeart|RotLasher|Wandmaker|DustWraith|Wraith|TormentedSpirit|NewbornFireElemental")) throw new IllegalArgumentException("Monster");
                 enemies.put(number(mob[0],0,65535),mob[1]); break;
             case 'b': effects.add(number(value.split(",")[0],0,255)); break;
             case 't': number(value,0,63); break;
@@ -88,7 +92,7 @@ public final class PublicDungeon {
         belongings=Collections.unmodifiableList(bag); buffs=Collections.unmodifiableList(effects);
     }
     private static String profession(String s) {
-        if(!s.equals("WARRIOR") && !s.equals("HUNTRESS") && !s.equals("MAGE") && !s.equals("ROGUE")) throw new IllegalArgumentException("Class");
+        if(!s.equals("WARRIOR") && !s.equals("HUNTRESS") && !s.equals("MAGE") && !s.equals("ROGUE") && !s.equals("DUELIST") && !s.equals("CLERIC")) throw new IllegalArgumentException("Class");
         return s;
     }
     private static int number(String s,int low,int high) {
@@ -97,18 +101,20 @@ public final class PublicDungeon {
         return n;
     }
     public static boolean isMissileKind(String kind) {
-        return "STONE".equals(kind) || "KNIFE".equals(kind) || "DART".equals(kind);
+        return "SPIKE".equals(kind) || "STONE".equals(kind) || "KNIFE".equals(kind) || "DART".equals(kind);
     }
 
     public static String shortcutAction(Loot item) {
+        if (item.weaponSkill) return "WEAPON_ABILITY";
         switch (item.kind) {
             case "VAULT_BEACON": return "VAULT_RECALL";
             case "FOOD": return "EAT";
             case "HEALING": return "DRINK";
-            case "DART": case "KNIFE": case "STONE": return "THROW";
+            case "SPIKE": case "DART": case "KNIFE": case "STONE": return "THROW";
             case "UPGRADE": case "IDENTIFY": return item.kind;
             case "BOW": return "SHOOT";
             case "UNIDENTIFIED_WAND": case "WAND": return "ZAP";
+            case "TOME": return item.slot.equals("BAG") ? "EQUIP" : "CAST";
             case "CLOAK": return item.slot.equals("BAG") ? "EQUIP" : "CLOAK";
             case "STAFF": return item.slot.equals("WEAPON") ? "ZAP" : "EQUIP";
             case "MELEE": case "CLASS_ARMOR": case "ARMOR": return item.slot.equals("BAG") ? "EQUIP" : "UNEQUIP";
@@ -133,6 +139,9 @@ public final class PublicDungeon {
         }
         boolean weapon=item.kind.equals("MELEE") || item.kind.equals("STAFF");
         if(item.kind.equals("UNIDENTIFIED_WAND") || (item.slot.equals("WEAPON") || item.kind.equals("WAND")) && item.charges>0) verbs.add("ZAP");
+        if (source.rows.containsKey("spells"+item.id)) verbs.add("CAST");
+        if (source.rows.containsKey("weaponpool"+item.id)) verbs.add("WEAPON_ABILITY");
+        if (source.rows.containsKey("imbue"+item.id)) verbs.add("IMBUE");
         if (source.rows.containsKey("stealth"+item.id)) verbs.add("CLOAK");
         if (source.rows.containsKey("ability"+item.id)) verbs.add("ARMOR_ABILITY");
         if(item.slot.equals("BAG")) {
@@ -144,10 +153,10 @@ public final class PublicDungeon {
             if(item.kind.equals("BOW")) verbs.add("SHOOT");
             if(item.kind.equals("FOOD")) verbs.add("EAT");
             if(inVault() && item.kind.equals("VAULT_BEACON")) verbs.add("VAULT_RECALL");
-            if(weapon || item.kind.equals("CLOAK") || item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")) verbs.add("EQUIP");
+            if(weapon || item.kind.equals("TOME") || item.kind.equals("CLOAK") || item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")) verbs.add("EQUIP");
             if(item.kind.equals("HONEYPOT")) verbs.add("SHATTER");
             if(item.kind.equals("CANDLE") || item.kind.equals("FOOD") || weapon || item.kind.equals("ARMOR") || item.kind.equals("INSCRIBED") || item.kind.equals("HONEYPOT") || item.kind.equals("SHELL")) verbs.add("DROP");
-        } else if(item.kind.equals("CLOAK") || (item.slot.equals("WEAPON") && weapon) || (item.slot.equals("ARMOR") && (item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")))) verbs.add("UNEQUIP");
+        } else if(item.kind.equals("TOME") || item.kind.equals("CLOAK") || (item.slot.equals("WEAPON") && weapon) || (item.slot.equals("ARMOR") && (item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")))) verbs.add("UNEQUIP");
         return verbs;
     }
     public boolean use(CoopController c,Loot item,String verb) {

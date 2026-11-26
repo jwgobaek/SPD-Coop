@@ -44,6 +44,17 @@ public class CoopScene extends PixelScene {
     public void useItem(PublicDungeon view, PublicDungeon.Loot item, String action) {
         if (controller.frame().image!=view.source || !view.actions(item).contains(action)) return;
         switch (action) {
+            case "CAST":
+                showSpells(view,item);
+                break;
+            case "WEAPON_ABILITY":
+                if (item.sprite==ItemSpriteSheet.RAPIER) {
+                    targetView=view; targetMove=action; targetStaff=item; renderFrame();
+                } else controller.act(view.source,action,view.pos,item.id);
+                break;
+            case "IMBUE":
+                chooseWand(view,item);
+                break;
             case "USE_CROWN":
                 crownWindow(view,item);
                 break;
@@ -59,7 +70,7 @@ public class CoopScene extends PixelScene {
                                     com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.CLEAR,item.id);
                         }
                     });
-                } else if ("HeroicLeap".equals(ability) || "Shockwave".equals(ability) || "SpectralBlades".equals(ability)) {
+                } else if (("SpiritHawk".equals(ability) && view.source.rows.containsKey("hawkcommand")) || "SmokeBomb".equals(ability) || "WildMagic".equals(ability) || "HeroicLeap".equals(ability) || "Shockwave".equals(ability) || "SpectralBlades".equals(ability)) {
                     targetView=view; targetMove=action; targetStaff=item; renderFrame();
                 } else controller.act(view.source,action,view.pos,item.id);
                 break;
@@ -78,6 +89,54 @@ public class CoopScene extends PixelScene {
             default:
                 view.use(controller,item,action);
         }
+    }
+
+    private void showSpells(PublicDungeon view, PublicDungeon.Loot tome) {
+        com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.ClericSpell[] spells = {
+                com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.GuidingLight.INSTANCE,
+                com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyWeapon.INSTANCE,
+                com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyWard.INSTANCE};
+        String[] choices=new String[spells.length+1];
+        for (int i=0;i<spells.length;i++) choices[i]=spells[i].name();
+        choices[spells.length]=msg("back");
+        add(new WndOptions(new com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite(tome.sprite),
+                Messages.get("items.artifacts.holytome.name"),msg("charges",tome.charges,tome.capacity),choices) {
+            protected void onSelect(int index) {
+                if (index<0 || index>=spells.length || controller.frame().image!=view.source) return;
+                if (index==0) { targetView=view; targetMove="GUIDING_LIGHT"; targetStaff=tome; renderFrame(); }
+                else controller.act(view.source,index==1?"HOLY_WEAPON":"HOLY_WARD",view.pos,tome.id);
+            }
+        });
+    }
+
+    private void chooseWand(PublicDungeon view, PublicDungeon.Loot staff) {
+        Class<?> type = com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff.class;
+        add(WndSeatInventory.select(view,controller,new WndSeatInventory.Selection() {
+            public boolean accepts(PublicDungeon.Loot item) {
+                return view.source.rows.containsKey("wandchoice"+item.id);
+            }
+            public void select(PublicDungeon.Loot wand) {
+                int selection = Integer.parseInt(view.source.rows.get("wandchoice"+wand.id));
+                String description = Messages.get(type,"imbue_desc");
+                if (view.source.rows.containsKey("imbuelevel"+staff.id)) {
+                    int staffLevel = Integer.parseInt(view.source.rows.get("imbuelevel"+staff.id));
+                    if (view.source.rows.containsKey("imbuelevel"+wand.id)) {
+                        int wandLevel = Integer.parseInt(view.source.rows.get("imbuelevel"+wand.id));
+                        int level = Math.max(staffLevel,wandLevel) + (staffLevel>0 && wandLevel>=staffLevel ? 1 : 0);
+                        description += "\n\n"+Messages.get(type,"imbue_level",level);
+                    } else description += "\n\n"+Messages.get(type,"imbue_unknown",staffLevel);
+                }
+                description += "\n\n"+Messages.get(type,"KEEP".equals(view.source.rows.get("imbue"+staff.id)) ? "imbue_talent" : "imbue_lost");
+                add(new WndOptions(new com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite(wand.sprite),
+                        Messages.get(view.source.rows.get("label"+wand.id)+".name"),description,
+                        Messages.get(type,"yes"),Messages.get(type,"no")) {
+                    @Override protected void onSelect(int choice) {
+                        if (choice==0 && controller.frame().image==view.source)
+                            controller.act(view.source,"IMBUE",selection,staff.id);
+                    }
+                });
+            }
+        }));
     }
 
     public void aim(PublicDungeon view, PublicDungeon.Loot staff) {
@@ -135,16 +194,17 @@ public class CoopScene extends PixelScene {
             return;
         }
         if (targetMove != null) {
-            boolean armor = "ARMOR_ABILITY".equals(targetMove);
-            if (targetView == view && view.visible(cell) && (armor || view.monsters.containsKey(cell))
-                    && controller.act(view.source, targetMove, cell, armor ? targetStaff.id : 0)) cancelAim();
+            boolean armor = "ARMOR_ABILITY".equals(targetMove) || "GUIDING_LIGHT".equals(targetMove);
+            boolean weapon = "WEAPON_ABILITY".equals(targetMove);
+            if (targetView == view && (weapon || view.visible(cell) && (armor || view.monsters.containsKey(cell)))
+                    && controller.act(view.source, targetMove, cell, armor || weapon ? targetStaff.id : 0)) cancelAim();
             return;
         }
         boolean bow=targetStaff.kind.equals("BOW");
         String actor=view.monsters.get(cell);
         boolean enemy=actor!=null && !"Imp".equals(actor) && !"Blacksmith".equals(actor) && !"Wandmaker".equals(actor) && !"Shopkeeper".equals(actor) && !"Sheep".equals(actor) && !"Sentry".equals(actor) && !"Ghost".equals(actor) && !"RatKing".equals(actor);
         boolean missile=PublicDungeon.isMissileKind(targetStaff.kind);
-        boolean areaWand = (targetStaff.kind.equals("WAND") || targetStaff.kind.equals("UNIDENTIFIED_WAND")) && (targetStaff.sprite == ItemSpriteSheet.WAND_BLAST_WAVE
+        boolean areaWand = view.source.rows.containsKey("areawand"+targetStaff.id) || (targetStaff.kind.equals("WAND") || targetStaff.kind.equals("UNIDENTIFIED_WAND")) && (targetStaff.sprite == ItemSpriteSheet.WAND_BLAST_WAVE
                 || targetStaff.sprite == ItemSpriteSheet.WAND_FIREBOLT);
         boolean selfBattery = !missile && !bow && cell == view.pos && view.source.rows.containsKey("talent"+Talent.SHIELD_BATTERY.ordinal());
         if (targetView==view && (selfBattery || enemy || ((missile || areaWand) && actor==null && view.visible(cell)) || (!missile && !bow && view.chest(cell)))
@@ -390,6 +450,7 @@ public class CoopScene extends PixelScene {
                 float half=(width-2)/2;
                 hero(HeroClass.WARRIOR,left,half); hero(HeroClass.MAGE,left+half+2,half); top+=20;
                 hero(HeroClass.ROGUE,left,half); hero(HeroClass.HUNTRESS,left+half+2,half); top+=20;
+                hero(HeroClass.DUELIST,left,half); hero(HeroClass.CLERIC,left+half+2,half); top+=20;
                 boolean ready=roster.length>2+f.seat && f.seat>=0 && roster[2+f.seat].endsWith(":1");
                 button(msg(ready?"unready":"ready"),()->controller.ready(!ready));
                 if(f.seat==0) button(msg("start"),()->controller.start()).enable(roster.length>1 && roster[1].equals("READY"));
@@ -514,7 +575,10 @@ public class CoopScene extends PixelScene {
                 if (move == Combo.ComboMove.PARRY) controller.act(view.source,move.name(),view.pos,0);
                 else { targetView=view; targetMove=move.name(); renderFrame(); }
             }));
-        } else if (view.offered && view.source.rows.containsKey("rage")) controller.act(view.source,"BERSERK",view.pos,0);
+        } else if (view.offered && view.source.rows.containsKey("ambush")) {
+            targetView=view; targetMove="ASSASSINATE"; renderFrame();
+        } else if (view.offered && view.source.rows.containsKey("freerun")) controller.act(view.source,"FREERUN",view.pos,0);
+        else if (view.offered && view.source.rows.containsKey("rage")) controller.act(view.source,"BERSERK",view.pos,0);
         else if (view.offered && view.source.rows.containsKey("snipercell")) {
             targetView=view; targetMove="SNIPER_SHOT"; renderFrame();
         }

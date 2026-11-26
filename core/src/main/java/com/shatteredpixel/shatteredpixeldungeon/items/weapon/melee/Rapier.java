@@ -89,17 +89,21 @@ public class Rapier extends MeleeWeapon {
 		return augment.damageFactor(min(level)+dmgBoost) + "-" + augment.damageFactor(max(level)+dmgBoost);
 	}
 
-	public static void lungeAbility(Hero hero, Integer target, float dmgMulti, int dmgBoost, MeleeWeapon wep){
+	public boolean lungeForSeat(Hero hero, int target) {
+		return lungeAbility(hero,target,1,augment.damageFactor(5+Math.round(1.5f*buffedLvlFor(hero))),this);
+	}
+
+	public static boolean lungeAbility(Hero hero, Integer target, float dmgMulti, int dmgBoost, MeleeWeapon wep){
 		if (target == null){
-			return;
+			return false;
 		}
 
 		Char enemy = Actor.findChar(target);
 		//duelist can lunge out of her FOV, but this wastes the ability instead of cancelling if there is no target
-		if (Dungeon.level.heroFOV[target]) {
-			if (enemy == null || enemy == hero || hero.isCharmedBy(enemy)) {
+		if (Dungeon.coop == null ? Dungeon.level.heroFOV[target] : Dungeon.coop.knowledge(hero).visible(target)) {
+			if (enemy == null || enemy == hero || hero.isCharmedBy(enemy) || Dungeon.coop != null && (enemy.alignment != Char.Alignment.ENEMY || enemy.invisible > 0)) {
 				GLog.w(Messages.get(wep, "ability_no_target"));
-				return;
+				return false;
 			}
 		}
 
@@ -107,7 +111,7 @@ public class Rapier extends MeleeWeapon {
 				|| Dungeon.level.distance(hero.pos, target)-1 > wep.reachFactor(hero)){
 			GLog.w(Messages.get(wep, "ability_target_range"));
 			if (hero.rooted) PixelScene.shake( 1, 1f );
-			return;
+			return false;
 		}
 
 		int lungeCell = -1;
@@ -121,16 +125,16 @@ public class Rapier extends MeleeWeapon {
 			}
 		}
 
-		if (lungeCell == -1){
+		if (lungeCell == -1 || Dungeon.coop != null && !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(lungeCell)){
 			GLog.w(Messages.get(wep, "ability_target_range"));
-			return;
+			return false;
 		}
 
 		final int dest = lungeCell;
 
 		hero.busy();
 		Sample.INSTANCE.play(Assets.Sounds.MISS);
-		hero.sprite.jump(hero.pos, dest, 0, 0.1f, new Callback() {
+		Callback landed = new Callback() {
 			@Override
 			public void call() {
 				if (Dungeon.level.map[hero.pos] == Terrain.OPEN_DOOR) {
@@ -141,8 +145,8 @@ public class Rapier extends MeleeWeapon {
 				Dungeon.observe();
 
 				hero.belongings.abilityWeapon = wep; //set this early to we can check canAttack
-				if (enemy != null && hero.canAttack(enemy)) {
-					hero.sprite.attack(enemy.pos, new Callback() {
+				if (enemy != null && (Dungeon.coop == null || enemy.isAlive() && enemy.alignment == Char.Alignment.ENEMY && hero.isAlive()) && hero.canAttack(enemy)) {
+					Callback strike = new Callback() {
 						@Override
 						public void call() {
 
@@ -154,11 +158,12 @@ public class Rapier extends MeleeWeapon {
 									wep.onAbilityKill(hero, enemy);
 								}
 							}
-							Invisibility.dispel();
+							Invisibility.dispel(hero);
 							hero.spendAndNext(hero.attackDelay());
 							wep.afterAbilityUsed(hero);
 						}
-					});
+					};
+					if (Dungeon.coop != null) strike.call(); else hero.sprite.attack(enemy.pos,strike);
 				} else {
 					//spends charge but otherwise does not count as an ability use
 					Charger charger = Buff.affect(hero, Charger.class);
@@ -173,6 +178,8 @@ public class Rapier extends MeleeWeapon {
 					hero.spendAndNext(1/hero.speed());
 				}
 			}
-		});
+		};
+		if (Dungeon.coop != null) landed.call(); else hero.sprite.jump(hero.pos,dest,0,0.1f,landed);
+		return true;
 	}
 }
