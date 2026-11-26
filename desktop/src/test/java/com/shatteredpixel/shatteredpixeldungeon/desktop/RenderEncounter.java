@@ -75,6 +75,8 @@ final class RenderEncounter {
                     throw new AssertionError("Expected seed 572 dart heap");
                 game.hero(0).pos=1872;
                 game.observe(0);
+            } else if (destination.equals("combo-input") || destination.equals("crown-input")) {
+                com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,destination.equals("combo-input")?"slam0":"crown0");
             } else if (destination.equals("growth-input")) {
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"owner0");
                 game.hero(0).earnExp(game.hero(0).maxExp(),Rat.class);

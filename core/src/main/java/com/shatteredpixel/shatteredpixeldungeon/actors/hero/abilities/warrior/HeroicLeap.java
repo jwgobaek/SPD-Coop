@@ -63,6 +63,20 @@ public class HeroicLeap extends ArmorAbility {
 		return chargeUse;
 	}
 
+	public static int landing(Hero hero,int target) {
+		Ballistica route = new Ballistica(hero.pos, target, Ballistica.STOP_TARGET | Ballistica.STOP_SOLID);
+		int cell = route.collisionPos;
+
+		//can't occupy the same cell as another char, so move back one.
+		int backTrace = route.dist-1;
+		while (Actor.findChar( cell ) != null && cell != hero.pos) {
+			cell = route.path.get(backTrace);
+			backTrace--;
+		}
+
+		return cell;
+	}
+
 	@Override
 	public void activate( ClassArmor armor, Hero hero, Integer target ) {
 		if (target != null) {
@@ -72,34 +86,25 @@ public class HeroicLeap extends ArmorAbility {
 				return;
 			}
 
-			Ballistica route = new Ballistica(hero.pos, target, Ballistica.STOP_TARGET | Ballistica.STOP_SOLID);
-			int cell = route.collisionPos;
-
-			//can't occupy the same cell as another char, so move back one.
-			int backTrace = route.dist-1;
-			while (Actor.findChar( cell ) != null && cell != hero.pos) {
-				cell = route.path.get(backTrace);
-				backTrace--;
-			}
+			int cell = landing(hero, target);
 
 			armor.charge -= chargeUse( hero );
 			armor.updateQuickslot();
 
 			final int dest = cell;
 			hero.busy();
-			hero.sprite.jump(hero.pos, cell, new Callback() {
+			Callback land = new Callback() {
 				@Override
 				public void call() {
 					hero.move(dest);
 					Dungeon.level.occupyCell(hero);
-					Dungeon.observe();
-					GameScene.updateFog();
+					if (Dungeon.coop == null) { Dungeon.observe(); GameScene.updateFog(); }
 
 					for (int i : PathFinder.NEIGHBOURS8) {
 						Char mob = Actor.findChar(hero.pos + i);
 						if (mob != null && mob != hero && mob.alignment != Char.Alignment.ALLY) {
 							if (hero.hasTalent(Talent.BODY_SLAM)){
-								int damage = Hero.heroDamageIntRange(hero.pointsInTalent(Talent.BODY_SLAM), 4*hero.pointsInTalent(Talent.BODY_SLAM));
+								int damage = Hero.heroDamageIntRange(hero, hero.pointsInTalent(Talent.BODY_SLAM), 4*hero.pointsInTalent(Talent.BODY_SLAM));
 								damage += Math.round(hero.drRoll()*0.25f*hero.pointsInTalent(Talent.BODY_SLAM));
 								damage -= mob.drRoll();
 								mob.damage(damage, hero);
@@ -115,10 +120,9 @@ public class HeroicLeap extends ArmorAbility {
 						}
 					}
 
-					WandOfBlastWave.BlastWave.blast(dest);
-					PixelScene.shake(2, 0.5f);
+					if (Dungeon.coop == null) { WandOfBlastWave.BlastWave.blast(dest); PixelScene.shake(2, 0.5f); }
 
-					Invisibility.dispel();
+					Invisibility.dispel(hero);
 					hero.spendAndNext(Actor.TICK);
 
 					if (hero.buff(DoubleJumpTracker.class) != null){
@@ -129,7 +133,9 @@ public class HeroicLeap extends ArmorAbility {
 						}
 					}
 				}
-			});
+			};
+			if (Dungeon.coop != null) land.call();
+			else hero.sprite.jump(hero.pos,cell,land);
 		}
 	}
 

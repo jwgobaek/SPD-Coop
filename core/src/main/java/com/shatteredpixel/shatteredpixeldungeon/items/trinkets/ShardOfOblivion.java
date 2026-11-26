@@ -136,7 +136,13 @@ public class ShardOfOblivion extends Trinket {
 	};
 
 	public static boolean passiveIDDisabled(){
-		return trinketLevel(ShardOfOblivion.class) >= 0;
+		return passiveIDDisabled(Dungeon.hero);
+    }
+
+    public static boolean passiveIDDisabled(Hero owner) {
+        if (owner==null || owner.belongings==null) return false;
+        ShardOfOblivion shard=owner.belongings.getItem(ShardOfOblivion.class);
+        return shard!=null && shard.buffedLvl()>=0;
 	}
 
 	public static class WandUseTracker extends FlavourBuff{

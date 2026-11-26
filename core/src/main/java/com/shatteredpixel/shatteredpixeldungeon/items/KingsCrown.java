@@ -21,6 +21,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -89,26 +90,32 @@ public class KingsCrown extends Item {
 	
 	public void upgradeArmor(Hero hero, Armor armor, ArmorAbility ability) {
 
-		detach(hero.belongings.backpack);
-		Catalog.countUse( getClass() );
+		applyForSeat(hero, armor, ability, this);
+	}
 
-		hero.sprite.emitter().burst( Speck.factory( Speck.CROWN), 12 );
+	public static void applyForSeat(Hero hero, Armor armor, ArmorAbility ability, KingsCrown consumed) {
+		if (consumed != null) {
+			consumed.detach(hero.belongings.backpack);
+			Catalog.countUse(KingsCrown.class);
+		}
+
+		if (Dungeon.coop == null) hero.sprite.emitter().burst( Speck.factory( Speck.CROWN), 12 );
 		hero.spend(Actor.TICK);
 		hero.busy();
 
 		if (armor != null){
 
 			if (ability instanceof Ratmogrify){
-				GLog.p(Messages.get(this, "ratgraded"));
+				GLog.p(Messages.get(KingsCrown.class, "ratgraded"));
 			} else {
-				GLog.p(Messages.get(this, "upgraded"));
+				GLog.p(Messages.get(KingsCrown.class, "upgraded"));
 			}
 
 			ClassArmor classArmor = ClassArmor.upgrade(hero, armor);
 			if (hero.belongings.armor == armor) {
 
 				hero.belongings.armor = classArmor;
-				((HeroSprite) hero.sprite).updateArmor();
+				if (Dungeon.coop == null) ((HeroSprite) hero.sprite).updateArmor();
 				classArmor.activate(hero);
 
 			} else {
@@ -123,7 +130,7 @@ public class KingsCrown extends Item {
 		Talent.initArmorTalents(hero);
 
 		hero.sprite.operate( hero.pos );
-		Sample.INSTANCE.play( Assets.Sounds.MASTERY );
+		if (Dungeon.coop == null) Sample.INSTANCE.play( Assets.Sounds.MASTERY );
 	}
 
 }

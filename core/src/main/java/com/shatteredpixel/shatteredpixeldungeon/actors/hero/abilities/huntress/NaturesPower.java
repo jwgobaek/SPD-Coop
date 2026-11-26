@@ -22,6 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
@@ -47,12 +48,14 @@ public class NaturesPower extends ArmorAbility {
 		Buff.prolong(hero, naturesPowerTracker.class, naturesPowerTracker.DURATION);
 		hero.buff(naturesPowerTracker.class).extensionsLeft = 2;
 		hero.sprite.operate(hero.pos);
-		Sample.INSTANCE.play(Assets.Sounds.CHARGEUP);
-		hero.sprite.emitter().burst(LeafParticle.GENERAL, 10);
+		if (Dungeon.coop == null) {
+			Sample.INSTANCE.play(Assets.Sounds.CHARGEUP);
+			hero.sprite.emitter().burst(LeafParticle.GENERAL, 10);
+		}
 
 		armor.charge -= chargeUse(hero);
 		armor.updateQuickslot();
-		Invisibility.dispel();
+		Invisibility.dispel(hero);
 		hero.spendAndNext(Actor.TICK);
 
 	}
@@ -77,7 +80,19 @@ public class NaturesPower extends ArmorAbility {
 
 		public int extensionsLeft = 2;
 
-		public void extend( int turns ){
+		@Override
+        public void storeInBundle(com.watabou.utils.Bundle bundle) {
+            super.storeInBundle(bundle);
+            bundle.put("extensions_left", extensionsLeft);
+        }
+
+        @Override
+        public void restoreFromBundle(com.watabou.utils.Bundle bundle) {
+            super.restoreFromBundle(bundle);
+            if (bundle.contains("extensions_left")) extensionsLeft = bundle.getInt("extensions_left");
+        }
+
+        public void extend( int turns ){
 			if (extensionsLeft > 0 && turns > 0) {
 				spend(turns);
 				extensionsLeft--;

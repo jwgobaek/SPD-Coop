@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.weapon;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SnipersMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -195,13 +196,28 @@ public class SpiritBow extends Weapon {
 
     /** Normal spirit arrow. The authority resolves the original missile hit and cost at the input boundary. */
     public boolean shootInCoop(Hero user, Char enemy) {
-        if (sniperSpecial || enchantment!=null || cursed || user.buff(NaturesPower.naturesPowerTracker.class)!=null)
+        return shootInCoop(user, enemy, null);
+    }
+
+    public boolean shootInCoop(Hero user, Char enemy, SnipersMark mark) {
+        if (sniperSpecial || enchantment!=null || cursed)
             return false;
         SpiritArrow arrow=knockArrow();
-        if (arrow.throwPos(user, enemy.pos)!=enemy.pos) return false;
+        int aim = mark == null ? enemy.pos : QuickSlotButton.autoAim(user,enemy,arrow);
+        if (aim < 0 || arrow.throwPos(user,aim)!=enemy.pos) return false;
+        if (mark != null && (mark.target != user || mark.object != enemy.id())) return false;
         targetPos=enemy.pos;
+        sniperSpecial = mark != null;
+        sniperSpecialBonusDamage = mark == null ? 0 : mark.percentDmgBonus;
         float delay=arrow.castDelay(user,targetPos);
-        user.shoot(enemy,arrow);
+        int shots = sniperSpecial && augment == Augment.SPEED ? 3 : 1;
+        for (int shot = 0; shot < shots && enemy.isAlive(); shot++) {
+            if (shot > 0 && QuickSlotButton.autoAim(user,enemy,arrow) < 0) break;
+            user.shoot(enemy,arrow);
+        }
+        sniperSpecial = false;
+        sniperSpecialBonusDamage = 0;
+        if (mark != null) mark.detach();
         Talent.LethalMomentumTracker free=user.buff(Talent.LethalMomentumTracker.class);
         if (free!=null) { free.detach(); user.next(); }
         else user.spendAndNext(delay);

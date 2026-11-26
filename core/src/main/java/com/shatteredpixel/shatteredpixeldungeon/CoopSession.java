@@ -31,6 +31,15 @@ import com.shatteredpixel.shatteredpixeldungeon.items.quest.Embers;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.CorpseDust;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbility;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.HeroicLeap;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.NaturesPower;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.ElementalBlast;
+import com.shatteredpixel.shatteredpixeldungeon.items.KingsCrown;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Combo;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Berserk;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SnipersMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
@@ -149,9 +158,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
+    public enum Action { USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
         public boolean requiresItem() {
-            return this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
+            return this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -217,6 +226,48 @@ public final class CoopSession implements AutoCloseable {
         maskTrial = trial;
     }
 
+    private MaskTrial crownTrial = MaskTrial.OFF;
+    private int crownUser = -1;
+    private int crownRights;
+    void beginCrownTrial(MaskTrial trial) {
+        checkExecutor();
+        if (trial == null || trial == MaskTrial.OFF || crownTrial != MaskTrial.OFF)
+            throw new IllegalStateException("Crown trial already configured or invalid");
+        crownTrial = trial;
+    }
+
+    public static boolean playableArmorAbility(ArmorAbility ability) {
+        return ability instanceof HeroicLeap || ability instanceof NaturesPower || ability instanceof ElementalBlast;
+    }
+
+    public boolean mayChooseArmor(int seat, boolean useCrown) {
+        Hero hero = heroes[seat];
+        Armor armor = hero.belongings.armor();
+        return crownTrial != MaskTrial.OFF && hero.armorAbility == null && armor != null
+                && !(armor instanceof ClassArmor) && ownership.owner(armor) == players[seat]
+                && (useCrown ? crownUser < 0 : (crownRights & (1<<seat)) != 0);
+    }
+
+    private boolean chooseArmor(Hero hero, Item item, int index, boolean useCrown) {
+        if (!mayChooseArmor(activeSeat,useCrown)) return false;
+        ArmorAbility[] choices = hero.heroClass.armorAbilities();
+        if (index < 0 || index >= choices.length || !playableArmorAbility(choices[index])) return false;
+        Armor armor = hero.belongings.armor();
+        if (useCrown) {
+            if (!(item instanceof KingsCrown) || item.quantity()!=1 || !hero.belongings.backpack.contains(item)
+                    || ownership.owner(item)!=players[activeSeat]) return false;
+            crownUser=activeSeat;
+            if (crownTrial==MaskTrial.ROSTER && heroes[1-activeSeat].armorAbility==null) crownRights=1<<(1-activeSeat);
+        } else {
+            if (item!=null) return false;
+            crownRights &= ~(1<<activeSeat);
+        }
+        // The partner right has no physical reward object.
+        KingsCrown.applyForSeat(hero, armor, choices[index], useCrown ? (KingsCrown)item : null);
+        ownership.replaceEquipped(armor,hero.belongings.armor(),players[activeSeat]);
+        return true;
+    }
+
     public boolean mayUseMask(int seat) {
         return maskTrial != MaskTrial.OFF && maskUser < 0 && supportsMaskChoice(heroes[seat]);
     }
@@ -226,7 +277,7 @@ public final class CoopSession implements AutoCloseable {
     }
 
     private static boolean supportsMaskChoice(Hero hero) {
-        return hero.subClass == HeroSubClass.NONE && (hero.heroClass == HeroClass.WARRIOR || hero.heroClass == HeroClass.HUNTRESS);
+        return hero.subClass == HeroSubClass.NONE && (hero.heroClass == HeroClass.WARRIOR || hero.heroClass == HeroClass.HUNTRESS || hero.heroClass == HeroClass.MAGE);
     }
 
     private boolean chooseSubclass(Hero hero, int seat, Item item, int choice, boolean consumeMask) {
@@ -249,7 +300,7 @@ public final class CoopSession implements AutoCloseable {
     }
 
     static int floorSchema(Bundle state) {
-        if (state.getInt("schema") != 16) return state.getInt("schema");
+        if (state.getInt("schema") != 16 && state.getInt("schema") != 17) return state.getInt("schema");
         int floor = state.getInt("floor_schema");
         if (floor < 1 || floor > 15) throw new IllegalArgumentException("Invalid growth floor format");
         return floor;
@@ -702,6 +753,8 @@ public final class CoopSession implements AutoCloseable {
     private boolean safeFloor(int cell,boolean moving) {
         Level level = Dungeon.level;
         if (!supportedLanding(cell) || level.getTransition(cell) != null || (!moving && level.plants.get(cell)!=null)) return false;
+        if (moving && level.plants.get(cell) instanceof com.shatteredpixel.shatteredpixeldungeon.plants.Fadeleaf
+                && com.shatteredpixel.shatteredpixeldungeon.plants.Fadeleaf.requiresWardenReturn(heroes[activeSeat])) return false;
         if (level.traps.get(cell) != null)
             return moving && (level.map[cell] == Terrain.TRAP || level.map[cell] == Terrain.SECRET_TRAP || level.map[cell] == Terrain.INACTIVE_TRAP);
         if (!level.passable[cell]) return false;
@@ -712,9 +765,9 @@ public final class CoopSession implements AutoCloseable {
                 || terrain == Terrain.WATER || terrain == Terrain.EMBERS || terrain == Terrain.EMPTY_DECO;
     }
 
-    /** These two classes share Food.execute without any special effect callbacks. */
+    /** Foods with an authoritative eating path. */
     public static boolean basicFood(Item item) {
-        return item!=null && (item.getClass()==Food.class || item.getClass()==SmallRation.class);
+        return item!=null && (item.getClass()==Food.class || item.getClass()==SmallRation.class || item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.food.Berry.class);
     }
 
     public static boolean basicArmorType(Item item) {
@@ -734,8 +787,23 @@ public final class CoopSession implements AutoCloseable {
                 && !item.cursed && ((Weapon)item).enchantment==null && item.trueLevel()==0;
     }
 
+    private Char abilityTarget(Hero hero, int cell) {
+        if (!Dungeon.level.insideMap(cell) || !knowledge(activeSeat).visible(cell)) return null;
+        Char foe = Actor.findChar(cell);
+        if (!(foe instanceof Mob) || !basicMob(foe) || !foe.isAlive() || foe.invisible > 0
+                || foe.alignment != Char.Alignment.ENEMY || hero.isCharmedBy(foe)) return null;
+        return foe;
+    }
+
     public static boolean playableTalent(Talent talent) {
-        return talent == Talent.HEARTY_MEAL || talent == Talent.EMPOWERING_MEAL || talent == Talent.FOLLOWUP_STRIKE;
+        switch (talent) {
+            case HEARTY_MEAL: case IRON_WILL: case PROVOKED_ANGER: case VETERANS_INTUITION:
+            case EMPOWERING_MEAL: case SCHOLARS_INTUITION: case LINGERING_MAGIC: case BACKUP_BARRIER:
+            case FOLLOWUP_STRIKE: case SURVIVALISTS_INTUITION: case NATURES_AID: case NATURES_BOUNTY:
+            case IRON_STOMACH: case ENERGIZING_MEAL: case INVIGORATING_MEAL:
+                return true;
+            default: return false;
+        }
     }
 
     public static boolean supportedScroll(Item item) {
@@ -773,7 +841,7 @@ public final class CoopSession implements AutoCloseable {
 
     public static boolean supportedHandheldWand(Item item) {
         return item != null && (item.getClass() == WandOfMagicMissile.class || item.getClass() == WandOfBlastWave.class || item.getClass() == WandOfFireblast.class)
-                && item.isIdentified() && !item.cursed;
+                && item.cursedKnown && !item.cursed;
     }
 
     private static TargetedDamageWand wandFor(Hero hero, Item item) {
@@ -823,11 +891,68 @@ public final class CoopSession implements AutoCloseable {
                 case USE_MASK: case CLAIM_SUBCLASS:
                     if (!chooseSubclass(hero, activeSeat, item, cell, action==Action.USE_MASK)) return false;
                     break;
+                case USE_CROWN: case CLAIM_ARMOR:
+                    if (!chooseArmor(hero,item,cell,action==Action.USE_CROWN)) return false;
+                    break;
+                case ARMOR_ABILITY: {
+                    if (!(item instanceof ClassArmor) || hero.belongings.armor()!=item || ownership.owner(item)!=player
+                            || !playableArmorAbility(hero.armorAbility)) return false;
+                    ClassArmor armor=(ClassArmor)item;
+                    if (armor.charge < hero.armorAbility.chargeUse(hero)) return false;
+                    if (hero.armorAbility instanceof HeroicLeap) {
+                        if (hero.rooted || !level.insideMap(cell) || !knowledge(activeSeat).visible(cell)
+                                || !level.passable[cell] || !supportedLanding(cell)) return false;
+                        int landing=HeroicLeap.landing(hero,cell);
+                        if (!supportedLanding(landing) || !level.passable[landing]) return false;
+                        ((HeroicLeap)hero.armorAbility).activate(armor,hero,cell);
+                    } else {
+                        if (cell!=hero.pos) return false;
+                        if (hero.armorAbility instanceof ElementalBlast &&
+                                (hero.belongings.getItem(MagesStaff.class)==null || hero.belongings.getItem(MagesStaff.class).starterWand()==null)) return false;
+                        hero.armorAbility.use(armor,hero);
+                    }
+                    break;
+                }
+                case BERSERK: {
+                    Berserk rage = hero.buff(Berserk.class);
+                    if (hero.subClass != HeroSubClass.BERSERKER || rage == null || !rage.readyForSeat()
+                            || cell != hero.pos || item != null) return false;
+                    rage.doAction();
+                    return true; // Native manual Berserk costs no time.
+                }
+                case CLOBBER: case SLAM: case PARRY: case CRUSH: case FURY: {
+                    Combo combo = hero.buff(Combo.class);
+                    if (hero.subClass != HeroSubClass.GLADIATOR || combo == null || item != null) return false;
+                    Char foe = null;
+                    if (action == Action.PARRY) {
+                        if (cell != hero.pos) return false;
+                    } else {
+                        foe = abilityTarget(hero, cell);
+                        if (foe == null) return false;
+                    }
+                    if (!combo.performForSeat(Combo.ComboMove.valueOf(action.name()), foe)) return false;
+                    if (foe != null) {
+                        lastOpponent[activeSeat] = (Mob)foe;
+                        attackTurn[activeSeat] = turn;
+                    }
+                    break;
+                }
+                case SNIPER_SHOT: {
+                    SnipersMark mark = hero.buff(SnipersMark.class);
+                    SpiritBow bow = hero.belongings.getItem(SpiritBow.class);
+                    Char foe = abilityTarget(hero, cell);
+                    if (hero.subClass != HeroSubClass.SNIPER || mark == null || bow == null || item != null
+                            || ownership.owner(bow) != player || foe == null || !bow.shootInCoop(hero, foe, mark)) return false;
+                    lastOpponent[activeSeat] = (Mob)foe;
+                    attackTurn[activeSeat] = turn;
+                    break;
+                }
                 case INVEST_TALENT: {
                     if (cell < 0 || cell >= Talent.values().length || item != null) return false;
                     Talent talent = Talent.values()[cell];
-                    if (!playableTalent(talent) || hero.talents.isEmpty() || !hero.talents.get(0).containsKey(talent)
-                            || hero.talentPointsAvailable(1) <= 0 || hero.pointsInTalent(talent) >= talent.maxPoints()) return false;
+                    int tier = hero.talents.size() > 1 && hero.talents.get(1).containsKey(talent) ? 2 : 1;
+                    if (!playableTalent(talent) || hero.talents.isEmpty() || !hero.talents.get(tier-1).containsKey(talent)
+                            || hero.talentPointsAvailable(tier) <= 0 || hero.pointsInTalent(talent) >= talent.maxPoints()) return false;
                     hero.upgradeTalent(talent);
                     // The native talent button spends no game time. Retain the current offer.
                     return true;
@@ -1049,7 +1174,7 @@ public final class CoopSession implements AutoCloseable {
                     item.execute(hero, Food.AC_EAT);
                     break;
                 case EQUIP:
-                    if (basicArmor(item)) {
+                    if (basicArmor(item) || item instanceof ClassArmor && hero.armorAbility!=null && ownership.owner(item)==player) {
                         Armor old=hero.belongings.armor;
                         // A seal transfer normally opens a selection dialog. Explicit unequip keeps it with its armor.
                         if (!hero.belongings.backpack.contains(item) || (old!=null && (old.cursed || old.checkSeal()!=null))) return false;
@@ -1064,7 +1189,7 @@ public final class CoopSession implements AutoCloseable {
                     if (!revive(hero, cell)) return false;
                     break;
                 case UNEQUIP:
-                    if (item!=null && item==hero.belongings.armor && basicArmor(item)) {
+                    if (item!=null && item==hero.belongings.armor && (basicArmor(item) || item instanceof ClassArmor && ownership.owner(item)==player)) {
                         if (item.cursed || !hero.belongings.backpack.canHold(item)
                                 || !hero.belongings.armor.doUnequip(hero,true)) return false;
                         break;
@@ -1127,7 +1252,13 @@ public final class CoopSession implements AutoCloseable {
         validateActorGraph();
         Bundle b = new Bundle();
         int format = stairs.schema();
-        b.put("schema",maskTrial == MaskTrial.OFF ? format : 16);
+        b.put("schema",crownTrial != MaskTrial.OFF ? 17 : maskTrial == MaskTrial.OFF ? format : 16);
+        if (crownTrial != MaskTrial.OFF) {
+            b.put("floor_schema",format);
+            b.put("crown_trial",crownTrial.name());
+            b.put("crown_user",crownUser);
+            b.put("crown_rights",crownRights);
+        }
         if (maskTrial != MaskTrial.OFF) {
             b.put("floor_schema",format);
             b.put("mask_trial",maskTrial.name());
@@ -1374,7 +1505,21 @@ public final class CoopSession implements AutoCloseable {
         maskTrial = MaskTrial.OFF;
         maskRights = 0;
         maskUser = -1;
-        if (b.getInt("schema") == 16) {
+        crownUser=-1;
+        crownRights=0;
+        crownTrial=MaskTrial.OFF;
+        if (b.getInt("schema")==17) {
+            if (!b.contains("crown_user") || !b.contains("crown_rights") || !b.contains("crown_trial"))
+                throw new IllegalArgumentException("Missing crown trial ledger");
+            crownTrial=MaskTrial.valueOf(b.getString("crown_trial"));
+            crownUser=b.getInt("crown_user");
+            crownRights=b.getInt("crown_rights");
+            if (crownTrial==MaskTrial.OFF || crownUser < -1 || crownUser > 1
+                    || crownUser >= 0 && heroes[crownUser].armorAbility==null
+                    || crownRights!=0 && (crownUser<0 || crownTrial!=MaskTrial.ROSTER || crownRights!=(1<<(1-crownUser))
+                    || heroes[1-crownUser].armorAbility!=null)) throw new IllegalArgumentException("Invalid crown trial ledger");
+        }
+        if (b.getInt("schema") == 16 || b.getInt("schema")==17 && b.contains("mask_trial")) {
             if (!b.contains("mask_user") || !b.contains("mask_rights")) throw new IllegalArgumentException("Missing mask ledger");
             maskTrial = MaskTrial.valueOf(b.getString("mask_trial"));
             maskUser = b.getInt("mask_user");

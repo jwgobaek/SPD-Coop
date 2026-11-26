@@ -198,12 +198,32 @@ final class SeatProjection {
             rows.put("selftier",Integer.toString(hero.tier()));
             rows.put("strength",Integer.toString(hero.STR()));
             rows.put("subclass",hero.subClass.name());
+            if (game.mayChooseArmor(seat,false)) rows.put("crownright","1");
             if (game.mayClaimSubclass(seat)) rows.put("maskright","1");
-            if (!hero.talents.isEmpty()) {
-                rows.put("freepoints1", Integer.toString(hero.talentPointsAvailable(1)));
-                for (Talent talent : hero.talents.get(0).keySet()) {
-                    if (CoopSession.playableTalent(talent))
+            Combo combo = hero.buff(Combo.class);
+            if (hero.subClass == HeroSubClass.GLADIATOR && combo != null) {
+                rows.put("combocount", Integer.toString(combo.getComboCount()));
+                rows.put("combotime", Float.toString(combo.remainingTime()));
+                rows.put("comboenhanced", Integer.toString(hero.pointsInTalent(Talent.ENHANCED_COMBO)));
+                for (Combo.ComboMove move : Combo.ComboMove.values())
+                    if (combo.canUseMove(move)) rows.put("finish" + move.ordinal(), "1");
+            }
+            Berserk rage = hero.buff(Berserk.class);
+            if (hero.subClass == HeroSubClass.BERSERKER && rage != null && rage.readyForSeat()) rows.put("rage", "1");
+            SnipersMark mark = hero.buff(SnipersMark.class);
+            if (hero.subClass == HeroSubClass.SNIPER && mark != null) {
+                com.shatteredpixel.shatteredpixeldungeon.actors.Actor marked =
+                        com.shatteredpixel.shatteredpixeldungeon.actors.Actor.findById(mark.object);
+                if (marked instanceof Mob && ((Mob)marked).isAlive() && ((Mob)marked).invisible <= 0 && sight.visible(((Mob)marked).pos))
+                    rows.put("snipercell", Integer.toString(((Mob)marked).pos));
+            }
+            for (int tier=1; tier<=2 && tier<=hero.talents.size(); tier++) {
+                rows.put("freepoints"+tier, Integer.toString(hero.talentPointsAvailable(tier)));
+                for (Talent talent : hero.talents.get(tier-1).keySet()) {
+                    if (CoopSession.playableTalent(talent)) {
                         rows.put("learn"+talent.ordinal(), Integer.toString(hero.pointsInTalent(talent)));
+                        rows.put("tier"+talent.ordinal(), Integer.toString(tier));
+                    }
                 }
             }
             for (Map<Talent,Integer> tier:hero.talents) for (Map.Entry<Talent,Integer> talent:tier.entrySet()) {
@@ -363,6 +383,11 @@ final class SeatProjection {
                 selection++;
                 putItem(rows,visibleItems,item,slot(hero.belongings,item));
                 if (game.ownership.owner(item)==game.player(seat)) {
+                    if (item instanceof KingsCrown && game.mayChooseArmor(seat,true)) rows.put("crown"+ids.get(item),"1");
+                    if (item == hero.belongings.armor() && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor && CoopSession.playableArmorAbility(hero.armorAbility)) {
+                        rows.put("ability"+ids.get(item),hero.armorAbility.getClass().getSimpleName());
+                        rows.put("armorcharge"+ids.get(item),Integer.toString((int)((com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor)item).charge));
+                    }
                     if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.TengusMask && game.mayUseMask(seat))
                         rows.put("mask"+ids.get(item),"1");
                     if (rows.containsKey("vaultscore") && com.shatteredpixel.shatteredpixeldungeon.items.quest.EscapeCrystal.rewardAllowed(item,Integer.parseInt(rows.get("vaultscore")))) rows.put("vaultpick"+ids.get(item),"1");
@@ -446,6 +471,7 @@ final class SeatProjection {
                 : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow ? "BOW"
                 : item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing.class && ((com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion)item).isKnown() ? "HEALING"
                 : CoopSession.basicArmorType(item) ? "ARMOR" : CoopSession.basicFood(item) ? "FOOD" : item instanceof Ankh ? "ANKH" : CoopSession.basicWeaponType(item) ? "MELEE" : "OTHER";
+        if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor) kind="CLASS_ARMOR";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.VaultBeacon) kind="VAULT_BEACON";
         if (!slot.startsWith("F") && item.isIdentified() && CoopSession.basicArmorType(item)
                 && ((com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor)item).glyph!=null) kind="INSCRIBED";
@@ -459,8 +485,12 @@ final class SeatProjection {
         String charges="";
         if (!slot.startsWith("F") && CoopSession.supportedHandheldWand(item)) {
             com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand wand = (com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand)item;
-            kind = "WAND";
-            charges = "," + wand.curCharges + "," + wand.maxCharges;
+            if (wand.isIdentified()) {
+                kind = "WAND";
+                charges = "," + wand.curCharges + "," + wand.maxCharges;
+            } else {
+                kind = "UNIDENTIFIED_WAND";
+            }
         } else if (!slot.startsWith("F") && item instanceof MagesStaff) {
             WandOfMagicMissile wand=((MagesStaff)item).starterWand();
             if (wand!=null) { kind="STAFF"; charges=","+wand.curCharges+","+wand.maxCharges; }

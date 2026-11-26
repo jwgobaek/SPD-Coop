@@ -26,6 +26,10 @@ public final class VaultPublicRoute {
         final Set<Integer> rejectedChests = new HashSet<>();
         boolean reviveDenied;
         final boolean team=Boolean.getBoolean("vault.guide.team");
+        final String regroup = System.getProperty("vault.guide.regroup","off");
+        int rendezvous = -1;
+        int missingTurns;
+        int reunions;
         int lastAlly=-1;
         int destination=-1;
         final Set<String> blockedShots=new HashSet<>();
@@ -104,7 +108,16 @@ public final class VaultPublicRoute {
         }
         Input choose(PublicDungeon v) {
             visits.merge(v.pos, 1, Integer::sum);
-            if (v.ally>=0) lastAlly=v.ally;
+            if (v.ally>=0) {
+                if (missingTurns>0) reunions++;
+                missingTurns=0;
+                lastAlly=v.ally;
+                if (adjacent(v.pos,v.ally,v.width) && exposedTo(v,v.pos)==0 && exposedTo(v,v.ally)==0)
+                    rendezvous=Math.min(v.pos,v.ally);
+            } else missingTurns++;
+            boolean returning = rendezvous>=0 && !regroup.equals("off") && (missingTurns>0
+                    || regroup.equals("cover") && v.ally>=0 && distance(v.pos,v.ally,v.width)>3);
+            int meetingCell = v.ally>=0 ? v.ally : rendezvous;
             if (!reviveDenied && v.ally>=0 && adjacent(v.pos,v.ally,v.width) && "DOWNED".equals(v.source.rows.get("allylife"))) {
                 return new Input("REVIVE",v.ally,0);
             }
@@ -142,6 +155,7 @@ public final class VaultPublicRoute {
                     }
                 }
             }
+            if (returning && v.pos==meetingCell && v.monsters.isEmpty()) return new Input("WAIT",0,0);
             if (investigateWalls(v)) return new Input("SEARCH",v.pos,0);
             int n=v.width*v.height;
             int[] first=new int[n], dist=new int[n], queue=new int[n];
@@ -179,6 +193,7 @@ public final class VaultPublicRoute {
                     }
                     // Retain an observed objective between adjacent moves even as the ally takes a turn.
                     if (team && c==destination && !v.monsters.containsKey(c)) value+=20;
+                    if (returning) value=-100*distance(c,meetingCell,v.width)-dist[c]-20*exposedTo(v,c);
                     if (value>high) {best=first[c]; bestCell=c; high=value;}
                 }
             }
@@ -232,6 +247,9 @@ public final class VaultPublicRoute {
                     return;
                 }
                 Input i=guide[seat].choose(v);
+                if (applied==123 || applied==124) System.out.printf("SIGHT\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s%n",
+                        applied,seat,v.pos,v.ally,guide[seat].lastAlly,guide[seat].rendezvous,v.hp,v.source.checksum);
+
                 String outcome=send(game,room,v,seat,++ids[seat],i);
                 if (outcome.equals("REJECT_INVALID") && i.action.equals("PICK_UP")) {
                     // Diagnostics only, after the public decision. Never identify a potion, scroll or ring here.
@@ -256,6 +274,7 @@ public final class VaultPublicRoute {
                 v.floor.forEach((c,it)->floor.put(c,it.kind+"/"+it.sprite));
                 System.out.printf("INPUT\t%d\t%d\t%d\t%d\t%d\t%s\t%s\t%s\t%s\t%d\t%s%n",applied,seat,v.pos,v.hp,v.maxHp,bag,floor,new TreeMap<>(v.monsters),i.action,i.cell,outcome);
             }
+            System.out.printf("OBSERVED_REUNIONS\t%d\t%d%n",guide[0].reunions,guide[1].reunions);
             System.out.printf("PUBLIC_ROUTE\t%d\t%d\t%d\t%d\t%d\t%s\t%s%n",seed,applied,game.stairs.vaultScore(),
                     game.hero(0).HP,game.hero(1).HP,game.defeated(),game.stopReason());
         }

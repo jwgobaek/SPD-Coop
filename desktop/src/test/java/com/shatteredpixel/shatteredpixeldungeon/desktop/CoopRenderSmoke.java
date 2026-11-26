@@ -31,7 +31,7 @@ public final class CoopRenderSmoke {
     private static final long LIMIT=TimeUnit.SECONDS.toNanos(18);
     public static void main(String[] args) throws Exception {
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -682,12 +682,41 @@ public final class CoopRenderSmoke {
         System.out.println("PASS seed 572 cell 1872 native vault HUD pickup, bind, aim, cancel and throw");
     }
 
+    private static void comboInputs() throws Exception {
+        await(()->frame().dungeon.offered && frame().image.rows.containsKey("finish1"));
+        PublicDungeon v=frame().dungeon;
+        String hud="#"+v.source.rows.get("combocount")+"/"+v.source.rows.get("combotime");
+        click(hud);
+        com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Combo.ComboMove move=com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Combo.ComboMove.SLAM;
+        String label="#_"+Messages.titleCase(move.title())+" "+Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndCombo.class,"combo_req",move.comboReq)+":_ "+move.desc(move.comboReq,0);
+        waitForButton(label);shot("combo-menu");click(label);
+        await(()->button("cancel")!=null);
+        shot("combo-aim");click("cancel");
+        if(frame().image.version!=v.source.version) throw new AssertionError("Cancelled aim changed the game");
+        click(hud);click(label);
+        press(mapPoint(v,v.monsters.entrySet().stream().filter(e->e.getValue().equals("Rat")).findFirst().get().getKey()));
+        await(()->frame().image.version>v.source.version && !frame().image.rows.containsKey("combocount"));
+        shot("combo-spent");
+    }
+
+    private static void crownInputs() throws Exception {
+        await(()->{ PublicDungeon current=frame().dungeon; return current.offered && current.belongings.stream().anyMatch(i->current.actions(i).contains("USE_CROWN")); });
+        PublicDungeon v=frame().dungeon;
+        long id=v.belongings.stream().filter(i->v.actions(i).contains("USE_CROWN")).findFirst().get().id;
+        click("bag");press(inventoryPoint(id));click("use_crown");
+        String ability="#"+new com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.HeroicLeap().shortDesc();
+        waitForButton(ability);shot("crown-choice");click(ability);
+        click("#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndChooseAbility.class,"yes"));
+        await(()->frame().dungeon.belongings.stream().anyMatch(i->i.kind.equals("CLASS_ARMOR")));
+        shot("crown-equipped");
+    }
+
     private static void growthInputs() throws Exception {
         await(()->{ PublicDungeon v=frame().dungeon; return v.offered && v.belongings.stream().anyMatch(i->v.actions(i).contains("USE_MASK")); });
         openCharacter();
         click("#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndHero.class,"talents"));
         com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent food=com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.HEARTY_MEAL;
-        click("#"+Messages.titleCase(food.title())+"  0/"+food.maxPoints());
+        click("#1 · "+Messages.titleCase(food.title())+"  0/"+food.maxPoints());
         String upgrade="#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTalent.class,"upgrade");
         waitForButton(upgrade);shot("native-talent");click(upgrade);
         await(()->"1".equals(frame().image.rows.get("learn"+food.ordinal())));
@@ -714,7 +743,7 @@ public final class CoopRenderSmoke {
         render(()->{
             Field active=CoopScene.class.getDeclaredField("active"); active.setAccessible(true);
             active.set(null,new CoopController(CoopPlatform.root(),null,null,testPort,0,
-                    new java.util.Random(){@Override public long nextLong(){return !regionShot.isEmpty() ? ((regionShot.equals("growth-input") || regionShot.startsWith("ascent-"))?578:regionShot.startsWith("yog-")?572:regionShot.equals("mine-crystal")?570:(regionShot.startsWith("vault-") || regionShot.equals("imp-vault") || regionShot.equals("halls-21") || regionShot.equals("city-market") || regionShot.startsWith("king-"))?572:571) : latePrison ? 570 : wandmaker ? 577 : seventh ? 581 : deep ? 402 : armored ? 446 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
+                    new java.util.Random(){@Override public long nextLong(){return !regionShot.isEmpty() ? ((regionShot.endsWith("-input") || regionShot.startsWith("ascent-"))?578:regionShot.startsWith("yog-")?572:regionShot.equals("mine-crystal")?570:(regionShot.startsWith("vault-") || regionShot.equals("imp-vault") || regionShot.equals("halls-21") || regionShot.equals("city-market") || regionShot.startsWith("king-"))?572:571) : latePrison ? 570 : wandmaker ? 577 : seventh ? 581 : deep ? 402 : armored ? 446 : unstable ? 421 : statue ? 416 : golden ? 427 : crystal ? 411 : mimic ? 408 : ghost ? 403 : floors && !sentry ? 415 : 402;}}));
             return null;
         });
         click("title"); await(()->button("host")!=null);
@@ -736,6 +765,8 @@ public final class CoopRenderSmoke {
                 RenderEncounter.tengu(hostController(),regionShot);
                 if (regionShot.equals("vault-dart")) { vaultDart(); return; }
                 if (regionShot.equals("growth-input")) { growthInputs(); return; }
+                if (regionShot.equals("combo-input")) { comboInputs(); return; }
+                if (regionShot.equals("crown-input")) { crownInputs(); return; }
                 if (regionShot.equals("smith-services")) {
                     await(()->frame().dungeon.offered && frame().image.rows.containsKey("priceorder"));
                     PublicDungeon smithView=frame().dungeon;

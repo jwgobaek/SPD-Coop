@@ -180,7 +180,7 @@ public class ElementalBlast extends ArmorAbility {
 
 		ConeAOE aoe = new ConeAOE(aim, aoeSize, 360, projectileProps);
 
-		for (Ballistica ray : aoe.outerRays){
+		if (Dungeon.coop == null) for (Ballistica ray : aoe.outerRays){
 			((MagicMissile)hero.sprite.parent.recycle( MagicMissile.class )).reset(
 					effectTypes.get(wandCls),
 					hero.sprite,
@@ -193,11 +193,7 @@ public class ElementalBlast extends ArmorAbility {
 
 		//cast a ray 2/3 the way, and do effects
 		Class<? extends Wand> finalWandCls = wandCls;
-		((MagicMissile)hero.sprite.parent.recycle( MagicMissile.class )).reset(
-				effectTypes.get(wandCls),
-				hero.sprite,
-				aim.path.get(Math.min(aoeSize / 2, aim.path.size()-1)),
-				new Callback() {
+		Callback impact = new Callback() {
 					@Override
 					public void call() {
 
@@ -268,7 +264,7 @@ public class ElementalBlast extends ArmorAbility {
 
 							//### Deal damage ###
 							Char mob = Actor.findChar(cell);
-							int damage = Math.round(Hero.heroDamageIntRange(15, 25)
+							int damage = Math.round(Hero.heroDamageIntRange(hero,15,25)
 									* effectMulti
 									* damageFactors.get(finalWandCls));
 
@@ -360,7 +356,7 @@ public class ElementalBlast extends ArmorAbility {
 											charm.ignoreHeroAllies = true;
 											mob.sprite.centerEmitter().start(Speck.factory(Speck.HEART), 0.2f, 3);
 										} else {
-											damage = Math.round(Hero.heroDamageIntRange(15, 25) * effectMulti);
+											damage = Math.round(Hero.heroDamageIntRange(hero,15,25) * effectMulti);
 											mob.damage(damage, Reflection.newInstance(finalWandCls));
 											mob.sprite.emitter().start(ShadowParticle.UP, 0.05f, 10);
 										}
@@ -426,17 +422,22 @@ public class ElementalBlast extends ArmorAbility {
 
 						hero.spendAndNext(Actor.TICK);
 					}
-				}
-		);
+				};
+		if (Dungeon.coop == null) ((MagicMissile)hero.sprite.parent.recycle( MagicMissile.class )).reset(
+				effectTypes.get(wandCls),
+				hero.sprite,
+				aim.path.get(Math.min(aoeSize / 2, aim.path.size()-1)),
+				impact);
 
 		hero.sprite.operate( hero.pos );
-		Invisibility.dispel();
+		Invisibility.dispel(hero);
 		hero.busy();
 
 		armor.charge -= chargeUse(hero);
 		armor.updateQuickslot();
 
-		Sample.INSTANCE.play( Assets.Sounds.CHARGEUP );
+		if (Dungeon.coop == null) Sample.INSTANCE.play( Assets.Sounds.CHARGEUP );
+		else impact.call();
 
 	}
 

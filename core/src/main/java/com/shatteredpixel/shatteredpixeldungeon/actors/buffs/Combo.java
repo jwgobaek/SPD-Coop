@@ -103,7 +103,7 @@ public class Combo extends Buff implements ActionIndicator.Action {
 		if ((getHighestMove() != null)) {
 
 			ActionIndicator.setAction( this );
-			Badges.validateMasteryCombo( count );
+			if (Dungeon.coop == null) Badges.validateMasteryCombo( count );
 
 			GLog.p( Messages.get(this, "combo", count) );
 			
@@ -227,33 +227,37 @@ public class Combo extends Buff implements ActionIndicator.Action {
 		}
 
 		public String desc(int count){
+			return desc(count, Dungeon.hero.pointsInTalent(Talent.ENHANCED_COMBO));
+		}
+
+		public String desc(int count, int enhanced){
 			switch (this){
 				case CLOBBER: default:
-					if (count >= 7 && Dungeon.hero.pointsInTalent(Talent.ENHANCED_COMBO) >= 1){
+					if (count >= 7 && enhanced >= 1){
 						return Messages.get(this, name() + ".empower_desc");
 					} else {
 						return Messages.get(this, name() + ".desc");
 					}
 				case SLAM:
-					if (count >= 3 && Dungeon.hero.pointsInTalent(Talent.ENHANCED_COMBO) >= 3){
+					if (count >= 3 && enhanced >= 3){
 						return Messages.get(this, name() + ".empower_desc", count/3, count*20);
 					} else {
 						return Messages.get(this, name() + ".desc", count*20);
 					}
 				case PARRY:
-					if (count >= 9 && Dungeon.hero.pointsInTalent(Talent.ENHANCED_COMBO) >= 2){
+					if (count >= 9 && enhanced >= 2){
 						return Messages.get(this, name() + ".empower_desc");
 					} else {
 						return Messages.get(this, name() + ".desc");
 					}
 				case CRUSH:
-					if (count >= 3 && Dungeon.hero.pointsInTalent(Talent.ENHANCED_COMBO) >= 3){
+					if (count >= 3 && enhanced >= 3){
 						return Messages.get(this, name() + ".empower_desc", count/3, count*25);
 					} else {
 						return Messages.get(this,  name() + ".desc", count*25);
 					}
 				case FURY:
-					if (count >= 3 && Dungeon.hero.pointsInTalent(Talent.ENHANCED_COMBO) >= 3){
+					if (count >= 3 && enhanced >= 3){
 						return Messages.get(this, name() + ".empower_desc", count/3);
 					} else {
 						return Messages.get(this,  name() + ".desc");
@@ -286,14 +290,44 @@ public class Combo extends Buff implements ActionIndicator.Action {
 		return move.comboReq <= count;
 	}
 
+	public float remainingTime() { return comboTime; }
+
+	/** Authority has already checked visibility, actor identity, and the offered turn. */
+	public boolean performForSeat(ComboMove move, Char enemy) {
+		if (comboTime <= 0 || !canUseMove(move)) return false;
+		Hero hero = (Hero) target;
+		if (move == ComboMove.PARRY) {
+			useMove(move);
+			return true;
+		}
+		if (enemy == null || hero.isCharmedBy(enemy)) return false;
+		if (!hero.canAttack(enemy)) {
+			if (hero.pointsInTalent(Talent.ENHANCED_COMBO) < 3 || hero.rooted
+					|| Dungeon.level.distance(hero.pos, enemy.pos) > 1 + count / 3) return false;
+			Ballistica path = new Ballistica(hero.pos, enemy.pos, Ballistica.PROJECTILE);
+			if (path.collisionPos != enemy.pos || path.dist < 1) return false;
+			int landing = path.path.get(path.dist - 1);
+			if (!Dungeon.level.passable[landing] && !(hero.flying && Dungeon.level.avoid[landing])) return false;
+			hero.move(landing);
+			Dungeon.level.occupyCell(hero);
+			if (!hero.isAlive()) return true;
+		}
+		moveBeingUsed = move;
+		hero.busy();
+		do {
+			doAttack(enemy);
+		} while (move == ComboMove.FURY && furyHitsLeft > 0);
+		return true;
+	}
+
 	public void useMove(ComboMove move){
 		if (move == ComboMove.PARRY){
 			parryUsed = true;
 			comboTime = Math.max(comboTime, 5f);
-			Invisibility.dispel();
+			Invisibility.dispel(target);
 			Buff.affect(target, ParryTracker.class, Actor.TICK);
 			((Hero)target).spendAndNext(Actor.TICK);
-			Dungeon.hero.busy();
+			((Hero)target).busy();
 		} else {
 			moveBeingUsed = move;
 			GameScene.selectCell(listener);
@@ -304,6 +338,15 @@ public class Combo extends Buff implements ActionIndicator.Action {
 		{ actPriority = HERO_PRIO+1;}
 
 		public boolean parried;
+
+		@Override public void storeInBundle(Bundle bundle) {
+			super.storeInBundle(bundle);
+			bundle.put("parried", parried);
+		}
+		@Override public void restoreFromBundle(Bundle bundle) {
+			super.restoreFromBundle(bundle);
+			parried = bundle.getBoolean("parried");
+		}
 
 		@Override
 		public void detach() {
@@ -316,11 +359,28 @@ public class Combo extends Buff implements ActionIndicator.Action {
 		{ actPriority = VFX_PRIO;}
 
 		public Char enemy;
+		private int enemyId;
+
+		@Override public void storeInBundle(Bundle bundle) {
+			super.storeInBundle(bundle);
+			bundle.put("riposte_target", enemy == null ? enemyId : enemy.id());
+		}
+		@Override public void restoreFromBundle(Bundle bundle) {
+			super.restoreFromBundle(bundle);
+			enemyId = bundle.getInt("riposte_target");
+		}
 
 		@Override
 		public boolean act() {
-			if (target.buff(Combo.class) != null) {
-				moveBeingUsed = ComboMove.PARRY;
+			if (enemy == null && Actor.findById(enemyId) instanceof Char) enemy = (Char)Actor.findById(enemyId);
+			final Combo combo = target.buff(Combo.class);
+			if (combo != null && enemy != null && enemy.isAlive()) {
+				combo.moveBeingUsed = ComboMove.PARRY;
+				if (Dungeon.coop != null) {
+					combo.doAttack(enemy);
+					detach();
+					return true;
+				}
 				target.sprite.attack(enemy.pos, new Callback() {
 					@Override
 					public void call() {
@@ -337,12 +397,12 @@ public class Combo extends Buff implements ActionIndicator.Action {
 		}
 	}
 
-	private static ComboMove moveBeingUsed;
-	private static int furyHitsLeft = 0;
+	private ComboMove moveBeingUsed;
+	private int furyHitsLeft = 0;
 
 	private void doAttack(final Char enemy) {
 
-		AttackIndicator.target(enemy);
+		if (Dungeon.coop == null) AttackIndicator.target(enemy);
 
 		boolean wasAlly = enemy.alignment == target.alignment;
 		Hero hero = (Hero) target;
@@ -395,7 +455,7 @@ public class Combo extends Buff implements ActionIndicator.Action {
 					hit(enemy);
 					break;
 				case CRUSH:
-					WandOfBlastWave.BlastWave.blast(enemy.pos);
+					if (Dungeon.coop == null) WandOfBlastWave.BlastWave.blast(enemy.pos);
 					PathFinder.buildDistanceMap(target.pos, BArray.not(Dungeon.level.solid, null), 3);
 					for (Char ch : Actor.chars()) {
 						if (ch != enemy && ch.alignment == Char.Alignment.ENEMY
@@ -410,8 +470,10 @@ public class Combo extends Buff implements ActionIndicator.Action {
 							} else {
 								ch.damage(aoeHit, target);
 							}
-							ch.sprite.bloodBurstA(target.sprite.center(), aoeHit);
-							ch.sprite.flash();
+							if (Dungeon.coop == null) {
+								ch.sprite.bloodBurstA(target.sprite.center(), aoeHit);
+								ch.sprite.flash();
+							}
 
 							if (!ch.isAlive() && hero.hasTalent(Talent.LETHAL_DEFENSE)) {
 								Buff.affect(hero, BrokenSeal.WarriorShield.class).reduceCooldown(hero.pointsInTalent(Talent.LETHAL_DEFENSE)/3f);
@@ -425,7 +487,7 @@ public class Combo extends Buff implements ActionIndicator.Action {
 			}
 		}
 
-		Invisibility.dispel();
+		Invisibility.dispel(target);
 
 		//Post-attack behaviour
 		switch(moveBeingUsed){
@@ -450,7 +512,7 @@ public class Combo extends Buff implements ActionIndicator.Action {
 				//fury attacks as many times as you have combo count
 				if (furyHitsLeft > 0 && enemy.isAlive() && hero.canAttack(enemy) &&
 						hero.paralysed == 0 && (wasAlly || enemy.alignment != target.alignment)){
-					target.sprite.attack(enemy.pos, new Callback() {
+					if (Dungeon.coop == null) target.sprite.attack(enemy.pos, new Callback() {
 						@Override
 						public void call() {
 							doAttack(enemy);
@@ -458,7 +520,7 @@ public class Combo extends Buff implements ActionIndicator.Action {
 					});
 				} else {
 					furyHitsLeft = 0;
-					Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
+					if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.HIT_STRONG);
 					ActionIndicator.clearAction(Combo.this);
 					hero.next();
 				}
@@ -505,7 +567,7 @@ public class Combo extends Buff implements ActionIndicator.Action {
 							PixelScene.shake( 1, 1f );
 							GLog.w(Messages.get(Combo.class, "bad_target"));
 						} else {
-							Dungeon.hero.busy();
+							((Hero)target).busy();
 							target.sprite.jump(target.pos, leapPos, new Callback() {
 								@Override
 								public void call() {
@@ -528,7 +590,7 @@ public class Combo extends Buff implements ActionIndicator.Action {
 				}
 
 			} else {
-				Dungeon.hero.busy();
+				((Hero)target).busy();
 				target.sprite.attack(cell, new Callback() {
 					@Override
 					public void call() {

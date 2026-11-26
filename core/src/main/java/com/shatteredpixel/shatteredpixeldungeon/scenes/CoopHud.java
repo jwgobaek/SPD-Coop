@@ -25,7 +25,8 @@ final class CoopHud extends Group {
     private final RenderedTextBlock turn = PixelScene.renderTextBlock("",6);
     private final Group effects = new Group();
     private final List<BuffIcon> icons = new ArrayList<>();
-    private final StyledButton stairs, cancel;
+    private final StyledButton stairs, cancel, subclass;
+    private int subclassIcon=-1;
     private final Toolbar.SeatTool wait,search,pickup,bag;
     private final Toolbar.SeatTool[] quick = new Toolbar.SeatTool[4];
     private final PublicDungeon.Loot[] items = new PublicDungeon.Loot[4];
@@ -112,6 +113,11 @@ final class CoopHud extends Group {
         }
         pickup=tool("pick_up",64,22,-1,()->view.tap(client,view.pos));
         pickup.setPos(x-22,bottom-24);
+        subclass = new RedButton("", 7) {
+            @Override protected void onClick() { stopRest(); scene.subclassAction(view); }
+        };
+        subclass.setRect(right-48,bottom-72,44,20);
+        add(subclass);
         float width=Math.min(180,right-left-8);
         stairs=new RedButton("") { @Override protected void onClick() {
             scene.offerStairs(view,view.stair);
@@ -175,6 +181,13 @@ final class CoopHud extends Group {
             portrait.x=left+15-portrait.width()/2; portrait.y=top+16-portrait.height()/2;
             PixelScene.align(portrait);lastPortrait=appearance;
         }
+        int skill = view.source.rows.containsKey("combocount") ? HeroIcon.COMBO
+                : view.source.rows.containsKey("rage") ? HeroIcon.BERSERK
+                : view.source.rows.containsKey("snipercell") ? HeroIcon.SNIPERS_MARK : -1;
+        subclass.visible = skill>=0 && !aiming;
+        subclass.enable(subclass.visible && view.offered && confirmed);
+        if (skill>=0 && skill!=subclassIcon) { subclass.icon(new HeroIcon(skill)); subclassIcon=skill; }
+        subclass.text(skill==HeroIcon.COMBO ? view.source.rows.get("combocount")+"/"+view.source.rows.get("combotime") : "");
         float total=Math.max(view.maxHp,(float)view.hp+view.shield);
         hp.scale.x=view.hp/total;shield.scale.x=(view.hp+view.shield)/total;
         xp.scale.x=(float)view.experience/Hero.maxExp(view.level);

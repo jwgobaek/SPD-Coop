@@ -145,7 +145,7 @@ public class Berserk extends ShieldBuff implements ActionIndicator.Action {
 					detach();
 				}
 			}
-		} else if (state == State.RECOVERING && levelRecovery == 0 && Regeneration.regenOn()){
+		} else if (state == State.RECOVERING && levelRecovery == 0 && Regeneration.regenOn((Hero)target)){
 			turnRecovery--;
 			if (turnRecovery <= 0){
 				turnRecovery = 0;
@@ -187,9 +187,11 @@ public class Berserk extends ShieldBuff implements ActionIndicator.Action {
 
 	private void startBerserking(){
 		state = State.BERSERK;
-		SpellSprite.show(target, SpellSprite.BERSERK);
-		Sample.INSTANCE.play( Assets.Sounds.CHALLENGE );
-		GameScene.flash(0xFF0000);
+		if (Dungeon.coop == null) {
+			SpellSprite.show(target, SpellSprite.BERSERK);
+			Sample.INSTANCE.play( Assets.Sounds.CHALLENGE );
+			GameScene.flash(0xFF0000);
+		}
 
 		if (target.HP > 0) {
 			turnRecovery = TURN_RECOVERY_START;
@@ -204,6 +206,11 @@ public class Berserk extends ShieldBuff implements ActionIndicator.Action {
 		target.sprite.showStatusWithIcon( CharSprite.POSITIVE, Integer.toString(shieldAmount), FloatingText.SHIELDING );
 
 		BuffIndicator.refreshHero();
+	}
+
+	public boolean readyForSeat() {
+		WarriorShield seal = target.buff(WarriorShield.class);
+		return state == State.NORMAL && power >= 1f && seal != null && seal.maxShield() > 0;
 	}
 
 	public int currentShieldBoost(){
@@ -322,7 +329,7 @@ public class Berserk extends ShieldBuff implements ActionIndicator.Action {
 				return 1f - shielding() / (float)maxShieldBoost();
 			case RECOVERING:
 				if (levelRecovery > 0) {
-					return levelRecovery/(LEVEL_RECOVER_START-Dungeon.hero.pointsInTalent(Talent.DEATHLESS_FURY));
+					return levelRecovery/(LEVEL_RECOVER_START-((Hero)target).pointsInTalent(Talent.DEATHLESS_FURY));
 				} else {
 					return turnRecovery/(float)TURN_RECOVERY_START;
 				}

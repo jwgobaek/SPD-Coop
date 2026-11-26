@@ -185,12 +185,12 @@ abstract public class Weapon extends KindOfWeapon {
 			return damage;
 		}
 		
-		if (!levelKnown && attacker == Dungeon.hero) {
-			float uses = Math.min( availableUsesToID, Talent.itemIDSpeedFactor(Dungeon.hero, this) );
+		if (!levelKnown && attacker instanceof Hero && (Dungeon.coop!=null || attacker==Dungeon.hero)) {
+			float uses = Math.min( availableUsesToID, Talent.itemIDSpeedFactor((Hero)attacker, this) );
 			availableUsesToID -= uses;
 			usesLeftToID -= uses;
 			if (usesLeftToID <= 0) {
-				if (ShardOfOblivion.passiveIDDisabled()){
+				if (ShardOfOblivion.passiveIDDisabled((Hero)attacker)){
 					if (usesLeftToID > -1){
 						GLog.p(Messages.get(ShardOfOblivion.class, "identify_ready"), name());
 					}

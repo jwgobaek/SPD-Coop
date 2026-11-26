@@ -548,7 +548,7 @@ public class Armor extends EquipableItem {
 			availableUsesToID -= uses;
 			usesLeftToID -= uses;
 			if (usesLeftToID <= 0) {
-				if (ShardOfOblivion.passiveIDDisabled()){
+				if (ShardOfOblivion.passiveIDDisabled((Hero)defender)){
 					if (usesLeftToID > -1){
 						GLog.p(Messages.get(ShardOfOblivion.class, "identify_ready"), name());
 					}

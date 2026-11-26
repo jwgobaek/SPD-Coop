@@ -47,6 +47,20 @@ public class WndChooseAbility extends Window {
 
 	public WndChooseAbility(final KingsCrown crown, final Armor armor, final Hero hero){
 
+		this(crown,armor,hero,hero.heroClass,null);
+	}
+
+	public interface SeatChoice {
+		void show(Window window);
+		void select(int index);
+	}
+
+	public WndChooseAbility(com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass type, SeatChoice seat) {
+		this(new KingsCrown(), null, null, type, seat);
+	}
+
+	private WndChooseAbility(KingsCrown crown, Armor armor, Hero hero,
+			com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass type, SeatChoice seat) {
 		super();
 
 		//crown can be null if hero is choosing from armor
@@ -92,7 +106,7 @@ public class WndChooseAbility extends Window {
 			}
 		};
 		random.setRect(WIDTH-16, 0, 16, 16);
-		if (crown != null) add(random);
+		if (crown != null && seat == null) add(random);
 
 		RenderedTextBlock body = PixelScene.renderTextBlock( 6 );
 		if (crown != null) {
@@ -104,12 +118,15 @@ public class WndChooseAbility extends Window {
 		add( body );
 
 		float pos = body.bottom() + 3*GAP;
-		for (ArmorAbility ability : hero.heroClass.armorAbilities()) {
+		ArmorAbility[] abilities = type.armorAbilities();
+		for (int i=0; i<abilities.length; i++) {
+			final int indexOfAbility = i;
+			ArmorAbility ability = abilities[i];
 
 			RedButton abilityButton = new RedButton(ability.shortDesc(), 6){
 				@Override
 				protected void onClick() {
-					GameScene.show(new WndOptions( new HeroIcon( ability ),
+					WndOptions confirm = new WndOptions( new HeroIcon( ability ),
 							Messages.titleCase(ability.name()),
 							Messages.get(WndChooseAbility.this, "are_you_sure"),
 							Messages.get(WndChooseAbility.this, "yes"),
@@ -120,6 +137,10 @@ public class WndChooseAbility extends Window {
 							hide();
 							if (index == 0 && WndChooseAbility.this.parent != null){
 								WndChooseAbility.this.hide();
+								if (seat != null) {
+									seat.select(indexOfAbility);
+									return;
+								}
 								if (crown != null) {
 									crown.upgradeArmor(hero, armor, ability);
 								} else {
@@ -128,9 +149,11 @@ public class WndChooseAbility extends Window {
 								Statistics.qualifiedForRandomVictoryBadge = false;
 							}
 						}
-					});
+					};
+					if (seat == null) GameScene.show(confirm); else seat.show(confirm);
 				}
 			};
+			abilityButton.enable(seat == null || com.shatteredpixel.shatteredpixeldungeon.CoopSession.playableArmorAbility(ability));
 			abilityButton.leftJustify = true;
 			abilityButton.multiline = true;
 			abilityButton.setSize(WIDTH-20, abilityButton.reqHeight()+2);
@@ -140,7 +163,8 @@ public class WndChooseAbility extends Window {
 			IconButton abilityInfo = new IconButton(Icons.get(Icons.INFO)){
 				@Override
 				protected void onClick() {
-					GameScene.show(new WndInfoArmorAbility(Dungeon.hero.heroClass, ability));
+					WndInfoArmorAbility info = new WndInfoArmorAbility(type, ability);
+					if (seat == null) GameScene.show(info); else seat.show(info);
 				}
 			};
 			abilityInfo.setRect(WIDTH-20, abilityButton.top() + (abilityButton.height()-20)/2, 20, 20);

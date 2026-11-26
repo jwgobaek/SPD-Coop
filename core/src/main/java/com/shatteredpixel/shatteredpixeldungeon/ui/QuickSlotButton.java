@@ -350,12 +350,16 @@ public class QuickSlotButton extends Button {
 
 	//FIXME: this is currently very expensive, should either optimize ballistica or this, or both
 	public static int autoAim(Char target, Item item){
-		if (Dungeon.hero == null || target == null){
+		return autoAim(Dungeon.hero,target,item);
+	}
+
+	public static int autoAim(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero shooter, Char target, Item item) {
+		if (shooter == null || target == null){
 			return -1;
 		}
 
 		//first try to directly target
-		if (item.targetingPos(Dungeon.hero, target.pos) == target.pos) {
+		if (item.targetingPos(shooter, target.pos) == target.pos) {
 			return target.pos;
 		}
 
@@ -363,7 +367,7 @@ public class QuickSlotButton extends Button {
 		PathFinder.buildDistanceMap( target.pos, BArray.not( new boolean[Dungeon.level.length()], null ), 2 );
 		for (int i = 0; i < PathFinder.distance.length; i++) {
 			if (PathFinder.distance[i] < Integer.MAX_VALUE
-					&& item.targetingPos(Dungeon.hero, i) == target.pos)
+					&& item.targetingPos(shooter, i) == target.pos)
 				return i;
 		}
 

@@ -160,6 +160,7 @@ public class PlayerGrowthTest extends HeadlessDungeon {
     // Replay the same public investment or mask choice through two authenticated TCP clients.
     public static StagedInput stage(CoopSession g,String stage) {
         int seat=stage.endsWith("1")?1:0;
+        if (newAbility(stage)) return SubclassActionTest.stage(g,stage,seat);
         if (stage.startsWith("talent")) {
             SewerBeeTest.offer(g,seat);
             g.hero(seat).earnExp(g.hero(seat).maxExp(),Rat.class);
@@ -178,15 +179,20 @@ public class PlayerGrowthTest extends HeadlessDungeon {
     public static boolean published(String stage) {
         CoopSession g=Dungeon.coop;
         int seat=stage.endsWith("1")?1:0;
+        if (newAbility(stage)) return SubclassActionTest.published(g,stage,seat);
         if (stage.startsWith("talent")) return g.hero(seat).pointsInTalent(first(g.hero(seat)))==1;
         return g.hero(seat).subClass==g.hero(seat).heroClass.subClasses()[0] &&
                 g.hero(seat).belongings.getItem(TengusMask.class)==null &&
                 g.mayClaimSubclass(1-seat)==stage.startsWith("grant");
     }
 
-    public static String signature(CoopSession g) {
+    static boolean newAbility(String stage) {
+        return stage.matches("(slam|parry|riposte|fury|rage|sniper|crown|leap|blast|nature|meal)[01]");
+    }
+
+    public static String signature(CoopSession g, String stage) {
         return g.turn()+"/"+g.hero(0).subClass+"/"+g.hero(1).subClass+"/"+
                 g.hero(0).pointsInTalent(first(g.hero(0)))+"/"+g.hero(1).pointsInTalent(first(g.hero(1)))+"/"+
-                g.mayClaimSubclass(0)+"/"+g.mayClaimSubclass(1);
+                g.mayClaimSubclass(0)+"/"+g.mayClaimSubclass(1)+(newAbility(stage)?"/"+SubclassActionTest.signature(g):"");
     }
 }

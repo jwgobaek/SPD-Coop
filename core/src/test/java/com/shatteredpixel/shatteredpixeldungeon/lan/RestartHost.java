@@ -114,7 +114,7 @@ public final class RestartHost {
                 String boundary=mode.substring("tengu-commit-".length());
                 if (boundary.startsWith("growth-")) {
                     if (PlayerGrowthTest.published(boundary.substring(7))) {
-                        write(path,"tengu-signature",PlayerGrowthTest.signature(Dungeon.coop));
+                        write(path,"tengu-signature",PlayerGrowthTest.signature(Dungeon.coop,boundary.substring(7)));
                         Runtime.getRuntime().halt(78);
                     }
                     return;
@@ -241,7 +241,7 @@ public final class RestartHost {
             if (mode.startsWith("tengu-read-")) {
                 boolean dm=mode.startsWith("tengu-read-dm-");
                 boolean interior=mode.startsWith("tengu-read-interior-");
-                assertEquals(read(path,"tengu-signature"),mode.startsWith("tengu-read-growth-") ? PlayerGrowthTest.signature(Dungeon.coop) : mode.startsWith("tengu-read-ascent-") ? PartyAscentTest.signature(Dungeon.coop) : mode.startsWith("tengu-read-elemental-") ? VaultElementalTest.signature(Dungeon.coop) : mode.startsWith("tengu-read-yog-") ? YogArenaTest.signature(Dungeon.coop) : mode.startsWith("tengu-read-vault-") ? ImpVaultTest.receiptState(Dungeon.coop) : mode.startsWith("tengu-read-king-") ? CityKingTest.signature(Dungeon.coop) : (mode.startsWith("tengu-read-mine-") || mode.startsWith("tengu-read-city-")) ? MiningBranchTest.signature(Dungeon.coop) : dm?CavesBossTest.signature(Dungeon.coop):interior?CavesInteriorTest.signature(Dungeon.coop):TenguArenaTest.signature(Dungeon.coop));
+                assertEquals(read(path,"tengu-signature"),mode.startsWith("tengu-read-growth-") ? PlayerGrowthTest.signature(Dungeon.coop,mode.substring("tengu-read-growth-".length())) : mode.startsWith("tengu-read-ascent-") ? PartyAscentTest.signature(Dungeon.coop) : mode.startsWith("tengu-read-elemental-") ? VaultElementalTest.signature(Dungeon.coop) : mode.startsWith("tengu-read-yog-") ? YogArenaTest.signature(Dungeon.coop) : mode.startsWith("tengu-read-vault-") ? ImpVaultTest.receiptState(Dungeon.coop) : mode.startsWith("tengu-read-king-") ? CityKingTest.signature(Dungeon.coop) : (mode.startsWith("tengu-read-mine-") || mode.startsWith("tengu-read-city-")) ? MiningBranchTest.signature(Dungeon.coop) : dm?CavesBossTest.signature(Dungeon.coop):interior?CavesInteriorTest.signature(Dungeon.coop):TenguArenaTest.signature(Dungeon.coop));
                 String boundary=mode.substring("tengu-read-".length());
                 String expected=boundary.equals("enter") ? "FIGHT_START" : boundary.equals("pause") ? "FIGHT_PAUSE"
                         : boundary.equals("kill") || boundary.equals("claim") ? "WON" : "FIGHT_ARENA";

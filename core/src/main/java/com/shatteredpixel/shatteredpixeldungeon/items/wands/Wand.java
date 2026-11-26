@@ -505,7 +505,7 @@ public abstract class Wand extends Item {
 			availableUsesToID -= uses;
 			usesLeftToID -= uses;
 			if (usesLeftToID <= 0 || caster.pointsInTalent(Talent.SCHOLARS_INTUITION) == 2) {
-				if (ShardOfOblivion.passiveIDDisabled()){
+				if (ShardOfOblivion.passiveIDDisabled(caster)){
 					if (usesLeftToID > -1){
 						GLog.p(Messages.get(ShardOfOblivion.class, "identify_ready"), name());
 					}
@@ -516,7 +516,7 @@ public abstract class Wand extends Item {
 					Badges.validateItemLevelAquired(this);
 				}
 			}
-			if (ShardOfOblivion.passiveIDDisabled()){
+			if (ShardOfOblivion.passiveIDDisabled(caster)){
 				Buff.prolong(caster, ShardOfOblivion.WandUseTracker.class, 50f);
 			}
 		}

@@ -43,14 +43,20 @@ public class Fadeleaf extends Plant {
 		seedClass = Seed.class;
 	}
 	
-	@Override
-	public void activate( final Char ch ) {
+    public static boolean requiresWardenReturn(Char ch) {
+        return ch instanceof Hero && ((Hero)ch).subClass==HeroSubClass.WARDEN
+                && Dungeon.interfloorTeleportAllowed();
+    }
+
+    @Override
+    public void activate( final Char ch ) {
 		
 		if (ch instanceof Hero) {
 			
 			((Hero)ch).curAction = null;
 			
-			if (((Hero) ch).subClass == HeroSubClass.WARDEN && Dungeon.interfloorTeleportAllowed()){
+			if (requiresWardenReturn(ch)){
+                if (Dungeon.coop!=null) throw new IllegalStateException("Warden interlevel return has no party consent");
 
 				Level.beforeTransition();
 				InterlevelScene.mode = InterlevelScene.Mode.RETURN;

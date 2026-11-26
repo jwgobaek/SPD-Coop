@@ -153,6 +153,8 @@ public final class WndSeatInventory extends WndTabbed {
         if (!item.upgrade.equals("NA") && !item.upgrade.equals("0")) info+="  "+(item.upgrade.startsWith("-")?"":"+")+item.upgrade;
         if (item.showsCharges()) info+="  "+msg("charges",item.charges,item.capacity);
         if (!Messages.NO_TEXT_FOUND.equals(description)) info=description+"\n\n"+info;
+        if (view.source.rows.containsKey("armorcharge"+item.id))
+            info+="\n"+msg("charges",Integer.parseInt(view.source.rows.get("armorcharge"+item.id)),100);
         List<String> verbs=view.actions(item);
         String[] options=new String[verbs.size()+1];
         for (int i=0;i<verbs.size();i++) options[i]=msg(verbs.get(i).toLowerCase(Locale.ROOT));

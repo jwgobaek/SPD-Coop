@@ -24,6 +24,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Combo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Electricity;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.StormCloud;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
@@ -586,7 +587,9 @@ public abstract class Char extends Actor {
 			
 		} else if (!Char.hasProp(enemy, Property.OBJECT)) {
 
-			if (enemy.sprite != null){
+			if (Dungeon.coop != null && enemy.buff(Combo.ParryTracker.class) != null) {
+				enemy.defenseVerb();
+			} else if (enemy.sprite != null){
 				if (hitMissIcon != -1){
 					//dooking is a playful sound Ferrets can make, like low pitched chirping
 					// I doubt this will translate, so it's only in English

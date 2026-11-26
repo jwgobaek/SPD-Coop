@@ -41,8 +41,14 @@ public class WndCombo extends Window {
 	private static final int MARGIN  = 2;
 
 	public WndCombo( Combo combo ){
-		super();
+		this(combo.getComboCount(), Dungeon.hero.pointsInTalent(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.ENHANCED_COMBO),
+				combo::canUseMove, combo::useMove);
+	}
 
+	public interface Available { boolean test(Combo.ComboMove move); }
+	public interface Choice { void select(Combo.ComboMove move); }
+
+	public WndCombo(int count, int enhanced, Available available, Choice choice) {
 		int width = PixelScene.landscape() ? WIDTH_L : WIDTH_P;
 
 		float pos = MARGIN;
@@ -54,29 +60,22 @@ public class WndCombo extends Window {
 
 		pos = title.bottom() + 3*MARGIN;
 
-		Image icon;
-		if (Dungeon.hero.belongings.weapon() != null){
-			icon = new ItemSprite(Dungeon.hero.belongings.weapon().image, null);
-		} else {
-			icon = new ItemSprite(new Item(){ {image = ItemSpriteSheet.WEAPON_HOLDER; }});
-		}
-
 		for (Combo.ComboMove move : Combo.ComboMove.values()) {
 
-			String text = "_" + Messages.titleCase(move.title()) + " " + Messages.get(this, "combo_req", move.comboReq) + ":_ " + move.desc(combo.getComboCount());
+			String text = "_" + Messages.titleCase(move.title()) + " " + Messages.get(this, "combo_req", move.comboReq) + ":_ " + move.desc(count, enhanced);
 			RedButton moveBtn = new RedButton(text, 6){
 				@Override
 				protected void onClick() {
 					super.onClick();
 					hide();
-					combo.useMove(move);
+					choice.select(move);
 				}
 			};
 			moveBtn.leftJustify = true;
 			moveBtn.multiline = true;
 			moveBtn.setSize(width, moveBtn.reqHeight());
 			moveBtn.setRect(0, pos, width, moveBtn.reqHeight());
-			moveBtn.enable(combo.canUseMove(move));
+			moveBtn.enable(available.test(move));
 			add(moveBtn);
 			pos = moveBtn.bottom() + MARGIN;
 		}

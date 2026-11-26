@@ -71,7 +71,7 @@ abstract public class ClassArmor extends Armor {
 	@Override
 	public void activate(Char ch) {
 		super.activate(ch);
-		charger = new Charger();
+		if (charger == null) charger = new Charger();
 		charger.attachTo(ch);
 	}
 
@@ -151,6 +151,11 @@ abstract public class ClassArmor extends Armor {
 		super.storeInBundle( bundle );
 		bundle.put( ARMOR_TIER, tier );
 		bundle.put( CHARGE, charge );
+		if (Dungeon.coop != null && charger != null && charger.target != null) {
+			Bundle saved = new Bundle();
+			charger.storeInBundle(saved);
+			bundle.put("coop_charger",saved);
+		}
 	}
 
 	@Override
@@ -158,6 +163,10 @@ abstract public class ClassArmor extends Armor {
 		super.restoreFromBundle( bundle );
 		tier = bundle.getInt( ARMOR_TIER );
 		charge = bundle.getFloat(CHARGE);
+		if (Dungeon.coop != null && bundle.contains("coop_charger")) {
+			charger = new Charger();
+			charger.restoreFromBundle(bundle.getBundle("coop_charger"));
+		}
 	}
 	
 	@Override
@@ -334,7 +343,7 @@ abstract public class ClassArmor extends Armor {
 
 		@Override
 		public boolean act() {
-			if (Regeneration.regenOn()) {
+			if (Regeneration.regenOn((Hero)target)) {
 				float chargeGain = 100 / 500f; //500 turns to full charge
 				chargeGain *= RingOfEnergy.armorChargeMultiplier(target);
 				charge += chargeGain;

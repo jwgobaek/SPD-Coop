@@ -34,7 +34,7 @@ actors/buffs/AscensionChallenge.AscensionBuffBlocker	actors/buffs	UNSUPPORTED		c
 actors/buffs/Awareness	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Awareness.java
 actors/buffs/Barkskin	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Barkskin.java
 actors/buffs/Barrier	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Barrier.java
-actors/buffs/Berserk	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Berserk.java
+actors/buffs/Berserk	actors/buffs	PARTIAL	Manual rage and seal shielding for either warrior; SubclassActionTest, TCP rage.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Berserk.java
 actors/buffs/Bleeding	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Bleeding.java
 actors/buffs/Bless	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Bless.java
 actors/buffs/Blindness	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Blindness.java
@@ -50,7 +50,7 @@ actors/buffs/ChampionEnemy.Growing	actors/buffs	UNSUPPORTED		core/src/main/java/
 actors/buffs/ChampionEnemy.Projecting	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/ChampionEnemy.java
 actors/buffs/Charm	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Charm.java
 actors/buffs/Chill	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Chill.java
-actors/buffs/Combo	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Combo.java
+actors/buffs/Combo	actors/buffs	PARTIAL	All five finishers with native damage, timer, shove or riposte; KO/EN WndCombo and TCP replay. Enhanced talent investment is outside this scope.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Combo.java
 actors/buffs/Combo.ParryTracker	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Combo.java
 actors/buffs/Combo.RiposteTracker	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Combo.java
 actors/buffs/Corrosion	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Corrosion.java
@@ -117,7 +117,7 @@ actors/buffs/Shadows	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredp
 actors/buffs/ShieldBuff	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/ShieldBuff.java
 actors/buffs/Sleep	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Sleep.java
 actors/buffs/Slow	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Slow.java
-actors/buffs/SnipersMark	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/SnipersMark.java
+actors/buffs/SnipersMark	actors/buffs	PARTIAL	Owner bow and marked actor, three augments; SubclassActionTest and independent TCP recovery.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/SnipersMark.java
 actors/buffs/SoulMark	actors/buffs	NATIVE_EFFECT	Two-seat magic missile caster ID, source retention, partner and own-hit restoration, HP cap, hunger, bundle restore. PlayerGrowthTest. Warlock lobby progression pending.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/SoulMark.java
 actors/buffs/Speed	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Speed.java
 actors/buffs/Stamina	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Stamina.java
@@ -336,13 +336,13 @@ actors/hero/abilities/duelist/Feint	actors/hero/abilities/duelist	UNSUPPORTED		c
 actors/hero/abilities/duelist/Feint.AfterImage	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Feint.java
 actors/hero/abilities/duelist/Feint.AfterImageSprite	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Feint.java
 actors/hero/abilities/duelist/Feint.FeintConfusion	actors/hero/abilities/duelist	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/duelist/Feint.java
-actors/hero/abilities/huntress/NaturesPower	actors/hero/abilities/huntress	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/NaturesPower.java
+actors/hero/abilities/huntress/NaturesPower	actors/hero/abilities/huntress	PARTIAL	Explicit crown trials; native buff and owner charge, CrownAbilityTest and TCP nature.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/NaturesPower.java
 actors/hero/abilities/huntress/NaturesPower.naturesPowerTracker	actors/hero/abilities/huntress	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/NaturesPower.java
 actors/hero/abilities/huntress/SpectralBlades	actors/hero/abilities/huntress	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/SpectralBlades.java
 actors/hero/abilities/huntress/SpiritHawk	actors/hero/abilities/huntress	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/SpiritHawk.java
 actors/hero/abilities/huntress/SpiritHawk.HawkAlly	actors/hero/abilities/huntress	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/SpiritHawk.java
 actors/hero/abilities/huntress/SpiritHawk.HawkSprite	actors/hero/abilities/huntress	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/huntress/SpiritHawk.java
-actors/hero/abilities/mage/ElementalBlast	actors/hero/abilities/mage	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/ElementalBlast.java
+actors/hero/abilities/mage/ElementalBlast	actors/hero/abilities/mage	PARTIAL	Starter magic-missile staff only; native blast and charge, CrownAbilityTest and TCP blast.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/ElementalBlast.java
 actors/hero/abilities/mage/WarpBeacon	actors/hero/abilities/mage	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/WarpBeacon.java
 actors/hero/abilities/mage/WarpBeacon.WarpBeaconTracker	actors/hero/abilities/mage	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/WarpBeacon.java
 actors/hero/abilities/mage/WildMagic	actors/hero/abilities/mage	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/mage/WildMagic.java
@@ -358,7 +358,7 @@ actors/hero/abilities/rogue/SmokeBomb.NinjaLog	actors/hero/abilities/rogue	UNSUP
 actors/hero/abilities/rogue/SmokeBomb.NinjaLogSprite	actors/hero/abilities/rogue	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/rogue/SmokeBomb.java
 actors/hero/abilities/warrior/Endure	actors/hero/abilities/warrior	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/warrior/Endure.java
 actors/hero/abilities/warrior/Endure.EndureTracker	actors/hero/abilities/warrior	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/warrior/Endure.java
-actors/hero/abilities/warrior/HeroicLeap	actors/hero/abilities/warrior	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/warrior/HeroicLeap.java
+actors/hero/abilities/warrior/HeroicLeap	actors/hero/abilities/warrior	PARTIAL	Explicit crown trials; native landing and charge, CrownAbilityTest and TCP leap.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/warrior/HeroicLeap.java
 actors/hero/abilities/warrior/HeroicLeap.DoubleJumpTracker	actors/hero/abilities/warrior	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/warrior/HeroicLeap.java
 actors/hero/abilities/warrior/Shockwave	actors/hero/abilities/warrior	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/warrior/Shockwave.java
 actors/hero/spells/AuraOfProtection	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/AuraOfProtection.java
@@ -629,7 +629,7 @@ items/Item	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpix
 items/ItemStatusHandler	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/ItemStatusHandler.java
 items/KindOfWeapon	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/KindOfWeapon.java
 items/KindofMisc	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/KindofMisc.java
-items/KingsCrown	items	VERIFIED	Native three-phase encounter, summoned subjects, crown pickup and restore; CityKingTest, HostRestartTest. Crown abilities excluded.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/KingsCrown.java
+items/KingsCrown	items	PARTIAL	Native king reward plus three class-specific choices in explicit OWNER/ROSTER crown trials.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/KingsCrown.java
 items/LiquidMetal	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/LiquidMetal.java
 items/LiquidMetal.Recipe	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/LiquidMetal.java
 items/LostBackpack	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/LostBackpack.java
@@ -641,7 +641,7 @@ items/Torch	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpi
 items/Waterskin	items	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/Waterskin.java
 items/armor/Armor	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/Armor.java
 items/armor/Armor.Glyph	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/Armor.java
-items/armor/ClassArmor	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/ClassArmor.java
+items/armor/ClassArmor	items/armor	PARTIAL	Three starter class armors, equipped identity, recharge and owner rights; CrownAbilityTest. Other abilities remain outside this scope.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/ClassArmor.java
 items/armor/ClassArmor.Charger	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/ClassArmor.java
 items/armor/ClericArmor	items/armor	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/ClericArmor.java
 items/armor/ClothArmor	items/armor	VERIFIED	explicitly remove sealed warrior armor, owner and seal preserved after restore / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/armor/ClothArmor.java

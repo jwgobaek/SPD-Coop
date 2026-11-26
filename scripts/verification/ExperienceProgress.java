@@ -82,10 +82,11 @@ public final class ExperienceProgress {
                     guides[1]=new VaultPublicRoute.Guide();
                 }
                 VaultPublicRoute.Input input=guides[seat].choose(v);
-                if (Integer.parseInt(v.source.rows.getOrDefault("freepoints1","0"))>0) {
+                if (v.offered) {
                     for (com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent t:com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.values()) {
                         String offered=v.source.rows.get("learn"+t.ordinal());
-                        if (offered!=null && Integer.parseInt(offered)<t.maxPoints()) {
+                        String tier=v.source.rows.get("tier"+t.ordinal());
+                        if (offered!=null && Integer.parseInt(v.source.rows.getOrDefault("freepoints"+tier,"0"))>0 && Integer.parseInt(offered)<t.maxPoints()) {
                             input=new VaultPublicRoute.Input("INVEST_TALENT",t.ordinal(),0);
                             break;
                         }

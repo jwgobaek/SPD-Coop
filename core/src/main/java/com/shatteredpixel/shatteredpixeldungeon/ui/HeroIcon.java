@@ -130,11 +130,15 @@ public class HeroIcon extends Image {
 	}
 
 	public HeroIcon(ActionIndicator.Action action){
+		this(action.actionIcon());
+	}
+
+	public HeroIcon(int icon){
 		super( Assets.Interfaces.HERO_ICONS );
 		if (film == null){
 			film = new TextureFilm(texture, SIZE, SIZE);
 		}
-		frame(film.get(action.actionIcon()));
+		frame(film.get(icon));
 	}
 
 	public HeroIcon(ClericSpell spell){

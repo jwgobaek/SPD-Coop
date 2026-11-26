@@ -6,6 +6,10 @@ import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Combo;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Berserk;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SnipersMark;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndCombo;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTalent;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndChooseSubclass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
@@ -33,12 +37,21 @@ public class CoopScene extends PixelScene {
     private float left,top,width,bottom,center;
     private boolean exiting;
     private long effectsVersion;
+    private String targetMove;
     private PublicDungeon targetView;
     private PublicDungeon.Loot targetStaff;
 
     public void useItem(PublicDungeon view, PublicDungeon.Loot item, String action) {
         if (controller.frame().image!=view.source || !view.actions(item).contains(action)) return;
         switch (action) {
+            case "USE_CROWN":
+                crownWindow(view,item);
+                break;
+            case "ARMOR_ABILITY":
+                if ("HeroicLeap".equals(view.source.rows.get("ability"+item.id))) {
+                    targetView=view; targetMove=action; targetStaff=item; renderFrame();
+                } else controller.act(view.source,action,view.pos,item.id);
+                break;
             case "USE_MASK":
                 subclassWindow(view,item);
                 break;
@@ -60,7 +73,7 @@ public class CoopScene extends PixelScene {
         if (controller.frame().image!=view.source || (!view.actions(staff).contains("ZAP") && !view.actions(staff).contains("SHOOT") && !view.actions(staff).contains("THROW"))) return;
         targetView=view; targetStaff=staff; renderFrame();
     }
-    void cancelAim() { targetView=null; targetStaff=null; renderFrame(); }
+    void cancelAim() { targetView=null; targetStaff=null; targetMove=null; renderFrame(); }
     private void touchCell(PublicDungeon view,int cell) {
         if (hud!=null) hud.stopRest();
         if (targetView==null) {
@@ -110,11 +123,17 @@ public class CoopScene extends PixelScene {
             } else view.tap(controller,cell);
             return;
         }
+        if (targetMove != null) {
+            boolean armor = "ARMOR_ABILITY".equals(targetMove);
+            if (targetView == view && view.visible(cell) && (armor || view.monsters.containsKey(cell))
+                    && controller.act(view.source, targetMove, cell, armor ? targetStaff.id : 0)) cancelAim();
+            return;
+        }
         boolean bow=targetStaff.kind.equals("BOW");
         String actor=view.monsters.get(cell);
         boolean enemy=actor!=null && !"Imp".equals(actor) && !"Blacksmith".equals(actor) && !"Wandmaker".equals(actor) && !"Shopkeeper".equals(actor) && !"Sheep".equals(actor) && !"Sentry".equals(actor) && !"Ghost".equals(actor) && !"RatKing".equals(actor);
         boolean missile=PublicDungeon.isMissileKind(targetStaff.kind);
-        boolean areaWand = targetStaff.kind.equals("WAND") && (targetStaff.sprite == ItemSpriteSheet.WAND_BLAST_WAVE
+        boolean areaWand = (targetStaff.kind.equals("WAND") || targetStaff.kind.equals("UNIDENTIFIED_WAND")) && (targetStaff.sprite == ItemSpriteSheet.WAND_BLAST_WAVE
                 || targetStaff.sprite == ItemSpriteSheet.WAND_FIREBOLT);
         if (targetView==view && (enemy || ((missile || areaWand) && actor==null && view.visible(cell)) || (!missile && !bow && view.chest(cell)))
                 && controller.act(view.source,missile?"THROW":bow?"SHOOT":"ZAP",cell,targetStaff.id)) cancelAim();
@@ -297,7 +316,7 @@ public class CoopScene extends PixelScene {
         CoopController.Frame f=controller.frame();
         if (board!=null && hud!=null && f.page==CoopController.Page.GAME && f.dungeon!=null && board.sameFloor(f.dungeon)) {
             shown=f;
-            if (f.dungeon!=targetView || f.pending!=0) { targetView=null; targetStaff=null; }
+            if (f.dungeon!=targetView || f.pending!=0) { targetView=null; targetStaff=null; targetMove=null; }
             game(f);
             return;
         }
@@ -307,7 +326,7 @@ public class CoopScene extends PixelScene {
         if(board!=null) { remove(board); addToBack(board); }
         if(shown==null || shown.page!=f.page) first=0;
         shown=f;
-        if (f.dungeon!=targetView || f.pending!=0) { targetView=null; targetStaff=null; }
+        if (f.dungeon!=targetView || f.pending!=0) { targetView=null; targetStaff=null; targetMove=null; }
         com.watabou.utils.RectF inset=getCommonInsets();
         width=Math.min(212,Camera.main.width-inset.left-inset.right-8);
         center=(Camera.main.width+inset.left-inset.right)/2f;
@@ -465,6 +484,30 @@ public class CoopScene extends PixelScene {
         });
     }
 
+    private void crownWindow(PublicDungeon view, PublicDungeon.Loot crown) {
+        add(new com.shatteredpixel.shatteredpixeldungeon.windows.WndChooseAbility(HeroClass.valueOf(view.heroClass),
+                new com.shatteredpixel.shatteredpixeldungeon.windows.WndChooseAbility.SeatChoice() {
+            public void show(Window window) { CoopScene.this.add(window); }
+            public void select(int index) {
+                controller.act(view.source,crown==null ? "CLAIM_ARMOR" : "USE_CROWN",index,crown==null ? 0 : crown.id);
+            }
+        }));
+    }
+
+    void subclassAction(PublicDungeon view) {
+        if (view.source.rows.containsKey("combocount")) {
+            add(new WndCombo(Integer.parseInt(view.source.rows.get("combocount")),Integer.parseInt(view.source.rows.get("comboenhanced")),
+                    move -> view.offered && view.source.rows.containsKey("finish"+move.ordinal()), move -> {
+                if (controller.frame().image != view.source) return;
+                if (move == Combo.ComboMove.PARRY) controller.act(view.source,move.name(),view.pos,0);
+                else { targetView=view; targetMove=move.name(); renderFrame(); }
+            }));
+        } else if (view.offered && view.source.rows.containsKey("rage")) controller.act(view.source,"BERSERK",view.pos,0);
+        else if (view.offered && view.source.rows.containsKey("snipercell")) {
+            targetView=view; targetMove="SNIPER_SHOT"; renderFrame();
+        }
+    }
+
     private void subclassWindow(PublicDungeon view, PublicDungeon.Loot mask) {
         add(new WndChooseSubclass(new TengusMask(), HeroClass.valueOf(view.heroClass), new WndChooseSubclass.SeatChoice() {
             @Override public void show(Window window) { CoopScene.this.add(window); }
@@ -477,13 +520,20 @@ public class CoopScene extends PixelScene {
     void heroDetails(PublicDungeon view, int armorTier, String stats) {
         String title = Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndHero.class, "talents");
         HeroClass type = HeroClass.valueOf(view.heroClass);
+        java.util.List<String> options = new java.util.ArrayList<>();
+        options.add(title);
+        int maskIndex = -1, crownIndex = -1;
+        if (view.offered && view.source.rows.containsKey("maskright")) { maskIndex=options.size(); options.add(msg("use_mask")); }
+        if (view.offered && view.source.rows.containsKey("crownright")) { crownIndex=options.size(); options.add(msg("use_crown")); }
+        final int mask=maskIndex, crown=crownIndex;
+        options.add(msg("back"));
         add(new WndOptions(com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite.avatar(type, armorTier),
                 type.title(), "HP "+view.hp+"/"+view.maxHp+"\n"+stats,
-                view.offered && view.source.rows.containsKey("maskright")
-                        ? new String[]{title, msg("use_mask"), msg("back")} : new String[]{title, msg("back")} ) {
+                options.toArray(new String[0]) ) {
             @Override protected void onSelect(int index) {
                 if (index == 0) showTalents(view, title);
-                else if (index == 1 && view.offered && view.source.rows.containsKey("maskright")) subclassWindow(view,null);
+                else if (index>=0 && index==mask) subclassWindow(view,null);
+                else if (index>=0 && index==crown) crownWindow(view,null);
             }
         });
     }
@@ -495,17 +545,17 @@ public class CoopScene extends PixelScene {
             String invested = view.source.rows.get("learn"+talent.ordinal());
             if (invested == null) continue;
             choices.add(talent);
-            labels.add(Messages.titleCase(talent.title())+"  "+invested+"/"+talent.maxPoints());
+            labels.add(view.source.rows.get("tier"+talent.ordinal())+" · "+Messages.titleCase(talent.title())+"  "+invested+"/"+talent.maxPoints());
         }
         labels.add(msg("back"));
         int available = Integer.parseInt(view.source.rows.containsKey("freepoints1") ? view.source.rows.get("freepoints1") : "0");
-        add(new WndOptions(title, msg("talent_points", available), labels.toArray(new String[0])) {
+        add(new WndOptions(title, msg("tier_points",1,available)+"\n"+msg("tier_points",2,Integer.parseInt(view.source.rows.get("freepoints2"))), labels.toArray(new String[0])) {
             @Override protected void onSelect(int index) {
                 if (index < 0 || index >= choices.size()) return;
                 Talent talent = choices.get(index);
                 int points = Integer.parseInt(view.source.rows.get("learn"+talent.ordinal()));
                 WndInfoTalent.TalentButtonCallback invest = null;
-                if (view.offered && available > 0 && points < talent.maxPoints()) {
+                if (view.offered && Integer.parseInt(view.source.rows.get("freepoints"+view.source.rows.get("tier"+talent.ordinal()))) > 0 && points < talent.maxPoints()) {
                     invest = new WndInfoTalent.TalentButtonCallback() {
                         @Override public String prompt() { return Messages.get(WndInfoTalent.class, "upgrade"); }
                         @Override public void call() { controller.act(view.source, "INVEST_TALENT", talent.ordinal(), 0); }

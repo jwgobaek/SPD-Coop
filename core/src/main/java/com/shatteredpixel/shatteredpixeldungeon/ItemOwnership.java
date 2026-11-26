@@ -46,5 +46,12 @@ public final class ItemOwnership {
         if (!allowed(item, player)) throw new IllegalStateException("Item belongs to another player");
         entry(item).owner = player;
     }
+    void replaceEquipped(Item original, Item replacement, long owner) {
+        Entry prior = entries.get(original);
+        if (prior == null || prior.owner != owner || entries.containsKey(replacement))
+            throw new IllegalStateException("Armor conversion identity");
+        entries.remove(original);
+        entries.put(replacement,prior);
+    }
     public void split(Item original, Item part) { claim(part, owner(original)); }
 }
