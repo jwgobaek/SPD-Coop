@@ -19,7 +19,7 @@
 
 ## 저장과 회귀
 
-`verify-dart-growth.py --actions ice iceimbue iceblast icevolley markdeath clone orderclone sunray divinesense lightshield guardshield stance radiance smite swap monkfocus`에서 16개 행동을 좌석별로 실행했다. HEAD 발행 직후 성공 응답 전 호스트가 종료된 뒤 새 JVM에서 기존 두 자격을 재인증하고 같은 영수증을 조회·재전송한 경계는 32/32건이다. 이전 48종의 96경계도 같은 코드로 다시 실행해 총 128/128을 확인했다. 지팡이 네 개의 실제 난사를 좌석마다 두 개의 새 JVM에서 동일 세대로 재생했다. 네 실물 ID 각각의 충전이 1+0.25에서 0+0.75가 됐고, 적 HP와 두 영웅의 상태 및 다음 RNG도 일치했다. 이전 빌드의 실제 레이피어·성서·주입 스키마 19 세대 3개와 왕관 시험 스키마 17 세대 1개를 새 JVM으로 읽었다. 저장 한도는 세대당 4 MiB, 휴면 층당 1,500,000 UTF-8바이트다. [저장 필드](save-format.md) · [좌석별 공개 정보](state-sync.md)
+`verify-dart-growth.py --actions ice iceimbue iceblast icevolley markdeath clone orderclone sunray divinesense lightshield guardshield stance radiance smite swap monkfocus`에서 16개 행동을 좌석별로 실행했다. HEAD 발행 직후 성공 응답 전 호스트가 종료된 뒤 새 JVM에서 기존 두 자격을 재인증하고 같은 영수증을 조회·재전송한 경계는 32/32건이다. 이전 48종의 96경계도 같은 코드로 다시 실행해 총 128/128을 확인했다. 지팡이 네 개의 실제 난사를 좌석마다 두 개의 새 JVM에서 동일 세대로 재생했다. 네 실물 ID 모두 처음에 충전 1과 부분 충전 0.25를 갖고, 난사 뒤 정수 충전은 모두 0이었다. 방장의 네 지팡이는 부분 충전 0.75였다. 게스트의 다음 행동 시점에는 마력탄이 0.7771762, 나머지 셋이 0.7746154였다. 각 좌석을 독립적으로 재생했을 때 부분 충전, 적 HP, 양쪽 지팡이 상태와 다음 RNG가 일치했다. 이전 빌드의 실제 레이피어·성서·주입 스키마 19 세대 3개와 왕관 시험 스키마 17 세대 1개를 새 JVM으로 읽었다. 저장 한도는 세대당 4 MiB, 휴면 층당 1,500,000 UTF-8바이트다. [저장 필드](save-format.md) · [좌석별 공개 정보](state-sync.md)
 
 기준판의 기존 JUnit 265개가 통과했다. 첫 통합 실행에서는 기존 받아치기 시험의 쥐가 방어로 피해를 전부 막거나 반격 스케줄보다 좌석이 먼저 돌아올 수 있었다. 시험 무기 강화와 실제 반격 Actor가 처리될 때까지의 합법적인 대기로 시험을 고쳤고, 같은 시험 클래스 5개를 다시 통과했다. 최종 Gradle 빌드에서 기존 시험 265개를 이름별로 대조했고, 73개 XML에 신규 6개를 포함한 271/271이 통과했다. 해당 수정은 기존 받아치기 시험의 배치와 판정 시점에만 적용했다.
 
