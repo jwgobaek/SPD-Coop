@@ -110,10 +110,10 @@ public final class PublicDungeon {
         switch (item.kind) {
             case "VAULT_BEACON": return "VAULT_RECALL";
             case "FOOD": return "EAT";
-            case "HASTE_POTION": case "HEALING": return "DRINK";
+            case "POTION": case "HASTE_POTION": case "HEALING": return "DRINK";
             case "LULLABY_SCROLL": return "READ_LULLABY";
             case "RECHARGING_SCROLL": return "READ_RECHARGING";
-            case "SLEEP_STONE": case "SPIKE": case "DART": case "KNIFE": case "STONE": return "THROW";
+            case "THROW_STONE": case "SLEEP_STONE": case "SPIKE": case "DART": case "KNIFE": case "STONE": return "THROW";
             case "ENCHANT_BOW": case "UPGRADE": case "IDENTIFY": return item.kind;
             case "BOW": return "SHOOT";
             case "UNIDENTIFIED_WAND": case "WAND": return "ZAP";
@@ -158,13 +158,13 @@ public final class PublicDungeon {
         if (source.rows.containsKey("ability"+item.id)) verbs.add("ARMOR_ABILITY");
         if(item.slot.equals("BAG")) {
             if (source.rows.containsKey("crown"+item.id)) verbs.add("USE_CROWN");
-            if(item.kind.equals("ENCHANT_BOW") || item.kind.equals("UPGRADE") || item.kind.equals("IDENTIFY")) verbs.add(item.kind);
+            if(item.kind.equals("AUGMENT_GEAR") || item.kind.equals("ENCHANT_BOW") || item.kind.equals("UPGRADE") || item.kind.equals("IDENTIFY")) verbs.add(item.kind);
             if(item.kind.equals("READ_SCROLL")) verbs.add("READ_SCROLL");
             if(item.kind.equals("LULLABY_SCROLL")) verbs.add("READ_LULLABY");
             if(item.kind.equals("RECHARGING_SCROLL")) verbs.add("READ_RECHARGING");
             if(source.rows.containsKey("mask"+item.id)) verbs.add("USE_MASK");
-            if(item.kind.equals("HEALING") || item.kind.equals("HASTE_POTION")) verbs.add("DRINK");
-            if(isMissileKind(item.kind) || item.kind.equals("FOOD") || item.kind.equals("SLEEP_STONE")) verbs.add("THROW");
+            if(item.kind.equals("POTION") || item.kind.equals("HEALING") || item.kind.equals("HASTE_POTION")) verbs.add("DRINK");
+            if(source.rows.containsKey("potionthrow"+item.id) || isMissileKind(item.kind) || item.kind.equals("FOOD") || item.kind.equals("SLEEP_STONE") || item.kind.equals("THROW_STONE")) verbs.add("THROW");
             if(item.kind.equals("BOW")) verbs.add("SHOOT");
             if(item.kind.equals("FOOD")) verbs.add("EAT");
             if(inVault() && item.kind.equals("VAULT_BEACON")) verbs.add("VAULT_RECALL");

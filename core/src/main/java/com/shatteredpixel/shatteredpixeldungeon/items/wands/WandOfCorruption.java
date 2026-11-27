@@ -75,6 +75,10 @@ import com.watabou.utils.Callback;
 import com.watabou.utils.Random;
 
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 
 public class WandOfCorruption extends Wand {
 
@@ -125,6 +129,11 @@ public class WandOfCorruption extends Wand {
 	
 	@Override
 	public void onZap(Ballistica bolt) {
+        onZap(curUser, bolt);
+    }
+
+    @Override
+    public void onZap(Hero caster, Ballistica bolt) {
 		Char ch = Actor.findChar(bolt.collisionPos);
 
 		if (ch != null){
@@ -174,17 +183,17 @@ public class WandOfCorruption extends Wand {
 			}
 			
 			if (corruptingPower > enemyResist){
-				corruptEnemy( enemy );
+				corruptEnemy( enemy, caster );
 			} else {
 				float debuffChance = corruptingPower / enemyResist;
 				if (Random.Float() < debuffChance){
-					debuffEnemy( enemy, MAJOR_DEBUFFS);
+					debuffEnemy( caster, enemy, MAJOR_DEBUFFS);
 				} else {
-					debuffEnemy( enemy, MINOR_DEBUFFS);
+					debuffEnemy( caster, enemy, MINOR_DEBUFFS);
 				}
 			}
 
-			wandProc(ch, chargesPerCast());
+			wandProc(caster, ch, buffedLvl(), chargesPerCast());
 			Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, 0.8f * Random.Float(0.87f, 1.15f) );
 			
 		} else {
@@ -192,10 +201,19 @@ public class WandOfCorruption extends Wand {
 		}
 	}
 	
-	private void debuffEnemy( Mob enemy, HashMap<Class<? extends Buff>, Float> category ){
+	private void debuffEnemy( Hero caster, Mob enemy, HashMap<Class<? extends Buff>, Float> category ){
 		
 		//do not consider buffs which are already assigned, or that the enemy is immune to.
-		HashMap<Class<? extends Buff>, Float> debuffs = new HashMap<>(category);
+		HashMap<Class<? extends Buff>, Float> debuffs;
+        if (Dungeon.coop == null) {
+            debuffs = new HashMap<>(category);
+        } else {
+            // Class identity hash iteration varies between JVMs. Preserve every native weight.
+            ArrayList<Class<? extends Buff>> order = new ArrayList<>(category.keySet());
+            order.sort(Comparator.comparing(Class::getName));
+            debuffs = new LinkedHashMap<>();
+            for (Class<? extends Buff> type : order) debuffs.put(type, category.get(type));
+        }
 		for (Buff existing : enemy.buffs()){
 			if (debuffs.containsKey(existing.getClass())) {
 				debuffs.put(existing.getClass(), 0f);
@@ -211,15 +229,16 @@ public class WandOfCorruption extends Wand {
 		Class<?extends FlavourBuff> debuffCls = (Class<? extends FlavourBuff>) Random.chances(debuffs);
 		
 		if (debuffCls != null){
-			Buff.append(enemy, debuffCls, 6 + buffedLvl()*3);
+			FlavourBuff applied = Buff.append(enemy, debuffCls, 6 + buffedLvl()*3);
+            if (Dungeon.coop != null && applied instanceof Terror) ((Terror)applied).object = caster.id();
 		} else {
 			//if no debuff can be applied (all are present), then go up one tier
-			if (category == MINOR_DEBUFFS)          debuffEnemy( enemy, MAJOR_DEBUFFS);
-			else if (category == MAJOR_DEBUFFS)     corruptEnemy( enemy );
+			if (category == MINOR_DEBUFFS)          debuffEnemy( caster, enemy, MAJOR_DEBUFFS);
+			else if (category == MAJOR_DEBUFFS)     corruptEnemy( enemy, caster );
 		}
 	}
 	
-	private void corruptEnemy( Mob enemy ){
+	private void corruptEnemy( Mob enemy, Hero caster ){
 		//cannot re-corrupt or doom an enemy, so give them a major debuff instead
 		if(enemy.buff(Corruption.class) != null || enemy.buff(Doom.class) != null){
 			GLog.w( Messages.get(this, "already_corrupted") );
@@ -229,7 +248,9 @@ public class WandOfCorruption extends Wand {
 		if (!enemy.isImmune(Corruption.class)){
 			Corruption.corruptionHeal(enemy);
 
-			AllyBuff.affectAndLoot(enemy, curUser, Corruption.class);
+			AllyBuff.affectAndLoot(enemy, caster, Corruption.class);
+            Corruption converted = enemy.buff(Corruption.class);
+            if (Dungeon.coop != null && converted != null) converted.setCaster(caster.id());
 		} else {
 			Buff.affect(enemy, Doom.class);
 		}

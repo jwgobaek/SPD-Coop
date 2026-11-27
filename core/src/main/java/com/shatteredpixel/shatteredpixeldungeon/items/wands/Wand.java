@@ -137,6 +137,25 @@ public abstract class Wand extends Item {
 
 	public abstract void onZap(Ballistica attack);
 
+    /** Supported cooperative impacts use the acting seat even when the item is an armor form. */
+    public void onZap(Hero caster, Ballistica bolt) {
+        throw new UnsupportedOperationException("Wand has no cooperative impact");
+    }
+
+	public final Hero chargingHero() {
+		return charger != null && charger.target instanceof Hero ? (Hero)charger.target : null;
+	}
+
+	public final boolean cast(Hero caster, Ballistica bolt) {
+		if (caster != chargingHero() || !tryToZap(caster, bolt.collisionPos)) return false;
+		caster.busy();
+		applyBackupBarrier(caster);
+		onZap(caster, bolt);
+		wandUsed(caster);
+		cursedKnown = true;
+		return true;
+	}
+
 	public abstract void onHit( MagesStaff staff, Char attacker, Char defender, int damage);
 
 	//not affected by enchantment proc chance changers

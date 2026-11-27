@@ -44,8 +44,13 @@ public class StoneOfShock extends Runestone {
 		image = ItemSpriteSheet.STONE_SHOCK;
 	}
 	
-	@Override
-	protected void activate(int cell) {
+	public static boolean reaches(int cell, int target) {
+        PathFinder.buildDistanceMap(cell, BArray.not(Dungeon.level.solid, null), 2);
+        return PathFinder.distance[target] < Integer.MAX_VALUE;
+    }
+
+    @Override
+    protected void activate(int cell) {
 		
 		Sample.INSTANCE.play( Assets.Sounds.LIGHTNING );
 		
@@ -57,18 +62,18 @@ public class StoneOfShock extends Runestone {
 			if (PathFinder.distance[i] < Integer.MAX_VALUE) {
 				Char n = Actor.findChar(i);
 				if (n != null) {
-					arcs.add(new Lightning.Arc(cell, n.sprite.center()));
+					if (Dungeon.coop == null) arcs.add(new Lightning.Arc(cell, n.sprite.center()));
 					Buff.prolong(n, Paralysis.class, 1f);
 					hits++;
 				}
 			}
 		}
 		
-		CellEmitter.center( cell ).burst( SparkParticle.FACTORY, 3 );
+		if (Dungeon.coop == null) CellEmitter.center( cell ).burst( SparkParticle.FACTORY, 3 );
 		
 		if (hits > 0) {
-			curUser.sprite.parent.addToFront( new Lightning( arcs, null ) );
-			curUser.sprite.centerEmitter().burst(EnergyParticle.FACTORY, 10);
+			if (Dungeon.coop == null) curUser.sprite.parent.addToFront( new Lightning( arcs, null ) );
+			if (Dungeon.coop == null) curUser.sprite.centerEmitter().burst(EnergyParticle.FACTORY, 10);
 			Sample.INSTANCE.play( Assets.Sounds.LIGHTNING );
 			
 			curUser.belongings.charge(1f + hits);

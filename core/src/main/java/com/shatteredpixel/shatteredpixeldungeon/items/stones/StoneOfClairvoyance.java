@@ -62,18 +62,21 @@ public class StoneOfClairvoyance extends Runestone {
 			left = Math.max(0, left);
 			for (curr = left + y * Dungeon.level.width(); curr <= right + y * Dungeon.level.width(); curr++){
 
-				GameScene.checkedCell( curr, cell );
-				Dungeon.level.mapped[curr] = true;
+				if (Dungeon.coop == null) {
+                    GameScene.checkedCell(curr, cell);
+                    Dungeon.level.mapped[curr] = true;
+                }
 				
 				if (Dungeon.level.secret[curr]) {
 					Dungeon.level.discover(curr);
 					
-					if (Dungeon.level.heroFOV[curr]) {
+					if (Dungeon.coop == null && Dungeon.level.heroFOV[curr]) {
 						GameScene.discoverTile(curr, Dungeon.level.map[curr]);
 						ScrollOfMagicMapping.discover(curr);
 						noticed = true;
 					}
 				}
+                if (Dungeon.coop != null) Dungeon.coop.knowledge(curUser).reveal(Dungeon.level, curr);
 				
 			}
 		}
@@ -83,7 +86,7 @@ public class StoneOfClairvoyance extends Runestone {
 		}
 		
 		Sample.INSTANCE.play( Assets.Sounds.TELEPORT );
-		GameScene.updateFog();
+		if (Dungeon.coop == null) GameScene.updateFog();
 		
 		
 	}

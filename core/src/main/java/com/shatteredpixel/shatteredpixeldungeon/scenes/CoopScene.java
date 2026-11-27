@@ -110,6 +110,9 @@ public class CoopScene extends PixelScene {
             case "SELL": case "SELL_ONE":
                 WndSeatTrade.sell(this,view,item,action,controller);
                 break;
+            case "AUGMENT_GEAR":
+                chooseAugment(view,item);
+                break;
             case "ENCHANT_BOW": case "UPGRADE": case "IDENTIFY":
                 add(WndSeatInventory.chooseEquipment(view,controller,item));
                 break;
@@ -246,6 +249,35 @@ public class CoopScene extends PixelScene {
         }));
     }
 
+    private void chooseAugment(PublicDungeon view, PublicDungeon.Loot stone) {
+        add(WndSeatInventory.select(view,controller,new WndSeatInventory.Selection() {
+            public boolean accepts(PublicDungeon.Loot gear) { return view.source.rows.containsKey("augmentgear"+gear.id); }
+            public void select(PublicDungeon.Loot gear) {
+                if (controller.frame().image != view.source || !accepts(gear)) return;
+                String[] data = view.source.rows.get("augmentgear"+gear.id).split(",");
+                int selection = Integer.parseInt(data[0]), current = Integer.parseInt(data[2]);
+                boolean armor = "A".equals(data[1]);
+                String prefix = "items.stones.stoneofaugmentation$wndaugment.";
+                java.util.ArrayList<Integer> choices = new java.util.ArrayList<>();
+                java.util.ArrayList<String> labels = new java.util.ArrayList<>();
+                for (int i = 0; i < 3; i++) if (i != current) {
+                    String name = armor ? com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor.Augment.values()[i].name()
+                            : com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon.Augment.values()[i].name();
+                    choices.add(i);
+                    labels.add(Messages.get(prefix+name.toLowerCase(java.util.Locale.ROOT)));
+                }
+                labels.add(Messages.get(prefix+"cancel"));
+                CoopScene.this.add(new WndOptions(new com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite(gear.sprite),
+                        Messages.get("items.stones.stoneofaugmentation.name"), Messages.get(prefix+"choice"), labels.toArray(new String[0])) {
+                    @Override protected void onSelect(int index) {
+                        if (index>=0 && index<choices.size() && controller.frame().image==view.source)
+                            controller.act(view.source,"AUGMENT_GEAR", selection*3+choices.get(index),stone.id);
+                    }
+                });
+            }
+        }));
+    }
+
     private void chooseWand(PublicDungeon view, PublicDungeon.Loot staff) {
         Class<?> type = com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff.class;
         add(WndSeatInventory.select(view,controller,new WndSeatInventory.Selection() {
@@ -284,7 +316,8 @@ public class CoopScene extends PixelScene {
     private void openCauldron(PublicDungeon view, int cell) {
         add(WndSeatInventory.select(view, controller, new WndSeatInventory.Selection() {
             public boolean accepts(PublicDungeon.Loot item) {
-                return view.source.rows.containsKey("brew" + item.id) || view.source.rows.containsKey("brewseed" + item.id);
+                return view.source.rows.containsKey("brew" + item.id) || view.source.rows.containsKey("brewseed" + item.id)
+                        || view.source.rows.containsKey("exoticrecipe" + item.id);
             }
             public void select(PublicDungeon.Loot item) {
                 if (controller.frame().image != view.source || !accepts(item)) return;
@@ -293,25 +326,29 @@ public class CoopScene extends PixelScene {
                             CoopScene.this, view, controller, cell, item));
                     return;
                 }
-                String[] preview = view.source.rows.get("brew" + item.id).split(",");
-                String key = preview[0].equals("unknown") ? "runestone$placeholder" : preview[0];
-                String result = Messages.get("items.stones." + key + ".name");
-                String text = Messages.titleCase(result) + " ×" + preview[2] + "\n"
-                        + Messages.get(AlchemyScene.class, "energy") + " " + preview[3];
-                String exoticCost = view.source.rows.get("brewexotic" + item.id);
+                String stones = view.source.rows.get("brew" + item.id);
+                String exotic = view.source.rows.get("exoticrecipe" + item.id);
+                String[] mixture = exotic == null ? null : exotic.split(",");
+                String energy = Messages.get(AlchemyScene.class, "energy");
                 String craft = Messages.get(AlchemyScene.class, "craft");
                 String cancel = Messages.get(AlchemyScene.class, "cancel");
-                String[] options = exoticCost == null ? new String[]{craft, cancel} : new String[]{craft,
-                        Messages.titleCase(Messages.get("items.scrolls.exotic.scrollofenchantment.name"))
-                                + " (" + Messages.get(AlchemyScene.class, "energy") + " " + exoticCost + ")", cancel};
+                String exoticName = mixture == null ? "" : Messages.titleCase(Messages.get(mixture[0] + ".name"));
+                String[] preview = stones == null ? mixture : stones.split(",");
+                String result = stones == null ? exoticName : Messages.titleCase(Messages.get("items.stones."
+                        + (preview[0].equals("unknown") ? "runestone$placeholder" : preview[0]) + ".name"));
+                String text = result + " ×" + (stones == null ? "1" : preview[2]) + "\n"
+                        + energy + " " + (stones == null ? preview[2] : preview[3]);
+                boolean alternatives = stones != null && mixture != null;
+                String[] options = alternatives ? new String[]{craft, exoticName + " (" + energy + " " + mixture[2] + ")", cancel}
+                        : new String[]{craft, cancel};
                 CoopScene.this.add(new WndOptions(new com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite(
-                        Integer.parseInt(preview[1])), Messages.get(AlchemyScene.class, "title"), text,
-                        options) {
+                        Integer.parseInt(preview[1])), Messages.get(AlchemyScene.class, "title"), text, options) {
                     @Override protected void onSelect(int index) {
                         if (controller.frame().image != view.source) return;
-                        if (index == 0) controller.act(view.source, "BREW_RUNESTONES", cell, item.id);
-                        else if (index == 1 && exoticCost != null)
-                            controller.act(view.source, "BREW_ENCHANTMENT", cell, item.id);
+                        if (index == 0 && stones != null) controller.act(view.source, "BREW_RUNESTONES", cell, item.id);
+                        else if (index == 0 || index == 1 && alternatives)
+                            controller.act(view.source, view.source.rows.containsKey("brewexotic" + item.id)
+                                    ? "BREW_ENCHANTMENT" : "BREW_EXOTIC", cell, item.id);
                     }
                 });
             }
@@ -381,8 +418,8 @@ public class CoopScene extends PixelScene {
         boolean bow=targetStaff.kind.equals("BOW");
         String actor=view.monsters.get(cell);
         boolean enemy=actor!=null && !"Imp".equals(actor) && !"Blacksmith".equals(actor) && !"Wandmaker".equals(actor) && !"Shopkeeper".equals(actor) && !"Sheep".equals(actor) && !"Sentry".equals(actor) && !"Ghost".equals(actor) && !"RatKing".equals(actor);
-        boolean missile=PublicDungeon.isMissileKind(targetStaff.kind) || targetStaff.kind.equals("FOOD") || targetStaff.kind.equals("SLEEP_STONE");
-        boolean areaWand = view.source.rows.containsKey("areawand"+targetStaff.id) || (targetStaff.kind.equals("WAND") || targetStaff.kind.equals("UNIDENTIFIED_WAND")) && (targetStaff.sprite == ItemSpriteSheet.WAND_TRANSFUSION || targetStaff.sprite == ItemSpriteSheet.WAND_LIGHTNING || targetStaff.sprite == ItemSpriteSheet.WAND_FROST || targetStaff.sprite == ItemSpriteSheet.WAND_BLAST_WAVE
+        boolean missile=view.source.rows.containsKey("potionthrow"+targetStaff.id) || PublicDungeon.isMissileKind(targetStaff.kind) || targetStaff.kind.equals("FOOD") || targetStaff.kind.equals("SLEEP_STONE") || targetStaff.kind.equals("THROW_STONE");
+        boolean areaWand = view.source.rows.containsKey("areawand"+targetStaff.id) || (targetStaff.kind.equals("WAND") || targetStaff.kind.equals("UNIDENTIFIED_WAND")) && (targetStaff.sprite == ItemSpriteSheet.WAND_CORRUPTION || targetStaff.sprite == ItemSpriteSheet.WAND_TRANSFUSION || targetStaff.sprite == ItemSpriteSheet.WAND_LIGHTNING || targetStaff.sprite == ItemSpriteSheet.WAND_FROST || targetStaff.sprite == ItemSpriteSheet.WAND_BLAST_WAVE
                 || targetStaff.sprite == ItemSpriteSheet.WAND_FIREBOLT);
         boolean selfBattery = !missile && !bow && cell == view.pos && view.source.rows.containsKey("talent"+Talent.SHIELD_BATTERY.ordinal());
         if (targetView==view && (selfBattery || enemy || ((missile || areaWand || bow && view.source.rows.containsKey("talent"+Talent.SEER_SHOT.ordinal())) && actor==null && view.visible(cell)) || (!missile && !bow && view.chest(cell)))

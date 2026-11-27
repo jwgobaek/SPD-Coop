@@ -326,6 +326,8 @@ public final class VaultPublicRoute {
                     if (gap<=currentGap && !sidewaysCover || exposedTo(v,c)>exposedTo(v,v.pos)) continue;
                     int score=20*gap-30*exposedTo(v,c)-visits.getOrDefault(c,0)
                             - (paired ? 15 : 3)*separation;
+                    if (Boolean.getBoolean("vault.guide.unvisitedCover") && paired)
+                        score -= 8 * visits.getOrDefault(c,0);
                     if (score>bestScore) { best=c; bestScore=score; }
                 }
                 if (best>=0) return new Input("MOVE",best,0);
@@ -384,7 +386,7 @@ public final class VaultPublicRoute {
                 if (adjacent(v.pos,cell,v.width) && !v.source.rows.containsKey("aim"+v.pos) && !(avoidGolem && cell==golemCell)) return new Input("ATTACK",cell,0);
                 for (PublicDungeon.Loot item : v.belongings) {
                     for (String verb : Arrays.asList("ZAP","SHOOT","THROW")) {
-                        if (campaignGuide && verb.equals("THROW") && v.actions(item).contains("EAT")) continue;
+                        if (campaignGuide && verb.equals("THROW") && (v.actions(item).contains("EAT") || v.actions(item).contains("DRINK"))) continue;
                         if (v.actions(item).contains(verb) && !rejectedItems.contains(item.id) && !blockedShots.contains(shotKey(item.id,v.pos,cell))) return new Input(verb,cell,item.id);
                     }
                 }
@@ -489,6 +491,9 @@ public final class VaultPublicRoute {
                             && holdDirection > 0 && best == doorEntry && first[c] != doorEntry
                             && rememberedExposure(v,first[c]) <= rememberedExposure(v,best);
                     if (seekStairs) {
+                        if (Boolean.getBoolean("trial.retracePartner") && v.ally < 0 && lastAlly >= 0
+                                && missingTurns < 12 && v.pos != lastAlly && c == lastAlly && !v.visible(c))
+                            value += 320 / (1 + visits.getOrDefault(first[c],0));
                         if (lookingForPartner) {
                             if (lastAlly>=0 && lastAlly!=v.pos && distance(lastAlly,knownExit,v.width)>2)
                                 value+=Math.max(0,600-90*distance(c,lastAlly,v.width));

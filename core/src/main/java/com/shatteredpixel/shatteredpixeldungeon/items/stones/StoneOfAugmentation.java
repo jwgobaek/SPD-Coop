@@ -81,6 +81,16 @@ public class StoneOfAugmentation extends InventoryStone {
 		}
 	}
 	
+    public void applyFor(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero hero, Item gear, int choice) {
+        if (gear instanceof Weapon) ((Weapon)gear).augment = Weapon.Augment.values()[choice];
+        else ((Armor)gear).augment = Armor.Augment.values()[choice];
+        if (detach(hero.belongings.backpack) == null) throw new IllegalStateException("Augmentation stone missing");
+        Catalog.countUse(getClass());
+        Talent.onRunestoneUsed(hero, hero.pos, getClass());
+        com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility.dispel(hero);
+        hero.spendAndNext(1f);
+    }
+
 	@Override
 	public int value() {
 		return 30 * quantity;

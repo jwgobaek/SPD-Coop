@@ -468,6 +468,8 @@ final class SeatProjection {
                         if (com.shatteredpixel.shatteredpixeldungeon.CoopAlchemy.isSeed(item)) rows.put("brewseed" + ids.get(item), "1");
                         if (com.shatteredpixel.shatteredpixeldungeon.CoopAlchemy.canBrewEnchantment(item))
                             rows.put("brewexotic" + ids.get(item), Integer.toString(new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ExoticScroll.ScrollToExotic().cost(null)));
+                        String exotic = com.shatteredpixel.shatteredpixeldungeon.CoopAlchemy.exoticPreview(item);
+                        if (exotic != null) rows.put("exoticrecipe" + ids.get(item), exotic);
                         if (preview != null) rows.put("brew" + ids.get(item), preview);
                     }
                     if (enchant != null && !enchant.hasOptions() && com.shatteredpixel.shatteredpixeldungeon.CoopEnchantScroll.eligible(hero, item))
@@ -547,10 +549,14 @@ final class SeatProjection {
                     if (rows.containsKey("favor") && CoopSmith.eligible(item) && CoopSession.equipmentForScroll(item)) {
                         rows.put("forge"+ids.get(item),selection+","+(CoopSmith.canHarden(item)?1:0)+","+(item.level()<2?1:0));
                     }
+                    if (com.shatteredpixel.shatteredpixeldungeon.CoopConsumables.canEnchantFromPack(hero, item))
+                        rows.put("bowtarget"+ids.get(item), Integer.toString(selection));
+                    if (com.shatteredpixel.shatteredpixeldungeon.CoopEnchantScroll.eligible(hero, item))
+                        rows.put("augmentgear"+ids.get(item), selection + "," + (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor ? "A" : "W")
+                                + "," + com.shatteredpixel.shatteredpixeldungeon.CoopConsumables.augment(item));
                     if (item instanceof SpiritBow) {
                         SpiritBow bow = (SpiritBow)item;
                         long id = ids.get(item);
-                        rows.put("bowtarget"+id,Integer.toString(selection));
                         if (bow.enchantment != null && (!bow.enchantment.curse() || bow.cursedKnown)) {
                             String type = bow.enchantment.getClass().getName();
                             rows.put("bowenchant"+id,type.substring(type.indexOf(".items.")+1).toLowerCase(Locale.ROOT));
@@ -631,10 +637,15 @@ final class SeatProjection {
             kind="SEED";
             if (!slot.startsWith("F")) rows.put("seedtype"+id,item.getClass().getEnclosingClass().getSimpleName().toLowerCase(Locale.ROOT));
         }
+        if (com.shatteredpixel.shatteredpixeldungeon.CoopConsumables.thrownStone(item)) kind="THROW_STONE";
+        if (com.shatteredpixel.shatteredpixeldungeon.CoopConsumables.drinkable(item) && kind.equals("OTHER")) kind="POTION";
+        if (!slot.startsWith("F") && com.shatteredpixel.shatteredpixeldungeon.CoopConsumables.throwablePotion(item))
+            rows.put("potionthrow"+id, "1");
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfDeepSleep) kind="SLEEP_STONE";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHaste
                 && ((com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion)item).isKnown()) kind="HASTE_POTION";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment) kind="ENCHANT_BOW";
+        if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfAugmentation) kind="AUGMENT_GEAR";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor) kind="CLASS_ARMOR";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.VaultBeacon) kind="VAULT_BEACON";
         if (!slot.startsWith("F") && item.isIdentified() && CoopSession.basicArmorType(item)
@@ -650,6 +661,7 @@ final class SeatProjection {
         if (!slot.startsWith("F") && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll
                 && (!((com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll)item).isKnown()
                 || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTerror
+                || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping
                 || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfEnchantment)) kind="READ_SCROLL";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle) kind="CANDLE";
         if (!slot.startsWith("F") && item.isIdentified() && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste) kind="HASTE_RING";

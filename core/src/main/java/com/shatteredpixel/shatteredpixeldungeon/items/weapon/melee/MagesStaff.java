@@ -303,9 +303,9 @@ public class MagesStaff extends MeleeWeapon {
 				&& !cursed && enchantment == null && !wand.cursed ? (WandOfMagicMissile)wand : null;
 	}
 
-	public com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand coopWand() {
+	public Wand coopWand() {
 		if (cursed || enchantment != null || !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedHandheldWand(wand)) return null;
-		return (com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand)wand;
+		return wand;
 	}
 
 	public Wand imbuedWand() { return wand; }

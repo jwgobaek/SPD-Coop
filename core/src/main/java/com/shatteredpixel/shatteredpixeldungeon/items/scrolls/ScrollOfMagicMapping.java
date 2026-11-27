@@ -42,7 +42,11 @@ public class ScrollOfMagicMapping extends Scroll {
 	@Override
 	public void doRead() {
 
-		detach(curUser.belongings.backpack);
+		readFor(curUser);
+    }
+
+    public void readFor(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero reader) {
+        detach(reader.belongings.backpack);
 		int length = Dungeon.level.length();
 		int[] map = Dungeon.level.map;
 		boolean[] mapped = Dungeon.level.mapped;
@@ -56,33 +60,34 @@ public class ScrollOfMagicMapping extends Scroll {
 			
 			if (discoverable[i]) {
 				
-				mapped[i] = true;
+				if (Dungeon.coop == null) mapped[i] = true;
 				if ((Terrain.flags[terr] & Terrain.SECRET) != 0) {
 					
 					Dungeon.level.discover( i );
 					
-					if (Dungeon.level.heroFOV[i]) {
+					if (Dungeon.coop == null && Dungeon.level.heroFOV[i]) {
 						GameScene.discoverTile( i, terr );
 						discover( i );
 						
 						noticed = true;
 					}
 				}
+                if (Dungeon.coop != null) Dungeon.coop.knowledge(reader).reveal(Dungeon.level, i);
 			}
 		}
-		GameScene.updateFog();
+		if (Dungeon.coop == null) GameScene.updateFog();
 		
 		GLog.i( Messages.get(this, "layout") );
 		if (noticed) {
 			Sample.INSTANCE.play( Assets.Sounds.SECRET );
 		}
 		
-		SpellSprite.show( curUser, SpellSprite.MAP );
+		if (Dungeon.coop == null) SpellSprite.show( reader, SpellSprite.MAP );
 		Sample.INSTANCE.play( Assets.Sounds.READ );
 
 		identify();
 
-		readAnimation();
+		finishReading(reader);
 	}
 	
 	@Override

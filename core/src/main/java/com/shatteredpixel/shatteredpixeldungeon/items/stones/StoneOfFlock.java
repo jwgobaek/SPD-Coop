@@ -61,11 +61,11 @@ public class StoneOfFlock extends Runestone {
 				sheep.pos = i;
 				GameScene.add(sheep);
 				Dungeon.level.occupyCell(sheep);
-				CellEmitter.get(i).burst(Speck.factory(Speck.WOOL), 4);
+				if (Dungeon.coop == null) CellEmitter.get(i).burst(Speck.factory(Speck.WOOL), 4);
 			}
 		}
 
-		CellEmitter.get(cell).burst(Speck.factory(Speck.WOOL), 4);
+		if (Dungeon.coop == null) CellEmitter.get(cell).burst(Speck.factory(Speck.WOOL), 4);
 		Sample.INSTANCE.play(Assets.Sounds.PUFF);
 		Sample.INSTANCE.play(Assets.Sounds.SHEEP);
 		

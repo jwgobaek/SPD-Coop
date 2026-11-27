@@ -31,19 +31,5 @@ public abstract class TargetedDamageWand extends DamageWand {
 		onZap(curUser, bolt);
 	}
 
-	public final Hero chargingHero() {
-		return charger != null && charger.target instanceof Hero ? (Hero)charger.target : null;
-	}
-
-	public final boolean cast(Hero caster, Ballistica bolt) {
-		if (caster != chargingHero() || !tryToZap(caster, bolt.collisionPos)) return false;
-		caster.busy();
-		applyBackupBarrier(caster);
-		onZap(caster, bolt);
-		wandUsed(caster);
-		cursedKnown = true;
-		return true;
-	}
-
 	public abstract void onZap(Hero caster, Ballistica bolt);
 }

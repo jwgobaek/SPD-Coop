@@ -34,6 +34,12 @@ public class StoneOfBlink extends Runestone {
 	}
 	
 	private static Ballistica throwPath;
+
+    public static int destination(Hero thrower, int target) {
+        Ballistica ray = new Ballistica(thrower.pos, target, Ballistica.PROJECTILE);
+        return Actor.findChar(ray.collisionPos) != null && ray.dist > 0
+                ? ray.path.get(ray.dist-1) : ray.collisionPos;
+    }
 	
 	@Override
 	public int throwPos(Hero user, int dst) {

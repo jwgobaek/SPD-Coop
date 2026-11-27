@@ -51,7 +51,7 @@ public class StoneOfAggression extends Runestone {
 			Buff.prolong(ch, Aggression.class, Aggression.DURATION);
 		}
 
-		CellEmitter.center(cell).start( Speck.factory( Speck.SCREAM ), 0.3f, 3 );
+		if (Dungeon.coop == null) CellEmitter.center(cell).start( Speck.factory( Speck.SCREAM ), 0.3f, 3 );
 		Sample.INSTANCE.play( Assets.Sounds.READ );
 		
 	}

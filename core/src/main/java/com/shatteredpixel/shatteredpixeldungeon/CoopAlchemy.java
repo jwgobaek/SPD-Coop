@@ -13,6 +13,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ExoticScrol
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.ExoticPotion;
 
 /** Station crafting on the room executor. The inventory picker never detaches ingredients. */
 public final class CoopAlchemy {
@@ -82,18 +83,45 @@ public final class CoopAlchemy {
         return item instanceof ScrollOfUpgrade && ((ScrollOfUpgrade)item).isKnown();
     }
 
+    private static Recipe exoticRecipe(Item item) {
+        if (item == null || !item.isIdentified() || !Recipe.usableInRecipe(item)
+                || !(item instanceof Potion || item instanceof Scroll)) return null;
+        ArrayList<Item> input = ingredients(item);
+        for (Recipe candidate : Recipe.findRecipes(input)) {
+            if (candidate instanceof ExoticPotion.PotionToExotic || candidate instanceof ExoticScroll.ScrollToExotic)
+                return candidate;
+        }
+        return null;
+    }
+
+    public static String exoticPreview(Item item) {
+        Recipe recipe = exoticRecipe(item);
+        if (recipe == null) return null;
+        ArrayList<Item> input = ingredients(item);
+        Item output = recipe.sampleOutput(input);
+        String key = CoopTrade.label(output);
+        return key.isEmpty() ? null : key + "," + output.image() + "," + recipe.cost(input);
+    }
+
+    static boolean brewExotic(CoopSession game, Hero hero, int cell, Item item) {
+        return craft(game, hero, cell, item, exoticRecipe(item));
+    }
+
     static boolean brew(CoopSession game, Hero hero, int cell, Item item) {
         return brew(game, hero, cell, item, false);
     }
 
     static boolean brew(CoopSession game, Hero hero, int cell, Item item, boolean exotic) {
-        if (!atStation(game, hero, cell) || !(item instanceof Scroll) || item.quantity() <= 0
+        if (!(item instanceof Scroll) || exotic && !canBrewEnchantment(item)) return false;
+        return craft(game, hero, cell, item, exotic ? new ExoticScroll.ScrollToExotic() : recipe(ingredients(item)));
+    }
+
+    private static boolean craft(CoopSession game, Hero hero, int cell, Item item, Recipe recipe) {
+        if (recipe == null || item == null || item.quantity() <= 0 || !atStation(game, hero, cell)
                 || !Recipe.usableInRecipe(item) || !hero.belongings.backpack.contains(item)
                 || game.ownership.owner(item) != game.playerOf(hero)) return false;
         ArrayList<Item> input = ingredients(item);
-        if (exotic && !canBrewEnchantment(item)) return false;
-        Recipe recipe = exotic ? new ExoticScroll.ScrollToExotic() : recipe(input);
-        if (recipe == null || !recipe.testIngredients(input)) return false;
+        if (!recipe.testIngredients(input)) return false;
         int cost = recipe.cost(input);
         if (cost > Dungeon.energy) return false;
         Item output = recipe.brew(input);

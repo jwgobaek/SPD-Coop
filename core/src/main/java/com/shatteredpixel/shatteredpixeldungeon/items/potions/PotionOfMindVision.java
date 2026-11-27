@@ -41,7 +41,7 @@ public class PotionOfMindVision extends Potion {
 		identify();
 		Buff.prolong( hero, MindVision.class, MindVision.DURATION );
 		SpellSprite.show(hero, SpellSprite.VISION, 1, 0.77f, 0.9f);
-		Dungeon.observe();
+		if (Dungeon.coop == null) Dungeon.observe();
 		
 		if (Dungeon.level.mobs.size() > 0) {
 			GLog.i( Messages.get(this, "see_mobs") );

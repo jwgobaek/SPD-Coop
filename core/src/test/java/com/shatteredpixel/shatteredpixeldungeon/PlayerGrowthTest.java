@@ -79,9 +79,16 @@ public class PlayerGrowthTest extends HeadlessDungeon {
                 wand.identify(false);
                 assertTrue(wand.collect(caster.belongings.backpack));
                 game.ownership.claim(wand,game.player(seat));
-                for(int i=0;i<8 && SoulMark.source(enemy)==null;i++) {
-                    SewerBeeTest.offer(game,seat);
-                    assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ZAP,enemy.pos,wand));
+                // The native proc is probabilistic. Replay a fixed roll stream for this
+                // ownership/restoration regression while retaining the real wand and scheduler.
+                com.watabou.utils.Random.pushGenerator(575);
+                try {
+                    for(int i=0;i<8 && SoulMark.source(enemy)==null;i++) {
+                        SewerBeeTest.offer(game,seat);
+                        assertTrue(CoopFloorsTest.step(game,CoopSession.Action.ZAP,enemy.pos,wand));
+                    }
+                } finally {
+                    com.watabou.utils.Random.popGenerator();
                 }
                 assertSame(caster,SoulMark.source(enemy));
                 float expires=enemy.buff(SoulMark.class).cooldown();
@@ -163,6 +170,7 @@ public class PlayerGrowthTest extends HeadlessDungeon {
     // Replay the same public investment or mask choice through two authenticated TCP clients.
     public static StagedInput stage(CoopSession g,String stage) {
         int seat=stage.endsWith("1")?1:0;
+        if (stage.matches("(visiondrink|fearstone|corruptzap|mapread|maprecall)[01]")) return ConsumableEffectsTest.prepare(g, seat, stage);
         if (stage.matches("unknownread[01]")) return CauldronTest.unknownScroll(g, seat);
         if (stage.matches("gaswait[01]")) return CorrosionAttributionTest.prepareGasTick(g, seat);
         if (stage.matches("seedbrew[01]")) return MultiAlchemyTest.prepare(g,seat);
@@ -189,6 +197,7 @@ public class PlayerGrowthTest extends HeadlessDungeon {
     public static boolean published(String stage) {
         CoopSession g=Dungeon.coop;
         int seat=stage.endsWith("1")?1:0;
+        if (stage.matches("(visiondrink|fearstone|corruptzap|mapread|maprecall)[01]")) return ConsumableEffectsTest.published(g, seat, stage);
         if (stage.matches("unknownread[01]")) return CauldronTest.readUnknown(g, seat);
         if (stage.matches("gaswait[01]")) return CorrosionAttributionTest.publishedGasTick(g, seat);
         if (stage.matches("seedbrew[01]")) return MultiAlchemyTest.published(g,seat);

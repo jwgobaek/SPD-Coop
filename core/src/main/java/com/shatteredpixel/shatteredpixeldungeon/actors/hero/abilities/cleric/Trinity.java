@@ -127,7 +127,7 @@ public class Trinity extends ArmorAbility {
     }
 
     public boolean useMind(Hero hero,ClassArmor armor,int cell) {
-        if (!(mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTransfusion || mindForm instanceof WandOfDisintegration || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfPrismaticLight || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)
+        if (!(mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorruption || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTransfusion || mindForm instanceof WandOfDisintegration || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfPrismaticLight || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)
                 || hero.buff(MagicImmune.class)!=null || hero.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.trinkets.WondrousResin.class)!=null) return false;
         Wand wand=(Wand)mindForm;
         float cost=trinityChargeUsePerEffect(hero,wand.getClass());
@@ -142,7 +142,7 @@ public class Trinity extends ArmorAbility {
         if (wand instanceof WandOfDisintegration && !((WandOfDisintegration)wand).safeFormBeam(hero, shot, formLevel)) return false;
         wand.level(formLevel);
         wand.curCharges=wand.maxCharges;
-        ((com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand)wand).onZap(hero,shot);
+        wand.onZap(hero,shot);
         com.watabou.utils.Random.Float(); // Native Wondrous Resin roll for an eligible owner without the trinket.
         armor.charge-=cost;
         armor.updateQuickslot();

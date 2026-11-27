@@ -42,7 +42,7 @@ public class PotionOfExperience extends Potion {
 		identify();
 		hero.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(hero.maxExp()), FloatingText.EXPERIENCE);
 		hero.earnExp( hero.maxExp(), getClass() );
-		new Flare( 6, 32 ).color(0xFFFF00, true).show( curUser.sprite, 2f );
+		if (com.shatteredpixel.shatteredpixeldungeon.Dungeon.coop == null) new Flare( 6, 32 ).color(0xFFFF00, true).show( curUser.sprite, 2f );
 	}
 	
 	@Override

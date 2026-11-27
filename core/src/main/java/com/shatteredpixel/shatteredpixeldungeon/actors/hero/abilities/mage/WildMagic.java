@@ -147,7 +147,7 @@ public class WildMagic extends ArmorAbility {
 			if (wand.curCharges < 1 && wand.partialCharge < shotCost(hero)) continue;
 			if (!com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedHandheldWand(wand)
 					|| Dungeon.coop.ownership.owner(wand) != Dungeon.coop.playerOf(hero)
-					|| ((com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand)wand).chargingHero() != hero) return false;
+					|| wand.chargingHero() != hero) return false;
 			if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration
                     && !((com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration)wand).safeBeam(
                             hero,new Ballistica(hero.pos,cell,Ballistica.WONT_STOP),true)) return false;
@@ -173,7 +173,7 @@ public class WildMagic extends ArmorAbility {
 		for (Wand wand : shots) {
 			Ballistica aim = new Ballistica(hero.pos, cell, wand.collisionProperties(cell));
 			if (wand.tryToZap(hero,cell)) {
-				((com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand)wand).onZap(hero,aim);
+				wand.onZap(hero,aim);
 				Random.Float(); // Native extra curse check, with no Wondrous Resin equipped.
 			}
 			spendShot(wand,hero);

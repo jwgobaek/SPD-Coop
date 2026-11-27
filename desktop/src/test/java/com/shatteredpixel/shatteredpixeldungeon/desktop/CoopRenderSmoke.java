@@ -37,7 +37,7 @@ public final class CoopRenderSmoke {
             return;
         }
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|seedbrew-input|cauldron-input|eagle-input|stasis-input|beacon-vote-input|strength-input|recharging-input|lullaby-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|fearstone-input|visiondrink-input|corruptzap-input|seedbrew-input|cauldron-input|eagle-input|stasis-input|beacon-vote-input|strength-input|recharging-input|lullaby-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -1288,6 +1288,40 @@ public final class CoopRenderSmoke {
                     await(() -> frame().dungeon.offered && frame().image.rows.containsKey("learn"+talent.ordinal())
                             && Integer.parseInt(frame().image.rows.get("freepoints"+(cache ? 1 : 3))) > 0);
                     investVisibleTalent(talent,cache ? 1 : 3);
+                    return;
+                }
+                if (regionShot.equals("fearstone-input") || regionShot.equals("visiondrink-input")
+                        || regionShot.equals("corruptzap-input")) {
+                    boolean drink = regionShot.equals("visiondrink-input");
+                    boolean zap = regionShot.equals("corruptzap-input");
+                    String kind = drink ? "POTION" : zap ? "WAND" : "THROW_STONE";
+                    String verb = drink ? "drink" : zap ? "zap" : "throw";
+                    await(() -> frame().dungeon.offered && frame().dungeon.belongings.stream().anyMatch(i -> i.kind.equals(kind)));
+                    PublicDungeon shown = frame().dungeon;
+                    PublicDungeon.Loot owned = shown.belongings.stream().filter(i -> i.kind.equals(kind)).findFirst().get();
+                    int clicks = drink ? 1 : 2;
+                    for (int pass=0;pass<clicks;pass++) {
+                        click("bag"); openInventoryTab(owned.bagIndex); press(inventoryPoint(owned.id));
+                        shot("own-"+verb);
+                        click(verb);
+                        if (!drink) {
+                            await(() -> button("cancel") != null);
+                            if (pass==0) {
+                                click("cancel");
+                                if (frame().image != shown.source) throw new AssertionError("Aim cancellation changed the offer");
+                            } else {
+                                int foe = shown.monsters.entrySet().stream().filter(e -> e.getValue().equals("Rat"))
+                                        .findFirst().orElseThrow().getKey();
+                                press(mapPoint(shown,foe));
+                            }
+                        }
+                    }
+                    await(() -> frame().pending==0 && frame().image.version>shown.source.version && "APPLIED".equals(frame().lastResult));
+                    PublicDungeon.Loot left=frame().dungeon.belongings.stream().filter(i -> i.id==owned.id).findFirst().orElse(null);
+                    if (drink ? left!=null : left==null || (zap ? left.charges!=owned.charges-1 : left.quantity!=owned.quantity-1))
+                        throw new AssertionError("Physical item cost disagrees with receipt");
+                    shot("native-"+verb+"-receipt");
+                    System.out.println("PASS native inventory "+verb+" and confirmed item cost");
                     return;
                 }
                 if (regionShot.equals("seedbrew-input")) {

@@ -64,6 +64,7 @@ public final class FloorKnowledge {
         int range = observer.hasTalent(Talent.HEIGHTENED_SENSES) ? 1 + observer.pointsInTalent(Talent.HEIGHTENED_SENSES) : 0;
         if (observer.buff(DivineSense.DivineSenseTracker.class) != null)
             range = 4 + 4 * observer.pointsInTalent(Talent.DIVINE_SENSE);
+        if (observer.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MindVision.class) != null) range = Integer.MAX_VALUE;
         if (range > 0) for (Mob mob : level.mobs) {
             if (mob.isAlive() && !visible[mob.pos] && level.distance(observer.pos, mob.pos) <= range
                     && !Char.hasProp(mob, Char.Property.OBJECT)

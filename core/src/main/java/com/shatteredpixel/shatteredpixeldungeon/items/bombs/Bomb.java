@@ -209,7 +209,7 @@ public class Bomb extends Item {
 				}
 			}
 			
-			if (terrainAffected) {
+			if (terrainAffected && Dungeon.coop == null) {
 				Dungeon.observe();
 			}
 		}
@@ -272,7 +272,10 @@ public class Bomb extends Item {
 	}
 
 	//used to track the death from friendly magic badge, if an explosion was conjured by magic
-	public static class ConjuredBomb extends Bomb{};
+	public static class ConjuredBomb extends Bomb {
+        // Exists only for the synchronous explosion. No bomb or fuse survives this action.
+        public Hero thrower;
+    }
 
 	public static class Fuse extends Actor{
 

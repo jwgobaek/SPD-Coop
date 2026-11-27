@@ -71,7 +71,7 @@ public class PotionOfPurity extends Potion {
 					blob.clear(i);
 				}
 				
-				if (Dungeon.level.heroFOV[i]) {
+				if (Dungeon.coop == null && Dungeon.level.heroFOV[i]) {
 					CellEmitter.get( i ).burst( Speck.factory( Speck.DISCOVER ), 2 );
 				}
 				
@@ -80,7 +80,7 @@ public class PotionOfPurity extends Potion {
 
 
 		splash( cell );
-		if (Dungeon.level.heroFOV[cell]) {
+		if (witnessedShatter(cell)) {
 			Sample.INSTANCE.play(Assets.Sounds.SHATTER);
 
 			identify();
