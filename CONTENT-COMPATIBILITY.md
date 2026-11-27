@@ -1,5 +1,9 @@
 # 협동 콘텐츠 지원표
 
+## SYNC39 원본 효과
+
+활 17종의 직접 사격·공유 투척, 감정된 자장가 주문서와 각인 회수, Trinity Blooming의 개인 기억을 검증했다. 조건부 착지·가스 중첩·개별 원본 사용의 근거를 소스별로 기록했다. [검증 결과](docs/coop/original-items-results.md)
+
 ## 2026-11-27 SYNC37 배포와 SYNC38 개발
 
 일반 특성 174슬롯의 투자 경로에 도달했다. LONGRANGE_WARP는 개발 시험방으로 한정한다. 착용 장비의 후보와 활 11/17, 지팡이 7/13, Trinity 10/113을 별도 집계한다. [399개 원본 소스의 기능별 근거](docs/coop/stasis-warp-content.tsv) · [Cloud 검증 범위](docs/coop/stasis-warp-results.md)

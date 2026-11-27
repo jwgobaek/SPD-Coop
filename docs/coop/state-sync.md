@@ -1,5 +1,9 @@
 # 협동 게임 동기화 프로토콜
 
+## SYNC39 보관 소환수와 각인
+
+성서 소유자의 보관 상태를 stasisheld 행으로 보낸다. 활성 PowerBuff용 poweredspells와 독립적이며 다른 좌석의 보관 여부는 표시하지 않는다. READ_LULLABY는 식별된 자기 주문서를 확인하고 RECALL_INSCRIPTION은 자기 UsedItemTracker와 성서 충전을 확인한다. 개인 Blooming 발견 코드는 -111이다. LAN 프레임은 v1이다. [검증 결과](original-items-results.md)
+
 ## 2026-11-27 SYNC37 배포와 SYNC38 개발
 
 SYNC38은 STASIS의 성서 입력과 개발 시험방의 비콘 동의 목적지 깊이·분기를 전송한다. 공개 warpdestination 행에는 휴면 층의 지도나 주민 정보가 없다. 착용 장비의 원본 후보는 소유 좌석에 표시하며 제한 후보에는 enchantlimited 행을 보낸다. LAN v1을 유지한다. [Cloud 검증](stasis-warp-results.md)

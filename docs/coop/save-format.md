@@ -1,5 +1,9 @@
 # 협동 저장 스키마 1–26
 
+## SYNC39 저장 이행
+
+스키마 1~26과 floor_schema 1~15를 유지한다. 원본 타락 효과에는 시전자 Actor ID를 저장한다. 소유 창의 stasisheld 행은 복원한 보관 상태에서 다시 계산한다. 스키마 21~26을 실제 이전 빌드로 작성하고 후속 새 JVM으로 두 좌석에서 복원했다. [검증 결과](original-items-results.md)
+
 ## 2026-11-27 SYNC37 배포와 SYNC38 개발
 
 SYNC38은 STASIS에 스키마 25를 사용한다. stasis_schema는 기존 내부 형식을 보존하며 소환수는 영웅의 StasisBuff 안에 한 번 저장한다. 스키마 26의 warp_schema는 내부 형식을, warp_proposer와 warp_agreed는 제안 좌석과 동의를 보존한다. 복원 후 실제 소유자·중복 Actor ID·비콘 및 위치를 다시 검사한다. 21~24의 실제 배포 소스가 작성한 세대는 두 좌석에서 새 JVM 복원을 통과했다. [검증 범위](stasis-warp-results.md)

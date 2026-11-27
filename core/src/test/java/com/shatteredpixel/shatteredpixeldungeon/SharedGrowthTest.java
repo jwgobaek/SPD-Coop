@@ -821,12 +821,17 @@ public class SharedGrowthTest extends HeadlessDungeon {
                     Buff.prolong(rat,Paralysis.class,10);
                     Buff.detach(owner,com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic.ConservedDamage.class);
                     SewerBeeTest.offer(game,seat);
-                    if (thrown) {
-                        ThrowingStone stone=new ThrowingStone();
-                        assertTrue(stone.collect(owner.belongings.backpack));
-                        game.ownership.claim(stone,game.player(seat));
-                        assertTrue(CoopFloorsTest.step(game,CoopSession.Action.THROW,rat.pos,owner.belongings.getItem(ThrowingStone.class)));
-                    } else assertTrue(CoopFloorsTest.step(game,CoopSession.Action.SHOOT,rat.pos,bow));
+                    com.watabou.utils.Random.pushGenerator(0x9E3779B97F4A7C15L*(attempt+1));
+                    try {
+                        if (thrown) {
+                            ThrowingStone stone=new ThrowingStone();
+                            assertTrue(stone.collect(owner.belongings.backpack));
+                            game.ownership.claim(stone,game.player(seat));
+                            assertTrue(CoopFloorsTest.step(game,CoopSession.Action.THROW,rat.pos,owner.belongings.getItem(ThrowingStone.class)));
+                        } else assertTrue(CoopFloorsTest.step(game,CoopSession.Action.SHOOT,rat.pos,bow));
+                    } finally {
+                        com.watabou.utils.Random.popGenerator();
+                    }
                     if (!rat.isAlive()) killed++;
                     if (owner.buff(com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic.ConservedDamage.class)!=null) stored++;
                     assertNull(game.hero(1-seat).buff(com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic.ConservedDamage.class));

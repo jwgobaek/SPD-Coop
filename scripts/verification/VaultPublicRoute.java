@@ -34,6 +34,8 @@ public final class VaultPublicRoute {
         int walkedDoor=-1, crossingDoor=-1, crossingTurns;
         int lastDoorSide = -1, doorEntry = -1, holdDirection;
         int recoveryWaits, coveredWaits;
+        final boolean avoidUnarmedGolem=Boolean.getBoolean("vault.guide.avoidUnarmedGolem");
+        int golemCell=-1, golemAge;
         int reachableFrontier, knownExit=-1;
         final boolean campaignGuide=Boolean.getBoolean("trial.campaignGuide");
         int exitWaits, waitingAtExit, scoutingTurns;
@@ -196,6 +198,16 @@ public final class VaultPublicRoute {
         }
         Input choose(PublicDungeon v) {
             visits.merge(v.pos, 1, Integer::sum);
+            boolean avoidGolem=avoidUnarmedGolem && v.branch!=0 && v.belongings.stream().noneMatch(it -> it.slot.equals("WEAPON"));
+            if (avoidGolem) {
+                if (++golemAge>4 || golemCell>=0 && v.visible(golemCell) && !v.monsters.containsKey(golemCell)) golemCell=-1;
+                for (int cell:new TreeSet<>(v.monsters.keySet())) {
+                    if ("VaultGolem".equals(v.monsters.get(cell)) && (golemCell<0 || distance(v.pos,cell,v.width)<=distance(v.pos,golemCell,v.width))) {
+                        golemCell=cell;
+                        golemAge=0;
+                    }
+                }
+            }
             if (v.ally>=0) {
                 if (missingTurns>0) reunions++;
                 missingTurns=0;
@@ -345,7 +357,7 @@ public final class VaultPublicRoute {
                 String kind=monster.getValue();
                 if (!hostile(kind)) continue;
                 int cell=monster.getKey();
-                if (adjacent(v.pos,cell,v.width) && !v.source.rows.containsKey("aim"+v.pos)) return new Input("ATTACK",cell,0);
+                if (adjacent(v.pos,cell,v.width) && !v.source.rows.containsKey("aim"+v.pos) && !(avoidGolem && cell==golemCell)) return new Input("ATTACK",cell,0);
                 for (PublicDungeon.Loot item : v.belongings) {
                     for (String verb : Arrays.asList("ZAP","SHOOT","THROW")) {
                         if (campaignGuide && verb.equals("THROW") && v.actions(item).contains("EAT")) continue;
@@ -462,6 +474,10 @@ public final class VaultPublicRoute {
                         else if (knownExit<0 && v.ally>=0 && distance(v.pos,v.ally,v.width)>3
                                 && distance(c,v.ally,v.width)<=2)
                             value+=200;
+                    }
+                    if (avoidGolem && golemCell>=0) {
+                        value-=500*Math.max(0,3-distance(first[c],golemCell,v.width));
+                        value-=100*Math.max(0,4-distance(c,golemCell,v.width));
                     }
                     if (value>high || forwardTie) {best=first[c]; bestCell=c; high=value;}
                 }

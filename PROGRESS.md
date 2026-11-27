@@ -1,5 +1,9 @@
 # SPD-Coop 개발 진행 기록
 
+## SYNC38 Android와 후속 SYNC39
+
+마법 부여 주문서 양쪽 실제 인수 PASS. 게스트의 STASIS 수동 해제 FAIL로 ZIP 갱신을 보류했다. SYNC39에서 성서의 무료 해제 경로, 활 마법 6종, 자장가 읽기·회수, Trinity Blooming을 검증했다. 정상 금고는 같은 방의 반대 문으로 두 영웅이 생존 통과했고 4,000점은 미달이다. [검증 결과](docs/coop/original-items-results.md)
+
 ## 2026-11-27 SYNC37 배포와 SYNC38 개발
 
 SYNC37은 성서 선택 10/10 이후 마법 부여 주문서에서 ART VerifyError가 재현됐다. Drive APK 1회, ZIP 0회다. 후속 Cloud 빌드에서 STASIS, 시험방 동의형 비콘, 프리즘 지팡이와 착용 장비 선택을 검사했다. [실제 Android 인수](docs/coop/enchantment-android-acceptance.md) · [Cloud 검증 범위](docs/coop/stasis-warp-results.md)

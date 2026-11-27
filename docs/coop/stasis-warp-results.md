@@ -1,6 +1,6 @@
 # SYNC38 후속 Cloud 체크포인트
 
-개발 APK 소스는 3be69c306edcf97f5ee6670563181b0a300586fe다. 4.0.2-INDEV-stasis, 35,421,948바이트, SHA-256 5c03e43a4fbf7d1035f3e7920050e79b2a4a4f5834251a04957c610e5048b199, 기존 개발 인증서와 versionCode 922를 확인했다. Android 인수와 Drive 발행은 NOT RUN이다. [실제 배포판 인수](enchantment-android-acceptance.md)
+개발 APK 소스는 3be69c306edcf97f5ee6670563181b0a300586fe다. 4.0.2-INDEV-stasis, 35,421,948바이트, SHA-256 5c03e43a4fbf7d1035f3e7920050e79b2a4a4f5834251a04957c610e5048b199, 기존 개발 인증서와 versionCode 922를 확인했다. 이 문서를 작성했을 당시 Android 인수와 Drive 발행은 NOT RUN이었다. 이후 주문서 실기 인수는 통과했고 STASIS 무료 해제는 실패했다. [후속 Android 실측](stasis-warp-android-acceptance.md) [실제 배포판 인수](enchantment-android-acceptance.md)
 
 ## 마지막 특성 두 개
 

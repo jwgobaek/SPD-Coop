@@ -1,5 +1,9 @@
 # Android validation backlog
 
+## SYNC38 실제 기기 인수
+
+성서·주문서 양쪽 역할 PASS, 게스트의 보관과 자동 만료 PASS, 보관 뒤 앱 재시작과 무료 해제 FAIL. Drive APK는 3be69c3이며 ZIP은 09c9417이다. [검증 결과](docs/coop/original-items-results.md)
+
 ## 2026-11-27 SYNC37 배포와 SYNC38 개발
 
 SYNC37의 두 설치 해시는 승인 후보와 일치했다. 기존 성서 선택 다섯 종은 양 역할 PASS, 마법 부여 주문서는 FAIL이다. SYNC38의 실제 기기 인수는 NOT RUN이다. [실제 Android 인수](docs/coop/enchantment-android-acceptance.md)

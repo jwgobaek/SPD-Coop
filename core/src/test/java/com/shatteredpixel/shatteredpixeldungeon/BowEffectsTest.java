@@ -104,9 +104,19 @@ public class BowEffectsTest extends HeadlessDungeon {
                         SewerBeeTest.offer(game,seat);
                         owner.HP=12;
                         int peerHP=peer.HP;
-                        if (shared) {
-                            assertTrue(CoopFloorsTest.step(game,THROW,target.pos,owner.belongings.getItem(ThrowingStone.class)));
-                        } else assertTrue(effect.getClass().getSimpleName()+" seat "+seat+" rank "+rank+" attempt "+attempt, CoopFloorsTest.step(game,SHOOT,target.pos,bow));
+                        // Replay a fixed sequence of attack rolls. The assertion checks the
+                        // native effect at each rank, not a statistical lower bound on procs.
+                        com.watabou.utils.Random.pushGenerator(0x9E3779B97F4A7C15L*(attempt+1));
+                        try {
+                            if (shared) {
+                                assertTrue(CoopFloorsTest.step(game,THROW,target.pos,owner.belongings.getItem(ThrowingStone.class)));
+                            } else {
+                                assertTrue(effect.getClass().getSimpleName()+" seat "+seat+" rank "+rank+" attempt "+attempt,
+                                        CoopFloorsTest.step(game,SHOOT,target.pos,bow));
+                            }
+                        } finally {
+                            com.watabou.utils.Random.popGenerator();
+                        }
                         if (effect instanceof Blooming)
                             proc = Dungeon.level.map[impact] == com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.HIGH_GRASS;
                         if (effect instanceof Corrupting) {

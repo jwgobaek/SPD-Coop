@@ -1,5 +1,9 @@
 # 미해결 문제
 
+## SYNC38의 STASIS 무료 해제
+
+보관 후 앱을 다시 실행하면 게스트 성서의 정지 항목이 사라진다. 자동 만료는 동일 소환수로 복귀했다. SYNC39에 소유자 전용 보관 표시를 추가하고 한국어·영어 Desktop에서 무료 해제를 검증했다. 후속 APK의 실제 Android 인수는 NOT RUN이다. [검증 결과](docs/coop/original-items-results.md)
+
 ## 2026-11-27 SYNC37 배포와 SYNC38 개발
 
 Drive SYNC37에서 마법 부여 주문서를 읽으면 호스트가 VerifyError 뒤 응답을 중단한다. 후속 Cloud APK는 해당 DEX 형식과 Desktop 입력 검사를 통과했다. 실제 Android 재인수가 남았다. [실제 Android 인수](docs/coop/enchantment-android-acceptance.md)

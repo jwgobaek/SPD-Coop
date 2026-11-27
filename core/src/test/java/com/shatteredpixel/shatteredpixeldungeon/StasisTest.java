@@ -124,8 +124,16 @@ public class StasisTest extends HeadlessDungeon {
         Bundle image;
         try (CoopSession game=CoopSession.open(mineTrip ? 571 : 572,11,HeroClass.CLERIC)) {
             game.join(22,HeroClass.CLERIC);
-            if (mineTrip) MiningBranchTest.prepareEntrance(game,571);
-            else CoopMageTest.encounter(game,0);
+            if (mineTrip) {
+                MiningBranchTest.prepareEntrance(game,571);
+                // The long boss fixture can leave a traveler one poison tick from dying.
+                // This branch test requires two living owners through setup and both crossings.
+                for (int seat=0;seat<2;seat++) {
+                    Hero traveler=game.hero(seat);
+                    assertEquals(CoopSession.Life.ALIVE,game.life(seat));
+                    traveler.HP=traveler.HT=300;
+                }
+            } else CoopMageTest.encounter(game,0);
             for (int seat=0;seat<2;seat++) {
                 Hero owner=game.hero(seat);
                 owner.lvl=30;
@@ -155,7 +163,16 @@ public class StasisTest extends HeadlessDungeon {
                 assertNull(owner.buff(LifeLink.class));
             }
             if (mineTrip) {
-                MiningBranchTest.atBranchGate(game,Dungeon.level.getTransition(LevelTransition.Type.BRANCH_EXIT).cell());
+                int gate=Dungeon.level.getTransition(LevelTransition.Type.BRANCH_EXIT).cell();
+                MiningBranchTest.atBranchGate(game,gate);
+                for (int seat=0;seat<2;seat++) {
+                    Hero hero=game.hero(seat);
+                    assertEquals("Branch traveler "+seat,CoopSession.Life.ALIVE,game.life(seat));
+                    assertFalse("Rooted traveler "+seat,hero.rooted);
+                    assertEquals("Paralyzed traveler "+seat,0,hero.paralysed);
+                    assertTrue("Branch gate outside personal FOV "+seat,game.knowledge(hero).visible(gate));
+                }
+                assertEquals("Both owners can consent at the original mine entrance",gate,game.stairs.stair());
                 CoopFloorsTest.cross(game);
                 assertEquals(1,Dungeon.branch);
                 for (int seat=0;seat<2;seat++) {

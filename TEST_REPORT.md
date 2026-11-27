@@ -1,5 +1,9 @@
 # SPD-Coop 클라우드 실행 보고
 
+## SYNC38 기기와 SYNC39 Cloud
+
+두 기기의 성서·주문서 38건과 게스트 보관은 PASS, 수동 해제는 FAIL이었다. 두 역할의 공유 활 마법 6종과 추가 주문·선택의 HEAD 직후 재시작 22건, 이전 스키마 21~26 이행 12건을 검증했다. [검증 결과](docs/coop/original-items-results.md)
+
 ## 2026-11-27 SYNC37 배포와 SYNC38 개발
 
 기준 전체 JUnit 364/364, SYNC38 전체 JUnit 372/372 PASS. SYNC37 Android 성서 선택 10/10, 마법 부여 주문서 FAIL. 후속 SYNC38의 한국어·영어 Desktop 보관 및 비콘 제안, 30회 HEAD 종료·복원, 구버전 8회 이행, 12시드 일반 승리와 Ascension을 검사했다. [실제 Android 인수](docs/coop/enchantment-android-acceptance.md) · [Cloud 검증 범위](docs/coop/stasis-warp-results.md)
