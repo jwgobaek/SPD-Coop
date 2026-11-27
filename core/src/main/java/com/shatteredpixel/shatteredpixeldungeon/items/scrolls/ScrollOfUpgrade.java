@@ -94,7 +94,8 @@ public class ScrollOfUpgrade extends InventoryScroll {
 			boolean hadCursedEnchant = w.hasCurseEnchant();
 			boolean hadGoodEnchant = w.hasGoodEnchant();
 
-			item = w.upgrade();
+			item = Dungeon.coop != null && w instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon
+                    ? ((com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon)w).upgradeForSeat(reader) : w.upgrade();
 
 			if (w.cursedKnown && hadCursedEnchant && !w.hasCurseEnchant()){
 				if (Dungeon.coop==null) removeCurse(reader);

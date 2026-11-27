@@ -42,10 +42,8 @@ public class PinCushion extends Buff {
 			if (Dungeon.coop == null ? projectile.isSimilar(items.get(i)) : projectile.canStackWith(items.get(i))) {
 				projectile.merge(items.get(i));
 				items.set(i, projectile);
-				if (TippedDart.lostDarts > 0) {
-					Dart d = new Dart();
-					d.quantity(TippedDart.lostDarts);
-					TippedDart.lostDarts = 0;
+				Dart d = TippedDart.takePlainShafts(projectile);
+				if (d != null) {
 					stick(d);
 				}
 				return;

@@ -489,7 +489,9 @@ final class SeatProjection {
                     if (shop!=null && com.shatteredpixel.shatteredpixeldungeon.CoopTrade.maySell(hero,item))
                         rows.put("sell"+ids.get(item),item.value()+","+(com.shatteredpixel.shatteredpixeldungeon.CoopTrade.sellOne(item) ? 1 : 0));
                     if (CoopSession.basicMissile(item) && item.isIdentified()) {
-                        String family=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSpike ? "spike" : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "knife" :
+                        String family=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.PoisonDart ? "poisondart" :
+                                item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.BlindingDart ? "blindingdart" :
+                                item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSpike ? "spike" : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "knife" :
                         item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart ? "dart" : "stone";
                         rows.put("family"+ids.get(item),family+"."+StateImage.hash(shortcutSalt+"/"+family+"/"+
                                 ((com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon)item).setID).substring(0,32));

@@ -130,9 +130,9 @@ public class CoopScene extends PixelScene {
                     talent == Talent.SUNRAY ? Sunray.INSTANCE : DivineSense.INSTANCE);
             actions.add(talent.name());
         }
-        for (Talent talent : new Talent[]{Talent.HOLY_INTUITION,Talent.BLESS,Talent.RECALL_INSCRIPTION,Talent.BODY_FORM,Talent.MIND_FORM,Talent.SPIRIT_FORM}) {
+        for (Talent talent : new Talent[]{Talent.HOLY_LANCE,Talent.CLEANSE,Talent.HOLY_INTUITION,Talent.BLESS,Talent.RECALL_INSCRIPTION,Talent.BODY_FORM,Talent.MIND_FORM,Talent.SPIRIT_FORM}) {
             if (view.source.rows.containsKey("talent"+talent.ordinal())) {
-                spells.add(talent==Talent.RECALL_INSCRIPTION ? RecallInscription.INSTANCE : talent==Talent.SPIRIT_FORM ? SpiritForm.INSTANCE : talent==Talent.MIND_FORM ? MindForm.INSTANCE : talent==Talent.BODY_FORM ? BodyForm.INSTANCE : talent==Talent.BLESS ? BlessSpell.INSTANCE : HolyIntuition.INSTANCE);
+                spells.add(talent==Talent.HOLY_LANCE ? HolyLance.INSTANCE : talent==Talent.CLEANSE ? Cleanse.INSTANCE : talent==Talent.RECALL_INSCRIPTION ? RecallInscription.INSTANCE : talent==Talent.SPIRIT_FORM ? SpiritForm.INSTANCE : talent==Talent.MIND_FORM ? MindForm.INSTANCE : talent==Talent.BODY_FORM ? BodyForm.INSTANCE : talent==Talent.BLESS ? BlessSpell.INSTANCE : HolyIntuition.INSTANCE);
                 actions.add(talent.name());
             }
         }
@@ -306,7 +306,7 @@ public class CoopScene extends PixelScene {
             return;
         }
         if (targetMove != null) {
-            boolean armor = "TRINITY_MIND".equals(targetMove) || "BLESS".equals(targetMove) || "ARMOR_ABILITY".equals(targetMove) || "GUIDING_LIGHT".equals(targetMove) || "SHIELD_OF_LIGHT".equals(targetMove) || "SMITE".equals(targetMove) || "SUNRAY".equals(targetMove);
+            boolean armor = "HOLY_LANCE".equals(targetMove) || "TRINITY_MIND".equals(targetMove) || "BLESS".equals(targetMove) || "ARMOR_ABILITY".equals(targetMove) || "GUIDING_LIGHT".equals(targetMove) || "SHIELD_OF_LIGHT".equals(targetMove) || "SMITE".equals(targetMove) || "SUNRAY".equals(targetMove);
             boolean weapon = "WEAPON_ABILITY".equals(targetMove);
             if (targetView == view && (weapon || view.visible(cell) && (armor || "MONK_DASH".equals(targetMove) || view.monsters.containsKey(cell)))
                     && controller.act(view.source, targetMove, cell, armor || weapon ? targetStaff.id : 0)) cancelAim();
@@ -319,7 +319,7 @@ public class CoopScene extends PixelScene {
         boolean areaWand = view.source.rows.containsKey("areawand"+targetStaff.id) || (targetStaff.kind.equals("WAND") || targetStaff.kind.equals("UNIDENTIFIED_WAND")) && (targetStaff.sprite == ItemSpriteSheet.WAND_LIGHTNING || targetStaff.sprite == ItemSpriteSheet.WAND_FROST || targetStaff.sprite == ItemSpriteSheet.WAND_BLAST_WAVE
                 || targetStaff.sprite == ItemSpriteSheet.WAND_FIREBOLT);
         boolean selfBattery = !missile && !bow && cell == view.pos && view.source.rows.containsKey("talent"+Talent.SHIELD_BATTERY.ordinal());
-        if (targetView==view && (selfBattery || enemy || ((missile || areaWand) && actor==null && view.visible(cell)) || (!missile && !bow && view.chest(cell)))
+        if (targetView==view && (selfBattery || enemy || ((missile || areaWand || bow && view.source.rows.containsKey("talent"+Talent.SEER_SHOT.ordinal())) && actor==null && view.visible(cell)) || (!missile && !bow && view.chest(cell)))
                 && controller.act(view.source,missile?"THROW":bow?"SHOOT":"ZAP",cell,targetStaff.id)) cancelAim();
     }
     void offerStairs(PublicDungeon view,int cell) {

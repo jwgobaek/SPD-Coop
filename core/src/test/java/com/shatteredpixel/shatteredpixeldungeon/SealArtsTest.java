@@ -180,14 +180,15 @@ public class SealArtsTest extends HeadlessDungeon {
                     HolyTome tome=(HolyTome)hero.belongings.artifact;
                     tome.upgrade(); tome.charge(hero,10);
                 }
-                Item reference=talent==Talent.MIND_FORM ? new WandOfLightning() : new com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste();
+                boolean missile = type.equals("trinitymindmissilehistory");
+                Item reference=missile ? new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile() : talent==Talent.MIND_FORM ? new WandOfLightning() : new com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste();
                 reference.identify();
                 assertTrue(reference.collect(hero.belongings.backpack));
                 game.ownership.claim(reference,game.player(seat));
                 int index=0;
                 for (Item entry : hero.belongings) { index++; if (entry==reference) break; }
                 if (type.endsWith("history")) {
-                    return historyInput(game, seat, reference, talent == Talent.MIND_FORM
+                    return historyInput(game, seat, reference, missile ? TrinityDiscoveries.Choice.MAGIC_MISSILE : talent == Talent.MIND_FORM
                             ? TrinityDiscoveries.Choice.LIGHTNING : TrinityDiscoveries.Choice.HASTE);
                 }
                 if (type.endsWith("select")) return new StagedInput(game, talent.name(), index);
@@ -306,10 +307,11 @@ public class SealArtsTest extends HeadlessDungeon {
         case "recallid": return hero.belongings.backpack.items.stream().anyMatch(i -> i instanceof ClothArmor && i.isIdentified()) && hero.buff(RecallInscription.UsedItemTracker.class)==null;
         case "intuition": return hero.belongings.backpack.items.stream().anyMatch(i -> i instanceof ClothArmor && i.cursedKnown && !i.levelKnown);
         case "bless": return hero.buff(Bless.class)!=null && hero.buff(Barrier.class)!=null && game.hero(1-seat).buff(Bless.class)==null;
-        case "trinitybodyhistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindhistory": case "trinityspirithistory": {
+        case "trinitymindmissilehistory": case "trinitybodyhistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindhistory": case "trinityspirithistory": {
             TrinityDiscoveries.Choice choice = type.equals("trinitybodyhistory") ? TrinityDiscoveries.Choice.SWIFTNESS :
                     type.equals("trinityfirehistory") ? TrinityDiscoveries.Choice.BLAZING :
                     type.equals("trinityblockhistory") ? TrinityDiscoveries.Choice.BLOCKING :
+                    type.equals("trinitymindmissilehistory") ? TrinityDiscoveries.Choice.MAGIC_MISSILE :
                     type.equals("trinitymindhistory") ? TrinityDiscoveries.Choice.LIGHTNING : TrinityDiscoveries.Choice.HASTE;
             return game.discoveries(seat).knows(choice) && !game.discoveries(1 - seat).knows(choice)
                     && ((Trinity)hero.armorAbility).hasForm(choice.form) && ((HolyTome)hero.belongings.artifact).charges() < 3;
@@ -493,7 +495,7 @@ public class SealArtsTest extends HeadlessDungeon {
     }
 
     @Test public void absentTrinityReferencesUseOnlyTheSelectingSeatsHistory() {
-        for (String kind : new String[]{"trinitybodyhistory", "trinitymindhistory", "trinityspirithistory", "trinityfirehistory", "trinityblockhistory"}) {
+        for (String kind : new String[]{"trinitybodyhistory", "trinitymindhistory", "trinityspirithistory", "trinityfirehistory", "trinityblockhistory", "trinitymindmissilehistory"}) {
             for (int seat = 0; seat < 2; seat++) {
                 Bundle saved;
                 try (CoopSession game = CoopSession.open(572, 11, HeroClass.CLERIC)) {
@@ -506,6 +508,16 @@ public class SealArtsTest extends HeadlessDungeon {
                     assertFalse(CoopFloorsTest.step(game, CoopSession.Action.valueOf(pick.verb), -999, tome));
                     assertTrue(CoopFloorsTest.step(game, CoopSession.Action.valueOf(pick.verb), pick.cell, tome));
                     assertTrue(published(game, kind, seat));
+                    if (kind.equals("trinitymindmissilehistory")) {
+                        SewerBeeTest.offer(game,seat);
+                        Hero owner = game.hero(seat);
+                        assertNull(owner.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile.class));
+                        ClassArmor armor = (ClassArmor)owner.belongings.armor();
+                        int hp = foe.HP;
+                        float before = armor.charge;
+                        assertTrue(CoopFloorsTest.step(game,CoopSession.Action.TRINITY_MIND,foe.pos,armor));
+                        assertTrue(foe.HP < hp && armor.charge < before);
+                    }
                     if (kind.equals("trinityfirehistory")) {
                         SewerBeeTest.offer(game, seat);
                         Hero hero = game.hero(seat);

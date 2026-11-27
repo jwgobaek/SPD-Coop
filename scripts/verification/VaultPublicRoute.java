@@ -33,8 +33,9 @@ public final class VaultPublicRoute {
         int previousPos = -1, recentlyExited = -1, regroupSteps;
         int walkedDoor=-1, crossingDoor=-1, crossingTurns;
         int lastDoorSide = -1, doorEntry = -1, holdDirection;
-        int recoveryWaits;
-        boolean doorwayStrategy() { return regroup.equals("sidecover") || regroup.equals("recoverexit") || regroup.equals("coverexit") || regroup.equals("crossonce") || regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover") || regroup.equals("trail") || regroup.equals("safeexit") || regroup.equals("handoff"); }
+        int recoveryWaits, coveredWaits;
+        private boolean useSideCover() { return regroup.equals("sidecover") || regroup.equals("holdcover"); }
+        boolean doorwayStrategy() { return useSideCover() || regroup.equals("recoverexit") || regroup.equals("coverexit") || regroup.equals("crossonce") || regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover") || regroup.equals("trail") || regroup.equals("safeexit") || regroup.equals("handoff"); }
         private boolean visibleDoor(PublicDungeon v, int cell) {
             if (cell<0 || !v.visible(cell)) return false;
             int tile=v.terrain(cell);
@@ -117,11 +118,13 @@ public final class VaultPublicRoute {
                         || tile<0 || (Terrain.flags[tile]&Terrain.PASSABLE)==0) continue;
                 int gap=dangerDistance(v,c);
                 int cover=exposed-exposedTo(v,c);
-                if (cover<0 || (cover==0 && (gap<=previous || previous>2))) continue;
+                boolean withdrawFromShooter = regroup.equals("holdcover") && exposed>0 && !escortFollower
+                        && v.hp*2<v.maxHp && v.ally>=0 && distance(c,v.ally,v.width)<distance(v.pos,v.ally,v.width);
+                if (cover<0 || (cover==0 && (gap<=previous || previous>2 && !withdrawFromShooter))) continue;
                 int value=80*cover+10*gap-4*(lastAlly<0?0:distance(lastAlly,c,v.width))-visits.getOrDefault(c,0);
                 // When equally safe, guard the injured follower's route past a known threshold.
                 // Greater safety still wins immediately when the entry is the only cover.
-                if (regroup.equals("sidecover") && escortFollower && holdDirection > 0 && v.hp*3 < v.maxHp
+                if (useSideCover() && escortFollower && holdDirection > 0 && v.hp*3 < v.maxHp
                         && (c == doorEntry || c == lastDoorSide)) value -= 7;
                 if (value>score) {score=value;best=c;}
             }
@@ -173,7 +176,7 @@ public final class VaultPublicRoute {
                 returning=escortFollower && distance(v.pos,v.ally,v.width)>2;
             // A player remembers their own last step onto a threshold, even if the ally disappears.
             boolean restUnderCover = team && regroup.equals("recoverexit");
-            boolean avoidFire = team && (regroup.equals("coverexit") || regroup.equals("sidecover") || restUnderCover);
+            boolean avoidFire = team && (regroup.equals("coverexit") || useSideCover() || restUnderCover);
             if (avoidFire) rememberShooters(v);
             boolean crossing = team && (regroup.equals("crossonce") || avoidFire);
             if (crossing) {
@@ -274,6 +277,16 @@ public final class VaultPublicRoute {
                 String offer=v.source.rows.get("vaultnpc"+cell);
                 if ("take".equals(offer) || "open".equals(offer)) return new Input("VAULT_INTERACT",cell,0);
             }
+            // An injured leader can hold a covered cell while the visible follower catches up.
+            // Walking from cover into a remembered shooter's line merely to gain a step is unsafe.
+            if (regroup.equals("holdcover") && !escortFollower && v.hp*2 < v.maxHp
+                    && !recentShooters.isEmpty() && rememberedExposure(v,v.pos)==0
+                    && !v.source.rows.containsKey("aim"+v.pos) && dangerDistance(v,v.pos)>1
+                    && v.ally>=0 && distance(v.pos,v.ally,v.width)>1 && coveredWaits<3) {
+                coveredWaits++;
+                return new Input("WAIT",v.pos,0);
+            }
+            coveredWaits=0;
             int retreatCell=retreat(v);
             if (retreatCell>=0) return new Input("MOVE",retreatCell,0);
             for (Map.Entry<Integer,String> monster : new TreeMap<>(v.monsters).entrySet()) {
@@ -345,7 +358,7 @@ public final class VaultPublicRoute {
                     }
                     // Two equally good regroup paths sometimes differ only in the first step.
                     // Use the recently crossed doorway last if the other first step is just as safe.
-                    boolean forwardTie = value == high && regroup.equals("sidecover") && escortFollower
+                    boolean forwardTie = value == high && useSideCover() && escortFollower
                             && holdDirection > 0 && best == doorEntry && first[c] != doorEntry
                             && rememberedExposure(v,first[c]) <= rememberedExposure(v,best);
                     if (value>high || forwardTie) {best=first[c]; bestCell=c; high=value;}

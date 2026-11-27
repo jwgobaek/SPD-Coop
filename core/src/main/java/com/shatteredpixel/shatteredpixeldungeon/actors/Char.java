@@ -527,6 +527,7 @@ public abstract class Char extends Actor {
 					if (Dungeon.coop != null && enemy instanceof Hero) Dungeon.coop.fallen((Hero)enemy, beforeExecution);
 					else enemy.die(this);
 				} else {
+					if (Dungeon.coop != null && enemy instanceof Hero) Dungeon.coop.survivedLethalHit((Hero)enemy, beforeExecution);
 					//helps with triggering any on-damage effects that need to activate
 					enemy.damage(-1, this);
 					DeathMark.processFearTheReaper(enemy);
@@ -550,7 +551,8 @@ public abstract class Char extends Actor {
 						if (Dungeon.coop != null && enemy instanceof Hero) Dungeon.coop.fallen((Hero)enemy, beforeExecution);
 						else enemy.die(this);
 					} else {
-						//helps with triggering any on-damage effects that need to activate
+						if (Dungeon.coop != null && enemy instanceof Hero) Dungeon.coop.survivedLethalHit((Hero)enemy, beforeExecution);
+					//helps with triggering any on-damage effects that need to activate
 						enemy.damage(-1, this);
 						DeathMark.processFearTheReaper(enemy);
 					}
@@ -1079,6 +1081,9 @@ public abstract class Char extends Actor {
 
 		if (HP < 0) HP = 0;
 
+        if (Dungeon.coop != null && this instanceof Hero && HP == 0 && beforeHit > 0 && isAlive()) {
+            Dungeon.coop.survivedLethalHit((Hero)this, beforeHit);
+        }
 		if (!isAlive()) {
             if (Dungeon.coop != null && this instanceof Hero) Dungeon.coop.fallen((Hero)this, beforeHit);
             else die(src);

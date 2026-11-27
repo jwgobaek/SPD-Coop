@@ -57,6 +57,19 @@ public final class FloorKnowledge {
                     && !(mob instanceof Mimic && mob.alignment == Char.Alignment.NEUTRAL && ((Mimic)mob).stealthy()))
                 senseAround(level, mob.pos);
         }
+        for (com.shatteredpixel.shatteredpixeldungeon.actors.buffs.RevealedArea area :
+                observer.buffs(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.RevealedArea.class)) {
+            if (area.depth != Dungeon.depth || area.branch != Dungeon.branch || !level.insideMap(area.pos)) continue;
+            for (int offset : PathFinder.NEIGHBOURS9) {
+                int cell = area.pos + offset;
+                if (cell < 0 || cell >= length() || !level.discoverable[cell] || visible[cell]) continue;
+                sensedTerrain.set(cell);
+                reveal(level, cell);
+                Mob mob = level.findMob(cell);
+                if (mob != null && mob.isAlive() && mob.invisible == 0 && !Char.hasProp(mob, Char.Property.OBJECT)
+                        && !(mob instanceof Mimic && ((Mimic)mob).stealthy())) sensedMobs.set(cell);
+            }
+        }
         for (TalismanOfForesight.CharAwareness mark : observer.buffs(TalismanOfForesight.CharAwareness.class)) {
             Actor marked = Actor.findById(mark.charID);
             if (marked instanceof Mob && level.mobs.contains(marked) && ((Mob)marked).isAlive()

@@ -195,6 +195,18 @@ public class SpiritBow extends Weapon {
     }
 
     /** Normal spirit arrow. The authority resolves the original missile hit and cost at the input boundary. */
+    public boolean scoutInCoop(Hero user, int cell) {
+        if (!user.hasTalent(Talent.SEER_SHOT) || user.buff(Talent.SeerShotCooldown.class) != null
+                || sniperSpecial || enchantment != null || cursed || cell == user.pos) return false;
+        SpiritArrow arrow = knockArrow();
+        if (arrow.throwPos(user, cell) != cell || Actor.findChar(cell) != null) return false;
+        arrow.revealEmptyShot(user, cell);
+        Talent.LethalMomentumTracker free = user.buff(Talent.LethalMomentumTracker.class);
+        if (free != null) { free.detach(); user.next(); }
+        else user.spendAndNext(arrow.castDelay(user, cell));
+        return true;
+    }
+
     public boolean shootInCoop(Hero user, Char enemy) {
         return shootInCoop(user, enemy, null);
     }
@@ -404,6 +416,14 @@ public class SpiritBow extends Weapon {
 			return SpiritBow.this.STRReq();
 		}
 
+        private void revealEmptyShot(Hero user, int shotPos) {
+            RevealedArea area = Buff.affect(user, RevealedArea.class, 5 * user.pointsInTalent(Talent.SEER_SHOT));
+            area.depth = Dungeon.depth;
+            area.branch = Dungeon.branch;
+            area.pos = shotPos;
+            Buff.affect(user, Talent.SeerShotCooldown.class, 20f);
+        }
+
 		@Override
 		protected void onThrow( int cell ) {
 			Char enemy = Actor.findChar( cell );
@@ -515,19 +535,12 @@ public class SpiritBow extends Weapon {
 				
 			} else {
 
-				if (user.hasTalent(Talent.SEER_SHOT)
-						&& user.buff(Talent.SeerShotCooldown.class) == null){
-					int shotPos = throwPos(user, dst);
-					if (Actor.findChar(shotPos) == null) {
-						RevealedArea a = Buff.affect(user, RevealedArea.class, 5 * user.pointsInTalent(Talent.SEER_SHOT));
-						a.depth = Dungeon.depth;
-						a.branch = Dungeon.branch;
-						a.pos = shotPos;
-						Buff.affect(user, Talent.SeerShotCooldown.class, 20f);
-					}
-				}
+				if (user.hasTalent(Talent.SEER_SHOT) && user.buff(Talent.SeerShotCooldown.class) == null) {
+                    int shotPos = throwPos(user, dst);
+                    if (Actor.findChar(shotPos) == null) revealEmptyShot(user, shotPos);
+                }
 
-				super.cast(user, dst);
+                super.cast(user, dst);
 			}
 		}
 	}

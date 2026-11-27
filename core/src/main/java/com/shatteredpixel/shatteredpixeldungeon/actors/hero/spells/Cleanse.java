@@ -74,12 +74,12 @@ public class Cleanse extends ClericSpell {
 		affected.add(hero);
 
 		for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] )) {
-			if (Dungeon.level.heroFOV[mob.pos] && mob.alignment == Char.Alignment.ALLY) {
+			if ((Dungeon.coop == null ? Dungeon.level.heroFOV[mob.pos] : Dungeon.coop.knowledge(hero).visible(mob.pos)) && mob.alignment == Char.Alignment.ALLY) {
 				affected.add(mob);
 			}
 		}
 
-		Char ally = PowerOfMany.getPoweredAlly();
+		Char ally = PowerOfMany.getPoweredAlly(hero);
 		//hero is always affected, to just check for life linked ally
 		if (ally != null && ally.buff(LifeLinkSpell.LifeLinkSpellBuff.class) != null
 				&& !affected.contains(ally)){
@@ -97,15 +97,15 @@ public class Cleanse extends ClericSpell {
 
 			if (hero.pointsInTalent(Talent.CLEANSE) > 1) {
 				//0, 2, or 4. 1 less than displayed as spell is instant
-				Buff.prolong(ch, PotionOfCleansing.Cleanse.class, 2 * (Dungeon.hero.pointsInTalent(Talent.CLEANSE)-1));
+				Buff.prolong(ch, PotionOfCleansing.Cleanse.class, 2 * (hero.pointsInTalent(Talent.CLEANSE)-1));
 			}
 			Buff.affect(ch, Barrier.class).setShield(10 * hero.pointsInTalent(Talent.CLEANSE));
-			new Flare( 6, 32 ).color(0xFF4CD2, true).show( ch.sprite, 2f );
+			if (Dungeon.coop == null) new Flare( 6, 32 ).color(0xFF4CD2, true).show( ch.sprite, 2f );
 		}
 
 		hero.spend( 1f );
 		hero.busy();
-		hero.sprite.operate(hero.pos);
+		if (Dungeon.coop == null) hero.sprite.operate(hero.pos);
 		Sample.INSTANCE.play(Assets.Sounds.READ);
 
 		onSpellCast(tome, hero);

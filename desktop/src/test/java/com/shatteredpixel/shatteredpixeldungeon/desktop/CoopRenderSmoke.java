@@ -1192,9 +1192,12 @@ public final class CoopRenderSmoke {
         String upperTalent = System.getProperty("spd.upper.talent", "STRONGMAN");
         if (regionShot.equals("strength-input")) {
             switch (upperTalent) {
-                case "STRONGMAN": case "ENDLESS_RAGE": click("warriorClass"); break;
-                case "DESPERATE_POWER": click("mageClass"); break;
-                case "POINT_BLANK": click("huntressClass"); break;
+                case "HOLD_FAST": case "DEATHLESS_FURY": case "ENRAGED_CATALYST": case "STRONGMAN": case "ENDLESS_RAGE": click("warriorClass"); break;
+                case "EXCESS_CHARGE": case "EMPOWERED_STRIKE": case "DESPERATE_POWER": click("mageClass"); break;
+                case "FARSIGHT": case "SEER_SHOT": case "POINT_BLANK": click("huntressClass"); break;
+                case "HOLY_LANCE": case "CLEANSE": click("clericClass"); break;
+                case "ENHANCED_LETHALITY": case "ASSASSINS_REACH": click("rogueClass"); break;
+                case "MONASTIC_VIGOR": click("duelistClass"); break;
                 default: throw new IllegalArgumentException("Unknown upper talent fixture " + upperTalent);
             }
         } else click(regionShot.equals("cache-input")?"rogueClass":regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("tome-input") || regionShot.equals("recharging-input") || regionShot.startsWith("selector-") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");

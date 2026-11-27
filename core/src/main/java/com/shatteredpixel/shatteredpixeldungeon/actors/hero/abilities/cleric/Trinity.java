@@ -126,16 +126,20 @@ public class Trinity extends ArmorAbility {
     }
 
     public boolean useMind(Hero hero,ClassArmor armor,int cell) {
-        if (!(mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning)
+        if (!(mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)
                 || hero.buff(MagicImmune.class)!=null || hero.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.trinkets.WondrousResin.class)!=null) return false;
-        com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning wand=(com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning)mindForm;
+        Wand wand=(Wand)mindForm;
         float cost=trinityChargeUsePerEffect(hero,wand.getClass());
         com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica shot=new com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica(hero.pos,cell,wand.collisionProperties(cell));
         Char target=Actor.findChar(shot.collisionPos);
+        if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile
+                && (target == null || target.alignment != Char.Alignment.ENEMY)) return false;
         if (armor.charge<cost || shot.collisionPos==hero.pos || target!=null && target.alignment==Char.Alignment.ALLY) return false;
         wand.level(2+hero.pointsInTalent(Talent.MIND_FORM));
         wand.curCharges=wand.maxCharges;
-        wand.onZap(hero,shot);
+        if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning)
+            ((com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning)wand).onZap(hero,shot);
+        else ((com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)wand).onZap(hero,shot);
         com.watabou.utils.Random.Float(); // Native Wondrous Resin roll for an eligible owner without the trinket.
         armor.charge-=cost;
         armor.updateQuickslot();

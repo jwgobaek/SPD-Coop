@@ -126,14 +126,20 @@ public abstract class TippedDart extends Dart {
 
 	@Override
 	protected void rangedHit(Char enemy, int cell) {
-		targetPos = cell;
-		super.rangedHit( enemy, cell);
+		TippedDart source = parent instanceof TippedDart ? (TippedDart)parent : this;
+        source.targetPos = cell;
+        try {
+            super.rangedHit(enemy, cell);
+        } finally {
+            source.targetPos = -1;
+        }
 		
 		//need to spawn a dart
 		if (durability <= 0 && !spawnedForEffect){
 			//attempt to stick the dart to the enemy, just drop it if we can't.
 			Dart d = new Dart();
 			d.quantity(1);
+            if (Dungeon.coop != null) Dungeon.coop.ownership.transform(this, d);
 			Catalog.countUse(getClass());
 			if (sticky && enemy != null && enemy.isAlive() && enemy.alignment != Char.Alignment.ALLY){
 				PinCushion p = Buff.affect(enemy, PinCushion.class);
@@ -142,12 +148,23 @@ public abstract class TippedDart extends Dart {
 					return;
 				}
 			}
-			Dungeon.level.drop( d, enemy.pos ).sprite.drop();
+			Dungeon.level.drop(d, cell).animateDrop();
 		}
 	}
 
-	//the number of regular darts lost due to merge being called
-	public static int lostDarts = 0;
+	// The plain shafts produced by this stack's most recent merge.
+    private int plainShafts;
+
+    public static Dart takePlainShafts(Item merged) {
+        if (!(merged instanceof TippedDart)) return null;
+        TippedDart stack = (TippedDart)merged;
+        if (stack.plainShafts == 0) return null;
+        Dart shafts = new Dart();
+        shafts.quantity(stack.plainShafts);
+        stack.plainShafts = 0;
+        if (Dungeon.coop != null) Dungeon.coop.ownership.split(stack, shafts);
+        return shafts;
+    }
 
 	@Override
 	public Item merge(Item other) {
@@ -157,12 +174,12 @@ public abstract class TippedDart extends Dart {
 
 		//need to spawn waste tipped darts as regular darts
 		if (extra > 0){
-			lostDarts += extra;
+			plainShafts += extra;
 		}
 		return this;
 	}
 
-	private static int targetPos = -1;
+	private int targetPos = -1;
 
 	{
 		useRoundingInDurabilityCalc = false;
@@ -172,8 +189,9 @@ public abstract class TippedDart extends Dart {
 	public float durabilityPerUse(int level) {
 		float use = super.durabilityPerUse(level);
 
-		if (Dungeon.hero != null) {
-			use /= (1 + Dungeon.hero.pointsInTalent(Talent.DURABLE_TIPS));
+		Hero user = missileUser();
+        if (user != null) {
+			use /= (1 + user.pointsInTalent(Talent.DURABLE_TIPS));
 
 			//checks both destination and source position
 			float lotusPreserve = 0f;
@@ -188,7 +206,7 @@ public abstract class TippedDart extends Dart {
 				}
 				targetPos = -1;
 			}
-			int p = curUser == null ? Dungeon.hero.pos : curUser.pos;
+			int p = Dungeon.coop != null || curUser == null ? user.pos : curUser.pos;
 			for (Char ch : Actor.chars()) {
 				if (ch instanceof WandOfRegrowth.Lotus) {
 					WandOfRegrowth.Lotus l = (WandOfRegrowth.Lotus) ch;

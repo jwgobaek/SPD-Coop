@@ -82,76 +82,48 @@ public class HolyLance extends TargetedClericSpell {
 		return Ballistica.PROJECTILE;
 	}
 
-	@Override
-	protected void onTargetSelected(HolyTome tome, Hero hero, Integer target) {
-		if (target == null){
-			return;
-		}
+    @Override
+    public void onTargetSelected(HolyTome tome, Hero hero, Integer target) {
+        if (target == null) return;
+        Ballistica aim = new Ballistica(hero.pos, target, targetingFlags());
+        Char enemy = Actor.findChar(aim.collisionPos);
+        if (enemy == hero) {
+            GLog.i(Messages.get(Wand.class, "self_target"));
+            return;
+        }
+        if (Dungeon.coop != null) {
+            resolve(tome, hero, target, aim.collisionPos, enemy);
+            return;
+        }
+        QuickSlotButton.target(enemy != null ? enemy : Actor.findChar(target));
+        hero.sprite.zap(target);
+        hero.busy();
+        Sample.INSTANCE.play(Assets.Sounds.ZAP);
+        MissileSprite missile = (MissileSprite)hero.sprite.parent.recycle(MissileSprite.class);
+        Callback impact = () -> resolve(tome, hero, target, aim.collisionPos, enemy);
+        if (enemy != null) missile.reset(hero.sprite, enemy.sprite, new HolyLanceVFX(), impact);
+        else missile.reset(hero.sprite, target, new HolyLanceVFX(), impact);
+    }
 
-		Ballistica aim = new Ballistica(hero.pos, target, targetingFlags());
-
-		if (Actor.findChar( aim.collisionPos ) == hero){
-			GLog.i( Messages.get(Wand.class, "self_target") );
-			return;
-		}
-
-		if (Actor.findChar(aim.collisionPos) != null) {
-			QuickSlotButton.target(Actor.findChar(aim.collisionPos));
-		} else {
-			QuickSlotButton.target(Actor.findChar(target));
-		}
-
-		hero.sprite.zap( target );
-		hero.busy();
-
-		Sample.INSTANCE.play(Assets.Sounds.ZAP);
-
-		Char enemy = Actor.findChar(aim.collisionPos);
-		if (enemy != null) {
-			((MissileSprite) hero.sprite.parent.recycle(MissileSprite.class)).
-					reset(hero.sprite,
-							enemy.sprite,
-							new HolyLanceVFX(),
-							new Callback() {
-								@Override
-								public void call() {
-									int min = 15 + 15*Dungeon.hero.pointsInTalent(Talent.HOLY_LANCE);
-									int max = Math.round(27.5f + 27.5f*Dungeon.hero.pointsInTalent(Talent.HOLY_LANCE));
-									if (Char.hasProp(enemy, Char.Property.UNDEAD) || Char.hasProp(enemy, Char.Property.DEMONIC)){
-										min = max;
-									}
-									enemy.damage(Hero.heroDamageIntRange(min, max), HolyLance.this);
-									Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, Random.Float(0.8f, 1f) );
-									Sample.INSTANCE.play( Assets.Sounds.HIT_STAB, 1, Random.Float(0.8f, 1f) );
-
-									if (enemy.isActive()){
-										Buff.affect(enemy, GuidingLight.Illuminated.class);
-									}
-
-									enemy.sprite.burst(0xFFFFFFFF, 10);
-									hero.spendAndNext(1f);
-									onSpellCast(tome, hero);
-									FlavourBuff.affect(hero, LanceCooldown.class, 30f);
-								}
-							});
-		} else {
-			((MissileSprite) hero.sprite.parent.recycle(MissileSprite.class)).
-					reset(hero.sprite,
-							target,
-							new HolyLanceVFX(),
-							new Callback() {
-								@Override
-								public void call() {
-									Splash.at(target, 0xFFFFFFFF, 10);
-									Dungeon.level.pressCell(aim.collisionPos);
-									hero.spendAndNext(1f);
-									onSpellCast(tome, hero);
-									FlavourBuff.affect(hero, LanceCooldown.class, 30f);
-								}
-							});
-		}
-
-	}
+    private void resolve(HolyTome tome, Hero hero, int target, int collision, Char enemy) {
+        if (enemy == null) {
+            if (Dungeon.coop == null) Splash.at(target, 0xFFFFFFFF, 10);
+            Dungeon.level.pressCell(collision);
+        } else {
+            int rank = hero.pointsInTalent(Talent.HOLY_LANCE);
+            int max = Math.round(27.5f + 27.5f*rank);
+            int min = Char.hasProp(enemy, Char.Property.UNDEAD) || Char.hasProp(enemy, Char.Property.DEMONIC)
+                    ? max : 15 + 15*rank;
+            enemy.damage(Hero.heroDamageIntRange(hero, min, max), this);
+            Sample.INSTANCE.play(Assets.Sounds.HIT_MAGIC, 1, Random.Float(0.8f, 1f));
+            Sample.INSTANCE.play(Assets.Sounds.HIT_STAB, 1, Random.Float(0.8f, 1f));
+            if (enemy.isActive()) Buff.affect(enemy, GuidingLight.Illuminated.class);
+            if (Dungeon.coop == null) enemy.sprite.burst(0xFFFFFFFF, 10);
+        }
+        hero.spendAndNext(1f);
+        onSpellCast(tome, hero);
+        FlavourBuff.affect(hero, LanceCooldown.class, 30f);
+    }
 
 	public static class HolyLanceVFX extends Item {
 

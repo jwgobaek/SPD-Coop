@@ -85,6 +85,9 @@ final class RenderEncounter {
                     case WARRIOR: hero.subClass = HeroSubClass.BERSERKER; break;
                     case MAGE: hero.subClass = HeroSubClass.BATTLEMAGE; break;
                     case HUNTRESS: hero.subClass = HeroSubClass.SNIPER; break;
+                    case ROGUE: hero.subClass = HeroSubClass.ASSASSIN; break;
+                    case DUELIST: hero.subClass = HeroSubClass.MONK; break;
+                    case CLERIC: hero.subClass = HeroSubClass.PRIEST; break;
                     default: throw new IllegalStateException("Unexpected upper talent fixture class");
                 }
                 com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.initSubclassTalents(hero);
@@ -122,6 +125,9 @@ final class RenderEncounter {
                     case WARRIOR: hero.subClass = HeroSubClass.BERSERKER; break;
                     case MAGE: hero.subClass = HeroSubClass.BATTLEMAGE; break;
                     case HUNTRESS: hero.subClass = HeroSubClass.SNIPER; break;
+                    case ROGUE: hero.subClass = HeroSubClass.ASSASSIN; break;
+                    case DUELIST: hero.subClass = HeroSubClass.MONK; break;
+                    case CLERIC: hero.subClass = HeroSubClass.PRIEST; break;
                     default: throw new IllegalStateException("Unexpected upper talent fixture class");
                 }
                 com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.initSubclassTalents(hero);

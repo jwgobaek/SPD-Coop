@@ -56,6 +56,9 @@ public final class MixedRoomStability {
 
     static final String[] WAND_ARTS={"imbue0","volley1","hawk0","direct1","lunge0","spike1","charged0","light1","ward0","blessweapon1","ambush1","freerun0","smoke1","third1","floor","mine"};
 
+    static final String[] TIER_GROWTH = {"holdfast0","holdfast1","scoutshot0","scoutshot1","cleanse0","cleanse1",
+            "holylance0","holylance1","deathlesswait0","deathlesswait1","trinitymindmissilehistory0","trinitymindmissilehistory1",
+            "spark0","monkfocus1","elestrike0","floor","mine"};
     static final String[] DISCOVERIES = {"trinitybodyhistory0", "trinitybodyhistory1", "trinitymindhistory0",
             "trinitymindhistory1", "trinityspirithistory0", "trinityspirithistory1", "trinityfirehistory0",
             "trinityfirehistory1", "strikeblock0", "strikeblock1", "strikeshock0", "strikeshock1",
@@ -80,8 +83,8 @@ public final class MixedRoomStability {
         if (stage.startsWith("cacheinvest")) return seat == stage.charAt(stage.length()-1)-'0' ? "ROGUE" : "MAGE";
         if (stage.matches("(spark|ice|iceimbue|iceblast|icevolley|imbue|volley)[01]")) return "MAGE";
         if (stage.matches("(strikekinetic|strikebloom|strikeblock|strikeshock|strikevenom|heroicenergy|challenge|elestrike|feint|monkflurry|monkdash|monkdragonkick|monkmeditate|swap|monkfocus|stance|guardshield|lunge|spike|charged)[01]")) return "DUELIST";
-        if (stage.matches("(trinityblockhistory|readrecharge|recallrecharge|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinity|trinityselect|trinitymind|trinitymindselect|trinityspirit|trinityspiritselect|lightally|lightorder|ascendform|intuition|bless|recallid|radiance|smite|divinesense|sunray|lightshield|light|ward|blessweapon)[01]")) return "CLERIC";
-        if (stage.matches("(hawk|direct)[01]") || stage.startsWith("blades")) return "HUNTRESS";
+        if (stage.matches("(holylance|cleanse|trinitymindmissilehistory|trinityblockhistory|readrecharge|recallrecharge|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinity|trinityselect|trinitymind|trinitymindselect|trinityspirit|trinityspiritselect|lightally|lightorder|ascendform|intuition|bless|recallid|radiance|smite|divinesense|sunray|lightshield|light|ward|blessweapon)[01]")) return "CLERIC";
+        if (stage.matches("(scoutshot|hawk|direct)[01]") || stage.startsWith("blades")) return "HUNTRESS";
         if (stage.matches("(markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) return "ROGUE";
         if (stage.startsWith("beacon") || stage.startsWith("recall") || stage.startsWith("battery")) return "MAGE";
         return "WARRIOR";
@@ -125,7 +128,8 @@ public final class MixedRoomStability {
     static VaultPublicRoute.Input fromView(PublicDungeon view,VaultPublicRoute.Input staged) {
         String verb=staged.action;
         long item=0;
-        if (verb.matches("BODY_FORM|MIND_FORM|SPIRIT_FORM|BLESS|HOLY_INTUITION|RECALL_INSCRIPTION|SMITE|RADIANCE|DIVINE_SENSE|SUNRAY|SHIELD_OF_LIGHT|GUIDING_LIGHT|HOLY_WEAPON|HOLY_WARD")) item=view.belongings.stream().filter(it->view.actions(it).contains("CAST")).findFirst().get().id;
+        if (verb.equals("SHOOT")) item=view.belongings.stream().filter(it->it.kind.equals("BOW")).findFirst().get().id;
+        if (verb.matches("HOLY_LANCE|CLEANSE|BODY_FORM|MIND_FORM|SPIRIT_FORM|BLESS|HOLY_INTUITION|RECALL_INSCRIPTION|SMITE|RADIANCE|DIVINE_SENSE|SUNRAY|SHIELD_OF_LIGHT|GUIDING_LIGHT|HOLY_WEAPON|HOLY_WARD")) item=view.belongings.stream().filter(it->view.actions(it).contains("CAST")).findFirst().get().id;
         if (verb.equals("TRINITY_MIND") || verb.equals("TRINITY_SPIRIT"))
             item=view.belongings.stream().filter(it->view.actions(it).contains("ARMOR_ABILITY")).findFirst().get().id;
         if (verb.equals("DETACH_SEAL") || verb.equals("AFFIX_SEAL") || verb.endsWith("_GLYPH")) {
@@ -315,6 +319,7 @@ public final class MixedRoomStability {
                 String stage=Boolean.getBoolean("stability.sealArts") ? SEAL_ARTS[i%SEAL_ARTS.length] : Boolean.getBoolean("stability.frostSenses") ? FROST_SENSES[i%FROST_SENSES.length] : Boolean.getBoolean("stability.wandArts") ? WAND_ARTS[i%WAND_ARTS.length] : Boolean.getBoolean("stability.growth")?GROWTH[i%GROWTH.length]:null;
                 if (Boolean.getBoolean("stability.selectors")) stage = SELECTORS[i % SELECTORS.length];
                 if (Boolean.getBoolean("stability.discoveries")) stage = DISCOVERIES[i % DISCOVERIES.length];
+                if (Boolean.getBoolean("stability.tierGrowth")) stage = TIER_GROWTH[i % TIER_GROWTH.length];
                 if (Boolean.getBoolean("stability.cacheGrowth")) stage = CACHE_GROWTH[i % CACHE_GROWTH.length];
                 trial.room(fixture.temporary.getRoot(),"mine".equals(stage)?571:570+i%12,Integer.parseInt(args[1]),stage);
                 trial.observe(fixture.temporary.getRoot(),i+1);

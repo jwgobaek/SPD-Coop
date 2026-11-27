@@ -188,10 +188,8 @@ public class Heap implements Bundlable {
 			sprite.view(this).place( pos );
 		}
 
-		if (TippedDart.lostDarts > 0){
-			Dart d = new Dart();
-			d.quantity(TippedDart.lostDarts);
-			TippedDart.lostDarts = 0;
+		Dart d = TippedDart.takePlainShafts(item);
+		if (d != null) {
 			drop(d);
 		}
 	}

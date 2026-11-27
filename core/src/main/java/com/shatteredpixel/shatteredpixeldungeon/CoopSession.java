@@ -4,6 +4,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.SpiritForm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.RecallInscription;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.BodyForm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyIntuition;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Cleanse;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyLance;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.BlessSpell;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.Trinity;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Preparation;
@@ -203,9 +205,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { TRINITY_MIND, TRINITY_SPIRIT, RECALL_INSCRIPTION, MIND_FORM, SPIRIT_FORM, BODY_FORM, HOLY_INTUITION, BLESS, DETACH_SEAL, AFFIX_SEAL, KEEP_ARMOR_GLYPH, TRANSFER_SEAL_GLYPH, READ_RECHARGING, EQUIP_SECOND, SWAP_WEAPONS, MONK_FLURRY, MONK_DASH, MONK_DRAGONKICK, MONK_MEDITATE, MONK_FOCUS, RADIANCE, SMITE, ASSASSINATE, FREERUN, DIVINE_SENSE, SUNRAY, SHIELD_OF_LIGHT, GUIDING_LIGHT, HOLY_WEAPON, HOLY_WARD, WEAPON_ABILITY, IMBUE, CLOAK, USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT;
+    public enum Action { TRINITY_MIND, TRINITY_SPIRIT, RECALL_INSCRIPTION, MIND_FORM, SPIRIT_FORM, BODY_FORM, HOLY_INTUITION, BLESS, DETACH_SEAL, AFFIX_SEAL, KEEP_ARMOR_GLYPH, TRANSFER_SEAL_GLYPH, READ_RECHARGING, EQUIP_SECOND, SWAP_WEAPONS, MONK_FLURRY, MONK_DASH, MONK_DRAGONKICK, MONK_MEDITATE, MONK_FOCUS, RADIANCE, SMITE, ASSASSINATE, FREERUN, DIVINE_SENSE, SUNRAY, SHIELD_OF_LIGHT, GUIDING_LIGHT, HOLY_WEAPON, HOLY_WARD, WEAPON_ABILITY, IMBUE, CLOAK, USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT, CLEANSE, HOLY_LANCE;
         public boolean requiresItem() {
-            return this==READ_RECHARGING || this==TRINITY_MIND || this==TRINITY_SPIRIT || this==RECALL_INSCRIPTION || this==MIND_FORM || this==SPIRIT_FORM || this==BODY_FORM || this==HOLY_INTUITION || this==BLESS || this==DETACH_SEAL || this==AFFIX_SEAL || this==KEEP_ARMOR_GLYPH || this==TRANSFER_SEAL_GLYPH || this==EQUIP_SECOND || this==RADIANCE || this==SMITE || this==DIVINE_SENSE || this==SUNRAY || this==SHIELD_OF_LIGHT || this==GUIDING_LIGHT || this==HOLY_WEAPON || this==HOLY_WARD || this==WEAPON_ABILITY || this==IMBUE || this==CLOAK || this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
+            return this==HOLY_LANCE || this==CLEANSE || this==READ_RECHARGING || this==TRINITY_MIND || this==TRINITY_SPIRIT || this==RECALL_INSCRIPTION || this==MIND_FORM || this==SPIRIT_FORM || this==BODY_FORM || this==HOLY_INTUITION || this==BLESS || this==DETACH_SEAL || this==AFFIX_SEAL || this==KEEP_ARMOR_GLYPH || this==TRANSFER_SEAL_GLYPH || this==EQUIP_SECOND || this==RADIANCE || this==SMITE || this==DIVINE_SENSE || this==SUNRAY || this==SHIELD_OF_LIGHT || this==GUIDING_LIGHT || this==HOLY_WEAPON || this==HOLY_WARD || this==WEAPON_ABILITY || this==IMBUE || this==CLOAK || this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -392,8 +394,16 @@ public final class CoopSession implements AutoCloseable {
         wandIdentities = true;
     }
 
+    private static int baseSchema(Bundle state) {
+        int schema = state.getInt("schema");
+        if (schema != 23) return schema;
+        int base = state.getInt("base_schema");
+        if (base < 1 || base > 22) throw new IllegalArgumentException("Invalid rage base schema");
+        return base;
+    }
+
     public static int growthSchema(Bundle state) {
-        int version = state.getInt("schema");
+        int version = baseSchema(state);
         if (version != 22) return version;
         int growth = state.getInt("growth_schema");
         // Discovery envelopes are written for rosters with a cleric (introduced in 19).
@@ -484,11 +494,22 @@ public final class CoopSession implements AutoCloseable {
         return null;
     }
 
+    public void survivedLethalHit(Hero hero, int before) {
+        checkExecutor();
+        Berserk rage = hero.buff(Berserk.class);
+        if (playerOf(hero) != 0 && before > 0 && hero.HP == 0 && rage != null && rage.sustainsLife()) {
+            preDeath[hero == heroes[0] ? 0 : 1] = before;
+        }
+    }
+
     public void fallen(Hero hero, int before) {
         checkExecutor();
         int seat = hero == heroes[0] ? 0 : 1;
         if (hero != heroes[seat]) throw new IllegalStateException("Unregistered casualty");
         if (lives[seat] != Life.ALIVE) return;
+        if (before == 0 && hero.buff(Berserk.class) != null && hero.buff(Berserk.class).hasRageSurvival()) {
+            before = preDeath[seat];
+        }
         preDeath[seat] = Math.max(0, before);
         lives[seat] = before > 0 && resource(seat) != null ? Life.DOWNED : Life.DEAD;
         hero.HP = 0;
@@ -888,14 +909,18 @@ public final class CoopSession implements AutoCloseable {
     }
 
     public static boolean equipmentForScroll(Item item) {
-        return basicArmorType(item) || basicWeaponType(item) || supportedWandType(item);
+        return basicArmorType(item) || basicWeaponType(item) || supportedWandType(item)
+                || basicMissile(item) && item.isUpgradable();
     }
 
     public static boolean basicMissile(Item item) {
         return item!=null && (item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone.class
                 || item.getClass()==ThrowingSpike.class || item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife.class
+                || item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.PoisonDart.class
+                || item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.BlindingDart.class
                 || item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart.class)
-                && !item.cursed && ((Weapon)item).enchantment==null && item.trueLevel()==0;
+                && !item.cursed && ((Weapon)item).enchantment==null
+                && (item.isUpgradable() ? item.trueLevel()>=0 : item.trueLevel()==0);
     }
 
     private Char abilityTarget(Hero hero, int cell) {
@@ -922,6 +947,12 @@ public final class CoopSession implements AutoCloseable {
     public static boolean playableTalent(Talent talent) {
         switch (talent) {
             case CACHED_RATIONS:
+            case HOLD_FAST: case DEATHLESS_FURY: case ENRAGED_CATALYST:
+            case SOUL_EATER: case SOUL_SIPHON: case EMPOWERED_STRIKE: case EXCESS_CHARGE:
+            case ASSASSINS_REACH: case ENHANCED_LETHALITY: case MONASTIC_VIGOR:
+            case SPEEDY_STEALTH: case EVASIVE_ARMOR: case PROJECTILE_MOMENTUM:
+            case DURABLE_TIPS: case FARSIGHT: case SHIELDING_DEW: case BARKSKIN: case SEER_SHOT:
+            case CLEANSE: case HOLY_LANCE: case SHARED_UPGRADES:
             case STRONGMAN: case ENDLESS_RAGE: case DESPERATE_POWER: case POINT_BLANK:
             case HEARTY_MEAL: case IRON_WILL: case PROVOKED_ANGER: case VETERANS_INTUITION:
             case EMPOWERING_MEAL: case SCHOLARS_INTUITION: case LINGERING_MAGIC: case BACKUP_BARRIER:
@@ -1164,14 +1195,17 @@ public final class CoopSession implements AutoCloseable {
                     attackTurn[activeSeat]=turn;
                     break;
                 }
-                case RECALL_INSCRIPTION: case MIND_FORM: case SPIRIT_FORM: case BODY_FORM: case HOLY_INTUITION: case BLESS: {
+                case RECALL_INSCRIPTION: case MIND_FORM: case SPIRIT_FORM: case BODY_FORM: case HOLY_INTUITION: case CLEANSE: case BLESS: {
                     if (!(item instanceof HolyTome) || hero.heroClass!=HeroClass.CLERIC || item.cursed
                             || ownership.owner(item)!=player || !hero.belongings.contains(item)) return false;
                     HolyTome tome=(HolyTome)item;
-                    ClericSpell spell=action==Action.RECALL_INSCRIPTION ? RecallInscription.INSTANCE : action==Action.MIND_FORM ? MindForm.INSTANCE : action==Action.SPIRIT_FORM ? SpiritForm.INSTANCE : action==Action.BODY_FORM ? BodyForm.INSTANCE : action==Action.BLESS ? BlessSpell.INSTANCE : HolyIntuition.INSTANCE;
-                    int tier=spell==HolyIntuition.INSTANCE ? 1 : spell==BlessSpell.INSTANCE || spell==RecallInscription.INSTANCE ? 2 : 4;
+                    ClericSpell spell=action==Action.CLEANSE ? Cleanse.INSTANCE : action==Action.RECALL_INSCRIPTION ? RecallInscription.INSTANCE : action==Action.MIND_FORM ? MindForm.INSTANCE : action==Action.SPIRIT_FORM ? SpiritForm.INSTANCE : action==Action.BODY_FORM ? BodyForm.INSTANCE : action==Action.BLESS ? BlessSpell.INSTANCE : HolyIntuition.INSTANCE;
+                    int tier=spell==Cleanse.INSTANCE ? 3 : spell==HolyIntuition.INSTANCE ? 1 : spell==BlessSpell.INSTANCE || spell==RecallInscription.INSTANCE ? 2 : 4;
                     if (!ClericSpell.getSpellList(hero,tier).contains(spell) || !tome.canCast(hero,spell)) return false;
-                    if (action == Action.RECALL_INSCRIPTION && RecallInscription.remembersRecharging(hero)) {
+                    if (action == Action.CLEANSE) {
+                        if (cell != hero.pos) return false;
+                        spell.onCast(tome, hero);
+                    } else if (action == Action.RECALL_INSCRIPTION && RecallInscription.remembersRecharging(hero)) {
                         if (cell != hero.pos) return false;
                         // The native spell reads its anonymous scroll, charges the tome, and clears the imprint.
                         spell.onCast(tome, hero);
@@ -1224,12 +1258,12 @@ public final class CoopSession implements AutoCloseable {
                     requireSealFormat();
                     break;
                 }
-                case RADIANCE: case SMITE: case DIVINE_SENSE: case SUNRAY: case SHIELD_OF_LIGHT: case GUIDING_LIGHT: case HOLY_WEAPON: case HOLY_WARD: {
+                case HOLY_LANCE: case RADIANCE: case SMITE: case DIVINE_SENSE: case SUNRAY: case SHIELD_OF_LIGHT: case GUIDING_LIGHT: case HOLY_WEAPON: case HOLY_WARD: {
                     if (!(item instanceof HolyTome) || hero.heroClass!=HeroClass.CLERIC
                             || item.cursed || ownership.owner(item)!=player || !hero.belongings.contains(item)) return false;
                     HolyTome tome=(HolyTome)item;
-                    int tier = (action==Action.RADIANCE || action==Action.SMITE) ? 3 : action==Action.DIVINE_SENSE || action==Action.SUNRAY ? 2 : 1;
-                    ClericSpell spell=action==Action.RADIANCE ? Radiance.INSTANCE : action==Action.SMITE ? Smite.INSTANCE : action==Action.DIVINE_SENSE ? DivineSense.INSTANCE :
+                    int tier = (action==Action.HOLY_LANCE || action==Action.RADIANCE || action==Action.SMITE) ? 3 : action==Action.DIVINE_SENSE || action==Action.SUNRAY ? 2 : 1;
+                    ClericSpell spell=action==Action.HOLY_LANCE ? HolyLance.INSTANCE : action==Action.RADIANCE ? Radiance.INSTANCE : action==Action.SMITE ? Smite.INSTANCE : action==Action.DIVINE_SENSE ? DivineSense.INSTANCE :
                             action==Action.SUNRAY ? Sunray.INSTANCE : action==Action.SHIELD_OF_LIGHT ? ShieldOfLight.INSTANCE :
                             action==Action.GUIDING_LIGHT ? GuidingLight.INSTANCE :
                             action==Action.HOLY_WEAPON ? HolyWeapon.INSTANCE : HolyWard.INSTANCE;
@@ -1250,13 +1284,14 @@ public final class CoopSession implements AutoCloseable {
                         ShieldOfLight.INSTANCE.onTargetSelected(tome,hero,cell);
                         return true;
                     }
-                    if (spell==GuidingLight.INSTANCE || spell==Sunray.INSTANCE) {
+                    if (spell==HolyLance.INSTANCE || spell==GuidingLight.INSTANCE || spell==Sunray.INSTANCE) {
                         if (cell==hero.pos || !level.insideMap(cell) || !knowledge(activeSeat).visible(cell)) return false;
                         Ballistica ray=new Ballistica(hero.pos,cell,spell.targetingFlags());
                         Char target=Actor.findChar(ray.collisionPos);
                         if (target!=null && (target.alignment!=Char.Alignment.ENEMY || target.invisible>0 || !basicMob(target))
                                 || target==null && !supportedLanding(ray.collisionPos)) return false;
-                        if (spell==Sunray.INSTANCE) Sunray.INSTANCE.onTargetSelected(tome,hero,cell);
+                        if (spell==HolyLance.INSTANCE) HolyLance.INSTANCE.onTargetSelected(tome,hero,cell);
+                        else if (spell==Sunray.INSTANCE) Sunray.INSTANCE.onTargetSelected(tome,hero,cell);
                         else GuidingLight.INSTANCE.onTargetSelected(tome,hero,cell);
                         break;
                     }
@@ -1600,6 +1635,10 @@ public final class CoopSession implements AutoCloseable {
                             || !hero.belongings.backpack.contains(item) || !level.insideMap(cell)
                             || !knowledge(activeSeat).visible(cell)) return false;
                     Char mark=Actor.findChar(cell);
+                    if (mark == null) {
+                        if (!((SpiritBow)item).scoutInCoop(hero,cell)) return false;
+                        break;
+                    }
                     if (!(mark instanceof Mob) || !basicMob(mark) || !mark.isAlive() || mark.invisible>0
                             || mark.alignment!=Char.Alignment.ENEMY || hero.isCharmedBy(mark)
                             || !((SpiritBow)item).shootInCoop(hero,mark)) return false;
@@ -1733,6 +1772,13 @@ public final class CoopSession implements AutoCloseable {
             b.put("growth_schema", b.getInt("schema"));
             b.put("schema", 22);
             for (int seat = 0; seat < heroes.length; seat++) discoveries[seat].save(b, "discovered" + seat);
+        }
+        for (int seat = 0; seat < heroes.length; seat++) {
+            if (lives[seat] == Life.ALIVE && heroes[seat].HP == 0) {
+                b.put("base_schema", b.getInt("schema"));
+                b.put("schema", 23);
+                break;
+            }
         }
         if (rogue || wandIdentities) b.put("floor_schema", format);
         if (crownTrial != MaskTrial.OFF) {
@@ -1988,7 +2034,7 @@ public final class CoopSession implements AutoCloseable {
         if (b.contains("documents")) Document.restore(b.getBundle("documents"));
         heroes[0]=Dungeon.hero;
         heroes[1]=(Hero)b.get("guest");
-        if (b.getInt("schema") == 22) {
+        if (baseSchema(b) == 22) {
             if (heroes[0].heroClass != HeroClass.CLERIC && heroes[1].heroClass != HeroClass.CLERIC)
                 throw new IllegalArgumentException("Discovery roster has no cleric");
             for (int seat = 0; seat < heroes.length; seat++) discoveries[seat].restore(b, "discovered" + seat);
@@ -2009,13 +2055,17 @@ public final class CoopSession implements AutoCloseable {
             lives[i]=Life.valueOf(b.getString("life"+i));
             preDeath[i]=b.getInt("before"+i);
             if (!level.insideMap(h.pos) || h.HT<=0 || h.HP<0 || h.HP>h.HT || preDeath[i]<0 ||
-                    (lives[i]==Life.ALIVE)!=(h.HP>0) || lives[i]==Life.REVIVING ||
+                    (lives[i]==Life.ALIVE)!=(h.HP>0 || (b.getInt("schema")==23 && preDeath[i]>0
+                            && h.buff(Berserk.class)!=null && h.buff(Berserk.class).sustainsLife())) || lives[i]==Life.REVIVING ||
                     (i==activeSeat && lives[i]!=Life.ALIVE) || (partyDefeated && lives[i]!=Life.DEAD))
                 throw new IllegalArgumentException("Invalid hero state");
             knowledge(i).load(b.getBundle("sight"+i));
             h.viewDistance=b.getInt("range"+i);
             h.fieldOfView=i==0 ? level.heroFOV : new boolean[level.length()];
         }
+        if (b.getInt("schema") == 23 && !(lives[0] == Life.ALIVE && heroes[0].HP == 0)
+                && !(lives[1] == Life.ALIVE && heroes[1].HP == 0))
+            throw new IllegalArgumentException("Rage envelope has no surviving zero-health hero");
         // Original bag restoration in co-op preserves object identity and skips collect().
         for (Hero hero : heroes) restorePackCharge(hero);
         if (growthSchema(b)==18 && heroes[0].heroClass!=HeroClass.ROGUE && heroes[1].heroClass!=HeroClass.ROGUE)

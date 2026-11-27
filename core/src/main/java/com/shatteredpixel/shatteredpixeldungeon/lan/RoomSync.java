@@ -220,7 +220,11 @@ final class RoomSync {
         boolean aimingAtChest=action==CoopSession.Action.ZAP && ("CHEST".equals(container) || "CRYSTAL_CHEST".equals(container));
         boolean selfBattery = action==CoopSession.Action.ZAP && target==game.hero(seat)
                 && game.hero(seat).hasTalent(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.SHIELD_BATTERY);
-        if (targeted && !aimingAtChest && !selfBattery && (target==null || !seats[seat].view.current.rows.containsKey("m"+target.id())))
+        boolean scouting = action == CoopSession.Action.SHOOT && target == null
+                && game.hero(seat).hasTalent(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.SEER_SHOT)
+                && seats[seat].view.current.rows.containsKey("t"+cell)
+                && game.knowledge(game.hero(seat)).visible(cell);
+        if (targeted && !scouting && !aimingAtChest && !selfBattery && (target==null || !seats[seat].view.current.rows.containsKey("m"+target.id())))
             return "REJECT_INVALID";
         try {
             if (!game.act(game.player(seat),turn,action,cell,item)) {

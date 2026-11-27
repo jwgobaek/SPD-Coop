@@ -159,7 +159,7 @@ public abstract class Wand extends Item {
 				//grants 3/5 shielding
 				int shieldToGive = 1 + 2 * caster.pointsInTalent(Talent.BACKUP_BARRIER);
 				Buff.affect(caster, Barrier.class).setShield(shieldToGive);
-				caster.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shieldToGive), FloatingText.SHIELDING);
+				if (caster.sprite != null) caster.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shieldToGive), FloatingText.SHIELDING);
 
 			//metamorphed. Triggers if wand is highest level hero has
 			} else if (caster.heroClass != HeroClass.MAGE) {
@@ -173,7 +173,7 @@ public abstract class Wand extends Item {
 					//grants 3/5 shielding
 					int shieldToGive = 1 + 2 * caster.pointsInTalent(Talent.BACKUP_BARRIER);
 					Buff.affect(caster, Barrier.class).setShield(shieldToGive);
-					caster.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shieldToGive), FloatingText.SHIELDING);
+					if (caster.sprite != null) caster.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shieldToGive), FloatingText.SHIELDING);
 				}
 			}
 		}
@@ -526,7 +526,7 @@ public abstract class Wand extends Item {
 			if (caster.hasTalent(Talent.EXCESS_CHARGE) && curCharges >= maxCharges){
 				int shieldToGive = Math.round(buffedLvl()*0.67f*caster.pointsInTalent(Talent.EXCESS_CHARGE));
 				Buff.affect(caster, Barrier.class).setShield(shieldToGive);
-				caster.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shieldToGive), FloatingText.SHIELDING);
+				if (caster.sprite != null) caster.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shieldToGive), FloatingText.SHIELDING);
 			}
 		}
 		

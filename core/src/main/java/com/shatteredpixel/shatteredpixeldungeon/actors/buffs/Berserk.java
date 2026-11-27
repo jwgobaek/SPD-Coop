@@ -173,6 +173,15 @@ public class Berserk extends ShieldBuff implements ActionIndicator.Action {
 		return dmg * Math.min(1.5f, 1f + (power / 2f));
 	}
 
+    // Read-only checks for an already active rage, including its last shielding tick.
+    public boolean sustainsLife() {
+        return state == State.BERSERK && target.shielding() > 0;
+    }
+
+    public boolean hasRageSurvival() {
+        return state == State.BERSERK || state == State.RECOVERING;
+    }
+
 	public boolean berserking(){
 		if (target.HP == 0
 				&& state == State.NORMAL
@@ -201,9 +210,14 @@ public class Berserk extends ShieldBuff implements ActionIndicator.Action {
 			turnRecovery = 0;
 		}
 
+		if (power > 1f) {
+			levelRecovery *= 2f - power;
+			turnRecovery *= 2f - power;
+		}
+
 		int shieldAmount = currentShieldBoost();
 		setShield(shieldAmount);
-		target.sprite.showStatusWithIcon( CharSprite.POSITIVE, Integer.toString(shieldAmount), FloatingText.SHIELDING );
+		if (target.sprite != null) target.sprite.showStatusWithIcon( CharSprite.POSITIVE, Integer.toString(shieldAmount), FloatingText.SHIELDING );
 
 		BuffIndicator.refreshHero();
 	}
@@ -217,11 +231,9 @@ public class Berserk extends ShieldBuff implements ActionIndicator.Action {
 		//base multiplier scales at 1/1.5/2/2.5/3x at 100/37/20/9/0% HP
 		float shieldMultiplier = 1f + 2*(float)Math.pow((1f-(target.HP/(float)target.HT)), 3);
 
-		//Endless rage effect on shield and cooldown
+		//Endless rage increases the shield above full rage.
 		if (power > 1f){
 			shieldMultiplier *= power;
-			levelRecovery *= 2f - power;
-			turnRecovery *= 2f - power;
 		}
 
 		int baseShield = 8;

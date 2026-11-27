@@ -257,17 +257,15 @@ public class Item implements Bundlable {
 							Statistics.itemTypesDiscovered.add(getClass());
 						}
 					}
-					if (TippedDart.lostDarts > 0){
-						Dart d = new Dart();
-						d.quantity(TippedDart.lostDarts);
-						TippedDart.lostDarts = 0;
-						if (!d.collect()){
+					Dart d = TippedDart.takePlainShafts(item);
+					if (d != null) {
+						if (!(Dungeon.coop == null ? d.collect() : d.collect(owner.belongings.backpack))){
 							//have to handle this in an actor as we can't manipulate the heap during pickup
 							Actor.add(new Actor() {
 								{ actPriority = VFX_PRIO; }
 								@Override
 								protected boolean act() {
-									Dungeon.level.drop(d, Dungeon.hero.pos).sprite.drop();
+									Dungeon.level.drop(d, owner.pos).animateDrop();
 									Actor.remove(this);
 									return true;
 								}

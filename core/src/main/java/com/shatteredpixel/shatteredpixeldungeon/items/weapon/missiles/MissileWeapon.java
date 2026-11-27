@@ -148,12 +148,23 @@ abstract public class MissileWeapon extends Weapon {
 		}
 	}
 
+    /** Bind the native set-restoration tracker to the authenticated scroll reader. */
+    public Item upgradeForSeat(Hero reader) {
+        if (!reader.belongings.contains(this)) throw new IllegalArgumentException("Missile set owner");
+        coopThrower = reader;
+        try {
+            return upgrade();
+        } finally {
+            coopThrower = null;
+        }
+    }
+
 	public Item upgrade( boolean enchant ) {
 		if (!bundleRestoring) {
 			durability = MAX_DURABILITY;
 			extraThrownLeft = false;
 			quantity = defaultQuantity();
-			Buff.affect(Dungeon.hero, UpgradedSetTracker.class).levelThresholds.put(setID, trueLevel()+1);
+			Buff.affect(missileUser(), UpgradedSetTracker.class).levelThresholds.put(setID, trueLevel()+1);
 		}
 		//thrown weapons don't get curse weakened
 		boolean wasCursed = cursed;
@@ -170,7 +181,7 @@ abstract public class MissileWeapon extends Weapon {
 			durability = MAX_DURABILITY;
 			extraThrownLeft = false;
 			quantity = defaultQuantity();
-			Buff.affect(Dungeon.hero, UpgradedSetTracker.class).levelThresholds.put(setID, trueLevel()+1);
+			Buff.affect(missileUser(), UpgradedSetTracker.class).levelThresholds.put(setID, trueLevel()+1);
 		}
 		return super.upgrade();
 	}
@@ -529,13 +540,13 @@ abstract public class MissileWeapon extends Weapon {
 			((Crystal) ench).setThrownWep();
 			//start repairing if thrown wep was already damaged
 			if (durability < MAX_DURABILITY) {
-				Buff.affect(Dungeon.hero, Crystal.CrystalRepair.class);
+				Buff.affect(missileUser(), Crystal.CrystalRepair.class);
 			}
 		}
 		if (ench == null){
-			Buff.affect(Dungeon.hero, UpgradedSetTracker.class).appliedEnchants.remove(setID);
+			Buff.affect(missileUser(), UpgradedSetTracker.class).appliedEnchants.remove(setID);
 		} else {
-			Buff.affect(Dungeon.hero, UpgradedSetTracker.class).appliedEnchants.put(setID, ench.getClass());
+			Buff.affect(missileUser(), UpgradedSetTracker.class).appliedEnchants.put(setID, ench.getClass());
 		}
 		return super.enchant(ench);
 	}
@@ -575,7 +586,7 @@ abstract public class MissileWeapon extends Weapon {
 		if (owner instanceof Hero) {
 			int exStr = ((Hero)owner).STR() - STRReq();
 			if (exStr > 0) {
-				damage += Hero.heroDamageIntRange( 0, exStr );
+				damage += Hero.heroDamageIntRange((Hero)owner, 0, exStr);
 			}
 			if (owner.buff(Momentum.class) != null && owner.buff(Momentum.class).freerunning()) {
 				damage = Math.round(damage * (1f + 0.15f * ((Hero) owner).pointsInTalent(Talent.PROJECTILE_MOMENTUM)));
