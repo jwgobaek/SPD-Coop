@@ -192,6 +192,11 @@ public class SubclassActionTest extends HeadlessDungeon {
         SewerBeeTest.offer(g,seat);
         Hero h=g.hero(seat);
         String type=stage.substring(0,stage.length()-1);
+        if (type.startsWith("upper_")) {
+            Talent talent=Talent.valueOf(type.substring(6).toUpperCase(java.util.Locale.ROOT));
+            TierGrowthTest.prepare(g,seat,SharedGrowthTest.upperSubclass(talent.name()),talent,0);
+            return new StagedInput(g,"INVEST_TALENT",talent.ordinal());
+        }
         switch(type) {
         case "paladinheal": case "paladinaura": case "prayer": case "hallow": case "wall": case "bowstone": case "bowrank": case "bowthrow":
             return SharedGrowthTest.stage(g,seat,type,rat);
@@ -333,6 +338,10 @@ public class SubclassActionTest extends HeadlessDungeon {
         Hero h=g.hero(seat);
         Combo combo=h.buff(Combo.class);
         String type=stage.substring(0,stage.length()-1);
+        if (type.startsWith("upper_")) {
+            Talent talent=Talent.valueOf(type.substring(6).toUpperCase(java.util.Locale.ROOT));
+            return h.pointsInTalent(talent)==1 && g.hero(1-seat).pointsInTalent(talent)==0;
+        }
         switch(type) {
         case "paladinheal": case "paladinaura": case "prayer": case "hallow": case "wall": case "bowstone": case "bowrank": case "bowthrow":
             return SharedGrowthTest.published(g,seat,type);

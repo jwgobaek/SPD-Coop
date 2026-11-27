@@ -118,24 +118,36 @@ public class CoopScene extends PixelScene {
         }
     }
 
+    private static void addLearnedSpell(PublicDungeon view, java.util.List<ClericSpell> spells,
+                                        java.util.List<String> actions, Talent talent, ClericSpell spell) {
+        if (view.source.rows.containsKey("talent"+talent.ordinal())) {
+            spells.add(spell);
+            actions.add(talent.name());
+        }
+    }
+
     private void showSpells(PublicDungeon view, PublicDungeon.Loot tome) {
         java.util.ArrayList<ClericSpell> spells = new java.util.ArrayList<>();
         java.util.ArrayList<String> actions = new java.util.ArrayList<>();
         spells.add(GuidingLight.INSTANCE); actions.add("GUIDING_LIGHT");
         spells.add(HolyWeapon.INSTANCE); actions.add("HOLY_WEAPON");
         spells.add(HolyWard.INSTANCE); actions.add("HOLY_WARD");
-        for (Talent talent : new Talent[]{Talent.SHIELD_OF_LIGHT, Talent.SUNRAY, Talent.DIVINE_SENSE}) {
-            if (!view.source.rows.containsKey("talent"+talent.ordinal())) continue;
-            spells.add(talent == Talent.SHIELD_OF_LIGHT ? ShieldOfLight.INSTANCE :
-                    talent == Talent.SUNRAY ? Sunray.INSTANCE : DivineSense.INSTANCE);
-            actions.add(talent.name());
-        }
-        for (Talent talent : new Talent[]{Talent.HALLOWED_GROUND,Talent.WALL_OF_LIGHT,Talent.MNEMONIC_PRAYER,Talent.LAY_ON_HANDS,Talent.AURA_OF_PROTECTION,Talent.HOLY_LANCE,Talent.CLEANSE,Talent.HOLY_INTUITION,Talent.BLESS,Talent.RECALL_INSCRIPTION,Talent.BODY_FORM,Talent.MIND_FORM,Talent.SPIRIT_FORM}) {
-            if (view.source.rows.containsKey("talent"+talent.ordinal())) {
-                spells.add(talent==Talent.HALLOWED_GROUND ? HallowedGround.INSTANCE : talent==Talent.WALL_OF_LIGHT ? WallOfLight.INSTANCE : talent==Talent.MNEMONIC_PRAYER ? MnemonicPrayer.INSTANCE : talent==Talent.LAY_ON_HANDS ? LayOnHands.INSTANCE : talent==Talent.AURA_OF_PROTECTION ? AuraOfProtection.INSTANCE : talent==Talent.HOLY_LANCE ? HolyLance.INSTANCE : talent==Talent.CLEANSE ? Cleanse.INSTANCE : talent==Talent.RECALL_INSCRIPTION ? RecallInscription.INSTANCE : talent==Talent.SPIRIT_FORM ? SpiritForm.INSTANCE : talent==Talent.MIND_FORM ? MindForm.INSTANCE : talent==Talent.BODY_FORM ? BodyForm.INSTANCE : talent==Talent.BLESS ? BlessSpell.INSTANCE : HolyIntuition.INSTANCE);
-                actions.add(talent.name());
-            }
-        }
+        addLearnedSpell(view, spells, actions, Talent.SHIELD_OF_LIGHT, ShieldOfLight.INSTANCE);
+        addLearnedSpell(view, spells, actions, Talent.SUNRAY, Sunray.INSTANCE);
+        addLearnedSpell(view, spells, actions, Talent.DIVINE_SENSE, DivineSense.INSTANCE);
+        addLearnedSpell(view, spells, actions, Talent.HALLOWED_GROUND, HallowedGround.INSTANCE);
+        addLearnedSpell(view, spells, actions, Talent.WALL_OF_LIGHT, WallOfLight.INSTANCE);
+        addLearnedSpell(view, spells, actions, Talent.MNEMONIC_PRAYER, MnemonicPrayer.INSTANCE);
+        addLearnedSpell(view, spells, actions, Talent.LAY_ON_HANDS, LayOnHands.INSTANCE);
+        addLearnedSpell(view, spells, actions, Talent.AURA_OF_PROTECTION, AuraOfProtection.INSTANCE);
+        addLearnedSpell(view, spells, actions, Talent.HOLY_LANCE, HolyLance.INSTANCE);
+        addLearnedSpell(view, spells, actions, Talent.CLEANSE, Cleanse.INSTANCE);
+        addLearnedSpell(view, spells, actions, Talent.HOLY_INTUITION, HolyIntuition.INSTANCE);
+        addLearnedSpell(view, spells, actions, Talent.BLESS, BlessSpell.INSTANCE);
+        addLearnedSpell(view, spells, actions, Talent.RECALL_INSCRIPTION, RecallInscription.INSTANCE);
+        addLearnedSpell(view, spells, actions, Talent.BODY_FORM, BodyForm.INSTANCE);
+        addLearnedSpell(view, spells, actions, Talent.MIND_FORM, MindForm.INSTANCE);
+        addLearnedSpell(view, spells, actions, Talent.SPIRIT_FORM, SpiritForm.INSTANCE);
         String subclass = view.source.rows.get("subclass");
         if ("PRIEST".equals(subclass)) { spells.add(Radiance.INSTANCE); actions.add("RADIANCE"); }
         if ("PALADIN".equals(subclass)) { spells.add(Smite.INSTANCE); actions.add("SMITE"); }

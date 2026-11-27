@@ -1229,7 +1229,7 @@ public final class CoopRenderSmoke {
         shot("lobby");
         String upperTalent = System.getProperty("spd.upper.talent", "STRONGMAN");
         if (regionShot.equals("strength-input")) {
-            var subclass = RenderEncounter.upperSubclass(upperTalent);
+            var subclass = com.shatteredpixel.shatteredpixeldungeon.SharedGrowthTest.upperSubclass(upperTalent);
             for (var heroClass : com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass.values()) {
                 if (java.util.Arrays.asList(heroClass.subClasses()).contains(subclass)) {
                     click(heroClass.name().toLowerCase(java.util.Locale.ROOT) + "Class");

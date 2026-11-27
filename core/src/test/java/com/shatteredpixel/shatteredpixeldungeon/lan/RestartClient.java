@@ -184,6 +184,9 @@ public final class RestartClient {
                     if (mode.matches(".*-(bowstone|bowrank|bowthrow|poisontip|scoutshot|point_blank|hawk|direct|blades|sniper|nature)[01]")) character="HUNTRESS";
                     if (mode.matches(".*-(desperate_power|spark|sparkimbue|sparkblast|sparkvolley|ice|iceimbue|iceblast|icevolley|imbue|volley|battery|recall|beacon|meal|blast|warlock|battlemage|soul)[01]")) character="MAGE";
                 }
+                int upper=mode.indexOf("-upper_");
+                if (upper>=0) character=com.shatteredpixel.shatteredpixeldungeon.SharedGrowthTest.upperClass(
+                        mode.substring(upper+7,mode.length()-1).toUpperCase(Locale.ROOT)).name();
                 if (RestartHost.newCampaign(mode)) character=i==0?"MAGE":"HUNTRESS";
                 if (mode.startsWith("scribe") && i==mode.charAt(6)-'0') character="WARRIOR";
                 if (RestartHost.kit(mode)) character=i==mode.charAt(3)-'0'?"HUNTRESS":"WARRIOR";
