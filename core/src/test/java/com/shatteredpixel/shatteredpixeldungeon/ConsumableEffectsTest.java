@@ -21,6 +21,30 @@ import static com.shatteredpixel.shatteredpixeldungeon.CoopSession.Action.*;
 public class ConsumableEffectsTest extends HeadlessDungeon {
     static StagedInput prepare(CoopSession game, int seat, String stage) {
         Hero hero = game.hero(seat);
+        if (stage.startsWith("exoticvision") || stage.startsWith("exoticterror")) {
+            int station = MultiAlchemyTest.station(game, seat);
+            boolean vision = stage.startsWith("exoticvision");
+            com.shatteredpixel.shatteredpixeldungeon.items.Item ingredient =
+                    vision ? new PotionOfMindVision() : new ScrollOfTerror();
+            ingredient.identify(false);
+            MultiAlchemyTest.pick(game, seat, ingredient);
+            Dungeon.energy = vision ? 4 : 6;
+            SewerBeeTest.offer(game, seat);
+            return new StagedInput(game, "BREW_EXOTIC", station);
+        }
+        if (stage.startsWith("wornaugment")) {
+            int station = MultiAlchemyTest.station(game, seat);
+            Scroll scroll = new ScrollOfTransmutation();
+            MultiAlchemyTest.pick(game, seat, scroll);
+            assertTrue(CoopFloorsTest.step(game, BREW_RUNESTONES, station, scroll));
+            int selection = 0;
+            for (var gear : hero.belongings) {
+                selection++;
+                if (gear == hero.belongings.armor()) break;
+            }
+            SewerBeeTest.offer(game, seat);
+            return new StagedInput(game, "AUGMENT_GEAR", selection * 3);
+        }
         if (stage.startsWith("visiondrink")) {
             Potion potion = new PotionOfMindVision();
             potion.identify(false);
@@ -54,6 +78,23 @@ public class ConsumableEffectsTest extends HeadlessDungeon {
 
     static boolean published(CoopSession game, int seat, String stage) {
         Hero owner = game.hero(seat);
+        if (stage.startsWith("exoticvision") || stage.startsWith("exoticterror")) {
+            boolean vision = stage.startsWith("exoticvision");
+            var result = vision
+                    ? owner.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.PotionOfMagicalSight.class)
+                    : owner.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfDread.class);
+            return Dungeon.energy == 0 && result != null && result.quantity() == 1
+                    && game.ownership.owner(result) == game.player(seat)
+                    && (vision ? owner.belongings.getItem(PotionOfMindVision.class) == null
+                               : owner.belongings.getItem(ScrollOfTerror.class) == null);
+        }
+        if (stage.startsWith("wornaugment")) {
+            StoneOfAugmentation remaining = owner.belongings.getItem(StoneOfAugmentation.class);
+            return CoopConsumables.augment(owner.belongings.armor()) == 0
+                    && CoopConsumables.augment(game.hero(1-seat).belongings.armor()) != 0
+                    && remaining != null && remaining.quantity() == 1
+                    && game.ownership.owner(remaining) == game.player(seat);
+        }
         if (stage.startsWith("visiondrink"))
             return owner.buff(MindVision.class) != null && game.hero(1-seat).buff(MindVision.class) == null
                     && owner.belongings.getItem(PotionOfMindVision.class) == null;

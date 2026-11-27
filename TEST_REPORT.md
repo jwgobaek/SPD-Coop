@@ -2,7 +2,7 @@
 
 ## SYNC41 Android와 SYNC42 원본 콘텐츠
 
-SYNC41 기준 JUnit 394/394, 후속 최종 405/405와 한국어·영어 화면 6/6, 두 좌석의 호스트 종료 10/10을 확인했다. 후속 중간 실행은 399/400이었다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)
+SYNC41 기준 JUnit 394/394, 후속 최종 405/405와 한국어·영어 화면 6/6, 두 좌석의 호스트 종료 16/16을 확인했다. 후속 중간 실행은 399/400이었다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)
 
 ## 2026-11-27 세 재료 연금술과 수혈
 
