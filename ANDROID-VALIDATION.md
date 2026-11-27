@@ -1,5 +1,9 @@
 # Android validation backlog
 
+## 2026-11-27 SYNC37 배포와 SYNC38 개발
+
+SYNC37의 두 설치 해시는 승인 후보와 일치했다. 기존 성서 선택 다섯 종은 양 역할 PASS, 마법 부여 주문서는 FAIL이다. SYNC38의 실제 기기 인수는 NOT RUN이다. [실제 Android 인수](docs/coop/enchantment-android-acceptance.md)
+
 ## SYNC36 실제 Android와 기존 Drive 파일
 
 09c9417 해시에 대한 사용자 한정 승인으로 기존 APK를 한 번 교체하고, Android 인수 뒤 같은 소스의 통합 ZIP을 한 번 교체했다. 기존 추가 편집자와 링크 공유 권한을 보존했다. 두 MuMu 내부 Chromium 다운로드와 데이터 보존 업데이트, 로그와 화면의 Cloud 수집을 사용했다. 다음 빌드의 사전 발행은 별도 승인 대상이다. [개발 및 시험 범위](docs/coop/enchantment-results.md) · [Android 인수](docs/coop/shared-growth-android-acceptance.md) · [배포 파일 대조](docs/coop/shared-growth-delivery.md)

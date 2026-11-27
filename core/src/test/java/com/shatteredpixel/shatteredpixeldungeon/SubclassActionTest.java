@@ -209,13 +209,13 @@ public class SubclassActionTest extends HeadlessDungeon {
             assertTrue(g.stairs.consent(1-seat,g.turn(),h.pos,false));
             return new StagedInput(g,"TRAVEL",h.pos);
         }
-        case "stasisrank": case "stasishold": case "stasisrelease": case "remoteplace": case "ninjalog": case "rayblast": case "divineshield": case "beamingray": case "lifelink":
+        case "stasisfloor": case "stasisorder": case "stasisexpiry": case "stasisblocked": case "stasisrank": case "stasishold": case "stasisrelease": case "remoteplace": case "ninjalog": case "rayblast": case "divineshield": case "beamingray": case "lifelink":
             return ArmorTalentsTest.stage(g,seat,type,rat);
         case "warpwraith": case "hornhit": case "cloakring": case "packedcloak": case "bookward": case "paladinheal": case "paladinaura": case "prayer": case "hallow": case "wall": case "bowstone": case "bowrank": case "bowthrow":
             return SharedGrowthTest.stage(g,seat,type,rat);
         case "poisontip": case "holylance": case "cleanse": case "scoutshot": case "holdfast": case "deathlesswait": case "deathlesstrap":
             return TierGrowthTest.stage(g, seat, type);
-        case "trinitymindmissilehistory": case "readrecharge": case "recallrecharge": case "recallid": case "trinitymind": case "trinityspirit": case "intuition": case "bless": case "trinitybodyhistory": case "trinitymindhistory": case "trinityspirithistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindselect": case "trinityspiritselect": case "trinityselect": case "trinity": case "monkflurry": case "monkdash": case "monkdragonkick": case "monkmeditate": case "sparkimbue": case "spark": case "sparkblast": case "sparkvolley":
+        case "trinitymindprismhistory": case "trinitymindmissilehistory": case "readrecharge": case "recallrecharge": case "recallid": case "trinitymind": case "trinityspirit": case "intuition": case "bless": case "trinitybodyhistory": case "trinitymindhistory": case "trinityspirithistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindselect": case "trinityspiritselect": case "trinityselect": case "trinity": case "monkflurry": case "monkdash": case "monkdragonkick": case "monkmeditate": case "prismmelee": case "prismimbue": case "prismzap": case "prismblast": case "prismvolley": case "sparkimbue": case "spark": case "sparkblast": case "sparkvolley":
         case "sealdetach": case "sealattach": case "sealkeep": case "sealtransfer": case "rationthrow": case "strikeshock": case "strikeblock": case "strikevenom": case "strikekinetic": case "strikebloom": case "heroicenergy": case "challenge": case "elestrike": case "feint": case "ascendform": case "lightally": case "lightorder":
             return SealArtsTest.stage(g,type,seat,rat);
         case "swap": case "monkfocus": case "smite": case "radiance": case "ice": case "iceimbue": case "iceblast": case "icevolley": case "markdeath": case "clone": case "orderclone": case "sunray": case "divinesense": case "lightshield": case "guardshield": case "stance":
@@ -361,13 +361,13 @@ public class SubclassActionTest extends HeadlessDungeon {
         case "warppropose": return Dungeon.depth==2 && g.stairs.warpPending() && !g.stairs.agreed();
         case "warpreturn": return Dungeon.depth==1 && !g.stairs.warpPending()
                 && h.buff(WarpBeacon.WarpBeaconTracker.class).pos==h.pos;
-        case "stasisrank": case "stasishold": case "stasisrelease": case "remoteplace": case "ninjalog": case "rayblast": case "divineshield": case "beamingray": case "lifelink":
+        case "stasisfloor": case "stasisorder": case "stasisexpiry": case "stasisblocked": case "stasisrank": case "stasishold": case "stasisrelease": case "remoteplace": case "ninjalog": case "rayblast": case "divineshield": case "beamingray": case "lifelink":
             return ArmorTalentsTest.published(g,seat,type);
         case "warpwraith": case "hornhit": case "cloakring": case "packedcloak": case "bookward": case "paladinheal": case "paladinaura": case "prayer": case "hallow": case "wall": case "bowstone": case "bowrank": case "bowthrow":
             return SharedGrowthTest.published(g,seat,type);
         case "poisontip": case "holylance": case "cleanse": case "scoutshot": case "holdfast": case "deathlesswait": case "deathlesstrap":
             return TierGrowthTest.published(g, seat, type);
-        case "trinitymindmissilehistory": case "readrecharge": case "recallrecharge": case "recallid": case "trinitymind": case "trinityspirit": case "intuition": case "bless": case "trinitybodyhistory": case "trinitymindhistory": case "trinityspirithistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindselect": case "trinityspiritselect": case "trinityselect": case "trinity": case "monkflurry": case "monkdash": case "monkdragonkick": case "monkmeditate": case "sparkimbue": case "spark": case "sparkblast": case "sparkvolley":
+        case "trinitymindprismhistory": case "trinitymindmissilehistory": case "readrecharge": case "recallrecharge": case "recallid": case "trinitymind": case "trinityspirit": case "intuition": case "bless": case "trinitybodyhistory": case "trinitymindhistory": case "trinityspirithistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindselect": case "trinityspiritselect": case "trinityselect": case "trinity": case "monkflurry": case "monkdash": case "monkdragonkick": case "monkmeditate": case "prismmelee": case "prismimbue": case "prismzap": case "prismblast": case "prismvolley": case "sparkimbue": case "spark": case "sparkblast": case "sparkvolley":
         case "sealdetach": case "sealattach": case "sealkeep": case "sealtransfer": case "rationthrow": case "strikeshock": case "strikeblock": case "strikevenom": case "strikekinetic": case "strikebloom": case "heroicenergy": case "challenge": case "elestrike": case "feint": case "ascendform": case "lightally": case "lightorder":
             return SealArtsTest.published(g,type,seat);
         case "swap": case "monkfocus": case "smite": case "radiance": case "ice": case "iceimbue": case "iceblast": case "icevolley": case "markdeath": case "clone": case "orderclone": case "sunray": case "divinesense": case "lightshield": case "guardshield": case "stance":

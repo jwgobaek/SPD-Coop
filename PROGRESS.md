@@ -1,5 +1,9 @@
 # SPD-Coop 개발 진행 기록
 
+## 2026-11-27 SYNC37 배포와 SYNC38 개발
+
+SYNC37은 성서 선택 10/10 이후 마법 부여 주문서에서 ART VerifyError가 재현됐다. Drive APK 1회, ZIP 0회다. 후속 Cloud 빌드에서 STASIS, 시험방 동의형 비콘, 프리즘 지팡이와 착용 장비 선택을 검사했다. [실제 Android 인수](docs/coop/enchantment-android-acceptance.md) · [Cloud 검증 범위](docs/coop/stasis-warp-results.md)
+
 ## 2026-11-27 배포와 개발
 
 SYNC36은 두 Android에 설치해 성서 선택 10/10을 인수했고 APK와 통합 ZIP은 09c9417 소스로 일치한다. 후속 SYNC37에서 마법 부여 주문서, 여섯 번째 지팡이, 4단계 70/72 및 삼위일체 9/113에 도달했다. [개발 및 시험 범위](docs/coop/enchantment-results.md) · [Android 인수](docs/coop/shared-growth-android-acceptance.md) · [배포 파일 대조](docs/coop/shared-growth-delivery.md)

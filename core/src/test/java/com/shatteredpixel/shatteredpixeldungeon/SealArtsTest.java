@@ -151,18 +151,26 @@ public class SealArtsTest extends HeadlessDungeon {
             return new StagedInput(game,"MONK_"+type.substring(4).toUpperCase(java.util.Locale.ROOT),
                     attack ? rat.pos : type.equals("monkdash") ? hero.pos-2 : hero.pos);
         }
-        if (type.startsWith("spark")) {
+        if (type.startsWith("spark") || type.startsWith("prism")) {
+            boolean prismatic=type.startsWith("prism");
             hero.lvl=10;
             assertTrue(CoopFloorsTest.step(game,CoopSession.Action.INVEST_TALENT,Talent.WAND_PRESERVATION.ordinal(),null));
-            Wand lightning=WandArtsTest.give(game,seat,new WandOfLightning());
-            int index=WandArtsTest.choice(game,seat,lightning);
-            if (type.equals("sparkimbue")) return new StagedInput(game,"IMBUE",index);
+            Wand wand=WandArtsTest.give(game,seat,prismatic ? new WandOfPrismaticLight() : new WandOfLightning());
+            int index=WandArtsTest.choice(game,seat,wand);
+            if (type.endsWith("imbue")) return new StagedInput(game,"IMBUE",index);
             assertTrue(CoopFloorsTest.step(game,CoopSession.Action.IMBUE,index,hero.belongings.weapon()));
-            if (type.equals("spark")) return new StagedInput(game,"ZAP",rat.pos);
-            boolean volley=type.equals("sparkvolley");
+            if (type.equals("prismmelee")) {
+                TierGrowthTest.prepare(game,seat,HeroSubClass.BATTLEMAGE,Talent.EMPOWERED_STRIKE,0);
+                rat.pos=hero.pos+1;
+                Buff.prolong(rat,Paralysis.class,10);
+                game.observe(seat);
+                return new StagedInput(game,"ATTACK",rat.pos);
+            }
+            if (type.equals("spark") || type.equals("prismzap")) return new StagedInput(game,"ZAP",rat.pos);
+            boolean volley=type.endsWith("volley");
             assertTrue(CoopFloorsTest.step(game,CoopSession.Action.USE_CROWN,volley ? 1 : 0,CrownAbilityTest.crown(game,seat,CoopSession.MaskTrial.OWNER)));
             SewerBeeTest.offer(game,seat);
-            if (volley) WandArtsTest.give(game,seat,new WandOfLightning());
+            if (volley) WandArtsTest.give(game,seat,prismatic ? new WandOfPrismaticLight() : new WandOfLightning());
             return new StagedInput(game,"ARMOR_ABILITY",volley ? rat.pos : hero.pos);
         }
         if (type.equals("intuition") || type.equals("recallid") || type.equals("bless") || type.startsWith("trinity")) {
@@ -180,6 +188,10 @@ public class SealArtsTest extends HeadlessDungeon {
                 if (talent==Talent.SPIRIT_FORM) {
                     HolyTome tome=(HolyTome)hero.belongings.artifact;
                     tome.upgrade(); tome.charge(hero,10);
+                }
+                if (type.equals("trinitymindprismhistory")) {
+                    Wand wand=WandArtsTest.give(game,seat,new WandOfPrismaticLight());
+                    return historyInput(game,seat,wand,TrinityDiscoveries.Choice.PRISMATIC_LIGHT);
                 }
                 boolean missile = type.equals("trinitymindmissilehistory");
                 Item reference=missile ? new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile() : talent==Talent.MIND_FORM ? new WandOfLightning() : new com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste();
@@ -308,8 +320,9 @@ public class SealArtsTest extends HeadlessDungeon {
         case "recallid": return hero.belongings.backpack.items.stream().anyMatch(i -> i instanceof ClothArmor && i.isIdentified()) && hero.buff(RecallInscription.UsedItemTracker.class)==null;
         case "intuition": return hero.belongings.backpack.items.stream().anyMatch(i -> i instanceof ClothArmor && i.cursedKnown && !i.levelKnown);
         case "bless": return hero.buff(Bless.class)!=null && hero.buff(Barrier.class)!=null && game.hero(1-seat).buff(Bless.class)==null;
-        case "trinitymindmissilehistory": case "trinitybodyhistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindhistory": case "trinityspirithistory": {
-            TrinityDiscoveries.Choice choice = type.equals("trinitybodyhistory") ? TrinityDiscoveries.Choice.SWIFTNESS :
+        case "trinitymindprismhistory": case "trinitymindmissilehistory": case "trinitybodyhistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindhistory": case "trinityspirithistory": {
+            TrinityDiscoveries.Choice choice = type.equals("trinitymindprismhistory") ? TrinityDiscoveries.Choice.PRISMATIC_LIGHT :
+                    type.equals("trinitybodyhistory") ? TrinityDiscoveries.Choice.SWIFTNESS :
                     type.equals("trinityfirehistory") ? TrinityDiscoveries.Choice.BLAZING :
                     type.equals("trinityblockhistory") ? TrinityDiscoveries.Choice.BLOCKING :
                     type.equals("trinitymindmissilehistory") ? TrinityDiscoveries.Choice.MAGIC_MISSILE :
@@ -325,6 +338,11 @@ public class SealArtsTest extends HeadlessDungeon {
         case "trinityselect": return ((Trinity)hero.armorAbility).hasForm(Talent.BODY_FORM) && ((HolyTome)hero.belongings.artifact).charges()<3 && hero.armorAbility instanceof Trinity;
         case "trinity": return hero.buff(BodyForm.BodyFormBuff.class)!=null && hero.buff(BodyForm.BodyFormBuff.class).glyph() instanceof Swiftness
                 && armor.hasGlyph(Swiftness.class,hero) && !game.hero(1-seat).belongings.armor().hasGlyph(Swiftness.class,game.hero(1-seat));
+        case "prismmelee": return Dungeon.level.mobs.stream().anyMatch(m -> m instanceof Rat && m.buff(Cripple.class)!=null);
+        case "prismimbue": return ((MagesStaff)hero.belongings.weapon()).imbuedWand() instanceof WandOfPrismaticLight
+                && hero.belongings.getItem(WandOfMagicMissile.class)!=null;
+        case "prismzap": case "prismblast": case "prismvolley": return Dungeon.level.mobs.stream().anyMatch(m->m.HP<m.HT)
+                && game.knowledge(hero).mapped(hero.pos+1) && !game.knowledge(game.hero(1-seat)).mapped(hero.pos+1);
         case "sparkimbue": return ((MagesStaff)hero.belongings.weapon()).imbuedWand() instanceof WandOfLightning && hero.belongings.getItem(WandOfMagicMissile.class)!=null;
         case "spark": case "sparkvolley": case "sparkblast": return Dungeon.level.mobs.stream().anyMatch(m->m.HP<m.HT);
         case "sealdetach": return seal == null && armor.glyph == null

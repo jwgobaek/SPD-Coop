@@ -100,6 +100,8 @@ public final class MixedRoomStability {
     static String stageClass(String stage,int seat) {
         if (stage==null) return seat==0 && Boolean.getBoolean("stability.rogue")?"ROGUE":seat==0?"MAGE":"HUNTRESS";
         if (stage.matches("(scrollread|scrolltarget|scrollapply|scrollabort|eagleview)[01]")) return "HUNTRESS";
+        if (stage.startsWith("stasis")) return "CLERIC";
+        if (stage.startsWith("warppropose") || stage.startsWith("warpreturn")) return "MAGE";
         if (stage.startsWith("ninjalog")) return "ROGUE";
         if (stage.startsWith("cacheinvest")) return seat == stage.charAt(stage.length()-1)-'0' ? "ROGUE" : "MAGE";
         if (stage.matches("(remoteplace|rayblast|warpwraith|hornhit|spark|ice|iceimbue|iceblast|icevolley|imbue|volley)[01]")) return "MAGE";
@@ -152,7 +154,7 @@ public final class MixedRoomStability {
         if (verb.equals("READ_SCROLL")) item=view.belongings.stream().filter(it->view.actions(it).contains(verb)).findFirst().get().id;
         if (verb.equals("ENCHANT_TARGET")) item=view.belongings.stream().filter(it->view.source.rows.containsKey("enchantgear"+it.id)).findFirst().get().id;
         if (verb.equals("SHOOT")) item=view.belongings.stream().filter(it->it.kind.equals("BOW")).findFirst().get().id;
-        if (verb.matches("BEAMING_RAY|LIFE_LINK|DIVINE_INTERVENTION|LAY_ON_HANDS|AURA_OF_PROTECTION|MNEMONIC_PRAYER|HALLOWED_GROUND|WALL_OF_LIGHT|HOLY_LANCE|CLEANSE|BODY_FORM|MIND_FORM|SPIRIT_FORM|BLESS|HOLY_INTUITION|RECALL_INSCRIPTION|SMITE|RADIANCE|DIVINE_SENSE|SUNRAY|SHIELD_OF_LIGHT|GUIDING_LIGHT|HOLY_WEAPON|HOLY_WARD")) item=view.belongings.stream().filter(it->view.actions(it).contains("CAST")).findFirst().get().id;
+        if (verb.matches("STASIS|BEAMING_RAY|LIFE_LINK|DIVINE_INTERVENTION|LAY_ON_HANDS|AURA_OF_PROTECTION|MNEMONIC_PRAYER|HALLOWED_GROUND|WALL_OF_LIGHT|HOLY_LANCE|CLEANSE|BODY_FORM|MIND_FORM|SPIRIT_FORM|BLESS|HOLY_INTUITION|RECALL_INSCRIPTION|SMITE|RADIANCE|DIVINE_SENSE|SUNRAY|SHIELD_OF_LIGHT|GUIDING_LIGHT|HOLY_WEAPON|HOLY_WARD")) item=view.belongings.stream().filter(it->view.actions(it).contains("CAST")).findFirst().get().id;
         if (verb.equals("TRINITY_MIND") || verb.equals("TRINITY_SPIRIT"))
             item=view.belongings.stream().filter(it->view.actions(it).contains("ARMOR_ABILITY")).findFirst().get().id;
         if (verb.equals("DETACH_SEAL") || verb.equals("AFFIX_SEAL") || verb.endsWith("_GLYPH")) {
@@ -223,10 +225,11 @@ public final class MixedRoomStability {
                     images[seat].refresh(clients[seat]);
                 }
                 PublicDungeon v=new PublicDungeon(images[seat].image());
-                if(n==0 && first!=null && first.action.equals("TRAVEL")) {
+                boolean warp=v.source.rows.containsKey("warpdestination");
+                if(!v.consent && (warp || n==0 && first!=null && first.action.equals("TRAVEL"))) {
                     int other=1-seat;
                     images[other].refresh(clients[other]);
-                    SeatActions.Pending consent=actions[other].prepare(images[other].image(),"CONSENT",first.cell,0);
+                    SeatActions.Pending consent=actions[other].prepare(images[other].image(),"CONSENT",warp ? v.stair : first.cell,0);
                     long began=System.nanoTime();
                     assertTrue(consent.submit(clients[other]).endsWith(" APPLIED"));
                     verbs.merge("CONSENT",1,Integer::sum);
@@ -234,7 +237,7 @@ public final class MixedRoomStability {
                     images[seat].refresh(clients[seat]);
                     v=new PublicDungeon(images[seat].image());
                 }
-                VaultPublicRoute.Input move=n==0 && first!=null?fromView(v,first):input(v,guides[seat]);
+                VaultPublicRoute.Input move=warp && v.consent ? new VaultPublicRoute.Input("TRAVEL",v.stair,0) : n==0 && first!=null?fromView(v,first):input(v,guides[seat]);
                 SeatActions.Pending action=actions[seat].prepare(v.source,move.action,move.cell,move.item);
                 long start=System.nanoTime();
                 String receipt=action.submit(clients[seat]);

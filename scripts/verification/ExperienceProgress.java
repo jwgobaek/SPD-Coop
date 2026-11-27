@@ -72,6 +72,8 @@ public final class ExperienceProgress {
             java.util.Set<String> declined=new java.util.HashSet<>();
             java.util.Map<String,Integer> abilityUse=new java.util.TreeMap<>();
             int[] investments={0,0};
+            int[] moveTotals=new int[2], repeats=new int[2], firstExit={-1,-1}, gateSignals=new int[2], firstPoints={-1,-1}, frontiers=new int[2], exitSeen={-1,-1};
+            java.util.List<java.util.Set<String>> walked=java.util.Arrays.asList(new java.util.HashSet<>(),new java.util.HashSet<>());
             boolean[] wasDown={false,false};
             String result="budget";
             for (int n=0;n<budget;++n) {
@@ -132,6 +134,14 @@ public final class ExperienceProgress {
                     else declined.add(seat+"/"+v.depth+"/"+v.pos+"/"+input.cell+"/"+input.action);
                 }
                 if (input.action.equals("INVEST_TALENT") && status.equals("APPLIED")) investments[seat]++;
+                if ("MOVE".equals(input.action) && status.equals("APPLIED")) {
+                    moveTotals[seat]++;
+                    if (!walked.get(seat).add(v.depth+"/"+v.branch+"/"+input.cell)) repeats[seat]++;
+                }
+                if (firstExit[seat]<0 && guides[seat].knownExit>=0) { firstExit[seat]=n; exitSeen[seat]=guides[seat].knownExit; }
+                if (v.stair>=0) gateSignals[seat]++;
+                if (firstPoints[seat]<0 && Integer.parseInt(v.source.rows.getOrDefault("freepoints1","0"))>0) firstPoints[seat]=n;
+                frontiers[seat]=Math.max(frontiers[seat],guides[seat].reachableFrontier);
                 if (Boolean.getBoolean("trial.trace")) System.out.printf("STEP %d %d %d %s %d %s stair=%d mobs=%s loot=%s%n",n,seat,v.pos,input.action,input.cell,status,v.stair,v.monsters,v.floor.keySet());
                 if (status.equals("APPLIED") || status.equals("PARTY_DEFEATED")) acted++;
                 else if (input.item!=0) guides[seat].rejectedItems.add(input.item);
@@ -148,6 +158,8 @@ public final class ExperienceProgress {
             if (!abilityUse.isEmpty()) System.out.println("NATIVE_ABILITIES "+seed+" "+policy+" "+abilityUse);
             for (int s=0;s<2;s++) {
                 System.out.printf("INVESTED\t%d\t%s\t%d\t%d%n",seed,policy,s,investments[s]);
+                System.out.printf("NAVIGATION\t%d\t%d\tmoves=%d\trevisits=%d\tunique=%d\tfrontierPeak=%d\tfirstExitAction=%d\texitCell=%d\tgateSignals=%d\tfirstPointAction=%d%n",
+                        seed,s,moveTotals[s],repeats[s],walked.get(s).size(),frontiers[s],firstExit[s],exitSeen[s],gateSignals[s],firstPoints[s]);
                 Hero h=game.hero(s);
                 int food=0,heal=0,up=0;
                 for (Item i:h.belongings) {

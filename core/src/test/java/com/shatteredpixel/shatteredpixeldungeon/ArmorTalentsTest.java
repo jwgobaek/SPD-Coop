@@ -55,15 +55,34 @@ public class ArmorTalentsTest extends HeadlessDungeon {
                 SewerBeeTest.offer(game,seat);
                 return new StagedInput(game,"ARMOR_ABILITY",hero.pos);
             }
-            case "stasishold": case "stasisrelease": case "stasisrank": {
+            case "stasisfloor": case "stasisorder": case "stasisexpiry": case "stasisblocked": case "stasishold": case "stasisrelease": case "stasisrank": {
                 ClassArmor armor=invest(game,seat,2,Talent.STASIS,type.equals("stasisrank") ? 0 : 1);
                 if (type.equals("stasisrank")) return new StagedInput(game,"INVEST_TALENT",Talent.STASIS.ordinal());
                 TierGrowthTest.powerTome(hero);
                 assertTrue(CoopFloorsTest.step(game,ARMOR_ABILITY,hero.pos+1,armor));
                 SewerBeeTest.offer(game,seat);
-                if (type.equals("stasisrelease")) {
+                if (!type.equals("stasishold")) {
                     assertTrue(CoopFloorsTest.step(game,STASIS,hero.pos,hero.belongings.getItem(HolyTome.class)));
                     SewerBeeTest.offer(game,seat);
+                }
+                if (type.equals("stasisfloor")) {
+                    int stair = Dungeon.level.exit();
+                    SewerSpecialActorTest.atGate(game,stair);
+                    return new StagedInput(game,"TRAVEL",stair);
+                }
+                if (type.equals("stasisorder")) {
+                    assertTrue(CoopFloorsTest.step(game,STASIS,hero.pos,hero.belongings.getItem(HolyTome.class)));
+                    SewerBeeTest.offer(game,seat);
+                    return new StagedInput(game,"ARMOR_ABILITY",rat.pos);
+                }
+                if (type.equals("stasisexpiry") || type.equals("stasisblocked")) {
+                    if (type.equals("stasisblocked")) for (int offset : com.watabou.utils.PathFinder.NEIGHBOURS8) {
+                        int cell=hero.pos+offset;
+                        if (com.shatteredpixel.shatteredpixeldungeon.actors.Actor.findChar(cell)==null)
+                            com.shatteredpixel.shatteredpixeldungeon.levels.Level.set(cell,com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.WALL);
+                    }
+                    hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Stasis.StasisBuff.class).timeToNow();
+                    return new StagedInput(game,"WAIT",0);
                 }
                 return new StagedInput(game,"STASIS",hero.pos);
             }
@@ -95,9 +114,18 @@ public class ArmorTalentsTest extends HeadlessDungeon {
             case "divineshield": return hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.AscendedForm.AscendBuff.class).divineInverventionCast;
             case "beamingray": return PowerOfMany.getPoweredAlly(hero).buff(BeamingRay.BeamingRayBoost.class)!=null;
             case "stasisrank": return hero.pointsInTalent(Talent.STASIS)==1;
-            case "stasishold": return com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Stasis.getStasisAlly(hero) instanceof PowerOfMany.LightAlly
+            case "stasisfloor": return Dungeon.depth==2
+                    && com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Stasis.getStasisAlly(hero) instanceof PowerOfMany.LightAlly
+                    && Dungeon.level.mobs.stream().noneMatch(m -> m instanceof PowerOfMany.LightAlly);
+            case "stasisorder":
+                if (!(PowerOfMany.getPoweredAlly(hero) instanceof PowerOfMany.LightAlly)) return false;
+                PowerOfMany.LightAlly ally=(PowerOfMany.LightAlly)PowerOfMany.getPoweredAlly(hero);
+                Bundle command=new Bundle();
+                ally.storeInBundle(command);
+                return ally.commander()==hero && Dungeon.level.mobs.stream().anyMatch(m -> m instanceof Rat && m.pos==command.getInt("target"));
+            case "stasisblocked": case "stasishold": return com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Stasis.getStasisAlly(hero) instanceof PowerOfMany.LightAlly
                     && PowerOfMany.getPoweredAlly(hero)==null;
-            case "stasisrelease": return hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Stasis.StasisBuff.class)==null
+            case "stasisexpiry": case "stasisrelease": return hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Stasis.StasisBuff.class)==null
                     && PowerOfMany.getPoweredAlly(hero) instanceof PowerOfMany.LightAlly;
             case "lifelink": return hero.buff(LifeLink.class)!=null && hero.buff(LifeLink.class).object==PowerOfMany.getPoweredAlly(hero).id();
             default: throw new IllegalArgumentException(type);

@@ -1,5 +1,9 @@
 # 협동 콘텐츠 지원표
 
+## 2026-11-27 SYNC37 배포와 SYNC38 개발
+
+일반 특성 174슬롯의 투자 경로에 도달했다. LONGRANGE_WARP는 개발 시험방으로 한정한다. 착용 장비의 후보와 활 11/17, 지팡이 7/13, Trinity 10/113을 별도 집계한다. [399개 원본 소스의 기능별 근거](docs/coop/stasis-warp-content.tsv) · [Cloud 검증 범위](docs/coop/stasis-warp-results.md)
+
 ## SYNC37 소스와 SYNC36 Android
 
 전체 1~3단계 투자 가능, 4단계 70/72, 삼위일체 9/113, 분해를 포함한 지팡이 6/13의 다섯 경로를 기록했다. 지원표에서 투자·단계별 배치 효과·UI·TCP·실제 Android를 따로 확인한다. [개발 및 시험 범위](docs/coop/enchantment-results.md) · [Android 인수](docs/coop/shared-growth-android-acceptance.md) · [배포 파일 대조](docs/coop/shared-growth-delivery.md)

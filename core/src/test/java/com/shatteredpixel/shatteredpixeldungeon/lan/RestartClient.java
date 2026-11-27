@@ -177,13 +177,13 @@ public final class RestartClient {
                 if (mode.startsWith("tengu-setup-growth-")) {
                     character=i==0?"WARRIOR":"HUNTRESS";
                     if (mode.matches(".*-(warppropose|warpreturn)[01]")) character="MAGE";
-                    if (mode.matches(".*-(stasisrank|stasishold|stasisrelease|divineshield|beamingray|lifelink|bookward|paladinheal|paladinaura|prayer|hallow|wall|holylance|cleanse|trinitymindmissilehistory|recallid|readrecharge|recallrecharge|trinitymind|trinityspirit|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinityblockhistory|trinitymindselect|trinityspiritselect|intuition|bless|trinityselect|trinity|ascendform|lightally|lightorder|radiance|smite|sunray|divinesense|lightshield|light|blessweapon|ward)[01]")) character="CLERIC";
+                    if (mode.matches(".*-(stasisfloor|stasisorder|stasisexpiry|stasisblocked|stasisrank|stasishold|stasisrelease|divineshield|beamingray|lifelink|bookward|paladinheal|paladinaura|prayer|hallow|wall|holylance|cleanse|trinitymindprismhistory|trinitymindmissilehistory|recallid|readrecharge|recallrecharge|trinitymind|trinityspirit|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinityblockhistory|trinitymindselect|trinityspiritselect|intuition|bless|trinityselect|trinity|ascendform|lightally|lightorder|radiance|smite|sunray|divinesense|lightshield|light|blessweapon|ward)[01]")) character="CLERIC";
                     if (mode.matches(".*-(monkflurry|monkdash|monkmeditate|monkdragonkick|strikeshock|strikeblock|strikevenom|strikekinetic|strikebloom|heroicenergy|challenge|elestrike|feint|swap|monkfocus|guardshield|stance|lunge|spike|charged)[01]")) character="DUELIST";
                     if (mode.matches(".*-(cacheinvest|cachepickup)[01]")) character=i==mode.charAt(mode.length()-1)-'0'?"ROGUE":"MAGE";
                     if (mode.matches(".*-(ninjalog|cloakring|packedcloak|markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) character="ROGUE";
                     if (mode.matches(".*-(holdfast|deathlesswait|deathlesstrap|strongman|endless_rage|sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
                     if (mode.matches(".*-(scrollread|scrolltarget|scrollapply|scrollabort|eagleview|bowstone|bowrank|bowthrow|poisontip|scoutshot|point_blank|hawk|direct|blades|sniper|nature)[01]")) character="HUNTRESS";
-                    if (mode.matches(".*-(remoteplace|rayblast|warpwraith|hornhit|desperate_power|spark|sparkimbue|sparkblast|sparkvolley|ice|iceimbue|iceblast|icevolley|imbue|volley|battery|recall|beacon|meal|blast|warlock|battlemage|soul)[01]")) character="MAGE";
+                    if (mode.matches(".*-(remoteplace|rayblast|warpwraith|hornhit|desperate_power|prismmelee|prismimbue|prismzap|prismblast|prismvolley|spark|sparkimbue|sparkblast|sparkvolley|ice|iceimbue|iceblast|icevolley|imbue|volley|battery|recall|beacon|meal|blast|warlock|battlemage|soul)[01]")) character="MAGE";
                 }
                 int upper=mode.indexOf("-upper_");
                 if (upper>=0) character=com.shatteredpixel.shatteredpixeldungeon.SharedGrowthTest.upperClass(
@@ -492,7 +492,7 @@ public final class RestartClient {
         }
         if (mode.startsWith("tengu-commit-")) {
             String boundary=mode.substring("tengu-commit-".length());
-            boolean travel=boundary.equals("ten") || boundary.equals("caves") || boundary.equals("return");
+            boolean travel=boundary.equals("ten") || boundary.equals("caves") || boundary.equals("return") || boundary.startsWith("growth-stasisfloor");
             String verb=boundary.equals("revive") ? "REVIVE" : boundary.equals("down") || boundary.equals("devices") ? "WAIT" : boundary.equals("claim") ? "PICK_UP"
                     : boundary.equals("enter") || boundary.equals("arena") ? "MOVE" : "ATTACK";
             boolean growth=boundary.startsWith("growth-");

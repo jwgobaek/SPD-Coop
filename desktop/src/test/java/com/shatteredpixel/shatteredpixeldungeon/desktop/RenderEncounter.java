@@ -82,6 +82,8 @@ final class RenderEncounter {
                 game.hero(0).lvl=5;
             } else if (destination.equals("scroll-enchant-input")) {
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"scrollread0");
+            } else if (destination.equals("stasis-input") || destination.equals("beacon-vote-input")){
+                com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,destination.equals("stasis-input")?"stasishold0":"warppropose0");
             } else if (destination.equals("eagle-input")) {
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"eagleview0");
             } else if (destination.equals("bow-enchant-input")) {

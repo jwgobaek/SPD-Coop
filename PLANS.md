@@ -1,5 +1,9 @@
 # 단계와 다음 작업
 
+## 2026-11-27 SYNC37 배포와 SYNC38 개발
+
+다음 Android 시작점은 SYNC38의 마법 부여 주문서 읽기, 후보 복원 및 확정이다. 정확한 APK의 별도 전달 승인이 필요하다. Cloud에서는 잔여 활 마법과 STASIS·비콘 동시 저장, 정상 계단 합류를 이어간다. [Cloud 검증 범위](docs/coop/stasis-warp-results.md)
+
 ## 다음 개발 시작점
 
 배포는 SYNC36이다. Cloud의 SYNC37에서는 성직자 STASIS를 자기 LightAlly 보관부터 재소환까지 이어간다. 좁은 통로의 자리 부족, 다른 좌석의 점유, 주인 전투 불능, 휴면 층과 새 JVM 복원에서 Actor의 중복과 참조를 먼저 검사한다. 원본 StasisBuff.act는 비어 있는 칸이 없을 때 임의의 이웃을 선택하고, Mob.restoreAllies의 한 소환수 가정은 다른 좌석의 PowerBuff를 분리할 수 있다. 이 두 지점에서 소유자별 복원과 점유 처리를 검증한 뒤 버튼을 연다. LONGRANGE_WARP는 원본 층 간 이동과 기존 동의 절차가 만나는 지점에서 정책 승인이 필요하다. 이후 미지원 활 마법의 직접 사격·공유 투척, 다음 지팡이 7종, 각인 회수와 연금술을 이어간다. [개발 및 시험 범위](docs/coop/enchantment-results.md) · [Android 인수](docs/coop/shared-growth-android-acceptance.md) · [배포 파일 대조](docs/coop/shared-growth-delivery.md)

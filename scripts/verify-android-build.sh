@@ -20,5 +20,6 @@ print(f"PASS: {len(cases)} JUnit cases")
 PY
 apk=android/build/outputs/apk/debug/android-debug.apk
 scripts/inspect-apk.sh "$apk" org.spdcoop.dungeon.indev | tee "$reports/apk.txt"
+python3 scripts/verify-enchant-dex.py "$apk" | tee "$reports/enchant-dex.txt"
 cp "$apk" "$reports/"
 (cd "$reports" && sha256sum android-debug.apk > SHA256SUMS && sha256sum -c SHA256SUMS)

@@ -1,5 +1,9 @@
 # 협동 게임 동기화 프로토콜
 
+## 2026-11-27 SYNC37 배포와 SYNC38 개발
+
+SYNC38은 STASIS의 성서 입력과 개발 시험방의 비콘 동의 목적지 깊이·분기를 전송한다. 공개 warpdestination 행에는 휴면 층의 지도나 주민 정보가 없다. 착용 장비의 원본 후보는 소유 좌석에 표시하며 제한 후보에는 enchantlimited 행을 보낸다. LAN v1을 유지한다. [Cloud 검증](stasis-warp-results.md)
+
 ## SYNC37 장비 선택과 시야
 
 LAN v1에서 MODE SYNC37을 협상한다. READ_SCROLL, ENCHANT_TARGET, ENCHANT_CHOOSE, ENCHANT_CANCEL은 현재 행동권·좌석·영수증을 확인한다. 원본 후보는 호스트가 확정한다. 해당 좌석에만 enchantphase(inventory/consumed/options), enchantgear<핸들>, enchantarmor, enchantoption0~2를 보낸다. 재인증·전체/델타 스냅샷에도 같은 공개 경계를 적용한다.

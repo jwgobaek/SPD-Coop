@@ -37,7 +37,7 @@ public final class CoopRenderSmoke {
             return;
         }
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|eagle-input|strength-input|recharging-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|eagle-input|stasis-input|beacon-vote-input|strength-input|recharging-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -63,7 +63,7 @@ public final class CoopRenderSmoke {
         kit=shortcutKit || (args.length>1 && args[1].equals("kit"));
         deep=prison || (args.length>1 && args[1].equals("deep"));
         floors=deep || statue || mimic || ghost || sentry || (args.length>1 && args[1].equals("floors"));
-        mage=regionShot.equals("frost-input") || regionShot.equals("volley-input") || regionShot.equals("wand-input") || floors || (args.length>1 && args[1].equals("mage"));
+        mage=regionShot.equals("beacon-vote-input") || regionShot.equals("frost-input") || regionShot.equals("volley-input") || regionShot.equals("wand-input") || floors || (args.length>1 && args[1].equals("mage"));
         shots=new File(args[0]); if(!shots.isDirectory() && !shots.mkdirs()) throw new AssertionError();
         // Test classes share the launcher's package but do not carry release-manifest attributes.
         java.util.jar.Manifest manifest=new java.util.jar.Manifest(DesktopLauncher.class.getResourceAsStream("/META-INF/MANIFEST.MF"));
@@ -1264,7 +1264,7 @@ public final class CoopRenderSmoke {
                     break;
                 }
             }
-        } else click(regionShot.equals("cache-input")?"rogueClass":regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("tome-input") || regionShot.equals("recharging-input") || regionShot.startsWith("selector-") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("scroll-enchant-input") || regionShot.equals("eagle-input") || regionShot.equals("bow-enchant-input") || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
+        } else click(regionShot.equals("cache-input")?"rogueClass":regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("stasis-input") || regionShot.equals("tome-input") || regionShot.equals("recharging-input") || regionShot.startsWith("selector-") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("scroll-enchant-input") || regionShot.equals("eagle-input") || regionShot.equals("bow-enchant-input") || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
         if(mage) shot("mage-selected");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
         java.nio.file.Files.writeString(new File(root,"port").toPath(),Integer.toString(testPort));
@@ -1290,6 +1290,26 @@ public final class CoopRenderSmoke {
                     return;
                 }
                 if (regionShot.equals("scroll-enchant-input")) { enchantScrollInput(); return; }
+                if (regionShot.equals("stasis-input")) {
+                    await(()->frame().dungeon.offered && ownTome()!=null);
+                    int charges=ownTome().charges;
+                    openSpellPicker(ownTome().id,com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Stasis.INSTANCE.name());
+                    await(()->frame().pending==0 && ownTome().charges==charges-2);
+                    shot("stasis-held");
+                    System.out.println("PASS Stasis tome input and native two-charge hold");
+                    return;
+                }
+                if (regionShot.equals("beacon-vote-input")) {
+                    await(()->frame().dungeon.offered && frame().image.rows.containsKey("beacondepth"));
+                    PublicDungeon view=frame().dungeon;
+                    long armor=view.belongings.stream().filter(i->view.actions(i).contains("ARMOR_ABILITY")).findFirst().get().id;
+                    click("bag"); press(inventoryPoint(armor)); click("armor_ability");
+                    click("#"+com.shatteredpixel.shatteredpixeldungeon.messages.Messages.get(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.class,"window_tele"));
+                    await(()->frame().pending==0 && "1,0".equals(frame().image.rows.get("warpdestination")));
+                    shot("warp-party-proposal");
+                    System.out.println("PASS recall-menu input and pending destination at depth 1");
+                    return;
+                }
                 if (regionShot.equals("eagle-input")) {
                     com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent talent=com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.EAGLE_EYE;
                     await(()->frame().dungeon.offered && frame().image.rows.containsKey("learn"+talent.ordinal()));

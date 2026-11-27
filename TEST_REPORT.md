@@ -1,5 +1,9 @@
 # SPD-Coop 클라우드 실행 보고
 
+## 2026-11-27 SYNC37 배포와 SYNC38 개발
+
+기준 전체 JUnit 364/364, SYNC38 전체 JUnit 372/372 PASS. SYNC37 Android 성서 선택 10/10, 마법 부여 주문서 FAIL. 후속 SYNC38의 한국어·영어 Desktop 보관 및 비콘 제안, 30회 HEAD 종료·복원, 구버전 8회 이행, 12시드 일반 승리와 Ascension을 검사했다. [실제 Android 인수](docs/coop/enchantment-android-acceptance.md) · [Cloud 검증 범위](docs/coop/stasis-warp-results.md)
+
 ## 2026-11-27 회귀
 
 Cloud의 최종 전체 JUnit은 기존 338개와 신규 26개를 포함해 364/364 PASS였다. HEAD 발행 직후 종료·복구는 양쪽 좌석 11개 행동에서 총 22회 확인했다. 실제 Android는 SYNC36으로, 새 성장과 저장 호환성은 Cloud의 SYNC37으로 측정했다. 금고와 정상 시작의 서로 다른 출발점, 강화 배치 12시드 승리와 원본 귀환을 구분했다. [개발 및 시험 범위](docs/coop/enchantment-results.md) · [Android 인수](docs/coop/shared-growth-android-acceptance.md) · [배포 파일 대조](docs/coop/shared-growth-delivery.md)

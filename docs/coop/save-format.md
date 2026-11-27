@@ -1,5 +1,9 @@
 # 협동 저장 스키마 1–24
 
+## 2026-11-27 SYNC37 배포와 SYNC38 개발
+
+SYNC38은 STASIS에 스키마 25를 사용한다. stasis_schema는 기존 내부 형식을 보존하며 소환수는 영웅의 StasisBuff 안에 한 번 저장한다. 스키마 26의 warp_schema는 내부 형식을, warp_proposer와 warp_agreed는 제안 좌석과 동의를 보존한다. 복원 후 실제 소유자·중복 Actor ID·비콘 및 위치를 다시 검사한다. 21~24의 실제 배포 소스가 작성한 세대는 두 좌석에서 새 JVM 복원을 통과했다. [검증 범위](stasis-warp-results.md)
+
 ## 스키마 24의 소유자별 마법 부여 선택
 
 SYNC37은 선택이 대기 중일 때만 외부 schema를 24로 저장한다. scroll_schema는 그 안의 종전 1~23이고, 23의 HP 0 광전사와 별도 base_schema가 계속 유효하다. enchant0·enchant1은 각 좌석에만 귀속된다. scroll과 target은 출처 스택 및 대상 장비의 실물 ID, consumed는 실제 떼어낸 한 장의 ID, read_unknown은 최초 읽기 전 지식이다. 장비 선택 뒤에는 types와 option0~option2에 이미 확정한 세 유형 및 원본 객체 상태를 저장한다. 재인증 때 원본 RNG를 다시 쓰지 않는다. 선택 종료 뒤에는 다른 기능이 요구하는 기존 스키마로 복귀한다. 동일 행동 ID의 내구성 있는 영수증과 HEAD/BACKUP 규칙은 같다.

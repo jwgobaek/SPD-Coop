@@ -1,5 +1,9 @@
 # 미해결 문제
 
+## 2026-11-27 SYNC37 배포와 SYNC38 개발
+
+Drive SYNC37에서 마법 부여 주문서를 읽으면 호스트가 VerifyError 뒤 응답을 중단한다. 후속 Cloud APK는 해당 DEX 형식과 Desktop 입력 검사를 통과했다. 실제 Android 재인수가 남았다. [실제 Android 인수](docs/coop/enchantment-android-acceptance.md)
+
 ## SYNC37에서 남은 범위
 
 4단계 STASIS·LONGRANGE_WARP, 장착 중인 일반 무기와 갑옷의 마법 부여 주문서 적용, 일부 원본 마법의 실제 전투 발동, 복합 소모품, 금고의 두 번째 출구와 정상 시작 감옥 완주가 남았다. SYNC37 Android는 NOT RUN이다. SYNC36 실제 기기에서 보호막 소진 부활, 가방 속 망토·성서, 벽 뒤 매 감지 등도 별도 표본이 필요하다. [개발 및 시험 범위](docs/coop/enchantment-results.md) · [Android 인수](docs/coop/shared-growth-android-acceptance.md) · [배포 파일 대조](docs/coop/shared-growth-delivery.md)
