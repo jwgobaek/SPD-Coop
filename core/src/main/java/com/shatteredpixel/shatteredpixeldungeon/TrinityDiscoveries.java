@@ -29,7 +29,8 @@ public final class TrinityDiscoveries {
         HASTE(-104, Talent.SPIRIT_FORM, RingOfHaste.class),
         BLAZING(-105, Talent.BODY_FORM, Blazing.class),
         BLOCKING(-106, Talent.BODY_FORM, Blocking.class),
-        MAGIC_MISSILE(-107, Talent.MIND_FORM, com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile.class);
+        MAGIC_MISSILE(-107, Talent.MIND_FORM, com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile.class),
+        FROST(-108, Talent.MIND_FORM, com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost.class);
 
         public final int target;
         public final Talent form;

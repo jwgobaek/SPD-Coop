@@ -194,10 +194,19 @@ public class SpiritBow extends Weapon {
         return Dungeon.hero;
     }
 
+    public static boolean supportedCoopEnchantment(Weapon weapon) {
+        Weapon.Enchantment effect = weapon.enchantment;
+        return effect == null || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling
+                || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing
+                || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blocking
+                || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Projecting
+                || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Crystal;
+    }
+
     /** Normal spirit arrow. The authority resolves the original missile hit and cost at the input boundary. */
     public boolean scoutInCoop(Hero user, int cell) {
         if (!user.hasTalent(Talent.SEER_SHOT) || user.buff(Talent.SeerShotCooldown.class) != null
-                || sniperSpecial || enchantment != null || cursed || cell == user.pos) return false;
+                || sniperSpecial || !supportedCoopEnchantment(this) || cursed || cell == user.pos) return false;
         SpiritArrow arrow = knockArrow();
         if (arrow.throwPos(user, cell) != cell || Actor.findChar(cell) != null) return false;
         arrow.revealEmptyShot(user, cell);
@@ -212,7 +221,7 @@ public class SpiritBow extends Weapon {
     }
 
     public boolean shootInCoop(Hero user, Char enemy, SnipersMark mark) {
-        if (sniperSpecial || enchantment!=null || cursed)
+        if (sniperSpecial || !supportedCoopEnchantment(this) || cursed)
             return false;
         SpiritArrow arrow=knockArrow();
         int aim = mark == null ? enemy.pos : QuickSlotButton.autoAim(user,enemy,arrow);

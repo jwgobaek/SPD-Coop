@@ -64,6 +64,10 @@ public final class MixedRoomStability {
             "trinityfirehistory1", "strikeblock0", "strikeblock1", "strikeshock0", "strikeshock1",
             "strikevenom0", "strikevenom1", "heroicenergy0", "heroicenergy1", "food", "floor"};
 
+    static final String[] SHARED_GROWTH = {"bowstone0","bowstone1","bowrank0","bowrank1","bowthrow0","bowthrow1",
+            "paladinheal0","paladinheal1","paladinaura0","paladinaura1","prayer0","prayer1","hallow0","hallow1",
+            "wall0","wall1","spark0","monkfocus1","poisontip0","elestrike1","food","dart","floor","mine"};
+
     static final String[] CACHE_GROWTH = {"cacheinvest0","cacheinvest1","trinityblockhistory0","trinityblockhistory1",
             "strikekinetic0","strikekinetic1","strikebloom0","strikebloom1","readrecharge0","readrecharge1","recallrecharge0","recallrecharge1","food","floor"};
 
@@ -83,8 +87,8 @@ public final class MixedRoomStability {
         if (stage.startsWith("cacheinvest")) return seat == stage.charAt(stage.length()-1)-'0' ? "ROGUE" : "MAGE";
         if (stage.matches("(spark|ice|iceimbue|iceblast|icevolley|imbue|volley)[01]")) return "MAGE";
         if (stage.matches("(strikekinetic|strikebloom|strikeblock|strikeshock|strikevenom|heroicenergy|challenge|elestrike|feint|monkflurry|monkdash|monkdragonkick|monkmeditate|swap|monkfocus|stance|guardshield|lunge|spike|charged)[01]")) return "DUELIST";
-        if (stage.matches("(holylance|cleanse|trinitymindmissilehistory|trinityblockhistory|readrecharge|recallrecharge|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinity|trinityselect|trinitymind|trinitymindselect|trinityspirit|trinityspiritselect|lightally|lightorder|ascendform|intuition|bless|recallid|radiance|smite|divinesense|sunray|lightshield|light|ward|blessweapon)[01]")) return "CLERIC";
-        if (stage.matches("(poisontip|scoutshot|hawk|direct)[01]") || stage.startsWith("blades")) return "HUNTRESS";
+        if (stage.matches("(paladinheal|paladinaura|prayer|hallow|wall|holylance|cleanse|trinitymindmissilehistory|trinityblockhistory|readrecharge|recallrecharge|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinity|trinityselect|trinitymind|trinitymindselect|trinityspirit|trinityspiritselect|lightally|lightorder|ascendform|intuition|bless|recallid|radiance|smite|divinesense|sunray|lightshield|light|ward|blessweapon)[01]")) return "CLERIC";
+        if (stage.matches("(bowstone|bowrank|bowthrow|poisontip|scoutshot|hawk|direct)[01]") || stage.startsWith("blades")) return "HUNTRESS";
         if (stage.matches("(markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) return "ROGUE";
         if (stage.startsWith("beacon") || stage.startsWith("recall") || stage.startsWith("battery")) return "MAGE";
         return "WARRIOR";
@@ -129,16 +133,16 @@ public final class MixedRoomStability {
         String verb=staged.action;
         long item=0;
         if (verb.equals("SHOOT")) item=view.belongings.stream().filter(it->it.kind.equals("BOW")).findFirst().get().id;
-        if (verb.matches("HOLY_LANCE|CLEANSE|BODY_FORM|MIND_FORM|SPIRIT_FORM|BLESS|HOLY_INTUITION|RECALL_INSCRIPTION|SMITE|RADIANCE|DIVINE_SENSE|SUNRAY|SHIELD_OF_LIGHT|GUIDING_LIGHT|HOLY_WEAPON|HOLY_WARD")) item=view.belongings.stream().filter(it->view.actions(it).contains("CAST")).findFirst().get().id;
+        if (verb.matches("LAY_ON_HANDS|AURA_OF_PROTECTION|MNEMONIC_PRAYER|HALLOWED_GROUND|WALL_OF_LIGHT|HOLY_LANCE|CLEANSE|BODY_FORM|MIND_FORM|SPIRIT_FORM|BLESS|HOLY_INTUITION|RECALL_INSCRIPTION|SMITE|RADIANCE|DIVINE_SENSE|SUNRAY|SHIELD_OF_LIGHT|GUIDING_LIGHT|HOLY_WEAPON|HOLY_WARD")) item=view.belongings.stream().filter(it->view.actions(it).contains("CAST")).findFirst().get().id;
         if (verb.equals("TRINITY_MIND") || verb.equals("TRINITY_SPIRIT"))
             item=view.belongings.stream().filter(it->view.actions(it).contains("ARMOR_ABILITY")).findFirst().get().id;
         if (verb.equals("DETACH_SEAL") || verb.equals("AFFIX_SEAL") || verb.endsWith("_GLYPH")) {
             String visible=verb.equals("DETACH_SEAL") ? verb : "AFFIX_SEAL";
             item=view.belongings.stream().filter(it->view.actions(it).contains(visible)).findFirst().get().id;
         }
-        if(Arrays.asList("READ_RECHARGING","WEAPON_ABILITY","IMBUE","THROW","EAT","DRINK","ZAP","USE_CROWN","CLOAK","ARMOR_ABILITY").contains(verb)) {
+        if(Arrays.asList("ENCHANT_BOW","READ_RECHARGING","WEAPON_ABILITY","IMBUE","THROW","EAT","DRINK","ZAP","USE_CROWN","CLOAK","ARMOR_ABILITY").contains(verb)) {
             item=view.belongings.stream().filter(it->view.actions(it).contains(verb))
-                    .filter(it->!verb.equals("THROW") || it.kind.equals("DART") || it.kind.equals("SPIKE") || it.kind.equals("FOOD") && view.heroClass.equals("WARRIOR"))
+                    .filter(it->!verb.equals("THROW") || it.kind.equals("DART") || it.kind.equals("SPIKE") || it.kind.equals("STONE") || it.kind.equals("FOOD") && view.heroClass.equals("WARRIOR"))
                     .findFirst().orElseThrow(()->new AssertionError("missing public action "+verb)).id;
         }
         return new VaultPublicRoute.Input(verb,staged.cell,item);
@@ -321,6 +325,7 @@ public final class MixedRoomStability {
                 if (Boolean.getBoolean("stability.discoveries")) stage = DISCOVERIES[i % DISCOVERIES.length];
                 if (Boolean.getBoolean("stability.tierGrowth")) stage = TIER_GROWTH[i % TIER_GROWTH.length];
                 if (Boolean.getBoolean("stability.cacheGrowth")) stage = CACHE_GROWTH[i % CACHE_GROWTH.length];
+                if (Boolean.getBoolean("stability.sharedGrowth")) stage = SHARED_GROWTH[i % SHARED_GROWTH.length];
                 trial.room(fixture.temporary.getRoot(),"mine".equals(stage)?571:570+i%12,Integer.parseInt(args[1]),stage);
                 trial.observe(fixture.temporary.getRoot(),i+1);
             }

@@ -210,6 +210,15 @@ public class Belongings implements Iterable<Item> {
 		secondWep = (KindOfWeapon) bundle.get(SECOND_WEP);
 		if (secondWep() != null)    secondWep().activate(owner);
 
+        if (Dungeon.coop != null && Dungeon.coop.restoring()) {
+            for (Item item : backpack) {
+                if (lostInventory() && !item.keptThroughLostInventory()) continue;
+                if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows
+                        && owner.hasTalent(Talent.LIGHT_CLOAK)
+                        || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome
+                        && owner.hasTalent(Talent.LIGHT_READING)) ((Artifact)item).activate(owner);
+            }
+        }
 		bundleRestoring = false;
 	}
 

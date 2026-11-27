@@ -105,7 +105,7 @@ public class HornOfPlenty extends Artifact {
 					satietyPerCharge /= 3;
 				}
 
-				Hunger hunger = Buff.affect(Dungeon.hero, Hunger.class);
+				Hunger hunger = Buff.affect(hero, Hunger.class);
 				int chargesToUse = Math.max( 1, hunger.hunger() / satietyPerCharge);
 				if (chargesToUse > charge) chargesToUse = charge;
 
@@ -137,18 +137,20 @@ public class HornOfPlenty extends Artifact {
 		charge -= chargesToUse;
 		Talent.onArtifactUsed(hero);
 
-		hero.sprite.operate(hero.pos);
-		hero.busy();
-		SpellSprite.show(hero, SpellSprite.FOOD);
-		Sample.INSTANCE.play(Assets.Sounds.EAT);
+        hero.busy();
+        if (Dungeon.coop==null) {
+            hero.sprite.operate(hero.pos);
+            SpellSprite.show(hero, SpellSprite.FOOD);
+            Sample.INSTANCE.play(Assets.Sounds.EAT);
+        }
 		GLog.i( Messages.get(this, "eat") );
 
-		if (Dungeon.hero.hasTalent(Talent.IRON_STOMACH)
-				|| Dungeon.hero.hasTalent(Talent.ENERGIZING_MEAL)
-				|| Dungeon.hero.hasTalent(Talent.MYSTICAL_MEAL)
-				|| Dungeon.hero.hasTalent(Talent.INVIGORATING_MEAL)
-				|| Dungeon.hero.hasTalent(Talent.FOCUSED_MEAL)
-				|| Dungeon.hero.hasTalent(Talent.ENLIGHTENING_MEAL)){
+		if (hero.hasTalent(Talent.IRON_STOMACH)
+				|| hero.hasTalent(Talent.ENERGIZING_MEAL)
+				|| hero.hasTalent(Talent.MYSTICAL_MEAL)
+				|| hero.hasTalent(Talent.INVIGORATING_MEAL)
+				|| hero.hasTalent(Talent.FOCUSED_MEAL)
+				|| hero.hasTalent(Talent.ENLIGHTENING_MEAL)){
 			hero.spend(Food.TIME_TO_EAT - 2);
 		} else {
 			hero.spend(Food.TIME_TO_EAT);
@@ -164,11 +166,17 @@ public class HornOfPlenty extends Artifact {
 		else                    image = ItemSpriteSheet.ARTIFACT_HORN1;
 
 		updateQuickslot();
+        if (Dungeon.coop!=null) hero.next();
 	}
 
 	@Override
 	protected ArtifactBuff passiveBuff() {
-		return new hornRecharge();
+        hornRecharge recharge=new hornRecharge();
+        if (savedRecharge!=null) {
+            recharge.restoreFromBundle(savedRecharge);
+            savedRecharge=null;
+        }
+        return recharge;
 	}
 	
 	@Override
@@ -251,11 +259,20 @@ public class HornOfPlenty extends Artifact {
 		}
 	}
 	
+    private Bundle savedRecharge;
+    public int charges() { return charge; }
+    public int capacity() { return chargeCap; }
+
 	private static final String STORED = "stored";
 	
 	@Override
 	public void storeInBundle(Bundle bundle) {
 		super.storeInBundle(bundle);
+        if (Dungeon.coop!=null && passiveBuff!=null && passiveBuff.target!=null) {
+            Bundle state=new Bundle();
+            passiveBuff.storeInBundle(state);
+            bundle.put("coop_recharge",state);
+        }
 		bundle.put( STORED, storedFoodEnergy );
 	}
 	
@@ -264,6 +281,7 @@ public class HornOfPlenty extends Artifact {
 		super.restoreFromBundle(bundle);
 
 		storedFoodEnergy = bundle.getInt(STORED);
+        if (Dungeon.coop!=null && bundle.contains("coop_recharge")) savedRecharge=bundle.getBundle("coop_recharge");
 		
 		if (charge >= 8)       image = ItemSpriteSheet.ARTIFACT_HORN4;
 		else if (charge >= 5)  image = ItemSpriteSheet.ARTIFACT_HORN3;

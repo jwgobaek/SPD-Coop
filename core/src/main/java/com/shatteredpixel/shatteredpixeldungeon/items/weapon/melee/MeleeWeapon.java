@@ -206,7 +206,7 @@ public class MeleeWeapon extends Weapon {
 		}
 		if (hero.hasTalent(Talent.COMBINED_LETHALITY)) {
 			Talent.CombinedLethalityAbilityTracker tracker = hero.buff(Talent.CombinedLethalityAbilityTracker.class);
-			if (tracker == null || tracker.weapon == this || tracker.weapon == null){
+			if (tracker == null || tracker.tracks(this) || !tracker.hasWeapon()){
 				Buff.affect(hero, Talent.CombinedLethalityAbilityTracker.class, hero.cooldown()).weapon = this;
 			} else {
 				//we triggered the talent, so remove the tracker
@@ -268,7 +268,7 @@ public class MeleeWeapon extends Weapon {
 
 	@Override
 	public int buffedLvl() {
-		return buffedLvlFor(Dungeon.hero);
+		return buffedLvlFor(Dungeon.coop==null ? Dungeon.hero : Dungeon.coop.carrierOf(this));
 	}
 
 	@Override

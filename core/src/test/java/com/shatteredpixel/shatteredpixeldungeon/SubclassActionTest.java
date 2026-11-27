@@ -193,6 +193,8 @@ public class SubclassActionTest extends HeadlessDungeon {
         Hero h=g.hero(seat);
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
+        case "paladinheal": case "paladinaura": case "prayer": case "hallow": case "wall": case "bowstone": case "bowrank": case "bowthrow":
+            return SharedGrowthTest.stage(g,seat,type,rat);
         case "poisontip": case "holylance": case "cleanse": case "scoutshot": case "holdfast": case "deathlesswait": case "deathlesstrap":
             return TierGrowthTest.stage(g, seat, type);
         case "trinitymindmissilehistory": case "readrecharge": case "recallrecharge": case "recallid": case "trinitymind": case "trinityspirit": case "intuition": case "bless": case "trinitybodyhistory": case "trinitymindhistory": case "trinityspirithistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindselect": case "trinityspiritselect": case "trinityselect": case "trinity": case "monkflurry": case "monkdash": case "monkdragonkick": case "monkmeditate": case "sparkimbue": case "spark": case "sparkblast": case "sparkvolley":
@@ -332,6 +334,8 @@ public class SubclassActionTest extends HeadlessDungeon {
         Combo combo=h.buff(Combo.class);
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
+        case "paladinheal": case "paladinaura": case "prayer": case "hallow": case "wall": case "bowstone": case "bowrank": case "bowthrow":
+            return SharedGrowthTest.published(g,seat,type);
         case "poisontip": case "holylance": case "cleanse": case "scoutshot": case "holdfast": case "deathlesswait": case "deathlesstrap":
             return TierGrowthTest.published(g, seat, type);
         case "trinitymindmissilehistory": case "readrecharge": case "recallrecharge": case "recallid": case "trinitymind": case "trinityspirit": case "intuition": case "bless": case "trinitybodyhistory": case "trinitymindhistory": case "trinityspirithistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindselect": case "trinityspiritselect": case "trinityselect": case "trinity": case "monkflurry": case "monkdash": case "monkdragonkick": case "monkmeditate": case "sparkimbue": case "spark": case "sparkblast": case "sparkvolley":

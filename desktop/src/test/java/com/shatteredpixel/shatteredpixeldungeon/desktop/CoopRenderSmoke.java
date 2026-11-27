@@ -37,7 +37,7 @@ public final class CoopRenderSmoke {
             return;
         }
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|strength-input|recharging-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|strength-input|recharging-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -1218,7 +1218,7 @@ public final class CoopRenderSmoke {
                     break;
                 }
             }
-        } else click(regionShot.equals("cache-input")?"rogueClass":regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("tome-input") || regionShot.equals("recharging-input") || regionShot.startsWith("selector-") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
+        } else click(regionShot.equals("cache-input")?"rogueClass":regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("tome-input") || regionShot.equals("recharging-input") || regionShot.startsWith("selector-") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("bow-enchant-input") || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
         if(mage) shot("mage-selected");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
         java.nio.file.Files.writeString(new File(root,"port").toPath(),Integer.toString(testPort));
@@ -1241,6 +1241,28 @@ public final class CoopRenderSmoke {
                     await(() -> frame().dungeon.offered && frame().image.rows.containsKey("learn"+talent.ordinal())
                             && Integer.parseInt(frame().image.rows.get("freepoints"+(cache ? 1 : 3))) > 0);
                     investVisibleTalent(talent,cache ? 1 : 3);
+                    return;
+                }
+                if (regionShot.equals("bow-enchant-input")) {
+                    var initial = frame().dungeon;
+                    var stone = initial.belongings.stream().filter(i -> i.kind.equals("ENCHANT_BOW")).findFirst().get();
+                    var bow = initial.belongings.stream().filter(i -> i.kind.equals("BOW")).findFirst().get();
+                    click("bag"); press(inventoryPoint(stone.id)); click("enchant_bow");
+                    await(() -> selectorOpen());
+                    java.awt.Robot keyboard = new java.awt.Robot();
+                    keyboard.keyPress(java.awt.event.KeyEvent.VK_ESCAPE);
+                    keyboard.keyRelease(java.awt.event.KeyEvent.VK_ESCAPE);
+                    await(() -> !selectorOpen());
+                    if (frame().image.version != initial.source.version) throw new AssertionError("Cancel changed state");
+                    click("bag"); press(inventoryPoint(stone.id)); click("enchant_bow");
+                    await(() -> selectorOpen());
+                    shot("choose-own-bow");
+                    press(inventoryPoint(bow.id));
+                    await(() -> frame().pending == 0 && "APPLIED".equals(frame().lastResult)
+                            && frame().dungeon.belongings.stream().noneMatch(i -> i.id == stone.id));
+                    if (frame().dungeon.belongings.stream().noneMatch(i -> i.id == bow.id)) throw new AssertionError("Bow identity");
+                    shot("after-enchantment");
+                    System.out.println("PASS bow enchantment bag choice, cancel, selection, consumption and physical bow");
                     return;
                 }
                 if (regionShot.equals("recharging-input")) {

@@ -171,6 +171,16 @@ final class CoopBoard extends Group {
             } else if (key.startsWith("sale")) {
                 int cell=Integer.parseInt(key.substring(4)), image=Integer.parseInt(value);
                 object(keep,key+":"+image,cell,()->new ItemSprite(image));
+            } else if (key.startsWith("lightwall")) {
+                int cell = Integer.parseInt(key.substring(9));
+                if (!webs.containsKey(key)) {
+                    com.watabou.noosa.particles.Emitter emitter = new com.watabou.noosa.particles.Emitter();
+                    markings.add(emitter);
+                    emitter.pos(center(cell));
+                    emitter.pour(com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile.WhiteParticle.WALL, 0.02f);
+                    webs.put(key,emitter);
+                }
+                keep.add(key);
             } else if (key.startsWith("web") || key.startsWith("rocks") || key.startsWith("summon")) {
                 boolean rocks=key.startsWith("rocks");
                 boolean summon=key.startsWith("summon");

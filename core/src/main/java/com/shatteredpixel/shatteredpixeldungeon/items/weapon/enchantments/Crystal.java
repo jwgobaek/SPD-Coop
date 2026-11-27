@@ -57,7 +57,7 @@ public class Crystal extends Weapon.Enchantment {
 
 	@Override
 	public int proc(Weapon weapon, Char attacker, Char defender, int damage) {
-		if (attacker == Dungeon.hero || attacker instanceof DriedRose.GhostHero) {
+		if ((Dungeon.coop == null ? attacker == Dungeon.hero : Dungeon.coop.playerOf(attacker) != 0) || attacker instanceof DriedRose.GhostHero) {
 			if (weapon instanceof MissileWeapon) {
 				setThrownWep(); //we piggyback on thrown weapon durability, don't change our own
 			} else {
@@ -92,7 +92,7 @@ public class Crystal extends Weapon.Enchantment {
 					}
 				} else if (visualDurability <= 0) {
 					Sample.INSTANCE.play( Assets.Sounds.SHATTER );
-					Splash.at(attacker.pos, 0x0088FF, 15);
+					if (Dungeon.coop == null) Splash.at(attacker.pos, 0x0088FF, 15);
 					if (attacker instanceof Hero) {
 						if (weapon.isEquipped((Hero) attacker)) {
 							weapon.doUnequip((Hero) attacker, false);

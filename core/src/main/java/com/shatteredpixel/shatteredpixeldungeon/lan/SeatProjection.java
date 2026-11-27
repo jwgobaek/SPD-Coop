@@ -25,6 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.*;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import java.util.*;
 
 /** Host-only projection. Handles survive continuous observation, including floor-to-bag movement. */
@@ -275,11 +276,15 @@ final class SeatProjection {
                     rows.put("refund"+handle,sold.image()+","+sold.quantity()+","+sold.value()+","+(com.shatteredpixel.shatteredpixeldungeon.CoopTrade.roomFor(hero,sold)?1:0));
                 }
             }
+            if (hero.hasTalent(Talent.WALL_OF_LIGHT) && com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.WallOfLight.INSTANCE.chargeUse(hero)==0)
+                rows.put("endlightwall","1");
             StenchGas stench = (StenchGas)level.blobs.get(StenchGas.class);
             for (int cell=0;cell<sight.length();cell++) {
                 if (sight.sensed(cell)) rows.put("sense"+cell, sight.sensedMob(cell) ? "mob" : "terrain");
                 if (!sight.visible(cell)) continue;
                 rows.put("t"+cell,Integer.toString(sight.terrain(cell)));
+                if (com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob.volumeAt(cell,com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.WallOfLight.LightWall.class)>0
+                        || com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob.volumeAt(cell,com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.WallOfLight.GuestLightWall.class)>0) rows.put("lightwall"+cell,"1");
                 if (stench != null && stench.volume>0 && stench.cur[cell]>0) rows.put("stench"+cell,"1");
                 com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap trap = level.traps.get(cell);
                 Plant plant = level.plants.get(cell);
@@ -352,6 +357,8 @@ final class SeatProjection {
                     if ((mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Pylon && mob.alignment==com.shatteredpixel.shatteredpixeldungeon.actors.Char.Alignment.ENEMY)
                             || (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300 && ((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300)mob).supercharged))
                         rows.put("charge"+mob.pos,"1");
+                    if (CoopSession.summonerOf(mob) == hero && hero.hasTalent(Talent.ALLY_WARP)
+                            && mob.canInteract(hero)) rows.put("warpally"+mob.pos, "1");
                     if (level.adjacent(hero.pos,mob.pos)) {
                         if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultMirror)
                             rows.put("vaultnpc"+mob.pos,((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.VaultMirror)mob).reward==null ? "scene_nothing" : "take");
@@ -499,6 +506,16 @@ final class SeatProjection {
                     if (rows.containsKey("favor") && CoopSmith.eligible(item) && CoopSession.equipmentForScroll(item)) {
                         rows.put("forge"+ids.get(item),selection+","+(CoopSmith.canHarden(item)?1:0)+","+(item.level()<2?1:0));
                     }
+                    if (item instanceof SpiritBow) {
+                        SpiritBow bow = (SpiritBow)item;
+                        long id = ids.get(item);
+                        rows.put("bowtarget"+id,Integer.toString(selection));
+                        if (bow.enchantment != null && (!bow.enchantment.curse() || bow.cursedKnown)) {
+                            String type = bow.enchantment.getClass().getName();
+                            rows.put("bowenchant"+id,type.substring(type.indexOf(".items.")+1).toLowerCase(Locale.ROOT));
+                            if (!SpiritBow.supportedCoopEnchantment(bow)) rows.put("bowlimited"+id,"1");
+                        }
+                    }
                     if (CoopSession.equipmentForScroll(item))
                         rows.put("select"+ids.get(item),selection+","+(item.isUpgradable()?1:0)+","+(item.isIdentified()?0:1));
                     // Only an owned item in this seat's actual inventory gets a shortcut reference.
@@ -569,6 +586,7 @@ final class SeatProjection {
                 : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow ? "BOW"
                 : item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing.class && ((com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion)item).isKnown() ? "HEALING"
                 : CoopSession.basicArmorType(item) ? "ARMOR" : CoopSession.basicFood(item) ? "FOOD" : item instanceof Ankh ? "ANKH" : CoopSession.basicWeaponType(item) ? "MELEE" : "OTHER";
+        if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment) kind="ENCHANT_BOW";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor) kind="CLASS_ARMOR";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.VaultBeacon) kind="VAULT_BEACON";
         if (!slot.startsWith("F") && item.isIdentified() && CoopSession.basicArmorType(item)
@@ -581,7 +599,13 @@ final class SeatProjection {
             kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSpike ? "SPIKE" : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "KNIFE" :
                         item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart ? "DART" : "STONE";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle) kind="CANDLE";
+        if (!slot.startsWith("F") && item.isIdentified() && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste) kind="HASTE_RING";
         String charges="";
+        if (!slot.startsWith("F") && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty) {
+            com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty horn=(com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty)item;
+            kind="HORN";
+            charges=","+horn.charges()+","+horn.capacity();
+        }
         if (!slot.startsWith("F") && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome) {
             com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome tome=(com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome)item;
             kind="TOME";

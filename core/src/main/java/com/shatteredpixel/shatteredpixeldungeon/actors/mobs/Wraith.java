@@ -58,17 +58,29 @@ public class Wraith extends Mob {
 	}
 	
 	private static final String LEVEL = "level";
+    private int summonerId;
+
+    public void bindSummoner(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero owner) {
+        summonerId = owner.id();
+    }
+
+    public com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero summoner() {
+        com.shatteredpixel.shatteredpixeldungeon.actors.Actor owner = summonerId == 0 ? null : com.shatteredpixel.shatteredpixeldungeon.actors.Actor.findById(summonerId);
+        return owner instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero ? (com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero)owner : null;
+    }
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle( bundle );
 		bundle.put( LEVEL, level );
+		if (summonerId != 0) bundle.put("summoner_id", summonerId);
 	}
 	
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
 		level = bundle.getInt( LEVEL );
+		summonerId = bundle.getInt("summoner_id");
 		adjustStats( level );
 	}
 	

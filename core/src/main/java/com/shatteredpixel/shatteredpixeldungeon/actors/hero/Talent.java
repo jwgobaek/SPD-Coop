@@ -392,7 +392,31 @@ public enum Talent {
 	}
 	public static class CombinedLethalityAbilityTracker extends FlavourBuff{
 		public MeleeWeapon weapon;
-	};
+        private long restoredWeaponId;
+
+        public boolean tracks(MeleeWeapon candidate) {
+            if (weapon != null) return weapon == candidate;
+            return restoredWeaponId != 0 && Dungeon.coop != null
+                    && Dungeon.coop.ownership.identity(candidate) == restoredWeaponId;
+        }
+
+        public boolean hasWeapon() {
+            return weapon != null || restoredWeaponId != 0;
+        }
+
+        @Override
+        public void storeInBundle(Bundle bundle) {
+            super.storeInBundle(bundle);
+            if (Dungeon.coop != null && hasWeapon())
+                bundle.put("coop_previous_weapon", weapon == null ? restoredWeaponId : Dungeon.coop.ownership.identity(weapon));
+        }
+
+        @Override
+        public void restoreFromBundle(Bundle bundle) {
+            super.restoreFromBundle(bundle);
+            restoredWeaponId = bundle.getLong("coop_previous_weapon");
+        }
+    }
 	public static class CombinedEnergyAbilityTracker extends FlavourBuff{
 		public boolean monkAbilused = false;
 		public boolean wepAbilUsed = false;
@@ -529,10 +553,10 @@ public enum Talent {
 		}
 
 		if (talent == LIGHT_CLOAK && hero.heroClass == HeroClass.ROGUE){
-			for (Item item : Dungeon.hero.belongings.backpack){
+			for (Item item : hero.belongings.backpack){
 				if (item instanceof CloakOfShadows){
 					if (!hero.belongings.lostInventory() || item.keptThroughLostInventory()) {
-						((CloakOfShadows) item).activate(Dungeon.hero);
+						((CloakOfShadows) item).activate(hero);
 					}
 				}
 			}
@@ -559,10 +583,10 @@ public enum Talent {
 		}
 
 		if (talent == LIGHT_READING && hero.heroClass == HeroClass.CLERIC){
-			for (Item item : Dungeon.hero.belongings.backpack){
+			for (Item item : hero.belongings.backpack){
 				if (item instanceof HolyTome){
 					if (!hero.belongings.lostInventory() || item.keptThroughLostInventory()) {
-						((HolyTome) item).activate(Dungeon.hero);
+						((HolyTome) item).activate(hero);
 					}
 				}
 			}
@@ -799,25 +823,25 @@ public enum Talent {
 			Buff.prolong(hero, EnhancedRings.class, 3f*hero.pointsInTalent(ENHANCED_RINGS));
 		}
 
-		if (Dungeon.hero.heroClass != HeroClass.CLERIC
-				&& Dungeon.hero.hasTalent(Talent.DIVINE_SENSE)){
-			Buff.prolong(Dungeon.hero, DivineSense.DivineSenseTracker.class, Dungeon.hero.cooldown()+1);
+		if (hero.heroClass != HeroClass.CLERIC
+				&& hero.hasTalent(Talent.DIVINE_SENSE)){
+			Buff.prolong(hero, DivineSense.DivineSenseTracker.class, hero.cooldown()+1);
 		}
 
 		// 10/20/30%
-		if (Dungeon.hero.heroClass != HeroClass.CLERIC
-				&& Dungeon.hero.hasTalent(Talent.CLEANSE)
-				&& Random.Int(10) < Dungeon.hero.pointsInTalent(Talent.CLEANSE)){
+		if (hero.heroClass != HeroClass.CLERIC
+				&& hero.hasTalent(Talent.CLEANSE)
+				&& Random.Int(10) < hero.pointsInTalent(Talent.CLEANSE)){
 			boolean removed = false;
-			for (Buff b : Dungeon.hero.buffs()) {
+			for (Buff b : hero.buffs()) {
 				if (b.type == Buff.buffType.NEGATIVE
 						&& !(b instanceof LostInventory)) {
 					b.detach();
 					removed = true;
 				}
 			}
-			if (removed && Dungeon.hero.sprite != null) {
-				new Flare( 6, 32 ).color(0xFF4CD2, true).show( Dungeon.hero.sprite, 2f );
+			if (removed && hero.sprite != null) {
+				new Flare( 6, 32 ).color(0xFF4CD2, true).show( hero.sprite, 2f );
 			}
 		}
 	}

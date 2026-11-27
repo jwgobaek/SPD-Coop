@@ -19,7 +19,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class TierGrowthTest extends HeadlessDungeon {
-    private static Hero prepare(CoopSession game, int seat, HeroSubClass subclass, Talent talent, int rank) {
+    static Hero prepare(CoopSession game, int seat, HeroSubClass subclass, Talent talent, int rank) {
         SewerBeeTest.offer(game, seat);
         Hero hero = game.hero(seat);
         hero.lvl = 25;

@@ -668,6 +668,9 @@ public class DM300 extends Mob {
 					if (Dungeon.level.blobs.get(WallOfLight.LightWall.class) != null){
 						Dungeon.level.blobs.get(WallOfLight.LightWall.class).clear(pos+i);
 					}
+                if (Dungeon.coop != null && Dungeon.level.blobs.get(WallOfLight.GuestLightWall.class) != null) {
+                    Dungeon.level.blobs.get(WallOfLight.GuestLightWall.class).clear(pos+i);
+                }
 				}
 				Dungeon.level.cleanWalls();
 				Dungeon.observe();

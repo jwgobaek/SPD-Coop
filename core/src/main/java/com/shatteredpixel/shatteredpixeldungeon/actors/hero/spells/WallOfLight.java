@@ -64,8 +64,8 @@ public class WallOfLight extends TargetedClericSpell {
 
 	@Override
 	public float chargeUse(Hero hero) {
-		if (Dungeon.level.blobs.get(LightWall.class) != null
-			&& Dungeon.level.blobs.get(LightWall.class).volume > 0){
+		if (Dungeon.level.blobs.get(wallType(hero)) != null
+			&& Dungeon.level.blobs.get(wallType(hero)).volume > 0){
 			return 0f;
 		}
 		return 3f;
@@ -78,9 +78,9 @@ public class WallOfLight extends TargetedClericSpell {
 
 	@Override
 	public void onCast(HolyTome tome, Hero hero) {
-		if (Dungeon.level.blobs.get(LightWall.class) != null
-				&& Dungeon.level.blobs.get(LightWall.class).volume > 0){
-			Dungeon.level.blobs.get(LightWall.class).fullyClear();
+		if (Dungeon.level.blobs.get(wallType(hero)) != null
+				&& Dungeon.level.blobs.get(wallType(hero)).volume > 0){
+			Dungeon.level.blobs.get(wallType(hero)).fullyClear();
 			GLog.i(Messages.get(this, "early_end"));
 			return;
 		}
@@ -89,13 +89,23 @@ public class WallOfLight extends TargetedClericSpell {
 
 	@Override
 	protected void onTargetSelected(HolyTome tome, Hero hero, Integer target) {
+        castWall(tome, hero, target);
+    }
+
+    public static Class<? extends LightWall> wallType(Hero hero) {
+        return Dungeon.coop != null && hero == Dungeon.coop.hero(1) ? GuestLightWall.class : LightWall.class;
+    }
+
+    public static class GuestLightWall extends LightWall {}
+
+    public boolean castWall(HolyTome tome, Hero hero, Integer target) {
 		if (target == null){
-			return;
+			return false;
 		}
 
 		if (target == hero.pos){
 			GLog.w(Messages.get(this, "invalid_target"));
-			return;
+			return false;
 		}
 
 		int closest = hero.pos;
@@ -115,7 +125,7 @@ public class WallOfLight extends TargetedClericSpell {
 		int rightDirX = 0;
 		int rightDirY = 0;
 
-		int steps = Dungeon.hero.pointsInTalent(Talent.WALL_OF_LIGHT);
+		int steps = hero.pointsInTalent(Talent.WALL_OF_LIGHT);
 
 		switch (closestIdx){
 			case 0: //top left
@@ -164,8 +174,8 @@ public class WallOfLight extends TargetedClericSpell {
 				break;
 		}
 
-		if (Dungeon.level.blobs.get(LightWall.class) != null){
-			Dungeon.level.blobs.get(LightWall.class).fullyClear();
+		if (Dungeon.level.blobs.get(wallType(hero)) != null){
+			Dungeon.level.blobs.get(wallType(hero)).fullyClear();
 		}
 
 		boolean placedWall = false;
@@ -177,13 +187,12 @@ public class WallOfLight extends TargetedClericSpell {
 				&& Dungeon.level.solid[hero.pos + PathFinder.CIRCLE8[(closestIdx+1)%8]]
 				&& Dungeon.level.solid[hero.pos + PathFinder.CIRCLE8[(closestIdx+7)%8]]){
 			GLog.w(Messages.get(this, "invalid_target"));
-			return;
+			return false;
 		}
 
-		//process early so that cost is calculated before walls are added
-		onSpellCast(tome, hero);
+		java.util.ArrayList<Integer> cells = new java.util.ArrayList<>();
 
-		placeWall(closest, knockBackDir);
+		cells.add(closest);
 
 		int leftPos = closest;
 		int rightPos = closest;
@@ -195,14 +204,14 @@ public class WallOfLight extends TargetedClericSpell {
 				if (!Dungeon.level.insideMap(leftPos)){
 					break;
 				}
-				placeWall(leftPos, knockBackDir);
+				cells.add(leftPos);
 			}
 			if (leftDirX != 0) {
 				leftPos += leftDirX;
 				if (!Dungeon.level.insideMap(leftPos)){
 					break;
 				}
-				placeWall(leftPos, knockBackDir);
+				cells.add(leftPos);
 			}
 		}
 		for (int i = 0; i < steps; i++) {
@@ -211,26 +220,37 @@ public class WallOfLight extends TargetedClericSpell {
 				if (!Dungeon.level.insideMap(rightPos)){
 					break;
 				}
-				placeWall(rightPos, knockBackDir);
+				cells.add(rightPos);
 			}
 			if (rightDirY != 0) {
 				rightPos += rightDirY * Dungeon.level.width();
 				if (!Dungeon.level.insideMap(rightPos)){
 					break;
 				}
-				placeWall(rightPos, knockBackDir);
+				cells.add(rightPos);
 			}
 		}
 
-		Sample.INSTANCE.play(Assets.Sounds.CHARGEUP);
+		if (Dungeon.coop != null) {
+            for (int cell : cells) {
+                Char ch = Actor.findChar(cell);
+                if (ch != null && ch.alignment == Char.Alignment.ENEMY
+                        && !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(cell+knockBackDir)) return false;
+            }
+        }
+        // The first wall changes the native cost of the next cast.
+        onSpellCast(tome, hero);
+        for (int cell : cells) placeWall(hero, cell, knockBackDir);
+        if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.CHARGEUP);
 
-		hero.sprite.zap(closest);
-		Dungeon.hero.spendAndNext(1f);
+		if (Dungeon.coop == null) hero.sprite.zap(closest);
+		hero.spendAndNext(1f);
+        return true;
 	}
 
-	private void placeWall( int pos, int knockbackDIR){
+	private void placeWall(Hero hero, int pos, int knockbackDIR){
 		if (!Dungeon.level.solid[pos]) {
-			GameScene.add(Blob.seed(pos, 20, LightWall.class));
+			GameScene.add(Blob.seed(pos, 20, wallType(hero)));
 
 			Char ch = Actor.findChar(pos);
 			if (ch != null && ch.alignment == Char.Alignment.ENEMY){

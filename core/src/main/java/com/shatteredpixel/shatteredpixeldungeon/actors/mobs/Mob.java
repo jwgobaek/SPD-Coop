@@ -1127,6 +1127,7 @@ public abstract class Mob extends Char {
 			Wraith w = Wraith.spawnAt(pos, Wraith.class);
 			if (w != null) {
 				Buff.affect(w, Corruption.class);
+				if (Dungeon.coop != null) w.bindSummoner(markOwner);
 				if (Dungeon.coop == null && Dungeon.level.heroFOV[pos]) {
 					CellEmitter.get(pos).burst(ShadowParticle.CURSE, 6);
 					Sample.INSTANCE.play(Assets.Sounds.CURSED);

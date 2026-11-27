@@ -79,6 +79,17 @@ public class StoneOfEnchantment extends InventoryStone {
 		
 	}
 	
+    /** The seat has selected its bow. Inventory browsing never reaches this method. */
+    public void useOnBow(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero user,
+                         com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow bow) {
+        if (detach(user.belongings.backpack)==null) throw new IllegalStateException("Missing runestone");
+        Catalog.countUse(getClass());
+        Talent.onRunestoneUsed(user,user.pos,getClass());
+        bow.enchant();
+        com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility.dispel(user);
+        user.spendAndNext(1f);
+    }
+
 	@Override
 	public int value() {
 		return 30 * quantity;

@@ -64,6 +64,19 @@ public final class AndroidTrialTickets {
         }
     }
 
+    /** Export an independently enrolled RestartHost setup before its requested gameplay action. */
+    public static void exportPrepared(Path trial, Path destination) throws Exception {
+        CoopSaves saves = new CoopSaves(trial.toFile());
+        if (saves.sessions().size() != 1) throw new IllegalArgumentException("Expected one test room");
+        com.watabou.utils.Bundle engine;
+        try (CoopSaves.Slot slot = saves.existing(saves.sessions().get(0))) {
+            engine = slot.read(false).getBundle("engine");
+        }
+        try (CoopSession encounter = CoopSession.restore(engine)) {
+            export(trial, destination, encounter);
+        }
+    }
+
     public static void export(Path trial, Path destination, CoopSession encounter) throws Exception {
         Path output = Files.createDirectory(destination);
         CoopSaves saves = new CoopSaves(trial.toFile());

@@ -17,10 +17,10 @@ public final class PublicDungeon {
     public static final class Loot {
         public final long id;
         public final String slot,kind,upgrade,reference,stackType;
-        public final boolean weaponSkill;
+        public final boolean weaponSkill, usableFromPack;
         public final int sprite,quantity,charges,capacity,bagIndex,order;
         public boolean showsCharges() {
-            return weaponSkill || kind.equals("WAND") || kind.equals("STAFF") || kind.equals("CLOAK") || kind.equals("TOME");
+            return weaponSkill || kind.equals("WAND") || kind.equals("STAFF") || kind.equals("CLOAK") || kind.equals("TOME") || kind.equals("HORN");
         }
         Loot(String key,String value,Map<String,String> rows) {
             String[] f=value.split(",");
@@ -38,6 +38,7 @@ public final class PublicDungeon {
             sprite=number(f[2],0,1023); quantity=number(f[3],1,Integer.MAX_VALUE); upgrade=f[4];
             String pool=rows.get("weaponpool"+id);
             weaponSkill=pool!=null;
+            usableFromPack=rows.containsKey("spells"+id) || rows.containsKey("stealth"+id);
             String[] numbers=weaponSkill ? pool.split(",") : f;
             charges=showsCharges() ? number(numbers[weaponSkill ? 0 : 5],0,10) : 0;
             capacity=showsCharges() ? number(numbers[weaponSkill ? 1 : 6],charges,10) : 0;
@@ -112,18 +113,23 @@ public final class PublicDungeon {
             case "HEALING": return "DRINK";
             case "RECHARGING_SCROLL": return "READ_RECHARGING";
             case "SPIKE": case "DART": case "KNIFE": case "STONE": return "THROW";
-            case "UPGRADE": case "IDENTIFY": return item.kind;
+            case "ENCHANT_BOW": case "UPGRADE": case "IDENTIFY": return item.kind;
             case "BOW": return "SHOOT";
             case "UNIDENTIFIED_WAND": case "WAND": return "ZAP";
-            case "TOME": return item.slot.equals("BAG") ? "EQUIP" : "CAST";
-            case "CLOAK": return item.slot.equals("BAG") ? "EQUIP" : "CLOAK";
+            case "HORN": return item.slot.equals("BAG") ? "EQUIP" : "EAT";
+            case "TOME": return item.slot.equals("BAG") && !item.usableFromPack ? "EQUIP" : "CAST";
+            case "CLOAK": return item.slot.equals("BAG") && !item.usableFromPack ? "EQUIP" : "CLOAK";
             case "STAFF": return item.slot.equals("WEAPON") ? "ZAP" : "EQUIP";
-            case "MELEE": case "CLASS_ARMOR": case "ARMOR": return item.slot.equals("BAG") ? "EQUIP" : "UNEQUIP";
+            case "HASTE_RING": case "MELEE": case "CLASS_ARMOR": case "ARMOR": return item.slot.equals("BAG") ? "EQUIP" : "UNEQUIP";
             case "HONEYPOT": return "SHATTER";
             default: return "";
         }
     }
     public int scrollTarget(Loot item,String verb) {
+        if (verb.equals("ENCHANT_BOW")) {
+            String selection=source.rows.get("bowtarget"+item.id);
+            return selection!=null && belongings.contains(item) ? number(selection,1,2048) : 0;
+        }
         String data=source.rows.get("select"+item.id);
         if (data==null || !belongings.contains(item)) return 0;
         String[] fields=data.split(",");
@@ -141,6 +147,7 @@ public final class PublicDungeon {
         boolean weapon=item.kind.equals("MELEE") || item.kind.equals("STAFF");
         if(item.kind.equals("UNIDENTIFIED_WAND") || (item.slot.equals("WEAPON") || item.kind.equals("WAND")) && item.charges>0) verbs.add("ZAP");
         if (weapon && item.slot.equals("BAG") && "CHAMPION".equals(source.rows.get("subclass"))) verbs.add("EQUIP_SECOND");
+        if (item.kind.equals("HORN") && !item.slot.equals("BAG") && item.charges>0) verbs.add("EAT");
         if (source.rows.containsKey("spells"+item.id)) verbs.add("CAST");
         if (source.rows.containsKey("weaponpool"+item.id)) verbs.add("WEAPON_ABILITY");
         if (source.rows.containsKey("detachseal"+item.id)) verbs.add("DETACH_SEAL");
@@ -150,7 +157,7 @@ public final class PublicDungeon {
         if (source.rows.containsKey("ability"+item.id)) verbs.add("ARMOR_ABILITY");
         if(item.slot.equals("BAG")) {
             if (source.rows.containsKey("crown"+item.id)) verbs.add("USE_CROWN");
-            if(item.kind.equals("UPGRADE") || item.kind.equals("IDENTIFY")) verbs.add(item.kind);
+            if(item.kind.equals("ENCHANT_BOW") || item.kind.equals("UPGRADE") || item.kind.equals("IDENTIFY")) verbs.add(item.kind);
             if(item.kind.equals("RECHARGING_SCROLL")) verbs.add("READ_RECHARGING");
             if(source.rows.containsKey("mask"+item.id)) verbs.add("USE_MASK");
             if(item.kind.equals("HEALING")) verbs.add("DRINK");
@@ -158,10 +165,10 @@ public final class PublicDungeon {
             if(item.kind.equals("BOW")) verbs.add("SHOOT");
             if(item.kind.equals("FOOD")) verbs.add("EAT");
             if(inVault() && item.kind.equals("VAULT_BEACON")) verbs.add("VAULT_RECALL");
-            if(weapon || item.kind.equals("TOME") || item.kind.equals("CLOAK") || item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")) verbs.add("EQUIP");
+            if(weapon || item.kind.equals("HASTE_RING") || item.kind.equals("TOME") || item.kind.equals("CLOAK") || item.kind.equals("HORN") || item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")) verbs.add("EQUIP");
             if(item.kind.equals("HONEYPOT")) verbs.add("SHATTER");
             if(item.kind.equals("CANDLE") || item.kind.equals("FOOD") || weapon || item.kind.equals("ARMOR") || item.kind.equals("INSCRIBED") || item.kind.equals("HONEYPOT") || item.kind.equals("SHELL")) verbs.add("DROP");
-        } else if(item.kind.equals("TOME") || item.kind.equals("CLOAK") || (item.slot.equals("WEAPON") && weapon) || (item.slot.equals("ARMOR") && (item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")))) verbs.add("UNEQUIP");
+        } else if(item.kind.equals("HASTE_RING") || item.kind.equals("TOME") || item.kind.equals("CLOAK") || item.kind.equals("HORN") || (item.slot.equals("WEAPON") && weapon) || (item.slot.equals("ARMOR") && (item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")))) verbs.add("UNEQUIP");
         return verbs;
     }
     public boolean use(CoopController c,Loot item,String verb) {
@@ -185,7 +192,9 @@ public final class PublicDungeon {
         return branch==1 && com.shatteredpixel.shatteredpixeldungeon.CoopFloors.vaultDepth(depth);
     }
     public boolean tap(CoopController c,int cell) {
-        if(!offered || cell<0 || !visible(cell) || Math.abs(cell%width-pos%width)>1 || Math.abs(cell/width-pos/width)>1) return false;
+        if(!offered || cell<0 || !visible(cell)) return false;
+        if (source.rows.containsKey("warpally"+cell)) return c.act(source,"ALLY_WARP",cell,0);
+        if (Math.abs(cell%width-pos%width)>1 || Math.abs(cell/width-pos/width)>1) return false;
         if(cell==ally) return "DOWNED".equals(source.rows.get("allylife")) && c.act(source,"REVIVE",cell,0);
         if ("Blacksmith".equals(monsters.get(cell)) || ("Pylon".equals(monsters.get(cell)) && !source.rows.containsKey("charge"+cell))) return false;
         if("Imp".equals(monsters.get(cell)) || "Wandmaker".equals(monsters.get(cell)) || "Shopkeeper".equals(monsters.get(cell)) || "Ghost".equals(monsters.get(cell)) || "Sentry".equals(monsters.get(cell))) return false;

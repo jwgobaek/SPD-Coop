@@ -84,24 +84,24 @@ public class MnemonicPrayer extends TargetedClericSpell {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected void onTargetSelected(HolyTome tome, Hero hero, Integer target) {
+	public void onTargetSelected(HolyTome tome, Hero hero, Integer target) {
 
 		if (target == null){
 			return;
 		}
 
 		Char ch = Actor.findChar(target);
-		if (ch == null || !Dungeon.level.heroFOV[target]){
+		if (ch == null || !(Dungeon.coop == null ? Dungeon.level.heroFOV[target] : Dungeon.coop.knowledge(hero).visible(target))){
 			GLog.w(Messages.get(this, "no_target"));
 			return;
 		}
 
-		QuickSlotButton.target(ch);
+		if (Dungeon.coop == null) QuickSlotButton.target(ch);
 
 		float extension = 2 + hero.pointsInTalent(Talent.MNEMONIC_PRAYER);
 		affectChar(ch, extension);
 
-		Char ally = PowerOfMany.getPoweredAlly();
+		Char ally = PowerOfMany.getPoweredAlly(hero);
 		if (ally != null && ally.buff(LifeLinkSpell.LifeLinkSpellBuff.class) != null){
 			if (ch == hero){
 				affectChar(ally, extension); //if cast on hero, duplicate to ally
@@ -111,10 +111,11 @@ public class MnemonicPrayer extends TargetedClericSpell {
 		}
 
 		if (ch == hero){
-			hero.sprite.operate(ch.pos);
+			if (Dungeon.coop == null) hero.sprite.operate(ch.pos);
+            else hero.next();
 			BuffIndicator.refreshHero();
 		} else {
-			hero.sprite.zap(ch.pos);
+			if (Dungeon.coop == null) hero.sprite.zap(ch.pos);
 			hero.next();
 		}
 
@@ -125,8 +126,8 @@ public class MnemonicPrayer extends TargetedClericSpell {
 	private void affectChar( Char ch, float extension ){
 		if (ch.alignment == Char.Alignment.ALLY){
 
-			Sample.INSTANCE.play(Assets.Sounds.CHARGEUP);
-			ch.sprite.emitter().start(Speck.factory(Speck.UP), 0.15f, 4);
+			if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.CHARGEUP);
+			if (Dungeon.coop == null) ch.sprite.emitter().start(Speck.factory(Speck.UP), 0.15f, 4);
 
 			for (Buff b : ch.buffs()){
 				if (b.type != Buff.buffType.POSITIVE || b.mnemonicExtended || b.icon() == BuffIndicator.NONE){
@@ -163,8 +164,8 @@ public class MnemonicPrayer extends TargetedClericSpell {
 
 		} else {
 
-			Sample.INSTANCE.play(Assets.Sounds.DEBUFF);
-			ch.sprite.emitter().start(Speck.factory(Speck.DOWN), 0.15f, 4);
+			if (Dungeon.coop == null) Sample.INSTANCE.play(Assets.Sounds.DEBUFF);
+			if (Dungeon.coop == null) ch.sprite.emitter().start(Speck.factory(Speck.DOWN), 0.15f, 4);
 
 			Buff.affect(ch, GuidingLight.Illuminated.class);
 

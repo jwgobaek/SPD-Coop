@@ -154,6 +154,13 @@ public final class WndSeatInventory extends WndTabbed {
         if (!item.upgrade.equals("NA") && !item.upgrade.equals("0")) info+="  "+(item.upgrade.startsWith("-")?"":"+")+item.upgrade;
         if (item.showsCharges()) info+="  "+msg("charges",item.charges,item.capacity);
         if (!Messages.NO_TEXT_FOUND.equals(description)) info=description+"\n\n"+info;
+        String enchantment = view.source.rows.get("bowenchant"+item.id);
+        if (enchantment != null) {
+            name = Messages.get(enchantment+".name", (Object)name);
+            info += "\n\n"+Messages.get(enchantment+".desc");
+            if (view.source.rows.containsKey("bowlimited"+item.id)) info += "\n"+msg("bow_effect_limited");
+        }
+        if (item.kind.equals("ENCHANT_BOW")) info += "\n\n"+msg("bow_stone_choices");
         if (view.source.rows.containsKey("armorcharge"+item.id))
             info+="\n"+msg("charges",Integer.parseInt(view.source.rows.get("armorcharge"+item.id)),100);
         List<String> verbs=view.actions(item);

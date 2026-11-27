@@ -130,6 +130,10 @@ public class Ring extends KindofMisc {
 			buff = null;
 		}
 		buff = buff();
+        if (pendingRingBuff != null) {
+            buff.restoreFromBundle(pendingRingBuff);
+            pendingRingBuff = null;
+        }
 		buff.attachTo( ch );
 	}
 
@@ -318,18 +322,26 @@ public class Ring extends KindofMisc {
 		return null;
 	}
 
+	private Bundle pendingRingBuff;
+
 	private static final String LEVELS_TO_ID    = "levels_to_ID";
 
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle( bundle );
 		bundle.put( LEVELS_TO_ID, levelsToID );
+        if (Dungeon.coop != null && buff != null) {
+            Bundle state = new Bundle();
+            buff.storeInBundle(state);
+            bundle.put("coop_ring_buff", state);
+        }
 	}
 
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
 		levelsToID = bundle.getFloat( LEVELS_TO_ID );
+        if (Dungeon.coop != null && bundle.contains("coop_ring_buff")) pendingRingBuff = bundle.getBundle("coop_ring_buff");
 	}
 	
 	public void onHeroGainExp( float levelPercent, Hero hero ){
@@ -354,7 +366,8 @@ public class Ring extends KindofMisc {
 	@Override
 	public int buffedLvl() {
 		int lvl = super.buffedLvl();
-		if (Dungeon.hero.buff(EnhancedRings.class) != null){
+		Hero wearer = Dungeon.coop == null ? Dungeon.hero : Dungeon.coop.carrierOf(this);
+		if (wearer != null && wearer.buff(EnhancedRings.class) != null){
 			lvl++;
 		}
 		return lvl;

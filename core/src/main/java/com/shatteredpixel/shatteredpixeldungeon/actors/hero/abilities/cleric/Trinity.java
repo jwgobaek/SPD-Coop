@@ -126,7 +126,7 @@ public class Trinity extends ArmorAbility {
     }
 
     public boolean useMind(Hero hero,ClassArmor armor,int cell) {
-        if (!(mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)
+        if (!(mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)
                 || hero.buff(MagicImmune.class)!=null || hero.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.trinkets.WondrousResin.class)!=null) return false;
         Wand wand=(Wand)mindForm;
         float cost=trinityChargeUsePerEffect(hero,wand.getClass());
@@ -134,11 +134,15 @@ public class Trinity extends ArmorAbility {
         Char target=Actor.findChar(shot.collisionPos);
         if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile
                 && (target == null || target.alignment != Char.Alignment.ENEMY)) return false;
+        if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost
+                && !com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost.safeImpact(shot.collisionPos)) return false;
         if (armor.charge<cost || shot.collisionPos==hero.pos || target!=null && target.alignment==Char.Alignment.ALLY) return false;
         wand.level(2+hero.pointsInTalent(Talent.MIND_FORM));
         wand.curCharges=wand.maxCharges;
         if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning)
             ((com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning)wand).onZap(hero,shot);
+        else if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost)
+            ((com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost)wand).onZap(hero,shot);
         else ((com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)wand).onZap(hero,shot);
         com.watabou.utils.Random.Float(); // Native Wondrous Resin roll for an eligible owner without the trinket.
         armor.charge-=cost;

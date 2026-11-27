@@ -14,6 +14,15 @@ public class AndroidStagedGrowth extends HeadlessDungeon {
         AndroidStagedGrowth fixture = new AndroidStagedGrowth();
         fixture.temporary.create();
         fixture.startBackend();
+        if (args.length == 3 && args[0].equals("--export-prepared")) {
+            try {
+                AndroidTrialTickets.exportPrepared(Path.of(args[1]), Path.of(args[2]));
+            } finally {
+                fixture.stopBackend();
+                fixture.temporary.delete();
+            }
+            return;
+        }
         if (args.length == 3 && (args[0].equals("--check-archive") || args[0].equals("--check-discovery-upgrade"))) {
             try {
                 AndroidTrialTickets.checkArchivedRoom(Path.of(args[1]), Integer.parseInt(args[2]), args[0].equals("--check-discovery-upgrade"));

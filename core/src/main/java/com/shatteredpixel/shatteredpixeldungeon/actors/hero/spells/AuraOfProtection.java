@@ -66,15 +66,24 @@ public class AuraOfProtection extends ClericSpell {
 
 		Buff.affect(hero,AuraBuff.class, AuraBuff.DURATION);
 
-		Sample.INSTANCE.play(Assets.Sounds.READ);
+		if (Dungeon.coop==null) Sample.INSTANCE.play(Assets.Sounds.READ);
 
 		hero.spend( 1f );
 		hero.busy();
-		hero.sprite.operate(hero.pos);
+		if (Dungeon.coop==null) hero.sprite.operate(hero.pos);
+        else hero.next();
 
 		onSpellCast(tome, hero);
 
 	}
+
+    /** The native aura covers the paladin and nearby allies. Multiplayer resolves the owning summoner. */
+    public static Hero source(com.shatteredpixel.shatteredpixeldungeon.actors.Char beneficiary) {
+        Hero owner=Dungeon.coop==null ? Dungeon.hero : beneficiary instanceof Hero ? (Hero)beneficiary
+                : com.shatteredpixel.shatteredpixeldungeon.CoopSession.summonerOf(beneficiary);
+        if (Dungeon.level==null || owner==null || owner.alignment!=beneficiary.alignment || owner.buff(AuraBuff.class)==null) return null;
+        return Dungeon.level.distance(beneficiary.pos,owner.pos)<=2 || beneficiary.buff(LifeLinkSpell.LifeLinkSpellBuff.class)!=null ? owner : null;
+    }
 
 	public static class AuraBuff extends FlavourBuff {
 
@@ -93,6 +102,7 @@ public class AuraOfProtection extends ClericSpell {
 
 		@Override
 		public void fx(boolean on) {
+            if (Dungeon.coop!=null) return;
 			if (on && (particles == null || particles.parent == null)){
 				particles = target.sprite.emitter(); //emitter is much bigger than char so it needs to manage itself
 				particles.pos(target.sprite, -32, -32, 80, 80);

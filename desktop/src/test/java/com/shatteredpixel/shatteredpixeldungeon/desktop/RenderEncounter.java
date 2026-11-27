@@ -19,14 +19,16 @@ final class RenderEncounter {
         switch (talent) {
             case "HOLD_FAST": case "DEATHLESS_FURY": case "ENRAGED_CATALYST": case "STRONGMAN": case "ENDLESS_RAGE":
                 return HeroSubClass.BERSERKER;
-            case "DESPERATE_POWER": case "EMPOWERED_STRIKE": case "EXCESS_CHARGE": return HeroSubClass.BATTLEMAGE;
-            case "SOUL_SIPHON": case "SOUL_EATER": return HeroSubClass.WARLOCK;
-            case "POINT_BLANK": case "FARSIGHT": case "SEER_SHOT": case "SHARED_UPGRADES": return HeroSubClass.SNIPER;
+            case "MYSTICAL_CHARGE": case "DESPERATE_POWER": case "EMPOWERED_STRIKE": case "EXCESS_CHARGE": return HeroSubClass.BATTLEMAGE;
+            case "NECROMANCERS_MINIONS": case "ALLY_WARP": case "SOUL_SIPHON": case "SOUL_EATER": return HeroSubClass.WARLOCK;
+            case "SHARED_ENCHANTMENT": case "POINT_BLANK": case "FARSIGHT": case "SEER_SHOT": case "SHARED_UPGRADES": return HeroSubClass.SNIPER;
             case "DURABLE_TIPS": case "BARKSKIN": case "SHIELDING_DEW": return HeroSubClass.WARDEN;
-            case "ENHANCED_LETHALITY": case "ASSASSINS_REACH": return HeroSubClass.ASSASSIN;
+            case "ENHANCED_RINGS": case "LIGHT_CLOAK": case "BOUNTY_HUNTER": case "ENHANCED_LETHALITY": case "ASSASSINS_REACH": return HeroSubClass.ASSASSIN;
             case "EVASIVE_ARMOR": case "PROJECTILE_MOMENTUM": case "SPEEDY_STEALTH": return HeroSubClass.FREERUNNER;
-            case "MONASTIC_VIGOR": return HeroSubClass.MONK;
-            case "CLEANSE": case "HOLY_LANCE": return HeroSubClass.PRIEST;
+            case "UNENCUMBERED_SPIRIT": case "COMBINED_ENERGY": case "MONASTIC_VIGOR": return HeroSubClass.MONK;
+            case "HALLOWED_GROUND": case "MNEMONIC_PRAYER": case "LIGHT_READING": case "CLEANSE": case "HOLY_LANCE": return HeroSubClass.PRIEST;
+            case "WALL_OF_LIGHT": case "LAY_ON_HANDS": case "AURA_OF_PROTECTION": return HeroSubClass.PALADIN;
+            case "COMBINED_LETHALITY": case "VARIED_CHARGE": case "TWIN_UPGRADES": case "PRECISE_ASSAULT": case "DEADLY_FOLLOWUP": return HeroSubClass.CHAMPION;
             default: throw new IllegalArgumentException("Unknown upper talent fixture " + talent);
         }
     }
@@ -94,6 +96,8 @@ final class RenderEncounter {
                 game.observe(0);
             } else if (destination.equals("cache-input")) {
                 game.hero(0).lvl=5;
+            } else if (destination.equals("bow-enchant-input")) {
+                com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"bowstone0");
             } else if (destination.equals("strength-input")) {
                 var hero = game.hero(0);
                 hero.lvl = 25;

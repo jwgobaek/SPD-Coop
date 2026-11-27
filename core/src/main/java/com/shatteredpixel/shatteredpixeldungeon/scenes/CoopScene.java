@@ -110,7 +110,7 @@ public class CoopScene extends PixelScene {
             case "SELL": case "SELL_ONE":
                 WndSeatTrade.sell(this,view,item,action,controller);
                 break;
-            case "UPGRADE": case "IDENTIFY":
+            case "ENCHANT_BOW": case "UPGRADE": case "IDENTIFY":
                 add(WndSeatInventory.chooseEquipment(view,controller,item));
                 break;
             default:
@@ -130,9 +130,9 @@ public class CoopScene extends PixelScene {
                     talent == Talent.SUNRAY ? Sunray.INSTANCE : DivineSense.INSTANCE);
             actions.add(talent.name());
         }
-        for (Talent talent : new Talent[]{Talent.HOLY_LANCE,Talent.CLEANSE,Talent.HOLY_INTUITION,Talent.BLESS,Talent.RECALL_INSCRIPTION,Talent.BODY_FORM,Talent.MIND_FORM,Talent.SPIRIT_FORM}) {
+        for (Talent talent : new Talent[]{Talent.HALLOWED_GROUND,Talent.WALL_OF_LIGHT,Talent.MNEMONIC_PRAYER,Talent.LAY_ON_HANDS,Talent.AURA_OF_PROTECTION,Talent.HOLY_LANCE,Talent.CLEANSE,Talent.HOLY_INTUITION,Talent.BLESS,Talent.RECALL_INSCRIPTION,Talent.BODY_FORM,Talent.MIND_FORM,Talent.SPIRIT_FORM}) {
             if (view.source.rows.containsKey("talent"+talent.ordinal())) {
-                spells.add(talent==Talent.HOLY_LANCE ? HolyLance.INSTANCE : talent==Talent.CLEANSE ? Cleanse.INSTANCE : talent==Talent.RECALL_INSCRIPTION ? RecallInscription.INSTANCE : talent==Talent.SPIRIT_FORM ? SpiritForm.INSTANCE : talent==Talent.MIND_FORM ? MindForm.INSTANCE : talent==Talent.BODY_FORM ? BodyForm.INSTANCE : talent==Talent.BLESS ? BlessSpell.INSTANCE : HolyIntuition.INSTANCE);
+                spells.add(talent==Talent.HALLOWED_GROUND ? HallowedGround.INSTANCE : talent==Talent.WALL_OF_LIGHT ? WallOfLight.INSTANCE : talent==Talent.MNEMONIC_PRAYER ? MnemonicPrayer.INSTANCE : talent==Talent.LAY_ON_HANDS ? LayOnHands.INSTANCE : talent==Talent.AURA_OF_PROTECTION ? AuraOfProtection.INSTANCE : talent==Talent.HOLY_LANCE ? HolyLance.INSTANCE : talent==Talent.CLEANSE ? Cleanse.INSTANCE : talent==Talent.RECALL_INSCRIPTION ? RecallInscription.INSTANCE : talent==Talent.SPIRIT_FORM ? SpiritForm.INSTANCE : talent==Talent.MIND_FORM ? MindForm.INSTANCE : talent==Talent.BODY_FORM ? BodyForm.INSTANCE : talent==Talent.BLESS ? BlessSpell.INSTANCE : HolyIntuition.INSTANCE);
                 actions.add(talent.name());
             }
         }
@@ -150,7 +150,8 @@ public class CoopScene extends PixelScene {
                 boolean recallNeedsItem = action.equals("RECALL_INSCRIPTION") && !view.source.rows.containsKey("recallrecharging");
                 if (action.equals("HOLY_INTUITION") || recallNeedsItem || action.endsWith("_FORM")) {
                     showSpellTargets(view, tome, action, spells.get(index));
-                } else if (spells.get(index) instanceof TargetedClericSpell) { targetView=view; targetMove=action; targetStaff=tome; renderFrame(); }
+                } else if (action.equals("WALL_OF_LIGHT") && view.source.rows.containsKey("endlightwall")) controller.act(view.source,action,view.pos,tome.id);
+                else if (spells.get(index) instanceof TargetedClericSpell) { targetView=view; targetMove=action; targetStaff=tome; renderFrame(); }
                 else controller.act(view.source,action,view.pos,tome.id);
             }
         });
@@ -306,7 +307,7 @@ public class CoopScene extends PixelScene {
             return;
         }
         if (targetMove != null) {
-            boolean armor = "HOLY_LANCE".equals(targetMove) || "TRINITY_MIND".equals(targetMove) || "BLESS".equals(targetMove) || "ARMOR_ABILITY".equals(targetMove) || "GUIDING_LIGHT".equals(targetMove) || "SHIELD_OF_LIGHT".equals(targetMove) || "SMITE".equals(targetMove) || "SUNRAY".equals(targetMove);
+            boolean armor = "HALLOWED_GROUND".equals(targetMove) || "WALL_OF_LIGHT".equals(targetMove) || "MNEMONIC_PRAYER".equals(targetMove) || "LAY_ON_HANDS".equals(targetMove) || "HOLY_LANCE".equals(targetMove) || "TRINITY_MIND".equals(targetMove) || "BLESS".equals(targetMove) || "ARMOR_ABILITY".equals(targetMove) || "GUIDING_LIGHT".equals(targetMove) || "SHIELD_OF_LIGHT".equals(targetMove) || "SMITE".equals(targetMove) || "SUNRAY".equals(targetMove);
             boolean weapon = "WEAPON_ABILITY".equals(targetMove);
             if (targetView == view && (weapon || view.visible(cell) && (armor || "MONK_DASH".equals(targetMove) || view.monsters.containsKey(cell)))
                     && controller.act(view.source, targetMove, cell, armor || weapon ? targetStaff.id : 0)) cancelAim();

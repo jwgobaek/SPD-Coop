@@ -284,18 +284,23 @@ abstract public class MissileWeapon extends Weapon {
 		resolveThrow(curUser,cell);
 	}
 
-	public boolean throwInCoop(Hero user,int cell) {
-		if (!com.shatteredpixel.shatteredpixeldungeon.CoopSession.basicMissile(this)
-				|| !user.belongings.backpack.contains(this)
-				|| new com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica(user.pos,cell,
-					com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica.PROJECTILE).collisionPos!=cell) return false;
+	public int throwInCoop(Hero user,int target) {
+        if (!com.shatteredpixel.shatteredpixeldungeon.CoopSession.basicMissile(this)
+                || !user.belongings.backpack.contains(this)) return -1;
+        SpiritBow bow=user.belongings.getItem(SpiritBow.class);
+        boolean share=user.hasTalent(Talent.SHARED_ENCHANTMENT) && bow!=null && user.buff(MagicImmune.class)==null;
+        if (share && !SpiritBow.supportedCoopEnchantment(bow)) return -1;
+        int ordinary=super.throwPos(user,target);
+        if (ordinary!=target && ((!hasEnchant(Projecting.class,user) && !(share && bow.hasEnchant(Projecting.class,user)))
+                || !Dungeon.coop.missileLandingAllowed(user,ordinary))) return -1;
+        // Validate both possible impact cells before the native trajectory roll consumes any RNG.
+        int cell=throwPos(user,target);
+        Char hit=Actor.findChar(cell);
 		boolean occupied=Actor.findChar(cell)!=null;
 		float delay=castDelay(user,cell);
 		coopThrower=user;
 		MissileWeapon unit=null;
 		try {
-			// Preserve the ordinary trajectory roll on accepted throws.
-			if (throwPos(user,cell)!=cell) throw new IllegalStateException("Unexpected missile trajectory");
 			parent=null;
 			unit=(MissileWeapon)detach(user.belongings.backpack);
 			if (unit==null) throw new IllegalStateException("Missing thrown missile");
@@ -306,7 +311,8 @@ abstract public class MissileWeapon extends Weapon {
 			if (!occupied) user.next();
 			else if (free!=null) { free.detach(); user.next(); }
 			else user.spendAndNext(delay);
-			return true;
+			Dungeon.coop.recordMissileOpponent(hit);
+			return cell;
 		} finally {
 			coopThrower=null;
 			if (unit!=null) unit.coopThrower=null;
