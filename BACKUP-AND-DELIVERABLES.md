@@ -4,6 +4,16 @@
 
 SYNC35 후보는 Cloud에서 보관한다. 공개 APK의 대응 소스는 9969d23, 공개 ZIP의 대응 소스는 07b1889다. 이전 일회성 발행 예외는 해당 수정판에만 적용됐다. [기능·회귀별 실측](docs/coop/tier-growth-results.md)
 
+Cloud 보관 위치는 `/workspace/shared/downloads/SPD-Coop-e690e53-tier-growth/`다. 기존 검사기로 통합 ZIP의 source 파일 2,359개를 APK 소스 e690e533383a68978781842a949cd0696bfecb63과 대조하고 체크섬 2,504개를 검증했다. 후속 검증 및 문서 기준 커밋은 32f8d2aec5db8335771f00b2ff677cc0f55273ba다.
+
+| Cloud 파일 | 바이트 | SHA-256 |
+|---|---:|---|
+| SPD-Coop-latest.apk | 37,321,868 | `cc8a6f7ab203a01e7beacfc7e2fcb00ad487175be537cd6cfa25689e96e9aa4b` |
+| SPD-Coop-latest-backup.zip | 72,871,855 | `ffcd483cec93144c2081537c3e0956ae9f49d03978a8d2e2a2691aa56768b6f6` |
+
+이번 Drive 갱신은 APK·ZIP 각각 0회다. 위 두 해시는 Cloud 후보의 해시다. 기존 공개 파일을 비로그인 다운로드해 확인한 크기와 해시는 기능 보고서에 기록했다.
+
+
 ## 현재 Drive의 APK와 ZIP
 
 기존 APK ID에는 9969d23의 Android 인수 완료 수정판이 있다. 통합 ZIP의 source는 07b1889다. 승인된 APK 예외 1회를 사용했고 ZIP 전송은 0회였다. 개발 APK와 증거는 Cloud에 보존했다. [파일 ID, SHA-256과 실제 다운로드 확인](docs/coop/selector-android-acceptance.md)
