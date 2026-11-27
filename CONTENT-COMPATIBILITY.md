@@ -2,7 +2,7 @@
 
 ## SYNC41 Android와 SYNC42 원본 콘텐츠
 
-원본 399행 중 102행에 개별 사용 또는 조합 근거를 연결했다. 타락 포함 지팡이 다섯 경로 9/13, Trinity 14/113, 지도 포함 각인 회수는 5종이다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)
+원본 399행 중 106행에 개별 사용 또는 조합 근거를 연결했다. 타락 포함 지팡이 다섯 경로 9/13, Trinity 14/113, 지도 포함 각인 회수는 5종이다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)
 
 ## 2026-11-27 세 재료 연금술과 수혈
 

@@ -307,10 +307,19 @@ public final class VaultPublicRoute {
                         && (i.kind.equals("MELEE") || i.kind.equals("ARMOR"))
                         && v.belongings.stream().noneMatch(e -> e.slot.equals(i.kind.equals("MELEE")?"WEAPON":"ARMOR"))) return new Input("EQUIP",0,i.id);
             }
-            if (golemRetreat && avoidGolem && golemAge == 0 && golemCell >= 0
-                    && distance(v.pos, golemCell, v.width) <= 3) {
+            int retreatFrom = golemAge == 0 ? golemCell : -1;
+            if (avoidGolem && Boolean.getBoolean("vault.guide.avoidUnarmedSkeleton")) {
+                for (int cell : new TreeSet<>(v.monsters.keySet())) {
+                    if ("VaultSkeleton".equals(v.monsters.get(cell)) && v.visible(cell)
+                            && (retreatFrom < 0 || distance(v.pos,cell,v.width) < distance(v.pos,retreatFrom,v.width))) {
+                        retreatFrom = cell;
+                    }
+                }
+            }
+            if (golemRetreat && avoidGolem && retreatFrom >= 0
+                    && distance(v.pos, retreatFrom, v.width) <= 3) {
                 int best = -1, bestScore = Integer.MIN_VALUE;
-                int currentGap = distance(v.pos, golemCell, v.width);
+                int currentGap = distance(v.pos, retreatFrom, v.width);
                 boolean paired = Boolean.getBoolean("vault.guide.pairedRetreat") && v.ally >= 0 && v.visible(v.ally);
                 for (int dy=-1; dy<=1; dy++) for (int dx=-1; dx<=1; dx++) {
                     int x=v.pos%v.width+dx, y=v.pos/v.width+dy;
@@ -319,7 +328,7 @@ public final class VaultPublicRoute {
                     if (tile<0 || !v.visible(c) || (Terrain.flags[tile]&Terrain.PASSABLE)==0
                             || c==v.ally || blocked.contains(c) || v.monsters.containsKey(c)
                             || v.source.rows.containsKey("trap"+c) || v.source.rows.containsKey("aim"+c)) continue;
-                    int gap=distance(c,golemCell,v.width);
+                    int gap=distance(c,retreatFrom,v.width);
                     int separation = v.ally < 0 ? 0 : distance(v.ally,c,v.width);
                     boolean sidewaysCover = paired && gap==currentGap && separation<distance(v.pos,v.ally,v.width)
                             && gap>1 && !behindCover(v,c,v.ally);
