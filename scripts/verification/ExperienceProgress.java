@@ -132,6 +132,13 @@ public final class ExperienceProgress {
                     }
                     if (v.consent) input=new VaultPublicRoute.Input("TRAVEL",v.stair,0);
                 }
+                if (Boolean.getBoolean("trial.traceRecovery") && (v.hp<=v.maxHp/2 || v.depth>=2)) {
+                    PublicDungeon observed=v;
+                    String supplies=observed.belongings.stream().filter(it -> !observed.actions(it).isEmpty())
+                            .map(it -> it.kind+"="+it.quantity+(it.showsCharges()?"/"+it.charges:"")).collect(java.util.stream.Collectors.joining(","));
+                    System.out.printf("RECOVERY %d depth=%d seat=%d pos=%d hp=%d ally=%d life=%s mobs=%s supplies=%s action=%s target=%d%n",
+                            n,v.depth,seat,v.pos,v.hp,v.ally,v.source.rows.get("life"),v.monsters,supplies,input.action,input.cell);
+                }
                 String status=send(room,v,seat,game.player(seat),++seq[seat],input);
                 if (input.action.equals("WEAPON_ABILITY") || input.action.equals("GUIDING_LIGHT") || input.action.equals("CLOAK")) {
                     if (status.equals("APPLIED")) abilityUse.merge(input.action,1,Integer::sum);

@@ -1,0 +1,191 @@
+{
+  "build_commit": "0998031843b59021e54fdf3d9d4b601eff9c9ce9",
+  "apk_sha256": "a684461eb4ac34e988153059ce8ada614aa689f2fd52b53ff4b0280453252797",
+  "bytes": 37367918,
+  "scenarios": {
+    "HolyIntuition": {
+      "action": "HOLY_INTUITION",
+      "outcome": "APPLIED"
+    },
+    "RecallInscription": {
+      "action": "RECALL_INSCRIPTION",
+      "outcome": "APPLIED"
+    },
+    "BodyForm": {
+      "action": "BODY_FORM",
+      "outcome": "APPLIED"
+    },
+    "MindForm": {
+      "action": "MIND_FORM",
+      "outcome": "APPLIED"
+    },
+    "SpiritForm": {
+      "action": "SPIRIT_FORM",
+      "outcome": "APPLIED"
+    },
+    "scroll-pickup": {
+      "action": "PICK_UP",
+      "outcome": "APPLIED"
+    },
+    "read-unknown": {
+      "action": "READ_SCROLL",
+      "outcome": "APPLIED"
+    },
+    "read-known": {
+      "action": "READ_SCROLL",
+      "outcome": "APPLIED"
+    },
+    "cancel-before-target": {
+      "action": "ENCHANT_CANCEL",
+      "outcome": "APPLIED"
+    },
+    "cancel-after-draw": {
+      "action": "ENCHANT_CANCEL",
+      "outcome": "APPLIED"
+    },
+    "bow": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "bag-weapon": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "worn-weapon": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "worn-armor": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "sealed-armor": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "restart-three-options": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "private-options": {
+      "action": "ENCHANT_TARGET",
+      "outcome": "APPLIED"
+    },
+    "stale-selection": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "REJECT_VERSION"
+    },
+    "duplicate-selection": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "REPLAY"
+    },
+    "stasis-store": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-manual-release": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-reauth-held-menu": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-release-clears-held": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-private-while-peer-active": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-dual-held-independent-release": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-blocked-release": {
+      "action": "STASIS",
+      "outcome": "REJECT_INVALID"
+    },
+    "stasis-expiry-retry": {
+      "action": "WAIT",
+      "outcome": "APPLIED"
+    },
+    "stasis-expiry-clears-held": {
+      "action": "WAIT",
+      "outcome": "APPLIED"
+    },
+    "stasis-duplicate-release": {
+      "action": "STASIS",
+      "outcome": "REPLAY"
+    },
+    "stasis-held-floor-restore": {
+      "action": "CONSENT",
+      "outcome": "APPLIED"
+    },
+    "cauldron-visible-station": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-own-ingredient": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-unknown-lullaby": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-hidden-preview": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-cancel-preview": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-reselect": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-craft": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-consume-one": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-two-stone-stack": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-bound-owner": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-full-bag": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-recover-floor": {
+      "action": "PICK_UP",
+      "outcome": "APPLIED"
+    },
+    "cauldron-duplicate": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "REPLAY"
+    },
+    "cauldron-stale": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "REJECT_VERSION"
+    },
+    "cauldron-foreign-ingredient": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "REJECT_ITEM"
+    },
+    "cauldron-reconnect-next": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    }
+  }
+}

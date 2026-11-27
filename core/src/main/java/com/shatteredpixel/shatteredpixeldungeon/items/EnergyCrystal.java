@@ -62,11 +62,13 @@ public class EnergyCrystal extends Item {
 		Dungeon.energy += quantity;
 		//TODO track energy collected maybe? We do already track recipes crafted though..
 
-		GameScene.pickUp( this, pos );
-		hero.sprite.showStatusWithIcon( 0x44CCFF, Integer.toString(quantity), FloatingText.ENERGY );
+		if (Dungeon.coop == null) {
+			GameScene.pickUp(this, pos);
+			hero.sprite.showStatusWithIcon(0x44CCFF, Integer.toString(quantity), FloatingText.ENERGY);
+		}
 		hero.spendAndNext( pickupDelay() );
 
-		Sample.INSTANCE.play( Assets.Sounds.ITEM );
+		if (Dungeon.coop == null) Sample.INSTANCE.play( Assets.Sounds.ITEM );
 
 		updateQuickslot();
 

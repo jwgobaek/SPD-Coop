@@ -79,7 +79,7 @@ def parse_receipt(value, seat, outcome):
         raise ValueError("Accepted action did not advance one state version")
     if outcome == "REJECT_VERSION" and base >= version:
         raise ValueError("Expected a stale base version")
-    if outcome == "REJECT_INVALID" and version != base:
+    if outcome in ("REJECT_INVALID", "REJECT_ITEM") and version != base:
         raise ValueError("Rejected gameplay action changed the authoritative state version")
     return action_id, actor, version
 
@@ -97,7 +97,7 @@ def verify_android_candidate(apk, manifest, observations):
         if role not in ("host", "guest") or any(name in cases for name in extra):
             raise ValueError("Invalid role-specific Android scenarios")
         expected.update({(role, name): spec for name, spec in extra.items()})
-    if not cases or any(spec["outcome"] not in ("APPLIED", "REJECT_VERSION", "REJECT_INVALID", "REPLAY")
+    if not cases or any(spec["outcome"] not in ("APPLIED", "REJECT_VERSION", "REJECT_INVALID", "REJECT_ITEM", "REPLAY")
                         or not spec["action"] for spec in expected.values()):
         raise ValueError("Incomplete Android acceptance manifest")
     boots, seen = {}, set()

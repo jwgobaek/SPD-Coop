@@ -465,6 +465,9 @@ final class SeatProjection {
                 if (game.ownership.owner(item)==game.player(seat)) {
                     if (atCauldron && hero.belongings.backpack.contains(item)) {
                         String preview = com.shatteredpixel.shatteredpixeldungeon.CoopAlchemy.preview(item);
+                        if (com.shatteredpixel.shatteredpixeldungeon.CoopAlchemy.isSeed(item)) rows.put("brewseed" + ids.get(item), "1");
+                        if (com.shatteredpixel.shatteredpixeldungeon.CoopAlchemy.canBrewEnchantment(item))
+                            rows.put("brewexotic" + ids.get(item), Integer.toString(new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ExoticScroll.ScrollToExotic().cost(null)));
                         if (preview != null) rows.put("brew" + ids.get(item), preview);
                     }
                     if (enchant != null && !enchant.hasOptions() && com.shatteredpixel.shatteredpixeldungeon.CoopEnchantScroll.eligible(hero, item))
@@ -624,6 +627,13 @@ final class SeatProjection {
                 : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow ? "BOW"
                 : item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing.class && ((com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion)item).isKnown() ? "HEALING"
                 : CoopSession.basicArmorType(item) ? "ARMOR" : CoopSession.basicFood(item) ? "FOOD" : item instanceof Ankh ? "ANKH" : CoopSession.basicWeaponType(item) ? "MELEE" : "OTHER";
+        if (com.shatteredpixel.shatteredpixeldungeon.CoopAlchemy.isSeed(item)) {
+            kind="SEED";
+            if (!slot.startsWith("F")) rows.put("label"+id,"plants."+item.getClass().getEnclosingClass().getSimpleName().toLowerCase(Locale.ROOT)+"$seed");
+        }
+        if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfDeepSleep) kind="SLEEP_STONE";
+        if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHaste
+                && ((com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion)item).isKnown()) kind="HASTE_POTION";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment) kind="ENCHANT_BOW";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor) kind="CLASS_ARMOR";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.VaultBeacon) kind="VAULT_BEACON";
@@ -639,6 +649,7 @@ final class SeatProjection {
                         item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart ? "DART" : "STONE";
         if (!slot.startsWith("F") && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll
                 && (!((com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll)item).isKnown()
+                || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTerror
                 || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfEnchantment)) kind="READ_SCROLL";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle) kind="CANDLE";
         if (!slot.startsWith("F") && item.isIdentified() && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste) kind="HASTE_RING";
@@ -672,7 +683,9 @@ final class SeatProjection {
                 if (!(wand instanceof WandOfMagicMissile)) rows.put("areawand"+id,"1");
             }
         }
-        if (!slot.startsWith("F") && !kind.equals("OTHER") && item.getClass().getEnclosingClass()==null) {
+        if (!slot.startsWith("F") && !kind.equals("OTHER") && item.getClass().getEnclosingClass()==null
+                && (!(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll)
+                || ((com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll)item).isKnown())) {
             String label=item.getClass().getName();
             String prefix="com.shatteredpixel.shatteredpixeldungeon.";
             if (label.startsWith(prefix+"items."))

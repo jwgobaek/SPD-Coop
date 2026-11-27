@@ -34,7 +34,8 @@ public final class TrinityDiscoveries {
         FIREBLAST(-109, Talent.MIND_FORM, com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast.class),
         PRISMATIC_LIGHT(-110, Talent.MIND_FORM, com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfPrismaticLight.class),
         BLOOMING(-111, Talent.BODY_FORM, com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blooming.class),
-        DISINTEGRATION(-112, Talent.MIND_FORM, com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration.class);
+        DISINTEGRATION(-112, Talent.MIND_FORM, com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration.class),
+        TRANSFUSION(-113, Talent.MIND_FORM, com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTransfusion.class);
 
         public final int target;
         public final Talent form;

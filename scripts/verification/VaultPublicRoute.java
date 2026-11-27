@@ -311,6 +311,7 @@ public final class VaultPublicRoute {
                     && distance(v.pos, golemCell, v.width) <= 3) {
                 int best = -1, bestScore = Integer.MIN_VALUE;
                 int currentGap = distance(v.pos, golemCell, v.width);
+                boolean paired = Boolean.getBoolean("vault.guide.pairedRetreat") && v.ally >= 0 && v.visible(v.ally);
                 for (int dy=-1; dy<=1; dy++) for (int dx=-1; dx<=1; dx++) {
                     int x=v.pos%v.width+dx, y=v.pos/v.width+dy;
                     if (x<0 || x>=v.width || y<0 || y>=v.height) continue;
@@ -319,9 +320,12 @@ public final class VaultPublicRoute {
                             || c==v.ally || blocked.contains(c) || v.monsters.containsKey(c)
                             || v.source.rows.containsKey("trap"+c) || v.source.rows.containsKey("aim"+c)) continue;
                     int gap=distance(c,golemCell,v.width);
-                    if (gap<=currentGap || exposedTo(v,c)>exposedTo(v,v.pos)) continue;
+                    int separation = v.ally < 0 ? 0 : distance(v.ally,c,v.width);
+                    boolean sidewaysCover = paired && gap==currentGap && separation<distance(v.pos,v.ally,v.width)
+                            && gap>1 && !behindCover(v,c,v.ally);
+                    if (gap<=currentGap && !sidewaysCover || exposedTo(v,c)>exposedTo(v,v.pos)) continue;
                     int score=20*gap-30*exposedTo(v,c)-visits.getOrDefault(c,0)
-                            -(v.ally<0 ? 0 : 3*distance(v.ally,c,v.width));
+                            - (paired ? 15 : 3)*separation;
                     if (score>bestScore) { best=c; bestScore=score; }
                 }
                 if (best>=0) return new Input("MOVE",best,0);

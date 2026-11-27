@@ -80,6 +80,8 @@ final class RenderEncounter {
                 game.observe(0);
             } else if (destination.equals("cache-input")) {
                 game.hero(0).lvl=5;
+            } else if (destination.equals("seedbrew-input")) {
+                com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game, "seedbrew0");
             } else if (destination.equals("cauldron-input")) {
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game, "cauldron0");
             } else if (destination.equals("scroll-enchant-input")) {

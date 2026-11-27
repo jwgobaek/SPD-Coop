@@ -127,7 +127,7 @@ public class Trinity extends ArmorAbility {
     }
 
     public boolean useMind(Hero hero,ClassArmor armor,int cell) {
-        if (!(mindForm instanceof WandOfDisintegration || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfPrismaticLight || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)
+        if (!(mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTransfusion || mindForm instanceof WandOfDisintegration || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfPrismaticLight || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)
                 || hero.buff(MagicImmune.class)!=null || hero.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.trinkets.WondrousResin.class)!=null) return false;
         Wand wand=(Wand)mindForm;
         float cost=trinityChargeUsePerEffect(hero,wand.getClass());

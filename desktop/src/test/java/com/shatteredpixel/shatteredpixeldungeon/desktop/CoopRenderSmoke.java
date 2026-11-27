@@ -37,7 +37,7 @@ public final class CoopRenderSmoke {
             return;
         }
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|cauldron-input|eagle-input|stasis-input|beacon-vote-input|strength-input|recharging-input|lullaby-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|seedbrew-input|cauldron-input|eagle-input|stasis-input|beacon-vote-input|strength-input|recharging-input|lullaby-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -1288,6 +1288,37 @@ public final class CoopRenderSmoke {
                     await(() -> frame().dungeon.offered && frame().image.rows.containsKey("learn"+talent.ordinal())
                             && Integer.parseInt(frame().image.rows.get("freepoints"+(cache ? 1 : 3))) > 0);
                     investVisibleTalent(talent,cache ? 1 : 3);
+                    return;
+                }
+                if (regionShot.equals("seedbrew-input")) {
+                    await(() -> frame().dungeon.offered && frame().image.rows.keySet().stream().anyMatch(k -> k.startsWith("brewseed")));
+                    PublicDungeon view = frame().dungeon;
+                    int cell = Integer.parseInt(view.source.rows.keySet().stream().filter(k -> k.startsWith("cauldron")).findFirst().get().substring(8));
+                    PublicDungeon.Loot seed = view.belongings.stream().filter(i -> view.source.rows.containsKey("brewseed"+i.id)).findFirst().get();
+                    for (boolean confirm : new boolean[]{false,true}) {
+                        press(mapPoint(view, cell));
+                        openInventoryTab(seed.bagIndex);
+                        press(inventoryPoint(seed.id));
+                        for (int slot=1;slot<3;slot++) {
+                            Point point=render(() -> {
+                                Group window=(Group)find(Game.scene(), g -> g instanceof com.shatteredpixel.shatteredpixeldungeon.windows.WndSeedAlchemy);
+                                StyledButton empty=(StyledButton)find(window,g -> g instanceof StyledButton && g.active && ((StyledButton)g).text().isEmpty());
+                                return empty.camera().cameraToScreen(empty.left()+empty.width()/2,empty.top()+empty.height()/2);
+                            });
+                            press(point);
+                            openInventoryTab(seed.bagIndex);
+                            press(inventoryPoint(seed.id));
+                        }
+                        shot(confirm ? "seed-reselect" : "seed-preview");
+                        click("#"+Messages.get(com.shatteredpixel.shatteredpixeldungeon.scenes.AlchemyScene.class,confirm?"craft":"cancel"));
+                        if (!confirm && frame().image!=view.source) throw new AssertionError("Preview changed the offer");
+                    }
+                    await(() -> frame().pending==0 && frame().dungeon.belongings.stream().noneMatch(i -> i.id==seed.id));
+                    if (!"APPLIED".equals(frame().lastResult) || frame().dungeon.belongings.stream().noneMatch(i -> i.quantity==1
+                            && view.belongings.stream().noneMatch(prior -> prior.id==i.id)))
+                        throw new AssertionError("Missing potion receipt");
+                    shot("seed-result");
+                    System.out.println("PASS three native inventory selections, cancel, reselect and authoritative potion receipt");
                     return;
                 }
                 if (regionShot.equals("cauldron-input")) {

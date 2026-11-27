@@ -86,6 +86,8 @@ public final class MixedRoomStability {
             "wall0","wall1","warpwraith0","warpwraith1","hornhit0","hornhit1","cloakring0","cloakring1",
             "packedcloak0","packedcloak1","bookward0","bookward1","spark0","monkfocus1","poisontip0","elestrike1","food","dart","floor","mine"};
 
+    static final String[] SEED_ALCHEMY = {"seedbrew0","seedbrew1","exoticbrew0","exoticbrew1","bloodzap0","bloodzap1",
+            "healing","stasishold0","stasisrelease1","trinitymindraycast0","mine"};
     static final String[] CAULDRON = {"cauldron0", "cauldron1", "gaswait0", "gaswait1",
             "stasishold0", "stasisrelease1", "scrolltarget0", "scrollapply1", "readlullaby1", "floor", "mine"};
 
@@ -177,6 +179,10 @@ public final class MixedRoomStability {
     static VaultPublicRoute.Input fromView(PublicDungeon view,VaultPublicRoute.Input staged) {
         String verb=staged.action;
         long item=0;
+        if (verb.equals("BREW_SEEDS") || verb.equals("BREW_ENCHANTMENT")) {
+            String key=verb.equals("BREW_SEEDS") ? "brewseed" : "brewexotic";
+            item=view.belongings.stream().filter(it->view.source.rows.containsKey(key+it.id)).findFirst().get().id;
+        }
         if (verb.equals("BREW_RUNESTONES")) item=view.belongings.stream()
                 .filter(it->view.source.rows.containsKey("brew"+it.id)).findFirst().get().id;
         if (verb.equals("READ_SCROLL")) item=view.belongings.stream().filter(it->view.actions(it).contains(verb)).findFirst().get().id;
@@ -265,7 +271,9 @@ public final class MixedRoomStability {
                     v=new PublicDungeon(images[seat].image());
                 }
                 VaultPublicRoute.Input move=warp && v.consent ? new VaultPublicRoute.Input("TRAVEL",v.stair,0) : n==0 && first!=null?fromView(v,first):input(v,guides[seat]);
-                SeatActions.Pending action=actions[seat].prepare(v.source,move.action,move.cell,move.item);
+                SeatActions.Pending action=move.action.equals("BREW_SEEDS")
+                        ? actions[seat].prepare(v.source,move.action,move.cell,move.item+"_"+move.item+"_"+move.item)
+                        : actions[seat].prepare(v.source,move.action,move.cell,move.item);
                 long start=System.nanoTime();
                 String receipt=action.submit(clients[seat]);
                 if(n==0 && first!=null) assertTrue(stage+" "+receipt,receipt.endsWith(" APPLIED"));
@@ -377,6 +385,7 @@ public final class MixedRoomStability {
                 if (Boolean.getBoolean("stability.enchantment")) stage = ENCHANTMENT[i % ENCHANTMENT.length];
                 if (Boolean.getBoolean("stability.originalItems")) stage = ORIGINAL_ITEMS[i % ORIGINAL_ITEMS.length];
                 if (Boolean.getBoolean("stability.stasisWarp")) stage = STASIS_WARP[i % STASIS_WARP.length];
+                if (Boolean.getBoolean("stability.seedAlchemy")) stage = SEED_ALCHEMY[i % SEED_ALCHEMY.length];
                 if (Boolean.getBoolean("stability.cauldron")) stage = CAULDRON[i % CAULDRON.length];
                 trial.room(fixture.temporary.getRoot(),"mine".equals(stage)?571:570+i%12,Integer.parseInt(args[1]),stage);
                 trial.observe(fixture.temporary.getRoot(),i+1);

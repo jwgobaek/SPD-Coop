@@ -165,6 +165,9 @@ public class PlayerGrowthTest extends HeadlessDungeon {
         int seat=stage.endsWith("1")?1:0;
         if (stage.matches("unknownread[01]")) return CauldronTest.unknownScroll(g, seat);
         if (stage.matches("gaswait[01]")) return CorrosionAttributionTest.prepareGasTick(g, seat);
+        if (stage.matches("seedbrew[01]")) return MultiAlchemyTest.prepare(g,seat);
+        if (stage.matches("exoticbrew[01]")) return MultiAlchemyTest.preparePaid(g,seat);
+        if (stage.matches("bloodzap[01]")) return TransfusionTest.prepare(g,seat);
         if (stage.matches("cauldron[01]")) return CauldronTest.prepare(g, seat);
         if (BowEffectsTest.isThrowFixture(stage)) return BowEffectsTest.prepareThrow(g,seat,stage);
         if (newAbility(stage)) return SubclassActionTest.stage(g,stage,seat);
@@ -188,6 +191,9 @@ public class PlayerGrowthTest extends HeadlessDungeon {
         int seat=stage.endsWith("1")?1:0;
         if (stage.matches("unknownread[01]")) return CauldronTest.readUnknown(g, seat);
         if (stage.matches("gaswait[01]")) return CorrosionAttributionTest.publishedGasTick(g, seat);
+        if (stage.matches("seedbrew[01]")) return MultiAlchemyTest.published(g,seat);
+        if (stage.matches("exoticbrew[01]")) return MultiAlchemyTest.paid(g,seat);
+        if (stage.matches("bloodzap[01]")) return TransfusionTest.published(g,seat);
         if (stage.matches("cauldron[01]")) return CauldronTest.published(g, seat);
         if (BowEffectsTest.isThrowFixture(stage)) {
             var stones=g.hero(seat).belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone.class);

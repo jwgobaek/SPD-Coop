@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat;
@@ -47,6 +48,27 @@ public class AndroidStagedGrowth extends HeadlessDungeon {
                     Dungeon.level.drop(scrolls.quantity(12), hero.pos);
                 }
                 SewerBeeTest.offer(game, 0);
+                AndroidTrialTickets.export(Path.of(args[0]), Path.of(args[1]), game);
+            } finally {
+                fixture.stopBackend();
+                fixture.temporary.delete();
+            }
+            return;
+        }
+        if (args.length == 3 && args[2].matches("cauldron(pack)?[01]")) {
+            int seat = Character.digit(args[2].charAt(args[2].length()-1), 10);
+            try (CoopSession game = CoopSession.open(572, 1, HeroClass.WARRIOR)) {
+                game.join(2, HeroClass.WARRIOR);
+                CauldronTest.prepare(game, seat);
+                Hero actor = game.hero(seat);
+                if (args[2].startsWith("cauldronpack")) {
+                    actor.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby.class).quantity(3);
+                    var pack = actor.belongings.backpack;
+                    for (var item : new java.util.ArrayList<>(pack.items)) {
+                        if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag) item.detachAll(pack);
+                    }
+                    while (new com.shatteredpixel.shatteredpixeldungeon.items.Ankh().collect(pack)) { }
+                }
                 AndroidTrialTickets.export(Path.of(args[0]), Path.of(args[1]), game);
             } finally {
                 fixture.stopBackend();

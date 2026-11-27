@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTerror;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTransmutation;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ExoticScroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfEnchantment;
@@ -80,6 +81,8 @@ public class RecallInscription extends ClericSpell {
 			((Scroll) item).talentChance = 0; //does not trigger on-scroll effects
 			if (Dungeon.coop != null && item instanceof ScrollOfRecharging) {
                 ((ScrollOfRecharging)item).readFor(hero);
+            } else if (Dungeon.coop != null && item instanceof ScrollOfTerror) {
+                ((ScrollOfTerror)item).readFor(hero);
             } else if (Dungeon.coop != null && item instanceof ScrollOfLullaby) {
                 ((ScrollOfLullaby)item).readFor(hero);
             } else {
@@ -137,7 +140,7 @@ public class RecallInscription extends ClericSpell {
 
     public static boolean hasUntargetedScroll(Hero hero) {
         UsedItemTracker tracker = hero.buff(UsedItemTracker.class);
-        return tracker != null && (tracker.item == ScrollOfLullaby.class || tracker.item == ScrollOfRecharging.class);
+        return tracker != null && (tracker.item == ScrollOfTerror.class || tracker.item == ScrollOfLullaby.class || tracker.item == ScrollOfRecharging.class);
     }
 
     public static boolean remembersRecharging(Hero hero) {

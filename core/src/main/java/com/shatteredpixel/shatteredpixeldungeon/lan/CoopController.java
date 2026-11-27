@@ -304,10 +304,18 @@ public final class CoopController {
     }
 
     public boolean act(StateImage offered,String verb,int cell,long item) {
+        return submitAction(offered, verb, cell, Long.toString(item));
+    }
+
+    public boolean brewSeeds(StateImage offered, int cell, long first, long second, long third) {
+        return submitAction(offered, "BREW_SEEDS", cell, first + "_" + second + "_" + third);
+    }
+
+    private boolean submitAction(StateImage offered, String verb, int cell, String handles) {
         if(offered==null || frame.image!=offered || (!SeatActions.offTurn(verb) && !Integer.toString(frame.seat).equals(offered.rows.get("active")))) return false;
         return enqueue(()->{
             if(image!=offered || page!=Page.GAME || ticket.pending!=0) return;
-            SeatActions.Pending p=actions.prepare(image,verb,cell,item);
+            SeatActions.Pending p=actions.prepare(image,verb,cell,handles);
             pendingVerb=verb; ticket.pending=p.id; tickets.write(ticket); publish();
             String result=p.submit(client);
             lastAction=p.id; lastResult=outcome(result);

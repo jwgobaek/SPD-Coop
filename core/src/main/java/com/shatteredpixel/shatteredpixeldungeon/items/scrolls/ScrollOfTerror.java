@@ -24,6 +24,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
@@ -42,15 +43,19 @@ public class ScrollOfTerror extends Scroll {
 	@Override
 	public void doRead() {
 
-		detach(curUser.belongings.backpack);
-		new Flare( 5, 32 ).color( 0xFF0000, true ).show( curUser.sprite, 2f );
+		readFor(curUser);
+    }
+
+    public void readFor(Hero reader) {
+        detach(reader.belongings.backpack);
+		if (Dungeon.coop == null) new Flare( 5, 32 ).color( 0xFF0000, true ).show( reader.sprite, 2f );
 		Sample.INSTANCE.play( Assets.Sounds.READ );
 		
 		int count = 0;
 		Mob affected = null;
 		for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] )) {
-			if (mob.alignment != Char.Alignment.ALLY && Dungeon.level.heroFOV[mob.pos]) {
-				Buff.affect( mob, Terror.class, Terror.DURATION ).object = curUser.id();
+			if (mob.alignment != Char.Alignment.ALLY && (Dungeon.coop == null ? Dungeon.level.heroFOV[mob.pos] : Dungeon.coop.knowledge(reader).visible(mob.pos))) {
+				Buff.affect( mob, Terror.class, Terror.DURATION ).object = reader.id();
 
 				if (mob.buff(Terror.class) != null){
 					count++;
@@ -71,7 +76,7 @@ public class ScrollOfTerror extends Scroll {
 		}
 		identify();
 
-		readAnimation();
+		finishReading(reader);
 	}
 	
 	@Override

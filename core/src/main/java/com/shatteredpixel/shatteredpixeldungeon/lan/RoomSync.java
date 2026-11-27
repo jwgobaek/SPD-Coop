@@ -121,7 +121,7 @@ final class RoomSync {
                         Long.parseLong(f[6])<1 || !f[7].matches("APPLIED|PARTY_DEFEATED|REJECT_(DEFEATED|VERSION|TURN|ACTION|ITEM|INVALID|FLOOR|ENDING)"))
                     throw new IllegalArgumentException("Invalid action receipt");
                 long base=Long.parseLong(args[0]), turn=Long.parseLong(args[1]), after=Long.parseLong(f[6]);
-                Integer.parseInt(args[3]); Long.parseLong(args[4]);
+                Integer.parseInt(args[3]); parseHandles(args[2],args[4]);
                 if (f[7].equals("APPLIED") || f[7].equals("PARTY_DEFEATED")) {
                     if (!args[2].equals("START_ASCENT") && !args[2].equals("END_RUN") && !args[2].equals("CONTINUE_RUN")) CoopSession.Action.valueOf(args[2]);
                     else if (Integer.parseInt(args[3])!=0 || Long.parseLong(args[4])!=0 || game.ending()==CoopSession.Ending.NONE)
@@ -165,6 +165,14 @@ final class RoomSync {
 
     String part(int seat,long token,int index) { return seats[seat].part(token,index); }
 
+    private static long[] parseHandles(String verb, String encoded) {
+        if (!"BREW_SEEDS".equals(verb)) return new long[]{Long.parseLong(encoded)};
+        if (!encoded.matches("[1-9][0-9]{0,18}(_[1-9][0-9]{0,18}){2}"))
+            throw new IllegalArgumentException("Expected three ingredient handles");
+        String[] parts = encoded.split("_");
+        return new long[]{Long.parseLong(parts[0]), Long.parseLong(parts[1]), Long.parseLong(parts[2])};
+    }
+
     String action(int index,String[] f) {
         if (f.length!=13) return "ERROR FORMAT";
         long player=Long.parseLong(f[4]);
@@ -172,22 +180,25 @@ final class RoomSync {
         if (player!=game.player(index) || Integer.parseInt(f[5])!=index || actor!=game.hero(index).id()) return "ERROR AUTH";
         long id=Long.parseLong(f[7]), base=Long.parseLong(f[8]), turn=Long.parseLong(f[9]);
         int cell=Integer.parseInt(f[11]);
-        long handle=Long.parseLong(f[12]);
+        long[] handles;
+        try { handles = parseHandles(f[10], f[12]); }
+        catch (IllegalArgumentException invalid) { return "ERROR FORMAT"; }
         if (id<=0) return "ERROR ACTION_ID";
         Seat seat=seats[index];
-        String body=base+" "+turn+" "+f[10]+" "+cell+" "+handle;
+        String body=base+" "+turn+" "+f[10]+" "+cell+" "+(handles.length == 1 ? Long.toString(handles[0]) : f[12]);
         Record cached=seat.results.get(id);
         if (cached!=null) return body.equals(cached.body) ? cached.result : "ERROR CONFLICT";
         if (id<=seat.highWater) return "ERROR EXPIRED";
         seat.highWater=id;
-        String outcome=apply(index,id,base,turn,f[10],cell,handle);
+        String outcome=apply(index,id,base,turn,f[10],cell,handles);
         String result="RESULT "+id+" "+index+" "+actor+" "+turn+" "+base+" "+version+" "+outcome;
         if (seat.results.size()==CACHE) seat.results.remove(seat.results.keySet().iterator().next());
         seat.results.put(id,new Record(body,result));
         return result;
     }
 
-    private String apply(int seat,long id,long base,long turn,String verb,int cell,long handle) {
+    private String apply(int seat,long id,long base,long turn,String verb,int cell,long[] handles) {
+        long handle = handles[0];
         if (game.defeated()) return "REJECT_DEFEATED";
         if (paused) return "REJECT_PAUSED";
         if (base!=version) return "REJECT_VERSION";
@@ -210,6 +221,14 @@ final class RoomSync {
         boolean usesItem=action.requiresItem();
         Item item=seats[seat].view.resolve(handle);
         if (usesItem ? item==null : handle!=0) return "REJECT_ITEM";
+        Item[] materials = null;
+        if (action == CoopSession.Action.BREW_SEEDS) {
+            materials = new Item[handles.length];
+            for (int i=0; i<handles.length; i++) {
+                materials[i] = seats[seat].view.resolve(handles[i]);
+                if (materials[i] == null) return "REJECT_ITEM";
+            }
+        }
         if ((action==CoopSession.Action.MOVE || action==CoopSession.Action.ATTACK)
                 && !seats[seat].view.current.rows.containsKey("t"+cell)) return "REJECT_INVALID";
         boolean targeted=action==CoopSession.Action.ATTACK || action==CoopSession.Action.ZAP || action==CoopSession.Action.SHOOT;
@@ -224,10 +243,14 @@ final class RoomSync {
                 && game.hero(seat).hasTalent(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.SEER_SHOT)
                 && seats[seat].view.current.rows.containsKey("t"+cell)
                 && game.knowledge(game.hero(seat)).visible(cell);
-        if (targeted && !scouting && !aimingAtChest && !selfBattery && (target==null || !seats[seat].view.current.rows.containsKey("m"+target.id())))
+        boolean openWandTarget = action == CoopSession.Action.ZAP && target == null
+                && (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTransfusion
+                    || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff && ((com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff)item).imbuedWand() instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTransfusion)
+                && seats[seat].view.current.rows.containsKey("t"+cell) && game.knowledge(game.hero(seat)).visible(cell);
+        if (targeted && !openWandTarget && !scouting && !aimingAtChest && !selfBattery && (target==null || !seats[seat].view.current.rows.containsKey("m"+target.id())))
             return "REJECT_INVALID";
         try {
-            if (!game.act(game.player(seat),turn,action,cell,item)) {
+            if (!game.act(game.player(seat),turn,action,cell,item,materials)) {
                 if ((action==CoopSession.Action.TRAVEL || action==CoopSession.Action.VAULT_REWARD) && game.restoredAfterTravel()) {
                     for(Seat member:seats) member.view.resetHandles(member.view.cursor());
                     commit(null,seat,id+",TRAVEL,REJECT_FLOOR","IN_GAME");

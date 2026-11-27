@@ -23,7 +23,11 @@ public class WandmakerTest extends HeadlessDungeon {
     @Test public void nativeGarden() { exercise(577, Rotberry.Seed.class); }
 
     static void offered(CoopSession game, int seat) {
-        while (game.activeSeat() != seat) SewerSpecialActorTest.waitOne(game);
+        while (game.activeSeat() != seat) {
+            assertTrue("Lost quest input offer: " + game.stopReason() + " life=" + game.life(0) + "/" + game.life(1),
+                    game.activeSeat() >= 0 && game.life(seat) == CoopSession.Life.ALIVE);
+            SewerSpecialActorTest.waitOne(game);
+        }
     }
 
     static void beside(CoopSession game, int seat, int cell) {

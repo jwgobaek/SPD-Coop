@@ -181,7 +181,7 @@ public final class RestartClient {
                     if (mode.matches(".*-(monkflurry|monkdash|monkmeditate|monkdragonkick|strikeshock|strikeblock|strikevenom|strikekinetic|strikebloom|heroicenergy|challenge|elestrike|feint|swap|monkfocus|guardshield|stance|lunge|spike|charged)[01]")) character="DUELIST";
                     if (mode.matches(".*-(cacheinvest|cachepickup)[01]")) character=i==mode.charAt(mode.length()-1)-'0'?"ROGUE":"MAGE";
                     if (mode.matches(".*-(ninjalog|cloakring|packedcloak|markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) character="ROGUE";
-                    if (mode.matches(".*-(unknownread|cauldron|holdfast|deathlesswait|deathlesstrap|strongman|endless_rage|sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
+                    if (mode.matches(".*-(seedbrew|exoticbrew|bloodzap|unknownread|cauldron|holdfast|deathlesswait|deathlesstrap|strongman|endless_rage|sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
                     if (mode.matches(".*-(scrollread|scrolltarget|scrollapply|scrollabort|eagleview|bowstone|bowrank|bowthrow(?:Blooming|Elastic|Lucky|Unstable|Corrupting|Grim)?|poisontip|scoutshot|point_blank|hawk|direct|blades|sniper|nature)[01]")) character="HUNTRESS";
                     if (mode.matches(".*-(remoteplace|rayblast|warpwraith|hornhit|desperate_power|prismmelee|prismimbue|prismzap|prismblast|prismvolley|spark|sparkimbue|sparkblast|sparkvolley|ice|iceimbue|iceblast|icevolley|imbue|volley|battery|recall|beacon|meal|blast|warlock|battlemage|soul)[01]")) character="MAGE";
                 }
@@ -569,6 +569,10 @@ public final class RestartClient {
                     assertEquals(com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.MASK, view.floor.get(cell).sprite);
                 }
                 long handle=verb.equals("PICK_UP") ? view.floor.get(cell).id : 0;
+                if (verb.equals("BREW_SEEDS") || verb.equals("BREW_ENCHANTMENT")) {
+                    String key = verb.equals("BREW_SEEDS") ? "brewseed" : "brewexotic";
+                    handle=view.belongings.stream().filter(it -> view.source.rows.containsKey(key+it.id)).findFirst().get().id;
+                }
                 if (verb.equals("BREW_RUNESTONES")) {
                     assertTrue(view.source.rows.containsKey("cauldron" + cell));
                     handle = view.belongings.stream().filter(it -> view.source.rows
@@ -584,7 +588,8 @@ public final class RestartClient {
                     assertEquals(cell,view.scrollTarget(bow,verb));
                     handle=stone.id;
                 }
-                if (growth && verb.equals("ZAP")) handle=item(seat,"WEAPON","STAFF");
+                if (growth && verb.equals("ZAP")) handle=boundary.startsWith("growth-bloodzap")
+                        ? item(seat,"BAG","WAND") : item(seat,"WEAPON","STAFF");
                 if (growth && verb.equals("THROW")) handle=boundary.contains("rationthrow")
                         ? view.belongings.stream().filter(it -> it.kind.equals("FOOD") && view.actions(it).contains("THROW")).findFirst().get().id
                         : item(seat,"BAG",boundary.contains("bowthrow") ? "STONE" : boundary.contains("poisontip") ? "DART" : "SPIKE");
@@ -608,7 +613,7 @@ public final class RestartClient {
                     String index=RestartHost.read(path,"mine-index")+",";
                     handle=view.belongings.stream().filter(item->view.source.rows.getOrDefault("forge"+item.id,"").startsWith(index)).findFirst().get().id;
                 }
-                SeatActions.Pending p=travel ? (boundary.equals("elemental-escape") ? consentAndCross(true,true) : consentAndCross(boundary.equals("vault-pick") || boundary.equals("vault-full"))) : actions[seat].prepare(state(seat),verb,verb.equals("WAIT") ? 0 : cell,handle);
+                SeatActions.Pending p=travel ? (boundary.equals("elemental-escape") ? consentAndCross(true,true) : consentAndCross(boundary.equals("vault-pick") || boundary.equals("vault-full"))) : verb.equals("BREW_SEEDS") ? actions[seat].prepare(state(seat),verb,cell,handle+"_"+handle+"_"+handle) : actions[seat].prepare(state(seat),verb,verb.equals("WAIT") ? 0 : cell,handle);
                 if (yog) System.out.println("native_fixture "+boundary+" verb="+verb+" input="+cell+" seat="+seat+" depth="+view.depth+" visible="+view.visible(cell)+" actor="+state(seat).rows.get("self"));
                 if (boundary.startsWith("growth-deathless")) {
                     assertEquals("first native input must reach the publication boundary",0,i);

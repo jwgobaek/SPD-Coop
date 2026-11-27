@@ -49,7 +49,7 @@ public abstract class Runestone extends Item {
 	protected void onThrow(int cell) {
 		///inventory stones are thrown like normal items, other stones don't trigger when thrown into pits
 		if (this instanceof InventoryStone ||
-				Dungeon.hero.buff(MagicImmune.class) != null ||
+				(Dungeon.coop == null ? Dungeon.hero : curUser).buff(MagicImmune.class) != null ||
 				(Dungeon.level.pit[cell] && Actor.findChar(cell) == null)){
 			if (!anonymous) super.onThrow( cell );
 		} else {
@@ -59,7 +59,8 @@ public abstract class Runestone extends Item {
 			}
 			activate(cell);
 			if (Actor.findChar(cell) == null) Dungeon.level.pressCell( cell );
-			Invisibility.dispel();
+			if (Dungeon.coop == null) Invisibility.dispel();
+            else Invisibility.dispel(curUser);
 		}
 	}
 	

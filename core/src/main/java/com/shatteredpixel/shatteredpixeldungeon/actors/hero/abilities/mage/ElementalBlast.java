@@ -358,6 +358,8 @@ public class ElementalBlast extends ArmorAbility {
 
 								//*** Wand of Transfusion ***
 								} else if (finalWandCls == WandOfTransfusion.class){
+									if (Dungeon.coop != null && (mob instanceof Hero || mob.alignment == Char.Alignment.ALLY
+											&& com.shatteredpixel.shatteredpixeldungeon.CoopSession.summonerOf(mob) != hero)) continue;
 									if(mob.alignment == Char.Alignment.ALLY || mob.buff(Charm.class) != null){
 										int healing = Math.round(10*effectMulti);
 										int shielding = (mob.HP + healing) - mob.HT;
@@ -369,12 +371,12 @@ public class ElementalBlast extends ArmorAbility {
 										}
 										mob.HP += healing;
 
-										mob.sprite.emitter().burst(Speck.factory(Speck.HEALING), 4);
+										if (Dungeon.coop == null) mob.sprite.emitter().burst(Speck.factory(Speck.HEALING), 4);
 
-										if (healing > 0) {
+										if (Dungeon.coop == null && healing > 0) {
 											mob.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(healing), FloatingText.HEALING);
 										}
-										if (shielding > 0){
+										if (Dungeon.coop == null && shielding > 0){
 											mob.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(shielding), FloatingText.SHIELDING);
 										}
 									} else {
@@ -382,11 +384,11 @@ public class ElementalBlast extends ArmorAbility {
 											Charm charm = Buff.affect(mob, Charm.class, effectMulti*Charm.DURATION/2f);
 											charm.object = hero.id();
 											charm.ignoreHeroAllies = true;
-											mob.sprite.centerEmitter().start(Speck.factory(Speck.HEART), 0.2f, 3);
+											if (Dungeon.coop == null) mob.sprite.centerEmitter().start(Speck.factory(Speck.HEART), 0.2f, 3);
 										} else {
 											damage = Math.round(Hero.heroDamageIntRange(hero,15,25) * effectMulti);
 											mob.damage(damage, Reflection.newInstance(finalWandCls));
-											mob.sprite.emitter().start(ShadowParticle.UP, 0.05f, 10);
+											if (Dungeon.coop == null) mob.sprite.emitter().start(ShadowParticle.UP, 0.05f, 10);
 										}
 									}
 									charsHit++;
