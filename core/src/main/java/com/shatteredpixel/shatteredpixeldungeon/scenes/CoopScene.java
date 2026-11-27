@@ -97,7 +97,7 @@ public class CoopScene extends PixelScene {
                                     com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.CLEAR,item.id);
                         }
                     });
-                } else if (("SpiritHawk".equals(ability) && view.source.rows.containsKey("hawkcommand")) || ("ShadowClone".equals(ability) && view.source.rows.containsKey("clonecommand")) || "Challenge".equals(ability) || "ElementalStrike".equals(ability) || "Feint".equals(ability) || "PowerOfMany".equals(ability) || "DeathMark".equals(ability) || "SmokeBomb".equals(ability) || "WildMagic".equals(ability) || "HeroicLeap".equals(ability) || "Shockwave".equals(ability) || "SpectralBlades".equals(ability)) {
+                } else if (view.source.rows.containsKey("remotebeacon") || ("SpiritHawk".equals(ability) && view.source.rows.containsKey("hawkcommand")) || ("ShadowClone".equals(ability) && view.source.rows.containsKey("clonecommand")) || "Challenge".equals(ability) || "ElementalStrike".equals(ability) || "Feint".equals(ability) || "PowerOfMany".equals(ability) || "DeathMark".equals(ability) || "SmokeBomb".equals(ability) || "WildMagic".equals(ability) || "HeroicLeap".equals(ability) || "Shockwave".equals(ability) || "SpectralBlades".equals(ability)) {
                     targetView=view; targetMove=action; targetStaff=item; renderFrame();
                 } else controller.act(view.source,action,view.pos,item.id);
                 break;
@@ -148,6 +148,10 @@ public class CoopScene extends PixelScene {
         addLearnedSpell(view, spells, actions, Talent.BODY_FORM, BodyForm.INSTANCE);
         addLearnedSpell(view, spells, actions, Talent.MIND_FORM, MindForm.INSTANCE);
         addLearnedSpell(view, spells, actions, Talent.SPIRIT_FORM, SpiritForm.INSTANCE);
+        if (view.source.rows.containsKey("poweredspells")) {
+            addLearnedSpell(view, spells, actions, Talent.LIFE_LINK, LifeLinkSpell.INSTANCE);
+            addLearnedSpell(view, spells, actions, Talent.BEAMING_RAY, BeamingRay.INSTANCE);
+        }
         if (view.source.rows.containsKey("ascendedspells")) {
             if ("ready".equals(view.source.rows.get("ascendedspells")))
                 addLearnedSpell(view, spells, actions, Talent.DIVINE_INTERVENTION, DivineIntervention.INSTANCE);
@@ -325,9 +329,9 @@ public class CoopScene extends PixelScene {
             return;
         }
         if (targetMove != null) {
-            boolean armor = "FLASH".equals(targetMove) || "HALLOWED_GROUND".equals(targetMove) || "WALL_OF_LIGHT".equals(targetMove) || "MNEMONIC_PRAYER".equals(targetMove) || "LAY_ON_HANDS".equals(targetMove) || "HOLY_LANCE".equals(targetMove) || "TRINITY_MIND".equals(targetMove) || "BLESS".equals(targetMove) || "ARMOR_ABILITY".equals(targetMove) || "GUIDING_LIGHT".equals(targetMove) || "SHIELD_OF_LIGHT".equals(targetMove) || "SMITE".equals(targetMove) || "SUNRAY".equals(targetMove);
+            boolean armor = "BEAMING_RAY".equals(targetMove) || "FLASH".equals(targetMove) || "HALLOWED_GROUND".equals(targetMove) || "WALL_OF_LIGHT".equals(targetMove) || "MNEMONIC_PRAYER".equals(targetMove) || "LAY_ON_HANDS".equals(targetMove) || "HOLY_LANCE".equals(targetMove) || "TRINITY_MIND".equals(targetMove) || "BLESS".equals(targetMove) || "ARMOR_ABILITY".equals(targetMove) || "GUIDING_LIGHT".equals(targetMove) || "SHIELD_OF_LIGHT".equals(targetMove) || "SMITE".equals(targetMove) || "SUNRAY".equals(targetMove);
             boolean weapon = "WEAPON_ABILITY".equals(targetMove);
-            if (targetView == view && (weapon || "FLASH".equals(targetMove) && view.terrain(cell)>=0 || view.visible(cell) && (armor || "MONK_DASH".equals(targetMove) || view.monsters.containsKey(cell)))
+            if (targetView == view && (weapon || ("FLASH".equals(targetMove) || "ARMOR_ABILITY".equals(targetMove) && view.source.rows.containsKey("remotebeacon")) && view.terrain(cell)>=0 || view.visible(cell) && (armor || "MONK_DASH".equals(targetMove) || view.monsters.containsKey(cell)))
                     && controller.act(view.source, targetMove, cell, armor || weapon ? targetStaff.id : 0)) cancelAim();
             return;
         }

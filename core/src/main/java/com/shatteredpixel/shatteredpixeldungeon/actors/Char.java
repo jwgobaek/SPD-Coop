@@ -445,7 +445,7 @@ public abstract class Char extends Actor {
 			if (buff( PowerOfMany.PowerBuff.class) != null){
 				if (buff( BeamingRay.BeamingRayBoost.class) != null
 					&& buff( BeamingRay.BeamingRayBoost.class).object == enemy.id()){
-					dmg *= 1.3f + 0.05f*Dungeon.hero.pointsInTalent(Talent.BEAMING_RAY);
+					dmg *= 1.3f + 0.05f*PowerOfMany.rankForAlly(this,Talent.BEAMING_RAY);
 				} else {
 					dmg *= 1.25f;
 				}
@@ -885,7 +885,7 @@ public abstract class Char extends Actor {
 
 		if (buff(PowerOfMany.PowerBuff.class) != null){
 			if (buff(LifeLinkSpell.LifeLinkSpellBuff.class) != null){
-				damage *= 0.70f - 0.05f*Dungeon.hero.pointsInTalent(Talent.LIFE_LINK);
+				damage *= 0.70f - 0.05f*PowerOfMany.rankForAlly(this,Talent.LIFE_LINK);
 			} else {
 				damage *= 0.75f;
 			}

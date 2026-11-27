@@ -36,7 +36,7 @@ public final class VaultPublicRoute {
         int recoveryWaits, coveredWaits;
         final boolean campaignGuide=Boolean.getBoolean("trial.campaignGuide");
         int exitWaits;
-        private boolean useSideCover() { return regroup.equals("sidecover") || regroup.equals("holdcover") || regroup.equals("nextcover") || regroup.equals("shelterexit"); }
+        private boolean useSideCover() { return regroup.equals("sidecover") || regroup.equals("holdcover") || regroup.equals("nextcover") || regroup.equals("shelterexit") || regroup.equals("doorcover"); }
         boolean doorwayStrategy() { return useSideCover() || regroup.equals("recoverexit") || regroup.equals("coverexit") || regroup.equals("crossonce") || regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover") || regroup.equals("trail") || regroup.equals("safeexit") || regroup.equals("handoff"); }
         private boolean visibleDoor(PublicDungeon v, int cell) {
             if (cell<0 || !v.visible(cell)) return false;
@@ -136,13 +136,17 @@ public final class VaultPublicRoute {
                 int cover=exposed-exposedTo(v,c);
                 boolean withdrawFromShooter = regroup.equals("holdcover") && exposed>0 && !escortFollower
                         && v.hp*2<v.maxHp && v.ally>=0 && distance(c,v.ally,v.width)<distance(v.pos,v.ally,v.width);
-                boolean coveredNext = (regroup.equals("nextcover") || regroup.equals("shelterexit")) && exposed>0 && gap>1 && coverOnSecondMove(v,c);
+                boolean coveredNext = (regroup.equals("nextcover") || regroup.equals("shelterexit") || regroup.equals("doorcover")) && exposed>0 && gap>1 && coverOnSecondMove(v,c);
                 if (cover<0 || (cover==0 && !coveredNext && (gap<=previous || previous>2 && !withdrawFromShooter))) continue;
                 int value=80*cover+(coveredNext ? 30 : 0)+10*gap-4*(lastAlly<0?0:distance(lastAlly,c,v.width))-visits.getOrDefault(c,0);
                 // When equally safe, guard the injured follower's route past a known threshold.
                 // Greater safety still wins immediately when the entry is the only cover.
                 if (useSideCover() && escortFollower && holdDirection > 0 && v.hp*3 < v.maxHp
                         && (c == doorEntry || c == lastDoorSide)) value -= 7;
+                if (regroup.equals("doorcover") && recentShooters.size()>0 && v.ally>=0) {
+                    // Step towards the ally when this can be done behind known cover.
+                    value -= 18 * Math.max(0, distance(c,v.ally,v.width)-1);
+                }
                 if (value>score) {score=value;best=c;}
             }
             return best;
@@ -276,7 +280,7 @@ public final class VaultPublicRoute {
                         && (i.kind.equals("MELEE") || i.kind.equals("ARMOR"))
                         && v.belongings.stream().noneMatch(e -> e.slot.equals(i.kind.equals("MELEE")?"WEAPON":"ARMOR"))) return new Input("EQUIP",0,i.id);
             }
-            boolean exposedParty = team && regroup.equals("shelterexit") && !recentShooters.isEmpty()
+            boolean exposedParty = team && (regroup.equals("shelterexit") || regroup.equals("doorcover")) && !recentShooters.isEmpty()
                     && (v.hp * 3 < 2 * v.maxHp || v.ally >= 0 && v.hp < v.maxHp);
             if (exposedParty && exposedTo(v,v.pos)>0) {
                 int cover = retreat(v);
@@ -377,6 +381,13 @@ public final class VaultPublicRoute {
                             (tile==Terrain.DOOR || tile==Terrain.OPEN_DOOR) && adjacent(c,v.ally,v.width))
                         value+=30/(1+visits.getOrDefault(c,0));
                     if (team && c==destination && !v.monsters.containsKey(c)) value+=20;
+                    if (regroup.equals("doorcover") && !returning && v.ally>=0
+                            && (tile==Terrain.DOOR || tile==Terrain.OPEN_DOOR) && c!=doorEntry
+                            && !visits.containsKey(c) && rememberedExposure(v,first[c])==0) {
+                        // An already observed, untried exit takes precedence over loot.
+                        // The companion still needs a free, known and safe approach.
+                        if (distance(first[c],v.ally,v.width)<=3) value+=360;
+                    }
                     if (returning) value=-100*distance(c,meetingCell,v.width)-dist[c]-20*exposedTo(v,c);
                     if (protectExit && lastAlly>=0 && (v.ally>=0 || missingTurns<=6))
                         value-=35*Math.max(0,distance(c,lastAlly,v.width)-1);

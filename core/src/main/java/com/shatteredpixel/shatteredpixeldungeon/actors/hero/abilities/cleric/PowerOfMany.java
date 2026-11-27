@@ -196,7 +196,12 @@ public class PowerOfMany extends ArmorAbility {
 		return new Talent[]{Talent.BEAMING_RAY, Talent.LIFE_LINK, Talent.STASIS, Talent.HEROIC_ENERGY};
 	}
 
-	public static Char getPoweredAlly(){
+	public static int rankForAlly(Char ally, Talent talent) {
+        Hero owner = Dungeon.coop == null ? Dungeon.hero : com.shatteredpixel.shatteredpixeldungeon.CoopSession.summonerOf(ally);
+        return owner == null ? 0 : owner.pointsInTalent(talent);
+    }
+
+    public static Char getPoweredAlly(){
 		return getPoweredAlly(Dungeon.hero);
 	}
 

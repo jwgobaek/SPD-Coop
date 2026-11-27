@@ -23,6 +23,8 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.CoopSession;
+import com.shatteredpixel.shatteredpixeldungeon.FloorKnowledge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -237,7 +239,17 @@ public class WarpBeacon extends ArmorAbility {
     public boolean useForSeat(ClassArmor armor, Hero hero, int choice) {
         WarpBeaconTracker mark = hero.buff(WarpBeaconTracker.class);
         if (mark == null) {
-            if (choice != hero.pos || !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(choice)) return false;
+            if (!Dungeon.level.insideMap(choice)
+                    || !CoopSession.supportedLanding(choice)) return false;
+            if (choice != hero.pos) {
+                FloorKnowledge known = Dungeon.coop.knowledge(hero);
+                if (!known.visited(choice) && !known.mapped(choice) || Dungeon.level.pit[choice]
+                        || Dungeon.level.solid[choice] && !Dungeon.level.passable[choice]
+                        || !(Dungeon.level.passable[choice] || Dungeon.level.avoid[choice])
+                        || Dungeon.level.distance(hero.pos, choice) > 4 * hero.pointsInTalent(Talent.REMOTE_BEACON)) return false;
+                PathFinder.buildDistanceMap(choice, BArray.or(Dungeon.level.passable, Dungeon.level.avoid, null));
+                if (PathFinder.distance[hero.pos] == Integer.MAX_VALUE) return false;
+            }
             place(hero, choice);
             return true;
         }
@@ -246,13 +258,38 @@ public class WarpBeacon extends ArmorAbility {
             return true;
         }
         if (choice != RECALL || mark.depth != Dungeon.depth || mark.branch != Dungeon.branch
-                || !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(mark.pos)
+                || !CoopSession.supportedLanding(mark.pos)
                 || !(Dungeon.level.passable[mark.pos] || Dungeon.level.avoid[mark.pos])) return false;
         Char occupant = Actor.findChar(mark.pos);
-        if (occupant != null && occupant != hero) return false;
+        if (occupant != null && occupant != hero) {
+            int rank = hero.pointsInTalent(Talent.TELEFRAG);
+            if (rank == 0 || Dungeon.coop.abilityTarget(hero, mark.pos) != occupant) return false;
+            Char displaced = Char.hasProp(occupant, Char.Property.IMMOVABLE) ? hero : occupant;
+            ArrayList<Integer> destinations = new ArrayList<>();
+            for (int offset : PathFinder.NEIGHBOURS8) {
+                int cell = mark.pos + offset;
+                if (Dungeon.level.solid[cell] || Actor.findChar(cell) != null
+                        || Char.hasProp(displaced, Char.Property.LARGE) && !Dungeon.level.openSpace[cell]) continue;
+                // Keep every native candidate or refuse before dealing any damage.
+                if (!CoopSession.supportedLanding(cell)) return false;
+                destinations.add(cell);
+            }
+            hero.damage(Math.min(5 * rank, hero.HP + hero.shielding() - 1), this);
+            occupant.damage(Hero.heroDamageIntRange(hero, 10 * rank, 15 * rank), this);
+            Char survivor = Actor.findChar(mark.pos);
+            if (survivor == null || !survivor.isAlive()) {
+                ScrollOfTeleportation.appear(hero, mark.pos);
+            } else if (survivor == occupant && !destinations.isEmpty()) {
+                Random.shuffle(destinations);
+                ScrollOfTeleportation.appear(hero, mark.pos);
+                displaced.pos = destinations.get(0);
+                Dungeon.level.occupyCell(displaced);
+            }
+        } else {
+            ScrollOfTeleportation.appear(hero, mark.pos);
+        }
         armor.charge -= chargeUse(hero);
         armor.updateQuickslot();
-        ScrollOfTeleportation.appear(hero, mark.pos);
         Invisibility.dispel(hero);
         Dungeon.coop.observe(0);
         Dungeon.coop.observe(1);

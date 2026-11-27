@@ -10,6 +10,16 @@ import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.watabou.utils.Bundle;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.NaturesPower;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blocking;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.PowerOfMany;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.BeamingRay;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import static com.shatteredpixel.shatteredpixeldungeon.CoopSession.Action.*;
@@ -222,7 +232,7 @@ public class ArmorTalentsTest extends HeadlessDungeon {
 
     @Test public void foesStrikingAfterimagesAffectOnlyThatDuelistAndTheAttacker() {
         for(int seat=0;seat<2;seat++) for(int rank=0;rank<=4;rank++)
-            for(Talent talent:new Talent[]{Talent.FEIGNED_RETREAT,Talent.EXPOSE_WEAKNESS}) {
+            for(Talent talent:new Talent[]{Talent.FEIGNED_RETREAT,Talent.EXPOSE_WEAKNESS,Talent.COUNTER_ABILITY}) {
                 try(CoopSession game=CoopSession.open(572,11,HeroClass.DUELIST)) {
                     game.join(22,HeroClass.DUELIST);
                     Rat rat=CoopMageTest.encounter(game,seat);
@@ -240,6 +250,15 @@ public class ArmorTalentsTest extends HeadlessDungeon {
                     assertNull(game.hero(1-seat).buff(Haste.class));
                     assertEquals(talent==Talent.EXPOSE_WEAKNESS && rank>0,rat.buff(Weakness.class)!=null);
                     assertEquals(talent==Talent.EXPOSE_WEAKNESS && rank>0,rat.buff(Vulnerable.class)!=null);
+                    assertEquals(talent==Talent.COUNTER_ABILITY && rank>0,hero.buff(Talent.CounterAbilityTacker.class)!=null);
+                    if (talent==Talent.COUNTER_ABILITY) {
+                        MeleeWeapon.Charger charge=hero.buff(MeleeWeapon.Charger.class);
+                        float before=charge.charges+charge.partialCharge;
+                        assertTrue(CoopFloorsTest.step(game,WEAPON_ABILITY,rat.pos,hero.belongings.weapon()));
+                        assertEquals(before-1+rank*.375f,charge.charges+charge.partialCharge,.07f);
+                        assertNull(hero.buff(Talent.CounterAbilityTacker.class));
+                        assertNull(game.hero(1-seat).buff(Talent.CounterAbilityTacker.class));
+                    }
                 }
             }
     }
@@ -304,6 +323,9 @@ public class ArmorTalentsTest extends HeadlessDungeon {
                     enemy.HP=1;
                     Buff.prolong(enemy,Paralysis.class,4);
                     if (talent!=Talent.CLOSE_THE_GAP) {
+                        // The challenge reward requires the challenger to deliver a lethal blow.
+                        SewerBeeTest.offer(game, seat);
+                        hero.belongings.weapon().upgrade(3);
                         assertTrue(CoopFloorsTest.step(game,ATTACK,enemy.pos,null));
                         assertFalse(enemy.isAlive());
                         assertEquals(5+(talent==Talent.INVIGORATING_VICTORY ? 5*rank:0),hero.HP);
@@ -351,5 +373,232 @@ public class ArmorTalentsTest extends HeadlessDungeon {
                     assertNull(game.hero(1-seat).buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.AscendedForm.AscendBuff.class));
                 }
             }
+    }
+    @Test public void remoteBeaconReusesOnlyTheCastersKnownReachableFloor() {
+        for (int seat=0;seat<2;seat++) for (int rank=0;rank<=4;rank++) {
+            Bundle saved;
+            int destination;
+            try (CoopSession game=CoopSession.open(572,11,HeroClass.MAGE)) {
+                game.join(22,HeroClass.MAGE);
+                CoopMageTest.encounter(game,seat);
+                Hero hero=game.hero(seat);
+                ClassArmor armor=invest(game,seat,2,Talent.REMOTE_BEACON,rank);
+                armor.charge=100;
+                destination=hero.pos+2;
+                assertEquals(rank>0,CoopFloorsTest.step(game,ARMOR_ABILITY,destination,armor));
+                if (rank==0) continue;
+                assertNull(game.hero(1-seat).buff(WarpBeacon.WarpBeaconTracker.class));
+                saved=game.checkpoint();
+            }
+            try (CoopSession game=CoopSession.restore(saved)) {
+                Hero hero=game.hero(seat);
+                SewerBeeTest.offer(game,seat);
+                assertTrue(CoopFloorsTest.step(game,ARMOR_ABILITY,WarpBeacon.RECALL,hero.belongings.armor()));
+                assertEquals(destination,hero.pos);
+                assertNotNull(hero.buff(WarpBeacon.WarpBeaconTracker.class));
+                assertTrue(CoopFloorsTest.step(game,ARMOR_ABILITY,WarpBeacon.CLEAR,hero.belongings.armor()));
+                assertNull(hero.buff(WarpBeacon.WarpBeaconTracker.class));
+            }
+        }
+    }
+
+    @Test public void spectralAttacksUseTheOwnersConePenetrationAndBow() {
+        for (int seat=0;seat<2;seat++) for (int rank=0;rank<=4;rank++) {
+            for (Talent talent : new Talent[]{Talent.FAN_OF_BLADES,Talent.PROJECTING_BLADES,Talent.SPIRIT_BLADES}) {
+                try (CoopSession game=CoopSession.open(572,11,HeroClass.HUNTRESS)) {
+                    game.join(22,HeroClass.HUNTRESS);
+                    Rat rat=CoopMageTest.encounter(game,seat);
+                    Hero hero=game.hero(seat);
+                    ClassArmor armor=invest(game,seat,0,talent,rank);
+                    int width=Dungeon.level.width();
+                    hero.belongings.weapon().upgrade(8);
+                    rat.pos=hero.pos+4;
+                    Rat second=new Rat();
+                    second.HP=second.HT=200;
+                    second.defenseSkill=rat.defenseSkill=0;
+                    second.pos=rat.pos+width;
+                    GameScene.add(second,2000);
+                    if (talent==Talent.PROJECTING_BLADES) {
+                        // A transparent solid grate blocks an ordinary spectral blade.
+                        Level.set(hero.pos+1,Terrain.CRYSTAL_DOOR);
+                    }
+                    if (talent==Talent.SPIRIT_BLADES) {
+                        hero.belongings.getItem(SpiritBow.class).enchant(new Blocking());
+                    }
+                    game.observe(seat);
+                    assertTrue(game.knowledge(hero).visible(rat.pos));
+                    boolean usable=talent!=Talent.PROJECTING_BLADES || rank>0;
+                    assertEquals(usable,CoopFloorsTest.step(game,ARMOR_ABILITY,rat.pos,armor));
+                    assertEquals(usable,rat.HP<rat.HT);
+                    if(talent==Talent.FAN_OF_BLADES) assertEquals(rank>0,second.HP<second.HT);
+                    if(talent==Talent.SPIRIT_BLADES && rank==4) {
+                        for(int retry=0;hero.buff(Blocking.BlockBuff.class)==null && retry<32;retry++) {
+                            SewerBeeTest.offer(game,seat);
+                            armor.charge=100;
+                            rat.HP=rat.HT;
+                            assertTrue(CoopFloorsTest.step(game,ARMOR_ABILITY,rat.pos,armor));
+                        }
+                        assertNotNull(hero.buff(Blocking.BlockBuff.class));
+                        assertNull(game.hero(1-seat).buff(Blocking.BlockBuff.class));
+                    }
+                }
+            }
+        }
+    }
+
+    @Test public void wildMomentumExtendsOnlyTheShootersNaturesPowerOnAKill() {
+        for (int seat=0;seat<2;seat++) for (int rank=0;rank<=4;rank++) {
+            try (CoopSession game=CoopSession.open(572,11,HeroClass.HUNTRESS)) {
+                game.join(22,HeroClass.HUNTRESS);
+                Rat rat=CoopMageTest.encounter(game,seat);
+                Hero hero=game.hero(seat);
+                ClassArmor armor=invest(game,seat,1,Talent.WILD_MOMENTUM,rank);
+                assertTrue(CoopFloorsTest.step(game,ARMOR_ABILITY,hero.pos,armor));
+                SewerBeeTest.offer(game,seat);
+                rat.defenseSkill=0;
+                rat.HP=1;
+                assertTrue(CoopFloorsTest.step(game,SHOOT,rat.pos,hero.belongings.getItem(SpiritBow.class)));
+                assertFalse(rat.isAlive());
+                SewerBeeTest.offer(game,seat);
+                NaturesPower.naturesPowerTracker tracker=hero.buff(NaturesPower.naturesPowerTracker.class);
+                assertEquals(rank==0 ? 2:1,tracker.extensionsLeft);
+                assertTrue(tracker.cooldown()>=5+rank);
+                assertNull(game.hero(1-seat).buff(NaturesPower.naturesPowerTracker.class));
+            }
+        }
+    }
+    @Test public void telefragRejectsThePartnerAndDamagesOnlyTheCasterAndOccupiedFoe() {
+        for (int seat=0;seat<2;seat++) for(int rank=0;rank<=4;rank++) {
+            try(CoopSession game=CoopSession.open(572,11,HeroClass.MAGE)) {
+                game.join(22,HeroClass.MAGE);
+                Rat enemy=CoopMageTest.encounter(game,seat);
+                Hero hero=game.hero(seat), ally=game.hero(1-seat);
+                ClassArmor armor=invest(game,seat,2,Talent.TELEFRAG,rank);
+                int mark=hero.pos, allyStart=ally.pos;
+                assertTrue(CoopFloorsTest.step(game,ARMOR_ABILITY,mark,armor));
+                SewerBeeTest.offer(game,seat);
+                assertTrue(CoopFloorsTest.step(game,MOVE,mark-1,null));
+                SewerBeeTest.offer(game,seat);
+                ally.pos=mark;
+                int allyHP=ally.HP;
+                assertFalse(CoopFloorsTest.step(game,ARMOR_ABILITY,WarpBeacon.RECALL,armor));
+                assertEquals(allyHP,ally.HP);
+                ally.pos=allyStart;
+                enemy.pos=mark;
+                hero.HP=hero.HT=50;
+                game.observe(seat);
+                assertEquals(rank>0,CoopFloorsTest.step(game,ARMOR_ABILITY,WarpBeacon.RECALL,armor));
+                if (rank==0) continue;
+                assertEquals(50-5*rank,hero.HP);
+                assertEquals(mark,hero.pos);
+                assertTrue(enemy.HT-enemy.HP>=10*rank && enemy.HT-enemy.HP<=15*rank);
+                assertTrue(Dungeon.level.adjacent(mark,enemy.pos));
+                assertEquals(allyHP,ally.HP);
+            }
+        }
+    }
+    @Test public void directedPowerBoostsThePrimaryWeaponsActualProcForEachEnemyInTheCone() {
+        for (int seat=0;seat<2;seat++) for(int rank=0;rank<=4;rank++) {
+            try(CoopSession game=CoopSession.open(572,11,HeroClass.DUELIST)) {
+                game.join(22,HeroClass.DUELIST);
+                Rat enemy=CoopMageTest.encounter(game,seat);
+                Hero hero=game.hero(seat);
+                enemy.pos=hero.pos+1;
+                for(int distance=2;distance<=4;distance++) {
+                    Rat extra=new Rat();
+                    extra.pos=hero.pos+distance;
+                    GameScene.add(extra,2000);
+                }
+                MeleeWeapon rapier=(MeleeWeapon)hero.belongings.weapon();
+                rapier.level(20);
+                rapier.enchant(new Blocking());
+                ClassArmor armor=invest(game,seat,1,Talent.DIRECTED_POWER,rank);
+                game.observe(seat);
+                assertTrue(CoopFloorsTest.step(game,ARMOR_ABILITY,enemy.pos,armor));
+                Blocking.BlockBuff block=hero.buff(Blocking.BlockBuff.class);
+                // Four hostile characters. At rank two and above the original proc exceeds one.
+                if(rank>=2) {
+                    assertNotNull(block);
+                    float chance=(24f/60f)*(1+.3f*4*rank);
+                    assertEquals(Math.round(22*chance),block.shielding(),1);
+                }
+                assertNull(game.hero(1-seat).buff(Blocking.BlockBuff.class));
+            }
+        }
+    }
+    @Test public void naturesWrathRunsTheNativePlantAfterTheActualArrow() {
+        for (int seat=0;seat<2;seat++) for (int rank=0;rank<=4;rank++) {
+            boolean witnessed=false;
+            try(CoopSession game=CoopSession.open(572,11,HeroClass.HUNTRESS)) {
+                game.join(22,HeroClass.HUNTRESS);
+                Rat enemy=CoopMageTest.encounter(game,seat);
+                Hero hero=game.hero(seat);
+                enemy.HP=enemy.HT=4000;
+                enemy.defenseSkill=0;
+                ClassArmor armor=invest(game,seat,1,Talent.NATURES_WRATH,rank);
+                SpiritBow bow=hero.belongings.getItem(SpiritBow.class);
+                for(int shot=0;shot<96 && !witnessed;shot++) {
+                    SewerBeeTest.offer(game,seat);
+                    if (hero.buff(NaturesPower.naturesPowerTracker.class)==null) {
+                        armor.charge=100;
+                        assertTrue(CoopFloorsTest.step(game,ARMOR_ABILITY,hero.pos,armor));
+                        SewerBeeTest.offer(game,seat);
+                    }
+                    assertTrue(CoopFloorsTest.step(game,SHOOT,enemy.pos,bow));
+                    SewerBeeTest.offer(game,seat);
+                    witnessed=enemy.buff(com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap.HazardAssistTracker.class)!=null;
+                    if(rank==0 && shot==8) break;
+                }
+                assertEquals(rank>0,witnessed);
+                assertNull(game.hero(1-seat).buff(com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap.HazardAssistTracker.class));
+            }
+        }
+    }
+    @Test public void thePoweredAlliesCarryOnlyTheirOwnClericsSpellAndTarget() {
+        for(int seat=0;seat<2;seat++) for(int rank=0;rank<=4;rank++) {
+            for(Talent talent:new Talent[]{Talent.BEAMING_RAY,Talent.LIFE_LINK}) {
+                Bundle save;
+                int allyId, foeId;
+                try(CoopSession game=CoopSession.open(572,11,HeroClass.CLERIC)) {
+                    game.join(22,HeroClass.CLERIC);
+                    Rat enemy=CoopMageTest.encounter(game,seat);
+                    Hero hero=game.hero(seat);
+                    ClassArmor armor=invest(game,seat,2,talent,rank);
+                    TierGrowthTest.powerTome(hero);
+                    HolyTome tome=hero.belongings.getItem(HolyTome.class);
+                    assertTrue(CoopFloorsTest.step(game,ARMOR_ABILITY,hero.pos+1,armor));
+                    SewerBeeTest.offer(game,seat);
+                    Char ally=PowerOfMany.getPoweredAlly(hero);
+                    assertNotNull(ally);
+                    allyId=ally.id(); foeId=enemy.id();
+                    int energy=tome.charges();
+                    int target=talent==Talent.LIFE_LINK ? hero.pos : enemy.pos;
+                    assertEquals(rank>0,CoopFloorsTest.step(game,CoopSession.Action.valueOf(talent.name()),target,tome));
+                    if(rank==0) continue;
+                    assertTrue(tome.charges()<energy);
+                    assertNull(game.hero(1-seat).buff(LifeLink.class));
+                    save=game.checkpoint();
+                }
+                try(CoopSession game=CoopSession.restore(save)) {
+                    Hero hero=game.hero(seat);
+                    Char ally=PowerOfMany.getPoweredAlly(hero);
+                    assertEquals(allyId,ally.id());
+                    assertEquals(rank,PowerOfMany.rankForAlly(ally,talent));
+                    assertNull(PowerOfMany.getPoweredAlly(game.hero(1-seat)));
+                    if(talent==Talent.BEAMING_RAY) {
+                        assertEquals(foeId,ally.buff(BeamingRay.BeamingRayBoost.class).object);
+                        Char foe=(Char)com.shatteredpixel.shatteredpixeldungeon.actors.Actor.findById(foeId);
+                        assertTrue(Dungeon.level.adjacent(ally.pos,foe.pos));
+                    } else {
+                        assertEquals(allyId,hero.buff(LifeLink.class).object);
+                        assertEquals(hero.id(),ally.buff(LifeLink.class).object);
+                        assertTrue(ally.buff(LifeLink.class).cooldown()>=Math.round(6.67f+3.33f*rank)-2);
+                        int hp=hero.HP;
+                        ally.damage(8,this);
+                        assertTrue(hero.HP<hp);
+                    }
+                }
+            }
+        }
     }
 }

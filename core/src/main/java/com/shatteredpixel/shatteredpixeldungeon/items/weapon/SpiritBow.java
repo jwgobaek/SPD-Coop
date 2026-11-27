@@ -224,6 +224,18 @@ public class SpiritBow extends Weapon {
     public boolean shootInCoop(Hero user, Char enemy, SnipersMark mark) {
         if (sniperSpecial || !supportedCoopEnchantment(this) || cursed)
             return false;
+        if (mark == null && user.hasTalent(Talent.NATURES_WRATH)
+                && user.buff(NaturesPower.naturesPowerTracker.class) != null) {
+            // Icecap affects the target and its neighbours. Refuse an unsupported compound
+            // interaction before rolling the plant, so a declined shot cannot reroll it.
+            for (int offset : com.watabou.utils.PathFinder.NEIGHBOURS9) {
+                int cell = enemy.pos + offset;
+                if (Dungeon.level.solid[cell]) continue;
+                Char resident = Actor.findChar(cell);
+                if (resident instanceof Hero && resident != user || Dungeon.level.heaps.get(cell) != null)
+                    return false;
+            }
+        }
         SpiritArrow arrow=knockArrow();
         int aim = mark == null ? enemy.pos : QuickSlotButton.autoAim(user,enemy,arrow);
         if (aim < 0 || arrow.throwPos(user,aim)!=enemy.pos) return false;

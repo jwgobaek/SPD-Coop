@@ -31,6 +31,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSp
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone;
 import com.watabou.utils.Bundle;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -364,7 +365,9 @@ public class SharedGrowthTest extends HeadlessDungeon {
                     assertEquals(0,Blob.volumeAt(center,HallowedGround.terrainType(friend)));
                     assertNotNull(hero.buff(Barrier.class));
                     assertNull(friend.buff(Barrier.class));
-                    assertEquals(com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.GRASS,Dungeon.level.map[center]);
+                    // The terrain Actor may have taken its first growth turn by this boundary.
+                    int tile=Dungeon.level.map[center];
+                    assertTrue(tile==Terrain.GRASS || tile==Terrain.HIGH_GRASS || tile==Terrain.FURROWED_GRASS);
                 }
                 saved=game.checkpoint();
             }
@@ -1003,5 +1006,53 @@ public class SharedGrowthTest extends HeadlessDungeon {
                     assertEquals(0,game.hero(1-seat).invisible);
                 }
             }
+    }
+    @Test public void fireClearsBothConsecrationsWhileOtherTerrainAndTrapsRemainOwnedByTheFloor() {
+        for (int first=0;first<2;first++) for(boolean sameSpell:new boolean[]{false,true}) {
+            int center;
+            Bundle save;
+            try(CoopSession game=CoopSession.open(572,11,HeroClass.CLERIC)) {
+                game.join(22,HeroClass.CLERIC);
+                CoopMageTest.encounter(game,first);
+                center=game.hero(first).pos+1;
+                com.shatteredpixel.shatteredpixeldungeon.levels.Level.set(center,
+                        com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.SECRET_TRAP);
+                Dungeon.level.setTrap(new com.shatteredpixel.shatteredpixeldungeon.levels.traps.PoisonDartTrap(),center);
+                for(int seat:new int[]{first,1-first}) {
+                    boolean wall=seat!=first && !sameSpell;
+                    Talent talent=wall ? Talent.WALL_OF_LIGHT : Talent.HALLOWED_GROUND;
+                    Hero hero=game.hero(seat);
+                    hero.lvl=25;
+                    hero.subClass=wall ? HeroSubClass.PALADIN : HeroSubClass.PRIEST;
+                    Talent.initSubclassTalents(hero);
+                    TierGrowthTest.powerTome(hero);
+                    SewerBeeTest.offer(game,seat);
+                    assertTrue(CoopFloorsTest.step(game,CoopSession.Action.INVEST_TALENT,talent.ordinal(),null));
+                    assertTrue(CoopFloorsTest.step(game,CoopSession.Action.valueOf(talent.name()),wall ? hero.pos+1:center,
+                            hero.belongings.getItem(HolyTome.class)));
+                }
+                assertTrue(Blob.volumeAt(center,HallowedGround.terrainType(game.hero(first)))>0);
+                assertEquals(!sameSpell,Dungeon.level.solid[center]);
+                save=game.checkpoint();
+            }
+            try(CoopSession game=CoopSession.restore(save)) {
+                if (sameSpell) {
+                    assertTrue(Blob.volumeAt(center,HallowedGround.terrainType(game.hero(1-first)))>0);
+                    GameScene.add(Blob.seed(center,5,com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire.class));
+                    for (int i=0;i<8 && (Blob.volumeAt(center,HallowedGround.terrainType(game.hero(first)))>0
+                            || Blob.volumeAt(center,HallowedGround.terrainType(game.hero(1-first)))>0);i++)
+                        assertTrue(CoopFloorsTest.step(game,CoopSession.Action.WAIT,0,null));
+                    for(int seat=0;seat<2;seat++) assertEquals(0,Blob.volumeAt(center,HallowedGround.terrainType(game.hero(seat))));
+                } else {
+                    Hero paladin=game.hero(1-first);
+                    SewerBeeTest.offer(game,1-first);
+                    assertTrue(CoopFloorsTest.step(game,CoopSession.Action.WALL_OF_LIGHT,paladin.pos,paladin.belongings.getItem(HolyTome.class)));
+                    assertTrue(Blob.volumeAt(center,HallowedGround.terrainType(game.hero(first)))>0);
+                    assertFalse(Dungeon.level.solid[center]);
+                }
+                assertTrue(Dungeon.level.traps.get(center).active);
+                assertFalse(Dungeon.level.traps.get(center).visible);
+            }
+        }
     }
 }

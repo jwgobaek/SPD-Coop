@@ -205,6 +205,9 @@ final class SeatProjection {
             rows.put("selftier",Integer.toString(hero.tier()));
             com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.AscendedForm.AscendBuff ascended =
                     hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.AscendedForm.AscendBuff.class);
+            if (hero.armorAbility instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.PowerOfMany
+                    && com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.PowerOfMany.getPoweredAlly(hero) != null)
+                rows.put("poweredspells","1");
             if (ascended != null) rows.put("ascendedspells",ascended.divineInverventionCast ? "used" : "ready");
             int staffReach = CoopSession.disintegrationReach(hero);
             if (staffReach > 1) rows.put("staffreach", Integer.toString(staffReach));
@@ -501,6 +504,8 @@ final class SeatProjection {
                         com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.WarpBeaconTracker beacon =
                                 hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.WarpBeaconTracker.class);
                         if (beacon != null) rows.put("beacondepth", Integer.toString(beacon.depth));
+                        else if (hero.armorAbility instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon
+                                && hero.hasTalent(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.REMOTE_BEACON)) rows.put("remotebeacon", "1");
                         rows.put("armorcharge"+ids.get(item),Integer.toString((int)((com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor)item).charge));
                     }
                     if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.TengusMask && game.mayUseMask(seat))

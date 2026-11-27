@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.ArmorAbility;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Shuriken;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
@@ -69,7 +70,7 @@ public class SpectralBlades extends ArmorAbility {
 		}
 
 		Ballistica b = new Ballistica(hero.pos, target, Ballistica.WONT_STOP);
-		final HashSet<Char> targets = new HashSet<>();
+		final HashSet<Char> targets = Dungeon.coop == null ? new HashSet<>() : new java.util.LinkedHashSet<>();
 
 		Char enemy = findChar(b, hero, 2*hero.pointsInTalent(Talent.PROJECTING_BLADES), targets);
 
@@ -78,13 +79,18 @@ public class SpectralBlades extends ArmorAbility {
 			return false;
 		}
 
+        if (Dungeon.coop != null && Dungeon.coop.abilityTarget(hero, enemy.pos) != enemy) return false;
+        SpiritBow bow = hero.belongings.getItem(SpiritBow.class);
+        if (Dungeon.coop != null && hero.hasTalent(Talent.SPIRIT_BLADES) && bow != null
+                && !SpiritBow.supportedCoopEnchantment(bow)) return false;
 		targets.add(enemy);
 
 		if (hero.hasTalent(Talent.FAN_OF_BLADES)){
 			ConeAOE cone = new ConeAOE(b, 30*hero.pointsInTalent(Talent.FAN_OF_BLADES));
 			for (Ballistica ray : cone.rays){
 				Char toAdd = findChar(ray, hero, 2*hero.pointsInTalent(Talent.PROJECTING_BLADES), targets);
-				if (toAdd != null && hero.fieldOfView[toAdd.pos]){
+				if (toAdd != null && hero.fieldOfView[toAdd.pos]
+                        && (Dungeon.coop == null || Dungeon.coop.abilityTarget(hero, toAdd.pos) == toAdd)){
 					targets.add(toAdd);
 				}
 			}

@@ -2,6 +2,8 @@ package com.shatteredpixel.shatteredpixeldungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.DivineIntervention;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Judgement;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Flash;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.LifeLinkSpell;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.BeamingRay;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.MindForm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.SpiritForm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.RecallInscription;
@@ -219,9 +221,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { DIVINE_INTERVENTION, JUDGEMENT, FLASH, READ_SCROLL, ENCHANT_TARGET, ENCHANT_CHOOSE, ENCHANT_CANCEL, TRINITY_MIND, TRINITY_SPIRIT, RECALL_INSCRIPTION, MIND_FORM, SPIRIT_FORM, BODY_FORM, HOLY_INTUITION, BLESS, DETACH_SEAL, AFFIX_SEAL, KEEP_ARMOR_GLYPH, TRANSFER_SEAL_GLYPH, READ_RECHARGING, EQUIP_SECOND, SWAP_WEAPONS, MONK_FLURRY, MONK_DASH, MONK_DRAGONKICK, MONK_MEDITATE, MONK_FOCUS, RADIANCE, SMITE, ASSASSINATE, FREERUN, DIVINE_SENSE, SUNRAY, SHIELD_OF_LIGHT, GUIDING_LIGHT, HOLY_WEAPON, HOLY_WARD, WEAPON_ABILITY, IMBUE, CLOAK, USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT, CLEANSE, HOLY_LANCE, ENCHANT_BOW, LAY_ON_HANDS, AURA_OF_PROTECTION, ALLY_WARP, MNEMONIC_PRAYER, HALLOWED_GROUND, WALL_OF_LIGHT;
+    public enum Action { LIFE_LINK, BEAMING_RAY, DIVINE_INTERVENTION, JUDGEMENT, FLASH, READ_SCROLL, ENCHANT_TARGET, ENCHANT_CHOOSE, ENCHANT_CANCEL, TRINITY_MIND, TRINITY_SPIRIT, RECALL_INSCRIPTION, MIND_FORM, SPIRIT_FORM, BODY_FORM, HOLY_INTUITION, BLESS, DETACH_SEAL, AFFIX_SEAL, KEEP_ARMOR_GLYPH, TRANSFER_SEAL_GLYPH, READ_RECHARGING, EQUIP_SECOND, SWAP_WEAPONS, MONK_FLURRY, MONK_DASH, MONK_DRAGONKICK, MONK_MEDITATE, MONK_FOCUS, RADIANCE, SMITE, ASSASSINATE, FREERUN, DIVINE_SENSE, SUNRAY, SHIELD_OF_LIGHT, GUIDING_LIGHT, HOLY_WEAPON, HOLY_WARD, WEAPON_ABILITY, IMBUE, CLOAK, USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT, CLEANSE, HOLY_LANCE, ENCHANT_BOW, LAY_ON_HANDS, AURA_OF_PROTECTION, ALLY_WARP, MNEMONIC_PRAYER, HALLOWED_GROUND, WALL_OF_LIGHT;
         public boolean requiresItem() {
-            return this==DIVINE_INTERVENTION || this==JUDGEMENT || this==FLASH || this==READ_SCROLL || this==ENCHANT_TARGET || this==HALLOWED_GROUND || this==WALL_OF_LIGHT || this==MNEMONIC_PRAYER || this==LAY_ON_HANDS || this==AURA_OF_PROTECTION || this==ENCHANT_BOW || this==HOLY_LANCE || this==CLEANSE || this==READ_RECHARGING || this==TRINITY_MIND || this==TRINITY_SPIRIT || this==RECALL_INSCRIPTION || this==MIND_FORM || this==SPIRIT_FORM || this==BODY_FORM || this==HOLY_INTUITION || this==BLESS || this==DETACH_SEAL || this==AFFIX_SEAL || this==KEEP_ARMOR_GLYPH || this==TRANSFER_SEAL_GLYPH || this==EQUIP_SECOND || this==RADIANCE || this==SMITE || this==DIVINE_SENSE || this==SUNRAY || this==SHIELD_OF_LIGHT || this==GUIDING_LIGHT || this==HOLY_WEAPON || this==HOLY_WARD || this==WEAPON_ABILITY || this==IMBUE || this==CLOAK || this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
+            return this==LIFE_LINK || this==BEAMING_RAY || this==DIVINE_INTERVENTION || this==JUDGEMENT || this==FLASH || this==READ_SCROLL || this==ENCHANT_TARGET || this==HALLOWED_GROUND || this==WALL_OF_LIGHT || this==MNEMONIC_PRAYER || this==LAY_ON_HANDS || this==AURA_OF_PROTECTION || this==ENCHANT_BOW || this==HOLY_LANCE || this==CLEANSE || this==READ_RECHARGING || this==TRINITY_MIND || this==TRINITY_SPIRIT || this==RECALL_INSCRIPTION || this==MIND_FORM || this==SPIRIT_FORM || this==BODY_FORM || this==HOLY_INTUITION || this==BLESS || this==DETACH_SEAL || this==AFFIX_SEAL || this==KEEP_ARMOR_GLYPH || this==TRANSFER_SEAL_GLYPH || this==EQUIP_SECOND || this==RADIANCE || this==SMITE || this==DIVINE_SENSE || this==SUNRAY || this==SHIELD_OF_LIGHT || this==GUIDING_LIGHT || this==HOLY_WEAPON || this==HOLY_WARD || this==WEAPON_ABILITY || this==IMBUE || this==CLOAK || this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -998,8 +1000,8 @@ public final class CoopSession implements AutoCloseable {
         }
     }
 
-    private Char abilityTarget(Hero hero, int cell) {
-        if (!Dungeon.level.insideMap(cell) || !knowledge(activeSeat).visible(cell)) return null;
+    public Char abilityTarget(Hero hero, int cell) {
+        if (!Dungeon.level.insideMap(cell) || !knowledge(hero).visible(cell)) return null;
         Char foe = Actor.findChar(cell);
         if (!(foe instanceof Mob) || !basicMob(foe) || !foe.isAlive() || foe.invisible > 0
                 || foe.alignment != Char.Alignment.ENEMY || hero.isCharmedBy(foe)) return null;
@@ -1043,7 +1045,7 @@ public final class CoopSession implements AutoCloseable {
             case ARCANE_VISION: case HEIGHTENED_SENSES: case WAND_PRESERVATION: case SHIELD_BATTERY: case LIQUID_NATURE: case REJUVENATING_STEPS: case DURABLE_PROJECTILES:
             case DIVINE_SENSE: case SUNRAY: case SHIELD_OF_LIGHT:
             case PROTECTIVE_SHADOWS: case SUCKER_PUNCH: case MYSTICAL_MEAL: case INSCRIBED_STEALTH: case THIEFS_INTUITION:
-            case DIVINE_INTERVENTION: case JUDGEMENT: case FLASH:
+            case BEAMING_RAY: case LIFE_LINK: case DIVINE_INTERVENTION: case JUDGEMENT: case FLASH:
             case CLOSE_THE_GAP: case INVIGORATING_VICTORY: case ELIMINATION_MATCH:
             case HASTY_RETREAT: case BODY_REPLACEMENT: case SHADOW_STEP:
             case GROWING_POWER: case FEIGNED_RETREAT: case EXPOSE_WEAKNESS:
@@ -1053,7 +1055,8 @@ public final class CoopSession implements AutoCloseable {
             case SUSTAINED_RETRIBUTION: case SHRUG_IT_OFF: case EVEN_THE_ODDS:
             case BLAST_RADIUS: case ELEMENTAL_POWER: case REACTIVE_BARRIER:
             case WILD_POWER: case FIRE_EVERYTHING: case CONSERVED_MAGIC:
-            case EAGLE_EYE: case SWIFT_SPIRIT: case GO_FOR_THE_EYES:
+            case FAN_OF_BLADES: case PROJECTING_BLADES: case SPIRIT_BLADES: case NATURES_WRATH: case WILD_MOMENTUM:
+            case TELEFRAG: case REMOTE_BEACON: case COUNTER_ABILITY: case DIRECTED_POWER: case EAGLE_EYE: case SWIFT_SPIRIT: case GO_FOR_THE_EYES:
             case ROGUES_FORESIGHT: case SILENT_STEPS: case HEROIC_ENERGY: case SEARING_LIGHT: case LIQUID_AGILITY: case SWIFT_EQUIP: case WEAPON_RECHARGING:
             case PATIENT_STRIKE: case AGGRESSIVE_BARRIER: case LETHAL_HASTE: case WIDE_SEARCH:
             case ADVENTURERS_INTUITION: case STRENGTHENING_MEAL: case FOCUSED_MEAL: case SATIATED_SPELLS: case ENLIGHTENING_MEAL:
@@ -1410,12 +1413,21 @@ public final class CoopSession implements AutoCloseable {
                     }
                     break;
                 }
-                case DIVINE_INTERVENTION: case JUDGEMENT: case FLASH: {
+                case BEAMING_RAY: case LIFE_LINK: case DIVINE_INTERVENTION: case JUDGEMENT: case FLASH: {
                     if (!(item instanceof HolyTome) || !hero.belongings.contains(item) || ownership.owner(item)!=player) return false;
                     HolyTome tome = (HolyTome)item;
-                    ClericSpell spell = action == Action.FLASH ? Flash.INSTANCE : action == Action.JUDGEMENT ? Judgement.INSTANCE : DivineIntervention.INSTANCE;
+                    ClericSpell spell;
+                    switch (action) {
+                        case BEAMING_RAY: spell = BeamingRay.INSTANCE; break;
+                        case LIFE_LINK: spell = LifeLinkSpell.INSTANCE; break;
+                        case FLASH: spell = Flash.INSTANCE; break;
+                        case JUDGEMENT: spell = Judgement.INSTANCE; break;
+                        default: spell = DivineIntervention.INSTANCE;
+                    }
                     if (!tome.canCast(hero,spell) || !ClericSpell.getSpellList(hero,4).contains(spell)) return false;
-                    if (action == Action.FLASH) {
+                    if (action == Action.BEAMING_RAY) {
+                        if (!BeamingRay.INSTANCE.cast(tome,hero,cell)) return false;
+                    } else if (action == Action.FLASH) {
                         if (!Flash.INSTANCE.cast(tome,hero,cell)) return false;
                     } else {
                         if (cell != hero.pos) return false;
@@ -1713,12 +1725,13 @@ public final class CoopSession implements AutoCloseable {
                     }
                     break;
                 case ATTACK:
-                    if (!level.insideMap(cell) || !knowledge(activeSeat).visible(cell)) return false;
+                    if (cell < 0 || cell >= level.length()) return false;
                     Char enemy = Actor.findChar(cell);
-                    if (!level.adjacent(hero.pos,cell) && (disintegrationReach(hero) <= 1 || !hero.canAttack(enemy))) return false;
                     if (!(enemy instanceof Mob) || !basicMob(enemy) || enemy.alignment != Char.Alignment.ENEMY
                             || !enemy.isAlive() || enemy.invisible > 0 || !hero.fieldOfView[cell]
                             || hero.isCharmedBy(enemy)) return false;
+                    if (!level.adjacent(hero.pos, cell) && (disintegrationReach(hero) <= 1
+                            || !knowledge(activeSeat).visible(cell) || !hero.canAttack(enemy))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(cell) || !(hero.curAction instanceof HeroAction.Attack)) throw new IllegalStateException("Unexpected attack action");
                     lastOpponent[activeSeat] = (Mob)enemy;
