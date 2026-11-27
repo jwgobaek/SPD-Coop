@@ -198,7 +198,7 @@ public class SubclassActionTest extends HeadlessDungeon {
             return new StagedInput(g,"INVEST_TALENT",talent.ordinal());
         }
         switch(type) {
-        case "paladinheal": case "paladinaura": case "prayer": case "hallow": case "wall": case "bowstone": case "bowrank": case "bowthrow":
+        case "warpwraith": case "hornhit": case "cloakring": case "packedcloak": case "bookward": case "paladinheal": case "paladinaura": case "prayer": case "hallow": case "wall": case "bowstone": case "bowrank": case "bowthrow":
             return SharedGrowthTest.stage(g,seat,type,rat);
         case "poisontip": case "holylance": case "cleanse": case "scoutshot": case "holdfast": case "deathlesswait": case "deathlesstrap":
             return TierGrowthTest.stage(g, seat, type);
@@ -343,7 +343,7 @@ public class SubclassActionTest extends HeadlessDungeon {
             return h.pointsInTalent(talent)==1 && g.hero(1-seat).pointsInTalent(talent)==0;
         }
         switch(type) {
-        case "paladinheal": case "paladinaura": case "prayer": case "hallow": case "wall": case "bowstone": case "bowrank": case "bowthrow":
+        case "warpwraith": case "hornhit": case "cloakring": case "packedcloak": case "bookward": case "paladinheal": case "paladinaura": case "prayer": case "hallow": case "wall": case "bowstone": case "bowrank": case "bowthrow":
             return SharedGrowthTest.published(g,seat,type);
         case "poisontip": case "holylance": case "cleanse": case "scoutshot": case "holdfast": case "deathlesswait": case "deathlesstrap":
             return TierGrowthTest.published(g, seat, type);

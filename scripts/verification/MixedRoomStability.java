@@ -66,7 +66,8 @@ public final class MixedRoomStability {
 
     static final String[] SHARED_GROWTH = {"bowstone0","bowstone1","bowrank0","bowrank1","bowthrow0","bowthrow1",
             "paladinheal0","paladinheal1","paladinaura0","paladinaura1","prayer0","prayer1","hallow0","hallow1",
-            "wall0","wall1","spark0","monkfocus1","poisontip0","elestrike1","food","dart","floor","mine"};
+            "wall0","wall1","warpwraith0","warpwraith1","hornhit0","hornhit1","cloakring0","cloakring1",
+            "packedcloak0","packedcloak1","bookward0","bookward1","spark0","monkfocus1","poisontip0","elestrike1","food","dart","floor","mine"};
 
     static final String[] CACHE_GROWTH = {"cacheinvest0","cacheinvest1","trinityblockhistory0","trinityblockhistory1",
             "strikekinetic0","strikekinetic1","strikebloom0","strikebloom1","readrecharge0","readrecharge1","recallrecharge0","recallrecharge1","food","floor"};
@@ -85,11 +86,11 @@ public final class MixedRoomStability {
     static String stageClass(String stage,int seat) {
         if (stage==null) return seat==0 && Boolean.getBoolean("stability.rogue")?"ROGUE":seat==0?"MAGE":"HUNTRESS";
         if (stage.startsWith("cacheinvest")) return seat == stage.charAt(stage.length()-1)-'0' ? "ROGUE" : "MAGE";
-        if (stage.matches("(spark|ice|iceimbue|iceblast|icevolley|imbue|volley)[01]")) return "MAGE";
+        if (stage.matches("(warpwraith|hornhit|spark|ice|iceimbue|iceblast|icevolley|imbue|volley)[01]")) return "MAGE";
         if (stage.matches("(strikekinetic|strikebloom|strikeblock|strikeshock|strikevenom|heroicenergy|challenge|elestrike|feint|monkflurry|monkdash|monkdragonkick|monkmeditate|swap|monkfocus|stance|guardshield|lunge|spike|charged)[01]")) return "DUELIST";
-        if (stage.matches("(paladinheal|paladinaura|prayer|hallow|wall|holylance|cleanse|trinitymindmissilehistory|trinityblockhistory|readrecharge|recallrecharge|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinity|trinityselect|trinitymind|trinitymindselect|trinityspirit|trinityspiritselect|lightally|lightorder|ascendform|intuition|bless|recallid|radiance|smite|divinesense|sunray|lightshield|light|ward|blessweapon)[01]")) return "CLERIC";
+        if (stage.matches("(bookward|paladinheal|paladinaura|prayer|hallow|wall|holylance|cleanse|trinitymindmissilehistory|trinityblockhistory|readrecharge|recallrecharge|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinity|trinityselect|trinitymind|trinitymindselect|trinityspirit|trinityspiritselect|lightally|lightorder|ascendform|intuition|bless|recallid|radiance|smite|divinesense|sunray|lightshield|light|ward|blessweapon)[01]")) return "CLERIC";
         if (stage.matches("(bowstone|bowrank|bowthrow|poisontip|scoutshot|hawk|direct)[01]") || stage.startsWith("blades")) return "HUNTRESS";
-        if (stage.matches("(markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) return "ROGUE";
+        if (stage.matches("(cloakring|packedcloak|markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) return "ROGUE";
         if (stage.startsWith("beacon") || stage.startsWith("recall") || stage.startsWith("battery")) return "MAGE";
         return "WARRIOR";
     }

@@ -70,6 +70,44 @@ public class SharedGrowthTest extends HeadlessDungeon {
     }
 
     static StagedInput stage(CoopSession game, int seat, String kind, Rat target) {
+        if (kind.equals("warpwraith")) {
+            Hero mage=TierGrowthTest.prepare(game,seat,HeroSubClass.WARLOCK,Talent.ALLY_WARP,2);
+            Wraith ally=Wraith.spawnAt(mage.pos-2,Wraith.class);
+            Buff.affect(ally,Corruption.class);
+            ally.bindSummoner(mage);
+            game.observe(seat);
+            return new StagedInput(game,"ALLY_WARP",ally.pos);
+        }
+        if (kind.equals("hornhit")) {
+            Hero mage=TierGrowthTest.prepare(game,seat,HeroSubClass.BATTLEMAGE,Talent.MYSTICAL_CHARGE,2);
+            target.pos=mage.pos+1;
+            Buff.prolong(target,Paralysis.class,40f);
+            HornOfPlenty horn=new HornOfPlenty();
+            Dungeon.level.drop(horn,mage.pos);
+            assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,mage.pos,horn));
+            SewerBeeTest.offer(game,seat);
+            assertTrue(CoopFloorsTest.step(game,CoopSession.Action.EQUIP,0,horn));
+            SewerBeeTest.offer(game,seat);
+            return new StagedInput(game,"ATTACK",target.pos);
+        }
+        if (kind.equals("cloakring")) {
+            Hero rogue=TierGrowthTest.prepare(game,seat,HeroSubClass.ASSASSIN,Talent.ENHANCED_RINGS,2);
+            RingOfHaste ring=new RingOfHaste();
+            Dungeon.level.drop(ring,rogue.pos);
+            assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,rogue.pos,ring));
+            SewerBeeTest.offer(game,seat);
+            ring.identify(false);
+            assertTrue(CoopFloorsTest.step(game,CoopSession.Action.EQUIP,0,ring));
+            SewerBeeTest.offer(game,seat);
+            return new StagedInput(game,"CLOAK",0);
+        }
+        if (kind.equals("packedcloak") || kind.equals("bookward")) {
+            Hero hero=game.hero(seat);
+            boolean rogue=kind.equals("packedcloak");
+            assertTrue(CoopFloorsTest.step(game,CoopSession.Action.UNEQUIP,0,hero.belongings.artifact));
+            TierGrowthTest.prepare(game,seat,rogue?HeroSubClass.ASSASSIN:HeroSubClass.PRIEST,rogue?Talent.LIGHT_CLOAK:Talent.LIGHT_READING,2);
+            return new StagedInput(game,rogue?"CLOAK":"HOLY_WARD",rogue?0:hero.pos);
+        }
         Talent spell;
         switch (kind) {
             case "paladinheal": spell = Talent.LAY_ON_HANDS; break;
@@ -113,6 +151,17 @@ public class SharedGrowthTest extends HeadlessDungeon {
     static boolean published(CoopSession game,int seat,String kind) {
         Hero hero=game.hero(seat);
         switch (kind) {
+            case "warpwraith":
+                int oldPosition=game.hero(1-seat).pos-Dungeon.level.width();
+                return hero.pos==oldPosition-2 && Dungeon.level.mobs.stream().anyMatch(m ->
+                        m instanceof Wraith && m.pos==oldPosition && CoopSession.summonerOf(m)==hero);
+            case "hornhit":
+                Bundle state=new Bundle();
+                hero.belongings.getItem(HornOfPlenty.class).storeInBundle(state);
+                return state.getFloat("partialcharge")>=.25f && game.hero(1-seat).belongings.getItem(HornOfPlenty.class)==null;
+            case "cloakring": return hero.invisible>0 && hero.belongings.getItem(RingOfHaste.class).buffedLvl()==1;
+            case "packedcloak": return hero.invisible>0 && hero.belongings.artifact==null;
+            case "bookward": return hero.belongings.artifact==null && hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyWard.HolyArmBuff.class)!=null;
             case "paladinheal": return hero.buff(Barrier.class) != null && game.hero(1-seat).buff(Barrier.class) == null;
             case "paladinaura": return AuraOfProtection.source(hero) == hero && AuraOfProtection.source(game.hero(1-seat)) == null;
             case "prayer": return Dungeon.level.mobs.stream().anyMatch(m -> m.buff(Blindness.class) != null && m.buff(Blindness.class).mnemonicExtended);
