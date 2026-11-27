@@ -696,6 +696,36 @@ public class SharedGrowthTest extends HeadlessDungeon {
         }
     }
 
+    @Test public void projectingUsesOnlyTheThrowersBowOrTheMissilesOwnEnchantment() {
+        for (int seat=0;seat<2;seat++) for (boolean ownMissile:new boolean[]{false,true}) {
+            try (CoopSession game=CoopSession.open(572,11,HeroClass.HUNTRESS)) {
+                game.join(22,HeroClass.HUNTRESS);
+                Hero hero=TierGrowthTest.prepare(game,seat,HeroSubClass.SNIPER,Talent.SHARED_ENCHANTMENT,ownMissile?0:3);
+                Rat target=CoopMageTest.encounter(game,seat);
+                Rat intervening=new Rat();
+                intervening.pos=hero.pos+1;
+                com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.add(intervening,2000);
+                target.pos=hero.pos+3;
+                Buff.prolong(target,Paralysis.class,20f);
+                SpiritBow bow=hero.belongings.getItem(SpiritBow.class);
+                ThrowingStone missile=new ThrowingStone();
+                com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Projecting projecting =
+                        new com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Projecting();
+                if (ownMissile) missile.enchant(projecting);
+                else bow.enchant(projecting);
+                assertTrue(missile.collect(hero.belongings.backpack));
+                game.ownership.claim(missile,game.player(seat));
+                game.observe(seat);
+                SewerBeeTest.offer(game,seat);
+                int hp=target.HP, guardHP=intervening.HP;
+                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.THROW,target.pos,missile));
+                assertTrue(target.HP<hp);
+                assertEquals(guardHP,intervening.HP);
+                assertNull(game.hero(1-seat).belongings.getItem(SpiritBow.class).enchantment);
+            }
+        }
+    }
+
     @Test public void aPackedClassArtifactUsesOnlyItsOwnersTalentAndSurvivesRestore() {
         for (HeroClass role : new HeroClass[]{HeroClass.ROGUE,HeroClass.CLERIC})
             for (int seat=0;seat<2;seat++) for (int rank=0;rank<=3;rank++) {

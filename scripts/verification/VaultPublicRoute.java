@@ -36,7 +36,7 @@ public final class VaultPublicRoute {
         int recoveryWaits, coveredWaits;
         final boolean campaignGuide=Boolean.getBoolean("trial.campaignGuide");
         int exitWaits;
-        private boolean useSideCover() { return regroup.equals("sidecover") || regroup.equals("holdcover") || regroup.equals("nextcover"); }
+        private boolean useSideCover() { return regroup.equals("sidecover") || regroup.equals("holdcover") || regroup.equals("nextcover") || regroup.equals("shelterexit"); }
         boolean doorwayStrategy() { return useSideCover() || regroup.equals("recoverexit") || regroup.equals("coverexit") || regroup.equals("crossonce") || regroup.equals("doorway") || regroup.equals("followdoor") || regroup.equals("exitcover") || regroup.equals("trail") || regroup.equals("safeexit") || regroup.equals("handoff"); }
         private boolean visibleDoor(PublicDungeon v, int cell) {
             if (cell<0 || !v.visible(cell)) return false;
@@ -136,7 +136,7 @@ public final class VaultPublicRoute {
                 int cover=exposed-exposedTo(v,c);
                 boolean withdrawFromShooter = regroup.equals("holdcover") && exposed>0 && !escortFollower
                         && v.hp*2<v.maxHp && v.ally>=0 && distance(c,v.ally,v.width)<distance(v.pos,v.ally,v.width);
-                boolean coveredNext = regroup.equals("nextcover") && exposed>0 && gap>1 && coverOnSecondMove(v,c);
+                boolean coveredNext = (regroup.equals("nextcover") || regroup.equals("shelterexit")) && exposed>0 && gap>1 && coverOnSecondMove(v,c);
                 if (cover<0 || (cover==0 && !coveredNext && (gap<=previous || previous>2 && !withdrawFromShooter))) continue;
                 int value=80*cover+(coveredNext ? 30 : 0)+10*gap-4*(lastAlly<0?0:distance(lastAlly,c,v.width))-visits.getOrDefault(c,0);
                 // When equally safe, guard the injured follower's route past a known threshold.
@@ -276,6 +276,12 @@ public final class VaultPublicRoute {
                         && (i.kind.equals("MELEE") || i.kind.equals("ARMOR"))
                         && v.belongings.stream().noneMatch(e -> e.slot.equals(i.kind.equals("MELEE")?"WEAPON":"ARMOR"))) return new Input("EQUIP",0,i.id);
             }
+            boolean exposedParty = team && regroup.equals("shelterexit") && !recentShooters.isEmpty()
+                    && (v.hp * 3 < 2 * v.maxHp || v.ally >= 0 && v.hp < v.maxHp);
+            if (exposedParty && exposedTo(v,v.pos)>0) {
+                int cover = retreat(v);
+                if (cover >= 0) return new Input("MOVE",cover,0);
+            }
             if (restUnderCover) {
                 if (!v.monsters.isEmpty()) recoveryWaits = 0;
                 if (!hungry && v.monsters.isEmpty() && recentShooters.isEmpty() && v.ally >= 0
@@ -348,13 +354,15 @@ public final class VaultPublicRoute {
                     for (int neighbor : new int[]{c-1,c+1,c-v.width,c+v.width}) {
                         if (neighbor>=0 && neighbor<n && v.terrain(neighbor)<0) value+=8;
                     }
+                    if (exposedParty && rememberedExposure(v,first[c])>0) value-=170;
+                    if (exposedParty && v.ally>=0 && first[c]==v.ally) continue;
                     if (v.branch==0 && tile==Terrain.EXIT) value+=campaignGuide ? 600 : 220;
                     if (campaignGuide && v.branch==0 && v.ally>=0 && v.terrain(v.ally)==Terrain.EXIT
                             && adjacent(c,v.ally,v.width)) value+=600;
                     if (v.ally>=0) value-=2*Math.max(Math.abs(c%v.width-v.ally%v.width), Math.abs(c/v.width-v.ally/v.width));
                     if (team && lastAlly>=0) value-=8*Math.max(0,distance(c,lastAlly,v.width)-3);
                     PublicDungeon.Loot item=v.floor.get(c);
-                    if (!protectExit && item!=null && !rejectedItems.contains(item.id) && !(item.sprite==
+                    if (!protectExit && !exposedParty && item!=null && !rejectedItems.contains(item.id) && !(item.sprite==
                             com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.DEWDROP && v.hp==v.maxHp)) {
                         value+=150;
                         if (team && v.visible(c) && (item.kind.equals("MELEE") || item.sprite==

@@ -1069,6 +1069,11 @@ public final class CoopRenderSmoke {
         if (spell) {
             com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.ClericSpell selected;
             switch (kind) {
+            case "paladinheal": selected = LayOnHands.INSTANCE; break;
+            case "paladinaura": selected = AuraOfProtection.INSTANCE; break;
+            case "prayer": selected = MnemonicPrayer.INSTANCE; break;
+            case "hallow": selected = HallowedGround.INSTANCE; break;
+            case "wall": selected = WallOfLight.INSTANCE; break;
             case "holylance": selected = com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyLance.INSTANCE; break;
             case "cleanse": selected = com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Cleanse.INSTANCE; break;
             case "sunray": selected = com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Sunray.INSTANCE; break;
@@ -1077,7 +1082,9 @@ public final class CoopRenderSmoke {
             String name = "#" + selected.name();
             waitForButton(name); shot("learned-spell"); click(name);
         }
-        if (!kind.equals("cleanse")) {
+        if (kind.equals("paladinheal") || kind.equals("hallow")) target=view.pos;
+        if (kind.equals("wall")) target=view.pos+1;
+        if (!kind.equals("cleanse") && !kind.equals("paladinaura")) {
             shot(kind + "-aim");
             press(mapPoint(view,target));
         }
@@ -1087,6 +1094,8 @@ public final class CoopRenderSmoke {
         if (kind.equals("cleanse") && current.shield <= view.shield) throw new AssertionError("Missing cleanse barrier");
         int spent = item.charges - current.belongings.stream().filter(i -> i.id == item.id).findFirst().orElseThrow().charges;
         if ((kind.equals("holylance") && spent != 4) || (kind.equals("cleanse") && spent != 2)) throw new AssertionError("Unexpected tome cost " + spent);
+        int expected = kind.equals("wall") ? 3 : kind.equals("hallow") || kind.equals("paladinaura") ? 2 : kind.equals("paladinheal") || kind.equals("prayer") ? 1 : spent;
+        if (spent!=expected) throw new AssertionError(kind+" tome cost "+spent);
         shot(kind + "-hit");
         System.out.println("PASS actual " + kind + " charges " + item.charges + " to " + (item.charges-spent));
     }
