@@ -8,7 +8,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.lan.ProjectionChecks;
 import com.shatteredpixel.shatteredpixeldungeon.lan.PublicDungeon;
 import com.watabou.utils.Reflection;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import static org.junit.Assert.*;
 
 /** A fresh unknown appearance table isolates the public representation of each generated type. */
@@ -18,6 +21,7 @@ public final class UnidentifiedProjectionSurvey extends HeadlessDungeon {
         survey.temporary.create();
         survey.startBackend();
         try {
+            Map<String, String> publicShapes = new HashMap<>();
             for (Generator.Category category : new Generator.Category[]{Generator.Category.POTION, Generator.Category.SCROLL}) {
                 for (Class<?> type : category.classes) for (int seat = 0; seat < 2; seat++) {
                     try (CoopSession game = CoopSession.open(572, 11, HeroClass.WARRIOR)) {
@@ -36,9 +40,20 @@ public final class UnidentifiedProjectionSurvey extends HeadlessDungeon {
                         assertFalse(own.source.rows.containsKey("label" + bag.id));
                         assertFalse(own.source.rows.containsKey("brewexotic" + bag.id));
                         if (scroll) assertTrue(own.source.rows.get("brew" + bag.id).startsWith("unknown,"));
+                        // Compare what the player can infer from menus and action flags, including
+                        // numeric fields. The randomized appearance itself is intentional.
+                        String[] fields = own.source.rows.get("i" + bag.id).split(",", -1);
+                        fields[2] = "appearance";
+                        String signature = Arrays.toString(fields) + "|" + own.actions(bag) + "|"
+                                + PublicDungeon.shortcutAction(bag) + "|" + bag.stackType + "|"
+                                + own.source.rows.get("brew" + bag.id) + "|"
+                                + own.source.rows.get("exoticrecipe" + bag.id) + "|"
+                                + own.source.rows.get("potionthrow" + bag.id);
+                        String previous = publicShapes.putIfAbsent(category + "/" + seat, signature);
+                        if (previous != null) assertEquals(type.getSimpleName(), previous, signature);
                         for (int recipient = 0; recipient < 2; recipient++) {
-                            String fields = ProjectionChecks.seatImage(game, recipient).source.rows.toString().toLowerCase(Locale.ROOT);
-                            assertFalse(type.getSimpleName(), fields.contains(type.getSimpleName().toLowerCase(Locale.ROOT)));
+                            String snapshot = ProjectionChecks.seatImage(game, recipient).source.rows.toString().toLowerCase(Locale.ROOT);
+                            assertFalse(type.getSimpleName(), snapshot.contains(type.getSimpleName().toLowerCase(Locale.ROOT)));
                         }
                         System.out.println("PASS " + type.getSimpleName() + " owner=" + seat);
                     }
