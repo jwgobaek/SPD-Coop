@@ -78,7 +78,8 @@ public final class MixedRoomStability {
             "packedcloak0","packedcloak1","bookward0","bookward1","spark0","monkfocus1","poisontip0","elestrike1","food","dart","floor","mine"};
 
     static final String[] ENCHANTMENT = {"scrollread0","scrollread1","scrolltarget0","scrolltarget1","scrollapply0",
-            "scrollabort1","eagleview0","eagleview1","bowthrow0","spark1","hallow0","feint1","food","dart","floor","mine"};
+            "scrollabort1","eagleview0","eagleview1","remoteplace0","rayblast1","ninjalog1",
+            "divineshield1","lifelink0","beamingray1","bowthrow0","spark1","hallow0","feint1","food","dart","floor","mine"};
 
     static final String[] CACHE_GROWTH = {"cacheinvest0","cacheinvest1","trinityblockhistory0","trinityblockhistory1",
             "strikekinetic0","strikekinetic1","strikebloom0","strikebloom1","readrecharge0","readrecharge1","recallrecharge0","recallrecharge1","food","floor"};
@@ -97,10 +98,11 @@ public final class MixedRoomStability {
     static String stageClass(String stage,int seat) {
         if (stage==null) return seat==0 && Boolean.getBoolean("stability.rogue")?"ROGUE":seat==0?"MAGE":"HUNTRESS";
         if (stage.matches("(scrollread|scrolltarget|scrollapply|scrollabort|eagleview)[01]")) return "HUNTRESS";
+        if (stage.startsWith("ninjalog")) return "ROGUE";
         if (stage.startsWith("cacheinvest")) return seat == stage.charAt(stage.length()-1)-'0' ? "ROGUE" : "MAGE";
-        if (stage.matches("(warpwraith|hornhit|spark|ice|iceimbue|iceblast|icevolley|imbue|volley)[01]")) return "MAGE";
+        if (stage.matches("(remoteplace|rayblast|warpwraith|hornhit|spark|ice|iceimbue|iceblast|icevolley|imbue|volley)[01]")) return "MAGE";
         if (stage.matches("(strikekinetic|strikebloom|strikeblock|strikeshock|strikevenom|heroicenergy|challenge|elestrike|feint|monkflurry|monkdash|monkdragonkick|monkmeditate|swap|monkfocus|stance|guardshield|lunge|spike|charged)[01]")) return "DUELIST";
-        if (stage.matches("(bookward|paladinheal|paladinaura|prayer|hallow|wall|holylance|cleanse|trinitymindmissilehistory|trinityblockhistory|readrecharge|recallrecharge|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinity|trinityselect|trinitymind|trinitymindselect|trinityspirit|trinityspiritselect|lightally|lightorder|ascendform|intuition|bless|recallid|radiance|smite|divinesense|sunray|lightshield|light|ward|blessweapon)[01]")) return "CLERIC";
+        if (stage.matches("(beamingray|lifelink|divineshield|bookward|paladinheal|paladinaura|prayer|hallow|wall|holylance|cleanse|trinitymindmissilehistory|trinityblockhistory|readrecharge|recallrecharge|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinity|trinityselect|trinitymind|trinitymindselect|trinityspirit|trinityspiritselect|lightally|lightorder|ascendform|intuition|bless|recallid|radiance|smite|divinesense|sunray|lightshield|light|ward|blessweapon)[01]")) return "CLERIC";
         if (stage.matches("(bowstone|bowrank|bowthrow|poisontip|scoutshot|hawk|direct)[01]") || stage.startsWith("blades")) return "HUNTRESS";
         if (stage.matches("(cloakring|packedcloak|markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) return "ROGUE";
         if (stage.startsWith("beacon") || stage.startsWith("recall") || stage.startsWith("battery")) return "MAGE";
@@ -148,7 +150,7 @@ public final class MixedRoomStability {
         if (verb.equals("READ_SCROLL")) item=view.belongings.stream().filter(it->view.actions(it).contains(verb)).findFirst().get().id;
         if (verb.equals("ENCHANT_TARGET")) item=view.belongings.stream().filter(it->view.source.rows.containsKey("enchantgear"+it.id)).findFirst().get().id;
         if (verb.equals("SHOOT")) item=view.belongings.stream().filter(it->it.kind.equals("BOW")).findFirst().get().id;
-        if (verb.matches("LAY_ON_HANDS|AURA_OF_PROTECTION|MNEMONIC_PRAYER|HALLOWED_GROUND|WALL_OF_LIGHT|HOLY_LANCE|CLEANSE|BODY_FORM|MIND_FORM|SPIRIT_FORM|BLESS|HOLY_INTUITION|RECALL_INSCRIPTION|SMITE|RADIANCE|DIVINE_SENSE|SUNRAY|SHIELD_OF_LIGHT|GUIDING_LIGHT|HOLY_WEAPON|HOLY_WARD")) item=view.belongings.stream().filter(it->view.actions(it).contains("CAST")).findFirst().get().id;
+        if (verb.matches("BEAMING_RAY|LIFE_LINK|DIVINE_INTERVENTION|LAY_ON_HANDS|AURA_OF_PROTECTION|MNEMONIC_PRAYER|HALLOWED_GROUND|WALL_OF_LIGHT|HOLY_LANCE|CLEANSE|BODY_FORM|MIND_FORM|SPIRIT_FORM|BLESS|HOLY_INTUITION|RECALL_INSCRIPTION|SMITE|RADIANCE|DIVINE_SENSE|SUNRAY|SHIELD_OF_LIGHT|GUIDING_LIGHT|HOLY_WEAPON|HOLY_WARD")) item=view.belongings.stream().filter(it->view.actions(it).contains("CAST")).findFirst().get().id;
         if (verb.equals("TRINITY_MIND") || verb.equals("TRINITY_SPIRIT"))
             item=view.belongings.stream().filter(it->view.actions(it).contains("ARMOR_ABILITY")).findFirst().get().id;
         if (verb.equals("DETACH_SEAL") || verb.equals("AFFIX_SEAL") || verb.endsWith("_GLYPH")) {

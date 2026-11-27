@@ -1,5 +1,9 @@
 # LAN 프로토콜 v1 및 로비
 
+## 배포 SYNC36 및 개발 SYNC37
+
+배포한 09c9417은 LAN v1의 MODE SYNC36을 사용한다. 후속 호스트와 클라이언트는 MODE SYNC37을 사용하며 기존 버전 불일치 응답을 유지한다. 마법 부여의 미결 선택은 자기 스냅샷으로 돌아온다. [신규 입력과 공개 행](state-sync.md)
+
 ## 현재 게임 모드 SYNC35
 
 두 좌석은 LAN v1에서 MODE SYNC35로 협상한다. 이전 SYNC32와 SYNC34 연결은 ERROR VERSION을 받는다. 신규 확정 행동도 기존 Action ID 및 State Version 검증과 내구성 있는 저장을 거친다. [실측과 범위](tier-growth-results.md)

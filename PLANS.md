@@ -1,5 +1,9 @@
 # 단계와 다음 작업
 
+## 다음 개발 시작점
+
+배포는 SYNC36이다. Cloud의 SYNC37에서는 성직자 STASIS를 자기 LightAlly 보관부터 재소환까지 이어간다. 좁은 통로의 자리 부족, 다른 좌석의 점유, 주인 전투 불능, 휴면 층과 새 JVM 복원에서 Actor의 중복과 참조를 먼저 검사한다. 원본 StasisBuff.act는 비어 있는 칸이 없을 때 임의의 이웃을 선택하고, Mob.restoreAllies의 한 소환수 가정은 다른 좌석의 PowerBuff를 분리할 수 있다. 이 두 지점에서 소유자별 복원과 점유 처리를 검증한 뒤 버튼을 연다. LONGRANGE_WARP는 원본 층 간 이동과 기존 동의 절차가 만나는 지점에서 정책 승인이 필요하다. 이후 미지원 활 마법의 직접 사격·공유 투척, 다음 지팡이 7종, 각인 회수와 연금술을 이어간다. [개발 및 시험 범위](docs/coop/enchantment-results.md) · [Android 인수](docs/coop/shared-growth-android-acceptance.md) · [배포 파일 대조](docs/coop/shared-growth-delivery.md)
+
 ## 현재 개발 시작점 · 공유 마법과 상위 주문 이후
 
 실제 배포 APK와 ZIP의 소스는 e690e53이다. 후속 SYNC36은 Cloud와 Desktop 검증용이다. 다음 시작점은 원본 마법 부여 주문서의 후보 선택·취소와 돌에서 나온 나머지 활 마법의 투척 경계다. 이어 성직자 지형의 겹침·함정 조합, 매의 EAGLE_EYE, 여섯 번째 지팡이의 다섯 실행 경로를 검증한다. 두 도적의 상자 배분과 일반 방 성장권은 기존 승인 범위를 유지한다. [후속 검증](docs/coop/shared-growth-results.md) · [실기 인수](docs/coop/tier-growth-android-acceptance.md)

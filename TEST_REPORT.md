@@ -1,5 +1,9 @@
 # SPD-Coop 클라우드 실행 보고
 
+## 2026-11-27 회귀
+
+Cloud의 최종 전체 JUnit은 기존 338개와 신규 26개를 포함해 364/364 PASS였다. HEAD 발행 직후 종료·복구는 양쪽 좌석 11개 행동에서 총 22회 확인했다. 실제 Android는 SYNC36으로, 새 성장과 저장 호환성은 Cloud의 SYNC37으로 측정했다. 금고와 정상 시작의 서로 다른 출발점, 강화 배치 12시드 승리와 원본 귀환을 구분했다. [개발 및 시험 범위](docs/coop/enchantment-results.md) · [Android 인수](docs/coop/shared-growth-android-acceptance.md) · [배포 파일 대조](docs/coop/shared-growth-delivery.md)
+
 ## 상위 특성 및 출하된 Android 빌드
 
 SYNC35 Android 기준은 e690e53이다. 후속 SYNC36은 기존 315개와 신규 23개를 포함해 338/338 PASS였다. 독립 실행도 338/338이었다. 한국어 Desktop 입력 26개, HEAD 발행 후 실제 종료·복구 66회, 배치형 일반 승리 12/12 및 Ascension 귀환을 확인했다. [Android 인수](docs/coop/tier-growth-android-acceptance.md) · [Cloud 회귀](docs/coop/shared-growth-results.md)

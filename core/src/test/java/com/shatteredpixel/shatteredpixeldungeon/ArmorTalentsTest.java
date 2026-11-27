@@ -38,6 +38,55 @@ public class ArmorTalentsTest extends HeadlessDungeon {
         return (ClassArmor)hero.belongings.armor();
     }
 
+    static StagedInput stage(CoopSession game,int seat,String type,Rat rat) {
+        Hero hero=game.hero(seat);
+        switch(type) {
+            case "remoteplace":
+                invest(game,seat,2,Talent.REMOTE_BEACON,2);
+                return new StagedInput(game,"ARMOR_ABILITY",hero.pos+1);
+            case "ninjalog":
+                invest(game,seat,0,Talent.BODY_REPLACEMENT,3);
+                return new StagedInput(game,"ARMOR_ABILITY",hero.pos+1);
+            case "rayblast": {
+                invest(game,seat,0,Talent.REACTIVE_BARRIER,2);
+                com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration wand=WandArtsTest.give(game,seat,
+                        new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration());
+                assertTrue(CoopFloorsTest.step(game,IMBUE,WandArtsTest.choice(game,seat,wand),hero.belongings.weapon()));
+                SewerBeeTest.offer(game,seat);
+                return new StagedInput(game,"ARMOR_ABILITY",hero.pos);
+            }
+            case "divineshield":
+            case "beamingray":
+            case "lifelink": {
+                boolean ascended=type.equals("divineshield");
+                Talent spell=ascended ? Talent.DIVINE_INTERVENTION : type.equals("lifelink") ? Talent.LIFE_LINK : Talent.BEAMING_RAY;
+                ClassArmor armor=invest(game,seat,ascended ? 0:2,spell,3);
+                TierGrowthTest.powerTome(hero);
+                assertTrue(CoopFloorsTest.step(game,ARMOR_ABILITY,ascended ? hero.pos:hero.pos+1,armor));
+                SewerBeeTest.offer(game,seat);
+                return new StagedInput(game,spell.name(),spell==Talent.BEAMING_RAY ? rat.pos:hero.pos);
+            }
+            default: throw new IllegalArgumentException(type);
+        }
+    }
+
+    static boolean published(CoopSession game,int seat,String type) {
+        Hero hero=game.hero(seat);
+        switch(type) {
+            case "remoteplace": return hero.buff(WarpBeacon.WarpBeaconTracker.class)!=null;
+            case "ninjalog":
+                for (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob mob:Dungeon.level.mobs)
+                    if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.SmokeBomb.NinjaLog
+                            && ((com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.SmokeBomb.NinjaLog)mob).belongsTo(hero)) return true;
+                return false;
+            case "rayblast": return hero.buff(Barrier.class)!=null && hero.buff(Barrier.class).shielding()>0;
+            case "divineshield": return hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.AscendedForm.AscendBuff.class).divineInverventionCast;
+            case "beamingray": return PowerOfMany.getPoweredAlly(hero).buff(BeamingRay.BeamingRayBoost.class)!=null;
+            case "lifelink": return hero.buff(LifeLink.class)!=null && hero.buff(LifeLink.class).object==PowerOfMany.getPoweredAlly(hero).id();
+            default: throw new IllegalArgumentException(type);
+        }
+    }
+
     @Test public void enduranceStoresTheWearersMitigationAndRetaliation() {
         for(int seat=0;seat<2;seat++) for(int rank=0;rank<=4;rank++)
             for(Talent talent:new Talent[]{Talent.SHRUG_IT_OFF,Talent.SUSTAINED_RETRIBUTION,Talent.EVEN_THE_ODDS}) {

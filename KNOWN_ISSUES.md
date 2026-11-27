@@ -1,5 +1,9 @@
 # 미해결 문제
 
+## SYNC37에서 남은 범위
+
+4단계 STASIS·LONGRANGE_WARP, 장착 중인 일반 무기와 갑옷의 마법 부여 주문서 적용, 일부 원본 마법의 실제 전투 발동, 복합 소모품, 금고의 두 번째 출구와 정상 시작 감옥 완주가 남았다. SYNC37 Android는 NOT RUN이다. SYNC36 실제 기기에서 보호막 소진 부활, 가방 속 망토·성서, 벽 뒤 매 감지 등도 별도 표본이 필요하다. [개발 및 시험 범위](docs/coop/enchantment-results.md) · [Android 인수](docs/coop/shared-growth-android-acceptance.md) · [배포 파일 대조](docs/coop/shared-growth-delivery.md)
+
 ## 상위 특성과 다음 실기 인수
 
 SYNC36의 마법 부여석은 원본 전체 무작위 목록을 사용한다. 냉기·화염·방어·투사·수정 이외의 결과는 활에 보존되며 해당 활의 지원 공격을 제한한다. 돌의 설명과 활 정보창에서 이 범위를 안내한다. 성직자의 다른 플레이어 대상 효과, 두 도적의 상자, Fadeleaf의 파티 층 이동은 정책 결정을 기다린다. 성서 공통 선택창은 배포된 SYNC35에서 양쪽 실기 인수를 마쳤다. [세부 범위](docs/coop/shared-growth-results.md)

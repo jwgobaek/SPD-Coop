@@ -1,5 +1,9 @@
 # 협동 콘텐츠 지원표
 
+## SYNC37 소스와 SYNC36 Android
+
+전체 1~3단계 투자 가능, 4단계 70/72, 삼위일체 9/113, 분해를 포함한 지팡이 6/13의 다섯 경로를 기록했다. 지원표에서 투자·단계별 배치 효과·UI·TCP·실제 Android를 따로 확인한다. [개발 및 시험 범위](docs/coop/enchantment-results.md) · [Android 인수](docs/coop/shared-growth-android-acceptance.md) · [배포 파일 대조](docs/coop/shared-growth-delivery.md)
+
 ## SYNC36 플레이어 성장 범위
 
 6개 직업의 3단계 48/48 슬롯 및 4단계 29/72 슬롯을 지원한다. [특성표](docs/coop/trinity-discovery-talents.tsv)에 투자·호스트 효과·전 투자점·Desktop·TCP·복구·Android를 구분했다. Trinity는 Body 4, Mind 3, Spirit 1이다. [형태별 후보](docs/coop/trinity-discovery-forms.tsv)

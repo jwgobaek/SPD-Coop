@@ -1,5 +1,9 @@
 # SPD-Coop 개발 진행 기록
 
+## 2026-11-27 배포와 개발
+
+SYNC36은 두 Android에 설치해 성서 선택 10/10을 인수했고 APK와 통합 ZIP은 09c9417 소스로 일치한다. 후속 SYNC37에서 마법 부여 주문서, 여섯 번째 지팡이, 4단계 70/72 및 삼위일체 9/113에 도달했다. [개발 및 시험 범위](docs/coop/enchantment-results.md) · [Android 인수](docs/coop/shared-growth-android-acceptance.md) · [배포 파일 대조](docs/coop/shared-growth-delivery.md)
+
 ## SYNC35 Android 인수 및 SYNC36 성장
 
 GB2 두 설치본에서 성서 선택 10/10, 저장 이행, 광전사 HP 0 생존을 확인했다. Drive APK와 ZIP은 동일한 e690e53 소스에 대응한다. 후속 개발판은 전체 3단계 48슬롯, 4단계 29슬롯에서 실제 투자를 허용한다. [배포와 실기 범위](docs/coop/tier-growth-android-acceptance.md) · [기능·복구별 결과](docs/coop/shared-growth-results.md)

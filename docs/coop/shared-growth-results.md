@@ -1,5 +1,11 @@
 # SYNC36 상위 특성과 후속 검증
 
+## 후속 Android 인수
+
+이 빌드는 2026-11-27에 실제 GB2 Android에서 인수를 마치고 같은 커밋의 APK·ZIP으로 발행됐다. 아래의 NOT RUN은 Cloud 빌드 직후의 이전 기록이다. [실제 인수](shared-growth-android-acceptance.md) · [배포 해시](shared-growth-delivery.md)
+
+## SYNC36 Cloud 후보 작성 당시 기록
+
 Drive와 GB2에서 인수를 마친 빌드는 e690e53, SYNC35다. 이 문서의 SYNC36은 해당 배포 뒤 개발 브랜치에서 완성한 Cloud 빌드다. 승인된 APK 1회와 ZIP 1회를 e690e53에 사용했다. SYNC36 Android 인수는 NOT RUN이다. [배포판의 두 설치본과 Android 관측](tier-growth-android-acceptance.md)
 
 후속 APK 빌드 소스는 `09c9417d6ad07ddc065051136b09c0103dd3d664`이다. 패키지는 `org.spdcoop.dungeon.indev`, versionCode는 922, 버전명은 `4.0.2-INDEV-shared-growth`다. Cloud에 보존한 서명 APK는 37,281,544바이트, SHA-256은 `5addbd614f5d627aa205bc7d18a924ac731a4274bef2afcecd2ae96c5044b152`다. 인증서 지문과 두 APK의 DEX 안에 있는 진단 빌드 ID를 확인했다. 두 패키지에서 시험 프로필 생성기, 시험 티켓 생성기 및 검증용 호스트 클래스가 제외된 것도 확인했다.

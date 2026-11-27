@@ -1,5 +1,11 @@
 # 협동 게임 동기화 프로토콜
 
+## SYNC37 장비 선택과 시야
+
+LAN v1에서 MODE SYNC37을 협상한다. READ_SCROLL, ENCHANT_TARGET, ENCHANT_CHOOSE, ENCHANT_CANCEL은 현재 행동권·좌석·영수증을 확인한다. 원본 후보는 호스트가 확정한다. 해당 좌석에만 enchantphase(inventory/consumed/options), enchantgear<핸들>, enchantarmor, enchantoption0~2를 보낸다. 재인증·전체/델타 스냅샷에도 같은 공개 경계를 적용한다.
+
+매로 직접 관측하는 칸은 소유자의 시야에 합치고, EAGLE_EYE의 벽 뒤 감지는 기존 별도 감지 행으로 보낸다. staffreach는 자기 장비의 근접 사거리, remotebeacon은 자기 비콘 조준, ascendedspells와 poweredspells는 자기 성서 주문 사용 조건을 드러낸다. 이 공개 표시만으로 다른 좌석의 표적이나 권한을 얻지 않는다. [현재 검증](enchantment-results.md)
+
 ## SYNC36 자기 활·아군·성직자 지형
 
 LAN 프레임은 v1이다. 호스트와 클라이언트가 SYNC36에서 합의해야 신규 동작을 전송한다. ENCHANT_BOW는 자기 돌의 공개 핸들과 자기 활의 목록 번호를 전달한다. 호스트가 두 실물의 소유권을 검사하고 원본 무작위 선택을 확정한다. bowtarget은 자신의 가방에 속하는 활 선택 번호다. bowenchant 및 bowlimited는 원본이 공개하는 마법에 한해 이름과 지원 여부를 나타낸다. 조준·창 취소는 RPC를 발행하지 않는다.

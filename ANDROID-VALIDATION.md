@@ -1,5 +1,9 @@
 # Android validation backlog
 
+## SYNC36 실제 Android와 기존 Drive 파일
+
+09c9417 해시에 대한 사용자 한정 승인으로 기존 APK를 한 번 교체하고, Android 인수 뒤 같은 소스의 통합 ZIP을 한 번 교체했다. 기존 추가 편집자와 링크 공유 권한을 보존했다. 두 MuMu 내부 Chromium 다운로드와 데이터 보존 업데이트, 로그와 화면의 Cloud 수집을 사용했다. 다음 빌드의 사전 발행은 별도 승인 대상이다. [개발 및 시험 범위](docs/coop/enchantment-results.md) · [Android 인수](docs/coop/shared-growth-android-acceptance.md) · [배포 파일 대조](docs/coop/shared-growth-delivery.md)
+
 ## e690e53 Android 15 인수 완료
 
 서로 다른 두 부팅에서 열 가지 선택 입력을 실행하고 크래시·치명적 GLThread 예외·ANR 0건을 확인했다. 같은 바이너리를 Drive에서 비로그인으로 내려받아 다시 대조했다. SYNC36의 실기 인수는 다음 발행 작업으로 남아 있다. [측정 범위와 재인증](docs/coop/tier-growth-android-acceptance.md)

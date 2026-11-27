@@ -1,5 +1,9 @@
 # GB2 원격 Android 시험
 
+## SYNC36 실제 Android와 기존 Drive 파일
+
+09c9417 해시에 대한 사용자 한정 승인으로 기존 APK를 한 번 교체하고, Android 인수 뒤 같은 소스의 통합 ZIP을 한 번 교체했다. 기존 추가 편집자와 링크 공유 권한을 보존했다. 두 MuMu 내부 Chromium 다운로드와 데이터 보존 업데이트, 로그와 화면의 Cloud 수집을 사용했다. 다음 빌드의 사전 발행은 별도 승인 대상이다. [개발 및 시험 범위](docs/coop/enchantment-results.md) · [Android 인수](docs/coop/shared-growth-android-acceptance.md) · [배포 파일 대조](docs/coop/shared-growth-delivery.md)
+
 ## SYNC35 후보와 현재 두 설치본
 
 GB2의 두 Android 15 부팅에서 실제 설치본은 모두 9969d23이었다. 5559와 16448은 같은 인스턴스였고 16480은 별도 인스턴스였다. 이번에 추가한 연결을 정리한 뒤 두 MuMu가 응답했고 기존 5559 연결을 확인했다. 새 후보의 비공개 전달 경로를 확보하지 못해 설치와 Android 인수는 미실행이다. 기존 9969d23 예외는 사용 완료됐다. 다음 설치는 정확한 후보 해시, 기존 데이터 보존 및 해당 발행에 필요한 승인을 확인한 뒤 진행한다. [두 설치본·후보 해시와 측정값](docs/coop/tier-growth-results.md)
