@@ -93,13 +93,15 @@ final class RenderEncounter {
                 hero.lvl = 25;
                 hero.subClass = com.shatteredpixel.shatteredpixeldungeon.SharedGrowthTest.upperSubclass(System.getProperty("spd.upper.talent", "STRONGMAN"));
                 com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.initSubclassTalents(hero);
-            } else if (destination.equals("recharging-input")) {
+            } else if (destination.equals("recharging-input") || destination.equals("lullaby-input")) {
                 var hero=game.hero(0);
                 hero.lvl=15;
                 var talent=com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.RECALL_INSCRIPTION;
                 if (!com.shatteredpixel.shatteredpixeldungeon.CoopFloorsTest.step(game,CoopSession.Action.INVEST_TALENT,talent.ordinal(),null))
                     throw new AssertionError("Recall investment");
-                var scroll=new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging();
+                com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll scroll=destination.equals("lullaby-input")
+                        ? new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby()
+                        : new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging();
                 scroll.setKnown();
                 if (!scroll.collect(hero.belongings.backpack)) throw new AssertionError("Backpack full");
                 game.ownership.claim(scroll,game.player(0));
