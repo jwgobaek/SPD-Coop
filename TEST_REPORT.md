@@ -1,5 +1,9 @@
 # SPD-Coop 클라우드 실행 보고
 
+## SYNC41 Android와 SYNC42 원본 콘텐츠
+
+SYNC41 기준 JUnit 394/394, 후속 최종 405/405와 한국어·영어 화면 6/6, 두 좌석의 호스트 종료 10/10을 확인했다. 후속 중간 실행은 399/400이었다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)
+
 ## 2026-11-27 세 재료 연금술과 수혈
 
 SYNC41의 세 재료 솥·유료 조합·수혈 지팡이와 실제 저장 경계는 [개발 결과](docs/coop/seed-alchemy-results.md)에 기록했다. SYNC40 배포 후보의 두 Android 필수 인수는 92/92였다. [Android 인수](docs/coop/cauldron-android-acceptance.md)

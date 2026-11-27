@@ -1,5 +1,9 @@
 # GB2 원격 Android 시험
 
+## SYNC41 Android와 SYNC42 원본 콘텐츠
+
+SYNC41에는 기존 92건에 미감정 주문서, 세 재료·유료 조합 및 수혈 26건이 추가됐다. 명세를 설치 전에 고정하고 소유 좌석의 가방·공개 전송·원래 영수증을 대조한다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)
+
 ## SYNC40 연금술 솥
 
 기존 60개 시나리오에 방장·게스트 각각 16개를 추가했다. 같은 물리적 룬석 스택의 제작·바닥 귀속·재인증 후 수거와 이후 확정 영수증을 추적한다. 원래 영수증 재전송 및 고의로 오래된 버전·상대 핸들을 보내는 검사는 해당 Android 호스트에 직접 인증한 격리 시험 좌석으로 실행한다. 로그는 시험 중 앱 범위에서 메모리로 읽어 Cloud에 수집한다. [실측 결과](docs/coop/cauldron-android-acceptance.md) [필수 관측 명세](docs/coop/android-acceptance-sync40.json)

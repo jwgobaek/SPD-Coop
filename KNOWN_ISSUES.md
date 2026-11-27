@@ -1,5 +1,9 @@
 # 미해결 문제
 
+## SYNC41 Android와 SYNC42 원본 콘텐츠
+
+두 장비 선택형 룬석의 원본 추측·탐지, 위험한 복합 파쇄와 착지, 부식의 동료 피해 정책이 남아 있다. 시드 575의 최초 전투 제안 소실 원인도 미확정이다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)
+
 ## 2026-11-27 확인 범위
 
 SYNC40은 두 Android에서 필수 92/92를 통과했다. SYNC41의 세 재료·유료 연금술과 수혈 지팡이는 Cloud에서 검증했다. SYNC41 모바일, 다른 룬석의 개별 사용, 부식의 동료 피해 정책, 정상 시작 Tengu와 금고 토큰 문이 남았다. SYNC40 가방 상세창에서 미감정 자장가·재충전의 정체가 표시됐다. 후속 SYNC41의 두 좌석 공개 스냅샷 4/4는 정체를 숨겼으며 실제 Android 화면 회귀가 남았다. 변경 전 380개 전체 시험을 다시 실행했을 때 시드 575의 지팡이 장인 시험 준비 중 활성 좌석을 찾지 못한 1건은 단독 반복 10회에서 재현되지 않았다. [개발 시험](docs/coop/seed-alchemy-results.md)

@@ -1,5 +1,9 @@
 # 협동 콘텐츠 지원표
 
+## SYNC41 Android와 SYNC42 원본 콘텐츠
+
+원본 399행 중 102행에 개별 사용 또는 조합 근거를 연결했다. 타락 포함 지팡이 다섯 경로 9/13, Trinity 14/113, 지도 포함 각인 회수는 5종이다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)
+
 ## 2026-11-27 세 재료 연금술과 수혈
 
 SYNC41의 세 재료 솥·유료 조합·수혈 지팡이와 실제 저장 경계는 [개발 결과](docs/coop/seed-alchemy-results.md)에 기록했다. SYNC40 배포 후보의 두 Android 필수 인수는 92/92였다. [Android 인수](docs/coop/cauldron-android-acceptance.md)

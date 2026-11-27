@@ -1,5 +1,9 @@
 # SPD-Coop 개발 진행 기록
 
+## SYNC41 Android와 SYNC42 원본 콘텐츠
+
+SYNC42의 실제 룬석·물약·타락 지팡이, 지도 각인 회수와 유료 레시피를 구현했다. SYNC41의 Android 후보는 별도 인수한다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)
+
 ## 2026-11-27 세 재료 연금술과 수혈
 
 SYNC41의 세 재료 솥·유료 조합·수혈 지팡이와 실제 저장 경계는 [개발 결과](docs/coop/seed-alchemy-results.md)에 기록했다. SYNC40 배포 후보의 두 Android 필수 인수는 92/92였다. [Android 인수](docs/coop/cauldron-android-acceptance.md)

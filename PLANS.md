@@ -1,5 +1,9 @@
 # 단계와 다음 작업
 
+## SYNC41 Android와 SYNC42 원본 콘텐츠
+
+SYNC41의 역할별 59개 Android 인수와 새 원본 콘텐츠의 근거를 추적한다. 다음 기능은 탐지·직감의 돌, 복합 환경 물약 및 소환자별 대지 수호자다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)
+
 ## 2026-11-27 세 재료 연금술과 수혈
 
 SYNC41의 세 재료 솥·유료 조합·수혈 지팡이와 실제 저장 경계는 [개발 결과](docs/coop/seed-alchemy-results.md)에 기록했다. SYNC40 배포 후보의 두 Android 필수 인수는 92/92였다. [Android 인수](docs/coop/cauldron-android-acceptance.md)
