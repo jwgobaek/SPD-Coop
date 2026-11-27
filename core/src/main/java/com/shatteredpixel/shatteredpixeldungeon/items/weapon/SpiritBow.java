@@ -195,11 +195,19 @@ public class SpiritBow extends Weapon {
     }
 
     public static boolean supportedCoopEnchantment(Weapon weapon) {
-        Weapon.Enchantment effect = weapon.enchantment;
+        return supportedCoopEnchantment(weapon.enchantment);
+    }
+
+    public static boolean supportedCoopEnchantment(Weapon.Enchantment effect) {
         return effect == null || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling
                 || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing
                 || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blocking
                 || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Projecting
+                || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Venomous
+                || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vorpal
+                || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampiric
+                || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shocking
+                || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Eldritch
                 || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic
                 || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Crystal;
     }

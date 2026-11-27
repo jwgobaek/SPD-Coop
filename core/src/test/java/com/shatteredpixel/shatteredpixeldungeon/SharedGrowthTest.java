@@ -175,8 +175,9 @@ public class SharedGrowthTest extends HeadlessDungeon {
     }
 
     @Test public void trinityRemembersColdAndFireAndCastsEachOriginalEffectWithoutTheWand() {
-        for (int seat=0;seat<2;seat++) for (boolean fire : new boolean[]{false,true}) {
-            TrinityDiscoveries.Choice choice = fire ? TrinityDiscoveries.Choice.FIREBLAST : TrinityDiscoveries.Choice.FROST;
+        for (int seat=0;seat<2;seat++) for (TrinityDiscoveries.Choice choice : new TrinityDiscoveries.Choice[]{TrinityDiscoveries.Choice.FIREBLAST, TrinityDiscoveries.Choice.FROST, TrinityDiscoveries.Choice.PRISMATIC_LIGHT}) {
+            boolean fire = choice == TrinityDiscoveries.Choice.FIREBLAST;
+            boolean prism = choice == TrinityDiscoveries.Choice.PRISMATIC_LIGHT;
             Bundle saved;
             try (CoopSession game=CoopSession.open(572,11,HeroClass.CLERIC)) {
                 game.join(22,HeroClass.CLERIC);
@@ -187,7 +188,7 @@ public class SharedGrowthTest extends HeadlessDungeon {
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.USE_CROWN,1,CrownAbilityTest.crown(game,seat,CoopSession.MaskTrial.OWNER)));
                 SewerBeeTest.offer(game,seat);
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.INVEST_TALENT,Talent.MIND_FORM.ordinal(),null));
-                com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand wand = fire ? new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast() : new WandOfFrost();
+                com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand wand = prism ? new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfPrismaticLight() : fire ? new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast() : new WandOfFrost();
                 wand.identify(false);
                 Dungeon.level.drop(wand,hero.pos);
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,hero.pos,wand));
@@ -201,13 +202,15 @@ public class SharedGrowthTest extends HeadlessDungeon {
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.TRINITY_MIND,rat.pos,armor));
                 assertTrue(armor.charge<before);
                 assertTrue(rat.HP<hp);
-                if (fire) assertNotNull(rat.buff(Burning.class));
+                if (prism) assertTrue(game.knowledge(game.hero(seat)).mapped(hero.pos+1));
+                else if (fire) assertNotNull(rat.buff(Burning.class));
                 else assertNotNull(rat.buff(Chill.class));
                 saved=game.checkpoint();
             }
             try (CoopSession game=CoopSession.restore(saved)) {
                 assertTrue(game.discoveries(seat).knows(choice));
                 assertFalse(game.discoveries(1-seat).knows(choice));
+                assertNull(game.hero(seat).belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfPrismaticLight.class));
                 assertNull(game.hero(seat).belongings.getItem(WandOfFrost.class));
                 assertNull(game.hero(seat).belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast.class));
             }

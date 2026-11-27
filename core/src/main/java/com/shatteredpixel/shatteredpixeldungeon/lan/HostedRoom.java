@@ -27,7 +27,7 @@ final class HostedRoom {
             port=room.tcpPort(); session=room.session; localJoin=room.hostJoinCommand();
             owner.scheduleWithFixedDelay(()->{
                 try { room.pump(); }
-                catch(RuntimeException error) { failed=true; room.close(); }
+                catch(RuntimeException | LinkageError error) { failed=true; room.close(); }
             },0,5,TimeUnit.MILLISECONDS);
         } catch(Exception error) {owner.shutdownNow(); throw error;}
     }
@@ -42,7 +42,7 @@ final class HostedRoom {
 
     boolean close(boolean save) throws Exception {
         boolean saved=call(()->{
-            if (save && (room.state()==LanRoom.State.IN_GAME || room.state()==LanRoom.State.PAUSED ||
+            if (save && !failed && (room.state()==LanRoom.State.IN_GAME || room.state()==LanRoom.State.PAUSED ||
                     room.state()==LanRoom.State.PARTY_DEFEATED)) {
                 room.saveAndClose(); return true;
             }

@@ -260,6 +260,10 @@ public class ElementalBlast extends ArmorAbility {
 							} else if (finalWandCls == WandOfPrismaticLight.class){
 								for (int n : PathFinder.NEIGHBOURS9) {
 									int c = cell+n;
+									if (Dungeon.coop != null) {
+										WandOfPrismaticLight.revealForSeat(hero,c);
+										continue;
+									}
 
 									if (Dungeon.level.discoverable[c]) {
 										Dungeon.level.mapped[c] = true;

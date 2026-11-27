@@ -187,7 +187,10 @@ final class SeatProjection {
             int stair=game.stairs.stair();
             if(stair>=0) {
                 rows.put("stair",stair+","+(game.stairs.agreed()?1:0));
-                if (level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel) rows.put("vaultscore",Integer.toString(game.stairs.vaultScore()));
+                if (game.stairs.warpPending()) {
+                    com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon.WarpBeaconTracker mark=game.stairs.warpDestination();
+                    rows.put("warpdestination",mark.depth+","+mark.branch);
+                } else if (level instanceof com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel) rows.put("vaultscore",Integer.toString(game.stairs.vaultScore()));
                 else if (level.getTransition(stair).destBranch!=Dungeon.branch) rows.put("branchgate","1");
             }
             for (BitSet area : CombatZones.calculate(game, sight)) {
@@ -433,7 +436,10 @@ final class SeatProjection {
             if (enchant != null) {
                 rows.put("enchantphase", enchant.hasOptions() ? "options" : enchant.chargesTimeOnCancel() ? "consumed" : "inventory");
                 if (enchant.isArmor()) rows.put("enchantarmor", "1");
-                if (enchant.hasOptions()) for (int i=0; i<3; i++) rows.put("enchantoption"+i, enchant.optionKey(i));
+                if (enchant.hasOptions()) for (int i=0; i<3; i++) {
+                    rows.put("enchantoption"+i, enchant.optionKey(i));
+                    if (!enchant.available(game,hero,i)) rows.put("enchantlimited"+i,"1");
+                }
             }
             int selection=0;
             for (Item item : hero.belongings) {

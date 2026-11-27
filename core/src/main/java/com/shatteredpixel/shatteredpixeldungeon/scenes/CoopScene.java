@@ -149,6 +149,7 @@ public class CoopScene extends PixelScene {
         addLearnedSpell(view, spells, actions, Talent.MIND_FORM, MindForm.INSTANCE);
         addLearnedSpell(view, spells, actions, Talent.SPIRIT_FORM, SpiritForm.INSTANCE);
         if (view.source.rows.containsKey("poweredspells")) {
+            addLearnedSpell(view, spells, actions, Talent.STASIS, Stasis.INSTANCE);
             addLearnedSpell(view, spells, actions, Talent.LIFE_LINK, LifeLinkSpell.INSTANCE);
             addLearnedSpell(view, spells, actions, Talent.BEAMING_RAY, BeamingRay.INSTANCE);
         }
@@ -348,6 +349,16 @@ public class CoopScene extends PixelScene {
     void offerStairs(PublicDungeon view,int cell) {
         if (Integer.toString(cell).equals(view.source.rows.get("ascentgate"))) { ascentWindow(shown); return; }
         if(view.stair!=cell) alert(msg("stairconditions"));
+        else if (view.source.rows.containsKey("warpdestination")) {
+            String[] dest=view.source.rows.get("warpdestination").split(",");
+            add(new WndOptions(msg("warp_party",dest[0],dest[1]),msg("warp_vote"),msg("accept"),msg("cancel")) {
+                @Override protected void onSelect(int index) {
+                    if (index==1) controller.act(view.source,"CANCEL_TRAVEL",cell,0);
+                    else if (view.offered && view.consent) controller.act(view.source,"TRAVEL",cell,0);
+                    else if (!view.offered && !view.consent) controller.act(view.source,"CONSENT",cell,0);
+                }
+            });
+        }
         else if(view.offered && !view.consent) alert(msg("awaitvote"));
         else if (view.source.rows.containsKey("vaultscore") && (view.offered || !view.consent)) {
             int score=Integer.parseInt(view.source.rows.get("vaultscore"));
@@ -541,6 +552,7 @@ public class CoopScene extends PixelScene {
         for (int i=0; i<3; i++) {
             String type = view.source.rows.get("enchantoption"+i);
             labels[i] = Messages.titleCase(Messages.get(type+".name",(Object)"").trim());
+            if (view.source.rows.containsKey("enchantlimited"+i)) labels[i] += " ("+msg("enchant_limited")+")";
         }
         labels[3] = Messages.get(scroll, "cancel");
         add(new WndOptions(Messages.titleCase(Messages.get(scroll,"name")), Messages.get(scroll,view.source.rows.containsKey("enchantarmor") ? "armor" : "weapon"), labels) {
@@ -548,6 +560,7 @@ public class CoopScene extends PixelScene {
                 if (n == 3) confirmEnchantCancel(view);
                 else if (n >= 0 && n < 3) submitEnchant(view, "ENCHANT_CHOOSE", n, 0);
             }
+            protected boolean enabled(int n) { return !view.source.rows.containsKey("enchantlimited"+n); }
             protected boolean hasInfo(int n) { return n >= 0 && n < 3; }
             protected void onInfo(int n) { CoopScene.this.alert(Messages.get(view.source.rows.get("enchantoption"+n)+".desc")); }
             public void onBackPressed() { }

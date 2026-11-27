@@ -123,7 +123,7 @@ public class PowerOfMany extends ArmorAbility {
 			allyExists = true;
 		}
 
-		if (Dungeon.coop==null && Stasis.getStasisAlly() != null){
+		if (Stasis.getStasisAlly(hero) != null){
 			allyExists = true;
 		}
 

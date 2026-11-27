@@ -152,4 +152,60 @@ public class EnchantScrollTest extends HeadlessDungeon {
             }
         }
     }
+
+    @Test public void wornWeaponAndSealedArmorKeepTheirPhysicalIdentityAcrossChoiceAndRestore() {
+        for (int seat=0; seat<2; seat++) for (boolean armor : new boolean[]{false,true}) {
+            boolean accepted=false, declined=false;
+            for (int seed=572; seed<600 && !(accepted && declined); seed++) {
+                Bundle save;
+                long gearId, sealId;
+                try (CoopSession game=CoopSession.open(seed,11,HeroClass.WARRIOR)) {
+                    game.join(22,HeroClass.WARRIOR);
+                    Hero owner=game.hero(seat);
+                    Item gear=armor ? owner.belongings.armor() : owner.belongings.weapon();
+                    gearId=game.ownership.identity(gear);
+                    sealId=game.ownership.identity(owner.belongings.armor().checkSeal());
+                    SewerBeeTest.offer(game,seat);
+                    ScrollOfEnchantment scroll=new ScrollOfEnchantment();
+                    Dungeon.level.drop(scroll,owner.pos);
+                    assertTrue(act(game,PICK_UP,owner.pos,scroll));
+                    SewerBeeTest.offer(game,seat);
+                    assertTrue(act(game,READ_SCROLL,0,scroll));
+                    assertFalse(act(game,ENCHANT_TARGET,0,game.hero(1-seat).belongings.armor()));
+                    assertTrue(act(game,ENCHANT_TARGET,0,gear));
+                    save=game.checkpoint();
+                }
+                try (CoopSession game=CoopSession.restore(save)) {
+                    Hero owner=game.hero(seat);
+                    Item gear=armor ? owner.belongings.armor() : owner.belongings.weapon();
+                    assertEquals(gearId,game.ownership.identity(gear));
+                    assertEquals(sealId,game.ownership.identity(owner.belongings.armor().checkSeal()));
+                    CoopEnchantScroll choice=game.enchantScroll(seat);
+                    assertNotNull(choice);
+                    int valid=-1;
+                    for (int i=0; i<3; i++) {
+                        if (choice.available(game,owner,i)) valid=i;
+                        else {
+                            assertFalse(act(game,ENCHANT_CHOOSE,i,null));
+                            assertArrayEquals(save.getLongArray("random"),game.checkpoint().getLongArray("random"));
+                            declined=true;
+                        }
+                    }
+                    int level=gear.trueLevel();
+                    if (valid<0) {
+                        assertTrue(act(game,ENCHANT_CANCEL,0,null));
+                    } else {
+                        assertTrue(act(game,ENCHANT_CHOOSE,valid,null));
+                        assertNotNull(armor ? owner.belongings.armor().glyph : ((com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon)gear).enchantment);
+                        assertEquals(level,gear.trueLevel());
+                        assertEquals(gearId,game.ownership.identity(gear));
+                        assertEquals(sealId,game.ownership.identity(owner.belongings.armor().checkSeal()));
+                        assertFalse(act(game,ENCHANT_CHOOSE,valid,null));
+                        accepted=true;
+                    }
+                }
+            }
+            assertTrue(accepted && declined);
+        }
+    }
 }

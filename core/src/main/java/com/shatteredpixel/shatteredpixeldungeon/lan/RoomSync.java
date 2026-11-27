@@ -67,7 +67,7 @@ final class RoomSync {
     }
 
     void connectionBoundary(UUID epoch,boolean waiting) {
-        game.stairs.cancel();
+        if (!game.stairs.warpPending()) game.stairs.cancel();
         for (Seat s:seats) {
             s.view.epoch=epoch;
             if (waiting) s.view.resetHandles(s.view.cursor());

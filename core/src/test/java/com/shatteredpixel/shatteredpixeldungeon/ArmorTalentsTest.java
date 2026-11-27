@@ -55,6 +55,18 @@ public class ArmorTalentsTest extends HeadlessDungeon {
                 SewerBeeTest.offer(game,seat);
                 return new StagedInput(game,"ARMOR_ABILITY",hero.pos);
             }
+            case "stasishold": case "stasisrelease": case "stasisrank": {
+                ClassArmor armor=invest(game,seat,2,Talent.STASIS,type.equals("stasisrank") ? 0 : 1);
+                if (type.equals("stasisrank")) return new StagedInput(game,"INVEST_TALENT",Talent.STASIS.ordinal());
+                TierGrowthTest.powerTome(hero);
+                assertTrue(CoopFloorsTest.step(game,ARMOR_ABILITY,hero.pos+1,armor));
+                SewerBeeTest.offer(game,seat);
+                if (type.equals("stasisrelease")) {
+                    assertTrue(CoopFloorsTest.step(game,STASIS,hero.pos,hero.belongings.getItem(HolyTome.class)));
+                    SewerBeeTest.offer(game,seat);
+                }
+                return new StagedInput(game,"STASIS",hero.pos);
+            }
             case "divineshield":
             case "beamingray":
             case "lifelink": {
@@ -82,6 +94,11 @@ public class ArmorTalentsTest extends HeadlessDungeon {
             case "rayblast": return hero.buff(Barrier.class)!=null && hero.buff(Barrier.class).shielding()>0;
             case "divineshield": return hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.AscendedForm.AscendBuff.class).divineInverventionCast;
             case "beamingray": return PowerOfMany.getPoweredAlly(hero).buff(BeamingRay.BeamingRayBoost.class)!=null;
+            case "stasisrank": return hero.pointsInTalent(Talent.STASIS)==1;
+            case "stasishold": return com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Stasis.getStasisAlly(hero) instanceof PowerOfMany.LightAlly
+                    && PowerOfMany.getPoweredAlly(hero)==null;
+            case "stasisrelease": return hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Stasis.StasisBuff.class)==null
+                    && PowerOfMany.getPoweredAlly(hero) instanceof PowerOfMany.LightAlly;
             case "lifelink": return hero.buff(LifeLink.class)!=null && hero.buff(LifeLink.class).object==PowerOfMany.getPoweredAlly(hero).id();
             default: throw new IllegalArgumentException(type);
         }

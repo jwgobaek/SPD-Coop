@@ -12,6 +12,8 @@ import com.shatteredpixel.shatteredpixeldungeon.lan.ProjectionChecks;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.watabou.utils.Bundle;
 import org.junit.Test;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon;
 import static org.junit.Assert.*;
 
 public class SubclassActionTest extends HeadlessDungeon {
@@ -200,7 +202,14 @@ public class SubclassActionTest extends HeadlessDungeon {
         switch(type) {
         case "scrollread": case "scrolltarget": case "scrollapply": case "scrollabort": case "eagleview":
             return EnchantScrollTest.stage(g,seat,type);
-        case "remoteplace": case "ninjalog": case "rayblast": case "divineshield": case "beamingray": case "lifelink":
+        case "warppropose": case "warpreturn": {
+            ClassArmor armor=WarpConsentTest.prepare(g,seat,3);
+            if (type.equals("warppropose")) return new StagedInput(g,"ARMOR_ABILITY",WarpBeacon.RECALL);
+            assertTrue(CoopFloorsTest.step(g,CoopSession.Action.ARMOR_ABILITY,WarpBeacon.RECALL,armor));
+            assertTrue(g.stairs.consent(1-seat,g.turn(),h.pos,false));
+            return new StagedInput(g,"TRAVEL",h.pos);
+        }
+        case "stasisrank": case "stasishold": case "stasisrelease": case "remoteplace": case "ninjalog": case "rayblast": case "divineshield": case "beamingray": case "lifelink":
             return ArmorTalentsTest.stage(g,seat,type,rat);
         case "warpwraith": case "hornhit": case "cloakring": case "packedcloak": case "bookward": case "paladinheal": case "paladinaura": case "prayer": case "hallow": case "wall": case "bowstone": case "bowrank": case "bowthrow":
             return SharedGrowthTest.stage(g,seat,type,rat);
@@ -349,7 +358,10 @@ public class SubclassActionTest extends HeadlessDungeon {
         switch(type) {
         case "scrollread": case "scrolltarget": case "scrollapply": case "scrollabort": case "eagleview":
             return EnchantScrollTest.published(g,seat,type);
-        case "remoteplace": case "ninjalog": case "rayblast": case "divineshield": case "beamingray": case "lifelink":
+        case "warppropose": return Dungeon.depth==2 && g.stairs.warpPending() && !g.stairs.agreed();
+        case "warpreturn": return Dungeon.depth==1 && !g.stairs.warpPending()
+                && h.buff(WarpBeacon.WarpBeaconTracker.class).pos==h.pos;
+        case "stasisrank": case "stasishold": case "stasisrelease": case "remoteplace": case "ninjalog": case "rayblast": case "divineshield": case "beamingray": case "lifelink":
             return ArmorTalentsTest.published(g,seat,type);
         case "warpwraith": case "hornhit": case "cloakring": case "packedcloak": case "bookward": case "paladinheal": case "paladinaura": case "prayer": case "hallow": case "wall": case "bowstone": case "bowrank": case "bowthrow":
             return SharedGrowthTest.published(g,seat,type);

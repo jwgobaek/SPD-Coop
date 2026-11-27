@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
@@ -49,7 +50,7 @@ import com.watabou.utils.PathFinder;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
 
-public class WandOfPrismaticLight extends DamageWand {
+public class WandOfPrismaticLight extends TargetedDamageWand {
 
 	{
 		image = ItemSpriteSheet.WAND_PRISMATIC_LIGHT;
@@ -66,47 +67,47 @@ public class WandOfPrismaticLight extends DamageWand {
 	}
 
 	@Override
-	public void onZap(Ballistica beam) {
-		affectMap(beam);
+	public void onZap(Hero caster, Ballistica beam) {
+		affectMap(caster, beam);
 		
 		if (Dungeon.level.viewDistance < 6 ){
 			if (Dungeon.isChallenged(Challenges.DARKNESS)){
-				Buff.prolong( curUser, Light.class, 2f + buffedLvl());
+				Buff.prolong( caster, Light.class, 2f + buffedLvl());
 			} else {
-				Buff.prolong( curUser, Light.class, 10f+buffedLvl()*5);
+				Buff.prolong( caster, Light.class, 10f+buffedLvl()*5);
 			}
 		}
 		
 		Char ch = Actor.findChar(beam.collisionPos);
 		if (ch != null){
-			wandProc(ch, chargesPerCast());
-			affectTarget(ch);
+			wandProc(caster, ch, buffedLvl(), chargesPerCast());
+			affectTarget(caster, ch);
 		}
 	}
 
-	private void affectTarget(Char ch){
-		int dmg = damageRoll();
+	private void affectTarget(Hero caster, Char ch){
+		int dmg = damageRoll(caster, buffedLvl());
 
 		//three in (5+lvl) chance of failing
 		if (Random.Int(5+buffedLvl()) >= 3) {
 			Buff.prolong(ch, Blindness.class, 2f + (buffedLvl() * 0.333f));
-			ch.sprite.emitter().burst(Speck.factory(Speck.LIGHT), 6 );
+			if (Dungeon.coop == null) ch.sprite.emitter().burst(Speck.factory(Speck.LIGHT), 6 );
 		}
 
 		if (ch.properties().contains(Char.Property.DEMONIC) || ch.properties().contains(Char.Property.UNDEAD)){
-			ch.sprite.emitter().start( ShadowParticle.UP, 0.05f, 10+buffedLvl() );
+			if (Dungeon.coop == null) ch.sprite.emitter().start( ShadowParticle.UP, 0.05f, 10+buffedLvl() );
 			Sample.INSTANCE.play(Assets.Sounds.BURNING);
 
 			ch.damage(Math.round(dmg*1.333f), this);
 		} else {
-			ch.sprite.centerEmitter().burst( RainbowParticle.BURST, 10+buffedLvl() );
+			if (Dungeon.coop == null) ch.sprite.centerEmitter().burst( RainbowParticle.BURST, 10+buffedLvl() );
 
 			ch.damage(dmg, this);
 		}
 
 	}
 
-	private void affectMap(Ballistica beam){
+	private void affectMap(Hero caster, Ballistica beam){
 		boolean noticed = false;
 		for (int c : beam.subPath(0, beam.dist)){
 			if (!Dungeon.level.insideMap(c)){
@@ -114,6 +115,10 @@ public class WandOfPrismaticLight extends DamageWand {
 			}
 			for (int n : PathFinder.NEIGHBOURS9){
 				int cell = c+n;
+				if (Dungeon.coop != null) {
+					noticed |= revealForSeat(caster, cell);
+					continue;
+				}
 
 				if (Dungeon.level.discoverable[cell])
 					Dungeon.level.mapped[cell] = true;
@@ -130,12 +135,21 @@ public class WandOfPrismaticLight extends DamageWand {
 				}
 			}
 
-			CellEmitter.center(c).burst( RainbowParticle.BURST, Random.IntRange( 1, 2 ) );
+			if (Dungeon.coop == null) CellEmitter.center(c).burst( RainbowParticle.BURST, Random.IntRange( 1, 2 ) );
 		}
 		if (noticed)
 			Sample.INSTANCE.play( Assets.Sounds.SECRET );
 
-		GameScene.updateFog();
+		if (Dungeon.coop == null) GameScene.updateFog();
+	}
+
+	/** Reveal terrain to the caster without granting direct vision of entities. */
+	public static boolean revealForSeat(Hero caster, int cell) {
+		if (cell < 0 || cell >= Dungeon.level.length()) return false;
+		boolean secret = (Terrain.flags[Dungeon.level.map[cell]] & Terrain.SECRET) != 0;
+		if (secret) Dungeon.level.discover(cell);
+		Dungeon.coop.knowledge(caster).reveal(Dungeon.level, cell);
+		return secret;
 	}
 
 	@Override

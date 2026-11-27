@@ -22,6 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.CoopSession;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -64,9 +65,11 @@ public class Stasis extends ClericSpell {
 
 	@Override
 	public boolean canCast(Hero hero) {
-		return super.canCast(hero)
-				&& hero.hasTalent(Talent.STASIS)
-				&& (PowerOfMany.getPoweredAlly() != null || hero.buff(StasisBuff.class) != null);
+		if (!super.canCast(hero) || !hero.hasTalent(Talent.STASIS)) return false;
+		if (hero.buff(StasisBuff.class) != null) return true;
+		Char ally = PowerOfMany.getPoweredAlly(hero);
+		return Dungeon.coop == null ? ally != null : ally instanceof PowerOfMany.LightAlly
+				&& ((PowerOfMany.LightAlly) ally).belongsTo(hero);
 	}
 
 	@Override
@@ -83,19 +86,21 @@ public class Stasis extends ClericSpell {
 		onSpellCast(tome, hero);
 
 		if (hero.buff(StasisBuff.class) != null){
-			hero.sprite.operate(hero.pos);
+			if (Dungeon.coop == null) hero.sprite.operate(hero.pos);
 			hero.buff(StasisBuff.class).act();
 			return;
 		}
 
-		Char ally = PowerOfMany.getPoweredAlly();
+		Char ally = PowerOfMany.getPoweredAlly(hero);
 
-		hero.sprite.zap(ally.pos);
-		MagicMissile.boltFromChar(hero.sprite.parent, MagicMissile.LIGHT_MISSILE, ally.sprite, hero.pos, null);
+		if (Dungeon.coop == null) {
+			hero.sprite.zap(ally.pos);
+			MagicMissile.boltFromChar(hero.sprite.parent, MagicMissile.LIGHT_MISSILE, ally.sprite, hero.pos, null);
+		}
 
 		LinkedHashSet<Buff> buffs = ally.buffs();
 		Actor.remove(ally);
-		ally.sprite.killAndErase();
+		if (ally.sprite != null && Dungeon.coop == null) ally.sprite.killAndErase();
 		ally.sprite = null;
 		Dungeon.level.mobs.remove(ally);
 		for (Buff b : buffs){
@@ -113,14 +118,20 @@ public class Stasis extends ClericSpell {
 		}
 
 		hero.spendAndNext(Actor.TICK);
-		Dungeon.observe();
-		GameScene.updateFog();
+		if (Dungeon.coop == null) {
+			Dungeon.observe();
+			GameScene.updateFog();
+		}
 
 	}
 
 	public static Char getStasisAlly(){
-		if (Dungeon.hero != null && Dungeon.hero.buff(StasisBuff.class) != null){
-			return Dungeon.hero.buff(StasisBuff.class).stasisAlly;
+		return getStasisAlly(Dungeon.hero);
+	}
+
+	public static Mob getStasisAlly(Hero owner) {
+		if (owner != null && owner.buff(StasisBuff.class) != null){
+			return owner.buff(StasisBuff.class).stasisAlly;
 		}
 		return null;
 	}
@@ -138,7 +149,7 @@ public class Stasis extends ClericSpell {
 
 		@Override
 		public float iconFadePercent() {
-			int duration = 30 + 30*Dungeon.hero.pointsInTalent(Talent.STASIS);
+			int duration = 30 + 30*((Hero)target).pointsInTalent(Talent.STASIS);
 			return Math.max(0, (duration - visualcooldown()) / duration);
 		}
 
@@ -147,15 +158,30 @@ public class Stasis extends ClericSpell {
 			return Messages.get(this, "desc", Messages.titleCase(stasisAlly.name()), dispTurns());
 		}
 
-		@Override
-		public boolean act() {
+		public boolean canRelease() {
+			return !landings().isEmpty();
+		}
+
+		private ArrayList<Integer> landings() {
 			ArrayList<Integer> spawnPoints = new ArrayList<>();
 			for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
 				int p = target.pos + PathFinder.NEIGHBOURS8[i];
-				if (Actor.findChar(p) == null
+				if (Dungeon.level.insideMap(p) && (Dungeon.coop == null || CoopSession.supportedLanding(p))
+						&& Actor.findChar(p) == null
 						&& (Dungeon.level.passable[p] || (stasisAlly.flying && Dungeon.level.avoid[p])) ){
 					spawnPoints.add(p);
 				}
+			}
+			return spawnPoints;
+		}
+
+		@Override
+		public boolean act() {
+			ArrayList<Integer> spawnPoints = landings();
+			if (spawnPoints.isEmpty() && Dungeon.coop != null) {
+				// Keep this exact ally off the scheduler until a legal landing opens.
+				spend(TICK);
+				return true;
 			}
 			if (spawnPoints.isEmpty()){
 				spawnPoints.add(target.pos + PathFinder.NEIGHBOURS8[Random.Int(8)]);
@@ -168,7 +194,7 @@ public class Stasis extends ClericSpell {
 			}
 
 			if (stasisAlly.buff(LifeLink.class) != null){
-				Buff.prolong(Dungeon.hero, LifeLink.class, stasisAlly.buff(LifeLink.class).cooldown()).object = stasisAlly.id();
+				Buff.prolong(target, LifeLink.class, stasisAlly.buff(LifeLink.class).cooldown()).object = stasisAlly.id();
 			}
 
 			ScrollOfTeleportation.appear(stasisAlly, stasisAlly.pos);

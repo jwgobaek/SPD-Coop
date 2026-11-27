@@ -210,10 +210,13 @@ final class CoopHud extends Group {
             lastBuffs=view.buffs;
         }
         stairs.visible=!aiming && view.stair>=0;
-        stairs.enable(stairs.visible && confirmed && (!view.offered || view.consent));
+        stairs.enable(stairs.visible && confirmed && (!view.offered || view.consent || view.source.rows.containsKey("warpdestination")));
         if (stairs.visible) {
             String key=view.offered ? (view.consent ? "travel" : "awaitvote") : (view.consent ? "canceltravel" : "vote");
-            if (view.source.rows.containsKey("branchgate") && (key.equals("travel") || key.equals("vote"))) {
+            if (view.source.rows.containsKey("warpdestination")) {
+                String[] destination=view.source.rows.get("warpdestination").split(",");
+                stairs.text(CoopScene.msg("warp_party",destination[0],destination[1]));
+            } else if (view.source.rows.containsKey("branchgate") && (key.equals("travel") || key.equals("vote"))) {
                 stairs.text(CoopScene.msg(view.branch==1?"mine_exit":"mine_enter"));
             } else {
                 int direction=view.terrain(view.stair)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.ENTRANCE ? -1 : 1;

@@ -18,6 +18,10 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import java.util.HashSet;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
@@ -30,6 +34,7 @@ public final class CoopFloors {
         return schema>=14 ? LAST_PLAYABLE : schema==13 ? 24 : schema>=11 ? 20 : schema==10 ? 19 : schema==9 ? 15 : schema==8 ? 14 : schema==7 ? 11 : schema==6 ? 9 : schema==5 ? 7 : schema==4 ? FIRST_PRISON : schema==3 ? LAST_SEWER : schema;
     }
     private final java.util.Map<Integer,Bundle> dormant = new java.util.TreeMap<>();
+    private int warpSeat = -1;
     private long voteTurn;
     private int votedCell=-1;
     private final int[] positions=new int[2];
@@ -84,6 +89,7 @@ public final class CoopFloors {
 
     public int stair() {
         Level l=Dungeon.level;
+        if (warpSeat >= 0) return canWarp(warpSeat) ? game.hero(warpSeat).pos : -1;
         if (l instanceof VaultLevel) {
             int holder=crystalHolder();
             if (holder<0 || Imp.Quest.isCompleted()) return -1;
@@ -150,9 +156,65 @@ public final class CoopFloors {
 
     public boolean hasParkedFloor() { return !dormant.isEmpty(); }
 
-    public void cancel() { votedCell=-1; }
+    public boolean warpPending() { return warpSeat >= 0; }
+
+    public WarpBeacon.WarpBeaconTracker warpDestination() {
+        return warpPending() ? game.hero(warpSeat).buff(WarpBeacon.WarpBeaconTracker.class) : null;
+    }
+
+    private boolean canWarp(int seat) {
+        if (game.activeSeat()!=seat || !game.warpTrial() || game.ending()!=CoopSession.Ending.NONE
+                || !Dungeon.interfloorTeleportAllowed() || game.amuletOwner()>=0) return false;
+        Hero mage=game.hero(seat);
+        WarpBeacon.WarpBeaconTracker mark=mage.buff(WarpBeacon.WarpBeaconTracker.class);
+        if (!(mage.armorAbility instanceof WarpBeacon) || !mage.hasTalent(Talent.LONGRANGE_WARP)
+                || !(mage.belongings.armor() instanceof ClassArmor) || mark==null) return false;
+        // Branch objectives have separate entrance and payout transactions.
+        if (Dungeon.branch!=0 || mark.branch!=0 || mark.depth==Dungeon.depth) return false;
+        Bundle parked=dormant.get(floorKey(mark.depth,mark.branch));
+        if (parked==null || parked.getBundle("level").getBoolean("locked")) return false;
+        if (((ClassArmor)mage.belongings.armor()).charge < ((WarpBeacon)mage.armorAbility).recallCost(mage,mark)) return false;
+        for (int i=0; i<2; i++) {
+            Hero member=game.hero(i);
+            if (game.life(i)!=CoopSession.Life.ALIVE || member.rooted || member.paralysed>0
+                    || Dungeon.level.distance(member.pos,mage.pos)>1 || !game.knowledge(member).visible(mage.pos))
+                return false;
+        }
+        return true;
+    }
+
+    boolean proposeWarp(int seat) {
+        if (warpPending() || !canWarp(seat)) return false;
+        cancel();
+        warpSeat=seat;
+        return true;
+    }
+
+    public void cancel() { votedCell=-1; warpSeat=-1; }
+
+    void saveWarp(Bundle state) {
+        if (!warpPending()) return;
+        state.put("warp_schema",state.getInt("schema"));
+        state.put("schema",26);
+        state.put("warp_proposer",warpSeat);
+        state.put("warp_agreed",agreed());
+    }
+
+    void restoreWarp(Bundle state) {
+        cancel();
+        if (state.getInt("schema")!=26) return;
+        int seat=state.getInt("warp_proposer");
+        if (!state.contains("warp_proposer") || !state.contains("warp_agreed") || seat<0 || seat>1 || !proposeWarp(seat))
+            throw new IllegalArgumentException("Invalid beacon proposal");
+        if (state.getBoolean("warp_agreed") && !consent(1-seat,game.turn(),stair(),false))
+            throw new IllegalArgumentException("Invalid beacon consent");
+    }
     public boolean consent(int seat,long turn,int cell,boolean withdraw) {
         game.checkExecutor();
+        if (warpPending() && withdraw && turn==game.turn() && cell==game.hero(warpSeat).pos) {
+            cancel();
+            return true;
+        }
         if (game.activeSeat()<0 || game.activeSeat()==seat || turn!=game.turn() || cell<0 || cell!=stair()) return false;
         if (withdraw) {
             if (!agreed()) return false;
@@ -176,6 +238,15 @@ public final class CoopFloors {
     boolean travel(int seat,int cell,Item chosen) {
         if (seat!=game.activeSeat() || cell!=votedCell || !agreed()) return false;
         Level old=Dungeon.level;
+        if (warpPending()) {
+            if (chosen!=null) return false;
+            Hero mage=game.hero(seat);
+            WarpBeacon.WarpBeaconTracker mark=warpDestination();
+            ClassArmor armor=(ClassArmor)mage.belongings.armor();
+            armor.charge-=((WarpBeacon)mage.armorAbility).recallCost(mage,mark);
+            armor.updateQuickslot();
+            return switchFloor(seat,mark.depth,mark.branch,null,mark.pos,null);
+        }
         LevelTransition transition;
         Item reward=null;
         boolean escaping=old instanceof VaultLevel;
@@ -215,6 +286,11 @@ public final class CoopFloors {
             if (Dungeon.branch==0) Blacksmith.Quest.start();
             else Blacksmith.Quest.completeFor(miner(),game.hero(0),game.hero(1));
         }
+        return switchFloor(seat,transition.destDepth,transition.destBranch,transition.destType,-1,reward);
+    }
+
+    private boolean switchFloor(int seat,int depth,int branch,LevelTransition.Type arrivalType,int beacon,Item reward) {
+        Level old=Dungeon.level;
         java.util.ArrayList<DirectableAlly> companions=new java.util.ArrayList<>();
         for (Mob mob : new java.util.ArrayList<>(old.mobs)) {
             if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.PowerOfMany.LightAlly || mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkAlly || mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.ShadowClone.ShadowAlly) {
@@ -226,6 +302,7 @@ public final class CoopFloors {
         game.leaveFloor();
         Level.beforeTransition(game.hero(0));
         Level.beforeTransition(game.hero(1));
+        if (arrivalType==null) Invisibility.dispel(game.hero(seat));
         Actor.leaveCoopFloor();
         Bundle leaving=new Bundle();
         leaving.put("branch",Dungeon.branch);
@@ -237,8 +314,8 @@ public final class CoopFloors {
         for(int i=0;i<2;i++) leaving.put("sight"+i,game.knowledge(game.hero(i)).save());
         validateFloor(leaving, Dungeon.depth, Dungeon.branch);
         int from=floorKey(Dungeon.depth,Dungeon.branch);
-        Dungeon.depth=transition.destDepth;
-        Dungeon.branch=transition.destBranch;
+        Dungeon.depth=depth;
+        Dungeon.branch=branch;
         Bundle parked=dormant.remove(floorKey(Dungeon.depth,Dungeon.branch));
         Dungeon.level=null;
         Level next;
@@ -256,9 +333,16 @@ public final class CoopFloors {
             game.restoreItems(CoopSession.floorItems(next, parked.getBoolean("wand_parts"), parked.getBoolean("seal_parts")),parked.getBundle("items"),game.ownership.sequence(),new HashSet<>());
             for(int i=0;i<2;i++) game.knowledge(game.hero(i)).load(parked.getBundle("sight"+i));
         }
-        LevelTransition arrival=next.getTransition(transition.destType);
-        if (arrival==null || (old instanceof MiningLevel || next instanceof MiningLevel) && arrival.type!=transition.destType) throw new IllegalStateException("Missing original arrival gate");
-        int gate=arrival.cell();
+        int gate=beacon;
+        if (arrivalType!=null) {
+            LevelTransition arrival=next.getTransition(arrivalType);
+            if (arrival==null || (old instanceof MiningLevel || next instanceof MiningLevel) && arrival.type!=arrivalType)
+                throw new IllegalStateException("Missing original arrival gate");
+            gate=arrival.cell();
+        } else if (!next.insideMap(gate) || !next.passable[gate] || next.pit[gate] || next.solid[gate]
+                || next.findMob(gate)!=null || next.traps.get(gate)!=null || next.plants.get(gate)!=null) {
+            throw new UnsupportedDestination("Blocked beacon landing");
+        }
         int[] offsets=new int[9];
         System.arraycopy(PathFinder.NEIGHBOURS8,0,offsets,1,8);
         int placed=0;
@@ -266,7 +350,8 @@ public final class CoopFloors {
             int pos=gate+offset;
             if (!next.insideMap(pos) || !next.passable[pos] || next.pit[pos] || next.traps.get(pos)!=null ||
                     next.plants.get(pos)!=null || next.findMob(pos)!=null) continue;
-            Hero h=game.hero(placed++);
+            Hero h=game.hero(arrivalType==null ? (placed==0 ? seat : 1-seat) : placed);
+            placed++;
             h.pos=pos;
             h.fieldOfView=new boolean[next.length()];
             h.viewDistance=next.viewDistance;
@@ -274,7 +359,10 @@ public final class CoopFloors {
             h.curAction=h.lastAction=null;
             if (placed==2) break;
         }
-        if (placed!=2) throw new IllegalStateException("No safe arrival pair");
+        if (placed!=2) {
+            if (arrivalType==null) throw new UnsupportedDestination("No safe beacon arrival pair");
+            throw new IllegalStateException("No safe arrival pair");
+        }
         for (DirectableAlly ally : companions) {
             Hero owner=ally.commander();
             java.util.ArrayList<Integer> free=new java.util.ArrayList<>();

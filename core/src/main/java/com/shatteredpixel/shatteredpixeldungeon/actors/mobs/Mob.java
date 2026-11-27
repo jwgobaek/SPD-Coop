@@ -1840,7 +1840,7 @@ public abstract class Mob extends Char {
 			}
 
 			//can only have one empowered ally at once, prioritize incoming ally
-			if (Stasis.getStasisAlly() != null){
+			if (Dungeon.coop == null && Stasis.getStasisAlly() != null){
 				for (Mob mob : level.mobs.toArray( new Mob[0] )) {
 					if (mob.buff(PowerOfMany.PowerBuff.class) != null){
 						mob.buff(PowerOfMany.PowerBuff.class).detach();
@@ -1851,7 +1851,7 @@ public abstract class Mob extends Char {
 			for (Mob ally : heldAllies) {
 
 				//can only have one empowered ally at once, prioritize incoming ally
-				if (ally.buff(PowerOfMany.PowerBuff.class) != null){
+				if (Dungeon.coop == null && ally.buff(PowerOfMany.PowerBuff.class) != null){
 					for (Mob mob : level.mobs.toArray( new Mob[0] )) {
 						if (mob.buff(PowerOfMany.PowerBuff.class) != null){
 							mob.buff(PowerOfMany.PowerBuff.class).detach();

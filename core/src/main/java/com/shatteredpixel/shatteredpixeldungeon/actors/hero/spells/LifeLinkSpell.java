@@ -57,7 +57,7 @@ public class LifeLinkSpell extends ClericSpell {
 	public boolean canCast(Hero hero) {
 		return super.canCast(hero)
 				&& hero.hasTalent(Talent.LIFE_LINK)
-				&& (PowerOfMany.getPoweredAlly(hero) != null || Dungeon.coop == null && Stasis.getStasisAlly() != null);
+				&& (PowerOfMany.getPoweredAlly(hero) != null || Stasis.getStasisAlly(hero) != null);
 	}
 
 	@Override
@@ -80,17 +80,19 @@ public class LifeLinkSpell extends ClericSpell {
             }
 			Buff.prolong(hero, LifeLink.class, duration).object = ally.id();
 		} else {
-			ally = Stasis.getStasisAlly();
+			ally = Stasis.getStasisAlly(hero);
+            if (Dungeon.coop == null) {
 			hero.sprite.operate(hero.pos);
 			hero.sprite.parent.add(
 					new Beam.HealthRay(DungeonTilemap.tileCenterToWorld(hero.pos), hero.sprite.center()));
 			Sample.INSTANCE.play( Assets.Sounds.RAY );
+            }
 		}
 
 		Buff.prolong(ally, LifeLink.class, duration).object = hero.id();
 		Buff.prolong(ally, LifeLinkSpellBuff.class, duration);
 
-		if (Dungeon.coop == null && ally == Stasis.getStasisAlly()){
+		if (ally == Stasis.getStasisAlly(hero)){
 			ally.buff(LifeLink.class).clearTime();
 			ally.buff(LifeLinkSpellBuff.class).clearTime();
 		}

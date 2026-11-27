@@ -105,7 +105,7 @@ public class WarpBeacon extends ArmorAbility {
 						float chargeNeeded = chargeUse(hero);
 
 						if (tracker.depth != Dungeon.depth){
-							chargeNeeded *= 1.833f - 0.333f*Dungeon.hero.pointsInTalent(Talent.LONGRANGE_WARP);
+							chargeNeeded = recallCost(hero, tracker);
 						}
 
 						if (armor.charge < chargeNeeded){
@@ -235,6 +235,11 @@ public class WarpBeacon extends ArmorAbility {
         hero.spendAndNext(Actor.TICK);
     }
 
+    public float recallCost(Hero hero, WarpBeaconTracker mark) {
+        return chargeUse(hero) * (mark.depth == Dungeon.depth ? 1f :
+                1.833f - 0.333f * hero.pointsInTalent(Talent.LONGRANGE_WARP));
+    }
+
     /** Authority receives the native window choice after the owning seat has confirmed it. */
     public boolean useForSeat(ClassArmor armor, Hero hero, int choice) {
         WarpBeaconTracker mark = hero.buff(WarpBeaconTracker.class);
@@ -304,9 +309,9 @@ public class WarpBeacon extends ArmorAbility {
 			revivePersists = true;
 		}
 
-		int pos;
+		public int pos;
 		public int depth;
-		int branch;
+		public int branch;
 
 		Emitter e;
 

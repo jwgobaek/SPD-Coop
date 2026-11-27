@@ -77,6 +77,8 @@ public final class MixedRoomStability {
             "wall0","wall1","warpwraith0","warpwraith1","hornhit0","hornhit1","cloakring0","cloakring1",
             "packedcloak0","packedcloak1","bookward0","bookward1","spark0","monkfocus1","poisontip0","elestrike1","food","dart","floor","mine"};
 
+    static final String[] STASIS_WARP = {"stasisrank0","stasishold1","stasisrelease0","warppropose1","warpreturn0",
+            "scrolltarget1","scrollapply0","bowthrow1","rayblast0","lifelink1","food","floor","mine"};
     static final String[] ENCHANTMENT = {"scrollread0","scrollread1","scrolltarget0","scrolltarget1","scrollapply0",
             "scrollabort1","eagleview0","eagleview1","remoteplace0","rayblast1","ninjalog1",
             "divineshield1","lifelink0","beamingray1","bowthrow0","spark1","hallow0","feint1","food","dart","floor","mine"};
@@ -344,6 +346,7 @@ public final class MixedRoomStability {
                 if (Boolean.getBoolean("stability.cacheGrowth")) stage = CACHE_GROWTH[i % CACHE_GROWTH.length];
                 if (Boolean.getBoolean("stability.sharedGrowth")) stage = SHARED_GROWTH[i % SHARED_GROWTH.length];
                 if (Boolean.getBoolean("stability.enchantment")) stage = ENCHANTMENT[i % ENCHANTMENT.length];
+                if (Boolean.getBoolean("stability.stasisWarp")) stage = STASIS_WARP[i % STASIS_WARP.length];
                 trial.room(fixture.temporary.getRoot(),"mine".equals(stage)?571:570+i%12,Integer.parseInt(args[1]),stage);
                 trial.observe(fixture.temporary.getRoot(),i+1);
             }

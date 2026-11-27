@@ -59,7 +59,8 @@ public final class CoopEnchantScroll {
     // SpiritBow already gates unsupported procs on both direct and shared attacks.
     public static boolean eligible(Hero hero, Item item) {
         if (!ScrollOfEnchantment.enchantable(item)) return false;
-        return item instanceof SpiritBow || hero.belongings.backpack.contains(item)
+        return item instanceof SpiritBow || (hero.belongings.backpack.contains(item)
+                || hero.belongings.weapon()==item || hero.belongings.armor()==item)
                 && (CoopSession.basicArmorType(item) || CoopSession.basicWeaponType(item));
     }
 
@@ -73,12 +74,24 @@ public final class CoopEnchantScroll {
         }
         target = game.ownership.identity(item);
         armor = item instanceof Armor;
-        options = armor ? ScrollOfEnchantment.drawGlyphs((Armor)item) : ScrollOfEnchantment.drawEnchantments((Weapon)item);
+        // Android merges Glyph[] and Enchantment[] to Object[] at this branch.
+        // Give the stored array its own concrete verifier type.
+        Object[] drawn = armor ? ScrollOfEnchantment.drawGlyphs((Armor)item) : ScrollOfEnchantment.drawEnchantments((Weapon)item);
+        options = Arrays.copyOf(drawn, drawn.length, Bundlable[].class);
+        return true;
+    }
+
+    public boolean available(CoopSession game, Hero hero, int index) {
+        if (options==null || index<0 || index>=options.length) return false;
+        Item gear=ownedItem(game,hero,target);
+        if (!eligible(hero,gear)) return false;
+        if (gear==hero.belongings.armor()) return CoopSession.supportedWornGlyph((Armor.Glyph)options[index]);
+        if (gear==hero.belongings.weapon()) return CoopSession.supportedWornEnchant((Weapon.Enchantment)options[index]);
         return true;
     }
 
     boolean apply(CoopSession game, Hero hero, int index) {
-        if (options == null || index < 0 || index >= options.length) return false;
+        if (!available(game,hero,index)) return false;
         Item gear = ownedItem(game, hero, target);
         if (!eligible(hero, gear)) return false;
         if (armor) ((Armor)gear).inscribe((Armor.Glyph)options[index]);
