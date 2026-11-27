@@ -80,6 +80,15 @@ public final class AndroidSeedAlchemy extends HeadlessDungeon {
                 game.observe(seat);
                 break;
             }
+            case "dustwraith":
+                CoopMageTest.encounter(game, seat);
+                var undead = com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith.spawnAt(
+                        hero.pos - 2, com.shatteredpixel.shatteredpixeldungeon.items.quest.CorpseDust.DustWraith.class);
+                assertNotNull(undead);
+                assertEquals(hero.pos - 2, undead.pos);
+                game.observe(seat);
+                WandArtsTest.give(game, seat, new WandOfTransfusion());
+                break;
             case "undead":
                 WandmakerTest.enterPrison(game);
                 CoopMageTest.encounter(game,seat);
