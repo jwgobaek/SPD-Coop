@@ -303,6 +303,16 @@ public class VaultElementalTest extends HeadlessDungeon {
                         ? com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning.class
                         : com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Chill.class;
                 Mob elemental=CavesInteriorTest.stage(game,type,seat);
+                // A wet target triggers the original frost melee effect on a hit; fire needs dry ground.
+                // In an open dry room the ice elemental can legitimately finish the entire sample without a proc.
+                Hero victim=game.hero(seat);
+                com.shatteredpixel.shatteredpixeldungeon.levels.Level.set(victim.pos,fire
+                        ? com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EMPTY
+                        : com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.WATER);
+                elemental.pos=victim.pos-1;
+                elemental.aggro(victim);
+                game.observe(0);
+                game.observe(1);
                 for (int i=0; i<24 && game.hero(seat).buff(effect)==null; i++) waitTurn(game);
                 assertNotNull(type.getSimpleName(),game.hero(seat).buff(effect));
                 assertNull(game.hero(1-seat).buff(effect));
