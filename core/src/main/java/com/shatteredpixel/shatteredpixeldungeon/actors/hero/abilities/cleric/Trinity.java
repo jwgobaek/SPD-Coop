@@ -53,6 +53,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourg
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.UnstableSpellbook;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfRegrowth;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
@@ -126,7 +127,7 @@ public class Trinity extends ArmorAbility {
     }
 
     public boolean useMind(Hero hero,ClassArmor armor,int cell) {
-        if (!(mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfPrismaticLight || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)
+        if (!(mindForm instanceof WandOfDisintegration || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfPrismaticLight || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning || mindForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile)
                 || hero.buff(MagicImmune.class)!=null || hero.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.trinkets.WondrousResin.class)!=null) return false;
         Wand wand=(Wand)mindForm;
         float cost=trinityChargeUsePerEffect(hero,wand.getClass());
@@ -137,7 +138,9 @@ public class Trinity extends ArmorAbility {
         if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost
                 && !com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost.safeImpact(shot.collisionPos)) return false;
         if (armor.charge<cost || shot.collisionPos==hero.pos || target!=null && target.alignment==Char.Alignment.ALLY) return false;
-        wand.level(2+hero.pointsInTalent(Talent.MIND_FORM));
+        int formLevel = 2 + hero.pointsInTalent(Talent.MIND_FORM);
+        if (wand instanceof WandOfDisintegration && !((WandOfDisintegration)wand).safeFormBeam(hero, shot, formLevel)) return false;
+        wand.level(formLevel);
         wand.curCharges=wand.maxCharges;
         ((com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand)wand).onZap(hero,shot);
         com.watabou.utils.Random.Float(); // Native Wondrous Resin roll for an eligible owner without the trinket.

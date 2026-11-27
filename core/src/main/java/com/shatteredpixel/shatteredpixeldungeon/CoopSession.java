@@ -1847,10 +1847,21 @@ public final class CoopSession implements AutoCloseable {
                     break;
                 case BREW_RUNESTONES:
                     return CoopAlchemy.brew(this, hero, cell, item);
+                case READ_SCROLL:
+                    if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfEnchantment) {
+                        enchantScroll[activeSeat] = CoopEnchantScroll.begin(this, hero, item);
+                        if (enchantScroll[activeSeat] == null) return false;
+                        if (hero.belongings.armor() != null && hero.belongings.armor().checkSeal() != null)
+                            requireSealFormat();
+                        return true;
+                    }
+                    if (!(item instanceof Scroll) || ((Scroll)item).isKnown()) return false;
+                    // An unknown scroll exposes only READ_SCROLL. Its host-side class selects the effect.
                 case READ_LULLABY:
                 case READ_RECHARGING:
-                    if (cell != 0 || !(action == Action.READ_LULLABY ? item instanceof ScrollOfLullaby : item instanceof ScrollOfRecharging)
-                            || !((Scroll)item).isKnown()
+                    if (cell != 0 || !(item instanceof ScrollOfLullaby || item instanceof ScrollOfRecharging)
+                            || action != Action.READ_SCROLL && (!((Scroll)item).isKnown()
+                            || (action == Action.READ_LULLABY) != (item instanceof ScrollOfLullaby))
                             || ownership.owner(item) != player || !hero.belongings.backpack.contains(item)
                             || hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness.class) != null
                             || hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune.class) != null) return false;
@@ -1859,12 +1870,6 @@ public final class CoopSession implements AutoCloseable {
                     if (item instanceof ScrollOfLullaby) ((ScrollOfLullaby)item).readFor(hero);
                     else ((ScrollOfRecharging)item).readFor(hero);
                     break;
-                case READ_SCROLL:
-                    enchantScroll[activeSeat] = CoopEnchantScroll.begin(this, hero, item);
-                    if (enchantScroll[activeSeat] == null) return false;
-                    if (hero.belongings.armor() != null && hero.belongings.armor().checkSeal() != null)
-                        requireSealFormat();
-                    return true;
                 case ENCHANT_TARGET:
                     return pending != null && pending.select(this, hero, item);
                 case ENCHANT_CHOOSE:

@@ -104,7 +104,7 @@ final class RenderEncounter {
                 com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll scroll=destination.equals("lullaby-input")
                         ? new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby()
                         : new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging();
-                scroll.setKnown();
+                if (!destination.equals("lullaby-input") || !Boolean.getBoolean("trial.unknownLullaby")) scroll.setKnown();
                 if (!scroll.collect(hero.belongings.backpack)) throw new AssertionError("Backpack full");
                 game.ownership.claim(scroll,game.player(0));
             } else if (destination.startsWith("selector-")) {

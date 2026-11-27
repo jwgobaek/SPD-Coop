@@ -637,7 +637,9 @@ final class SeatProjection {
         if (!slot.startsWith("F") && CoopSession.basicMissile(item) && item.isIdentified())
             kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSpike ? "SPIKE" : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "KNIFE" :
                         item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart ? "DART" : "STONE";
-        if (!slot.startsWith("F") && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfEnchantment) kind="READ_SCROLL";
+        if (!slot.startsWith("F") && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll
+                && (!((com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll)item).isKnown()
+                || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfEnchantment)) kind="READ_SCROLL";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle) kind="CANDLE";
         if (!slot.startsWith("F") && item.isIdentified() && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste) kind="HASTE_RING";
         String charges="";

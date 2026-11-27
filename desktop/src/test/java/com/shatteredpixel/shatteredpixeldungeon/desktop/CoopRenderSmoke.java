@@ -1372,9 +1372,10 @@ public final class CoopRenderSmoke {
                 }
                 if (regionShot.equals("recharging-input") || regionShot.equals("lullaby-input")) {
                     boolean lullaby=regionShot.equals("lullaby-input");
-                    String kind=lullaby ? "LULLABY_SCROLL" : "RECHARGING_SCROLL";
+                    boolean unknown = lullaby && Boolean.getBoolean("trial.unknownLullaby");
+                    String kind=unknown ? "READ_SCROLL" : lullaby ? "LULLABY_SCROLL" : "RECHARGING_SCROLL";
                     String shotName=lullaby ? "lullaby" : "recharging";
-                    String verb="read_"+shotName;
+                    String verb=unknown ? "read_scroll" : "read_"+shotName;
                     await(() -> frame().dungeon.belongings.stream().anyMatch(i -> i.kind.equals(kind)));
                     var scroll=frame().dungeon.belongings.stream().filter(i -> i.kind.equals(kind)).findFirst().get();
                     click("bag"); press(inventoryPoint(scroll.id)); click(verb);

@@ -203,6 +203,14 @@ public class SealArtsTest extends HeadlessDungeon {
                     HolyTome tome=(HolyTome)hero.belongings.artifact;
                     tome.upgrade(); tome.charge(hero,10);
                 }
+                if (type.equals("trinitymindrayhistory") || type.equals("trinitymindraycast")) {
+                    Wand wand = WandArtsTest.give(game, seat, new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration());
+                    StagedInput selection = historyInput(game, seat, wand, TrinityDiscoveries.Choice.DISINTEGRATION);
+                    if (type.equals("trinitymindrayhistory")) return selection;
+                    assertTrue(CoopFloorsTest.step(game, CoopSession.Action.MIND_FORM, selection.cell, hero.belongings.artifact));
+                    SewerBeeTest.offer(game, seat);
+                    return new StagedInput(game, "TRINITY_MIND", rat.pos);
+                }
                 if (type.equals("trinitymindprismhistory")) {
                     Wand wand=WandArtsTest.give(game,seat,new WandOfPrismaticLight());
                     return historyInput(game,seat,wand,TrinityDiscoveries.Choice.PRISMATIC_LIGHT);
@@ -342,8 +350,11 @@ public class SealArtsTest extends HeadlessDungeon {
         case "recallid": return hero.belongings.backpack.items.stream().anyMatch(i -> i instanceof ClothArmor && i.isIdentified()) && hero.buff(RecallInscription.UsedItemTracker.class)==null;
         case "intuition": return hero.belongings.backpack.items.stream().anyMatch(i -> i instanceof ClothArmor && i.cursedKnown && !i.levelKnown);
         case "bless": return hero.buff(Bless.class)!=null && hero.buff(Barrier.class)!=null && game.hero(1-seat).buff(Bless.class)==null;
-        case "trinitymindprismhistory": case "trinitymindmissilehistory": case "trinitybodyhistory": case "trinitybloomhistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindhistory": case "trinityspirithistory": {
-            TrinityDiscoveries.Choice choice = type.equals("trinitymindprismhistory") ? TrinityDiscoveries.Choice.PRISMATIC_LIGHT :
+        case "trinitymindraycast":
+            return Dungeon.level.mobs.stream().anyMatch(m -> m instanceof Rat && m.HP < m.HT)
+                    && ((ClassArmor)armor).charge < 100 && game.discoveries(seat).knows(TrinityDiscoveries.Choice.DISINTEGRATION);
+        case "trinitymindrayhistory": case "trinitymindprismhistory": case "trinitymindmissilehistory": case "trinitybodyhistory": case "trinitybloomhistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindhistory": case "trinityspirithistory": {
+            TrinityDiscoveries.Choice choice = type.equals("trinitymindrayhistory") ? TrinityDiscoveries.Choice.DISINTEGRATION : type.equals("trinitymindprismhistory") ? TrinityDiscoveries.Choice.PRISMATIC_LIGHT :
                     type.equals("trinitybodyhistory") ? TrinityDiscoveries.Choice.SWIFTNESS :
                     type.equals("trinitybloomhistory") ? TrinityDiscoveries.Choice.BLOOMING :
                     type.equals("trinityfirehistory") ? TrinityDiscoveries.Choice.BLAZING :

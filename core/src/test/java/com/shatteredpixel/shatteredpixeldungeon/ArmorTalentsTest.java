@@ -235,7 +235,13 @@ public class ArmorTalentsTest extends HeadlessDungeon {
                     SewerBeeTest.offer(game,seat);
                     for (WandOfMagicMissile wand : wands) { wand.curCharges=1; wand.partialCharge=.25f; }
                     int hp=rat.HP;
-                    assertTrue(CoopFloorsTest.step(game,ARMOR_ABILITY,rat.pos,armor));
+                    // Rank zero and rank four have overlapping damage ranges. Compare identical draws.
+                    com.watabou.utils.Random.pushGenerator(572L);
+                    try {
+                        assertTrue(CoopFloorsTest.step(game,ARMOR_ABILITY,rat.pos,armor));
+                    } finally {
+                        com.watabou.utils.Random.popGenerator();
+                    }
                     totalAfter=0;
                     int fired=0;
                     for(WandOfMagicMissile wand:wands) {

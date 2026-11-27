@@ -14,6 +14,38 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class CorrosionAttributionTest extends HeadlessDungeon {
+    static StagedInput prepareGasTick(CoopSession game, int seat) {
+        CoopMageTest.encounter(game, seat);
+        Hero owner = game.hero(seat);
+        owner.HP = owner.HT = 140;
+        new WandOfCorrosion().onZap(owner, new Ballistica(owner.pos, owner.pos, Ballistica.STOP_TARGET));
+        for (int i = 0; i < 8 && owner.buff(Corrosion.class) == null; i++) TenguArenaTest.waitOne(game);
+        SewerBeeTest.offer(game, seat);
+        assertTrue(publishedGasTick(game, seat));
+        return new StagedInput(game, "WAIT", 0);
+    }
+
+    static boolean publishedGasTick(CoopSession game, int seat) {
+        Hero owner = game.hero(seat);
+        CorrosiveGas gas = (CorrosiveGas) Dungeon.level.blobs.get(CorrosiveGas.class);
+        if (gas == null || gas.volume == 0) return false;
+        Bundle state = new Bundle();
+        gas.storeInBundle(state);
+        Corrosion corrosion = owner.buff(Corrosion.class);
+        return state.getInt("coop_caster") == owner.id() && state.getClass("source") == WandOfCorrosion.class
+                && corrosion != null && corrosion.caster() == owner;
+    }
+
+    static String gasSignature(CoopSession game, int seat) {
+        CorrosiveGas gas = (CorrosiveGas) Dungeon.level.blobs.get(CorrosiveGas.class);
+        Bundle state = new Bundle();
+        gas.storeInBundle(state);
+        Hero owner = game.hero(seat);
+        return gas.id() + "/" + gas.volume + "/" + java.util.Arrays.hashCode(gas.cur) + "/"
+                + state.getInt("strength") + "/" + state.getInt("coop_caster") + "/" + owner.HP
+                + "/" + owner.buff(Corrosion.class).id();
+    }
+
     @Test public void theNativeGasPoolKeepsTheFirstCasterAtEqualStrengthAndTheHighestCauseOnRestore() {
         for (int seat = 0; seat < 2; seat++) {
             Bundle save;

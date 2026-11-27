@@ -73,6 +73,66 @@ public class CauldronTest extends HeadlessDungeon {
         }
     }
 
+    static StagedInput unknownScroll(CoopSession game, int seat) {
+        prepare(game, seat);
+        return new StagedInput(game, "READ_SCROLL", 0);
+    }
+
+    static boolean readUnknown(CoopSession game, int seat) {
+        return new ScrollOfLullaby().isKnown() && game.hero(seat).belongings.getItem(ScrollOfLullaby.class) == null
+                && game.hero(seat).buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy.class) != null
+                && game.hero(1-seat).buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy.class) == null;
+    }
+
+    @Test public void unidentifiedLullabyExposesOnlyGenericReadingBeforeTheNativeEffect() {
+        for (int seat = 0; seat < 2; seat++) {
+            try (CoopSession game = CoopSession.open(572, 11, HeroClass.WARRIOR)) {
+                game.join(22, HeroClass.WARRIOR);
+                unknownScroll(game, seat);
+                ScrollOfLullaby scroll = game.hero(seat).belongings.getItem(ScrollOfLullaby.class);
+                assertFalse(scroll.isKnown());
+                var own = com.shatteredpixel.shatteredpixeldungeon.lan.ProjectionChecks.seatImage(game, seat);
+                var item = own.belongings.stream().filter(i -> own.source.rows.getOrDefault("brew" + i.id, "").startsWith("unknown,")).findFirst().get();
+                assertTrue(own.actions(item).contains("READ_SCROLL"));
+                assertFalse(own.actions(item).contains("READ_LULLABY"));
+                assertFalse(CoopFloorsTest.step(game, READ_LULLABY, 0, scroll));
+                assertTrue(CoopFloorsTest.step(game, READ_SCROLL, 0, scroll));
+                assertTrue(readUnknown(game, seat));
+            }
+        }
+    }
+
+    @Test public void twoSeatsAtOneStationCommitOnlyTheirOwnPhysicalStackOnTheirOffer() {
+        try (CoopSession game = CoopSession.open(572, 11, HeroClass.WARRIOR)) {
+            game.join(22, HeroClass.WARRIOR);
+            int pot = prepare(game, 0).cell;
+            Hero host = game.hero(0);
+            Hero guest = game.hero(1);
+            ScrollOfLullaby first = host.belongings.getItem(ScrollOfLullaby.class);
+            ScrollOfLullaby second = new ScrollOfLullaby();
+            Dungeon.level.drop(second, guest.pos);
+            SewerBeeTest.offer(game, 1);
+            assertTrue(CoopFloorsTest.step(game, PICK_UP, guest.pos, second));
+            game.observe(0);
+            game.observe(1);
+            assertTrue(CoopAlchemy.atStation(game, host, pot));
+            assertTrue(CoopAlchemy.atStation(game, guest, pot));
+            int energy = Dungeon.energy;
+            SewerBeeTest.offer(game, 0);
+            assertFalse(game.act(game.player(1), game.turn(), BREW_RUNESTONES, pot, second));
+            assertFalse(CoopFloorsTest.step(game, BREW_RUNESTONES, pot, second));
+            assertTrue(CoopFloorsTest.step(game, BREW_RUNESTONES, pot, first));
+            assertTrue(guest.belongings.contains(second));
+            SewerBeeTest.offer(game, 1);
+            assertTrue(CoopFloorsTest.step(game, BREW_RUNESTONES, pot, second));
+            assertTrue(published(game, 0));
+            assertTrue(published(game, 1));
+            assertEquals(energy, Dungeon.energy);
+            assertNotEquals(game.ownership.identity(host.belongings.getItem(StoneOfDeepSleep.class)),
+                    game.ownership.identity(guest.belongings.getItem(StoneOfDeepSleep.class)));
+        }
+    }
+
     @Test public void fullPackDropsOneBoundStackAndLaterMergesIntoItsPhysicalIdentity() {
         try (CoopSession game = CoopSession.open(572, 11, HeroClass.WARRIOR)) {
             game.join(22, HeroClass.WARRIOR);

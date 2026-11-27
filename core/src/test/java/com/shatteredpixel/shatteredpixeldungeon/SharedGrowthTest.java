@@ -175,9 +175,10 @@ public class SharedGrowthTest extends HeadlessDungeon {
     }
 
     @Test public void trinityRemembersColdAndFireAndCastsEachOriginalEffectWithoutTheWand() {
-        for (int seat=0;seat<2;seat++) for (TrinityDiscoveries.Choice choice : new TrinityDiscoveries.Choice[]{TrinityDiscoveries.Choice.FIREBLAST, TrinityDiscoveries.Choice.FROST, TrinityDiscoveries.Choice.PRISMATIC_LIGHT}) {
+        for (int seat=0;seat<2;seat++) for (TrinityDiscoveries.Choice choice : new TrinityDiscoveries.Choice[]{TrinityDiscoveries.Choice.FIREBLAST, TrinityDiscoveries.Choice.FROST, TrinityDiscoveries.Choice.PRISMATIC_LIGHT, TrinityDiscoveries.Choice.DISINTEGRATION}) {
             boolean fire = choice == TrinityDiscoveries.Choice.FIREBLAST;
             boolean prism = choice == TrinityDiscoveries.Choice.PRISMATIC_LIGHT;
+            boolean beam = choice == TrinityDiscoveries.Choice.DISINTEGRATION;
             Bundle saved;
             try (CoopSession game=CoopSession.open(572,11,HeroClass.CLERIC)) {
                 game.join(22,HeroClass.CLERIC);
@@ -188,7 +189,7 @@ public class SharedGrowthTest extends HeadlessDungeon {
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.USE_CROWN,1,CrownAbilityTest.crown(game,seat,CoopSession.MaskTrial.OWNER)));
                 SewerBeeTest.offer(game,seat);
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.INVEST_TALENT,Talent.MIND_FORM.ordinal(),null));
-                com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand wand = prism ? new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfPrismaticLight() : fire ? new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast() : new WandOfFrost();
+                com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand wand = (com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand) com.watabou.utils.Reflection.newInstance(choice.effect);
                 wand.identify(false);
                 Dungeon.level.drop(wand,hero.pos);
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,hero.pos,wand));
@@ -198,11 +199,25 @@ public class SharedGrowthTest extends HeadlessDungeon {
                 SewerBeeTest.offer(game,seat);
                 ClassArmor armor=(ClassArmor)hero.belongings.armor();
                 float before=armor.charge;
+                Rat second = null;
+                if (beam) {
+                    Hero peer = game.hero(1-seat);
+                    int safe = peer.pos;
+                    peer.pos = hero.pos + 2;
+                    assertFalse(CoopFloorsTest.step(game,CoopSession.Action.TRINITY_MIND,rat.pos,armor));
+                    assertEquals(before,armor.charge,0f);
+                    peer.pos = safe;
+                    second = new Rat();
+                    second.pos = hero.pos + 4;
+                    second.HT = second.HP = 200;
+                    com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.add(second, 2000);
+                }
                 int hp=rat.HP;
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.TRINITY_MIND,rat.pos,armor));
                 assertTrue(armor.charge<before);
                 assertTrue(rat.HP<hp);
-                if (prism) assertTrue(game.knowledge(game.hero(seat)).mapped(hero.pos+1));
+                if (beam) assertTrue(second.HP < 200);
+                else if (prism) assertTrue(game.knowledge(game.hero(seat)).mapped(hero.pos+1));
                 else if (fire) assertNotNull(rat.buff(Burning.class));
                 else assertNotNull(rat.buff(Chill.class));
                 saved=game.checkpoint();

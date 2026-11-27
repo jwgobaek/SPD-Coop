@@ -130,9 +130,17 @@ public class WandOfDisintegration extends TargetedDamageWand {
 	}
 
     public boolean safeBeam(Hero caster, Ballistica ray, boolean volley) {
-        Hero teammate = Dungeon.coop.hero(caster == Dungeon.coop.hero(0) ? 1 : 0);
         // A volley can empower a later wand or move a blocker. Do not roll its level during validation.
         int end = volley ? ray.dist : Math.min(ray.dist, distance());
+        return safeBeamTo(caster, ray, end);
+    }
+
+    public boolean safeFormBeam(Hero caster, Ballistica ray, int formLevel) {
+        return safeBeamTo(caster, ray, Math.min(ray.dist, distanceAtLevel(formLevel)));
+    }
+
+    private boolean safeBeamTo(Hero caster, Ballistica ray, int end) {
+        Hero teammate = Dungeon.coop.hero(caster == Dungeon.coop.hero(0) ? 1 : 0);
         return teammate == null || !ray.subPath(1, end).contains(teammate.pos);
     }
 
@@ -142,8 +150,10 @@ public class WandOfDisintegration extends TargetedDamageWand {
 	}
 
 	private int distance() {
-		return buffedLvl()*2 + 6;
+		return distanceAtLevel(buffedLvl());
 	}
+
+    private int distanceAtLevel(int level) { return 2 * level + 6; }
 
 	@Override
 	public String upgradeStat2(int level) {
