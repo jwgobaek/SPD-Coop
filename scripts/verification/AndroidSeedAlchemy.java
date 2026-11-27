@@ -2,8 +2,11 @@ package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.PowerOfMany;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Skeleton;
@@ -12,6 +15,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.*;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTransfusion;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.lan.AndroidTrialTickets;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Firebloom;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -29,7 +33,7 @@ public final class AndroidSeedAlchemy extends HeadlessDungeon {
         HeroClass type;
         switch (mode) {
         case "bloodally": case "blooddown": case "overflow": type = HeroClass.CLERIC; break;
-        case "blood": case "undead": type = HeroClass.MAGE; break;
+        case "blood": case "undead": case "bloodstaff": type = HeroClass.MAGE; break;
         default: type = HeroClass.WARRIOR;
         }
         try (CoopSession game = CoopSession.open(572, 1, type)) {
@@ -64,6 +68,18 @@ public final class AndroidSeedAlchemy extends HeadlessDungeon {
             case "blood":
                 TransfusionTest.prepare(game,seat);
                 break;
+            case "bloodstaff": {
+                Rat target = CoopMageTest.encounter(game,seat);
+                TierGrowthTest.prepare(game,seat,HeroSubClass.BATTLEMAGE,Talent.WAND_PRESERVATION,2);
+                MagesStaff staff = (MagesStaff)hero.belongings.weapon();
+                WandOfTransfusion wand = WandArtsTest.give(game,seat,new WandOfTransfusion());
+                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.IMBUE,WandArtsTest.choice(game,seat,wand),staff));
+                assertSame(wand,staff.imbuedWand());
+                target.pos = hero.pos + 1;
+                Buff.prolong(target,Paralysis.class,20);
+                game.observe(seat);
+                break;
+            }
             case "undead":
                 WandmakerTest.enterPrison(game);
                 CoopMageTest.encounter(game,seat);
