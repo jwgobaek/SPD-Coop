@@ -52,7 +52,7 @@ public class SealArtsTest extends HeadlessDungeon {
                 break;
             case "mind":
                 talent = Talent.MIND_FORM;
-                reference = Boolean.getBoolean("spd.selector.missile")
+                reference = Boolean.getBoolean("spd.selector.frost") ? new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost() : Boolean.getBoolean("spd.selector.missile")
                         ? new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile() : new WandOfLightning();
                 break;
             case "spirit":

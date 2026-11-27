@@ -66,9 +66,11 @@ public class DivineIntervention extends ClericSpell {
 		hero.sprite.operate(hero.pos);
 
 		for (Char ch : Actor.chars()){
-			if (ch.alignment == Char.Alignment.ALLY && ch != hero){
-				Buff.affect(ch, DivineShield.class).setShield(100 + 50*hero.pointsInTalent(Talent.DIVINE_INTERVENTION));
-				new Flare(6, 32).color(0xFFFF00, true).show(ch.sprite, 2f);
+			if (ch.alignment == Char.Alignment.ALLY && ch != hero && (Dungeon.coop == null || com.shatteredpixel.shatteredpixeldungeon.CoopSession.summonerOf(ch) == hero)){
+				DivineShield shield = Buff.affect(ch, DivineShield.class);
+                if (Dungeon.coop != null) shield.summoner = hero.id();
+                shield.setShield(100 + 50*hero.pointsInTalent(Talent.DIVINE_INTERVENTION));
+				if (Dungeon.coop == null) new Flare(6, 32).color(0xFFFF00, true).show(ch.sprite, 2f);
 			}
 		}
 
@@ -77,7 +79,7 @@ public class DivineIntervention extends ClericSpell {
 
 		//we apply buffs here so that the 5 charge cost and shield boost do not stack
 		hero.buff(AscendedForm.AscendBuff.class).setShield(100 + 50*hero.pointsInTalent(Talent.DIVINE_INTERVENTION));
-		new Flare(6, 32).color(0xFFFF00, true).show(hero.sprite, 2f);
+		if (Dungeon.coop == null) new Flare(6, 32).color(0xFFFF00, true).show(hero.sprite, 2f);
 
 		hero.buff(AscendedForm.AscendBuff.class).divineInverventionCast = true;
 		hero.buff(AscendedForm.AscendBuff.class).extend(2+hero.pointsInTalent(Talent.DIVINE_INTERVENTION));
@@ -92,6 +94,25 @@ public class DivineIntervention extends ClericSpell {
 	}
 
 	public static class DivineShield extends ShieldBuff{
+        private int summoner;
+
+        public boolean belongsTo(Char owner) { return owner != null && owner.id() == summoner; }
+
+        private boolean activeOwner() {
+            Actor owner = Dungeon.coop == null ? Dungeon.hero : Actor.findById(summoner);
+            return owner instanceof Hero && ((Hero)owner).buff(AscendedForm.AscendBuff.class) != null;
+        }
+
+        @Override public void storeInBundle(com.watabou.utils.Bundle b) {
+            super.storeInBundle(b);
+            if (Dungeon.coop != null) b.put("summoner", summoner);
+        }
+
+        @Override public void restoreFromBundle(com.watabou.utils.Bundle b) {
+            super.restoreFromBundle(b);
+            summoner = b.getInt("summoner");
+        }
+
 
 		{
 			shieldUsePriority = 1;
@@ -100,7 +121,7 @@ public class DivineIntervention extends ClericSpell {
 		@Override
 		public boolean act() {
 
-			if (Dungeon.hero == null || Dungeon.hero.buff(AscendedForm.AscendBuff.class) == null){
+			if (!activeOwner()){
 				detach();
 			}
 
@@ -110,7 +131,7 @@ public class DivineIntervention extends ClericSpell {
 
 		@Override
 		public int shielding() {
-			if (Dungeon.hero == null || Dungeon.hero.buff(AscendedForm.AscendBuff.class) == null){
+			if (!activeOwner()){
 				return 0;
 			}
 			return super.shielding();

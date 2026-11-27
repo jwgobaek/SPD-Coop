@@ -26,6 +26,9 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Web;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.SkeletonKey;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -183,9 +186,9 @@ public class WallOfLight extends TargetedClericSpell {
 		int knockBackDir = PathFinder.CIRCLE8[closestIdx];
 
 		//if all 3 tiles in front of Paladin are blocked, assume cast was in error and cancel
-		if (Dungeon.level.solid[closest]
-				&& Dungeon.level.solid[hero.pos + PathFinder.CIRCLE8[(closestIdx+1)%8]]
-				&& Dungeon.level.solid[hero.pos + PathFinder.CIRCLE8[(closestIdx+7)%8]]){
+		if (!canPlaceWall(hero, closest)
+				&& !canPlaceWall(hero, hero.pos + PathFinder.CIRCLE8[(closestIdx+1)%8])
+				&& !canPlaceWall(hero, hero.pos + PathFinder.CIRCLE8[(closestIdx+7)%8])){
 			GLog.w(Messages.get(this, "invalid_target"));
 			return false;
 		}
@@ -248,8 +251,20 @@ public class WallOfLight extends TargetedClericSpell {
         return true;
 	}
 
-	private void placeWall(Hero hero, int pos, int knockbackDIR){
-		if (!Dungeon.level.solid[pos]) {
+	private boolean canPlaceWall(Hero hero, int pos) {
+        if (!Dungeon.level.solid[pos]) return true;
+        if (Dungeon.coop == null) return false;
+        Class<? extends LightWall> other = wallType(hero) == LightWall.class ? GuestLightWall.class : LightWall.class;
+        // A second paladin may sustain the same space. Terrain, webs and key walls
+        // retain the original solid-cell restriction independently of the first wall.
+        return Blob.volumeAt(pos, other) > 0
+                && (Terrain.flags[Dungeon.level.map[pos]] & Terrain.SOLID) == 0
+                && Blob.volumeAt(pos, Web.class) == 0
+                && Blob.volumeAt(pos, SkeletonKey.KeyWall.class) == 0;
+    }
+
+    private void placeWall(Hero hero, int pos, int knockbackDIR){
+		if (canPlaceWall(hero, pos)) {
 			GameScene.add(Blob.seed(pos, 20, wallType(hero)));
 
 			Char ch = Actor.findChar(pos);

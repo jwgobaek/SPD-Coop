@@ -126,7 +126,7 @@ public class AscendedForm extends ArmorAbility {
 				detach();
 				for (Char ch : Actor.chars()){
 					if (Dungeon.coop != null && ch != caster) continue;
-					if (ch.buff(DivineIntervention.DivineShield.class) != null){
+					if (ch.buff(DivineIntervention.DivineShield.class) != null && (Dungeon.coop == null || ch.buff(DivineIntervention.DivineShield.class).belongsTo(target))){
 						ch.buff(DivineIntervention.DivineShield.class).detach();
 					}
 				}

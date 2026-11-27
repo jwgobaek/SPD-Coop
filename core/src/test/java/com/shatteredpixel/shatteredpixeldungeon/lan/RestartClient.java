@@ -181,7 +181,7 @@ public final class RestartClient {
                     if (mode.matches(".*-(cacheinvest|cachepickup)[01]")) character=i==mode.charAt(mode.length()-1)-'0'?"ROGUE":"MAGE";
                     if (mode.matches(".*-(cloakring|packedcloak|markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) character="ROGUE";
                     if (mode.matches(".*-(holdfast|deathlesswait|deathlesstrap|strongman|endless_rage|sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
-                    if (mode.matches(".*-(bowstone|bowrank|bowthrow|poisontip|scoutshot|point_blank|hawk|direct|blades|sniper|nature)[01]")) character="HUNTRESS";
+                    if (mode.matches(".*-(scrollread|scrolltarget|scrollapply|scrollabort|eagleview|bowstone|bowrank|bowthrow|poisontip|scoutshot|point_blank|hawk|direct|blades|sniper|nature)[01]")) character="HUNTRESS";
                     if (mode.matches(".*-(warpwraith|hornhit|desperate_power|spark|sparkimbue|sparkblast|sparkvolley|ice|iceimbue|iceblast|icevolley|imbue|volley|battery|recall|beacon|meal|blast|warlock|battlemage|soul)[01]")) character="MAGE";
                 }
                 int upper=mode.indexOf("-upper_");
@@ -568,6 +568,8 @@ public final class RestartClient {
                     assertEquals(com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.MASK, view.floor.get(cell).sprite);
                 }
                 long handle=verb.equals("PICK_UP") ? view.floor.get(cell).id : 0;
+                if (verb.equals("READ_SCROLL")) handle=view.belongings.stream().filter(it->view.actions(it).contains("READ_SCROLL")).findFirst().get().id;
+                if (verb.equals("ENCHANT_TARGET")) handle=view.belongings.stream().filter(it->view.source.rows.containsKey("enchantgear"+it.id)).findFirst().get().id;
                 if (verb.equals("ENCHANT_BOW")) {
                     PublicDungeon.Loot stone=view.belongings.stream().filter(it->view.actions(it).contains("ENCHANT_BOW")).findFirst().get();
                     PublicDungeon.Loot bow=view.belongings.stream().filter(it->it.kind.equals("BOW")).findFirst().get();
@@ -667,6 +669,9 @@ public final class RestartClient {
                 for (int i=0;i<21;i++) act("WAIT",0,0);
                 Collections.sort(latency);
                 System.out.println("tengu_tcp mode="+mode+" restored_arena_waits="+latency.size()+" median_us="+latency.get(10)+" p95_us="+latency.get(19));
+            } else if (mode.matches("tengu-read-growth-(scrollread|scrolltarget)[01]")) {
+                assertTrue(new PublicDungeon(state(seat)).source.rows.containsKey("enchantphase"));
+                act("ENCHANT_CANCEL",0,0);
             } else act("WAIT",0,0);
             return;
         }

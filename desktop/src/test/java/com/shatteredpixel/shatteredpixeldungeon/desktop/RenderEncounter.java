@@ -80,6 +80,10 @@ final class RenderEncounter {
                 game.observe(0);
             } else if (destination.equals("cache-input")) {
                 game.hero(0).lvl=5;
+            } else if (destination.equals("scroll-enchant-input")) {
+                com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"scrollread0");
+            } else if (destination.equals("eagle-input")) {
+                com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"eagleview0");
             } else if (destination.equals("bow-enchant-input")) {
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"bowstone0");
             } else if (destination.equals("strength-input")) {

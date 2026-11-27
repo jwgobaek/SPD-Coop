@@ -34,6 +34,14 @@ public final class MixedRoomStability {
     long saveNanos;
     String[] normalRoster;
     private static VaultPublicRoute.Input input(PublicDungeon view,VaultPublicRoute.Guide guide) {
+        if (view.source.rows.containsKey("enchantphase")) {
+            if (view.source.rows.get("enchantphase").equals("options"))
+                return new VaultPublicRoute.Input("ENCHANT_CHOOSE", 0, 0);
+            for (PublicDungeon.Loot gear : view.belongings)
+                if (view.source.rows.containsKey("enchantgear"+gear.id))
+                    return new VaultPublicRoute.Input("ENCHANT_TARGET", 0, gear.id);
+            return new VaultPublicRoute.Input("ENCHANT_CANCEL", 0, 0);
+        }
         for(Talent t:Talent.values()) {
             String rank=view.source.rows.get("learn"+t.ordinal());
             String tier=view.source.rows.get("tier"+t.ordinal());
@@ -69,6 +77,9 @@ public final class MixedRoomStability {
             "wall0","wall1","warpwraith0","warpwraith1","hornhit0","hornhit1","cloakring0","cloakring1",
             "packedcloak0","packedcloak1","bookward0","bookward1","spark0","monkfocus1","poisontip0","elestrike1","food","dart","floor","mine"};
 
+    static final String[] ENCHANTMENT = {"scrollread0","scrollread1","scrolltarget0","scrolltarget1","scrollapply0",
+            "scrollabort1","eagleview0","eagleview1","bowthrow0","spark1","hallow0","feint1","food","dart","floor","mine"};
+
     static final String[] CACHE_GROWTH = {"cacheinvest0","cacheinvest1","trinityblockhistory0","trinityblockhistory1",
             "strikekinetic0","strikekinetic1","strikebloom0","strikebloom1","readrecharge0","readrecharge1","recallrecharge0","recallrecharge1","food","floor"};
 
@@ -85,6 +96,7 @@ public final class MixedRoomStability {
 
     static String stageClass(String stage,int seat) {
         if (stage==null) return seat==0 && Boolean.getBoolean("stability.rogue")?"ROGUE":seat==0?"MAGE":"HUNTRESS";
+        if (stage.matches("(scrollread|scrolltarget|scrollapply|scrollabort|eagleview)[01]")) return "HUNTRESS";
         if (stage.startsWith("cacheinvest")) return seat == stage.charAt(stage.length()-1)-'0' ? "ROGUE" : "MAGE";
         if (stage.matches("(warpwraith|hornhit|spark|ice|iceimbue|iceblast|icevolley|imbue|volley)[01]")) return "MAGE";
         if (stage.matches("(strikekinetic|strikebloom|strikeblock|strikeshock|strikevenom|heroicenergy|challenge|elestrike|feint|monkflurry|monkdash|monkdragonkick|monkmeditate|swap|monkfocus|stance|guardshield|lunge|spike|charged)[01]")) return "DUELIST";
@@ -133,6 +145,8 @@ public final class MixedRoomStability {
     static VaultPublicRoute.Input fromView(PublicDungeon view,VaultPublicRoute.Input staged) {
         String verb=staged.action;
         long item=0;
+        if (verb.equals("READ_SCROLL")) item=view.belongings.stream().filter(it->view.actions(it).contains(verb)).findFirst().get().id;
+        if (verb.equals("ENCHANT_TARGET")) item=view.belongings.stream().filter(it->view.source.rows.containsKey("enchantgear"+it.id)).findFirst().get().id;
         if (verb.equals("SHOOT")) item=view.belongings.stream().filter(it->it.kind.equals("BOW")).findFirst().get().id;
         if (verb.matches("LAY_ON_HANDS|AURA_OF_PROTECTION|MNEMONIC_PRAYER|HALLOWED_GROUND|WALL_OF_LIGHT|HOLY_LANCE|CLEANSE|BODY_FORM|MIND_FORM|SPIRIT_FORM|BLESS|HOLY_INTUITION|RECALL_INSCRIPTION|SMITE|RADIANCE|DIVINE_SENSE|SUNRAY|SHIELD_OF_LIGHT|GUIDING_LIGHT|HOLY_WEAPON|HOLY_WARD")) item=view.belongings.stream().filter(it->view.actions(it).contains("CAST")).findFirst().get().id;
         if (verb.equals("TRINITY_MIND") || verb.equals("TRINITY_SPIRIT"))
@@ -327,6 +341,7 @@ public final class MixedRoomStability {
                 if (Boolean.getBoolean("stability.tierGrowth")) stage = TIER_GROWTH[i % TIER_GROWTH.length];
                 if (Boolean.getBoolean("stability.cacheGrowth")) stage = CACHE_GROWTH[i % CACHE_GROWTH.length];
                 if (Boolean.getBoolean("stability.sharedGrowth")) stage = SHARED_GROWTH[i % SHARED_GROWTH.length];
+                if (Boolean.getBoolean("stability.enchantment")) stage = ENCHANTMENT[i % ENCHANTMENT.length];
                 trial.room(fixture.temporary.getRoot(),"mine".equals(stage)?571:570+i%12,Integer.parseInt(args[1]),stage);
                 trial.observe(fixture.temporary.getRoot(),i+1);
             }

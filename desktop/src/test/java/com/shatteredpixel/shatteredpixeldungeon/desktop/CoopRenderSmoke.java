@@ -37,7 +37,7 @@ public final class CoopRenderSmoke {
             return;
         }
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|strength-input|recharging-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|eagle-input|strength-input|recharging-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -214,6 +214,33 @@ public final class CoopRenderSmoke {
         if(key.equals("mageClass")) return HeroClass.MAGE.title();
         return Messages.get(CoopScene.class,key);
     }
+    private static void enchantScrollInput() throws Exception {
+        await(()->frame().dungeon.offered && frame().dungeon.belongings.stream().anyMatch(i->i.kind.equals("READ_SCROLL")));
+        var scroll=frame().dungeon.belongings.stream().filter(i->i.kind.equals("READ_SCROLL")).findFirst().get();
+        var bow=frame().dungeon.belongings.stream().filter(i->i.kind.equals("BOW")).findFirst().get();
+        click("bag"); await(()->selectorOpen()); openInventoryTab(scroll.bagIndex); press(inventoryPoint(scroll.id)); click("read_scroll");
+        await(()->selectorOpen() && "inventory".equals(frame().image.rows.get("enchantphase")));
+        shot("known-scroll-target");
+        java.awt.Robot keyboard=new java.awt.Robot();
+        keyboard.keyPress(java.awt.event.KeyEvent.VK_ESCAPE); keyboard.keyRelease(java.awt.event.KeyEvent.VK_ESCAPE);
+        await(()->frame().pending==0 && frame().dungeon.offered && !frame().image.rows.containsKey("enchantphase") && button("wait")!=null);
+        click("bag"); await(()->selectorOpen()); openInventoryTab(scroll.bagIndex); press(inventoryPoint(scroll.id)); click("read_scroll");
+        await(()->selectorOpen()); openInventoryTab(bow.bagIndex); press(inventoryPoint(bow.id));
+        await(()->"options".equals(frame().image.rows.get("enchantphase")));
+        String key=frame().image.rows.get("enchantoption1");
+        String choice="#"+Messages.titleCase(Messages.get(key+".name",(Object)"").trim());
+        Class<?> type=com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfEnchantment.class;
+        await(()->button(choice)!=null);
+        shot("three-native-options");
+        click("#"+Messages.get(type,"cancel"));
+        shot("confirm-cancel");
+        click("#"+Messages.get(type,"cancel_warn_no"));
+        click(choice);
+        await(()->!frame().image.rows.containsKey("enchantphase") && key.equals(frame().image.rows.get("bowenchant"+bow.id)));
+        shot("enchanted-bow");
+        System.out.println("PASS real scroll input, reversible known target selection, stable options and chosen bow");
+    }
+
     private static Point button(String name) throws Exception {
         return render(()->{
             StyledButton b=(StyledButton)find(Game.scene(),g->g instanceof StyledButton && g.active &&
@@ -829,16 +856,17 @@ public final class CoopRenderSmoke {
         String balance = "freepoints" + tier;
         String invested = "learn" + talent.ordinal();
         int before = Integer.parseInt(frame().image.rows.get(balance));
-        if (before < 1 || !"0".equals(frame().image.rows.get(invested))) throw new AssertionError("Unexpected fixture balance");
+        int current = Integer.parseInt(frame().image.rows.get(invested));
+        if (before < 1 || current < 0 || current >= talent.maxPoints()) throw new AssertionError("Unexpected fixture balance");
         openCharacter();
         click("#" + Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndHero.class, "talents"));
         click("#" + Messages.get(CoopScene.class, "tier_points", tier, before));
-        String row = "#" + tier + " · " + Messages.titleCase(talent.title()) + "  0/" + talent.maxPoints();
+        String row = "#" + tier + " · " + Messages.titleCase(talent.title()) + "  " + current + "/" + talent.maxPoints();
         waitForButton(row);
         shot("available-" + talent.name().toLowerCase(java.util.Locale.ROOT));
         click(row);
         click("#" + Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTalent.class, "upgrade"));
-        await(() -> "1".equals(frame().image.rows.get(invested)) && frame().pending == 0);
+        await(() -> Integer.toString(current + 1).equals(frame().image.rows.get(invested)) && frame().pending == 0);
         if (Integer.parseInt(frame().image.rows.get(balance)) != before-1) throw new AssertionError("Tier balance mismatch");
         shot("invested-" + talent.name().toLowerCase(java.util.Locale.ROOT));
         System.out.println("PASS actual talent selection, receipt and tier balance " + talent.name() + " seat=" + frame().seat);
@@ -1236,7 +1264,7 @@ public final class CoopRenderSmoke {
                     break;
                 }
             }
-        } else click(regionShot.equals("cache-input")?"rogueClass":regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("tome-input") || regionShot.equals("recharging-input") || regionShot.startsWith("selector-") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("bow-enchant-input") || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
+        } else click(regionShot.equals("cache-input")?"rogueClass":regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("tome-input") || regionShot.equals("recharging-input") || regionShot.startsWith("selector-") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("scroll-enchant-input") || regionShot.equals("eagle-input") || regionShot.equals("bow-enchant-input") || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
         if(mage) shot("mage-selected");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
         java.nio.file.Files.writeString(new File(root,"port").toPath(),Integer.toString(testPort));
@@ -1259,6 +1287,13 @@ public final class CoopRenderSmoke {
                     await(() -> frame().dungeon.offered && frame().image.rows.containsKey("learn"+talent.ordinal())
                             && Integer.parseInt(frame().image.rows.get("freepoints"+(cache ? 1 : 3))) > 0);
                     investVisibleTalent(talent,cache ? 1 : 3);
+                    return;
+                }
+                if (regionShot.equals("scroll-enchant-input")) { enchantScrollInput(); return; }
+                if (regionShot.equals("eagle-input")) {
+                    com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent talent=com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.EAGLE_EYE;
+                    await(()->frame().dungeon.offered && frame().image.rows.containsKey("learn"+talent.ordinal()));
+                    investVisibleTalent(talent,4);
                     return;
                 }
                 if (regionShot.equals("bow-enchant-input")) {

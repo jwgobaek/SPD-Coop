@@ -12,12 +12,16 @@ import static org.junit.Assert.*;
 
 public final class ProjectionChecks {
     public static void sensedContact(CoopSession game, int seat, Rat rat) throws Exception {
+        sensedContact(game, seat, rat, rat.pos - 1);
+    }
+
+    public static void sensedContact(CoopSession game, int seat, Rat rat, int next) throws Exception {
         UUID session = UUID.randomUUID();
         SeatProjection[] views = {new SeatProjection(session, 0), new SeatProjection(session, 1)};
         DisplayReplica[] clients = {new DisplayReplica(session, 0), new DisplayReplica(session, 1)};
         int previous = rat.pos;
         for (int version = 1; version <= 2; version++) {
-            if (version == 2) rat.pos -= 1;
+            if (version == 2) rat.pos = next;
             for (int i = 0; i < 2; i++) {
                 views[i].capture(game, version, "IN_GAME", null, null);
                 clients[i].apply(views[i].current.encode(version == 1 ? null : views[i].previous, null));

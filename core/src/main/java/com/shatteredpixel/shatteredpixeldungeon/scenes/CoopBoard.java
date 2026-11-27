@@ -389,6 +389,7 @@ final class CoopBoard extends Group {
                     case "GoldenMimic": sprite=new MimicSprite.Golden();break;
                     case "CrystalMimic": sprite=new MimicSprite.Crystal();break;
                     case "Mimic": sprite=new MimicSprite();break;
+                    case "NinjaLog": sprite=new com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.SmokeBomb.NinjaLogSprite();break;
                     case "AfterImage": sprite=new com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.duelist.Feint.AfterImage.AfterImageSprite();break;
                     case "LightAlly": sprite=new com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.PowerOfMany.LightAllySprite();break;
                     case "ShadowAlly": sprite=new com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.ShadowClone.ShadowSprite();break;

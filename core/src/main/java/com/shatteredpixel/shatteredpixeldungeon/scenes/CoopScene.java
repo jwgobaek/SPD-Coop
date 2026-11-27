@@ -148,6 +148,12 @@ public class CoopScene extends PixelScene {
         addLearnedSpell(view, spells, actions, Talent.BODY_FORM, BodyForm.INSTANCE);
         addLearnedSpell(view, spells, actions, Talent.MIND_FORM, MindForm.INSTANCE);
         addLearnedSpell(view, spells, actions, Talent.SPIRIT_FORM, SpiritForm.INSTANCE);
+        if (view.source.rows.containsKey("ascendedspells")) {
+            if ("ready".equals(view.source.rows.get("ascendedspells")))
+                addLearnedSpell(view, spells, actions, Talent.DIVINE_INTERVENTION, DivineIntervention.INSTANCE);
+            addLearnedSpell(view, spells, actions, Talent.JUDGEMENT, Judgement.INSTANCE);
+            addLearnedSpell(view, spells, actions, Talent.FLASH, Flash.INSTANCE);
+        }
         String subclass = view.source.rows.get("subclass");
         if ("PRIEST".equals(subclass)) { spells.add(Radiance.INSTANCE); actions.add("RADIANCE"); }
         if ("PALADIN".equals(subclass)) { spells.add(Smite.INSTANCE); actions.add("SMITE"); }
@@ -319,9 +325,9 @@ public class CoopScene extends PixelScene {
             return;
         }
         if (targetMove != null) {
-            boolean armor = "HALLOWED_GROUND".equals(targetMove) || "WALL_OF_LIGHT".equals(targetMove) || "MNEMONIC_PRAYER".equals(targetMove) || "LAY_ON_HANDS".equals(targetMove) || "HOLY_LANCE".equals(targetMove) || "TRINITY_MIND".equals(targetMove) || "BLESS".equals(targetMove) || "ARMOR_ABILITY".equals(targetMove) || "GUIDING_LIGHT".equals(targetMove) || "SHIELD_OF_LIGHT".equals(targetMove) || "SMITE".equals(targetMove) || "SUNRAY".equals(targetMove);
+            boolean armor = "FLASH".equals(targetMove) || "HALLOWED_GROUND".equals(targetMove) || "WALL_OF_LIGHT".equals(targetMove) || "MNEMONIC_PRAYER".equals(targetMove) || "LAY_ON_HANDS".equals(targetMove) || "HOLY_LANCE".equals(targetMove) || "TRINITY_MIND".equals(targetMove) || "BLESS".equals(targetMove) || "ARMOR_ABILITY".equals(targetMove) || "GUIDING_LIGHT".equals(targetMove) || "SHIELD_OF_LIGHT".equals(targetMove) || "SMITE".equals(targetMove) || "SUNRAY".equals(targetMove);
             boolean weapon = "WEAPON_ABILITY".equals(targetMove);
-            if (targetView == view && (weapon || view.visible(cell) && (armor || "MONK_DASH".equals(targetMove) || view.monsters.containsKey(cell)))
+            if (targetView == view && (weapon || "FLASH".equals(targetMove) && view.terrain(cell)>=0 || view.visible(cell) && (armor || "MONK_DASH".equals(targetMove) || view.monsters.containsKey(cell)))
                     && controller.act(view.source, targetMove, cell, armor || weapon ? targetStaff.id : 0)) cancelAim();
             return;
         }
@@ -500,7 +506,58 @@ public class CoopScene extends PixelScene {
             }
             renderFrame();
         }
+        if (next.page == CoopController.Page.GAME && next.pending == 0 && next.dungeon != null
+                && next.image != submittedEnchantImage && next.dungeon.offered && next.image.rows.containsKey("enchantphase") && !hasOpenWindow())
+            enchantWindow(next.dungeon);
     }
+
+    private com.shatteredpixel.shatteredpixeldungeon.lan.StateImage submittedEnchantImage;
+
+    private void submitEnchant(PublicDungeon view, String verb, int cell, long item) {
+        if (controller.act(view.source, verb, cell, item)) submittedEnchantImage = view.source;
+    }
+
+    private void enchantWindow(PublicDungeon view) {
+        Class<?> scroll = com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfEnchantment.class;
+        String phase = view.source.rows.get("enchantphase");
+        if (!phase.equals("options")) {
+            add(WndSeatInventory.select(view, controller, new WndSeatInventory.Selection() {
+                public boolean accepts(PublicDungeon.Loot gear) { return view.source.rows.containsKey("enchantgear"+gear.id); }
+                public void select(PublicDungeon.Loot gear) {
+                    if (accepts(gear)) submitEnchant(view, "ENCHANT_TARGET", view.pos, gear.id);
+                }
+                public void cancel() {
+                    if (phase.equals("consumed")) confirmEnchantCancel(view);
+                    else submitEnchant(view, "ENCHANT_CANCEL", view.pos, 0);
+                }
+            }));
+            return;
+        }
+        String[] labels = new String[4];
+        for (int i=0; i<3; i++) {
+            String type = view.source.rows.get("enchantoption"+i);
+            labels[i] = Messages.titleCase(Messages.get(type+".name",(Object)"").trim());
+        }
+        labels[3] = Messages.get(scroll, "cancel");
+        add(new WndOptions(Messages.titleCase(Messages.get(scroll,"name")), Messages.get(scroll,view.source.rows.containsKey("enchantarmor") ? "armor" : "weapon"), labels) {
+            protected void onSelect(int n) {
+                if (n == 3) confirmEnchantCancel(view);
+                else if (n >= 0 && n < 3) submitEnchant(view, "ENCHANT_CHOOSE", n, 0);
+            }
+            protected boolean hasInfo(int n) { return n >= 0 && n < 3; }
+            protected void onInfo(int n) { CoopScene.this.alert(Messages.get(view.source.rows.get("enchantoption"+n)+".desc")); }
+            public void onBackPressed() { }
+        });
+    }
+
+    private void confirmEnchantCancel(PublicDungeon view) {
+        Class<?> scroll = com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfEnchantment.class;
+        add(new WndOptions(Messages.titleCase(Messages.get(scroll,"name")), Messages.get(scroll,"cancel_warn"),
+                Messages.get(scroll,"cancel_warn_yes"), Messages.get(scroll,"cancel_warn_no")) {
+            protected void onSelect(int n) { if (n == 0) submitEnchant(view, "ENCHANT_CANCEL", view.pos, 0); }
+        });
+    }
+
     public static void stopSession() { if(active!=null) active.shutdown(); }
     @Override public void onPause() { if(controller!=null) controller.shutdown(); }
     @Override protected void onBackPressed() {

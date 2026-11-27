@@ -318,7 +318,10 @@ public class SpiritHawk extends ArmorAbility {
 		@Override
 		public void storeInBundle(Bundle bundle) {
 			super.storeInBundle(bundle);
-			if (Dungeon.coop != null) bundle.put("summoner",summoner);
+			if (Dungeon.coop != null) {
+				bundle.put("summoner",summoner);
+				bundle.put("coop_sight",viewDistance);
+			}
 			bundle.put(DODGES_USED, dodgesUsed);
 			bundle.put(TIME_REMAINING, timeRemaining);
 		}
@@ -329,7 +332,13 @@ public class SpiritHawk extends ArmorAbility {
 			summoner = bundle.getInt("summoner");
 			dodgesUsed = bundle.getInt(DODGES_USED);
 			timeRemaining = bundle.getFloat(TIME_REMAINING);
-			if (Dungeon.coop != null) configure(commander());
+			if (Dungeon.coop != null) {
+				configure(commander());
+				if (bundle.contains("coop_sight")) {
+					viewDistance = bundle.getInt("coop_sight");
+					if (viewDistance < 6 || viewDistance > 10) throw new IllegalArgumentException("Invalid hawk sight");
+				}
+			}
 		}
 	}
 

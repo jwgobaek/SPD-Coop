@@ -148,7 +148,10 @@ public class WildMagic extends ArmorAbility {
 			if (!com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedHandheldWand(wand)
 					|| Dungeon.coop.ownership.owner(wand) != Dungeon.coop.playerOf(hero)
 					|| ((com.shatteredpixel.shatteredpixeldungeon.items.wands.TargetedDamageWand)wand).chargingHero() != hero) return false;
-			if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost) {
+			if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration
+                    && !((com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration)wand).safeBeam(
+                            hero,new Ballistica(hero.pos,cell,Ballistica.WONT_STOP),true)) return false;
+            if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost) {
 				// Earlier shots can kill or move a blocker. Check each possible frost impact.
 				Ballistica path = new Ballistica(hero.pos, cell, wand.collisionProperties(cell) & ~Ballistica.STOP_CHARS);
 				for (int i = 1; i <= path.dist; i++) {

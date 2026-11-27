@@ -25,8 +25,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Web;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Beam;
@@ -43,7 +41,7 @@ import com.watabou.utils.Random;
 
 import java.util.ArrayList;
 
-public class WandOfDisintegration extends DamageWand {
+public class WandOfDisintegration extends TargetedDamageWand {
 
 	{
 		image = ItemSpriteSheet.WAND_DISINTEGRATION;
@@ -70,7 +68,7 @@ public class WandOfDisintegration extends DamageWand {
 	}
 
 	@Override
-	public void onZap(Ballistica beam) {
+	public void onZap(Hero caster, Ballistica beam) {
 		
 		boolean terrainAffected = false;
 		
@@ -80,7 +78,7 @@ public class WandOfDisintegration extends DamageWand {
 		
 		ArrayList<Char> chars = new ArrayList<>();
 
-		Blob web = Dungeon.level.blobs.get(Web.class);
+		com.shatteredpixel.shatteredpixeldungeon.FloorKnowledge knowledge = Dungeon.coop == null ? null : Dungeon.coop.knowledge(caster);
 
 		int terrainPassed = 2, terrainBonus = 0;
 		for (int c : beam.subPath(1, maxDistance)) {
@@ -94,7 +92,7 @@ public class WandOfDisintegration extends DamageWand {
 				terrainPassed = terrainPassed%3;
 
 				if (ch instanceof Mob && ((Mob) ch).state == ((Mob) ch).PASSIVE
-						&& !(Dungeon.level.mapped[c] || Dungeon.level.visited[c])){
+						&& !(knowledge == null ? Dungeon.level.mapped[c] || Dungeon.level.visited[c] : knowledge.mapped(c) || knowledge.visited(c))){
 					//avoid harming undiscovered passive chars
 				} else {
 					chars.add(ch);
@@ -113,21 +111,30 @@ public class WandOfDisintegration extends DamageWand {
 				
 			}
 			
-			CellEmitter.center( c ).burst( PurpleParticle.BURST, Random.IntRange( 1, 2 ) );
+			if (Dungeon.coop == null) CellEmitter.center( c ).burst( PurpleParticle.BURST, Random.IntRange( 1, 2 ) );
 		}
 		
-		if (terrainAffected) {
+		if (terrainAffected && Dungeon.coop == null) {
 			Dungeon.observe();
 		}
 		
 		int lvl = level + (chars.size()-1) + terrainBonus;
 		for (Char ch : chars) {
-			wandProc(ch, chargesPerCast());
-			ch.damage( damageRoll(lvl), this );
-			ch.sprite.centerEmitter().burst( PurpleParticle.BURST, Random.IntRange( 1, 2 ) );
-			ch.sprite.flash();
+			wandProc(caster, ch, buffedLvl(), chargesPerCast());
+			ch.damage( damageRoll(caster, lvl), this );
+			if (Dungeon.coop == null) {
+				ch.sprite.centerEmitter().burst( PurpleParticle.BURST, Random.IntRange( 1, 2 ) );
+				ch.sprite.flash();
+			}
 		}
 	}
+
+    public boolean safeBeam(Hero caster, Ballistica ray, boolean volley) {
+        Hero teammate = Dungeon.coop.hero(caster == Dungeon.coop.hero(0) ? 1 : 0);
+        // A volley can empower a later wand or move a blocker. Do not roll its level during validation.
+        int end = volley ? ray.dist : Math.min(ray.dist, distance());
+        return teammate == null || !ray.subPath(1, end).contains(teammate.pos);
+    }
 
 	@Override
 	public void onHit(MagesStaff staff, Char attacker, Char defender, int damage) {

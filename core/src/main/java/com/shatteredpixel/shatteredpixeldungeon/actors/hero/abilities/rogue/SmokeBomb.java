@@ -90,7 +90,7 @@ public class SmokeBomb extends ArmorAbility {
 
 	public boolean useAt(ClassArmor armor, Hero hero, Integer target) {
 		if (target != null) {
-			if (Dungeon.coop != null && (!Dungeon.level.insideMap(target) || hero.hasTalent(Talent.BODY_REPLACEMENT)
+			if (Dungeon.coop != null && (!Dungeon.level.insideMap(target) || target == hero.pos && hero.hasTalent(Talent.BODY_REPLACEMENT) && !(hero.invisible > 0 && hero.hasTalent(Talent.SHADOW_STEP))
 					|| !Dungeon.coop.knowledge(hero).visible(target) || !com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(target))) return false;
 
 			if (target != hero.pos && hero.rooted){
@@ -124,12 +124,13 @@ public class SmokeBomb extends ArmorAbility {
 
 				if (hero.hasTalent(Talent.BODY_REPLACEMENT)) {
 					for (Char ch : Actor.chars()){
-						if (ch instanceof NinjaLog){
+						if (ch instanceof NinjaLog && (Dungeon.coop == null || ((NinjaLog)ch).belongsTo(hero))){
 							ch.die(null);
 						}
 					}
 
 					NinjaLog n = new NinjaLog();
+                    if (Dungeon.coop != null) n.bind(hero);
 					n.pos = hero.pos;
 					GameScene.add(n);
 					Dungeon.level.occupyCell(n);
@@ -147,8 +148,7 @@ public class SmokeBomb extends ArmorAbility {
 			ScrollOfTeleportation.appear( hero, target );
 			if (Dungeon.coop == null) Sample.INSTANCE.play( Assets.Sounds.PUFF );
 			Dungeon.level.occupyCell( hero );
-			Dungeon.observe();
-			if (Dungeon.coop == null) GameScene.updateFog();
+			if (Dungeon.coop == null) { Dungeon.observe(); GameScene.updateFog(); }
 
 			if (!shadowStepping) {
 				hero.spendAndNext(Actor.TICK);
@@ -181,16 +181,40 @@ public class SmokeBomb extends ArmorAbility {
 			alignment = Alignment.ALLY;
 
 			HT = 20;
-			if (Dungeon.hero != null) HT *= Dungeon.hero.pointsInTalent(Talent.BODY_REPLACEMENT);
+			if (Dungeon.coop == null && Dungeon.hero != null) HT *= Dungeon.hero.pointsInTalent(Talent.BODY_REPLACEMENT);
 			HP = HT;
 		}
+
+        private int summoner;
+        private void bind(Hero hero) {
+            summoner = hero.id();
+            HP = HT = 20 * hero.pointsInTalent(Talent.BODY_REPLACEMENT);
+        }
+
+        public boolean belongsTo(Hero hero) { return hero != null && summoner == hero.id(); }
+
+        public Hero owner() {
+            if (Dungeon.coop == null) return Dungeon.hero;
+            for (int seat = 0; seat < 2; seat++) if (belongsTo(Dungeon.coop.hero(seat))) return Dungeon.coop.hero(seat);
+            throw new IllegalStateException("Missing log summoner");
+        }
+
+        @Override public void storeInBundle(com.watabou.utils.Bundle b) {
+            super.storeInBundle(b);
+            if (Dungeon.coop != null) b.put("summoner", summoner);
+        }
+
+        @Override public void restoreFromBundle(com.watabou.utils.Bundle b) {
+            super.restoreFromBundle(b);
+            summoner = b.getInt("summoner");
+        }
 
 		@Override
 		public int drRoll() {
 			int dr = super.drRoll();
 
-			dr += Random.NormalIntRange(Dungeon.hero.pointsInTalent(Talent.BODY_REPLACEMENT),
-					3*Dungeon.hero.pointsInTalent(Talent.BODY_REPLACEMENT));
+			int rank = owner().pointsInTalent(Talent.BODY_REPLACEMENT);
+			dr += Random.NormalIntRange(rank, 3*rank);
 
 			return dr;
 		}

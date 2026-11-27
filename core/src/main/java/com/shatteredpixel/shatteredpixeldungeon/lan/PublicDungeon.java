@@ -81,7 +81,7 @@ public final class PublicDungeon {
                 break;
             case 'm':
                 String[] mob=value.split(",");
-                if(!mob[1].matches("AfterImage|LightAlly|ShadowAlly|HawkAlly|Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Sheep|Statue|ArmoredStatue|GnollExile|PhantomPiranha|Crab|HermitCrab|Swarm|Slime|CausticSlime|Thief|GnollTrickster|GreatCrab|RatKing|Goo|Tengu|Brute|ArmoredBrute|RedShaman|BlueShaman|PurpleShaman|Spinner|Blacksmith|DM200|DM201|DM300|Pylon|Succubus|DemonSpawner|YogDzewa|BurningFist|SoiledFist|RottingFist|RustedFist|BrightFist|DarkFist|Larva|YogRipper|RipperDemon|Eye|Scorpio|Acidic|VaultShaman|VaultFire|VaultFrost|VaultBossElemental|VaultDM100|VaultDM200|VaultGhoul|VaultGolem|VaultLaser|VaultMirror|VaultSentry|VaultSkeleton|VaultTokenDoor|DwarfKing|DKGhoul|DKMonk|DKWarlock|DKGolem|Monk|Golem|Imp|FireElemental|ShockElemental|Ghoul|Warlock|FrostElemental|GnollGeomancer|GnollSapper|GnollGuard|CrystalSpire|CrystalWisp|CrystalGuardian|Skeleton|Necromancer|NecroSkeleton|SpectralNecromancer|Bat|DM100|Guard|Shopkeeper|RotHeart|RotLasher|Wandmaker|DustWraith|Wraith|TormentedSpirit|NewbornFireElemental")) throw new IllegalArgumentException("Monster");
+                if(!mob[1].matches("NinjaLog|AfterImage|LightAlly|ShadowAlly|HawkAlly|Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Sheep|Statue|ArmoredStatue|GnollExile|PhantomPiranha|Crab|HermitCrab|Swarm|Slime|CausticSlime|Thief|GnollTrickster|GreatCrab|RatKing|Goo|Tengu|Brute|ArmoredBrute|RedShaman|BlueShaman|PurpleShaman|Spinner|Blacksmith|DM200|DM201|DM300|Pylon|Succubus|DemonSpawner|YogDzewa|BurningFist|SoiledFist|RottingFist|RustedFist|BrightFist|DarkFist|Larva|YogRipper|RipperDemon|Eye|Scorpio|Acidic|VaultShaman|VaultFire|VaultFrost|VaultBossElemental|VaultDM100|VaultDM200|VaultGhoul|VaultGolem|VaultLaser|VaultMirror|VaultSentry|VaultSkeleton|VaultTokenDoor|DwarfKing|DKGhoul|DKMonk|DKWarlock|DKGolem|Monk|Golem|Imp|FireElemental|ShockElemental|Ghoul|Warlock|FrostElemental|GnollGeomancer|GnollSapper|GnollGuard|CrystalSpire|CrystalWisp|CrystalGuardian|Skeleton|Necromancer|NecroSkeleton|SpectralNecromancer|Bat|DM100|Guard|Shopkeeper|RotHeart|RotLasher|Wandmaker|DustWraith|Wraith|TormentedSpirit|NewbornFireElemental")) throw new IllegalArgumentException("Monster");
                 enemies.put(number(mob[0],0,65535),mob[1]); break;
             case 'b': effects.add(number(value.split(",")[0],0,255)); break;
             case 't': number(value,0,63); break;
@@ -158,6 +158,7 @@ public final class PublicDungeon {
         if(item.slot.equals("BAG")) {
             if (source.rows.containsKey("crown"+item.id)) verbs.add("USE_CROWN");
             if(item.kind.equals("ENCHANT_BOW") || item.kind.equals("UPGRADE") || item.kind.equals("IDENTIFY")) verbs.add(item.kind);
+            if(item.kind.equals("READ_SCROLL")) verbs.add("READ_SCROLL");
             if(item.kind.equals("RECHARGING_SCROLL")) verbs.add("READ_RECHARGING");
             if(source.rows.containsKey("mask"+item.id)) verbs.add("USE_MASK");
             if(item.kind.equals("HEALING")) verbs.add("DRINK");
@@ -194,7 +195,11 @@ public final class PublicDungeon {
     public boolean tap(CoopController c,int cell) {
         if(!offered || cell<0 || !visible(cell)) return false;
         if (source.rows.containsKey("warpally"+cell)) return c.act(source,"ALLY_WARP",cell,0);
-        if (Math.abs(cell%width-pos%width)>1 || Math.abs(cell/width-pos/width)>1) return false;
+        int distance = Math.max(Math.abs(cell%width-pos%width),Math.abs(cell/width-pos/width));
+        if (distance > 1) {
+            return monsters.containsKey(cell) && distance <= number(source.rows.getOrDefault("staffreach","1"),1,20)
+                    && c.act(source,"ATTACK",cell,0);
+        }
         if(cell==ally) return "DOWNED".equals(source.rows.get("allylife")) && c.act(source,"REVIVE",cell,0);
         if ("Blacksmith".equals(monsters.get(cell)) || ("Pylon".equals(monsters.get(cell)) && !source.rows.containsKey("charge"+cell))) return false;
         if("Imp".equals(monsters.get(cell)) || "Wandmaker".equals(monsters.get(cell)) || "Shopkeeper".equals(monsters.get(cell)) || "Ghost".equals(monsters.get(cell)) || "Sentry".equals(monsters.get(cell))) return false;

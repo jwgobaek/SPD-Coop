@@ -200,6 +200,7 @@ public class SpiritBow extends Weapon {
                 || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing
                 || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blocking
                 || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Projecting
+                || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic
                 || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Crystal;
     }
 

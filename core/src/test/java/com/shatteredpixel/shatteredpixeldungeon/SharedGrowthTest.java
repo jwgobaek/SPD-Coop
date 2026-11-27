@@ -173,8 +173,9 @@ public class SharedGrowthTest extends HeadlessDungeon {
         return hero.belongings.getItem(SpiritBow.class).enchantment!=null && hero.belongings.getItem(StoneOfEnchantment.class)==null;
     }
 
-    @Test public void trinityRemembersFrostAndCastsTheNativeColdEffectWithoutTheWand() {
-        for (int seat=0;seat<2;seat++) {
+    @Test public void trinityRemembersColdAndFireAndCastsEachOriginalEffectWithoutTheWand() {
+        for (int seat=0;seat<2;seat++) for (boolean fire : new boolean[]{false,true}) {
+            TrinityDiscoveries.Choice choice = fire ? TrinityDiscoveries.Choice.FIREBLAST : TrinityDiscoveries.Choice.FROST;
             Bundle saved;
             try (CoopSession game=CoopSession.open(572,11,HeroClass.CLERIC)) {
                 game.join(22,HeroClass.CLERIC);
@@ -185,12 +186,12 @@ public class SharedGrowthTest extends HeadlessDungeon {
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.USE_CROWN,1,CrownAbilityTest.crown(game,seat,CoopSession.MaskTrial.OWNER)));
                 SewerBeeTest.offer(game,seat);
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.INVEST_TALENT,Talent.MIND_FORM.ordinal(),null));
-                WandOfFrost frost=new WandOfFrost();
-                frost.identify(false);
-                Dungeon.level.drop(frost,hero.pos);
-                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,hero.pos,frost));
+                com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand wand = fire ? new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast() : new WandOfFrost();
+                wand.identify(false);
+                Dungeon.level.drop(wand,hero.pos);
+                assertTrue(CoopFloorsTest.step(game,CoopSession.Action.PICK_UP,hero.pos,wand));
                 SewerBeeTest.offer(game,seat);
-                StagedInput select=SealArtsTest.historyInput(game,seat,frost,TrinityDiscoveries.Choice.FROST);
+                StagedInput select=SealArtsTest.historyInput(game,seat,wand,choice);
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.MIND_FORM,select.cell,hero.belongings.getItem(HolyTome.class)));
                 SewerBeeTest.offer(game,seat);
                 ClassArmor armor=(ClassArmor)hero.belongings.armor();
@@ -199,13 +200,62 @@ public class SharedGrowthTest extends HeadlessDungeon {
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.TRINITY_MIND,rat.pos,armor));
                 assertTrue(armor.charge<before);
                 assertTrue(rat.HP<hp);
-                assertNotNull(rat.buff(Chill.class));
+                if (fire) assertNotNull(rat.buff(Burning.class));
+                else assertNotNull(rat.buff(Chill.class));
                 saved=game.checkpoint();
             }
             try (CoopSession game=CoopSession.restore(saved)) {
-                assertTrue(game.discoveries(seat).knows(TrinityDiscoveries.Choice.FROST));
-                assertFalse(game.discoveries(1-seat).knows(TrinityDiscoveries.Choice.FROST));
+                assertTrue(game.discoveries(seat).knows(choice));
+                assertFalse(game.discoveries(1-seat).knows(choice));
                 assertNull(game.hero(seat).belongings.getItem(WandOfFrost.class));
+                assertNull(game.hero(seat).belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast.class));
+            }
+        }
+    }
+
+    @Test public void eagleEyeShowsOnlyTheSummonersContactBehindTheWall() throws Exception {
+        for (int seat = 0; seat < 2; seat++) for (int rank = 0; rank <= 4; rank++) {
+            Bundle saved;
+            int contact, sight;
+            try (CoopSession game = CoopSession.open(572, 11, HeroClass.HUNTRESS)) {
+                game.join(22, HeroClass.HUNTRESS);
+                Rat rat = CoopMageTest.encounter(game, seat);
+                SewerBeeTest.offer(game, seat);
+                Hero hero = game.hero(seat);
+                hero.lvl = 30;
+                assertTrue(CoopFloorsTest.step(game, CoopSession.Action.USE_CROWN, 2,
+                        CrownAbilityTest.crown(game, seat, CoopSession.MaskTrial.OWNER)));
+                SewerBeeTest.offer(game, seat);
+                for (int i = 0; i < rank; i++)
+                    assertTrue(CoopFloorsTest.step(game, CoopSession.Action.INVEST_TALENT, Talent.EAGLE_EYE.ordinal(), null));
+                assertTrue(CoopFloorsTest.step(game, CoopSession.Action.ARMOR_ABILITY, hero.pos, hero.belongings.armor()));
+                SpiritHawk.HawkAlly hawk = SpiritHawk.getHawk(hero);
+                assertSame(hero, hawk.commander());
+                assertEquals(rank, hawk.eagleEye());
+                sight = hawk.viewDistance;
+                assertTrue(sight == Math.min(8, 6 + rank) || sight == 6 + rank);
+                com.shatteredpixel.shatteredpixeldungeon.levels.Level level = Dungeon.level;
+                hawk.pos = hero.pos + 1;
+                game.hero(1-seat).pos = hero.pos - 1;
+                for (int y = -4; y <= 4; y++)
+                    com.shatteredpixel.shatteredpixeldungeon.levels.Level.set(hawk.pos + 1 + y * level.width(),
+                            com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.WALL);
+                contact = hawk.pos + 2;
+                rat.pos = contact;
+                assertFalse(game.observe(seat).visible(contact));
+                assertEquals(rank >= 3, game.observe(seat).sensedMob(contact));
+                assertFalse(game.observe(1-seat).sensedMob(contact));
+                if (rank >= 3) ProjectionChecks.sensedContact(game, seat, rat, rat.pos + level.width());
+                rat.pos = hawk.pos + 3;
+                assertEquals(rank == 4, game.observe(seat).sensedMob(rat.pos));
+                rat.pos = contact;
+                saved = game.checkpoint();
+            }
+            try (CoopSession restored = CoopSession.restore(saved)) {
+                SpiritHawk.HawkAlly hawk = SpiritHawk.getHawk(restored.hero(seat));
+                assertEquals(sight, hawk.viewDistance);
+                assertEquals(rank >= 3, restored.observe(seat).sensedMob(contact));
+                assertFalse(restored.observe(1-seat).sensedMob(contact));
             }
         }
     }
@@ -241,6 +291,46 @@ public class SharedGrowthTest extends HeadlessDungeon {
                 try (CoopSession game=CoopSession.restore(saved)) {
                     assertSame(game.hero(seat),SpiritHawk.getHawk(game.hero(seat)).commander());
                     assertEquals(rank,game.hero(seat).pointsInTalent(talent));
+                }
+            }
+        }
+    }
+
+    @Test public void overlappingWallsKeepTheOtherCastersTrapCellBlockedUntilBothDismiss() {
+        for (int first = 0; first < 2; first++) {
+            Bundle saved;
+            int trapCell;
+            try (CoopSession game = CoopSession.open(572, 11, HeroClass.CLERIC)) {
+                game.join(22, HeroClass.CLERIC);
+                CoopMageTest.encounter(game, first);
+                trapCell = game.hero(first).pos + 1;
+                com.shatteredpixel.shatteredpixeldungeon.levels.Level.set(trapCell,
+                        com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.SECRET_TRAP);
+                Dungeon.level.setTrap(new com.shatteredpixel.shatteredpixeldungeon.levels.traps.PoisonDartTrap(), trapCell);
+                for (int seat : new int[]{first, 1-first}) {
+                    Hero hero = game.hero(seat);
+                    hero.lvl = 25;
+                    hero.subClass = HeroSubClass.PALADIN;
+                    Talent.initSubclassTalents(hero);
+                    TierGrowthTest.powerTome(hero);
+                    SewerBeeTest.offer(game, seat);
+                    assertTrue(CoopFloorsTest.step(game, CoopSession.Action.INVEST_TALENT, Talent.WALL_OF_LIGHT.ordinal(), null));
+                    assertTrue(CoopFloorsTest.step(game, CoopSession.Action.WALL_OF_LIGHT, hero.pos + 1,
+                            hero.belongings.getItem(HolyTome.class)));
+                    assertTrue(Blob.volumeAt(trapCell, WallOfLight.wallType(hero)) > 0);
+                }
+                saved = game.checkpoint();
+            }
+            try (CoopSession game = CoopSession.restore(saved)) {
+                for (int seat : new int[]{first, 1-first}) {
+                    Hero hero = game.hero(seat);
+                    SewerBeeTest.offer(game, seat);
+                    assertTrue(CoopFloorsTest.step(game, CoopSession.Action.WALL_OF_LIGHT, hero.pos,
+                            hero.belongings.getItem(HolyTome.class)));
+                    assertEquals(0, Blob.volumeAt(trapCell, WallOfLight.wallType(hero)));
+                    assertEquals(seat == first, Dungeon.level.solid[trapCell]);
+                    assertTrue(Dungeon.level.traps.get(trapCell).active);
+                    assertFalse(Dungeon.level.traps.get(trapCell).visible);
                 }
             }
         }
@@ -707,6 +797,37 @@ public class SharedGrowthTest extends HeadlessDungeon {
                 assertEquals(game.player(seat),game.ownership.owner(bow));
                 assertEquals(effect,bow.enchantment.getClass().getName());
                 assertNull(game.hero(seat).belongings.getItem(StoneOfEnchantment.class));
+            }
+        }
+    }
+
+    @Test public void kineticOverkillBelongsToTheBowOwnerAfterADirectShotOrSharedThrow() {
+        for (int seat=0;seat<2;seat++) for (boolean thrown : new boolean[]{false,true}) for (int rank=0;rank<=3;rank++) {
+            int killed=0,stored=0;
+            try (CoopSession game=CoopSession.open(572,11,HeroClass.HUNTRESS)) {
+                game.join(22,HeroClass.HUNTRESS);
+                Hero owner=TierGrowthTest.prepare(game,seat,HeroSubClass.SNIPER,Talent.SHARED_ENCHANTMENT,rank);
+                SpiritBow bow=owner.belongings.getItem(SpiritBow.class);
+                bow.enchant(new com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic());
+                for (int attempt=0;attempt<16;attempt++) {
+                    Rat rat=CoopMageTest.encounter(game,seat);
+                    rat.HP=1;
+                    Buff.prolong(rat,Paralysis.class,10);
+                    Buff.detach(owner,com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic.ConservedDamage.class);
+                    SewerBeeTest.offer(game,seat);
+                    if (thrown) {
+                        ThrowingStone stone=new ThrowingStone();
+                        assertTrue(stone.collect(owner.belongings.backpack));
+                        game.ownership.claim(stone,game.player(seat));
+                        assertTrue(CoopFloorsTest.step(game,CoopSession.Action.THROW,rat.pos,owner.belongings.getItem(ThrowingStone.class)));
+                    } else assertTrue(CoopFloorsTest.step(game,CoopSession.Action.SHOOT,rat.pos,bow));
+                    if (!rat.isAlive()) killed++;
+                    if (owner.buff(com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic.ConservedDamage.class)!=null) stored++;
+                    assertNull(game.hero(1-seat).buff(com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic.ConservedDamage.class));
+                }
+                assertTrue(killed>0);
+                if (thrown && rank==0) assertEquals(0,stored);
+                else assertTrue(stored>0);
             }
         }
     }

@@ -71,6 +71,26 @@ public class ScrollOfEnchantment extends ExoticScroll {
 				&& (item.isUpgradable() || item instanceof SpiritBow);
 	}
 
+	public static Weapon.Enchantment[] drawEnchantments(Weapon item) {
+		final Weapon.Enchantment enchants[] = new Weapon.Enchantment[3];
+
+		Class<? extends Weapon.Enchantment> existing = item.enchantment != null ? item.enchantment.getClass() : null;
+		enchants[0] = Weapon.Enchantment.randomCommon( existing );
+		enchants[1] = Weapon.Enchantment.randomUncommon( existing );
+		enchants[2] = Weapon.Enchantment.random( existing, enchants[0].getClass(), enchants[1].getClass());
+		return enchants;
+	}
+
+	public static Armor.Glyph[] drawGlyphs(Armor item) {
+		final Armor.Glyph glyphs[] = new Armor.Glyph[3];
+
+		Class<? extends Armor.Glyph> existing = item.glyph != null ? item.glyph.getClass() : null;
+		glyphs[0] = Armor.Glyph.randomCommon( existing );
+		glyphs[1] = Armor.Glyph.randomUncommon( existing );
+		glyphs[2] = Armor.Glyph.random( existing, glyphs[0].getClass(), glyphs[1].getClass());
+		return glyphs;
+	}
+
 	private void confirmCancelation() {
 		GameScene.show( new WndOptions(new ItemSprite(this),
 				Messages.titleCase(name()),
@@ -119,12 +139,7 @@ public class ScrollOfEnchantment extends ExoticScroll {
 				}
 				identifiedByUse = false;
 				
-				final Weapon.Enchantment enchants[] = new Weapon.Enchantment[3];
-				
-				Class<? extends Weapon.Enchantment> existing = ((Weapon) item).enchantment != null ? ((Weapon) item).enchantment.getClass() : null;
-				enchants[0] = Weapon.Enchantment.randomCommon( existing );
-				enchants[1] = Weapon.Enchantment.randomUncommon( existing );
-				enchants[2] = Weapon.Enchantment.random( existing, enchants[0].getClass(), enchants[1].getClass());
+				final Weapon.Enchantment[] enchants = drawEnchantments((Weapon)item);
 
 				GameScene.show(new WndEnchantSelect((Weapon) item, enchants[0], enchants[1], enchants[2]));
 			
@@ -134,12 +149,7 @@ public class ScrollOfEnchantment extends ExoticScroll {
 				}
 				identifiedByUse = false;
 				
-				final Armor.Glyph glyphs[] = new Armor.Glyph[3];
-				
-				Class<? extends Armor.Glyph> existing = ((Armor) item).glyph != null ? ((Armor) item).glyph.getClass() : null;
-				glyphs[0] = Armor.Glyph.randomCommon( existing );
-				glyphs[1] = Armor.Glyph.randomUncommon( existing );
-				glyphs[2] = Armor.Glyph.random( existing, glyphs[0].getClass(), glyphs[1].getClass());
+				final Armor.Glyph[] glyphs = drawGlyphs((Armor)item);
 				
 				GameScene.show(new WndGlyphSelect((Armor) item, glyphs[0], glyphs[1], glyphs[2]));
 			} else if (identifiedByUse){

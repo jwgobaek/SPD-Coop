@@ -77,6 +77,23 @@ public class HeroicLeap extends ArmorAbility {
 		return cell;
 	}
 
+    public static boolean safeImpact(Hero hero, int landing) {
+        int rank = hero.pointsInTalent(Talent.IMPACT_WAVE);
+        if (rank == 0) return true;
+        for (int offset : PathFinder.NEIGHBOURS8) {
+            Char target = Actor.findChar(landing + offset);
+            if (target == null || target.alignment == Char.Alignment.ALLY || target.rooted
+                    || target.properties().contains(Char.Property.IMMOVABLE)) continue;
+            Ballistica ray = new Ballistica(target.pos, target.pos + offset, Ballistica.MAGIC_BOLT);
+            int strength = target.properties().contains(Char.Property.BOSS) ? (rank + 2) / 2 : rank + 1;
+            // Another target may have moved by the time queued pushes resolve.
+            for (int i = 1; i <= Math.min(strength, ray.dist); i++) {
+                if (!com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(ray.path.get(i))) return false;
+            }
+        }
+        return true;
+    }
+
 	@Override
 	public void activate( ClassArmor armor, Hero hero, Integer target ) {
 		if (target != null) {

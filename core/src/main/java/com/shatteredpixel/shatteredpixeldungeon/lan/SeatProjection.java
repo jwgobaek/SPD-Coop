@@ -203,6 +203,11 @@ final class SeatProjection {
             rows.put("shield",Integer.toString(hero.shielding()));
             rows.put("self",hero.id()+","+hero.pos+","+hero.HP+","+hero.HT+","+hero.heroClass.name()+","+hero.lvl+","+hero.exp);
             rows.put("selftier",Integer.toString(hero.tier()));
+            com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.AscendedForm.AscendBuff ascended =
+                    hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.AscendedForm.AscendBuff.class);
+            if (ascended != null) rows.put("ascendedspells",ascended.divineInverventionCast ? "used" : "ready");
+            int staffReach = CoopSession.disintegrationReach(hero);
+            if (staffReach > 1) rows.put("staffreach", Integer.toString(staffReach));
             rows.put("strength",Integer.toString(hero.STR()));
             rows.put("subclass",hero.subClass.name());
             if (hero.subClass == com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass.CHAMPION)
@@ -421,6 +426,12 @@ final class SeatProjection {
                     if (hero.hasTalent(choice.form) && game.discoveries(seat).knows(choice)) remembered.add(choice);
                 }
             }
+            com.shatteredpixel.shatteredpixeldungeon.CoopEnchantScroll enchant = game.enchantScroll(seat);
+            if (enchant != null) {
+                rows.put("enchantphase", enchant.hasOptions() ? "options" : enchant.chargesTimeOnCancel() ? "consumed" : "inventory");
+                if (enchant.isArmor()) rows.put("enchantarmor", "1");
+                if (enchant.hasOptions()) for (int i=0; i<3; i++) rows.put("enchantoption"+i, enchant.optionKey(i));
+            }
             int selection=0;
             for (Item item : hero.belongings) {
                 selection++;
@@ -433,6 +444,8 @@ final class SeatProjection {
                         rows.put("cloaked"+ids.get(item), "1");
                 }
                 if (game.ownership.owner(item)==game.player(seat)) {
+                    if (enchant != null && !enchant.hasOptions() && com.shatteredpixel.shatteredpixeldungeon.CoopEnchantScroll.eligible(hero, item))
+                        rows.put("enchantgear"+ids.get(item), "1");
                     if (hero.hasTalent(Talent.HOLY_INTUITION) && com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyIntuition.INSTANCE.usableOnItem(item))
                         rows.put("intuition"+ids.get(item),Integer.toString(selection));
                     for (TrinityDiscoveries.Choice choice : TrinityDiscoveries.Choice.values()) {
@@ -598,6 +611,7 @@ final class SeatProjection {
         if (!slot.startsWith("F") && CoopSession.basicMissile(item) && item.isIdentified())
             kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSpike ? "SPIKE" : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "KNIFE" :
                         item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart ? "DART" : "STONE";
+        if (!slot.startsWith("F") && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfEnchantment) kind="READ_SCROLL";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle) kind="CANDLE";
         if (!slot.startsWith("F") && item.isIdentified() && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste) kind="HASTE_RING";
         String charges="";

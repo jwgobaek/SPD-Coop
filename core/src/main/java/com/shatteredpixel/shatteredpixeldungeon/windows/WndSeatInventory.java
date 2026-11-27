@@ -21,8 +21,14 @@ public final class WndSeatInventory extends WndTabbed {
     public interface Selection {
         boolean accepts(PublicDungeon.Loot item);
         void select(PublicDungeon.Loot item);
+        default void cancel() {}
     }
     private final Selection selection;
+
+    @Override public void onBackPressed() {
+        super.onBackPressed();
+        if (selection != null) selection.cancel();
+    }
 
     public static WndSeatInventory select(PublicDungeon view,CoopController client,Selection selection) {
         return new WndSeatInventory(view,client,0,-1,null,selection);

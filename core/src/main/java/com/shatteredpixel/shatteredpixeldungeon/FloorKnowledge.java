@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import java.util.BitSet;
@@ -16,6 +17,7 @@ import com.watabou.utils.PathFinder;
 /** One seat's observations of one branch/depth. This contains no entity history. */
 public final class FloorKnowledge {
     private final boolean[] visible;
+    private boolean[] hawkSight;
     private final BitSet visited = new BitSet(), mapped = new BitSet();
     private final int[] terrain;
     private final BitSet sensedTerrain = new BitSet();
@@ -28,13 +30,16 @@ public final class FloorKnowledge {
 
     void observe(Level level, Hero observer) {
         level.updateDirectSight(observer, visible);
+        SpiritHawk.HawkAlly hawk = null;
         if (observer.isAlive()) {
-            for (com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob mob : level.mobs) {
-                if (!(mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkAlly)
-                        || !((com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkAlly)mob).belongsTo(observer)) continue;
-                if (mob.fieldOfView==null || mob.fieldOfView.length!=level.length()) mob.fieldOfView=new boolean[level.length()];
-                level.updateFieldOfView(mob,mob.fieldOfView);
-                for (int i=0;i<visible.length;i++) visible[i] |= mob.fieldOfView[i];
+            for (Mob mob : level.mobs) {
+                if (mob instanceof SpiritHawk.HawkAlly && ((SpiritHawk.HawkAlly)mob).belongsTo(observer)) {
+                    hawk = (SpiritHawk.HawkAlly)mob;
+                    if (hawkSight == null) hawkSight = new boolean[visible.length];
+                    level.updateHawkSight(hawk, hawkSight);
+                    for (int cell = 0; cell < visible.length; cell++) visible[cell] |= hawkSight[cell];
+                    break;
+                }
             }
         }
         visible[observer.pos] = observer.isAlive();
@@ -48,6 +53,14 @@ public final class FloorKnowledge {
         sensedTerrain.clear();
         sensedMobs.clear();
         if (!observer.isAlive()) return;
+        // Hawk mind vision reveals terrain around a resident without granting item or attack visibility.
+        if (hawk != null && hawk.eagleEye() >= 3) {
+            int radius = hawk.eagleEye() - 1;
+            for (Mob mob : level.mobs) {
+                if (mob.isAlive() && !hawkSight[mob.pos] && level.distance(hawk.pos, mob.pos) <= radius)
+                    senseAround(level, mob.pos);
+            }
+        }
         int range = observer.hasTalent(Talent.HEIGHTENED_SENSES) ? 1 + observer.pointsInTalent(Talent.HEIGHTENED_SENSES) : 0;
         if (observer.buff(DivineSense.DivineSenseTracker.class) != null)
             range = 4 + 4 * observer.pointsInTalent(Talent.DIVINE_SENSE);

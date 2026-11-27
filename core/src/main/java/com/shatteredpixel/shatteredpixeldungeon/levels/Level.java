@@ -1385,6 +1385,15 @@ public abstract class Level implements Bundlable {
 	}
 
 	public void updateFieldOfView( Char c, boolean[] fieldOfView ) {
+		updateFieldOfView(c, fieldOfView, true);
+	}
+
+	/** Sight and near terrain supplied to the hawk owner; Eagle Eye awareness is projected separately. */
+	public void updateHawkSight(SpiritHawk.HawkAlly hawk, boolean[] fieldOfView) {
+		updateFieldOfView(hawk, fieldOfView, false);
+	}
+
+	private void updateFieldOfView(Char c, boolean[] fieldOfView, boolean includeHawkAwareness) {
 		boolean sighted = updateDirectSight(c, fieldOfView);
 		int cx = c.pos % width();
 		int cy = c.pos / width();
@@ -1423,7 +1432,7 @@ public abstract class Level implements Bundlable {
 			}
 		}
 
-		if (c instanceof SpiritHawk.HawkAlly && ((SpiritHawk.HawkAlly)c).eagleEye() >= 3){
+		if (includeHawkAwareness && c instanceof SpiritHawk.HawkAlly && ((SpiritHawk.HawkAlly)c).eagleEye() >= 3){
 			int range = ((SpiritHawk.HawkAlly)c).eagleEye()-1;
 			for (Mob mob : mobs) {
 				int p = mob.pos;

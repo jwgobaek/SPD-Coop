@@ -62,20 +62,20 @@ public class Judgement extends ClericSpell {
 	@Override
 	public void onCast(HolyTome tome, Hero hero) {
 
-		hero.sprite.attack(hero.pos, new Callback() {
+		Callback strike = new Callback() {
 			@Override
 			public void call() {
-				GameScene.flash( 0x80FFFFFF );
+				if (Dungeon.coop == null) GameScene.flash( 0x80FFFFFF );
 				Sample.INSTANCE.play(Assets.Sounds.BLAST);
 
 				int damageBase = 5 + 5*hero.pointsInTalent(Talent.JUDGEMENT);
 				damageBase += Math.round(damageBase*hero.buff(AscendedForm.AscendBuff.class).spellCasts/3f);
 
 				for (Char ch : Actor.chars()){
-					if (ch.alignment != hero.alignment && Dungeon.level.heroFOV[ch.pos]){
-						ch.damage( Hero.heroDamageIntRange(damageBase, 2*damageBase), Judgement.this);
+					if (ch.alignment != hero.alignment && (Dungeon.coop == null ? Dungeon.level.heroFOV[ch.pos] : Dungeon.coop.knowledge(hero).visible(ch.pos))){
+						ch.damage( Hero.heroDamageIntRange(hero, damageBase, 2*damageBase), Judgement.this);
 						if (hero.subClass == HeroSubClass.PRIEST){
-							Buff.affect(ch, GuidingLight.Illuminated.class);
+							GuidingLight.illuminate(hero, ch);
 						}
 					}
 				}
@@ -86,8 +86,9 @@ public class Judgement extends ClericSpell {
 				hero.buff(AscendedForm.AscendBuff.class).spellCasts = 0;
 
 			}
-		});
-		hero.busy();
+		};
+        if (Dungeon.coop != null) strike.call();
+        else { hero.sprite.attack(hero.pos, strike); hero.busy(); }
 
 	}
 
