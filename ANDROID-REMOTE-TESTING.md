@@ -1,5 +1,9 @@
 # GB2 원격 Android 시험
 
+## SYNC39의 실제 인수
+
+같은 두 Android 부팅에서 이전 필수 40개와 STASIS 추가 20개를 수행했다. 재인증 후 무료 수동 해제, 만료 후 제거, 양쪽 보관과 전체·델타 비공개를 검증했다. 화면 조작과 오래된 요청·영수증 재전송용 인증 TCP를 구분해 기록한다. [관측 명세](docs/coop/android-acceptance-sync39.json) · [증거와 실행 범위](docs/coop/original-items-android-acceptance.md)
+
 ## 실제 Android 변경 기능 인수
 
 두 기기에서 기존 데이터 보존 업데이트 직후 설치본 SHA-256과 독립 부팅 ID를 확인한다. 역할별로 실제 입력, 효과, 승인 영수증, HEAD와 상태 버전을 기록하고 양쪽 앱 재인증 후 다음 행동까지 실행한다. 마법 부여 주문서는 후보 생성 전후의 취소, 적용 대상, 앱 재시작과 두 좌석의 선택 비공개를 각각 검사한다. 발행 검사기의 필수 목록은 [SYNC38 인수 명세](docs/coop/android-acceptance-sync38.json)에 있다.

@@ -1,5 +1,9 @@
 # 협동 게임 동기화 프로토콜
 
+## SYNC40 연금술 솥과 개인 기억
+
+보이는 인접 솥은 cauldron<cell>, 자기 재료의 원본 미리보기는 brew<handle> 행에 전달된다. 미감정 룬석 결과는 unknown과 원본 자리표시자 아이콘으로 표시한다. BREW_RUNESTONES에 솥 칸과 자기 물품 핸들을 제출하며, 현재 State Version과 실제 물품 ID를 다시 검사한다. 미감정 주문서는 공통 READ_SCROLL을 사용하고 처리된 뒤 원본 식별 지식이 갱신된다. 분해 지팡이의 개인 발견 코드는 -112다. 시전자 ID와 숨은 가스 데이터는 전송 행에 추가하지 않았다. LAN 프레임 v1과 기존 소유자 전용 stasisheld를 유지한다. [검증](cauldron-results.md)
+
 ## SYNC39 보관 소환수와 각인
 
 성서 소유자의 보관 상태를 stasisheld 행으로 보낸다. 활성 PowerBuff용 poweredspells와 독립적이며 다른 좌석의 보관 여부는 표시하지 않는다. READ_LULLABY는 식별된 자기 주문서를 확인하고 RECALL_INSCRIPTION은 자기 UsedItemTracker와 성서 충전을 확인한다. 개인 Blooming 발견 코드는 -111이다. LAN 프레임은 v1이다. [검증 결과](original-items-results.md)

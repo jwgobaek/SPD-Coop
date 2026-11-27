@@ -1,5 +1,9 @@
 # 최종 검증판 발행
 
+## SYNC39 정상 발행 완료
+
+기존 APK와 통합 ZIP을 각각 1회 갱신했다. 양쪽 설치본 및 비로그인 APK 해시는 d059320faf181611ea5b702e2aa82d4dcbf8d2cdae3dd88920fc3928c645cb0b, 크기는 35,398,518바이트다. ZIP은 73,548,513바이트, SHA-256 9dc3c4aad54bb13a2874f837765dc1921c7ce73000a35201ffee0834e8aaa4b1이다. ZIP의 2,389개 소스를 빌드 커밋 2fa1a0ba8793c8e0ffda87f5d6f21be13965a54e와 대조했다. 기존 링크의 anyone/reader, allowFileDiscovery=false 및 APK의 기존 편집자 권한을 확인했다. SYNC40은 별도 Cloud 후보로 관리한다. [인수 결과](docs/coop/original-items-android-acceptance.md)
+
 ## 변경 기능별 Android 발행 검사
 
 SYNC38은 성서 및 주문서 역할별 38건과 게스트의 소환수 보관·무료 해제 2건을 검사한다. 실제 결과는 39 PASS, 1 FAIL이다. APK를 한 번 갱신했고 무료 해제 실패로 기존 ZIP을 유지했다. APK 발행 전 설치가 불가능할 때에는 해당 바이트에 대한 사용자 승인과 플랫폼 승인을 따른다. 통합 ZIP은 실제 기기에서 필수 시험을 마친 뒤 갱신한다. 각 후보의 빌드 커밋·APK 해시·바이트 수와 변경 기능별 필수 목록을 먼저 고정한다.

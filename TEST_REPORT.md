@@ -1,5 +1,9 @@
 # SPD-Coop 클라우드 실행 보고
 
+## SYNC39 실제 배포 검사와 후속 시험
+
+배포 후보 고정 JUnit 374/374, Android 필수 60/60. 두 설치 해시·실제 화면·개별 영수증·HEAD·후속 행동을 대응 ZIP에 보관했다. [Android 인수](docs/coop/original-items-android-acceptance.md) · [SYNC40 후속 시험 및 최초 실패](docs/coop/cauldron-results.md)
+
 ## SYNC38 기기와 SYNC39 Cloud
 
 독립 소스 컴파일 최종 JUnit 374/374 PASS. 기존 372개를 모두 유지했고 신규 2개를 추가했다. 기준판 재실행은 369/372였고 최초 실패 세 클래스의 개별 재실행은 9/9였다. 두 기기의 성서·주문서 38건과 게스트 보관은 PASS, 수동 해제는 FAIL이었다. 두 역할의 공유 활 마법 6종과 추가 주문·선택의 HEAD 직후 재시작 22건, 이전 스키마 21~26 이행 12건을 검증했다. [검증 결과](docs/coop/original-items-results.md)

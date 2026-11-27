@@ -157,7 +157,7 @@ public final class CoopRenderSmoke {
             } else {
             c.join(endpoint,null);
             await(()->!c.busy() && c.frame().page==CoopController.Page.LOBBY);
-            String character=new File(root,"yog-room").isFile()?"MAGE":(new File(root,"stairs").isFile() || new File(root,"kit").isFile())?"WARRIOR":"HUNTRESS";
+            String character=new File(root,"yog-room").isFile()?"MAGE":(new File(root,"stairs").isFile() || new File(root,"kit").isFile() || new File(root,"unknown-lullaby").isFile())?"WARRIOR":"HUNTRESS";
             c.select(character); await(()->!c.busy() && c.frame().roster.contains(character));
             c.ready(true);
             }
@@ -1269,6 +1269,7 @@ public final class CoopRenderSmoke {
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
         java.nio.file.Files.writeString(new File(root,"port").toPath(),Integer.toString(testPort));
         if(regionShot.startsWith("yog-") || regionShot.startsWith("ascent-")) java.nio.file.Files.createFile(new File(root,"yog-room").toPath());
+        if (regionShot.equals("lullaby-input") && Boolean.getBoolean("trial.unknownLullaby")) java.nio.file.Files.createFile(new File(root,"unknown-lullaby").toPath());
         if(kit) java.nio.file.Files.createFile(new File(root,"kit").toPath());
         if(floors) java.nio.file.Files.createFile(new File(root,"stairs").toPath());
         Process child=new ProcessBuilder(System.getProperty("java.home")+"/bin/java","-cp",System.getProperty("java.class.path"),

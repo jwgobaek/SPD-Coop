@@ -1,5 +1,9 @@
 # 미해결 문제
 
+## 현재 확인 범위
+
+SYNC38 재인증 후 무료 STASIS 메뉴 누락은 SYNC39 두 Android에서 수정 확인됐다. SYNC40의 Android 인수, 부식 지팡이 플레이어 발사·아군 피해 정책, 양의 에너지 비용과 다중 재료 조합, 정상 시작 Tengu와 4,000점 금고가 남았다. 과거 세 간헐적 단언의 최초 실패 원인도 미확정이다. [시험 기록](docs/coop/cauldron-results.md)
+
 ## SYNC38의 STASIS 무료 해제
 
 보관 후 앱을 다시 실행하면 게스트 성서의 정지 항목이 사라진다. 자동 만료는 동일 소환수로 복귀했다. SYNC39에 소유자 전용 보관 표시를 추가하고 한국어·영어 Desktop에서 무료 해제를 검증했다. 후속 APK의 실제 Android 인수는 NOT RUN이다. [검증 결과](docs/coop/original-items-results.md)
