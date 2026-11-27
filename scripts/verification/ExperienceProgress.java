@@ -87,14 +87,16 @@ public final class ExperienceProgress {
                     guides[1]=new VaultPublicRoute.Guide();
                 }
                 VaultPublicRoute.Input input=guides[seat].choose(v);
-                if (v.offered && (v.heroClass.equals("CLERIC") || v.heroClass.equals("DUELIST"))) {
+                boolean keepRecovery = input.action.equals("REVIVE") || input.action.equals("DRINK") || input.action.equals("EAT");
+                if (v.offered && !keepRecovery && (v.heroClass.equals("CLERIC") || v.heroClass.equals("DUELIST"))) {
+                    var targets = visibleAttackTargets(v);
                     for (PublicDungeon.Loot tool : v.belongings) {
                         String verb=v.actions(tool).contains("CAST") ? "GUIDING_LIGHT" :
                                 tool.weaponSkill && tool.sprite==com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.RAPIER ? "WEAPON_ABILITY" : null;
                         if (verb==null || tool.charges<=0) continue;
-                        for (int target : new java.util.TreeSet<>(v.monsters.keySet())) {
+                        for (int target : targets) {
                             int distance=Math.max(Math.abs(v.pos%v.width-target%v.width),Math.abs(v.pos/v.width-target/v.width));
-                            if (!v.visible(target) || verb.equals("WEAPON_ABILITY") && distance!=2) continue;
+                            if (verb.equals("WEAPON_ABILITY") && distance!=2) continue;
                             if (declined.contains(seat+"/"+v.depth+"/"+v.pos+"/"+target+"/"+verb)) continue;
                             input=new VaultPublicRoute.Input(verb,target,tool.id);
                             break;
@@ -179,6 +181,15 @@ public final class ExperienceProgress {
                     seed,policy,s,depth,acted,Statistics.enemiesSlain,down,granted[s],h.lvl,h.HT,h.HP,h.STR(),food,heal,up,Dungeon.gold,h.pos,weapon,armor,result);
             }
         }
+    }
+
+    private static java.util.List<Integer> visibleAttackTargets(PublicDungeon view) {
+        var targets = new java.util.ArrayList<>(view.monsters.keySet());
+        targets.removeIf(cell -> !view.visible(cell) || !VaultPublicRoute.Guide.hostile(view.monsters.get(cell)));
+        targets.sort(java.util.Comparator.comparingInt((Integer cell) -> Math.max(
+                Math.abs(view.pos % view.width - cell % view.width), Math.abs(view.pos / view.width - cell / view.width)))
+                .thenComparingInt(Integer::intValue));
+        return targets;
     }
 
     public static void main(String[] args) throws Exception {

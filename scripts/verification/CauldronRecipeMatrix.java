@@ -2,14 +2,22 @@ package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.Recipe;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.*;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.*;
 import com.shatteredpixel.shatteredpixeldungeon.lan.ProjectionChecks;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Firebloom;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -37,9 +45,41 @@ public class CauldronRecipeMatrix extends HeadlessDungeon {
             for (int seat = 0; seat < 2; seat++) {
                 for (var entry : expected.entrySet()) trial.brew(seat, entry.getKey(), entry.getValue());
             }
+            trial.nativeSeedRecipe();
         } finally {
             trial.stopBackend();
             trial.temporary.delete();
+        }
+    }
+
+    private void nativeSeedRecipe() {
+        try (CoopSession game = CoopSession.open(572, 11, HeroClass.WARRIOR)) {
+            game.join(22, HeroClass.WARRIOR);
+            ArrayList<Item> seeds = new ArrayList<>();
+            for (int i = 0; i < 3; i++) seeds.add(new Firebloom.Seed());
+            Recipe recipe = Recipe.findRecipes(seeds).stream().filter(Potion.SeedToPotion.class::isInstance)
+                    .findFirst().orElseThrow();
+            assertEquals(0, recipe.cost(seeds));
+            Random.pushGenerator(572);
+            long next;
+            try {
+                next = Random.Long();
+            } finally {
+                Random.popGenerator();
+            }
+            Random.pushGenerator(572);
+            try {
+                assertTrue(recipe.sampleOutput(seeds) instanceof WndBag.Placeholder);
+                assertEquals(next, Random.Long());
+                for (Item seed : seeds) assertEquals(1, seed.quantity());
+                Item result = recipe.brew(seeds);
+                assertTrue(result instanceof PotionOfLiquidFlame);
+                assertTrue(result.isIdentified());
+                for (Item seed : seeds) assertEquals(0, seed.quantity());
+            } finally {
+                Random.popGenerator();
+            }
+            System.out.println("PASS native SeedToPotion: generic preview, unspent RNG, 3 Firebloom seeds -> identified liquid flame; cooperative input pending");
         }
     }
 

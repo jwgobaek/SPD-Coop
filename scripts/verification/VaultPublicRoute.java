@@ -87,7 +87,7 @@ public final class VaultPublicRoute {
         private String shotKey(long item,int from,int to) {
             return item+"/"+from+"/"+to;
         }
-        private boolean hostile(String kind) {
+        static boolean hostile(String kind) {
             return !(kind.equals("VaultLaser") || kind.equals("VaultSentry") || kind.equals("VaultMirror") ||
                     kind.equals("VaultTokenDoor") || kind.equals("Ghost") || kind.equals("Shopkeeper") || kind.equals("Sheep"));
         }

@@ -21,4 +21,4 @@
 
 [필수 관측 명세](android-acceptance-sync39.json) · [공개 APK](https://drive.google.com/file/d/1UhjuelcgZwugUyiGmAHco_dXdnTFuDZ2/view) · [대응 소스 및 Android 증거 ZIP](https://drive.google.com/file/d/1nxC-3dq29HUmt7pSuoYP8JGqUALNVvW8/view)
 
-비로그인 다운로드는 APK 35,398,518바이트, ZIP 73,548,513바이트였다. ZIP SHA-256은 `9dc3c4aad54bb13a2874f837765dc1921c7ce73000a35201ffee0834e8aaa4b1`이다. 두 MuMu가 타이틀 화면에 돌아왔고 최종 CPU 10%, 가용 RAM 1,685/16,085 MiB였다. 양쪽 시험 다운로드 및 이번 임시 ADB 중계를 정리했다.
+비로그인 다운로드는 APK 35,398,518바이트, ZIP 73,548,513바이트였다. ZIP SHA-256은 `9dc3c4aad54bb13a2874f837765dc1921c7ce73000a35201ffee0834e8aaa4b1`이다. 두 MuMu가 타이틀 화면에 돌아왔고 정리 시 CPU 10%, 가용 RAM 1,685/16,085 MiB였다. 시험 종료 후 다시 조회한 GB2는 CPU 18%, 가용 RAM 1,800/16,085 MiB, MuMuNxDevice 두 프로세스(2552·26728)였다. 양쪽 시험 다운로드 및 이번 임시 ADB 중계를 정리했다.

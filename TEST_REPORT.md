@@ -2,7 +2,7 @@
 
 ## SYNC39 실제 배포 검사와 후속 시험
 
-배포 후보 고정 JUnit 374/374, Android 필수 60/60. 두 설치 해시·실제 화면·개별 영수증·HEAD·후속 행동을 대응 ZIP에 보관했다. [Android 인수](docs/coop/original-items-android-acceptance.md) · [SYNC40 후속 시험 및 최초 실패](docs/coop/cauldron-results.md)
+배포 후보 고정 JUnit 374/374, Android 필수 60/60. 후속 SYNC40 고정 JUnit 380/380(신규 6개), 새 JVM의 HEAD 직후 종료·재인증 10/10, 이전 스키마 21~26 이행 12/12, 배치형 승리 12/12와 별도 Ascension 1/1이 통과했다. 두 설치 해시·실제 화면·개별 영수증·HEAD·후속 행동을 대응 ZIP에 보관했다. [Android 인수](docs/coop/original-items-android-acceptance.md) · [SYNC40 후속 시험 및 최초 실패](docs/coop/cauldron-results.md)
 
 ## SYNC38 기기와 SYNC39 Cloud
 

@@ -2,7 +2,7 @@
 
 ## SYNC39 Android 발행과 SYNC40 연금술
 
-두 실제 Android에서 STASIS 무료 해제와 전체 인수를 마쳤다. 후속 Cloud에서 양쪽 좌석의 실제 솥 조합, 부식 시전자 복원, 미감정 자장가 읽기 및 Trinity 분해 기억을 검증했다. [Android 인수](docs/coop/original-items-android-acceptance.md) · [Cloud 검증](docs/coop/cauldron-results.md)
+두 실제 Android에서 STASIS 무료 해제와 전체 인수 60/60을 마쳤고, 지정한 APK와 대응 소스·증거 ZIP을 기존 Drive 파일에 각각 한 번 발행했다. 후속 Cloud JUnit은 380/380이다. 후속 Cloud에서 양쪽 좌석의 실제 솥 조합, 부식 시전자 복원, 미감정 자장가 읽기 및 Trinity 분해 기억을 검증했다. [Android 인수](docs/coop/original-items-android-acceptance.md) · [Cloud 검증](docs/coop/cauldron-results.md)
 
 ## SYNC38 Android와 후속 SYNC39
 

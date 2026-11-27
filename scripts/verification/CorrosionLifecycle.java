@@ -22,6 +22,7 @@ public class CorrosionLifecycle extends HeadlessDungeon {
                 trial.followCloud(seat, true);
                 trial.followCloud(seat, false);
                 trial.afterCasterDeath(seat);
+                trial.peerEntersExistingGas(seat);
             }
         } finally {
             trial.stopBackend();
@@ -96,6 +97,30 @@ public class CorrosionLifecycle extends HeadlessDungeon {
             assertFalse(rat.wasDefeatedBy(peer));
             assertEquals(exp, peer.exp);
             System.out.println("PASS lethal DOT after caster death seat=" + seat + " no transfer of kill or XP");
+        }
+    }
+
+    private void peerEntersExistingGas(int seat) {
+        try (CoopSession game = CoopSession.open(572, 11, HeroClass.MAGE)) {
+            game.join(22, HeroClass.MAGE);
+            CoopMageTest.encounter(game, seat);
+            Hero caster = game.hero(seat);
+            int peerSeat = 1 - seat;
+            Hero peer = game.hero(peerSeat);
+            SewerBeeTest.offer(game, peerSeat);
+            int landing = peer.pos + 1;
+            new WandOfCorrosion().onZap(caster, new Ballistica(caster.pos, landing, Ballistica.STOP_TARGET));
+            assertEquals(0, gas().cur[peer.pos]);
+            assertEquals(50, gas().cur[landing]);
+            int before = peer.HP;
+            assertTrue(game.act(game.player(peerSeat), game.turn(), CoopSession.Action.MOVE, landing, null));
+            assertEquals(landing, peer.pos);
+            for (int i = 0; i < 8 && peer.HP == before; i++) TenguArenaTest.waitOne(game);
+            assertTrue(peer.HP < before);
+            Corrosion effect = peer.buff(Corrosion.class);
+            assertNotNull(effect);
+            assertSame(caster, effect.caster());
+            System.out.println("PASS peer entered existing player gas seat=" + peerSeat + " HP " + before + "->" + peer.HP);
         }
     }
 
