@@ -726,6 +726,62 @@ public class SharedGrowthTest extends HeadlessDungeon {
         }
     }
 
+    @Test public void monasticVigorResolvesTheFourOtherTechniquesWithTheOwnersEnergy() {
+        CoopSession.Action[] techniques={CoopSession.Action.MONK_FLURRY,CoopSession.Action.MONK_DASH,
+                CoopSession.Action.MONK_DRAGONKICK,CoopSession.Action.MONK_MEDITATE};
+        for (CoopSession.Action technique: techniques) for (int seat=0;seat<2;seat++) for (int rank=0;rank<=3;rank++) {
+            try (CoopSession game=CoopSession.open(572,11,HeroClass.DUELIST)) {
+                game.join(22,HeroClass.DUELIST);
+                Hero hero=TierGrowthTest.prepare(game,seat,HeroSubClass.MONK,Talent.MONASTIC_VIGOR,rank);
+                Rat target=CoopMageTest.encounter(game,seat);
+                int start=hero.pos, width=Dungeon.level.width();
+                for (int dy=-1;dy<=1;dy++) for (int dx=-1;dx<=8;dx++) {
+                    int cell=start+dy*width+dx;
+                    Dungeon.level.traps.remove(cell);
+                    com.shatteredpixel.shatteredpixeldungeon.levels.Level.set(cell,
+                            com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EMPTY);
+                }
+                target.pos=start+1;
+                Rat side=new Rat();
+                side.pos=start-width;
+                int sideStart=side.pos;
+                com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.add(side,2000);
+                MonkEnergy energy=Buff.affect(hero,MonkEnergy.class);
+                energy.energy=energy.energyCap();
+                boolean empowered=energy.abilitiesEmpowered(hero);
+                assertEquals(rank>0,empowered);
+                int destination=target.pos;
+                if (technique==CoopSession.Action.MONK_DASH) {
+                    destination=start+5;
+                    target.pos=start+width+1;
+                } else if (technique==CoopSession.Action.MONK_MEDITATE) {
+                    destination=start;
+                    hero.HP=hero.HT/2;
+                }
+                int beforeHP=hero.HP, targetHP=target.HP;
+                float beforeEnergy=energy.energy;
+                game.observe(seat);
+                boolean valid=technique!=CoopSession.Action.MONK_DASH || empowered;
+                assertEquals(technique.name(),valid,CoopFloorsTest.step(game,technique,destination,null));
+                if (!valid) { assertEquals(beforeEnergy,energy.energy,0f); continue; }
+                assertTrue(energy.energy<beforeEnergy);
+                assertNull(game.hero(1-seat).buff(MonkEnergy.class));
+                switch (technique) {
+                    case MONK_DASH: assertEquals(destination,hero.pos); break;
+                    case MONK_MEDITATE:
+                        assertEquals(empowered,hero.HP>beforeHP || hero.buff(Healing.class)!=null);
+                        break;
+                    case MONK_DRAGONKICK: assertEquals(empowered,side.pos!=sideStart); break;
+                    case MONK_FLURRY:
+                        assertTrue(target.HP<targetHP);
+                        assertNotNull(hero.buff(MonkEnergy.MonkAbility.FlurryCooldownTracker.class));
+                        break;
+                    default: throw new AssertionError(technique);
+                }
+            }
+        }
+    }
+
     @Test public void aPackedClassArtifactUsesOnlyItsOwnersTalentAndSurvivesRestore() {
         for (HeroClass role : new HeroClass[]{HeroClass.ROGUE,HeroClass.CLERIC})
             for (int seat=0;seat<2;seat++) for (int rank=0;rank<=3;rank++) {
