@@ -1,5 +1,14 @@
 # SPD-Coop 개발 진행 기록
 
+## 2026-11-27 세 재료 연금술과 수혈
+
+SYNC41의 세 재료 솥·유료 조합·수혈 지팡이와 실제 저장 경계는 [개발 결과](docs/coop/seed-alchemy-results.md)에 기록했다. SYNC40 배포 후보의 두 Android 필수 인수는 92/92였다. [Android 인수](docs/coop/cauldron-android-acceptance.md)
+
+후속 전체 JUnit은 처음 391/394, 수정 후 394/394였다. 변경 전 380개 재실행은 379/380이었다. 배포 SYNC40에서는 필수 시험 이외의 가방 상세창에서 미감정 주문서 이름이 표시됐고, SYNC41의 좌석별 공개 스냅샷 4/4는 감정 전 이름을 숨겼다.
+
+
+APK와 ZIP을 각각 한 번 갱신하고 양쪽의 비로그인 다운로드 크기와 해시를 확인했다. [SYNC40 배포와 체크섬](docs/coop/cauldron-delivery.md)
+
 ## SYNC39 Android 발행과 SYNC40 연금술
 
 두 실제 Android에서 STASIS 무료 해제와 전체 인수 60/60을 마쳤고, 지정한 APK와 대응 소스·증거 ZIP을 기존 Drive 파일에 각각 한 번 발행했다. 후속 Cloud JUnit은 380/380이다. 후속 Cloud에서 양쪽 좌석의 실제 솥 조합, 부식 시전자 복원, 미감정 자장가 읽기 및 Trinity 분해 기억을 검증했다. [Android 인수](docs/coop/original-items-android-acceptance.md) · [Cloud 검증](docs/coop/cauldron-results.md)

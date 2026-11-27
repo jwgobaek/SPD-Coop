@@ -55,6 +55,23 @@ public class AndroidStagedGrowth extends HeadlessDungeon {
             }
             return;
         }
+        if (args.length == 3 && args[2].equals("unknown-recharging")) {
+            try (CoopSession game = CoopSession.open(572, 1, HeroClass.WARRIOR)) {
+                game.join(2, HeroClass.WARRIOR);
+                CoopMageTest.encounter(game, 1);
+                var scroll = new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging();
+                assertFalse(scroll.isKnown());
+                Dungeon.level.drop(scroll, game.hero(1).pos);
+                SewerBeeTest.offer(game, 1);
+                assertTrue(CoopFloorsTest.step(game, CoopSession.Action.PICK_UP, game.hero(1).pos, scroll));
+                SewerBeeTest.offer(game, 1);
+                AndroidTrialTickets.export(Path.of(args[0]), Path.of(args[1]), game);
+            } finally {
+                fixture.stopBackend();
+                fixture.temporary.delete();
+            }
+            return;
+        }
         if (args.length == 3 && args[2].matches("cauldron(pack)?[01]")) {
             int seat = Character.digit(args[2].charAt(args[2].length()-1), 10);
             try (CoopSession game = CoopSession.open(572, 1, HeroClass.WARRIOR)) {

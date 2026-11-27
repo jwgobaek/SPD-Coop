@@ -1,5 +1,11 @@
 # 최종 검증판 발행
 
+## SYNC40 후보와 재현 자료
+
+승인 대상 0998031의 설치 해시와 실제 두 부팅의 92개 필수 관측을 대조했다. APK 대응 소스는 빌드 커밋의 `git archive`에서 추출한다. 후보 빌드의 JUnit XML과 이번에 같은 소스로 다시 실행한 전체 XML을 별도 디렉터리에 담는다. Android 관측별 화면·후속 영수증·HEAD 및 해시를 검사한 뒤 기존 ZIP에 발행한다. 후속 SYNC41의 소스와 APK는 Cloud에 따로 보관한다. [Android 인수](docs/coop/cauldron-android-acceptance.md)
+
+APK와 ZIP을 각각 한 번 갱신하고 양쪽의 비로그인 다운로드 크기와 해시를 확인했다. [SYNC40 배포와 체크섬](docs/coop/cauldron-delivery.md)
+
 ## SYNC39 정상 발행 완료
 
 기존 APK와 통합 ZIP을 각각 1회 갱신했다. 양쪽 설치본 및 비로그인 APK 해시는 d059320faf181611ea5b702e2aa82d4dcbf8d2cdae3dd88920fc3928c645cb0b, 크기는 35,398,518바이트다. ZIP은 73,548,513바이트, SHA-256 9dc3c4aad54bb13a2874f837765dc1921c7ce73000a35201ffee0834e8aaa4b1이다. ZIP의 2,389개 소스를 빌드 커밋 2fa1a0ba8793c8e0ffda87f5d6f21be13965a54e와 대조했다. 기존 링크의 anyone/reader, allowFileDiscovery=false 및 APK의 기존 편집자 권한을 확인했다. SYNC40은 별도 Cloud 후보로 관리한다. [인수 결과](docs/coop/original-items-android-acceptance.md)

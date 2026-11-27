@@ -1,5 +1,9 @@
 # 협동 콘텐츠 지원표
 
+## 2026-11-27 세 재료 연금술과 수혈
+
+SYNC41의 세 재료 솥·유료 조합·수혈 지팡이와 실제 저장 경계는 [개발 결과](docs/coop/seed-alchemy-results.md)에 기록했다. SYNC40 배포 후보의 두 Android 필수 인수는 92/92였다. [Android 인수](docs/coop/cauldron-android-acceptance.md)
+
 ## SYNC39 원본 효과
 
 활 17종의 직접 사격·공유 투척, 감정된 자장가 주문서와 각인 회수, Trinity Blooming의 개인 기억을 검증했다. 조건부 착지·가스 중첩·개별 원본 사용의 근거를 소스별로 기록했다. [검증 결과](docs/coop/original-items-results.md)

@@ -1,5 +1,9 @@
 # 협동 저장 스키마 1–27
 
+## 2026-11-27 세 재료 연금술과 수혈
+
+SYNC41의 세 재료 솥·유료 조합·수혈 지팡이와 실제 저장 경계는 [개발 결과](seed-alchemy-results.md)에 기록했다. SYNC40 배포 후보의 두 Android 필수 인수는 92/92였다. [Android 인수](cauldron-android-acceptance.md)
+
 ## SYNC40 부식 원인
 
 플레이어가 원인인 부식 상태가 처음 생기면 방 체크포인트의 schema는 27이 되고 corrosion_schema가 기존 1~26을 보존한다. 활성 및 휴면 원본 가스와 Corrosion 버프는 coop_caster에 실제 시전자 Actor ID를 저장한다. 필드가 없는 이전 환경 가스의 ID는 0이다. 더 강한 환경 가스는 이전 소유 정보를 지운다. 솥 미리보기에는 소비 또는 권위 예약을 기록하지 않는다. 확정 결과는 기존 물리적 ID·스택·에너지·영수증 저장을 사용한다. floor_schema 1~15, 세대 4 MiB, 휴면 층 1,500,000 UTF-8바이트를 유지한다. [실측](cauldron-results.md)

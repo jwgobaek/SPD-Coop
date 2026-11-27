@@ -1,5 +1,9 @@
 # GB2 원격 Android 시험
 
+## SYNC40 연금술 솥
+
+기존 60개 시나리오에 방장·게스트 각각 16개를 추가했다. 같은 물리적 룬석 스택의 제작·바닥 귀속·재인증 후 수거와 이후 확정 영수증을 추적한다. 원래 영수증 재전송 및 고의로 오래된 버전·상대 핸들을 보내는 검사는 해당 Android 호스트에 직접 인증한 격리 시험 좌석으로 실행한다. 로그는 시험 중 앱 범위에서 메모리로 읽어 Cloud에 수집한다. [실측 결과](docs/coop/cauldron-android-acceptance.md) [필수 관측 명세](docs/coop/android-acceptance-sync40.json)
+
 ## SYNC39의 실제 인수
 
 같은 두 Android 부팅에서 이전 필수 40개와 STASIS 추가 20개를 수행했다. 재인증 후 무료 수동 해제, 만료 후 제거, 양쪽 보관과 전체·델타 비공개를 검증했다. 화면 조작과 오래된 요청·영수증 재전송용 인증 TCP를 구분해 기록한다. [관측 명세](docs/coop/android-acceptance-sync39.json) · [증거와 실행 범위](docs/coop/original-items-android-acceptance.md)

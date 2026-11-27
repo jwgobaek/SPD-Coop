@@ -120,7 +120,7 @@ public final class MixedRoomStability {
         if (stage.matches("(scrollread|scrolltarget|scrollapply|scrollabort|eagleview)[01]")) return "HUNTRESS";
         if (com.shatteredpixel.shatteredpixeldungeon.BowEffectsTest.isThrowFixture(stage)) return "HUNTRESS";
         if (stage.matches("(readlullaby|recalllullaby|trinitybloomhistory)[01]")) return "CLERIC";
-        if (stage.startsWith("stasis")) return "CLERIC";
+        if (stage.startsWith("stasis") || stage.startsWith("trinitymindray")) return "CLERIC";
         if (stage.startsWith("warppropose") || stage.startsWith("warpreturn")) return "MAGE";
         if (stage.startsWith("ninjalog")) return "ROGUE";
         if (stage.startsWith("cacheinvest")) return seat == stage.charAt(stage.length()-1)-'0' ? "ROGUE" : "MAGE";
@@ -169,7 +169,16 @@ public final class MixedRoomStability {
             if(!stage.equals("dart")) cell=0;
             break;
         default:
-            StagedInput staged=PlayerGrowthTest.stage(room,stage);
+            boolean paired = stage.startsWith("paired-exotic");
+            String nativeStage = paired ? "exoticbrew" + stage.charAt(stage.length()-1) : stage;
+            StagedInput staged=PlayerGrowthTest.stage(room,nativeStage);
+            if (paired) {
+                int peer = 1-room.activeSeat();
+                Item second = new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade();
+                assertTrue(second.collect(room.hero(peer).belongings.backpack));
+                room.ownership.claim(second,room.player(peer));
+                room.observe(peer);
+            }
             verb=staged.verb;
             cell=staged.cell;
         }
@@ -274,9 +283,33 @@ public final class MixedRoomStability {
                 SeatActions.Pending action=move.action.equals("BREW_SEEDS")
                         ? actions[seat].prepare(v.source,move.action,move.cell,move.item+"_"+move.item+"_"+move.item)
                         : actions[seat].prepare(v.source,move.action,move.cell,move.item);
+                String competing = null;
+                int peer = 1-seat;
+                if (n==0 && stage!=null && stage.startsWith("paired-exotic")) {
+                    images[peer].refresh(clients[peer]);
+                    PublicDungeon other = new PublicDungeon(images[peer].image());
+                    assertEquals(v.source.version,other.source.version);
+                    assertEquals("6",v.source.rows.get("cauldron"+move.cell));
+                    assertEquals("6",other.source.rows.get("cauldron"+move.cell));
+                    VaultPublicRoute.Input selection=fromView(other,first);
+                    assertThrows(IllegalStateException.class, () -> actions[peer].prepare(other.source,selection.action,selection.cell,selection.item));
+                    String actor=other.source.rows.get("self").split(",",2)[0];
+                    competing="DO_"+epoch+" "+(peer+1)+" "+peer+" "+actor+" "+actions[peer].allocate()
+                            +" "+other.source.version+" "+other.source.rows.get("turn")+" "+selection.action+" "+selection.cell+" "+selection.item;
+                }
                 long start=System.nanoTime();
                 String receipt=action.submit(clients[seat]);
                 if(n==0 && first!=null) assertTrue(stage+" "+receipt,receipt.endsWith(" APPLIED"));
+                if (competing!=null) {
+                    String result=clients[peer].request(competing);
+                    assertTrue(result,result.endsWith(" REJECT_VERSION") || result.startsWith("REJECT_VERSION"));
+                    assertEquals(receipt,action.submit(clients[seat]));
+                    images[peer].refresh(clients[peer]);
+                    PublicDungeon after = new PublicDungeon(images[peer].image());
+                    assertEquals("0",after.source.rows.get("cauldron"+move.cell));
+                    assertTrue(fromView(after,first).item>0);
+                    System.out.printf("PAID_RACE winner=%d initialEnergy=6 finalEnergy=0 preservedPeerScroll=true retry=%s%n",seat,result);
+                }
                 if(receipt.endsWith(" APPLIED") || receipt.endsWith(" PARTY_DEFEATED")) {
                     record(move.action,start);
                 } else {
@@ -385,6 +418,7 @@ public final class MixedRoomStability {
                 if (Boolean.getBoolean("stability.enchantment")) stage = ENCHANTMENT[i % ENCHANTMENT.length];
                 if (Boolean.getBoolean("stability.originalItems")) stage = ORIGINAL_ITEMS[i % ORIGINAL_ITEMS.length];
                 if (Boolean.getBoolean("stability.stasisWarp")) stage = STASIS_WARP[i % STASIS_WARP.length];
+                if (Boolean.getBoolean("stability.paidRace")) stage = "paired-exotic"+(i%2);
                 if (Boolean.getBoolean("stability.seedAlchemy")) stage = SEED_ALCHEMY[i % SEED_ALCHEMY.length];
                 if (Boolean.getBoolean("stability.cauldron")) stage = CAULDRON[i % CAULDRON.length];
                 trial.room(fixture.temporary.getRoot(),"mine".equals(stage)?571:570+i%12,Integer.parseInt(args[1]),stage);
