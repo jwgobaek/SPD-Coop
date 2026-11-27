@@ -1,5 +1,9 @@
 # 단계와 다음 작업
 
+## 현재 개발 시작점 · 공유 마법과 상위 주문 이후
+
+실제 배포 APK와 ZIP의 소스는 e690e53이다. 후속 SYNC36은 Cloud와 Desktop 검증용이다. 다음 시작점은 원본 마법 부여 주문서의 후보 선택·취소와 돌에서 나온 나머지 활 마법의 투척 경계다. 이어 성직자 지형의 겹침·함정 조합, 매의 EAGLE_EYE, 여섯 번째 지팡이의 다섯 실행 경로를 검증한다. 두 도적의 상자 배분과 일반 방 성장권은 기존 승인 범위를 유지한다. [후속 검증](docs/coop/shared-growth-results.md) · [실기 인수](docs/coop/tier-growth-android-acceptance.md)
+
 ## 다음 개발 시작점 — 저격수의 활과 투척물
 
 SYNC35에서 전사 8/8, 사냥꾼 7/8까지 연결했다. 다음은 자기 활의 마법 부여를 실제로 확보하고 SHARED_ENCHANTMENT가 투척물에 적용되는지 양쪽 좌석에서 검사하는 일이다. 최신 Android 인수와 Drive 발행 대기도 별도로 남아 있다. [기능·회귀별 실측](docs/coop/tier-growth-results.md)

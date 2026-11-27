@@ -1,0 +1,11 @@
+role	boot_id	base_apk_sha256	selector	result	crashes	anrs
+host	7867132f-4ba4-4a71-abe0-b096e52cdc07	cc8a6f7ab203a01e7beacfc7e2fcb00ad487175be537cd6cfa25689e96e9aa4b	HolyIntuition	PASS	0	0
+host	7867132f-4ba4-4a71-abe0-b096e52cdc07	cc8a6f7ab203a01e7beacfc7e2fcb00ad487175be537cd6cfa25689e96e9aa4b	RecallInscription	PASS	0	0
+host	7867132f-4ba4-4a71-abe0-b096e52cdc07	cc8a6f7ab203a01e7beacfc7e2fcb00ad487175be537cd6cfa25689e96e9aa4b	BodyForm	PASS	0	0
+host	7867132f-4ba4-4a71-abe0-b096e52cdc07	cc8a6f7ab203a01e7beacfc7e2fcb00ad487175be537cd6cfa25689e96e9aa4b	MindForm	PASS	0	0
+host	7867132f-4ba4-4a71-abe0-b096e52cdc07	cc8a6f7ab203a01e7beacfc7e2fcb00ad487175be537cd6cfa25689e96e9aa4b	SpiritForm	PASS	0	0
+guest	8ce63420-1712-4ee2-a895-b5568acebf55	cc8a6f7ab203a01e7beacfc7e2fcb00ad487175be537cd6cfa25689e96e9aa4b	HolyIntuition	PASS	0	0
+guest	8ce63420-1712-4ee2-a895-b5568acebf55	cc8a6f7ab203a01e7beacfc7e2fcb00ad487175be537cd6cfa25689e96e9aa4b	RecallInscription	PASS	0	0
+guest	8ce63420-1712-4ee2-a895-b5568acebf55	cc8a6f7ab203a01e7beacfc7e2fcb00ad487175be537cd6cfa25689e96e9aa4b	BodyForm	PASS	0	0
+guest	8ce63420-1712-4ee2-a895-b5568acebf55	cc8a6f7ab203a01e7beacfc7e2fcb00ad487175be537cd6cfa25689e96e9aa4b	MindForm	PASS	0	0
+guest	8ce63420-1712-4ee2-a895-b5568acebf55	cc8a6f7ab203a01e7beacfc7e2fcb00ad487175be537cd6cfa25689e96e9aa4b	SpiritForm	PASS	0	0

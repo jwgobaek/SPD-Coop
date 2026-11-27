@@ -1,5 +1,9 @@
 # 최종 검증판 발행
 
+## 현재 일치하는 배포 세트 · e690e53
+
+기존 APK에 지정 후보를 1회 발행하고, 두 Android에서 인수한 뒤 동일 소스와 실측 자료를 담은 ZIP을 기존 ID에 1회 발행했다. 두 비로그인 다운로드의 전체 바이트와 SHA-256을 재검사했다. 발행 후 개발 브랜치의 SYNC36 APK는 Cloud에 보관한다. [파일 식별자와 체크섬](docs/coop/tier-growth-android-acceptance.md)
+
 ## 상위 성장 후보와 공개 파일
 
 SYNC35 후보는 Cloud에서 보관한다. 공개 APK의 대응 소스는 9969d23, 공개 ZIP의 대응 소스는 07b1889다. 이전 일회성 발행 예외는 해당 수정판에만 적용됐다. [기능·회귀별 실측](docs/coop/tier-growth-results.md)

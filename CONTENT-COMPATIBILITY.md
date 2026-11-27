@@ -1,5 +1,9 @@
 # 협동 콘텐츠 지원표
 
+## SYNC36 플레이어 성장 범위
+
+6개 직업의 3단계 48/48 슬롯 및 4단계 29/72 슬롯을 지원한다. [특성표](docs/coop/trinity-discovery-talents.tsv)에 투자·호스트 효과·전 투자점·Desktop·TCP·복구·Android를 구분했다. Trinity는 Body 4, Mind 3, Spirit 1이다. [형태별 후보](docs/coop/trinity-discovery-forms.tsv)
+
 ## SYNC35 특성 및 형상
 
 1·2·3·4단계는 각각 24/24, 30/30, 28/48, 27/72 슬롯에서 투자할 수 있다. 원본 Trinity 후보 중 7/113이 연결됐다. [기능·회귀별 실측](docs/coop/tier-growth-results.md)

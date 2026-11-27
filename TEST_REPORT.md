@@ -1,5 +1,9 @@
 # SPD-Coop 클라우드 실행 보고
 
+## 상위 특성 및 출하된 Android 빌드
+
+SYNC35 Android 기준은 e690e53이다. 후속 SYNC36은 기존 315개와 신규 23개를 포함해 338/338 PASS였다. 독립 실행도 338/338이었다. 한국어 Desktop 입력 26개, HEAD 발행 후 실제 종료·복구 66회, 배치형 일반 승리 12/12 및 Ascension 귀환을 확인했다. [Android 인수](docs/coop/tier-growth-android-acceptance.md) · [Cloud 회귀](docs/coop/shared-growth-results.md)
+
 ## SYNC35 시험
 
 최종 JUnit 315/315. 이전 299개가 모두 포함됐고 신규는 16개, 실패·오류·건너뜀은 0개였다. 한국어 Desktop에서 신규 특성 21개를 각각 실제 투자했다. 성서 선택 다섯 경로는 양 좌석에서 한국어·영어 각 10/10, 8종의 확정 행동은 양 좌석의 성공 응답 전 종료 16/16이었다. 이전 두 빌드의 저장 이행 4/4, 최종 12시드 배치형 일반 승리 12/12 및 정상 금고의 동일 저장 비교를 실시했다. 실행 역할과 제한은 개별 기록에 있다. [기능·회귀별 실측](docs/coop/tier-growth-results.md)

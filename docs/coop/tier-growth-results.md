@@ -1,5 +1,7 @@
 # SYNC35 상위 성장 및 배포 상태
 
+2026-11-27에 이 후보를 두 Android에 설치해 성서 선택 10/10을 통과했고, 동일한 빌드 커밋의 APK와 통합 ZIP을 발행했다. 아래 Cloud 기록은 발행 이전 시점의 관측이다. [최종 Android 관측과 배포 SHA-256](tier-growth-android-acceptance.md)
+
 Cloud 후보는 4.0.2-INDEV-tier-growth, 패키지 org.spdcoop.dungeon.indev, versionCode 922다. SHA-256은 `cc8a6f7ab203a01e7beacfc7e2fcb00ad487175be537cd6cfa25689e96e9aa4b`, 크기는 37,321,868바이트다. v1·v2 서명과 기존 개발 인증서를 확인했다. DEX에서 e690e533383a 빌드 식별자, SYNC35, 성창·정화 행동을 확인했다. 시험방 생성기와 검증 클래스는 DEX에서 발견되지 않았다. 이전 SYNC34 후보와 ZIP 항목은 각각 575개였고 압축된 에셋 합계는 두 후보 모두 27,652,373바이트였다. 파일 크기 차이의 대부분은 APK 내부 항목 사이의 공간이 29,143에서 1,948,020바이트로 증가한 데서 나왔다. [정확한 APK 소스](https://github.com/jwgobaek/SPD-Coop/commit/e690e533383a68978781842a949cd0696bfecb63)
 
 최종 전체 JUnit은 315/315 PASS였다. 직전 기능판의 JUnit XML 78개에 있는 299개 클래스·메서드를 최종 XML 79개와 대조해 누락 0, 신규 16, 실패·오류·건너뜀 0을 확인했다. 최종 Gradle 전체 실행은 19분 24초였다. 실행 중 테스트 클래스 경로를 고정했다. 강화한 감지 행 단언과 추가 치명 피해 TCP 시험, Desktop 입력은 독립 경로에서 컴파일했다.

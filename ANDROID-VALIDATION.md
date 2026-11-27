@@ -1,5 +1,9 @@
 # Android validation backlog
 
+## e690e53 Android 15 인수 완료
+
+서로 다른 두 부팅에서 열 가지 선택 입력을 실행하고 크래시·치명적 GLThread 예외·ANR 0건을 확인했다. 같은 바이너리를 Drive에서 비로그인으로 내려받아 다시 대조했다. SYNC36의 실기 인수는 다음 발행 작업으로 남아 있다. [측정 범위와 재인증](docs/coop/tier-growth-android-acceptance.md)
+
 ## SYNC34·35 Android 인수 대기
 
 두 설치본은 기존 SYNC32 수정판이다. 이 빌드에서 통과한 성서 물품 선택 10개는 기록을 보존했다. 새 게임 기능의 실제 Android 입력, 크래시 및 ANR은 NOT RUN이다. [기능·회귀별 실측](docs/coop/tier-growth-results.md)

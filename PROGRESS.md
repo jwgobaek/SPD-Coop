@@ -1,5 +1,9 @@
 # SPD-Coop 개발 진행 기록
 
+## SYNC35 Android 인수 및 SYNC36 성장
+
+GB2 두 설치본에서 성서 선택 10/10, 저장 이행, 광전사 HP 0 생존을 확인했다. Drive APK와 ZIP은 동일한 e690e53 소스에 대응한다. 후속 개발판은 전체 3단계 48슬롯, 4단계 29슬롯에서 실제 투자를 허용한다. [배포와 실기 범위](docs/coop/tier-growth-android-acceptance.md) · [기능·복구별 결과](docs/coop/shared-growth-results.md)
+
 ## 6개 직업의 3단계 성장
 
 투자 가능 슬롯은 109/174이며 3단계는 28/48이다. 원본 정화·신성한 창, 두 종류의 특수 다트, Trinity 마력탄 기억을 실제 협동 행동에 연결했다. [기능·회귀별 실측](docs/coop/tier-growth-results.md)
