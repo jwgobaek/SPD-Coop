@@ -2,7 +2,7 @@
 
 ## SYNC41 Android와 SYNC42 원본 콘텐츠
 
-SYNC41의 역할별 59개 Android 인수와 새 원본 콘텐츠의 근거를 추적한다. 다음 기능은 탐지·직감의 돌, 복합 환경 물약 및 소환자별 대지 수호자다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)
+SYNC41의 역할별 59개 필수 Android 인수를 완료했다. 다음 개발은 탐지의 돌에서 자기 장비의 cursedKnown과 원본 네 가지 결과를 소유 좌석에 전달하는 것이다. 직감의 돌은 식별 지식으로 만든 후보와 좌석별 2회 사용 추적기를 검증한다. 이어서 복합 환경 물약과 소환자별 대지 수호자를 다룬다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)
 
 ## 2026-11-27 세 재료 연금술과 수혈
 

@@ -2,7 +2,9 @@
 
 ## SYNC41 Android와 SYNC42 원본 콘텐츠
 
-SYNC42의 실제 룬석·물약·타락 지팡이, 지도 각인 회수와 유료 레시피를 구현했다. SYNC41의 Android 후보는 별도 인수한다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)
+SYNC42의 실제 룬석·물약·타락 지팡이, 지도 각인 회수와 유료 레시피를 구현했다. SYNC41은 두 Android에서 필수 118/118과 별도 수혈 6/6을 통과했다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)
+
+최종 Drive APK와 ZIP은 각각 한 번 갱신됐다. 두 비로그인 다운로드의 해시와 대응 소스 2,408개 파일을 확인했다. [SYNC41 발행 기록](docs/coop/seed-alchemy-delivery.md)
 
 ## 2026-11-27 세 재료 연금술과 수혈
 

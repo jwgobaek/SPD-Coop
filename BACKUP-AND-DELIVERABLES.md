@@ -4,6 +4,8 @@
 
 SYNC41의 APK 승인 범위는 7ba9bb3의 지정 해시 한 개다. 대응 ZIP에는 실제 두 기기의 필수 118건, 같은 빌드 소스와 JUnit XML을 대조한다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)
 
+최종 Drive APK와 ZIP은 각각 한 번 갱신됐다. 두 비로그인 다운로드의 해시와 대응 소스 2,408개 파일을 확인했다. [SYNC41 발행 기록](docs/coop/seed-alchemy-delivery.md)
+
 ## SYNC40 후보와 재현 자료
 
 승인 대상 0998031의 설치 해시와 실제 두 부팅의 92개 필수 관측을 대조했다. APK 대응 소스는 빌드 커밋의 `git archive`에서 추출한다. 후보 빌드의 JUnit XML과 이번에 같은 소스로 다시 실행한 전체 XML을 별도 디렉터리에 담는다. Android 관측별 화면·후속 영수증·HEAD 및 해시를 검사한 뒤 기존 ZIP에 발행한다. 후속 SYNC41의 소스와 APK는 Cloud에 따로 보관한다. [Android 인수](docs/coop/cauldron-android-acceptance.md)
