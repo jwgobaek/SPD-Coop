@@ -1190,8 +1190,8 @@ public abstract class Mob extends Char {
 		
 		//lucky enchant logic
 		if (buff(Lucky.LuckProc.class) != null){
-			Dungeon.level.drop(buff(Lucky.LuckProc.class).genLoot(), pos).sprite.drop();
-			Lucky.showFlare(sprite);
+			Dungeon.level.drop(buff(Lucky.LuckProc.class).genLoot(), pos).animateDrop();
+			if (Dungeon.coop == null) Lucky.showFlare(sprite);
 		}
 
 		//soul eater talent

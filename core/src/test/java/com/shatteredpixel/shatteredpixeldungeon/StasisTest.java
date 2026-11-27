@@ -14,6 +14,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LifeLink;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.watabou.utils.PathFinder;
+import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import static com.shatteredpixel.shatteredpixeldungeon.CoopSession.Action.*;
@@ -111,11 +112,20 @@ public class StasisTest extends HeadlessDungeon {
     }
 
     @Test public void twoHeldAlliesRestoreIndependentOwnersAndLinks() {
+        verifyTwoPockets(false);
+    }
+
+    @Test public void twoHeldAlliesCrossTheOccupiedMineEntranceAndReturnToTheirOwners() {
+        verifyTwoPockets(true);
+    }
+
+    private static void verifyTwoPockets(boolean mineTrip) {
         int[] ids=new int[2];
         Bundle image;
-        try (CoopSession game=CoopSession.open(572,11,HeroClass.CLERIC)) {
+        try (CoopSession game=CoopSession.open(mineTrip ? 571 : 572,11,HeroClass.CLERIC)) {
             game.join(22,HeroClass.CLERIC);
-            CoopMageTest.encounter(game,0);
+            if (mineTrip) MiningBranchTest.prepareEntrance(game,571);
+            else CoopMageTest.encounter(game,0);
             for (int seat=0;seat<2;seat++) {
                 Hero owner=game.hero(seat);
                 owner.lvl=30;
@@ -144,7 +154,25 @@ public class StasisTest extends HeadlessDungeon {
                 assertTrue(CoopFloorsTest.step(game,STASIS,owner.pos,tome));
                 assertNull(owner.buff(LifeLink.class));
             }
+            if (mineTrip) {
+                MiningBranchTest.atBranchGate(game,Dungeon.level.getTransition(LevelTransition.Type.BRANCH_EXIT).cell());
+                CoopFloorsTest.cross(game);
+                assertEquals(1,Dungeon.branch);
+                for (int seat=0;seat<2;seat++) {
+                    assertNull(Actor.findById(ids[seat]));
+                    assertEquals(ids[seat],Stasis.getStasisAlly(game.hero(seat)).id());
+                }
+            }
             image=game.checkpoint();
+        }
+        if (mineTrip) {
+            try (CoopSession mine=CoopSession.restore(image)) {
+                assertEquals(1,Dungeon.branch);
+                MiningBranchTest.atBranchGate(mine,Dungeon.level.getTransition(LevelTransition.Type.BRANCH_ENTRANCE).cell());
+                CoopFloorsTest.cross(mine);
+                assertEquals(0,Dungeon.branch);
+                image=mine.checkpoint();
+            }
         }
         try (CoopSession game=CoopSession.restore(image)) {
             assertNotEquals(ids[0],ids[1]);

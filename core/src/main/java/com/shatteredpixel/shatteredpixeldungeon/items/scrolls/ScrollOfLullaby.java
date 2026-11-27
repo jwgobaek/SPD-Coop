@@ -24,6 +24,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
@@ -41,23 +42,27 @@ public class ScrollOfLullaby extends Scroll {
 	@Override
 	public void doRead() {
 
-		detach(curUser.belongings.backpack);
-		curUser.sprite.centerEmitter().start( Speck.factory( Speck.NOTE ), 0.3f, 5 );
+		readFor(curUser);
+	}
+
+	public void readFor(Hero reader) {
+		detach(reader.belongings.backpack);
+		if (Dungeon.coop == null) reader.sprite.centerEmitter().start( Speck.factory( Speck.NOTE ), 0.3f, 5 );
 		Sample.INSTANCE.play( Assets.Sounds.LULLABY );
 
 		for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] )) {
-			if (Dungeon.level.heroFOV[mob.pos]) {
+			if (Dungeon.coop == null ? Dungeon.level.heroFOV[mob.pos] : Dungeon.coop.knowledge(reader).visible(mob.pos)) {
 				Buff.affect( mob, Drowsy.class, Drowsy.DURATION );
-				mob.sprite.centerEmitter().start( Speck.factory( Speck.NOTE ), 0.3f, 5 );
+				if (Dungeon.coop == null) mob.sprite.centerEmitter().start( Speck.factory( Speck.NOTE ), 0.3f, 5 );
 			}
 		}
 
-		Buff.affect( curUser, Drowsy.class, Drowsy.DURATION );
+		Buff.affect( reader, Drowsy.class, Drowsy.DURATION );
 
 		GLog.i( Messages.get(this, "sooth") );
 
 		identify();
-		readAnimation();
+		finishReading(reader);
 	}
 	
 	@Override

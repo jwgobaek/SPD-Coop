@@ -293,6 +293,8 @@ abstract public class MissileWeapon extends Weapon {
         int ordinary=super.throwPos(user,target);
         if (ordinary!=target && ((!hasEnchant(Projecting.class,user) && !(share && bow.hasEnchant(Projecting.class,user)))
                 || !Dungeon.coop.missileLandingAllowed(user,ordinary))) return -1;
+        if (share && (!bow.safeCoopImpact(user,this,Actor.findChar(ordinary))
+                || ordinary != target && !bow.safeCoopImpact(user,this,Actor.findChar(target)))) return -1;
         // Validate both possible impact cells before the native trajectory roll consumes any RNG.
         int cell=throwPos(user,target);
         Char hit=Actor.findChar(cell);

@@ -208,8 +208,21 @@ public class SpiritBow extends Weapon {
                 || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampiric
                 || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shocking
                 || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Eldritch
+                || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blooming
+                || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim
+                || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Elastic
+                || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Unstable
+                || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Corrupting
+                || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Lucky
                 || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic
                 || effect instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Crystal;
+    }
+
+    public boolean safeCoopImpact(Hero owner, Weapon missile, Char target) {
+        if (owner.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune.class) != null) return true;
+        return !(enchantment instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Elastic
+                || enchantment instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Unstable)
+                || com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Elastic.safeCoopShot(missile, owner, target);
     }
 
     /** Normal spirit arrow. The authority resolves the original missile hit and cost at the input boundary. */
@@ -245,6 +258,7 @@ public class SpiritBow extends Weapon {
             }
         }
         SpiritArrow arrow=knockArrow();
+        if (!safeCoopImpact(user, arrow, enemy)) return false;
         int aim = mark == null ? enemy.pos : QuickSlotButton.autoAim(user,enemy,arrow);
         if (aim < 0 || arrow.throwPos(user,aim)!=enemy.pos) return false;
         if (mark != null && (mark.target != user || mark.object != enemy.id())) return false;
@@ -254,7 +268,7 @@ public class SpiritBow extends Weapon {
         float delay=arrow.castDelay(user,targetPos);
         int shots = sniperSpecial && augment == Augment.SPEED ? 3 : 1;
         for (int shot = 0; shot < shots && enemy.isAlive(); shot++) {
-            if (shot > 0 && QuickSlotButton.autoAim(user,enemy,arrow) < 0) break;
+            if (shot > 0 && (QuickSlotButton.autoAim(user,enemy,arrow) < 0 || !safeCoopImpact(user,arrow,enemy))) break;
             user.shoot(enemy,arrow);
         }
         sniperSpecial = false;

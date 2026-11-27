@@ -1296,7 +1296,15 @@ public final class CoopRenderSmoke {
                     openSpellPicker(ownTome().id,com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Stasis.INSTANCE.name());
                     await(()->frame().pending==0 && ownTome().charges==charges-2);
                     shot("stasis-held");
-                    System.out.println("PASS Stasis tome input and native two-charge hold");
+                    await(()->frame().pending==0 && frame().dungeon.offered && frame().image.rows.containsKey("stasisheld"));
+                    int heldCharges=ownTome().charges;
+                    long heldVersion=frame().image.version;
+                    openSpellPicker(ownTome().id,com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Stasis.INSTANCE.name());
+                    await(()->frame().pending==0 && frame().image.version>heldVersion
+                            && frame().image.rows.containsKey("poweredspells") && !frame().image.rows.containsKey("stasisheld"));
+                    if (ownTome().charges!=heldCharges) throw new AssertionError("Manual Stasis release charged the tome");
+                    shot("stasis-released");
+                    System.out.println("PASS Stasis tome input, native two-charge hold and free manual release");
                     return;
                 }
                 if (regionShot.equals("beacon-vote-input")) {

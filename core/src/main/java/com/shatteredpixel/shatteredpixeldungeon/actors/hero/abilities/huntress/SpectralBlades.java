@@ -108,6 +108,9 @@ public class SpectralBlades extends ArmorAbility {
 			}
 		}
 
+		if (Dungeon.coop != null && hero.hasTalent(Talent.SPIRIT_BLADES) && bow != null) {
+			for (Char ch : targets) if (!bow.safeCoopImpact(hero, bow, ch)) return false;
+		}
 		armor.charge -= chargeUse(hero);
 		Item.updateQuickslot();
 

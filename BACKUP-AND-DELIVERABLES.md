@@ -1,5 +1,11 @@
 # 최종 검증판 발행
 
+## 변경 기능별 Android 발행 검사
+
+SYNC38은 성서 및 주문서 역할별 38건과 게스트의 소환수 보관·무료 해제 2건을 검사한다. 실제 결과는 39 PASS, 1 FAIL이다. APK를 한 번 갱신했고 무료 해제 실패로 기존 ZIP을 유지했다. APK 발행 전 설치가 불가능할 때에는 해당 바이트에 대한 사용자 승인과 플랫폼 승인을 따른다. 통합 ZIP은 실제 기기에서 필수 시험을 마친 뒤 갱신한다. 각 후보의 빌드 커밋·APK 해시·바이트 수와 변경 기능별 필수 목록을 먼저 고정한다.
+
+`python3 scripts/verify-final-deliverables.py --android-candidate CANDIDATE.apk docs/coop/android-acceptance-sync38.json observations.tsv`를 실행한다. 설치본, 부팅, 실제 영수증, 다음 행동, 예외·중단·대기 요청과 증거 파일 해시를 대조한다. 기존 `--selector-candidate`는 성서 선택 회귀에 함께 사용한다. APK 대응 소스는 정확한 빌드 커밋에서 추출하고 최신 검증 도구와 자료는 evidence 또는 documentation에 넣는다.
+
 ## 2026-11-27 SYNC37 배포와 SYNC38 개발
 
 SYNC37 APK(27663fc)를 승인된 기존 ID에 1회 갱신했다. Android 주문서 인수 실패로 ZIP은 09c9417을 유지한다. 다음 APK에는 서명과 함께 실제 DEX selector 저장 지점을 검사하고 같은 바이트로 Android 인수를 수행한다. [실제 Android 인수](docs/coop/enchantment-android-acceptance.md)

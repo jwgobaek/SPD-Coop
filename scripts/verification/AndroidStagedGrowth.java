@@ -32,6 +32,27 @@ public class AndroidStagedGrowth extends HeadlessDungeon {
             }
             return;
         }
+        if (args.length == 3 && (args[2].equals("scroll-loot") || args[2].equals("scroll-seal"))) {
+            HeroClass type = args[2].equals("scroll-seal") ? HeroClass.WARRIOR : HeroClass.HUNTRESS;
+            try (CoopSession game = CoopSession.open(572, 1, type)) {
+                game.join(2, type);
+                CoopMageTest.encounter(game, 0);
+                for (int seat = 0; seat < 2; seat++) {
+                    var hero = game.hero(seat);
+                    var spare = new com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger();
+                    assertTrue(spare.collect(hero.belongings.backpack));
+                    game.ownership.claim(spare, game.player(seat));
+                    var scrolls = new com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfEnchantment();
+                    Dungeon.level.drop(scrolls.quantity(12), hero.pos);
+                }
+                SewerBeeTest.offer(game, 0);
+                AndroidTrialTickets.export(Path.of(args[0]), Path.of(args[1]), game);
+            } finally {
+                fixture.stopBackend();
+                fixture.temporary.delete();
+            }
+            return;
+        }
         boolean selectors = args.length == 3 && args[2].startsWith("selector-");
         boolean seals=args.length==3 && args[2].equals("seal");
         boolean armor=args.length==3 && args[2].equals("armor");

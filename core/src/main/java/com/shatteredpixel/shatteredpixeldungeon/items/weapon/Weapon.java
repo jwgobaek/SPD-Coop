@@ -549,6 +549,15 @@ abstract public class Weapon extends KindOfWeapon {
 		}
 
 		public static float genericProcChanceMultiplier( Char attacker ){
+			return procMultiplier(attacker, true);
+		}
+
+		/** Preflight a possible knockback without consuming the next attack's charge. */
+		public static float previewProcChanceMultiplier(Char attacker) {
+			return procMultiplier(attacker, false);
+		}
+
+		private static float procMultiplier(Char attacker, boolean consume) {
 			float multi = RingOfArcana.enchantPowerMultiplier(attacker);
 			Berserk rage = attacker.buff(Berserk.class);
 			if (rage != null) {
@@ -557,7 +566,7 @@ abstract public class Weapon extends KindOfWeapon {
 
 			if (attacker.buff(RunicBlade.RunicSlashTracker.class) != null){
 				multi += attacker.buff(RunicBlade.RunicSlashTracker.class).boost;
-				attacker.buff(RunicBlade.RunicSlashTracker.class).detach();
+				if (consume) attacker.buff(RunicBlade.RunicSlashTracker.class).detach();
 			}
 
 			if (attacker.buff(Smite.SmiteTracker.class) != null){
@@ -566,7 +575,7 @@ abstract public class Weapon extends KindOfWeapon {
 
 			if (attacker.buff(ElementalStrike.DirectedPowerTracker.class) != null){
 				multi += attacker.buff(ElementalStrike.DirectedPowerTracker.class).enchBoost;
-				attacker.buff(ElementalStrike.DirectedPowerTracker.class).detach();
+				if (consume) attacker.buff(ElementalStrike.DirectedPowerTracker.class).detach();
 			}
 
 			if (attacker.buff(Talent.SpiritBladesTracker.class) != null

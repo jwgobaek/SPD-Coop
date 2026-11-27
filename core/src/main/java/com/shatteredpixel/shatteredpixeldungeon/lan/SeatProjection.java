@@ -211,6 +211,8 @@ final class SeatProjection {
             if (hero.armorAbility instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.PowerOfMany
                     && com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.PowerOfMany.getPoweredAlly(hero) != null)
                 rows.put("poweredspells","1");
+            if (com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Stasis.getStasisAlly(hero) != null)
+                rows.put("stasisheld","1");
             if (ascended != null) rows.put("ascendedspells",ascended.divineInverventionCast ? "used" : "ready");
             int staffReach = CoopSession.disintegrationReach(hero);
             if (staffReach > 1) rows.put("staffreach", Integer.toString(staffReach));
@@ -251,6 +253,8 @@ final class SeatProjection {
                 if (marked instanceof Mob && ((Mob)marked).isAlive() && ((Mob)marked).invisible <= 0 && sight.visible(((Mob)marked).pos))
                     rows.put("snipercell", Integer.toString(((Mob)marked).pos));
             }
+            if (com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.RecallInscription.hasUntargetedScroll(hero))
+                rows.put("recalluntargeted","1");
             if (com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.RecallInscription.remembersRecharging(hero))
                 rows.put("recallrecharging","1");
             for (int tier=1; tier<=hero.talents.size(); tier++) {
@@ -618,6 +622,7 @@ final class SeatProjection {
         if (!slot.startsWith("F") && CoopSession.supportedScroll(item)
                 && ((com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll)item).isKnown())
             kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging ? "RECHARGING_SCROLL"
+                    : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby ? "LULLABY_SCROLL"
                     : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade ? "UPGRADE" : "IDENTIFY";
         if (!slot.startsWith("F") && CoopSession.basicMissile(item) && item.isIdentified())
             kind=item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSpike ? "SPIKE" : item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife ? "KNIFE" :

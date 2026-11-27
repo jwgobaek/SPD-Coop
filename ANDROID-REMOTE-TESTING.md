@@ -1,5 +1,11 @@
 # GB2 원격 Android 시험
 
+## 실제 Android 변경 기능 인수
+
+두 기기에서 기존 데이터 보존 업데이트 직후 설치본 SHA-256과 독립 부팅 ID를 확인한다. 역할별로 실제 입력, 효과, 승인 영수증, HEAD와 상태 버전을 기록하고 양쪽 앱 재인증 후 다음 행동까지 실행한다. 마법 부여 주문서는 후보 생성 전후의 취소, 적용 대상, 앱 재시작과 두 좌석의 선택 비공개를 각각 검사한다. 발행 검사기의 필수 목록은 [SYNC38 인수 명세](docs/coop/android-acceptance-sync38.json)에 있다.
+
+동일 요청 재전송 및 오래된 버전은 새로 등록한 격리 시험방의 두 시험 좌석을 사용한다. 개인 방과 좌석 자격은 사용하지 않는다. OS 크래시 및 ANR과 함께 앱 UID의 ART·LinkageError·치명적 GLThread 기록, 호스트 응답, 대기 중 요청과 실제 영수증을 확인한다. FAIL·NOT RUN·영수증 누락이 있는 필수 항목은 ZIP 발행을 보류한다. [실측 결과](docs/coop/stasis-warp-android-acceptance.md)
+
 ## 2026-11-27 SYNC37 배포와 SYNC38 개발
 
 게임 로그의 VerifyError가 스케줄러를 멈춘 경우 앱의 FATAL EXCEPTION이나 ANR이 없어도 호스트 응답·영수증·다음 행동을 대조한다. 별도 프로세스의 종료 신호는 패키지와 시각으로 식별한다. [실제 Android 인수](docs/coop/enchantment-android-acceptance.md)

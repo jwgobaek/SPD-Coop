@@ -35,11 +35,16 @@ public class Corruption extends AllyBuff implements Buff.DOTbuff {
 	}
 
 	private float partialDamage = 0f;
+	private int casterId;
+
+	public void setCaster(int actorId) { casterId = actorId; }
+
+	public int casterId() { return casterId; }
 
 	//corrupted enemies are usually fully healed and cleansed of most debuffs
 	public static void corruptionHeal(Char target){
 		target.HP = target.HT;
-		target.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(target.HT), FloatingText.HEALING);
+		if (target.sprite != null) target.sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(target.HT), FloatingText.HEALING);
 		for (Buff buff : target.buffs()) {
 			if (buff.type == Buff.buffType.NEGATIVE
 					&& !(buff instanceof SoulMark)) {
@@ -95,11 +100,13 @@ public class Corruption extends AllyBuff implements Buff.DOTbuff {
 	public void storeInBundle(Bundle bundle) {
 		super.storeInBundle(bundle);
 		bundle.put(PARTIAL_DAMAGE, partialDamage);
+		if (casterId != 0) bundle.put("coop_caster", casterId);
 	}
 
 	@Override
 	public void restoreFromBundle(Bundle bundle) {
 		super.restoreFromBundle(bundle);
-		partialDamage = bundle.getInt(PARTIAL_DAMAGE);
+		casterId = bundle.getInt("coop_caster");
+		partialDamage = casterId == 0 ? bundle.getInt(PARTIAL_DAMAGE) : bundle.getFloat(PARTIAL_DAMAGE);
 	}
 }

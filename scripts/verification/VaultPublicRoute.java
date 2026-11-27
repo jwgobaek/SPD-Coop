@@ -16,7 +16,7 @@ public final class VaultPublicRoute {
         Input(String action, int cell, long item) { this.action=action; this.cell=cell; this.item=item; }
     }
 
-    private static boolean adjacent(int from, int to, int width) {
+    static boolean adjacent(int from, int to, int width) {
         return Math.abs(from%width-to%width)<=1 && Math.abs(from/width-to/width)<=1;
     }
 
@@ -36,7 +36,8 @@ public final class VaultPublicRoute {
         int recoveryWaits, coveredWaits;
         int reachableFrontier, knownExit=-1;
         final boolean campaignGuide=Boolean.getBoolean("trial.campaignGuide");
-        int exitWaits;
+        int exitWaits, waitingAtExit, scoutingTurns;
+        final boolean rendezvousAtStairs=Boolean.getBoolean("trial.stairRendezvous");
         private boolean escortCover() { return regroup.equals("escortfire"); }
         private boolean doorCover() { return escortCover() || regroup.equals("doorcover"); }
         private boolean coveredByAlly(PublicDungeon v,int to) {
@@ -355,9 +356,22 @@ public final class VaultPublicRoute {
             if (escort && escortFollower && v.ally>=0 && !returning && v.monsters.isEmpty() && v.floor.isEmpty())
                 return new Input("WAIT",0,0);
             if (returning && v.pos==meetingCell && v.monsters.isEmpty()) return new Input("WAIT",0,0);
-            if (investigateWalls(v)) return new Input("SEARCH",v.pos,0);
+            boolean seekStairs=rendezvousAtStairs && campaignGuide && v.branch==0 && v.monsters.isEmpty();
+            if (seekStairs && v.ally>=0 && knownExit>=0 && distance(v.ally,knownExit,v.width)<=2) {
+                scoutingTurns=0;
+                waitingAtExit=0;
+            }
+            if (seekStairs && scoutingTurns==0 && knownExit>=0 && distance(v.pos,knownExit,v.width)<=1) {
+                if (++waitingAtExit<=4) return new Input("WAIT",v.pos,0);
+                // Retrace a public sighting or explore a frontier, then return to our own known stair.
+                scoutingTurns=12;
+                waitingAtExit=0;
+            }
+            boolean lookingForPartner=seekStairs && scoutingTurns>0;
+            if (lookingForPartner) scoutingTurns--;
+            if ((!seekStairs || knownExit<0) && investigateWalls(v)) return new Input("SEARCH",v.pos,0);
             boolean avoidBacktrack = crossing && holdDirection > 0 && !returning && exposedTo(v, v.pos) == 0;
-            if (campaignGuide && v.branch==0 && v.terrain(v.pos)==Terrain.EXIT && exitWaits<3) {
+            if (!seekStairs && campaignGuide && v.branch==0 && v.terrain(v.pos)==Terrain.EXIT && exitWaits<3) {
                 exitWaits++;
                 return new Input("WAIT",v.pos,0);
             }
@@ -392,7 +406,7 @@ public final class VaultPublicRoute {
                     }
                     if (exposedParty && rememberedExposure(v,first[c])>0) value-=170;
                     if (exposedParty && v.ally>=0 && first[c]==v.ally) continue;
-                    if (v.branch==0 && tile==Terrain.EXIT) value+=campaignGuide ? 600 : 220;
+                    if (!lookingForPartner && v.branch==0 && tile==Terrain.EXIT) value+=campaignGuide ? 600 : 220;
                     if (campaignGuide && v.branch==0 && v.ally>=0 && v.terrain(v.ally)==Terrain.EXIT
                             && adjacent(c,v.ally,v.width)) value+=600;
                     if (v.ally>=0) value-=2*Math.max(Math.abs(c%v.width-v.ally%v.width), Math.abs(c/v.width-v.ally/v.width));
@@ -438,6 +452,17 @@ public final class VaultPublicRoute {
                     boolean forwardTie = value == high && useSideCover() && escortFollower
                             && holdDirection > 0 && best == doorEntry && first[c] != doorEntry
                             && rememberedExposure(v,first[c]) <= rememberedExposure(v,best);
+                    if (seekStairs) {
+                        if (lookingForPartner) {
+                            if (lastAlly>=0 && lastAlly!=v.pos && distance(lastAlly,knownExit,v.width)>2)
+                                value+=Math.max(0,600-90*distance(c,lastAlly,v.width));
+                            if (frontier) value+=180/(1+visits.getOrDefault(c,0));
+                        } else if (knownExit>=0 && (c==knownExit || adjacent(c,knownExit,v.width)))
+                            value+=1200-20*dist[c];
+                        else if (knownExit<0 && v.ally>=0 && distance(v.pos,v.ally,v.width)>3
+                                && distance(c,v.ally,v.width)<=2)
+                            value+=200;
+                    }
                     if (value>high || forwardTie) {best=first[c]; bestCell=c; high=value;}
                 }
             }

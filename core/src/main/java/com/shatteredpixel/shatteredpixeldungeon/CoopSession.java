@@ -180,6 +180,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.SupplyRation;
@@ -225,9 +226,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { LIFE_LINK, BEAMING_RAY, DIVINE_INTERVENTION, JUDGEMENT, FLASH, READ_SCROLL, ENCHANT_TARGET, ENCHANT_CHOOSE, ENCHANT_CANCEL, TRINITY_MIND, TRINITY_SPIRIT, RECALL_INSCRIPTION, MIND_FORM, SPIRIT_FORM, BODY_FORM, HOLY_INTUITION, BLESS, DETACH_SEAL, AFFIX_SEAL, KEEP_ARMOR_GLYPH, TRANSFER_SEAL_GLYPH, READ_RECHARGING, EQUIP_SECOND, SWAP_WEAPONS, MONK_FLURRY, MONK_DASH, MONK_DRAGONKICK, MONK_MEDITATE, MONK_FOCUS, RADIANCE, SMITE, ASSASSINATE, FREERUN, DIVINE_SENSE, SUNRAY, SHIELD_OF_LIGHT, GUIDING_LIGHT, HOLY_WEAPON, HOLY_WARD, WEAPON_ABILITY, IMBUE, CLOAK, USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT, CLEANSE, HOLY_LANCE, ENCHANT_BOW, LAY_ON_HANDS, AURA_OF_PROTECTION, ALLY_WARP, MNEMONIC_PRAYER, HALLOWED_GROUND, WALL_OF_LIGHT, STASIS;
+    public enum Action { LIFE_LINK, BEAMING_RAY, DIVINE_INTERVENTION, JUDGEMENT, FLASH, READ_SCROLL, ENCHANT_TARGET, ENCHANT_CHOOSE, ENCHANT_CANCEL, TRINITY_MIND, TRINITY_SPIRIT, RECALL_INSCRIPTION, MIND_FORM, SPIRIT_FORM, BODY_FORM, HOLY_INTUITION, BLESS, DETACH_SEAL, AFFIX_SEAL, KEEP_ARMOR_GLYPH, TRANSFER_SEAL_GLYPH, READ_RECHARGING, EQUIP_SECOND, SWAP_WEAPONS, MONK_FLURRY, MONK_DASH, MONK_DRAGONKICK, MONK_MEDITATE, MONK_FOCUS, RADIANCE, SMITE, ASSASSINATE, FREERUN, DIVINE_SENSE, SUNRAY, SHIELD_OF_LIGHT, GUIDING_LIGHT, HOLY_WEAPON, HOLY_WARD, WEAPON_ABILITY, IMBUE, CLOAK, USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT, CLEANSE, HOLY_LANCE, ENCHANT_BOW, LAY_ON_HANDS, AURA_OF_PROTECTION, ALLY_WARP, MNEMONIC_PRAYER, HALLOWED_GROUND, WALL_OF_LIGHT, STASIS, READ_LULLABY;
         public boolean requiresItem() {
-            return this==STASIS || this==LIFE_LINK || this==BEAMING_RAY || this==DIVINE_INTERVENTION || this==JUDGEMENT || this==FLASH || this==READ_SCROLL || this==ENCHANT_TARGET || this==HALLOWED_GROUND || this==WALL_OF_LIGHT || this==MNEMONIC_PRAYER || this==LAY_ON_HANDS || this==AURA_OF_PROTECTION || this==ENCHANT_BOW || this==HOLY_LANCE || this==CLEANSE || this==READ_RECHARGING || this==TRINITY_MIND || this==TRINITY_SPIRIT || this==RECALL_INSCRIPTION || this==MIND_FORM || this==SPIRIT_FORM || this==BODY_FORM || this==HOLY_INTUITION || this==BLESS || this==DETACH_SEAL || this==AFFIX_SEAL || this==KEEP_ARMOR_GLYPH || this==TRANSFER_SEAL_GLYPH || this==EQUIP_SECOND || this==RADIANCE || this==SMITE || this==DIVINE_SENSE || this==SUNRAY || this==SHIELD_OF_LIGHT || this==GUIDING_LIGHT || this==HOLY_WEAPON || this==HOLY_WARD || this==WEAPON_ABILITY || this==IMBUE || this==CLOAK || this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
+            return this==STASIS || this==LIFE_LINK || this==BEAMING_RAY || this==DIVINE_INTERVENTION || this==JUDGEMENT || this==FLASH || this==READ_SCROLL || this==ENCHANT_TARGET || this==HALLOWED_GROUND || this==WALL_OF_LIGHT || this==MNEMONIC_PRAYER || this==LAY_ON_HANDS || this==AURA_OF_PROTECTION || this==ENCHANT_BOW || this==HOLY_LANCE || this==CLEANSE || this==READ_RECHARGING || this==READ_LULLABY || this==TRINITY_MIND || this==TRINITY_SPIRIT || this==RECALL_INSCRIPTION || this==MIND_FORM || this==SPIRIT_FORM || this==BODY_FORM || this==HOLY_INTUITION || this==BLESS || this==DETACH_SEAL || this==AFFIX_SEAL || this==KEEP_ARMOR_GLYPH || this==TRANSFER_SEAL_GLYPH || this==EQUIP_SECOND || this==RADIANCE || this==SMITE || this==DIVINE_SENSE || this==SUNRAY || this==SHIELD_OF_LIGHT || this==GUIDING_LIGHT || this==HOLY_WEAPON || this==HOLY_WARD || this==WEAPON_ABILITY || this==IMBUE || this==CLOAK || this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -1103,7 +1104,7 @@ public final class CoopSession implements AutoCloseable {
     }
 
     public static boolean supportedScroll(Item item) {
-        return item!=null && (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfEnchantment || item.getClass()==ScrollOfUpgrade.class || item.getClass()==ScrollOfIdentify.class || item.getClass()==ScrollOfRecharging.class);
+        return item!=null && (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfEnchantment || item.getClass()==ScrollOfUpgrade.class || item.getClass()==ScrollOfIdentify.class || item.getClass()==ScrollOfRecharging.class || item.getClass()==ScrollOfLullaby.class);
     }
 
     private boolean readEquipmentScroll(Hero reader, Action action, Item source, int selection) {
@@ -1352,7 +1353,7 @@ public final class CoopSession implements AutoCloseable {
                     if (action == Action.CLEANSE) {
                         if (cell != hero.pos) return false;
                         spell.onCast(tome, hero);
-                    } else if (action == Action.RECALL_INSCRIPTION && RecallInscription.remembersRecharging(hero)) {
+                    } else if (action == Action.RECALL_INSCRIPTION && RecallInscription.hasUntargetedScroll(hero)) {
                         if (cell != hero.pos) return false;
                         // The native spell reads its anonymous scroll, charges the tome, and clears the imprint.
                         spell.onCast(tome, hero);
@@ -1830,14 +1831,17 @@ public final class CoopSession implements AutoCloseable {
                 case BUY: case SELL: case SELL_ONE: case BUYBACK:
                     if (!CoopTrade.execute(this,hero,action,cell,item)) return false;
                     break;
+                case READ_LULLABY:
                 case READ_RECHARGING:
-                    if (cell != 0 || !(item instanceof ScrollOfRecharging) || !((Scroll)item).isKnown()
+                    if (cell != 0 || !(action == Action.READ_LULLABY ? item instanceof ScrollOfLullaby : item instanceof ScrollOfRecharging)
+                            || !((Scroll)item).isKnown()
                             || ownership.owner(item) != player || !hero.belongings.backpack.contains(item)
                             || hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness.class) != null
                             || hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune.class) != null) return false;
                     com.shatteredpixel.shatteredpixeldungeon.items.artifacts.UnstableSpellbook.bookRecharge spellbook = hero.buff(com.shatteredpixel.shatteredpixeldungeon.items.artifacts.UnstableSpellbook.bookRecharge.class);
                     if (spellbook != null && spellbook.isCursed()) return false;
-                    ((ScrollOfRecharging)item).readFor(hero);
+                    if (item instanceof ScrollOfLullaby) ((ScrollOfLullaby)item).readFor(hero);
+                    else ((ScrollOfRecharging)item).readFor(hero);
                     break;
                 case READ_SCROLL:
                     enchantScroll[activeSeat] = CoopEnchantScroll.begin(this, hero, item);

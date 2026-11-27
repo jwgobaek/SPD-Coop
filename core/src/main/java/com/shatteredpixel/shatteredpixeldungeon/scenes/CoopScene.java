@@ -148,8 +148,9 @@ public class CoopScene extends PixelScene {
         addLearnedSpell(view, spells, actions, Talent.BODY_FORM, BodyForm.INSTANCE);
         addLearnedSpell(view, spells, actions, Talent.MIND_FORM, MindForm.INSTANCE);
         addLearnedSpell(view, spells, actions, Talent.SPIRIT_FORM, SpiritForm.INSTANCE);
-        if (view.source.rows.containsKey("poweredspells")) {
+        if (view.source.rows.containsKey("poweredspells") || view.source.rows.containsKey("stasisheld"))
             addLearnedSpell(view, spells, actions, Talent.STASIS, Stasis.INSTANCE);
+        if (view.source.rows.containsKey("poweredspells")) {
             addLearnedSpell(view, spells, actions, Talent.LIFE_LINK, LifeLinkSpell.INSTANCE);
             addLearnedSpell(view, spells, actions, Talent.BEAMING_RAY, BeamingRay.INSTANCE);
         }
@@ -170,7 +171,7 @@ public class CoopScene extends PixelScene {
             protected void onSelect(int index) {
                 if (index<0 || index>=spells.size() || controller.frame().image!=view.source) return;
                 String action = actions.get(index);
-                boolean recallNeedsItem = action.equals("RECALL_INSCRIPTION") && !view.source.rows.containsKey("recallrecharging");
+                boolean recallNeedsItem = action.equals("RECALL_INSCRIPTION") && !view.source.rows.containsKey("recalluntargeted");
                 if (action.equals("HOLY_INTUITION") || recallNeedsItem || action.endsWith("_FORM")) {
                     showSpellTargets(view, tome, action, spells.get(index));
                 } else if (action.equals("WALL_OF_LIGHT") && view.source.rows.containsKey("endlightwall")) controller.act(view.source,action,view.pos,tome.id);

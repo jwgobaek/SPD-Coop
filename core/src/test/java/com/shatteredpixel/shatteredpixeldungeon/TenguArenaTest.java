@@ -23,7 +23,10 @@ public class TenguArenaTest extends HeadlessDungeon {
         WandmakerTest.enterPrison(game);
         while (Dungeon.depth<10) SewerDepthTest.gate(game,true);
         assertEquals(PrisonBossLevel.State.START,floor().state());
-        assertEquals(7,game.checkpoint().getInt("schema"));
+        Bundle atGate=game.checkpoint();
+        assertEquals(7,CoopSession.floorSchema(atGate));
+        if (game.hero(0).heroClass==HeroClass.WARRIOR && game.hero(1).heroClass==HeroClass.MAGE)
+            assertEquals(7,atGate.getInt("schema"));
     }
 
     public static PrisonBossLevel floor() { return (PrisonBossLevel)Dungeon.level; }

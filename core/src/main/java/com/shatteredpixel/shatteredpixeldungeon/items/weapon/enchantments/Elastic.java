@@ -47,9 +47,7 @@ public class Elastic extends Weapon.Enchantment {
 			float powerMulti = Math.max(1f, procChance);
 
 			//trace a ballistica to our target (which will also extend past them
-			Ballistica trajectory = new Ballistica(attacker.pos, defender.pos, Ballistica.STOP_TARGET);
-			//trim it to just be the part that goes past them
-			trajectory = new Ballistica(trajectory.collisionPos, trajectory.path.get(trajectory.path.size()-1), Ballistica.PROJECTILE);
+			Ballistica trajectory = pushRay(attacker, defender);
 			//knock them back along that ballistica
 			WandOfBlastWave.throwChar(defender,
 					trajectory,
@@ -62,6 +60,20 @@ public class Elastic extends Weapon.Enchantment {
 		return damage;
 	}
 	
+	private static Ballistica pushRay(Char attacker, Char defender) {
+		Ballistica line = new Ballistica(attacker.pos, defender.pos, Ballistica.STOP_TARGET);
+		return new Ballistica(line.collisionPos, line.path.get(line.path.size()-1), Ballistica.PROJECTILE);
+	}
+
+	public static boolean safeCoopShot(Weapon weapon, Char attacker, Char defender) {
+		if (defender == null) return true;
+		if (defender instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero) return false;
+		int level = Math.max(0, weapon.buffedLvl());
+		float chance = (level+1f)/(level+5f) * previewProcChanceMultiplier(attacker);
+		return WandOfBlastWave.safeCoopKnockback(defender, pushRay(attacker, defender),
+				Math.round(2 * Math.max(1f, chance)));
+	}
+
 	@Override
 	public ItemSprite.Glowing glowing() {
 		return PINK;

@@ -22,6 +22,9 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.watabou.utils.Bundle;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Adrenaline;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -53,7 +56,9 @@ public class Corrupting extends Weapon.Enchantment {
 				&& defender.isAlive()){
 
 			//we use a tracker so that anything that kills the enemy as part of this attack triggers
-			Buff.affect(defender, CorruptingTracker.class).powerMulti = Math.max(1f, procChance);
+			CorruptingTracker tracker = Buff.affect(defender, CorruptingTracker.class);
+			tracker.powerMulti = Math.max(1f, procChance);
+			if (Dungeon.coop != null && attacker instanceof Hero) tracker.casterId = attacker.id();
 
 		}
 		
@@ -67,6 +72,23 @@ public class Corrupting extends Weapon.Enchantment {
 		}
 
 		float powerMulti = 1f;
+		private int casterId;
+
+		@Override
+		public void storeInBundle(Bundle b) {
+			super.storeInBundle(b);
+			if (casterId != 0) {
+				b.put("coop_caster", casterId);
+				b.put("power_multiplier", powerMulti);
+			}
+		}
+
+		@Override
+		public void restoreFromBundle(Bundle b) {
+			super.restoreFromBundle(b);
+			casterId = b.getInt("coop_caster");
+			if (casterId != 0) powerMulti = b.getFloat("power_multiplier");
+		}
 
 		@Override
 		public boolean act() {
@@ -81,14 +103,14 @@ public class Corrupting extends Weapon.Enchantment {
 				Mob corrupted = Multiplicity.duplicate((Mob)target);
 
 				if (corrupted != null) {
-					target.sprite.killAndErase();
+					if (Dungeon.coop == null) target.sprite.killAndErase();
 
 					corrupted.timeToNow();
 					corrupted.pos = target.pos;
 					GameScene.add(corrupted);
 
 					Corruption.corruptionHeal(corrupted);
-					Buff.affect(corrupted, Corruption.class);
+					Buff.affect(corrupted, Corruption.class).setCaster(casterId);
 
 					if (powerMulti > 1.1f) {
 						//1 turn of adrenaline for each 20% above 100% proc rate

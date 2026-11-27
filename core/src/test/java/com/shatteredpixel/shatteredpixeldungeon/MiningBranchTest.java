@@ -43,7 +43,7 @@ public class MiningBranchTest extends HeadlessDungeon {
         assertTrue(Blacksmith.Quest.started());
         assertEquals(seed == 571 ? Blacksmith.Quest.GNOLL : Blacksmith.Quest.CRYSTAL, Blacksmith.Quest.Type());
     }
-    private static void prepareEntrance(CoopSession game, int seed) {
+    static void prepareEntrance(CoopSession game, int seed) {
         CavesInteriorTest.arrive(game, seed == 571 ? 12 : 13);
         Blacksmith npc = SewerSpecialActorTest.actor(Blacksmith.class);
         LevelTransition gate = Dungeon.level.getTransition(LevelTransition.Type.BRANCH_EXIT);

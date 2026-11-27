@@ -29,6 +29,15 @@ import static org.junit.Assert.*;
 public final class MixedRoomStability {
     final Map<String,Integer> verbs=new TreeMap<>();
     final List<Long> latencies=new ArrayList<>();
+    final Map<String,List<Long>> latencyByVerb=new TreeMap<>();
+
+    void record(String action,long start) {
+        long elapsed=System.nanoTime()-start;
+        verbs.merge(action,1,Integer::sum);
+        latencies.add(elapsed);
+        latencyByVerb.computeIfAbsent(action,key->new ArrayList<>()).add(elapsed);
+    }
+
     final List<WeakReference<LanRoom>> closed=new ArrayList<>();
     int rejected,duplicates,rejoins;
     long saveNanos;
@@ -77,6 +86,10 @@ public final class MixedRoomStability {
             "wall0","wall1","warpwraith0","warpwraith1","hornhit0","hornhit1","cloakring0","cloakring1",
             "packedcloak0","packedcloak1","bookward0","bookward1","spark0","monkfocus1","poisontip0","elestrike1","food","dart","floor","mine"};
 
+    static final String[] ORIGINAL_ITEMS = {"bowthrowBlooming0","bowthrowElastic1","bowthrowLucky0","bowthrowUnstable1",
+            "bowthrowCorrupting0","bowthrowGrim1","readlullaby0","recalllullaby1","trinitybloomhistory0",
+            "stasishold1","stasisrelease0","scrolltarget1","scrollapply0","floor","mine"};
+
     static final String[] STASIS_WARP = {"stasisrank0","stasishold1","stasisrelease0","warppropose1","warpreturn0",
             "scrolltarget1","scrollapply0","bowthrow1","rayblast0","lifelink1","food","floor","mine"};
     static final String[] ENCHANTMENT = {"scrollread0","scrollread1","scrolltarget0","scrolltarget1","scrollapply0",
@@ -100,6 +113,8 @@ public final class MixedRoomStability {
     static String stageClass(String stage,int seat) {
         if (stage==null) return seat==0 && Boolean.getBoolean("stability.rogue")?"ROGUE":seat==0?"MAGE":"HUNTRESS";
         if (stage.matches("(scrollread|scrolltarget|scrollapply|scrollabort|eagleview)[01]")) return "HUNTRESS";
+        if (com.shatteredpixel.shatteredpixeldungeon.BowEffectsTest.isThrowFixture(stage)) return "HUNTRESS";
+        if (stage.matches("(readlullaby|recalllullaby|trinitybloomhistory)[01]")) return "CLERIC";
         if (stage.startsWith("stasis")) return "CLERIC";
         if (stage.startsWith("warppropose") || stage.startsWith("warpreturn")) return "MAGE";
         if (stage.startsWith("ninjalog")) return "ROGUE";
@@ -161,7 +176,7 @@ public final class MixedRoomStability {
             String visible=verb.equals("DETACH_SEAL") ? verb : "AFFIX_SEAL";
             item=view.belongings.stream().filter(it->view.actions(it).contains(visible)).findFirst().get().id;
         }
-        if(Arrays.asList("ENCHANT_BOW","READ_RECHARGING","WEAPON_ABILITY","IMBUE","THROW","EAT","DRINK","ZAP","USE_CROWN","CLOAK","ARMOR_ABILITY").contains(verb)) {
+        if(Arrays.asList("ENCHANT_BOW","READ_RECHARGING","READ_LULLABY","WEAPON_ABILITY","IMBUE","THROW","EAT","DRINK","ZAP","USE_CROWN","CLOAK","ARMOR_ABILITY").contains(verb)) {
             item=view.belongings.stream().filter(it->view.actions(it).contains(verb))
                     .filter(it->!verb.equals("THROW") || it.kind.equals("DART") || it.kind.equals("SPIKE") || it.kind.equals("STONE") || it.kind.equals("FOOD") && view.heroClass.equals("WARRIOR"))
                     .findFirst().orElseThrow(()->new AssertionError("missing public action "+verb)).id;
@@ -232,8 +247,7 @@ public final class MixedRoomStability {
                     SeatActions.Pending consent=actions[other].prepare(images[other].image(),"CONSENT",warp ? v.stair : first.cell,0);
                     long began=System.nanoTime();
                     assertTrue(consent.submit(clients[other]).endsWith(" APPLIED"));
-                    verbs.merge("CONSENT",1,Integer::sum);
-                    latencies.add(System.nanoTime()-began);
+                    record("CONSENT",began);
                     images[seat].refresh(clients[seat]);
                     v=new PublicDungeon(images[seat].image());
                 }
@@ -243,8 +257,7 @@ public final class MixedRoomStability {
                 String receipt=action.submit(clients[seat]);
                 if(n==0 && first!=null) assertTrue(stage+" "+receipt,receipt.endsWith(" APPLIED"));
                 if(receipt.endsWith(" APPLIED") || receipt.endsWith(" PARTY_DEFEATED")) {
-                    verbs.merge(move.action,1,Integer::sum);
-                    latencies.add(System.nanoTime()-start);
+                    record(move.action,start);
                 } else {
                     rejected++;
                     if(move.item!=0) guides[seat].rejectedItems.add(move.item);
@@ -349,9 +362,16 @@ public final class MixedRoomStability {
                 if (Boolean.getBoolean("stability.cacheGrowth")) stage = CACHE_GROWTH[i % CACHE_GROWTH.length];
                 if (Boolean.getBoolean("stability.sharedGrowth")) stage = SHARED_GROWTH[i % SHARED_GROWTH.length];
                 if (Boolean.getBoolean("stability.enchantment")) stage = ENCHANTMENT[i % ENCHANTMENT.length];
+                if (Boolean.getBoolean("stability.originalItems")) stage = ORIGINAL_ITEMS[i % ORIGINAL_ITEMS.length];
                 if (Boolean.getBoolean("stability.stasisWarp")) stage = STASIS_WARP[i % STASIS_WARP.length];
                 trial.room(fixture.temporary.getRoot(),"mine".equals(stage)?571:570+i%12,Integer.parseInt(args[1]),stage);
                 trial.observe(fixture.temporary.getRoot(),i+1);
+            }
+            for (Map.Entry<String,List<Long>> entry:trial.latencyByVerb.entrySet()) {
+                List<Long> samples=entry.getValue();
+                Collections.sort(samples);
+                System.out.printf("ACTION_US %s n=%d median=%d p95=%d p99=%d%n",entry.getKey(),samples.size(),
+                        quantile(samples,.5),quantile(samples,.95),quantile(samples,.99));
             }
         } finally {fixture.stopBackend();fixture.temporary.delete();}
     }

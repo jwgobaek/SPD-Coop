@@ -163,6 +163,7 @@ public class PlayerGrowthTest extends HeadlessDungeon {
     // Replay the same public investment or mask choice through two authenticated TCP clients.
     public static StagedInput stage(CoopSession g,String stage) {
         int seat=stage.endsWith("1")?1:0;
+        if (BowEffectsTest.isThrowFixture(stage)) return BowEffectsTest.prepareThrow(g,seat,stage);
         if (newAbility(stage)) return SubclassActionTest.stage(g,stage,seat);
         if (stage.startsWith("talent")) {
             SewerBeeTest.offer(g,seat);
@@ -182,6 +183,10 @@ public class PlayerGrowthTest extends HeadlessDungeon {
     public static boolean published(String stage) {
         CoopSession g=Dungeon.coop;
         int seat=stage.endsWith("1")?1:0;
+        if (BowEffectsTest.isThrowFixture(stage)) {
+            var stones=g.hero(seat).belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone.class);
+            return stones!=null && stones.quantity()==3 && g.ownership.owner(stones)==g.player(seat);
+        }
         if (newAbility(stage)) return SubclassActionTest.published(g,stage,seat);
         if (stage.startsWith("talent")) return g.hero(seat).pointsInTalent(first(g.hero(seat)))==1;
         return g.hero(seat).subClass==g.hero(seat).heroClass.subClasses()[0] &&
@@ -191,7 +196,7 @@ public class PlayerGrowthTest extends HeadlessDungeon {
 
     static boolean newAbility(String stage) {
         if (stage.startsWith("upper_")) return true;
-        return stage.matches("(remoteplace|ninjalog|rayblast|warppropose|warpreturn|stasisfloor|stasisorder|stasisexpiry|stasisblocked|stasisrank|stasishold|stasisrelease|divineshield|beamingray|lifelink|scrollread|scrolltarget|scrollapply|scrollabort|eagleview|warpwraith|hornhit|cloakring|packedcloak|bookward|paladinheal|paladinaura|prayer|hallow|wall|bowstone|bowrank|bowthrow|poisontip|holylance|cleanse|scoutshot|holdfast|deathlesswait|deathlesstrap|trinitymindprismhistory|trinitymindmissilehistory|recallid|readrecharge|recallrecharge|trinitymind|trinityspirit|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinityblockhistory|trinitymindselect|trinityspiritselect|intuition|bless|trinityselect|trinity|monkflurry|monkdash|monkdragonkick|monkmeditate|prismmelee|prismimbue|prismzap|prismblast|prismvolley|sparkimbue|spark|sparkblast|sparkvolley|sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|strikeshock|strikeblock|strikevenom|strikekinetic|strikebloom|heroicenergy|challenge|elestrike|feint|ascendform|lightally|lightorder|ice|iceimbue|iceblast|icevolley|swap|monkfocus|radiance|smite|markdeath|clone|orderclone|sunray|divinesense|lightshield|guardshield|stance|smoke|ambush|freerun|lunge|spike|charged|light|ward|blessweapon|hawk|direct|imbue|volley|leaptrap|doubleparry|parryready|lethal|cloak|cacheinvest|cachepickup|strongman|endless_rage|desperate_power|point_blank|third|shock|battery|enhanced|blades|beacon|recall|endure|clobber|slam|parry|riposte|crush|fury|rage|sniper|crown|armorright|leap|blast|nature|meal|warlock|battlemage|soul)[01]");
+        return stage.matches("(remoteplace|ninjalog|rayblast|warppropose|warpreturn|stasisfloor|stasisorder|stasisexpiry|stasisblocked|stasisrank|stasishold|stasisrelease|divineshield|beamingray|lifelink|scrollread|scrolltarget|scrollapply|scrollabort|eagleview|warpwraith|hornhit|cloakring|packedcloak|bookward|paladinheal|paladinaura|prayer|hallow|wall|bowstone|bowrank|bowthrow|poisontip|holylance|cleanse|scoutshot|holdfast|deathlesswait|deathlesstrap|trinitymindprismhistory|trinitymindmissilehistory|recallid|readrecharge|recallrecharge|readlullaby|recalllullaby|trinitymind|trinityspirit|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinitybloomhistory|trinityfirehistory|trinityblockhistory|trinitymindselect|trinityspiritselect|intuition|bless|trinityselect|trinity|monkflurry|monkdash|monkdragonkick|monkmeditate|prismmelee|prismimbue|prismzap|prismblast|prismvolley|sparkimbue|spark|sparkblast|sparkvolley|sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|strikeshock|strikeblock|strikevenom|strikekinetic|strikebloom|heroicenergy|challenge|elestrike|feint|ascendform|lightally|lightorder|ice|iceimbue|iceblast|icevolley|swap|monkfocus|radiance|smite|markdeath|clone|orderclone|sunray|divinesense|lightshield|guardshield|stance|smoke|ambush|freerun|lunge|spike|charged|light|ward|blessweapon|hawk|direct|imbue|volley|leaptrap|doubleparry|parryready|lethal|cloak|cacheinvest|cachepickup|strongman|endless_rage|desperate_power|point_blank|third|shock|battery|enhanced|blades|beacon|recall|endure|clobber|slam|parry|riposte|crush|fury|rage|sniper|crown|armorright|leap|blast|nature|meal|warlock|battlemage|soul)[01]");
     }
 
     public static String signature(CoopSession g, String stage) {

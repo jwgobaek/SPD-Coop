@@ -16,6 +16,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.*;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.*;
 import com.watabou.utils.Bundle;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blocking;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blooming;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic;
@@ -85,6 +86,19 @@ public class SealArtsTest extends HeadlessDungeon {
     static StagedInput stage(CoopSession game, String type, int seat, Rat rat) {
         Hero hero = game.hero(seat);
         Armor armor = hero.belongings.armor();
+        if (type.equals("readlullaby") || type.equals("recalllullaby")) {
+            hero.lvl = 15;
+            assertTrue(CoopFloorsTest.step(game, CoopSession.Action.INVEST_TALENT, Talent.RECALL_INSCRIPTION.ordinal(), null));
+            ScrollOfLullaby scroll = new ScrollOfLullaby();
+            scroll.setKnown();
+            Dungeon.level.drop(scroll, hero.pos);
+            assertTrue(CoopFloorsTest.step(game, CoopSession.Action.PICK_UP, hero.pos, scroll));
+            SewerBeeTest.offer(game,seat);
+            if (type.equals("readlullaby")) return new StagedInput(game, "READ_LULLABY", 0);
+            assertTrue(CoopFloorsTest.step(game, CoopSession.Action.READ_LULLABY, 0, scroll));
+            SewerBeeTest.offer(game,seat);
+            return new StagedInput(game, "RECALL_INSCRIPTION", hero.pos);
+        }
         if (type.equals("readrecharge") || type.equals("recallrecharge")) {
             hero.lvl = 15;
             assertTrue(CoopFloorsTest.step(game, CoopSession.Action.INVEST_TALENT,Talent.RECALL_INSCRIPTION.ordinal(),null));
@@ -223,12 +237,12 @@ public class SealArtsTest extends HeadlessDungeon {
             game.ownership.claim(reference,game.player(seat));
             if (trinity) { reference.inscribe(new Swiftness()); reference.identify(); }
             if (type.equals("trinitybodyhistory")) return historyInput(game, seat, reference, TrinityDiscoveries.Choice.SWIFTNESS);
-            if (type.equals("trinityfirehistory") || type.equals("trinityblockhistory")) {
+            if (type.equals("trinitybloomhistory") || type.equals("trinityfirehistory") || type.equals("trinityblockhistory")) {
                 boolean blocking = type.equals("trinityblockhistory");
-                TrinityDiscoveries.Choice choice = blocking ? TrinityDiscoveries.Choice.BLOCKING : TrinityDiscoveries.Choice.BLAZING;
+                TrinityDiscoveries.Choice choice = type.equals("trinitybloomhistory") ? TrinityDiscoveries.Choice.BLOOMING : blocking ? TrinityDiscoveries.Choice.BLOCKING : TrinityDiscoveries.Choice.BLAZING;
                 Quarterstaff staff = new Quarterstaff();
                 assertTrue(staff.collect(hero.belongings.backpack));
-                staff.enchant(blocking ? new Blocking() : new com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing());
+                staff.enchant(type.equals("trinitybloomhistory") ? new Blooming() : blocking ? new Blocking() : new com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing());
                 assertFalse(game.discoveries(seat).knows(choice));
                 staff.identify();
                 return historyInput(game, seat, staff, choice);
@@ -313,6 +327,14 @@ public class SealArtsTest extends HeadlessDungeon {
         case "monkmeditate": return hero.buff(MonkEnergy.MonkAbility.Meditate.MeditationRecharge.class)!=null || hero.buff(Recharging.class)!=null;
         case "trinitymind": return Dungeon.level.mobs.stream().anyMatch(m->m.HP<m.HT) && ((ClassArmor)armor).charge<26;
         case "trinityspirit": return hero.buff(SpiritForm.SpiritFormBuff.class)!=null && hero.buff(SpiritForm.SpiritFormBuff.class).ring() instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste;
+        case "readlullaby": case "recalllullaby": {
+            boolean original = type.equals("readlullaby");
+            return (original == RecallInscription.hasUntargetedScroll(hero))
+                    && hero.belongings.getItem(ScrollOfLullaby.class) == null
+                    && hero.buff(Drowsy.class) != null && game.hero(1-seat).buff(Drowsy.class) == null
+                    && Dungeon.level.mobs.stream().anyMatch(m -> m.buff(Drowsy.class) != null)
+                    && ((HolyTome)hero.belongings.artifact).charges() == (original ? 3 : 0);
+        }
         case "readrecharge": return hero.buff(Recharging.class) != null && RecallInscription.remembersRecharging(hero)
                 && hero.belongings.getItem(ScrollOfRecharging.class) == null && game.hero(1-seat).buff(Recharging.class) == null;
         case "recallrecharge": return hero.buff(Recharging.class) != null && hero.buff(RecallInscription.UsedItemTracker.class) == null
@@ -320,9 +342,10 @@ public class SealArtsTest extends HeadlessDungeon {
         case "recallid": return hero.belongings.backpack.items.stream().anyMatch(i -> i instanceof ClothArmor && i.isIdentified()) && hero.buff(RecallInscription.UsedItemTracker.class)==null;
         case "intuition": return hero.belongings.backpack.items.stream().anyMatch(i -> i instanceof ClothArmor && i.cursedKnown && !i.levelKnown);
         case "bless": return hero.buff(Bless.class)!=null && hero.buff(Barrier.class)!=null && game.hero(1-seat).buff(Bless.class)==null;
-        case "trinitymindprismhistory": case "trinitymindmissilehistory": case "trinitybodyhistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindhistory": case "trinityspirithistory": {
+        case "trinitymindprismhistory": case "trinitymindmissilehistory": case "trinitybodyhistory": case "trinitybloomhistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindhistory": case "trinityspirithistory": {
             TrinityDiscoveries.Choice choice = type.equals("trinitymindprismhistory") ? TrinityDiscoveries.Choice.PRISMATIC_LIGHT :
                     type.equals("trinitybodyhistory") ? TrinityDiscoveries.Choice.SWIFTNESS :
+                    type.equals("trinitybloomhistory") ? TrinityDiscoveries.Choice.BLOOMING :
                     type.equals("trinityfirehistory") ? TrinityDiscoveries.Choice.BLAZING :
                     type.equals("trinityblockhistory") ? TrinityDiscoveries.Choice.BLOCKING :
                     type.equals("trinitymindmissilehistory") ? TrinityDiscoveries.Choice.MAGIC_MISSILE :
@@ -361,6 +384,27 @@ public class SealArtsTest extends HeadlessDungeon {
         case "lightally": case "lightorder": return PowerOfMany.getPoweredAlly(hero) instanceof PowerOfMany.LightAlly
                 && PowerOfMany.getPoweredAlly(game.hero(1-seat))==null && ((ClassArmor)armor).charge<26;
         default: throw new IllegalArgumentException(type);
+        }
+    }
+
+    @Test public void bothReadersRecallLullabyFromTheirOwnRestoredImprint() {
+        for (int seat=0; seat<2; seat++) {
+            Bundle saved;
+            try (CoopSession game=CoopSession.open(572, 11, HeroClass.CLERIC)) {
+                game.join(22,HeroClass.CLERIC);
+                Rat foe=CoopMageTest.encounter(game,seat);
+                SewerBeeTest.offer(game,seat);
+                stage(game, "recalllullaby", seat, foe);
+                assertTrue(published(game,"readlullaby",seat));
+                saved=game.checkpoint();
+            }
+            try (CoopSession game=CoopSession.restore(saved)) {
+                Hero reader=game.hero(seat);
+                assertTrue(CoopFloorsTest.step(game, CoopSession.Action.RECALL_INSCRIPTION, reader.pos, reader.belongings.artifact));
+                assertTrue(published(game,"recalllullaby",seat));
+                SewerBeeTest.offer(game,seat);
+                assertFalse(CoopFloorsTest.step(game, CoopSession.Action.RECALL_INSCRIPTION, reader.pos, reader.belongings.artifact));
+            }
         }
     }
 
@@ -514,7 +558,7 @@ public class SealArtsTest extends HeadlessDungeon {
     }
 
     @Test public void absentTrinityReferencesUseOnlyTheSelectingSeatsHistory() {
-        for (String kind : new String[]{"trinitybodyhistory", "trinitymindhistory", "trinityspirithistory", "trinityfirehistory", "trinityblockhistory", "trinitymindmissilehistory"}) {
+        for (String kind : new String[]{"trinitybodyhistory", "trinitymindhistory", "trinityspirithistory", "trinitybloomhistory", "trinityfirehistory", "trinityblockhistory", "trinitymindmissilehistory"}) {
             for (int seat = 0; seat < 2; seat++) {
                 Bundle saved;
                 try (CoopSession game = CoopSession.open(572, 11, HeroClass.CLERIC)) {
@@ -536,6 +580,20 @@ public class SealArtsTest extends HeadlessDungeon {
                         float before = armor.charge;
                         assertTrue(CoopFloorsTest.step(game,CoopSession.Action.TRINITY_MIND,foe.pos,armor));
                         assertTrue(foe.HP < hp && armor.charge < before);
+                    }
+                    if (kind.equals("trinitybloomhistory")) {
+                        SewerBeeTest.offer(game, seat);
+                        Hero caster = game.hero(seat);
+                        assertTrue(CoopFloorsTest.step(game, CoopSession.Action.ARMOR_ABILITY, caster.pos, caster.belongings.armor()));
+                        assertTrue(caster.buff(BodyForm.BodyFormBuff.class).enchant() instanceof Blooming);
+                        foe.pos = caster.pos + 1;
+                        boolean grass = false;
+                        for (int n = 0; n < 30 && !grass; n++) {
+                            assertTrue(caster.attack(foe, 0, 0, Hero.INFINITE_ACCURACY));
+                            grass = Dungeon.level.map[foe.pos] == com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.HIGH_GRASS;
+                        }
+                        assertTrue(grass);
+                        assertNull(game.hero(1-seat).buff(BodyForm.BodyFormBuff.class));
                     }
                     if (kind.equals("trinityfirehistory")) {
                         SewerBeeTest.offer(game, seat);

@@ -34,7 +34,7 @@ public final class PublicDungeon {
             reference=ref==null ? "" : ref;
             String label=rows.get("label"+id);
             String family=rows.get("family"+id);
-            stackType=(isMissileKind(kind)) && family!=null && family.matches(kind.toLowerCase(Locale.ROOT)+"\\.[0-9a-f]{32}") ? family : (kind.equals("FOOD") || kind.equals("HEALING") || kind.equals("UPGRADE") || kind.equals("IDENTIFY") || kind.equals("RECHARGING_SCROLL")) && label!=null ? label : "";
+            stackType=(isMissileKind(kind)) && family!=null && family.matches(kind.toLowerCase(Locale.ROOT)+"\\.[0-9a-f]{32}") ? family : (kind.equals("FOOD") || kind.equals("HEALING") || kind.equals("UPGRADE") || kind.equals("IDENTIFY") || kind.equals("RECHARGING_SCROLL") || kind.equals("LULLABY_SCROLL")) && label!=null ? label : "";
             sprite=number(f[2],0,1023); quantity=number(f[3],1,Integer.MAX_VALUE); upgrade=f[4];
             String pool=rows.get("weaponpool"+id);
             weaponSkill=pool!=null;
@@ -111,6 +111,7 @@ public final class PublicDungeon {
             case "VAULT_BEACON": return "VAULT_RECALL";
             case "FOOD": return "EAT";
             case "HEALING": return "DRINK";
+            case "LULLABY_SCROLL": return "READ_LULLABY";
             case "RECHARGING_SCROLL": return "READ_RECHARGING";
             case "SPIKE": case "DART": case "KNIFE": case "STONE": return "THROW";
             case "ENCHANT_BOW": case "UPGRADE": case "IDENTIFY": return item.kind;
@@ -159,6 +160,7 @@ public final class PublicDungeon {
             if (source.rows.containsKey("crown"+item.id)) verbs.add("USE_CROWN");
             if(item.kind.equals("ENCHANT_BOW") || item.kind.equals("UPGRADE") || item.kind.equals("IDENTIFY")) verbs.add(item.kind);
             if(item.kind.equals("READ_SCROLL")) verbs.add("READ_SCROLL");
+            if(item.kind.equals("LULLABY_SCROLL")) verbs.add("READ_LULLABY");
             if(item.kind.equals("RECHARGING_SCROLL")) verbs.add("READ_RECHARGING");
             if(source.rows.containsKey("mask"+item.id)) verbs.add("USE_MASK");
             if(item.kind.equals("HEALING")) verbs.add("DRINK");

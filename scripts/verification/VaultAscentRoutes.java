@@ -27,6 +27,13 @@ public class VaultAscentRoutes extends HeadlessDungeon {
                 assertTrue(game.won());
                 System.out.printf("ROUTE\t%d\t26\tordinary victory\t%s%n",seed,String.join(",",fists));
             } catch(AssertionError | RuntimeException refusal) {
+                int exit=Dungeon.level.exit();
+                for (int seat=0;seat<2;seat++) {
+                    Hero h=game.hero(seat);
+                    System.out.printf("ROUTE_STOP seat=%d life=%s hp=%d cell=%d exit=%d distance=%d sees=%s rooted=%s paralysis=%d locked=%s%n",
+                            seat,game.life(seat),h.HP,h.pos,exit,Dungeon.level.distance(h.pos,exit),
+                            game.knowledge(h).visible(exit),h.rooted,h.paralysed,Dungeon.level.locked);
+                }
                 System.out.printf("ROUTE\t%d\t%d\t%s\t%s%n",seed,Dungeon.depth,
                         refusal.getClass().getSimpleName(),String.valueOf(refusal.getMessage()).replace('\n',' '));
             }
@@ -67,6 +74,10 @@ public class VaultAscentRoutes extends HeadlessDungeon {
     public static void main(String[] args) throws Exception {
         VaultAscentRoutes p=new VaultAscentRoutes();p.temporary.create();p.startBackend();
         try {
+            if (args.length>0) {
+                for (String seed:args) seededRoute(Integer.parseInt(seed));
+                return;
+            }
             for (int seed=570;seed<=581;seed++) seededRoute(seed);
             vaultTrial();
         } finally {p.stopBackend();p.temporary.delete();}

@@ -71,7 +71,8 @@ public final class ExperienceProgress {
             int acted=0,depth=1,down=0;
             java.util.Set<String> declined=new java.util.HashSet<>();
             java.util.Map<String,Integer> abilityUse=new java.util.TreeMap<>();
-            int[] investments={0,0};
+            int[] investments={0,0}, afterExitMoves={0,0}, nearExit={0,0};
+            int consents=0, declinedStairs=0, traveled=0;
             int[] moveTotals=new int[2], repeats=new int[2], firstExit={-1,-1}, gateSignals=new int[2], firstPoints={-1,-1}, frontiers=new int[2], exitSeen={-1,-1};
             java.util.List<java.util.Set<String>> walked=java.util.Arrays.asList(new java.util.HashSet<>(),new java.util.HashSet<>());
             boolean[] wasDown={false,false};
@@ -123,7 +124,8 @@ public final class ExperienceProgress {
                 if (v.stair>=0 && v.terrain(v.stair)==Terrain.EXIT) {
                     PublicDungeon other=view(clients[1-seat],room,1-seat);
                     if (!v.consent && other.stair==v.stair) {
-                        send(room,other,1-seat,game.player(1-seat),++seq[1-seat],new VaultPublicRoute.Input("CONSENT",other.stair,0));
+                        String consent=send(room,other,1-seat,game.player(1-seat),++seq[1-seat],new VaultPublicRoute.Input("CONSENT",other.stair,0));
+                        if (consent.equals("APPLIED")) consents++; else declinedStairs++;
                         v=view(clients[seat],room,seat);
                     }
                     if (v.consent) input=new VaultPublicRoute.Input("TRAVEL",v.stair,0);
@@ -140,6 +142,9 @@ public final class ExperienceProgress {
                 }
                 if (firstExit[seat]<0 && guides[seat].knownExit>=0) { firstExit[seat]=n; exitSeen[seat]=guides[seat].knownExit; }
                 if (v.stair>=0) gateSignals[seat]++;
+                if (firstExit[seat]>=0 && input.action.equals("MOVE") && status.equals("APPLIED")) afterExitMoves[seat]++;
+                if (guides[seat].knownExit>=0 && VaultPublicRoute.adjacent(v.pos,guides[seat].knownExit,v.width)) nearExit[seat]++;
+                if (input.action.equals("TRAVEL") && status.equals("APPLIED")) traveled++;
                 if (firstPoints[seat]<0 && Integer.parseInt(v.source.rows.getOrDefault("freepoints1","0"))>0) firstPoints[seat]=n;
                 frontiers[seat]=Math.max(frontiers[seat],guides[seat].reachableFrontier);
                 if (Boolean.getBoolean("trial.trace")) System.out.printf("STEP %d %d %d %s %d %s stair=%d mobs=%s loot=%s%n",n,seat,v.pos,input.action,input.cell,status,v.stair,v.monsters,v.floor.keySet());
@@ -158,6 +163,7 @@ public final class ExperienceProgress {
             if (!abilityUse.isEmpty()) System.out.println("NATIVE_ABILITIES "+seed+" "+policy+" "+abilityUse);
             for (int s=0;s<2;s++) {
                 System.out.printf("INVESTED\t%d\t%s\t%d\t%d%n",seed,policy,s,investments[s]);
+                System.out.printf("STAIRS\t%d\t%d\tmovesAfterDiscovery=%d\tnearTurns=%d\tpartyConsents=%d\tdeclined=%d\ttraveled=%d%n",seed,s,afterExitMoves[s],nearExit[s],consents,declinedStairs,traveled);
                 System.out.printf("NAVIGATION\t%d\t%d\tmoves=%d\trevisits=%d\tunique=%d\tfrontierPeak=%d\tfirstExitAction=%d\texitCell=%d\tgateSignals=%d\tfirstPointAction=%d%n",
                         seed,s,moveTotals[s],repeats[s],walked.get(s).size(),frontiers[s],firstExit[s],exitSeen[s],gateSignals[s],firstPoints[s]);
                 Hero h=game.hero(s);
