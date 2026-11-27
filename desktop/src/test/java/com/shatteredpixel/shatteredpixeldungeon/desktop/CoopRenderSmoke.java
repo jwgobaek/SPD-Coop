@@ -37,7 +37,7 @@ public final class CoopRenderSmoke {
             return;
         }
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|eagle-input|stasis-input|beacon-vote-input|strength-input|recharging-input|lullaby-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|cauldron-input|eagle-input|stasis-input|beacon-vote-input|strength-input|recharging-input|lullaby-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -1287,6 +1287,28 @@ public final class CoopRenderSmoke {
                     await(() -> frame().dungeon.offered && frame().image.rows.containsKey("learn"+talent.ordinal())
                             && Integer.parseInt(frame().image.rows.get("freepoints"+(cache ? 1 : 3))) > 0);
                     investVisibleTalent(talent,cache ? 1 : 3);
+                    return;
+                }
+                if (regionShot.equals("cauldron-input")) {
+                    await(() -> frame().dungeon.offered && frame().image.rows.keySet().stream().anyMatch(k -> k.startsWith("cauldron")));
+                    PublicDungeon view = frame().dungeon;
+                    int cell = Integer.parseInt(view.source.rows.keySet().stream().filter(k -> k.startsWith("cauldron"))
+                            .findFirst().get().substring("cauldron".length()));
+                    long scroll = view.belongings.stream().filter(i -> view.source.rows.containsKey("brew" + i.id)).findFirst().get().id;
+                    for (boolean craft : new boolean[]{false, true}) {
+                        press(mapPoint(view, cell));
+                        press(inventoryPoint(scroll));
+                        String choice = Messages.get(com.shatteredpixel.shatteredpixeldungeon.scenes.AlchemyScene.class, craft ? "craft" : "cancel");
+                        shot(craft ? "cauldron-confirm" : "cauldron-preview");
+                        click("#" + choice);
+                        if (!craft && frame().image != view.source) throw new AssertionError("Preview consumed an action");
+                    }
+                    await(() -> frame().pending == 0 && frame().dungeon.belongings.stream().noneMatch(i -> i.id == scroll));
+                    if (frame().dungeon.belongings.stream().noneMatch(i -> i.sprite ==
+                            com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.STONE_SLEEP && i.quantity == 2))
+                        throw new AssertionError("Missing two crafted runestones");
+                    shot("cauldron-result");
+                    System.out.println("PASS real cauldron, ingredient choice, cancellation, brew and two runestones");
                     return;
                 }
                 if (regionShot.equals("scroll-enchant-input")) { enchantScrollInput(); return; }

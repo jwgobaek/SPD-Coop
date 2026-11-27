@@ -181,7 +181,7 @@ public final class RestartClient {
                     if (mode.matches(".*-(monkflurry|monkdash|monkmeditate|monkdragonkick|strikeshock|strikeblock|strikevenom|strikekinetic|strikebloom|heroicenergy|challenge|elestrike|feint|swap|monkfocus|guardshield|stance|lunge|spike|charged)[01]")) character="DUELIST";
                     if (mode.matches(".*-(cacheinvest|cachepickup)[01]")) character=i==mode.charAt(mode.length()-1)-'0'?"ROGUE":"MAGE";
                     if (mode.matches(".*-(ninjalog|cloakring|packedcloak|markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) character="ROGUE";
-                    if (mode.matches(".*-(holdfast|deathlesswait|deathlesstrap|strongman|endless_rage|sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
+                    if (mode.matches(".*-(cauldron|holdfast|deathlesswait|deathlesstrap|strongman|endless_rage|sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
                     if (mode.matches(".*-(scrollread|scrolltarget|scrollapply|scrollabort|eagleview|bowstone|bowrank|bowthrow(?:Blooming|Elastic|Lucky|Unstable|Corrupting|Grim)?|poisontip|scoutshot|point_blank|hawk|direct|blades|sniper|nature)[01]")) character="HUNTRESS";
                     if (mode.matches(".*-(remoteplace|rayblast|warpwraith|hornhit|desperate_power|prismmelee|prismimbue|prismzap|prismblast|prismvolley|spark|sparkimbue|sparkblast|sparkvolley|ice|iceimbue|iceblast|icevolley|imbue|volley|battery|recall|beacon|meal|blast|warlock|battlemage|soul)[01]")) character="MAGE";
                 }
@@ -569,6 +569,13 @@ public final class RestartClient {
                     assertEquals(com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.MASK, view.floor.get(cell).sprite);
                 }
                 long handle=verb.equals("PICK_UP") ? view.floor.get(cell).id : 0;
+                if (verb.equals("BREW_RUNESTONES")) {
+                    assertTrue(view.source.rows.containsKey("cauldron" + cell));
+                    handle = view.belongings.stream().filter(it -> view.source.rows
+                            .getOrDefault("brew" + it.id, "").startsWith("unknown,")).findFirst()
+                            .orElseThrow(() -> new AssertionError("Missing unidentified scroll recipe: " +
+                                    view.source.rows.entrySet().stream().filter(e -> e.getKey().startsWith("brew")).collect(java.util.stream.Collectors.toList()))).id;
+                }
                 if (verb.equals("READ_SCROLL")) handle=view.belongings.stream().filter(it->view.actions(it).contains("READ_SCROLL")).findFirst().get().id;
                 if (verb.equals("ENCHANT_TARGET")) handle=view.belongings.stream().filter(it->view.source.rows.containsKey("enchantgear"+it.id)).findFirst().get().id;
                 if (verb.equals("ENCHANT_BOW")) {

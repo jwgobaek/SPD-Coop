@@ -202,7 +202,7 @@ public final class CoopFloors {
 
     void restoreWarp(Bundle state) {
         cancel();
-        if (state.getInt("schema")!=26) return;
+        if (CoopSession.warpSchema(state)!=26) return;
         int seat=state.getInt("warp_proposer");
         if (!state.contains("warp_proposer") || !state.contains("warp_agreed") || seat<0 || seat>1 || !proposeWarp(seat))
             throw new IllegalArgumentException("Invalid beacon proposal");

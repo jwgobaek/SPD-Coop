@@ -226,9 +226,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { LIFE_LINK, BEAMING_RAY, DIVINE_INTERVENTION, JUDGEMENT, FLASH, READ_SCROLL, ENCHANT_TARGET, ENCHANT_CHOOSE, ENCHANT_CANCEL, TRINITY_MIND, TRINITY_SPIRIT, RECALL_INSCRIPTION, MIND_FORM, SPIRIT_FORM, BODY_FORM, HOLY_INTUITION, BLESS, DETACH_SEAL, AFFIX_SEAL, KEEP_ARMOR_GLYPH, TRANSFER_SEAL_GLYPH, READ_RECHARGING, EQUIP_SECOND, SWAP_WEAPONS, MONK_FLURRY, MONK_DASH, MONK_DRAGONKICK, MONK_MEDITATE, MONK_FOCUS, RADIANCE, SMITE, ASSASSINATE, FREERUN, DIVINE_SENSE, SUNRAY, SHIELD_OF_LIGHT, GUIDING_LIGHT, HOLY_WEAPON, HOLY_WARD, WEAPON_ABILITY, IMBUE, CLOAK, USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT, CLEANSE, HOLY_LANCE, ENCHANT_BOW, LAY_ON_HANDS, AURA_OF_PROTECTION, ALLY_WARP, MNEMONIC_PRAYER, HALLOWED_GROUND, WALL_OF_LIGHT, STASIS, READ_LULLABY;
+    public enum Action { LIFE_LINK, BEAMING_RAY, DIVINE_INTERVENTION, JUDGEMENT, FLASH, READ_SCROLL, ENCHANT_TARGET, ENCHANT_CHOOSE, ENCHANT_CANCEL, TRINITY_MIND, TRINITY_SPIRIT, RECALL_INSCRIPTION, MIND_FORM, SPIRIT_FORM, BODY_FORM, HOLY_INTUITION, BLESS, DETACH_SEAL, AFFIX_SEAL, KEEP_ARMOR_GLYPH, TRANSFER_SEAL_GLYPH, READ_RECHARGING, EQUIP_SECOND, SWAP_WEAPONS, MONK_FLURRY, MONK_DASH, MONK_DRAGONKICK, MONK_MEDITATE, MONK_FOCUS, RADIANCE, SMITE, ASSASSINATE, FREERUN, DIVINE_SENSE, SUNRAY, SHIELD_OF_LIGHT, GUIDING_LIGHT, HOLY_WEAPON, HOLY_WARD, WEAPON_ABILITY, IMBUE, CLOAK, USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT, CLEANSE, HOLY_LANCE, ENCHANT_BOW, LAY_ON_HANDS, AURA_OF_PROTECTION, ALLY_WARP, MNEMONIC_PRAYER, HALLOWED_GROUND, WALL_OF_LIGHT, STASIS, READ_LULLABY, BREW_RUNESTONES;
         public boolean requiresItem() {
-            return this==STASIS || this==LIFE_LINK || this==BEAMING_RAY || this==DIVINE_INTERVENTION || this==JUDGEMENT || this==FLASH || this==READ_SCROLL || this==ENCHANT_TARGET || this==HALLOWED_GROUND || this==WALL_OF_LIGHT || this==MNEMONIC_PRAYER || this==LAY_ON_HANDS || this==AURA_OF_PROTECTION || this==ENCHANT_BOW || this==HOLY_LANCE || this==CLEANSE || this==READ_RECHARGING || this==READ_LULLABY || this==TRINITY_MIND || this==TRINITY_SPIRIT || this==RECALL_INSCRIPTION || this==MIND_FORM || this==SPIRIT_FORM || this==BODY_FORM || this==HOLY_INTUITION || this==BLESS || this==DETACH_SEAL || this==AFFIX_SEAL || this==KEEP_ARMOR_GLYPH || this==TRANSFER_SEAL_GLYPH || this==EQUIP_SECOND || this==RADIANCE || this==SMITE || this==DIVINE_SENSE || this==SUNRAY || this==SHIELD_OF_LIGHT || this==GUIDING_LIGHT || this==HOLY_WEAPON || this==HOLY_WARD || this==WEAPON_ABILITY || this==IMBUE || this==CLOAK || this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
+            return this==BREW_RUNESTONES || this==STASIS || this==LIFE_LINK || this==BEAMING_RAY || this==DIVINE_INTERVENTION || this==JUDGEMENT || this==FLASH || this==READ_SCROLL || this==ENCHANT_TARGET || this==HALLOWED_GROUND || this==WALL_OF_LIGHT || this==MNEMONIC_PRAYER || this==LAY_ON_HANDS || this==AURA_OF_PROTECTION || this==ENCHANT_BOW || this==HOLY_LANCE || this==CLEANSE || this==READ_RECHARGING || this==READ_LULLABY || this==TRINITY_MIND || this==TRINITY_SPIRIT || this==RECALL_INSCRIPTION || this==MIND_FORM || this==SPIRIT_FORM || this==BODY_FORM || this==HOLY_INTUITION || this==BLESS || this==DETACH_SEAL || this==AFFIX_SEAL || this==KEEP_ARMOR_GLYPH || this==TRANSFER_SEAL_GLYPH || this==EQUIP_SECOND || this==RADIANCE || this==SMITE || this==DIVINE_SENSE || this==SUNRAY || this==SHIELD_OF_LIGHT || this==GUIDING_LIGHT || this==HOLY_WEAPON || this==HOLY_WARD || this==WEAPON_ABILITY || this==IMBUE || this==CLOAK || this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -452,8 +452,22 @@ public final class CoopSession implements AutoCloseable {
         wandIdentities = true;
     }
 
+    private boolean corrosionFormat;
+
+    public void requireCorrosionFormat() {
+        corrosionFormat = true;
+    }
+
+    static int warpSchema(Bundle state) {
+        int schema = state.getInt("schema");
+        if (schema != 27) return schema;
+        int inner = state.getInt("corrosion_schema");
+        if (inner < 1 || inner > 26) throw new IllegalArgumentException("Invalid corrosion envelope");
+        return inner;
+    }
+
     private static int stasisSchema(Bundle state) {
-        int schema=state.getInt("schema");
+        int schema=warpSchema(state);
         if (schema!=26) return schema;
         int inner=state.getInt("warp_schema");
         if (inner<17 || inner>25) throw new IllegalArgumentException("Invalid warp envelope");
@@ -1822,7 +1836,7 @@ public final class CoopSession implements AutoCloseable {
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
                             || (item instanceof Dewdrop && !Dewdrop.canCollect(hero,cell))
-                            || (!(item instanceof Dewdrop) && !(item instanceof BrokenSeal && ownership.owner(item)==player) && !CoopVault.questPickup(item,cell) && item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && item.getClass()!=GooBlob.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.quest.MetalShard.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.TengusMask.class && !(Dungeon.depth==26 && item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.Amulet.class && !Statistics.amuletObtained) && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.KingsCrown.class && !supportedWandType(item) && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand && ownership.owner(item)==player) && !(item instanceof CorpseDust || item instanceof Embers || item instanceof CeremonialCandle || item instanceof Rotberry.Seed) && !(item instanceof Potion) && !(item instanceof Ring || item instanceof StoneOfEnchantment || item instanceof HornOfPlenty) && !supportedScroll(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (!(item instanceof Dewdrop) && !(item instanceof BrokenSeal && ownership.owner(item)==player) && !CoopVault.questPickup(item,cell) && item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && item.getClass()!=GooBlob.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.quest.MetalShard.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.TengusMask.class && !(Dungeon.depth==26 && item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.Amulet.class && !Statistics.amuletObtained) && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.KingsCrown.class && !supportedWandType(item) && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand && ownership.owner(item)==player) && !(item instanceof CorpseDust || item instanceof Embers || item instanceof CeremonialCandle || item instanceof Rotberry.Seed) && !(item instanceof Potion) && !(item instanceof Ring || item instanceof StoneOfEnchantment || item instanceof HornOfPlenty) && !supportedScroll(item) && !Scroll.ScrollToStone.isIngredient(item) && !Scroll.ScrollToStone.isResult(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
                             || (!(item instanceof Dewdrop) && item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && !hero.belongings.backpack.canHold(item))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
@@ -1831,6 +1845,8 @@ public final class CoopSession implements AutoCloseable {
                 case BUY: case SELL: case SELL_ONE: case BUYBACK:
                     if (!CoopTrade.execute(this,hero,action,cell,item)) return false;
                     break;
+                case BREW_RUNESTONES:
+                    return CoopAlchemy.brew(this, hero, cell, item);
                 case READ_LULLABY:
                 case READ_RECHARGING:
                     if (cell != 0 || !(action == Action.READ_LULLABY ? item instanceof ScrollOfLullaby : item instanceof ScrollOfRecharging)
@@ -2094,6 +2110,10 @@ public final class CoopSession implements AutoCloseable {
         }
         stairs.save(b);
         stairs.saveWarp(b);
+        if (corrosionFormat) {
+            b.put("corrosion_schema", b.getInt("schema"));
+            b.put("schema", 27);
+        }
         b.put("world",Dungeon.worldState());
         b.put("documents",Document.coopState());
         b.put("guest",heroes[1]);
@@ -2331,6 +2351,7 @@ public final class CoopSession implements AutoCloseable {
         CoopSession s=new CoopSession();
         Dungeon.coop=s;
         s.restoring=true;
+        s.corrosionFormat = b.getInt("schema") == 27;
         try {
             s.load(b,world);
             boolean holding = s.heroes[0].buff(Stasis.StasisBuff.class) != null || s.heroes[1].buff(Stasis.StasisBuff.class) != null;

@@ -1,0 +1,127 @@
+{
+  "build_commit": "2fa1a0ba8793c8e0ffda87f5d6f21be13965a54e",
+  "apk_sha256": "d059320faf181611ea5b702e2aa82d4dcbf8d2cdae3dd88920fc3928c645cb0b",
+  "bytes": 35398518,
+  "scenarios": {
+    "HolyIntuition": {
+      "action": "HOLY_INTUITION",
+      "outcome": "APPLIED"
+    },
+    "RecallInscription": {
+      "action": "RECALL_INSCRIPTION",
+      "outcome": "APPLIED"
+    },
+    "BodyForm": {
+      "action": "BODY_FORM",
+      "outcome": "APPLIED"
+    },
+    "MindForm": {
+      "action": "MIND_FORM",
+      "outcome": "APPLIED"
+    },
+    "SpiritForm": {
+      "action": "SPIRIT_FORM",
+      "outcome": "APPLIED"
+    },
+    "scroll-pickup": {
+      "action": "PICK_UP",
+      "outcome": "APPLIED"
+    },
+    "read-unknown": {
+      "action": "READ_SCROLL",
+      "outcome": "APPLIED"
+    },
+    "read-known": {
+      "action": "READ_SCROLL",
+      "outcome": "APPLIED"
+    },
+    "cancel-before-target": {
+      "action": "ENCHANT_CANCEL",
+      "outcome": "APPLIED"
+    },
+    "cancel-after-draw": {
+      "action": "ENCHANT_CANCEL",
+      "outcome": "APPLIED"
+    },
+    "bow": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "bag-weapon": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "worn-weapon": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "worn-armor": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "sealed-armor": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "restart-three-options": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "private-options": {
+      "action": "ENCHANT_TARGET",
+      "outcome": "APPLIED"
+    },
+    "stale-selection": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "REJECT_VERSION"
+    },
+    "duplicate-selection": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "REPLAY"
+    },
+    "stasis-store": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-manual-release": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-reauth-held-menu": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-release-clears-held": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-private-while-peer-active": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-dual-held-independent-release": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-blocked-release": {
+      "action": "STASIS",
+      "outcome": "REJECT_INVALID"
+    },
+    "stasis-expiry-retry": {
+      "action": "WAIT",
+      "outcome": "APPLIED"
+    },
+    "stasis-expiry-clears-held": {
+      "action": "WAIT",
+      "outcome": "APPLIED"
+    },
+    "stasis-duplicate-release": {
+      "action": "STASIS",
+      "outcome": "REPLAY"
+    },
+    "stasis-held-floor-restore": {
+      "action": "CONSENT",
+      "outcome": "APPLIED"
+    }
+  }
+}

@@ -35,6 +35,7 @@ public final class VaultPublicRoute {
         int lastDoorSide = -1, doorEntry = -1, holdDirection;
         int recoveryWaits, coveredWaits;
         final boolean avoidUnarmedGolem=Boolean.getBoolean("vault.guide.avoidUnarmedGolem");
+        final boolean golemRetreat=Boolean.getBoolean("vault.guide.golemRetreat");
         int golemCell=-1, golemAge;
         int reachableFrontier, knownExit=-1;
         final boolean campaignGuide=Boolean.getBoolean("trial.campaignGuide");
@@ -305,6 +306,25 @@ public final class VaultPublicRoute {
                 if (!rejectedItems.contains(i.id) && v.actions(i).contains("EQUIP")
                         && (i.kind.equals("MELEE") || i.kind.equals("ARMOR"))
                         && v.belongings.stream().noneMatch(e -> e.slot.equals(i.kind.equals("MELEE")?"WEAPON":"ARMOR"))) return new Input("EQUIP",0,i.id);
+            }
+            if (golemRetreat && avoidGolem && golemAge == 0 && golemCell >= 0
+                    && distance(v.pos, golemCell, v.width) <= 3) {
+                int best = -1, bestScore = Integer.MIN_VALUE;
+                int currentGap = distance(v.pos, golemCell, v.width);
+                for (int dy=-1; dy<=1; dy++) for (int dx=-1; dx<=1; dx++) {
+                    int x=v.pos%v.width+dx, y=v.pos/v.width+dy;
+                    if (x<0 || x>=v.width || y<0 || y>=v.height) continue;
+                    int c=y*v.width+x, tile=v.terrain(c);
+                    if (tile<0 || !v.visible(c) || (Terrain.flags[tile]&Terrain.PASSABLE)==0
+                            || c==v.ally || blocked.contains(c) || v.monsters.containsKey(c)
+                            || v.source.rows.containsKey("trap"+c) || v.source.rows.containsKey("aim"+c)) continue;
+                    int gap=distance(c,golemCell,v.width);
+                    if (gap<=currentGap || exposedTo(v,c)>exposedTo(v,v.pos)) continue;
+                    int score=20*gap-30*exposedTo(v,c)-visits.getOrDefault(c,0)
+                            -(v.ally<0 ? 0 : 3*distance(v.ally,c,v.width));
+                    if (score>bestScore) { best=c; bestScore=score; }
+                }
+                if (best>=0) return new Input("MOVE",best,0);
             }
             boolean exposedParty = team && (regroup.equals("shelterexit") || doorCover()) && !recentShooters.isEmpty()
                     && (v.hp * 3 < 2 * v.maxHp || v.ally >= 0 && v.hp < v.maxHp);

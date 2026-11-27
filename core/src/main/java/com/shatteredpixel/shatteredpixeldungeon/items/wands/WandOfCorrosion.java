@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.CorrosiveGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -56,16 +57,20 @@ public class WandOfCorrosion extends Wand {
 
 	@Override
 	public void onZap(Ballistica bolt) {
+		onZap(Dungeon.coop == null ? Dungeon.hero : curUser, bolt);
+	}
+
+	public void onZap(Hero caster, Ballistica bolt) {
 		CorrosiveGas gas = Blob.seed(bolt.collisionPos, 50 + 10 * buffedLvl(), CorrosiveGas.class);
-		CellEmitter.get(bolt.collisionPos).burst(Speck.factory(Speck.CORROSION), 10 );
-		gas.setStrength(2 + buffedLvl(), getClass());
+		if (Dungeon.coop == null) CellEmitter.get(bolt.collisionPos).burst(Speck.factory(Speck.CORROSION), 10 );
+		gas.setStrength(2 + buffedLvl(), getClass(), Dungeon.coop == null ? 0 : caster.id());
 		GameScene.add(gas);
 		Sample.INSTANCE.play(Assets.Sounds.GAS);
 
 		for (int i : PathFinder.NEIGHBOURS9) {
 			Char ch = Actor.findChar(bolt.collisionPos + i);
 			if (ch != null) {
-				wandProc(ch, chargesPerCast());
+				wandProc(caster, ch, buffedLvl(), chargesPerCast());
 
 				if (i == 0 && ch instanceof DwarfKing){
 					Statistics.qualifiedForBossChallengeBadge = false;

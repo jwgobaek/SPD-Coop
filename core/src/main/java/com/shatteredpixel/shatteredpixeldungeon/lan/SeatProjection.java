@@ -294,10 +294,16 @@ final class SeatProjection {
             if (hero.hasTalent(Talent.WALL_OF_LIGHT) && com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.WallOfLight.INSTANCE.chargeUse(hero)==0)
                 rows.put("endlightwall","1");
             StenchGas stench = (StenchGas)level.blobs.get(StenchGas.class);
+            boolean atCauldron = false;
             for (int cell=0;cell<sight.length();cell++) {
                 if (sight.sensed(cell)) rows.put("sense"+cell, sight.sensedMob(cell) ? "mob" : "terrain");
                 if (!sight.visible(cell)) continue;
                 rows.put("t"+cell,Integer.toString(sight.terrain(cell)));
+                if (sight.terrain(cell) == com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.ALCHEMY
+                        && com.shatteredpixel.shatteredpixeldungeon.CoopAlchemy.atStation(game, hero, cell)) {
+                    rows.put("cauldron" + cell, Integer.toString(Dungeon.energy));
+                    atCauldron = true;
+                }
                 if (com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob.volumeAt(cell,com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.WallOfLight.LightWall.class)>0
                         || com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob.volumeAt(cell,com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.WallOfLight.GuestLightWall.class)>0) rows.put("lightwall"+cell,"1");
                 if (stench != null && stench.volume>0 && stench.cur[cell]>0) rows.put("stench"+cell,"1");
@@ -457,6 +463,10 @@ final class SeatProjection {
                         rows.put("cloaked"+ids.get(item), "1");
                 }
                 if (game.ownership.owner(item)==game.player(seat)) {
+                    if (atCauldron && hero.belongings.backpack.contains(item)) {
+                        String preview = com.shatteredpixel.shatteredpixeldungeon.CoopAlchemy.preview(item);
+                        if (preview != null) rows.put("brew" + ids.get(item), preview);
+                    }
                     if (enchant != null && !enchant.hasOptions() && com.shatteredpixel.shatteredpixeldungeon.CoopEnchantScroll.eligible(hero, item))
                         rows.put("enchantgear"+ids.get(item), "1");
                     if (hero.hasTalent(Talent.HOLY_INTUITION) && com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyIntuition.INSTANCE.usableOnItem(item))

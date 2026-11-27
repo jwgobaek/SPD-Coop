@@ -23,7 +23,7 @@ class AndroidGateTest(unittest.TestCase):
         self.manifest = root / "manifest.json"
         self.output = root / "observations.tsv"
         self.plan = json.loads((Path(__file__).resolve().parents[1] /
-                                "docs/coop/android-acceptance-sync38.json").read_text())
+                                "docs/coop/android-acceptance-sync39.json").read_text())
         self.plan.update(apk_sha256=hashlib.sha256(self.apk.read_bytes()).hexdigest(),
                          bytes=self.apk.stat().st_size)
         self.manifest.write_text(json.dumps(self.plan))
@@ -39,7 +39,8 @@ class AndroidGateTest(unittest.TestCase):
                 row = dict.fromkeys(columns, "0")
                 status = spec["outcome"]
                 result = "APPLIED" if status == "REPLAY" else status
-                receipt = f"RESULT 2 {seat} 14 5 6 7 {result}"
+                version = 6 if result == "REJECT_INVALID" else 7
+                receipt = f"RESULT 2 {seat} 14 5 6 {version} {result}"
                 row.update(role=role, boot_id=boot, base_apk_sha256=self.plan["apk_sha256"],
                            build_commit=self.plan["build_commit"], scenario=name, result="PASS",
                            action=spec["action"], receipt=receipt, replay=receipt if status=="REPLAY" else "-",
@@ -77,6 +78,12 @@ class AndroidGateTest(unittest.TestCase):
         rows = [dict(row, result="FAIL", receipt="-") if row["scenario"]=="stasis-manual-release" else row
                 for row in self.rows]
         with self.assertRaisesRegex(ValueError,"stasis-manual-release"):
+            self.check(rows)
+
+    def test_blocked_landing_cannot_advance_the_version(self):
+        rows = [dict(row, receipt=row["receipt"].replace("6 6 REJECT_INVALID", "6 7 REJECT_INVALID"))
+                if row["scenario"] == "stasis-blocked-release" else row for row in self.rows]
+        with self.assertRaisesRegex(ValueError, "authoritative state version"):
             self.check(rows)
 
     def test_independent_boots_and_content(self):

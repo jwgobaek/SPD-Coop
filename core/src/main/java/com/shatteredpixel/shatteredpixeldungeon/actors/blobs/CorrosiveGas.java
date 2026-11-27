@@ -38,6 +38,8 @@ public class CorrosiveGas extends Blob {
 
 	//used in specific cases where the source of the corrosion is important for death logic
 	private Class source;
+	// The native pool has one strength and one cause across all of its cells.
+	private int casterId;
 
 	@Override
 	protected void evolve() {
@@ -46,6 +48,7 @@ public class CorrosiveGas extends Blob {
 		if (volume == 0){
 			strength = 0;
 			source = null;
+			casterId = 0;
 		} else {
 			Char ch;
 			int cell;
@@ -55,7 +58,7 @@ public class CorrosiveGas extends Blob {
 					cell = i + j*Dungeon.level.width();
 					if (cur[cell] > 0 && (ch = Actor.findChar( cell )) != null) {
 						if (!ch.isImmune(this.getClass()))
-							Buff.affect(ch, Corrosion.class).set(2f, strength, source);
+							Buff.affect(ch, Corrosion.class).set(2f, strength, source, casterId);
 					}
 				}
 			}
@@ -67,9 +70,15 @@ public class CorrosiveGas extends Blob {
 	}
 
 	public CorrosiveGas setStrength(int str, Class source){
+		return setStrength(str, source, 0);
+	}
+
+	public CorrosiveGas setStrength(int str, Class source, int casterId){
 		if (str > strength) {
 			strength = str;
 			this.source = source;
+			this.casterId = casterId;
+			if (casterId != 0 && Dungeon.coop != null) Dungeon.coop.requireCorrosionFormat();
 		}
 		return this;
 	}
@@ -82,6 +91,7 @@ public class CorrosiveGas extends Blob {
 		super.restoreFromBundle(bundle);
 		strength = bundle.getInt( STRENGTH );
 		source = bundle.getClass( SOURCE );
+		casterId = bundle.getInt("coop_caster");
 	}
 
 	@Override
@@ -89,6 +99,7 @@ public class CorrosiveGas extends Blob {
 		super.storeInBundle(bundle);
 		bundle.put( STRENGTH, strength );
 		bundle.put( SOURCE, source );
+		if (casterId != 0) bundle.put("coop_caster", casterId);
 	}
 
 	@Override

@@ -281,9 +281,37 @@ public class CoopScene extends PixelScene {
         targetView=view; targetStaff=staff; renderFrame();
     }
     void cancelAim() { targetView=null; targetStaff=null; targetMove=null; renderFrame(); }
+    private void openCauldron(PublicDungeon view, int cell) {
+        add(WndSeatInventory.select(view, controller, new WndSeatInventory.Selection() {
+            public boolean accepts(PublicDungeon.Loot item) {
+                return view.source.rows.containsKey("brew" + item.id);
+            }
+            public void select(PublicDungeon.Loot item) {
+                if (controller.frame().image != view.source || !accepts(item)) return;
+                String[] preview = view.source.rows.get("brew" + item.id).split(",");
+                String key = preview[0].equals("unknown") ? "runestone$placeholder" : preview[0];
+                String result = Messages.get("items.stones." + key + ".name");
+                String text = Messages.titleCase(result) + " ×" + preview[2] + "\n"
+                        + Messages.get(AlchemyScene.class, "energy") + " " + preview[3];
+                CoopScene.this.add(new WndOptions(new com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite(
+                        Integer.parseInt(preview[1])), Messages.get(AlchemyScene.class, "title"), text,
+                        Messages.get(AlchemyScene.class, "craft"), Messages.get(AlchemyScene.class, "cancel")) {
+                    @Override protected void onSelect(int index) {
+                        if (index == 0 && controller.frame().image == view.source)
+                            controller.act(view.source, "BREW_RUNESTONES", cell, item.id);
+                    }
+                });
+            }
+        }));
+    }
+
     private void touchCell(PublicDungeon view,int cell) {
         if (hud!=null) hud.stopRest();
         if (targetView==null) {
+            if (view.offered && view.source.rows.containsKey("cauldron" + cell)) {
+                openCauldron(view, cell);
+                return;
+            }
             if(view.visible(cell) && (view.stair==cell || ((view.depth<5 || (view.depth>=6 && view.depth<com.shatteredpixel.shatteredpixeldungeon.CoopFloors.LAST_PLAYABLE)) && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.EXIT)
                     || (view.depth==5 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.UNLOCKED_EXIT)
                     || (view.depth>1 && view.terrain(cell)==com.shatteredpixel.shatteredpixeldungeon.levels.Terrain.ENTRANCE))) {

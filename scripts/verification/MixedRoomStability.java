@@ -86,6 +86,9 @@ public final class MixedRoomStability {
             "wall0","wall1","warpwraith0","warpwraith1","hornhit0","hornhit1","cloakring0","cloakring1",
             "packedcloak0","packedcloak1","bookward0","bookward1","spark0","monkfocus1","poisontip0","elestrike1","food","dart","floor","mine"};
 
+    static final String[] CAULDRON = {"cauldron0", "cauldron1", "gaswait0", "gaswait1",
+            "stasishold0", "stasisrelease1", "scrolltarget0", "scrollapply1", "readlullaby1", "floor", "mine"};
+
     static final String[] ORIGINAL_ITEMS = {"bowthrowBlooming0","bowthrowElastic1","bowthrowLucky0","bowthrowUnstable1",
             "bowthrowCorrupting0","bowthrowGrim1","readlullaby0","recalllullaby1","trinitybloomhistory0",
             "stasishold1","stasisrelease0","scrolltarget1","scrollapply0","floor","mine"};
@@ -134,6 +137,14 @@ public final class MixedRoomStability {
         int cell=h.pos;
         String verb;
         switch(stage) {
+        case "gaswait0": case "gaswait1": {
+            int seat = stage.charAt(stage.length()-1)-'0';
+            Hero caster = room.hero(seat);
+            var wand = new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorrosion();
+            wand.onZap(caster, new com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica(
+                    caster.pos, caster.pos, com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica.STOP_TARGET));
+            return new VaultPublicRoute.Input("WAIT",0,0);
+        }
         case "floor":
             cell=Dungeon.level.getTransition(LevelTransition.Type.REGULAR_EXIT).cell();
             SewerSpecialActorTest.atGate(room,cell);
@@ -166,6 +177,8 @@ public final class MixedRoomStability {
     static VaultPublicRoute.Input fromView(PublicDungeon view,VaultPublicRoute.Input staged) {
         String verb=staged.action;
         long item=0;
+        if (verb.equals("BREW_RUNESTONES")) item=view.belongings.stream()
+                .filter(it->view.source.rows.containsKey("brew"+it.id)).findFirst().get().id;
         if (verb.equals("READ_SCROLL")) item=view.belongings.stream().filter(it->view.actions(it).contains(verb)).findFirst().get().id;
         if (verb.equals("ENCHANT_TARGET")) item=view.belongings.stream().filter(it->view.source.rows.containsKey("enchantgear"+it.id)).findFirst().get().id;
         if (verb.equals("SHOOT")) item=view.belongings.stream().filter(it->it.kind.equals("BOW")).findFirst().get().id;
@@ -364,6 +377,7 @@ public final class MixedRoomStability {
                 if (Boolean.getBoolean("stability.enchantment")) stage = ENCHANTMENT[i % ENCHANTMENT.length];
                 if (Boolean.getBoolean("stability.originalItems")) stage = ORIGINAL_ITEMS[i % ORIGINAL_ITEMS.length];
                 if (Boolean.getBoolean("stability.stasisWarp")) stage = STASIS_WARP[i % STASIS_WARP.length];
+                if (Boolean.getBoolean("stability.cauldron")) stage = CAULDRON[i % CAULDRON.length];
                 trial.room(fixture.temporary.getRoot(),"mine".equals(stage)?571:570+i%12,Integer.parseInt(args[1]),stage);
                 trial.observe(fixture.temporary.getRoot(),i+1);
             }

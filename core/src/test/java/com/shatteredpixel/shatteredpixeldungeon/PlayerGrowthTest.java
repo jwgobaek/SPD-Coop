@@ -163,6 +163,7 @@ public class PlayerGrowthTest extends HeadlessDungeon {
     // Replay the same public investment or mask choice through two authenticated TCP clients.
     public static StagedInput stage(CoopSession g,String stage) {
         int seat=stage.endsWith("1")?1:0;
+        if (stage.matches("cauldron[01]")) return CauldronTest.prepare(g, seat);
         if (BowEffectsTest.isThrowFixture(stage)) return BowEffectsTest.prepareThrow(g,seat,stage);
         if (newAbility(stage)) return SubclassActionTest.stage(g,stage,seat);
         if (stage.startsWith("talent")) {
@@ -183,6 +184,7 @@ public class PlayerGrowthTest extends HeadlessDungeon {
     public static boolean published(String stage) {
         CoopSession g=Dungeon.coop;
         int seat=stage.endsWith("1")?1:0;
+        if (stage.matches("cauldron[01]")) return CauldronTest.published(g, seat);
         if (BowEffectsTest.isThrowFixture(stage)) {
             var stones=g.hero(seat).belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone.class);
             return stones!=null && stones.quantity()==3 && g.ownership.owner(stones)==g.player(seat);

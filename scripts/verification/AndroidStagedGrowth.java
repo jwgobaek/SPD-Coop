@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Rat;
 import com.shatteredpixel.shatteredpixeldungeon.items.TengusMask;
 import com.shatteredpixel.shatteredpixeldungeon.lan.AndroidTrialTickets;
@@ -53,14 +54,35 @@ public class AndroidStagedGrowth extends HeadlessDungeon {
             }
             return;
         }
+        boolean pairedClerics = args.length == 3 && args[2].equals("stasis-pair");
         boolean selectors = args.length == 3 && args[2].startsWith("selector-");
         boolean seals=args.length==3 && args[2].equals("seal");
         boolean armor=args.length==3 && args[2].equals("armor");
         boolean monkTrinity=args.length==3 && args[2].equals("monk-trinity");
         boolean sparkRogue=args.length==3 && args[2].equals("spark-rogue");
-        HeroClass host=selectors ? HeroClass.CLERIC : seals ? HeroClass.WARRIOR : (armor || monkTrinity) ? HeroClass.DUELIST : HeroClass.MAGE;
+        HeroClass host=selectors || pairedClerics ? HeroClass.CLERIC : seals ? HeroClass.WARRIOR : (armor || monkTrinity) ? HeroClass.DUELIST : HeroClass.MAGE;
         try (CoopSession game = CoopSession.open(572, 1, host)) {
             game.join(2, sparkRogue ? HeroClass.ROGUE : HeroClass.CLERIC);
+            if (pairedClerics) {
+                CoopMageTest.encounter(game, 0);
+                for (int seat = 0; seat < 2; seat++) {
+                    game.hero(seat).lvl = 30;
+                    SewerBeeTest.offer(game, seat);
+                    if (seat == 0) {
+                        assertTrue(CoopFloorsTest.step(game, CoopSession.Action.USE_CROWN, 2,
+                                CrownAbilityTest.crown(game, seat, CoopSession.MaskTrial.ROSTER)));
+                    } else {
+                        assertTrue(CoopFloorsTest.step(game, CoopSession.Action.CLAIM_ARMOR, 2, null));
+                    }
+                    SewerBeeTest.offer(game, seat);
+                    assertTrue(CoopFloorsTest.step(game, CoopSession.Action.INVEST_TALENT, Talent.STASIS.ordinal(), null));
+                    assertTrue(CoopFloorsTest.step(game, CoopSession.Action.INVEST_TALENT, Talent.LIFE_LINK.ordinal(), null));
+                    TierGrowthTest.powerTome(game.hero(seat));
+                }
+                SewerBeeTest.offer(game, 0);
+                AndroidTrialTickets.export(Path.of(args[0]), Path.of(args[1]), game);
+                return;
+            }
             if (selectors) {
                 SealArtsTest.prepareSelectors(game, args[2].substring("selector-".length()), 2);
                 AndroidTrialTickets.export(Path.of(args[0]), Path.of(args[1]), game);

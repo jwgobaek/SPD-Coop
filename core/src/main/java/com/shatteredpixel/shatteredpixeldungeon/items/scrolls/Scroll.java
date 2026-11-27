@@ -329,11 +329,19 @@ public abstract class Scroll extends Item {
 			stones.put(ScrollOfUpgrade.class,       StoneOfEnchantment.class);
 		}
 		
+		public static boolean isIngredient(Item item) {
+			return stones.containsKey(item.getClass());
+		}
+
+		public static boolean isResult(Item item) {
+			return stones.containsValue(item.getClass());
+		}
+
 		@Override
 		public boolean testIngredients(ArrayList<Item> ingredients) {
 			if (ingredients.size() != 1
 					|| !(ingredients.get(0) instanceof Scroll)
-					|| !stones.containsKey(ingredients.get(0).getClass())){
+					|| !isIngredient(ingredients.get(0))){
 				return false;
 			}
 			

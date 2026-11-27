@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorrosion;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -38,6 +39,14 @@ public class Corrosion extends Buff implements Hero.Doom, Buff.DOTbuff {
 
 	//used in specific cases where the source of the corrosion is important for death logic
 	private Class source;
+	private int casterId;
+
+	public Hero caster() {
+		Actor actor = casterId == 0 ? null
+				: Actor.findById(casterId);
+		return actor instanceof Hero
+				? (Hero)actor : null;
+	}
 
 	private static final String DAMAGE	= "damage";
 	private static final String LEFT	= "left";
@@ -54,6 +63,7 @@ public class Corrosion extends Buff implements Hero.Doom, Buff.DOTbuff {
 		bundle.put( DAMAGE, damage );
 		bundle.put( LEFT, left );
 		bundle.put( SOURCE, source);
+		if (casterId != 0) bundle.put("coop_caster", casterId);
 	}
 
 	@Override
@@ -62,6 +72,7 @@ public class Corrosion extends Buff implements Hero.Doom, Buff.DOTbuff {
 		damage = bundle.getFloat( DAMAGE );
 		left = bundle.getFloat( LEFT );
 		source = bundle.getClass( SOURCE );
+		casterId = bundle.getInt("coop_caster");
 	}
 
 	public void set(float duration, int damage){
@@ -69,9 +80,15 @@ public class Corrosion extends Buff implements Hero.Doom, Buff.DOTbuff {
 	}
 
 	public void set(float duration, int damage, Class source) {
+		set(duration, damage, source, 0);
+	}
+
+	public void set(float duration, int damage, Class source, int casterId) {
 		this.left = Math.max(duration, left);
 		if (this.damage < damage) this.damage = damage;
 		this.source = source;
+		this.casterId = casterId;
+		if (casterId != 0 && Dungeon.coop != null) Dungeon.coop.requireCorrosionFormat();
 		if (target != null) target.needsIncomingDOTUpdate = true;
 	}
 

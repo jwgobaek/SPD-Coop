@@ -80,6 +80,8 @@ final class RenderEncounter {
                 game.observe(0);
             } else if (destination.equals("cache-input")) {
                 game.hero(0).lvl=5;
+            } else if (destination.equals("cauldron-input")) {
+                com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game, "cauldron0");
             } else if (destination.equals("scroll-enchant-input")) {
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"scrollread0");
             } else if (destination.equals("stasis-input") || destination.equals("beacon-vote-input")){
