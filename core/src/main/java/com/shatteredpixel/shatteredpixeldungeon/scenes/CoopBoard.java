@@ -351,6 +351,7 @@ final class CoopBoard extends Group {
                     case "GnollTrickster": sprite=new GnollTricksterSprite();break;
                     case "GreatCrab": sprite=new GreatCrabSprite();break;
                     case "Brute": sprite=new BruteSprite();break;
+                    case "ArmoredBrute": sprite=new ShieldedSprite();break;
                     case "VaultShaman": sprite=new ShamanSprite.Vault();break;
                     case "RedShaman": sprite=new ShamanSprite.Red();break;
                     case "CrystalGuardian": sprite="Green".equals(color) ? new CrystalGuardianSprite.Green() : "Red".equals(color) ? new CrystalGuardianSprite.Red() : new CrystalGuardianSprite.Blue();break;

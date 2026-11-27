@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.lan.ProjectionChecks;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.*;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.*;
@@ -52,6 +53,41 @@ public class CavesInteriorTest extends HeadlessDungeon {
             }
             saved.put("schema",7);
             assertThrows(IllegalArgumentException.class,()->CoopSession.restore(saved));
+        }
+    }
+
+    @Test public void armoredBruteKeepsItsOriginalRageArmorLootAndIdentityAcrossRestore() {
+        Bundle save;
+        int id;
+        try (CoopSession game=open(578)) {
+            arrive(game,13);
+            ArmoredBrute brute=new ArmoredBrute();
+            brute.pos=Dungeon.level.entrance();
+            com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.add(brute,2000);
+            brute=stage(game,ArmoredBrute.class,0);
+            assertTrue(CoopSession.basicMob(brute));
+            assertEquals("ArmoredBrute",ProjectionChecks.seatImage(game,0).monsters.get(brute.pos));
+            assertTrue(brute.drRoll()>=4);
+            com.shatteredpixel.shatteredpixeldungeon.items.Item loot=brute.createLoot();
+            assertTrue(loot instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.ScaleArmor
+                    || loot instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.PlateArmor);
+            brute.damage(brute.HP+5,game.hero(0));
+            assertTrue(brute.isAlive());
+            assertEquals(0,brute.HP);
+            assertEquals(brute.HT/2+1,brute.buff(ArmoredBrute.ArmoredRage.class).shielding());
+            id=brute.id();
+            save=game.checkpoint();
+        }
+        try (CoopSession game=CoopSession.restore(save)) {
+            ArmoredBrute brute=(ArmoredBrute)Actor.findById(id);
+            assertTrue(brute.isAlive());
+            ArmoredBrute.ArmoredRage rage=brute.buff(ArmoredBrute.ArmoredRage.class);
+            int before=rage.shielding();
+            rage.act();
+            assertEquals(before-1,rage.shielding());
+            brute.damage(before+10,game.hero(1));
+            assertFalse(brute.isAlive());
+            assertNotNull(game.checkpoint());
         }
     }
 

@@ -37,6 +37,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Shaman;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Spinner;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM200;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Brute;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredBrute;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.TormentedSpirit;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Elemental;
@@ -865,7 +866,7 @@ public final class CoopSession implements AutoCloseable {
                         || type==Wandmaker.class || type==RotHeart.class || type==RotLasher.class
                         || type==Elemental.NewbornFireElemental.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Guard.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM100.class))
                 || ((Dungeon.depth==9 || caveDepth()) && type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bat.class)
-                || (caveDepth() && (type==Brute.class || type==Shaman.RedShaman.class || type==Shaman.BlueShaman.class || type==Shaman.PurpleShaman.class))
+                || (caveDepth() && (type==Brute.class || type==ArmoredBrute.class || type==Shaman.RedShaman.class || type==Shaman.BlueShaman.class || type==Shaman.PurpleShaman.class))
                 || (caveDepth() && Dungeon.depth>=12 && (type==Spinner.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith.class))
                 || (caveDepth() && Dungeon.depth>=13 && (type==DM200.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM201.class))
                 || (Dungeon.depth==15 && (type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300.class || type==com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Pylon.class))
