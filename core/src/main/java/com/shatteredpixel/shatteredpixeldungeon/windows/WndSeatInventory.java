@@ -152,6 +152,8 @@ public final class WndSeatInventory extends WndTabbed {
 
     private void inspect(PublicDungeon.Loot item) {
         String key=view.source.rows.get("label"+item.id);
+        String seed=view.source.rows.get("seedtype"+item.id);
+        if (seed!=null) key="plants."+seed+"$seed";
         if (key==null && view.source.rows.containsKey("affixseal"+item.id)) key="items.brokenseal";
         String name=key==null ? Messages.NO_TEXT_FOUND : Messages.get(key+".name");
         if (Messages.NO_TEXT_FOUND.equals(name)) name=msg("kind_"+item.kind.toLowerCase(Locale.ROOT));

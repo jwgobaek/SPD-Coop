@@ -58,6 +58,10 @@ public class DisintegrationTest extends HeadlessDungeon {
                 assertEquals(id,game.ownership.identity(staff.imbuedWand()));
                 assertSame(hero,staff.coopWand().chargingHero());
                 int pos=hero.pos;
+                // A level-zero staff can roll one damage against the rat's one armor.
+                // Use a native upgrade so this reach assertion always measures an actual hit.
+                staff.upgrade();
+                assertTrue(staff.min(staff.buffedLvl()) > 1);
                 Rat rat=(Rat)Actor.findById(enemyId);
                 Buff.prolong(rat,Paralysis.class,4);
                 int hp=rat.HP;

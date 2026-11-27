@@ -45,6 +45,15 @@ public final class ProjectionChecks {
         return new PublicDungeon(projection.current);
     }
 
+    public static PublicDungeon decodedSeat(CoopSession game, int seat) throws Exception {
+        UUID room = UUID.randomUUID();
+        SeatProjection projection = new SeatProjection(room, seat);
+        projection.capture(game, 1, "IN_GAME", null, null);
+        DisplayReplica client = new DisplayReplica(room, seat);
+        client.apply(projection.current.encode(null, null));
+        return new PublicDungeon(client.image());
+    }
+
     public static void checkShortcuts(CoopSession game) {
         UUID id=UUID.randomUUID();
         SeatProjection host=new SeatProjection(id,0), guest=new SeatProjection(id,1);

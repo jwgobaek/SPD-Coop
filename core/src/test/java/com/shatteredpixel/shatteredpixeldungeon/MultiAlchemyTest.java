@@ -70,7 +70,7 @@ public class MultiAlchemyTest extends HeadlessDungeon {
                 && owner.belongings.getItem(ScrollOfUpgrade.class)==null && Dungeon.energy==0;
     }
 
-    @Test public void allTwelvePureRecipesProduceOneOwnedPotionAndRestoreBothSeats() {
+    @Test public void allTwelvePureRecipesProduceOneOwnedPotionAndRestoreBothSeats() throws Exception {
         for (int seat = 0; seat < 2; seat++) for (var entry : Potion.SeedToPotion.types.entrySet()) {
             Bundle save;
             long id;
@@ -80,6 +80,9 @@ public class MultiAlchemyTest extends HeadlessDungeon {
                 int pot = station(game,seat);
                 Item seed = Reflection.newInstance(entry.getKey()).quantity(3);
                 pick(game,seat,seed);
+                var view = com.shatteredpixel.shatteredpixeldungeon.lan.ProjectionChecks.decodedSeat(game, seat);
+                assertTrue(view.belongings.stream().anyMatch(item -> item.kind.equals("SEED")
+                        && view.source.rows.containsKey("seedtype"+item.id)));
                 long sourceId = game.ownership.identity(seed);
                 int energy = Dungeon.energy;
                 assertTrue(brew(game,seat,pot,seed,seed,seed));

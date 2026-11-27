@@ -629,7 +629,7 @@ final class SeatProjection {
                 : CoopSession.basicArmorType(item) ? "ARMOR" : CoopSession.basicFood(item) ? "FOOD" : item instanceof Ankh ? "ANKH" : CoopSession.basicWeaponType(item) ? "MELEE" : "OTHER";
         if (com.shatteredpixel.shatteredpixeldungeon.CoopAlchemy.isSeed(item)) {
             kind="SEED";
-            if (!slot.startsWith("F")) rows.put("label"+id,"plants."+item.getClass().getEnclosingClass().getSimpleName().toLowerCase(Locale.ROOT)+"$seed");
+            if (!slot.startsWith("F")) rows.put("seedtype"+id,item.getClass().getEnclosingClass().getSimpleName().toLowerCase(Locale.ROOT));
         }
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfDeepSleep) kind="SLEEP_STONE";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHaste
