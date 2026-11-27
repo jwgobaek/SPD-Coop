@@ -278,6 +278,7 @@ public class PowerOfMany extends ArmorAbility {
 
 		HeroClass cls;
 		private int ownerId;
+        public boolean belongsTo(Hero hero) { return hero != null && hero.id() == ownerId; }
 		@Override public Hero commander() {
 			if (Dungeon.coop==null) return Dungeon.hero;
 			for (int seat=0;seat<2;seat++) if (Dungeon.coop.hero(seat).id()==ownerId) return Dungeon.coop.hero(seat);

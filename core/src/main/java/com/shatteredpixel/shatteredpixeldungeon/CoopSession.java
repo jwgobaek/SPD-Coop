@@ -237,8 +237,15 @@ public final class CoopSession implements AutoCloseable {
     public static Hero summonerOf(Char ally) {
         if (ally instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith)
             return ((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith)ally).summoner();
-        if (ally instanceof PowerOfMany.LightAlly || ally instanceof SpiritHawk.HawkAlly || ally instanceof ShadowClone.ShadowAlly) {
-            return ((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.DirectableAlly)ally).commander();
+        // Buff attachment can ask for an aura while a summoned actor is still being restored.
+        // The full restore validates the owner after both heroes and all actors have been read.
+        if (Dungeon.coop == null) return null;
+        for (int seat = 0; seat < 2; seat++) {
+            Hero owner = Dungeon.coop.hero(seat);
+            if (owner == null) continue;
+            if (ally instanceof PowerOfMany.LightAlly && ((PowerOfMany.LightAlly)ally).belongsTo(owner)
+                    || ally instanceof SpiritHawk.HawkAlly && ((SpiritHawk.HawkAlly)ally).belongsTo(owner)
+                    || ally instanceof ShadowClone.ShadowAlly && ((ShadowClone.ShadowAlly)ally).belongsTo(owner)) return owner;
         }
         return null;
     }

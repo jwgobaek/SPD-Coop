@@ -410,6 +410,15 @@ public final class CoopRenderSmoke {
         long id=frame().dungeon.belongings.stream().filter(item->item.kind.equals(kind)).findFirst().get().id;
         return inventoryPoint(id);
     }
+    private static void openInventoryTab(int bagIndex) throws Exception {
+        java.awt.Robot keyboard = new java.awt.Robot();
+        for (int i = 0; i < bagIndex; i++) {
+            keyboard.keyPress(java.awt.event.KeyEvent.VK_TAB);
+            keyboard.keyRelease(java.awt.event.KeyEvent.VK_TAB);
+            keyboard.waitForIdle();
+            render(() -> true);
+        }
+    }
     private static Point inventoryPoint(long id) throws Exception {
         return render(()->{
             WndSeatInventory.Slot cell=(WndSeatInventory.Slot)find(Game.scene(),g->g instanceof WndSeatInventory.Slot
@@ -1244,18 +1253,20 @@ public final class CoopRenderSmoke {
                     return;
                 }
                 if (regionShot.equals("bow-enchant-input")) {
+                    await(() -> frame().dungeon.offered && frame().dungeon.belongings.stream().anyMatch(i -> i.kind.equals("ENCHANT_BOW")));
                     var initial = frame().dungeon;
                     var stone = initial.belongings.stream().filter(i -> i.kind.equals("ENCHANT_BOW")).findFirst().get();
                     var bow = initial.belongings.stream().filter(i -> i.kind.equals("BOW")).findFirst().get();
-                    click("bag"); press(inventoryPoint(stone.id)); click("enchant_bow");
+                    click("bag"); openInventoryTab(stone.bagIndex); press(inventoryPoint(stone.id)); click("enchant_bow");
                     await(() -> selectorOpen());
                     java.awt.Robot keyboard = new java.awt.Robot();
                     keyboard.keyPress(java.awt.event.KeyEvent.VK_ESCAPE);
                     keyboard.keyRelease(java.awt.event.KeyEvent.VK_ESCAPE);
                     await(() -> !selectorOpen());
                     if (frame().image.version != initial.source.version) throw new AssertionError("Cancel changed state");
-                    click("bag"); press(inventoryPoint(stone.id)); click("enchant_bow");
+                    click("bag"); openInventoryTab(stone.bagIndex); press(inventoryPoint(stone.id)); click("enchant_bow");
                     await(() -> selectorOpen());
+                    openInventoryTab(bow.bagIndex);
                     shot("choose-own-bow");
                     press(inventoryPoint(bow.id));
                     await(() -> frame().pending == 0 && "APPLIED".equals(frame().lastResult)
