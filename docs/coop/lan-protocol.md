@@ -1,5 +1,9 @@
 # LAN 프로토콜 v1 및 로비
 
+## 현재 게임 모드 SYNC35
+
+두 좌석은 LAN v1에서 MODE SYNC35로 협상한다. 이전 SYNC32와 SYNC34 연결은 ERROR VERSION을 받는다. 신규 확정 행동도 기존 Action ID 및 State Version 검증과 내구성 있는 저장을 거친다. [실측과 범위](tier-growth-results.md)
+
 ## 현재 게임 모드 SYNC33
 
 후속 Cloud 빌드의 두 좌석은 LAN v1에서 MODE SYNC33을 협상한다. 수정 APK 후보의 MODE SYNC32 요청에는 후속 호스트가 ERROR VERSION을 반환한다. Cloud의 실제 루프백 TCP에서 이 응답 뒤 PING이 정상 동작했고, 새 클라이언트는 SYNC33 협상 후 PONG을 받았다. 발견 이력에서 선택하는 형상 코드와 도적의 예지 힌트는 해당 좌석의 공개 상태에만 포함된다. [현재 공개 행과 입력](state-sync.md)

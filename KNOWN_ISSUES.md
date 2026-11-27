@@ -1,5 +1,9 @@
 # 미해결 문제
 
+## 남은 상위 성장과 Android 인수
+
+3단계 20슬롯, TippedDart의 다른 효과, 동료 대상 정화와 새 APK의 Android 인수가 남았다. 정상 금고 시드 572에서 방장이 사수의 사선을 벗어나지 못했다. [기능·회귀별 실측](docs/coop/tier-growth-results.md)
+
 ## 남은 배포 및 성장 항목
 
 Drive의 수정 APK는 SYNC32이고 ZIP의 대응 소스는 07b1889다. 새 기능판 SYNC34의 Android 시험은 NOT RUN이다. 두 도적의 보급품 분배, 나머지 상위 특성, 시드 572의 공동 퇴장 및 정상 시작 Tengu 진행은 후속 작업이다. [수정 APK 인수](docs/coop/selector-android-acceptance.md) · [최근 결과](docs/coop/cache-growth-results.md)

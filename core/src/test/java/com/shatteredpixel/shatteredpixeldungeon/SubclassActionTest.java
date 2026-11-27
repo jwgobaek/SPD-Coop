@@ -40,6 +40,8 @@ public class SubclassActionTest extends HeadlessDungeon {
                 CoopSession.Action action=CoopSession.Action.valueOf(move.name());
                 assertFalse(CoopFloorsTest.step(game,action,game.hero(1-seat).pos,null));
                 int pos=enemy.pos, hp=enemy.HP;
+                // CRUSH halves its splash roll before subtracting the second rat's actual DR.
+                if (move == Combo.ComboMove.CRUSH) hero.belongings.weapon().upgrade(3);
                 Rat other = new Rat();
                 other.pos=hero.pos+Dungeon.level.width();
                 other.HT=other.HP=120;
@@ -191,7 +193,7 @@ public class SubclassActionTest extends HeadlessDungeon {
         Hero h=g.hero(seat);
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
-        case "poisontip": case "holylance": case "cleanse": case "scoutshot": case "holdfast": case "deathlesswait":
+        case "poisontip": case "holylance": case "cleanse": case "scoutshot": case "holdfast": case "deathlesswait": case "deathlesstrap":
             return TierGrowthTest.stage(g, seat, type);
         case "trinitymindmissilehistory": case "readrecharge": case "recallrecharge": case "recallid": case "trinitymind": case "trinityspirit": case "intuition": case "bless": case "trinitybodyhistory": case "trinitymindhistory": case "trinityspirithistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindselect": case "trinityspiritselect": case "trinityselect": case "trinity": case "monkflurry": case "monkdash": case "monkdragonkick": case "monkmeditate": case "sparkimbue": case "spark": case "sparkblast": case "sparkvolley":
         case "sealdetach": case "sealattach": case "sealkeep": case "sealtransfer": case "rationthrow": case "strikeshock": case "strikeblock": case "strikevenom": case "strikekinetic": case "strikebloom": case "heroicenergy": case "challenge": case "elestrike": case "feint": case "ascendform": case "lightally": case "lightorder":
@@ -330,7 +332,7 @@ public class SubclassActionTest extends HeadlessDungeon {
         Combo combo=h.buff(Combo.class);
         String type=stage.substring(0,stage.length()-1);
         switch(type) {
-        case "poisontip": case "holylance": case "cleanse": case "scoutshot": case "holdfast": case "deathlesswait":
+        case "poisontip": case "holylance": case "cleanse": case "scoutshot": case "holdfast": case "deathlesswait": case "deathlesstrap":
             return TierGrowthTest.published(g, seat, type);
         case "trinitymindmissilehistory": case "readrecharge": case "recallrecharge": case "recallid": case "trinitymind": case "trinityspirit": case "intuition": case "bless": case "trinitybodyhistory": case "trinitymindhistory": case "trinityspirithistory": case "trinityfirehistory": case "trinityblockhistory": case "trinitymindselect": case "trinityspiritselect": case "trinityselect": case "trinity": case "monkflurry": case "monkdash": case "monkdragonkick": case "monkmeditate": case "sparkimbue": case "spark": case "sparkblast": case "sparkvolley":
         case "sealdetach": case "sealattach": case "sealkeep": case "sealtransfer": case "rationthrow": case "strikeshock": case "strikeblock": case "strikevenom": case "strikekinetic": case "strikebloom": case "heroicenergy": case "challenge": case "elestrike": case "feint": case "ascendform": case "lightally": case "lightorder":

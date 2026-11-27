@@ -1,5 +1,9 @@
 # 단계와 다음 작업
 
+## 다음 개발 시작점 — 저격수의 활과 투척물
+
+SYNC35에서 전사 8/8, 사냥꾼 7/8까지 연결했다. 다음은 자기 활의 마법 부여를 실제로 확보하고 SHARED_ENCHANTMENT가 투척물에 적용되는지 양쪽 좌석에서 검사하는 일이다. 최신 Android 인수와 Drive 발행 대기도 별도로 남아 있다. [기능·회귀별 실측](docs/coop/tier-growth-results.md)
+
 ## 다음 개발 시작점
 
 배포판 9969d23은 두 Android의 배치형 성서 10개 인수를 마쳤다. 링크된 ZIP은 계속 07b1889의 대응 소스다. 새로운 기능은 cd6429d의 SYNC34에서 이어간다. [Android 배포판](docs/coop/selector-android-acceptance.md) · [현재 기능과 미실행 범위](docs/coop/cache-growth-results.md)

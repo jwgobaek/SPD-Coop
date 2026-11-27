@@ -380,8 +380,19 @@ public class YogArenaTest extends HeadlessDungeon {
         assertEquals(0,Dungeon.branch);
     }
 
+    private static void giveArenaHealing(CoopSession game) {
+        for (int seat=0; seat<2; seat++) {
+            PotionOfHealing potions=new PotionOfHealing();
+            potions.quantity(3);
+            potions.setKnown();
+            assertTrue(potions.collect(game.hero(seat).belongings.backpack));
+        }
+    }
+
     public static StagedInput prepareBoundary(CoopSession game,String boundary) {
         arrive(game);
+        // Both bearers must survive to exercise the full-pack pickup and consent boundary.
+        if (boundary.equals("amulet")) giveArenaHealing(game);
         start(game);
         if (boundary.equals("down") || boundary.equals("revive")) {
             Hero ally=game.hero(1-game.activeSeat());
@@ -434,14 +445,7 @@ public class YogArenaTest extends HeadlessDungeon {
             int winner;
             try (CoopSession game=CavesInteriorTest.open(578)) {
                 arrive(game,seed);
-                // This isolated arena already stages equipment and HP. Give the pair a finite
-                // supply and exercise the real drink action when the native fight wears them down.
-                for (int seat=0;seat<2;seat++) {
-                    PotionOfHealing potions=new PotionOfHealing();
-                    potions.quantity(3);
-                    potions.setKnown();
-                    assertTrue(potions.collect(game.hero(seat).belongings.backpack));
-                }
+                giveArenaHealing(game);
                 start(game);
                 java.util.ArrayList<String> defeated=new java.util.ArrayList<>();
                 fight(game,defeated);

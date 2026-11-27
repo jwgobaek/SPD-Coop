@@ -180,7 +180,7 @@ public final class RestartClient {
                     if (mode.matches(".*-(monkflurry|monkdash|monkmeditate|monkdragonkick|strikeshock|strikeblock|strikevenom|strikekinetic|strikebloom|heroicenergy|challenge|elestrike|feint|swap|monkfocus|guardshield|stance|lunge|spike|charged)[01]")) character="DUELIST";
                     if (mode.matches(".*-(cacheinvest|cachepickup)[01]")) character=i==mode.charAt(mode.length()-1)-'0'?"ROGUE":"MAGE";
                     if (mode.matches(".*-(markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) character="ROGUE";
-                    if (mode.matches(".*-(holdfast|deathlesswait|strongman|endless_rage|sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
+                    if (mode.matches(".*-(holdfast|deathlesswait|deathlesstrap|strongman|endless_rage|sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
                     if (mode.matches(".*-(poisontip|scoutshot|point_blank|hawk|direct|blades|sniper|nature)[01]")) character="HUNTRESS";
                     if (mode.matches(".*-(desperate_power|spark|sparkimbue|sparkblast|sparkvolley|ice|iceimbue|iceblast|icevolley|imbue|volley|battery|recall|beacon|meal|blast|warlock|battlemage|soul)[01]")) character="MAGE";
                 }
@@ -536,6 +536,7 @@ public final class RestartClient {
                 assertTrue(state(owner).rows.containsKey(choice.rowKey()));
                 assertFalse(state(1-owner).rows.containsKey(choice.rowKey()));
             }
+            if (boundary.startsWith("growth-deathless")) offer(boundary.charAt(boundary.length()-1)-'0');
             for (int i=0;i<40;i++) {
                 int seat=active();
                 if (ascent && verb.equals("START_ASCENT")) {
@@ -587,6 +588,11 @@ public final class RestartClient {
                 }
                 SeatActions.Pending p=travel ? (boundary.equals("elemental-escape") ? consentAndCross(true,true) : consentAndCross(boundary.equals("vault-pick") || boundary.equals("vault-full"))) : actions[seat].prepare(state(seat),verb,verb.equals("WAIT") ? 0 : cell,handle);
                 if (yog) System.out.println("native_fixture "+boundary+" verb="+verb+" input="+cell+" seat="+seat+" depth="+view.depth+" visible="+view.visible(cell)+" actor="+state(seat).rows.get("self"));
+                if (boundary.startsWith("growth-deathless")) {
+                    assertEquals("first native input must reach the publication boundary",0,i);
+                    assertEquals(boundary.charAt(boundary.length()-1)-'0',seat);
+                    System.out.printf("lethal_input seat=%d pos=%d action=%s tile=%d visible=%s%n",seat,view.pos,verb,cell,view.visible(cell));
+                }
                 if (growth && Boolean.getBoolean("spd.timePlayerAction")) {
                     measurePlayerAction(p,seat,verb);
                     return;

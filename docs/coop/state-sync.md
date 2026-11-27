@@ -1,5 +1,9 @@
 # 협동 게임 동기화 프로토콜
 
+## SYNC35 공개 행과 입력
+
+기존 learn/tier 및 개인 발견 행을 사용한다. 마력탄 기억은 discovery107과 선택값 -107이다. CLEANSE는 시전자 자신, HOLY_LANCE는 자기 성서와 직접 관측한 유효 적을 확인한다. SEER_SHOT은 원본 활을 가진 영웅이 자기 직접 시야의 빈 칸에 SHOOT를 보낼 수 있다. 직접 시야와 감지·기억은 독립적이며 감지만으로 공격 표적을 허용하지 않는다. [실측과 범위](tier-growth-results.md)
+
 ## SYNC34
 
 일반 LAN 프레임은 v1이다. 좌석은 식별된 자기 가방 재충전 주문서를 RECHARGING_SCROLL로 받아 READ_RECHARGING을 요청한다. 물품 핸들·행동권·상태 버전을 서버에서 확인한다. 자기 UsedItemTracker가 이 주문서를 기억하는 동안에만 recallrecharging=1을 보낸다. RECALL_INSCRIPTION은 이 경우 자기 위치를 받으며 성서와 원본 각인 비용을 검사한다. 감정 주문서의 선택 핸들 경로도 유지한다. 개인 Trinity Blocking 선택은 discovery106과 대상 -106을 사용한다. 단일 도적 조건은 learn/tier 행과 실제 투자 양쪽에 적용한다. 배포 수정판은 SYNC32, 직전 개인 발견판은 SYNC33을 사용한다. [검증](cache-growth-results.md)

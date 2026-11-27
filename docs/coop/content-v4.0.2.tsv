@@ -34,7 +34,7 @@ actors/buffs/AscensionChallenge.AscensionBuffBlocker	actors/buffs	UNSUPPORTED		c
 actors/buffs/Awareness	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Awareness.java
 actors/buffs/Barkskin	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Barkskin.java
 actors/buffs/Barrier	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Barrier.java
-actors/buffs/Berserk	actors/buffs	PARTIAL	Manual rage and seal shielding for either warrior; SubclassActionTest, TCP rage.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Berserk.java
+actors/buffs/Berserk	actors/buffs	PARTIAL	tier-growth-results.md (zero-HP shield and recovery) | Manual rage and seal shielding for either warrior; SubclassActionTest, TCP rage.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Berserk.java
 actors/buffs/Bleeding	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Bleeding.java
 actors/buffs/Bless	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Bless.java
 actors/buffs/Blindness	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Blindness.java
@@ -75,7 +75,7 @@ actors/buffs/Haste	actors/buffs	VERIFIED	seat and scheduler round trip / Checkpo
 actors/buffs/Healing	actors/buffs	VERIFIED	native healing ticks, remaining buff and HP cap / SewerTravelGearTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Healing.java
 actors/buffs/HeroDisguise	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/HeroDisguise.java
 actors/buffs/Hex	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Hex.java
-actors/buffs/HoldFast	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/HoldFast.java
+actors/buffs/HoldFast	actors/buffs	PARTIAL	tier-growth-results.md (wait and movement)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/HoldFast.java
 actors/buffs/Hunger	actors/buffs	VERIFIED	ordinary and small rations; seat-specific satiety and cost / CoopContentPathTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Hunger.java
 actors/buffs/Invisibility	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Invisibility.java
 actors/buffs/Invulnerability	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Invulnerability.java
@@ -110,7 +110,7 @@ actors/buffs/Preparation	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatte
 actors/buffs/PrismaticGuard	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/PrismaticGuard.java
 actors/buffs/Recharging	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Recharging.java
 actors/buffs/Regeneration	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Regeneration.java
-actors/buffs/RevealedArea	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/RevealedArea.java
+actors/buffs/RevealedArea	actors/buffs	PARTIAL	tier-growth-results.md (seat-owned Seer Shot)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/RevealedArea.java
 actors/buffs/Roots	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Roots.java
 actors/buffs/ScrollEmpower	actors/buffs	PARTIAL	Upgrade scroll native factor and 4/6 uses on acting mage at ranks 1/2. UpperGrowthEpoch.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/ScrollEmpower.java
 actors/buffs/Shadows	actors/buffs	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/buffs/Shadows.java
@@ -320,7 +320,7 @@ actors/hero/abilities/cleric/PowerOfMany	actors/hero/abilities/cleric	PARTIAL	Ow
 actors/hero/abilities/cleric/PowerOfMany.LightAlly	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/PowerOfMany.java
 actors/hero/abilities/cleric/PowerOfMany.LightAllySprite	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/PowerOfMany.java
 actors/hero/abilities/cleric/PowerOfMany.PowerBuff	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/PowerOfMany.java
-actors/hero/abilities/cleric/Trinity	actors/hero/abilities/cleric	PARTIAL	6/113 personally discovered or held, Body 4, Mind 1, Spirit 1; Blocking native shield on hit (cache-growth-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java
+actors/hero/abilities/cleric/Trinity	actors/hero/abilities/cleric	PARTIAL	tier-growth-results.md (7/113) | 6/113 personally discovered or held, Body 4, Mind 1, Spirit 1; Blocking native shield on hit (cache-growth-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java
 actors/hero/abilities/cleric/Trinity.WndItemConfirm	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java
 actors/hero/abilities/cleric/Trinity.WndItemtypeSelect	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java
 actors/hero/abilities/cleric/Trinity.WndUseTrinity	actors/hero/abilities/cleric	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/abilities/cleric/Trinity.java
@@ -368,7 +368,7 @@ actors/hero/spells/BeamingRay.BeamingRayBoost	actors/hero/spells	UNSUPPORTED		co
 actors/hero/spells/BlessSpell	actors/hero/spells	PARTIAL	Own HolyTome, native blessing and charge (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/BlessSpell.java
 actors/hero/spells/BodyForm	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/BodyForm.java
 actors/hero/spells/BodyForm.BodyFormBuff	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/BodyForm.java
-actors/hero/spells/Cleanse	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Cleanse.java
+actors/hero/spells/Cleanse	actors/hero/spells	PARTIAL	tier-growth-results.md (self)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/Cleanse.java
 actors/hero/spells/ClericSpell	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/ClericSpell.java
 actors/hero/spells/DivineIntervention	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/DivineIntervention.java
 actors/hero/spells/DivineIntervention.DivineShield	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/DivineIntervention.java
@@ -383,7 +383,7 @@ actors/hero/spells/HallowedGround	actors/hero/spells	UNSUPPORTED		core/src/main/
 actors/hero/spells/HallowedGround.HallowedFurrowTracker	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HallowedGround.java
 actors/hero/spells/HallowedGround.HallowedTerrain	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HallowedGround.java
 actors/hero/spells/HolyIntuition	actors/hero/spells	PARTIAL	Own inventory selector and native effect (seal-arts-results.md)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyIntuition.java
-actors/hero/spells/HolyLance	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyLance.java
+actors/hero/spells/HolyLance	actors/hero/spells	PARTIAL	tier-growth-results.md (visible enemy)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyLance.java
 actors/hero/spells/HolyLance.HolyLanceVFX	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyLance.java
 actors/hero/spells/HolyLance.LanceCooldown	actors/hero/spells	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyLance.java
 actors/hero/spells/HolyWard	actors/hero/spells	PARTIAL	Android cast and owner tome charge 3 to 2 / docs/coop/wand-arts-android.md, docs/coop/wand-arts-results.md	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/actors/hero/spells/HolyWard.java
@@ -1179,7 +1179,7 @@ items/weapon/missiles/ThrowingStone	items/weapon/missiles	VERIFIED	plain unupgra
 items/weapon/missiles/Tomahawk	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/Tomahawk.java
 items/weapon/missiles/Trident	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/Trident.java
 items/weapon/missiles/darts/AdrenalineDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/AdrenalineDart.java
-items/weapon/missiles/darts/BlindingDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/BlindingDart.java
+items/weapon/missiles/darts/BlindingDart	items/weapon/missiles	PARTIAL	tier-growth-results.md (owner shaft on wear)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/BlindingDart.java
 items/weapon/missiles/darts/ChillingDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/ChillingDart.java
 items/weapon/missiles/darts/CleansingDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/CleansingDart.java
 items/weapon/missiles/darts/Dart	items/weapon/missiles	PLAYER_TCP	572 cell 1872 pickup and public throws. Separate owners in one PinCushion, native miss and empty-cell landing, owner recovery. Korean and English Desktop quickslot aim, cancel and supervised throw reduced 2 to 1. Scope excludes tipping. PrisonProjectileTest, DartFlightChecks, HostRestartTest.	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/Dart.java
@@ -1188,10 +1188,10 @@ items/weapon/missiles/darts/HealingDart	items/weapon/missiles	UNSUPPORTED		core/
 items/weapon/missiles/darts/HolyDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/HolyDart.java
 items/weapon/missiles/darts/IncendiaryDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/IncendiaryDart.java
 items/weapon/missiles/darts/ParalyticDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/ParalyticDart.java
-items/weapon/missiles/darts/PoisonDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/PoisonDart.java
+items/weapon/missiles/darts/PoisonDart	items/weapon/missiles	PARTIAL	tier-growth-results.md (owner shaft on wear)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/PoisonDart.java
 items/weapon/missiles/darts/RotDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/RotDart.java
 items/weapon/missiles/darts/ShockingDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/ShockingDart.java
-items/weapon/missiles/darts/TippedDart	items/weapon/missiles	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/TippedDart.java
+items/weapon/missiles/darts/TippedDart	items/weapon/missiles	PARTIAL	tier-growth-results.md (two native tips only)	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/items/weapon/missiles/darts/TippedDart.java
 levels/CavesBossLevel	levels	VERIFIED	seal, four pylons, original fight, unseal, durable WON and revisit / CavesBossTest, HostRestartTest	core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java
 levels/CavesBossLevel.ArenaVisuals	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java
 levels/CavesBossLevel.CityEntrance	levels	UNSUPPORTED		core/src/main/java/com/shatteredpixel/shatteredpixeldungeon/levels/CavesBossLevel.java

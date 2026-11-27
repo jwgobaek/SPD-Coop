@@ -58,7 +58,7 @@ public final class MixedRoomStability {
 
     static final String[] TIER_GROWTH = {"holdfast0","holdfast1","scoutshot0","scoutshot1","cleanse0","cleanse1",
             "holylance0","holylance1","deathlesswait0","deathlesswait1","trinitymindmissilehistory0","trinitymindmissilehistory1",
-            "spark0","monkfocus1","elestrike0","floor","mine"};
+            "spark0","monkfocus1","elestrike0","poisontip0","poisontip1","floor","mine"};
     static final String[] DISCOVERIES = {"trinitybodyhistory0", "trinitybodyhistory1", "trinitymindhistory0",
             "trinitymindhistory1", "trinityspirithistory0", "trinityspirithistory1", "trinityfirehistory0",
             "trinityfirehistory1", "strikeblock0", "strikeblock1", "strikeshock0", "strikeshock1",
@@ -84,7 +84,7 @@ public final class MixedRoomStability {
         if (stage.matches("(spark|ice|iceimbue|iceblast|icevolley|imbue|volley)[01]")) return "MAGE";
         if (stage.matches("(strikekinetic|strikebloom|strikeblock|strikeshock|strikevenom|heroicenergy|challenge|elestrike|feint|monkflurry|monkdash|monkdragonkick|monkmeditate|swap|monkfocus|stance|guardshield|lunge|spike|charged)[01]")) return "DUELIST";
         if (stage.matches("(holylance|cleanse|trinitymindmissilehistory|trinityblockhistory|readrecharge|recallrecharge|trinitybodyhistory|trinitymindhistory|trinityspirithistory|trinityfirehistory|trinity|trinityselect|trinitymind|trinitymindselect|trinityspirit|trinityspiritselect|lightally|lightorder|ascendform|intuition|bless|recallid|radiance|smite|divinesense|sunray|lightshield|light|ward|blessweapon)[01]")) return "CLERIC";
-        if (stage.matches("(scoutshot|hawk|direct)[01]") || stage.startsWith("blades")) return "HUNTRESS";
+        if (stage.matches("(poisontip|scoutshot|hawk|direct)[01]") || stage.startsWith("blades")) return "HUNTRESS";
         if (stage.matches("(markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) return "ROGUE";
         if (stage.startsWith("beacon") || stage.startsWith("recall") || stage.startsWith("battery")) return "MAGE";
         return "WARRIOR";

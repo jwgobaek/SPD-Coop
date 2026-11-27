@@ -1,5 +1,9 @@
 # 협동 콘텐츠 지원표
 
+## SYNC35 특성 및 형상
+
+1·2·3·4단계는 각각 24/24, 30/30, 28/48, 27/72 슬롯에서 투자할 수 있다. 원본 Trinity 후보 중 7/113이 연결됐다. [기능·회귀별 실측](docs/coop/tier-growth-results.md)
+
 ## 후속 Cloud 소스의 특성·형상 범위
 
 원본 초기화 목록 174개 슬롯 중 투자 가능한 슬롯은 단계별 24/24, 30/30, 7/48, 27/72다. 도적 둘이 한 방에 있는 경우 비축 식량은 배분 정책 결정 전까지 제한한다. Trinity는 Body 4개, Mind 1개, Spirit 1개를 사용한다. HEROIC_ENERGY 한 특성이 18개 능력의 후보 목록에 등장한다. 원본 효과와 기기 실측은 표의 별도 열에 기록한다. [특성 174개 슬롯](docs/coop/trinity-discovery-talents.tsv) · [Trinity 원본 113개 후보](docs/coop/trinity-discovery-forms.tsv)

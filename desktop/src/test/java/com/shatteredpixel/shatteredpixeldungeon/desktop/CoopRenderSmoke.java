@@ -824,7 +824,10 @@ public final class CoopRenderSmoke {
         openCharacter();
         click("#" + Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndHero.class, "talents"));
         click("#" + Messages.get(CoopScene.class, "tier_points", tier, before));
-        click("#" + tier + " · " + Messages.titleCase(talent.title()) + "  0/" + talent.maxPoints());
+        String row = "#" + tier + " · " + Messages.titleCase(talent.title()) + "  0/" + talent.maxPoints();
+        waitForButton(row);
+        shot("available-" + talent.name().toLowerCase(java.util.Locale.ROOT));
+        click(row);
         click("#" + Messages.get(com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTalent.class, "upgrade"));
         await(() -> "1".equals(frame().image.rows.get(invested)) && frame().pending == 0);
         if (Integer.parseInt(frame().image.rows.get(balance)) != before-1) throw new AssertionError("Tier balance mismatch");
@@ -846,6 +849,8 @@ public final class CoopRenderSmoke {
         String key = selector.key;
         if (Boolean.getBoolean("spd.selector.history")) {
             TrinityDiscoveries.Choice memory = discoveryChoice(view);
+            if (Boolean.getBoolean("spd.selector.missile") && memory != TrinityDiscoveries.Choice.MAGIC_MISSILE)
+                throw new AssertionError("Expected the cleric's magic missile discovery");
             String label = discoveryLabel(memory);
             if (view.belongings.stream().anyMatch(i -> view.source.rows.containsKey(key+i.id)))
                 throw new AssertionError("Physical reference still in the bag");
@@ -1040,6 +1045,7 @@ public final class CoopRenderSmoke {
 
     private static void frostInputs() throws Exception {
         boolean spell = regionShot.equals("sunray-input");
+        String kind = spell ? System.getProperty("spd.seat.spell", "sunray") : "frost";
         String action = spell ? "CAST" : "ZAP";
         await(() -> {
             PublicDungeon current = frame().dungeon;
@@ -1052,14 +1058,28 @@ public final class CoopRenderSmoke {
         int target = view.monsters.entrySet().stream().filter(e -> e.getValue().equals("Rat")).findFirst().get().getKey();
         click("bag"); press(inventoryPoint(item.id)); click(spell ? "cast" : "zap");
         if (spell) {
-            String name = "#" + com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Sunray.INSTANCE.name();
+            com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.ClericSpell selected;
+            switch (kind) {
+            case "holylance": selected = com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyLance.INSTANCE; break;
+            case "cleanse": selected = com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Cleanse.INSTANCE; break;
+            case "sunray": selected = com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Sunray.INSTANCE; break;
+            default: throw new IllegalArgumentException(kind);
+            }
+            String name = "#" + selected.name();
             waitForButton(name); shot("learned-spell"); click(name);
         }
-        shot(spell ? "sunray-aim" : "frost-aim");
-        press(mapPoint(view,target));
+        if (!kind.equals("cleanse")) {
+            shot(kind + "-aim");
+            press(mapPoint(view,target));
+        }
         await(() -> frame().image.version > view.source.version && frame().dungeon.belongings.stream()
                 .anyMatch(i -> i.id == item.id && i.charges < item.charges));
-        shot(spell ? "sunray-hit" : "frost-hit");
+        PublicDungeon current = frame().dungeon;
+        if (kind.equals("cleanse") && current.shield <= view.shield) throw new AssertionError("Missing cleanse barrier");
+        int spent = item.charges - current.belongings.stream().filter(i -> i.id == item.id).findFirst().orElseThrow().charges;
+        if ((kind.equals("holylance") && spent != 4) || (kind.equals("cleanse") && spent != 2)) throw new AssertionError("Unexpected tome cost " + spent);
+        shot(kind + "-hit");
+        System.out.println("PASS actual " + kind + " charges " + item.charges + " to " + (item.charges-spent));
     }
 
     private static void starterSpellInputs(boolean rapier) throws Exception {
@@ -1191,14 +1211,12 @@ public final class CoopRenderSmoke {
         shot("lobby");
         String upperTalent = System.getProperty("spd.upper.talent", "STRONGMAN");
         if (regionShot.equals("strength-input")) {
-            switch (upperTalent) {
-                case "HOLD_FAST": case "DEATHLESS_FURY": case "ENRAGED_CATALYST": case "STRONGMAN": case "ENDLESS_RAGE": click("warriorClass"); break;
-                case "EXCESS_CHARGE": case "EMPOWERED_STRIKE": case "DESPERATE_POWER": click("mageClass"); break;
-                case "FARSIGHT": case "SEER_SHOT": case "POINT_BLANK": click("huntressClass"); break;
-                case "HOLY_LANCE": case "CLEANSE": click("clericClass"); break;
-                case "ENHANCED_LETHALITY": case "ASSASSINS_REACH": click("rogueClass"); break;
-                case "MONASTIC_VIGOR": click("duelistClass"); break;
-                default: throw new IllegalArgumentException("Unknown upper talent fixture " + upperTalent);
+            var subclass = RenderEncounter.upperSubclass(upperTalent);
+            for (var heroClass : com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass.values()) {
+                if (java.util.Arrays.asList(heroClass.subClasses()).contains(subclass)) {
+                    click(heroClass.name().toLowerCase(java.util.Locale.ROOT) + "Class");
+                    break;
+                }
             }
         } else click(regionShot.equals("cache-input")?"rogueClass":regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("tome-input") || regionShot.equals("recharging-input") || regionShot.startsWith("selector-") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
         if(mage) shot("mage-selected");

@@ -1,5 +1,9 @@
 # SPD-Coop 개발 진행 기록
 
+## 6개 직업의 3단계 성장
+
+투자 가능 슬롯은 109/174이며 3단계는 28/48이다. 원본 정화·신성한 창, 두 종류의 특수 다트, Trinity 마력탄 기억을 실제 협동 행동에 연결했다. [기능·회귀별 실측](docs/coop/tier-growth-results.md)
+
 ## 수정 APK 인수와 개인 보급품
 
 9969d23은 Android 성서 선택 10/10을 통과했다. 개발판은 개인 보급품, 상위 특성 4종, Trinity Blocking, ElementalStrike 두 효과와 재충전 주문서 회수를 지원한다. [배포판 검증](docs/coop/selector-android-acceptance.md) · [개발 범위와 검증](docs/coop/cache-growth-results.md)

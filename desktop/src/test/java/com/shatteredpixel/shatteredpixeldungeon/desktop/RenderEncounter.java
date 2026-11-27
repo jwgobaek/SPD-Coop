@@ -15,6 +15,22 @@ import java.util.concurrent.*;
 
 /** Test arrangement only. Run on the existing room's owner; gestures and snapshots still use TCP. */
 final class RenderEncounter {
+    static HeroSubClass upperSubclass(String talent) {
+        switch (talent) {
+            case "HOLD_FAST": case "DEATHLESS_FURY": case "ENRAGED_CATALYST": case "STRONGMAN": case "ENDLESS_RAGE":
+                return HeroSubClass.BERSERKER;
+            case "DESPERATE_POWER": case "EMPOWERED_STRIKE": case "EXCESS_CHARGE": return HeroSubClass.BATTLEMAGE;
+            case "SOUL_SIPHON": case "SOUL_EATER": return HeroSubClass.WARLOCK;
+            case "POINT_BLANK": case "FARSIGHT": case "SEER_SHOT": case "SHARED_UPGRADES": return HeroSubClass.SNIPER;
+            case "DURABLE_TIPS": case "BARKSKIN": case "SHIELDING_DEW": return HeroSubClass.WARDEN;
+            case "ENHANCED_LETHALITY": case "ASSASSINS_REACH": return HeroSubClass.ASSASSIN;
+            case "EVASIVE_ARMOR": case "PROJECTILE_MOMENTUM": case "SPEEDY_STEALTH": return HeroSubClass.FREERUNNER;
+            case "MONASTIC_VIGOR": return HeroSubClass.MONK;
+            case "CLEANSE": case "HOLY_LANCE": return HeroSubClass.PRIEST;
+            default: throw new IllegalArgumentException("Unknown upper talent fixture " + talent);
+        }
+    }
+
     static void arrange(CoopController client) throws Exception {
         Field host=CoopController.class.getDeclaredField("host"); host.setAccessible(true);
         Object room=host.get(client);
@@ -81,15 +97,7 @@ final class RenderEncounter {
             } else if (destination.equals("strength-input")) {
                 var hero = game.hero(0);
                 hero.lvl = 25;
-                switch (hero.heroClass) {
-                    case WARRIOR: hero.subClass = HeroSubClass.BERSERKER; break;
-                    case MAGE: hero.subClass = HeroSubClass.BATTLEMAGE; break;
-                    case HUNTRESS: hero.subClass = HeroSubClass.SNIPER; break;
-                    case ROGUE: hero.subClass = HeroSubClass.ASSASSIN; break;
-                    case DUELIST: hero.subClass = HeroSubClass.MONK; break;
-                    case CLERIC: hero.subClass = HeroSubClass.PRIEST; break;
-                    default: throw new IllegalStateException("Unexpected upper talent fixture class");
-                }
+                hero.subClass = upperSubclass(System.getProperty("spd.upper.talent", "STRONGMAN"));
                 com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.initSubclassTalents(hero);
             } else if (destination.equals("recharging-input")) {
                 var hero=game.hero(0);
@@ -108,7 +116,7 @@ final class RenderEncounter {
             } else if (destination.equals("seal-input") || destination.equals("ration-input")) {
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,destination.equals("seal-input") ? "sealdetach0" : "rationthrow0");
             } else if (destination.equals("sunray-input") || destination.equals("frost-input")) {
-                com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,destination.equals("frost-input")?"ice0":"sunray0");
+                com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,destination.equals("frost-input") ? "ice0" : System.getProperty("spd.seat.spell","sunray")+"0");
             } else if (destination.equals("lunge-input") || destination.equals("tome-input")) {
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,destination.equals("lunge-input")?"lunge0":"light0");
             } else if (destination.equals("volley-input") || destination.equals("hawk-input")) {

@@ -159,6 +159,15 @@ public class TierGrowthTest extends HeadlessDungeon {
                 assertEquals(cell,hero.buff(RevealedArea.class).pos);
                 SewerBeeTest.offer(game,seat);
                 assertFalse(CoopFloorsTest.step(game,CoopSession.Action.SHOOT,cell,hero.belongings.getItem(SpiritBow.class)));
+                Buff.prolong(hero,Blindness.class,12);
+                Buff.prolong(game.hero(1-seat),Blindness.class,12);
+                game.observe(seat);
+                game.observe(1-seat);
+                var ownerView=ProjectionChecks.seatImage(game,seat);
+                var peerView=ProjectionChecks.seatImage(game,1-seat);
+                assertFalse(ownerView.visible(cell));
+                assertEquals("terrain",ownerView.source.rows.get("sense"+cell));
+                assertFalse(peerView.source.rows.containsKey("sense"+cell));
             }
         }
     }
@@ -217,6 +226,22 @@ public class TierGrowthTest extends HeadlessDungeon {
                     if (Dungeon.level.passable[cell] && Actor.findChar(cell)==null) return new StagedInput(game,"SHOOT",cell);
                 }
                 throw new AssertionError("Missing visible aim");
+            case "deathlesstrap":
+                prepare(game,seat,HeroSubClass.BERSERKER,Talent.DEATHLESS_FURY,1);
+                hero.HP=1;
+                for (ShieldBuff shield : hero.buffs(ShieldBuff.class)) shield.absorbDamage(shield.shielding());
+                Buff.affect(hero,Berserk.class).damage(4*hero.HT);
+                for (int delta : com.watabou.utils.PathFinder.NEIGHBOURS8) {
+                    int pos=hero.pos+delta;
+                    if (!Dungeon.level.passable[pos] || Actor.findChar(pos)!=null || Dungeon.level.heaps.get(pos)!=null
+                            || Dungeon.level.getTransition(pos)!=null || Dungeon.level.plants.get(pos)!=null) continue;
+                    Dungeon.level.setTrap(new com.shatteredpixel.shatteredpixeldungeon.levels.traps.ExplosiveTrap(),pos);
+                    Level.set(pos,Terrain.TRAP);
+                    Dungeon.level.traps.get(pos).reveal();
+                    game.observe(seat);
+                    return new StagedInput(game,"MOVE",pos);
+                }
+                throw new AssertionError("Missing reachable trap cell");
             case "deathlesswait":
                 prepare(game,seat,HeroSubClass.BERSERKER,Talent.DEATHLESS_FURY,1);
                 hero.HP=13;
@@ -243,6 +268,8 @@ public class TierGrowthTest extends HeadlessDungeon {
             case "holylance": return hero.buff(com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.HolyLance.LanceCooldown.class)!=null;
             case "cleanse": return hero.buff(Cripple.class)==null && hero.shielding()>0 && hero.belongings.getItem(HolyTome.class).charges()<3;
             case "scoutshot": return hero.buff(RevealedArea.class)!=null && game.hero(1-seat).buff(RevealedArea.class)==null;
+            case "deathlesstrap": return hero.HP==0 && hero.isAlive() && game.preDeathHP(seat)==1
+                    && hero.buff(Berserk.class).sustainsLife() && Dungeon.level.map[hero.pos]==Terrain.INACTIVE_TRAP;
             case "deathlesswait": return hero.HP==0 && hero.isAlive() && game.preDeathHP(seat)==13;
             default: return hero.pointsInTalent(Talent.HOLD_FAST)==1 && game.hero(1-seat).pointsInTalent(Talent.HOLD_FAST)==0;
         }

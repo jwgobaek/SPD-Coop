@@ -1,5 +1,9 @@
 # Android validation backlog
 
+## SYNC34·35 Android 인수 대기
+
+두 설치본은 기존 SYNC32 수정판이다. 이 빌드에서 통과한 성서 물품 선택 10개는 기록을 보존했다. 새 게임 기능의 실제 Android 입력, 크래시 및 ANR은 NOT RUN이다. [기능·회귀별 실측](docs/coop/tier-growth-results.md)
+
 ## 배포 수정판 인수 완료
 
 두 Android 15 설치본의 해시가 9969d23 후보와 일치했다. 한국어 성서 선택 5경로를 방장·게스트로 실행하여 10/10을 통과했다. 두 앱을 재실행하고 실제 다음 행동을 확인했다. [설치 해시, 충전 변화, 복원과 시험 구간 로그](docs/coop/selector-android-acceptance.md)

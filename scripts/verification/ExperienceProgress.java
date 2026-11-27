@@ -98,6 +98,16 @@ public final class ExperienceProgress {
                         }
                     }
                 }
+                if (v.offered && Boolean.getBoolean("trial.campaignGuide") && v.heroClass.equals("ROGUE")
+                        && (input.action.equals("ATTACK") || input.action.equals("THROW"))) {
+                    for (PublicDungeon.Loot cloak : v.belongings) {
+                        if (v.actions(cloak).contains("CLOAK") && cloak.charges>0
+                                && !v.source.rows.containsKey("cloaked"+cloak.id)) {
+                            input=new VaultPublicRoute.Input("CLOAK",0,cloak.id);
+                            break;
+                        }
+                    }
+                }
                 if (v.offered) {
                     for (com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent t:com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent.values()) {
                         String offered=v.source.rows.get("learn"+t.ordinal());
@@ -117,7 +127,7 @@ public final class ExperienceProgress {
                     if (v.consent) input=new VaultPublicRoute.Input("TRAVEL",v.stair,0);
                 }
                 String status=send(room,v,seat,game.player(seat),++seq[seat],input);
-                if (input.action.equals("WEAPON_ABILITY") || input.action.equals("GUIDING_LIGHT")) {
+                if (input.action.equals("WEAPON_ABILITY") || input.action.equals("GUIDING_LIGHT") || input.action.equals("CLOAK")) {
                     if (status.equals("APPLIED")) abilityUse.merge(input.action,1,Integer::sum);
                     else declined.add(seat+"/"+v.depth+"/"+v.pos+"/"+input.cell+"/"+input.action);
                 }

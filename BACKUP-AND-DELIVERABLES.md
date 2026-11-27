@@ -1,5 +1,9 @@
 # 최종 검증판 발행
 
+## 상위 성장 후보와 공개 파일
+
+SYNC35 후보는 Cloud에서 보관한다. 공개 APK의 대응 소스는 9969d23, 공개 ZIP의 대응 소스는 07b1889다. 이전 일회성 발행 예외는 해당 수정판에만 적용됐다. [기능·회귀별 실측](docs/coop/tier-growth-results.md)
+
 ## 현재 Drive의 APK와 ZIP
 
 기존 APK ID에는 9969d23의 Android 인수 완료 수정판이 있다. 통합 ZIP의 source는 07b1889다. 승인된 APK 예외 1회를 사용했고 ZIP 전송은 0회였다. 개발 APK와 증거는 Cloud에 보존했다. [파일 ID, SHA-256과 실제 다운로드 확인](docs/coop/selector-android-acceptance.md)
