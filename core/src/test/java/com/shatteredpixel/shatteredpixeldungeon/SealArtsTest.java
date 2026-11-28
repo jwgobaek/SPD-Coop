@@ -58,7 +58,7 @@ public class SealArtsTest extends HeadlessDungeon {
                 break;
             case "spirit":
                 talent = Talent.SPIRIT_FORM;
-                TrinityDiscoveries.Choice choice = TrinityDiscoveries.Choice.valueOf(System.getProperty("spd.selector.spirit", "HASTE"));
+                TrinityDiscoveries.Choice choice = stagedSpirit();
                 assertEquals(talent, choice.form);
                 reference = (Item)com.watabou.utils.Reflection.newInstance(choice.effect);
                 break;
@@ -75,6 +75,12 @@ public class SealArtsTest extends HeadlessDungeon {
                 Dungeon.level.drop(reference.detachAll(hero.belongings.backpack), hero.pos);
         }
         SewerBeeTest.offer(game, 0);
+    }
+
+    private static TrinityDiscoveries.Choice stagedSpirit() {
+        TrinityDiscoveries.Choice choice = TrinityDiscoveries.Choice.valueOf(System.getProperty("spd.selector.spirit", "HASTE"));
+        assertEquals(Talent.SPIRIT_FORM, choice.form);
+        return choice;
     }
 
     static HeroClass role(String type) {
@@ -218,7 +224,7 @@ public class SealArtsTest extends HeadlessDungeon {
                     return historyInput(game,seat,wand,TrinityDiscoveries.Choice.PRISMATIC_LIGHT);
                 }
                 boolean missile = type.equals("trinitymindmissilehistory");
-                Item reference=missile ? new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile() : talent==Talent.MIND_FORM ? new WandOfLightning() : new com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste();
+                Item reference=missile ? new com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile() : talent==Talent.MIND_FORM ? new WandOfLightning() : (Item)com.watabou.utils.Reflection.newInstance(stagedSpirit().effect);
                 reference.identify();
                 assertTrue(reference.collect(hero.belongings.backpack));
                 game.ownership.claim(reference,game.player(seat));
@@ -226,7 +232,7 @@ public class SealArtsTest extends HeadlessDungeon {
                 for (Item entry : hero.belongings) { index++; if (entry==reference) break; }
                 if (type.endsWith("history")) {
                     return historyInput(game, seat, reference, missile ? TrinityDiscoveries.Choice.MAGIC_MISSILE : talent == Talent.MIND_FORM
-                            ? TrinityDiscoveries.Choice.LIGHTNING : TrinityDiscoveries.Choice.HASTE);
+                            ? TrinityDiscoveries.Choice.LIGHTNING : stagedSpirit());
                 }
                 if (type.endsWith("select")) return new StagedInput(game, talent.name(), index);
                 assertTrue(CoopFloorsTest.step(game,CoopSession.Action.valueOf(talent.name()),index,hero.belongings.artifact));
@@ -362,7 +368,7 @@ public class SealArtsTest extends HeadlessDungeon {
                     type.equals("trinityfirehistory") ? TrinityDiscoveries.Choice.BLAZING :
                     type.equals("trinityblockhistory") ? TrinityDiscoveries.Choice.BLOCKING :
                     type.equals("trinitymindmissilehistory") ? TrinityDiscoveries.Choice.MAGIC_MISSILE :
-                    type.equals("trinitymindhistory") ? TrinityDiscoveries.Choice.LIGHTNING : TrinityDiscoveries.Choice.HASTE;
+                    type.equals("trinitymindhistory") ? TrinityDiscoveries.Choice.LIGHTNING : stagedSpirit();
             return game.discoveries(seat).knows(choice) && !game.discoveries(1 - seat).knows(choice)
                     && ((Trinity)hero.armorAbility).hasForm(choice.form) && ((HolyTome)hero.belongings.artifact).charges() < 3;
         }

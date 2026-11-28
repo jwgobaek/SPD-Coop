@@ -1,5 +1,9 @@
 # SPD-Coop 클라우드 실행 보고
 
+## SYNC47 Cloud 재검증
+
+새로 컴파일한 427개 전체 시험, 소환 보관·해제 응답 유실 8건, Trinity 반지 기억 응답 유실 10건과 이전 스키마 이행 16건을 검증했다. [검증 범위와 실제 저장](docs/coop/powered-summon-results.md)
+
 ## 2026-11-28 SYNC42 Android 재개 및 SYNC45 Cloud
 
 SYNC42 Android 실제 누적은 84/160이다. 검사기 단위 시험 7개가 통과했고, 실제 68행과 신규 16행을 따로 읽은 재개 검사도 누락 76개를 보고했다. SYNC45 최종 소스의 새 클래스 경로에서 JUnit 422/422, 건너뜀 0개를 확인했다. 두 신규 지팡이, 휴대 조합, 두 좌석 장애 복구와 정상 캠페인 결과를 기록했다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 검증](docs/coop/regrowth-warding-results.md)

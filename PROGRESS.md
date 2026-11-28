@@ -1,5 +1,9 @@
 # SPD-Coop 개발 진행 기록
 
+## SYNC46–47 소환수·반지와 정상 시작 5층
+
+도적·성직자 1105가 실제 계단 동의로 5층에 함께 도착했다. HP 30/15의 저장을 보존했다. 후속 Cloud APK는 e15062d이고 전체 JUnit 427/427을 통과했다. [검증 범위와 실제 저장](docs/coop/powered-summon-results.md)
+
 ## 2026-11-28 SYNC42 Android 재개 및 SYNC45 Cloud
 
 SYNC42 Android는 동일 설치 및 부팅에서 84/160개를 확인했다. 후속 SYNC45에서는 재성장·수호 지팡이의 다섯 경로를 연결해 12/13종이 됐다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 검증](docs/coop/regrowth-warding-results.md)

@@ -1,5 +1,9 @@
 # 미해결 문제
 
+## SYNC42 잔여 인수와 정상 Goo 전투
+
+SYNC42 필수 Android 인수가 진행 중이다. 도적·성직자 5층 도착 이후 정상 Goo 처치와 가면 획득은 미달이다. 기존 시드 575 및 요그 출구의 초기 실패 원인은 미확정이다. [검증 범위와 실제 저장](docs/coop/powered-summon-results.md)
+
 ## 2026-11-28 SYNC42 Android 재개 및 SYNC45 Cloud
 
 SYNC42 Android 필수 76개가 남아 ZIP 발행이 대기 중이다. SYNC45의 재성장·수호 지팡이는 Cloud 검증 단계이며 부식 지팡이의 아군 피해 규칙은 미확정이다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 검증](docs/coop/regrowth-warding-results.md)

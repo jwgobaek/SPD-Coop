@@ -161,6 +161,7 @@ public final class ExperienceProgress {
                         }
                     }
                 }
+                input=guides[seat].respondToVisibleGoo(v,input);
                 if (v.stair>=0 && v.terrain(v.stair)==Terrain.EXIT) {
                     PublicDungeon other=view(clients[1-seat],room,1-seat);
                     if (!v.consent && other.stair==v.stair) {
@@ -176,6 +177,12 @@ public final class ExperienceProgress {
                             .map(it -> it.kind+"="+it.quantity+(it.showsCharges()?"/"+it.charges:"")).collect(java.util.stream.Collectors.joining(","));
                     System.out.printf("RECOVERY %d depth=%d seat=%d pos=%d hp=%d ally=%d life=%s mobs=%s supplies=%s action=%s target=%d%n",
                             n,v.depth,seat,v.pos,v.hp,v.ally,v.source.rows.get("life"),v.monsters,supplies,input.action,input.cell);
+                    for (var entry:observed.source.rows.entrySet()) {
+                        if (!entry.getKey().matches("m[0-9]+") || !entry.getValue().contains(",Goo,")) continue;
+                        int cell=Integer.parseInt(entry.getValue().split(",")[0]);
+                        System.out.printf("GOO_VIEW n=%d seat=%d mob=%s wet=%b charge=%s%n",n,seat,entry.getValue(),
+                                observed.terrain(cell)==Terrain.WATER,observed.source.rows.getOrDefault("charge"+cell,"0"));
+                    }
                     if (Boolean.getBoolean("trial.traceStairs")) {
                         int known=guides[seat].knownExit;
                         System.out.printf("EXIT_VIEW n=%d depth=%d seat=%d pos=%d known=%d visible=%b near=%b ally=%d stair=%d%n",

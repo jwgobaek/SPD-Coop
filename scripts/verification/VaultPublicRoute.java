@@ -40,6 +40,7 @@ public final class VaultPublicRoute {
         int reachableFrontier, knownExit=-1;
         final boolean campaignGuide=Boolean.getBoolean("trial.campaignGuide");
         int exitWaits, waitingAtExit, scoutingTurns;
+        int bossCampTurns;
         final boolean rendezvousAtStairs=Boolean.getBoolean("trial.stairRendezvous");
         final boolean waitAtVisibleExit=Boolean.getBoolean("trial.waitAtVisibleExit");
         final boolean meetOnStair=Boolean.getBoolean("trial.meetOnStair");
@@ -143,6 +144,69 @@ public final class VaultPublicRoute {
             if (!Boolean.getBoolean("trial.avoidOutnumbered") || v.ally>=0 || v.hp*3>v.maxHp*2) return false;
             return v.monsters.entrySet().stream().filter(m -> hostile(m.getValue()) && v.visible(m.getKey())
                     && distance(v.pos,m.getKey(),v.width)<=4).limit(2).count()==2;
+        }
+
+        Input respondToVisibleGoo(PublicDungeon view, Input choice) {
+            if (!Boolean.getBoolean("trial.faceGoo") || view.depth != 5
+                    || choice.action.equals("REVIVE") || choice.action.equals("DRINK"))
+                return choice;
+            if (Boolean.getBoolean("trial.campGoo") && bossCampTurns<60 && view.monsters.isEmpty()
+                    && view.ally>=0 && lastAllyAlive && !view.source.rows.containsKey("trap"+view.pos)
+                    && view.source.rows.entrySet().stream().noneMatch(e -> e.getKey().matches("b[0-9]+")
+                    && e.getValue().startsWith(BuffIndicator.STARVATION+","))) {
+                bossCampTurns++;
+                return new Input("WAIT",view.pos,0);
+            }
+            for (Map.Entry<Integer,String> monster : view.monsters.entrySet()) {
+                if (!monster.getValue().equals("Goo")) continue;
+                int boss = monster.getKey();
+                int current = distance(view.pos,boss,view.width);
+                boolean charging = view.source.rows.containsKey("charge"+boss);
+                boolean lure = Boolean.getBoolean("trial.lureGoo") && view.terrain(boss)==Terrain.WATER;
+                boolean withdraw = charging || lure;
+                if (Boolean.getBoolean("trial.washOoze") && view.terrain(view.pos)!=Terrain.WATER
+                        && view.source.rows.entrySet().stream().anyMatch(e -> e.getKey().matches("b[0-9]+")
+                        && e.getValue().startsWith(BuffIndicator.OOZE+","))) {
+                    int water=-1, best=Integer.MIN_VALUE;
+                    for (int dy=-1;dy<=1;dy++) for (int dx=-1;dx<=1;dx++) {
+                        int x=view.pos%view.width+dx,y=view.pos/view.width+dy;
+                        if (x<0 || y<0 || x>=view.width || y>=view.height) continue;
+                        int cell=y*view.width+x;
+                        if (!view.visible(cell) || view.terrain(cell)!=Terrain.WATER || cell==view.ally
+                                || view.monsters.containsKey(cell) || blocked.contains(cell)
+                                || view.source.rows.containsKey("trap"+cell) || view.source.rows.containsKey("aim"+cell)) continue;
+                        int gap=distance(cell,boss,view.width);
+                        if (charging && gap<=2) continue;
+                        int score=charging ? gap : -Math.abs(1-gap);
+                        if (score>best) { best=score; water=cell; }
+                    }
+                    if (water>=0) return new Input("MOVE",water,0);
+                }
+                if (!charging && !(choice.action.equals("MOVE") || choice.action.equals("ATTACK")
+                        || choice.action.equals("WAIT"))) return choice;
+                if (charging && current>2) return new Input("WAIT",view.pos,0);
+                if (!withdraw && current==1) return new Input("ATTACK",boss,0);
+                int best = -1, score = Integer.MIN_VALUE;
+                for (int dy=-1;dy<=1;dy++) for (int dx=-1;dx<=1;dx++) {
+                    int x=view.pos%view.width+dx, y=view.pos/view.width+dy;
+                    if (x<0 || y<0 || x>=view.width || y>=view.height) continue;
+                    int cell=y*view.width+x, tile=view.terrain(cell);
+                    if (cell==view.pos || cell==view.ally || !view.visible(cell) || tile<0
+                            || (Terrain.flags[tile]&Terrain.PASSABLE)==0 || blocked.contains(cell)
+                            || view.monsters.containsKey(cell) || view.source.rows.containsKey("trap"+cell)
+                            || view.source.rows.containsKey("aim"+cell)) continue;
+                    int gap=distance(cell,boss,view.width);
+                    if (withdraw ? gap<=current : gap>=current) continue;
+                    int value=(withdraw ? 20 : -20)*gap;
+                    if (view.ally>=0) value-=distance(cell,view.ally,view.width);
+                    if (tile==Terrain.WATER) value-=lure ? 8 : 1;
+                    if (value>score) { score=value; best=cell; }
+                }
+                if (best>=0) return new Input("MOVE",best,0);
+                if (charging && choice.action.equals("MOVE") && distance(choice.cell,boss,view.width)<current)
+                    return new Input("WAIT",view.pos,0);
+            }
+            return choice;
         }
 
         Input followVisiblePartner(PublicDungeon v, Input choice) {
@@ -503,8 +567,9 @@ public final class VaultPublicRoute {
             if (returning && v.pos==meetingCell && v.monsters.isEmpty()) return new Input("WAIT",0,0);
             boolean seekStairs=rendezvousAtStairs && campaignGuide && v.branch==0
                     && (waitAtVisibleExit ? v.monsters.values().stream().noneMatch(Guide::hostile) : v.monsters.isEmpty());
-            if (seekStairs && meetOnStair && knownExit>=0 && v.visible(knownExit)
-                    && distance(v.pos,knownExit,v.width)<=1 && !hungry) {
+            boolean stayAtExit = meetOnStair && (!hungry || Boolean.getBoolean("trial.holdKnownExit"));
+            if (seekStairs && stayAtExit && knownExit>=0 && v.visible(knownExit)
+                    && distance(v.pos,knownExit,v.width)<=1) {
                 return new Input("WAIT",v.pos,0);
             }
             if (seekStairs && v.ally>=0 && knownExit>=0 && distance(v.ally,knownExit,v.width)<=2) {
@@ -627,7 +692,7 @@ public final class VaultPublicRoute {
                     }
                     // Once both have independently discovered the stair, visit counts should not
                     // drive a healthy player away from it just because they have crossed this hall before.
-                    if (seekStairs && meetOnStair && !hungry && knownExit>=0
+                    if (seekStairs && stayAtExit && knownExit>=0
                             && (c==knownExit || adjacent(c,knownExit,v.width))) {
                         value=10000-dist[c];
                     }

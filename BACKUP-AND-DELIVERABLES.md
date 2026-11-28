@@ -1,5 +1,9 @@
 # 최종 검증판 발행
 
+## SYNC42 인수 재개 및 별도 Cloud 후보
+
+Drive 누적은 APK 1회, ZIP 0회, 신규 0개다. 현재 대응 ZIP은 SYNC41 소스 7ba9bb3이며 SYNC42 전체 필수 증거와 승인 확보 후 6200b55 소스로 구성한다. SYNC46·47은 Cloud에 보존했다. [검증 범위와 실제 저장](docs/coop/powered-summon-results.md)
+
 ## 2026-11-28 SYNC42 Android 재개 및 SYNC45 Cloud
 
 기존 파일을 비로그인으로 내려받아 APK 35,410,029바이트(SYNC42, 6200b55), ZIP 77,693,505바이트(SYNC41, 7ba9bb3)의 SHA-256을 확인했다. 이번 각 파일의 갱신은 0회다. 누적 APK 1회, ZIP 0회, 신규 파일 0개다. ZIP 발행 조건은 SYNC42의 160개 필수 관측 통과다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 검증](docs/coop/regrowth-warding-results.md)

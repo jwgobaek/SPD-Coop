@@ -1,5 +1,9 @@
 # 협동 콘텐츠 지원표
 
+## SYNC47 원본 사용 범위
+
+개인 Trinity 형상 19/113, 원본 지팡이 다섯 경로 12/13, 일반 물약 운영 음용 8/12, 원본 반지 개별 착용 효과 7/12다. 399개 장부 중 개별 native_use 근거는 117행이다. [검증 범위와 실제 저장](docs/coop/powered-summon-results.md)
+
 ## 2026-11-28 SYNC42 Android 재개 및 SYNC45 Cloud
 
 원본 소스 399행 중 native_use에 개별 근거가 있는 항목은 111행이다. 재성장·수호 지팡이와 기존 신속 반지의 실제 효과 근거를 연결했다. 이전 VERIFIED/PARTIAL 95행의 분류는 보존했다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 검증](docs/coop/regrowth-warding-results.md)

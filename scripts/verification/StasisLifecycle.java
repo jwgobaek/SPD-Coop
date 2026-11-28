@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LifeLink;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.mage.WarpBeacon;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfEnchantment;
@@ -61,6 +62,40 @@ public class StasisLifecycle extends HeadlessDungeon {
         PoweredWandSummonTest.empower(game, seat, ally);
         PoweredWandSummonTest.hold(game, seat, ally);
         return ally.id();
+    }
+
+    @Test public void wandSummonLifeLinkIsSuspendedAndReturnsToItsOwnSeat() {
+        for (int seat=0; seat<2; seat++) for (boolean ward:new boolean[]{false,true}) {
+            Bundle held;
+            int id;
+            try (CoopSession game=CoopSession.open(572,11,HeroClass.CLERIC)) {
+                game.join(22,HeroClass.CLERIC);
+                var ally=PoweredWandSummonTest.conjure(game,seat,ward);
+                PoweredWandSummonTest.empower(game,seat,ally);
+                Hero owner=game.hero(seat);
+                HolyTome tome=owner.belongings.getItem(HolyTome.class);
+                SewerBeeTest.offer(game,seat);
+                assertTrue(CoopFloorsTest.step(game,INVEST_TALENT,Talent.LIFE_LINK.ordinal(),null));
+                assertTrue(CoopFloorsTest.step(game,LIFE_LINK,owner.pos,tome));
+                id=ally.id();
+                assertEquals(id,owner.buff(LifeLink.class).object);
+                PoweredWandSummonTest.hold(game,seat,ally);
+                assertNull(owner.buff(LifeLink.class));
+                assertNull(game.hero(1-seat).buff(LifeLink.class));
+                held=game.checkpoint();
+            }
+            try (CoopSession game=CoopSession.restore(held)) {
+                Hero owner=game.hero(seat);
+                var ally=Stasis.getStasisAlly(owner);
+                assertEquals(id,ally.id());
+                assertEquals(owner.id(),ally.buff(LifeLink.class).object);
+                SewerBeeTest.offer(game,seat);
+                assertTrue(CoopFloorsTest.step(game,STASIS,owner.pos,owner.belongings.artifact));
+                assertEquals(id,owner.buff(LifeLink.class).object);
+                assertNull(game.hero(1-seat).buff(LifeLink.class));
+                game.validateActorGraph();
+            }
+        }
     }
 
     @Test public void lethalHitsFreezeDownedPocketsAndDiscardFinalCasualties() {
