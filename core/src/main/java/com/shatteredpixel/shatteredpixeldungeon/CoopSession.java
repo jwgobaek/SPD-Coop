@@ -1195,7 +1195,8 @@ public final class CoopSession implements AutoCloseable {
 
     public static boolean canAimWandAtGround(Hero hero, Item item) {
         Wand wand = wandFor(hero, item);
-        return wand instanceof WandOfTransfusion || wand instanceof WandOfRegrowth || wand instanceof WandOfWarding;
+        return wand instanceof WandOfTransfusion || wand instanceof WandOfRegrowth
+                || wand instanceof WandOfWarding || wand instanceof WandOfLivingEarth;
     }
 
     private static Wand wandFor(Hero hero, Item item) {

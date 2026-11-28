@@ -22,6 +22,10 @@ import static org.junit.Assert.*;
 public class PortableAlchemyTest extends HeadlessDungeon {
 
     static StagedInput prepare(CoopSession game, int seat, int stored) {
+        return prepareRecipe(game, seat, stored, "kitbrew");
+    }
+
+    static StagedInput prepareRecipe(CoopSession game, int seat, int stored, String recipe) {
         CoopMageTest.encounter(game,seat);
         var hero = game.hero(seat);
         AlchemistsToolkit kit = new AlchemistsToolkit();
@@ -31,10 +35,30 @@ public class PortableAlchemyTest extends HeadlessDungeon {
         assertTrue(CoopFloorsTest.step(game,EQUIP,0,kit));
         assertFalse(kit.readyToBrew(hero));
         kit.upgrade(10);
-        MultiAlchemyTest.pick(game,seat,new ScrollOfUpgrade().identify());
+        String verb;
+        switch (recipe) {
+            case "kitstones":
+                MultiAlchemyTest.pick(game, seat, new ScrollOfLullaby());
+                verb = "BREW_RUNESTONES";
+                break;
+            case "kitseeds":
+                MultiAlchemyTest.pick(game, seat, new Firebloom.Seed().quantity(3));
+                verb = "BREW_SEEDS";
+                break;
+            case "kitvision":
+                MultiAlchemyTest.pick(game, seat, new PotionOfMindVision().identify(false));
+                verb = "BREW_EXOTIC";
+                break;
+            case "kitbrew":
+                MultiAlchemyTest.pick(game, seat, new ScrollOfUpgrade().identify());
+                verb = "BREW_ENCHANTMENT";
+                break;
+            default:
+                throw new IllegalArgumentException(recipe);
+        }
         MultiAlchemyTest.pick(game,seat,new EnergyCrystal().quantity(6));
         assertTrue(kit.readyToBrew(hero));
-        return new StagedInput(game,"BREW_ENCHANTMENT",CoopAlchemy.PORTABLE);
+        return new StagedInput(game,verb,CoopAlchemy.PORTABLE);
     }
 
     static boolean published(CoopSession game, int seat) {
@@ -43,6 +67,26 @@ public class PortableAlchemyTest extends HeadlessDungeon {
         return result != null && game.ownership.owner(result)==game.player(seat)
                 && hero.belongings.getItem(ScrollOfUpgrade.class)==null
                 && CoopAlchemy.portable(game,hero).availableEnergy()==0 && Dungeon.energy==2;
+    }
+
+    static boolean recipePublished(CoopSession game, int seat, String recipe) {
+        var bag = game.hero(seat).belongings;
+        var kit = CoopAlchemy.portable(game, game.hero(seat));
+        if (kit == null) return false;
+        if (recipe.equals("kitvision")) {
+            var result = bag.getItem(PotionOfMagicalSight.class);
+            return result != null && game.ownership.owner(result) == game.player(seat)
+                    && bag.getItem(PotionOfMindVision.class) == null && kit.availableEnergy() == 0 && Dungeon.energy == 4;
+        }
+        if (kit.availableEnergy() != 2 || Dungeon.energy != 6) return false;
+        if (recipe.equals("kitstones")) {
+            var result = bag.getItem(StoneOfDeepSleep.class);
+            return result != null && result.quantity() == 2 && bag.getItem(ScrollOfLullaby.class) == null
+                    && game.ownership.owner(result) == game.player(seat);
+        }
+        var result = bag.getItem(PotionOfLiquidFlame.class);
+        return result != null && result.isKnown() && result.quantity() == 1 && bag.getItem(Firebloom.Seed.class) == null
+                && game.ownership.owner(result) == game.player(seat);
     }
 
     @Test public void portableRecipesShareIngredientsAndUseOnlyTheOwnersTool() throws Exception {

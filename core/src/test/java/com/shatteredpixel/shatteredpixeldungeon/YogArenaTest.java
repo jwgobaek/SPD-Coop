@@ -247,8 +247,21 @@ public class YogArenaTest extends HeadlessDungeon {
 
     static void awaitExit(CoopSession game) {
         SewerSpecialActorTest.atGate(game,Dungeon.level.exit());
-        for (int i=0;i<100 && game.stairs.stair()!=Dungeon.level.exit();i++) TenguArenaTest.waitOne(game);
-        assertEquals("Both surviving heroes must see and reach the open exit",Dungeon.level.exit(),game.stairs.stair());
+        for (int i=0; i<100 && game.stairs.stair()!=Dungeon.level.exit(); i++) {
+            if (game.activeSeat()<0) break;
+            TenguArenaTest.waitOne(game);
+        }
+        String state = "";
+        if (game.stairs.stair()!=Dungeon.level.exit()) {
+            state = "active="+game.activeSeat()+" turn="+game.turn()+" actorTime="
+                    +com.shatteredpixel.shatteredpixeldungeon.actors.Actor.now()+" stop="+game.stopReason();
+            for (int seat=0; seat<2; seat++) {
+                var hero = game.hero(seat);
+                state += " seat"+seat+"="+game.life(seat)+",hp="+hero.HP+",pos="+hero.pos
+                        +",seesExit="+game.knowledge(hero).visible(Dungeon.level.exit());
+            }
+        }
+        assertEquals("Both surviving heroes must see and reach the open exit "+state, Dungeon.level.exit(), game.stairs.stair());
     }
 
     static int amuletCell() {

@@ -14,6 +14,9 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.watabou.utils.Bundle;
 import org.junit.Test;
 import static com.shatteredpixel.shatteredpixeldungeon.CoopSession.Action.*;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.AlarmTrap;
 import static org.junit.Assert.*;
 
 public class LivingEarthTest extends HeadlessDungeon {
@@ -28,6 +31,30 @@ public class LivingEarthTest extends HeadlessDungeon {
         game.observe(seat);
         SewerBeeTest.offer(game,seat);
         return new StagedInput(game,"ZAP",guardian.pos);
+    }
+
+    static StagedInput prepareTrap(CoopSession game, int seat) {
+        CoopMageTest.encounter(game, seat);
+        WandArtsTest.give(game, seat, new WandOfLivingEarth());
+        int cell = game.hero(seat).pos+1;
+        assertNull(Actor.findChar(cell));
+        assertNull(Actor.findChar(cell+1));
+        Level.set(cell+1, Terrain.WALL);
+        var trap = new AlarmTrap();
+        Dungeon.level.setTrap(trap, cell);
+        trap.reveal();
+        Level.set(cell, Terrain.TRAP);
+        game.observe(seat);
+        SewerBeeTest.offer(game, seat);
+        return new StagedInput(game, "ZAP", cell);
+    }
+
+    static boolean trapPublished(CoopSession game, int seat) {
+        var hero = game.hero(seat);
+        var wand = hero.belongings.getItem(WandOfLivingEarth.class);
+        var trap = Dungeon.level.traps.get(hero.pos+1);
+        return trap instanceof AlarmTrap && !trap.active
+                && wand.curCharges == wand.maxCharges-1 && game.ownership.owner(wand) == game.player(seat);
     }
 
     static boolean published(CoopSession game, int seat) {

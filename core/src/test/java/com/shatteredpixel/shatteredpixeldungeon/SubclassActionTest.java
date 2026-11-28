@@ -42,6 +42,8 @@ public class SubclassActionTest extends HeadlessDungeon {
                 CoopSession.Action action=CoopSession.Action.valueOf(move.name());
                 assertFalse(CoopFloorsTest.step(game,action,game.hero(1-seat).pos,null));
                 int pos=enemy.pos, hp=enemy.HP;
+                // An unmodified sword can roll 1 on SLAM against the rat's native DR of 1.
+                if (move == Combo.ComboMove.SLAM) hero.belongings.weapon().upgrade();
                 // CRUSH halves its splash roll before subtracting the second rat's actual DR.
                 if (move == Combo.ComboMove.CRUSH) hero.belongings.weapon().upgrade(3);
                 Rat other = new Rat();
@@ -63,7 +65,7 @@ public class SubclassActionTest extends HeadlessDungeon {
                         assertTrue(other.HP < other.HT);
                         // fall through
                     default:
-                        assertTrue(enemy.HP<hp);
+                        assertTrue(move+" role="+seat+" hp="+hp+"->"+enemy.HP,enemy.HP<hp);
                         assertNull(hero.buff(Combo.class));
                 }
                 saved=game.checkpoint();

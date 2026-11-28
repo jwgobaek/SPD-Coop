@@ -37,7 +37,7 @@ public final class CoopRenderSmoke {
             return;
         }
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|detectstone-input|guessstone-input|kitbrew-input|fearstone-input|visiondrink-input|corruptzap-input|regrowth-input|wardzap-input|seedbrew-input|cauldron-input|eagle-input|stasis-input|beacon-vote-input|strength-input|recharging-input|lullaby-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|detectstone-input|guessstone-input|kit(brew|vision|stones|seeds)-input|fearstone-input|visiondrink-input|corruptzap-input|regrowth-input|earthtrap-input|wardzap-input|seedbrew-input|cauldron-input|eagle-input|stasis-input|beacon-vote-input|strength-input|recharging-input|lullaby-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -1330,10 +1330,11 @@ public final class CoopRenderSmoke {
                     return;
                 }
                 if (regionShot.equals("fearstone-input") || regionShot.equals("visiondrink-input")
-                        || regionShot.equals("corruptzap-input") || regionShot.equals("regrowth-input") || regionShot.equals("wardzap-input")) {
+                        || regionShot.equals("corruptzap-input") || regionShot.equals("regrowth-input") || regionShot.equals("earthtrap-input") || regionShot.equals("wardzap-input")) {
                     boolean drink = regionShot.equals("visiondrink-input");
                     boolean ward = regionShot.equals("wardzap-input");
-                    boolean zap = ward || regionShot.equals("regrowth-input") || regionShot.equals("corruptzap-input");
+                    boolean earthTrap = regionShot.equals("earthtrap-input");
+                    boolean zap = ward || earthTrap || regionShot.equals("regrowth-input") || regionShot.equals("corruptzap-input");
                     String kind = drink ? "POTION" : zap ? "WAND" : "THROW_STONE";
                     String verb = drink ? "drink" : zap ? "zap" : "throw";
                     await(() -> frame().dungeon.offered && frame().dungeon.belongings.stream().anyMatch(i -> i.kind.equals(kind)));
@@ -1350,7 +1351,7 @@ public final class CoopRenderSmoke {
                                 click("cancel");
                                 if (frame().image != shown.source) throw new AssertionError("Aim cancellation changed the offer");
                             } else {
-                                int cell = ward ? shown.pos+2 : shown.monsters.entrySet().stream().filter(e -> e.getValue().equals("Rat"))
+                                int cell = ward ? shown.pos+2 : earthTrap ? shown.pos+1 : shown.monsters.entrySet().stream().filter(e -> e.getValue().equals("Rat"))
                                         .findFirst().orElseThrow().getKey();
                                 press(mapPoint(shown,cell));
                             }
@@ -1365,37 +1366,41 @@ public final class CoopRenderSmoke {
                     System.out.println("PASS native inventory "+verb+" and confirmed item cost");
                     return;
                 }
-                if (regionShot.equals("kitbrew-input")) {
+                if (regionShot.matches("kit(brew|vision)-input")) {
                     await(() -> frame().dungeon.offered && frame().image.rows.keySet().stream().anyMatch(k -> k.startsWith("kitenergy")));
                     PublicDungeon view=frame().dungeon;
-                    var ingredient=view.belongings.stream().filter(i -> view.source.rows.containsKey("brewexotic"+i.id)).findFirst().get();
+                    var ingredient=view.belongings.stream().filter(i -> view.source.rows.containsKey("exoticrecipe"+i.id)).findFirst().get();
                     for (boolean confirm : new boolean[]{false,true}) {
                         bagAction("ALCHEMY_KIT","portable_brew");
                         await(() -> selectorOpen());
                         openInventoryTab(ingredient.bagIndex);
                         press(inventoryPoint(ingredient.id));
                         String[] mixture=view.source.rows.get("exoticrecipe"+ingredient.id).split(",");
-                        String label=Messages.titleCase(Messages.get(mixture[0]+".name"))+" ("+
-                                Messages.get(com.shatteredpixel.shatteredpixeldungeon.scenes.AlchemyScene.class,"energy")+" "+mixture[2]+")";
+                        String label=view.source.rows.containsKey("brew"+ingredient.id) ? Messages.titleCase(Messages.get(mixture[0]+".name"))+" ("+
+                                Messages.get(com.shatteredpixel.shatteredpixeldungeon.scenes.AlchemyScene.class,"energy")+" "+mixture[2]+")" : Messages.get(com.shatteredpixel.shatteredpixeldungeon.scenes.AlchemyScene.class, "craft");
                         await(() -> button("#"+label)!=null);
                         shot(confirm?"portable-confirm":"portable-preview");
                         click("#"+(confirm?label:Messages.get(com.shatteredpixel.shatteredpixeldungeon.scenes.AlchemyScene.class,"cancel")));
                         if (!confirm && frame().image!=view.source) throw new AssertionError("Cancelled portable brew spent resources");
                     }
-                    await(() -> frame().image.version>view.source.version && !frame().image.rows.containsKey("brewexotic"+ingredient.id));
+                    await(() -> frame().image.version>view.source.version && !frame().image.rows.containsKey("exoticrecipe"+ingredient.id));
                     PublicDungeon after=frame().dungeon;
                     if (!after.belongings.stream().anyMatch(i -> "0".equals(after.source.rows.get("kitenergy"+i.id))))
                         throw new AssertionError("Tool balance after portable brew");
                     System.out.println("PASS native portable toolkit preview, cancel, craft and original owner charge");
                     return;
                 }
-                if (regionShot.equals("seedbrew-input")) {
+                if (regionShot.equals("seedbrew-input") || regionShot.equals("kitseeds-input")) {
+                    boolean portable = regionShot.equals("kitseeds-input");
                     await(() -> frame().dungeon.offered && frame().image.rows.keySet().stream().anyMatch(k -> k.startsWith("brewseed")));
                     PublicDungeon view = frame().dungeon;
-                    int cell = Integer.parseInt(view.source.rows.keySet().stream().filter(k -> k.startsWith("cauldron")).findFirst().get().substring(8));
+                    int cell = portable ? -1 : Integer.parseInt(view.source.rows.keySet().stream().filter(k -> k.startsWith("cauldron")).findFirst().get().substring(8));
                     PublicDungeon.Loot seed = view.belongings.stream().filter(i -> view.source.rows.containsKey("brewseed"+i.id)).findFirst().get();
                     for (boolean confirm : new boolean[]{false,true}) {
-                        press(mapPoint(view, cell));
+                        if (portable) {
+                            bagAction("ALCHEMY_KIT", "portable_brew");
+                            await(() -> selectorOpen());
+                        } else press(mapPoint(view, cell));
                         openInventoryTab(seed.bagIndex);
                         press(inventoryPoint(seed.id));
                         for (int slot=1;slot<3;slot++) {
@@ -1420,14 +1425,18 @@ public final class CoopRenderSmoke {
                     System.out.println("PASS three native inventory selections, cancel, reselect and authoritative potion receipt");
                     return;
                 }
-                if (regionShot.equals("cauldron-input")) {
-                    await(() -> frame().dungeon.offered && frame().image.rows.keySet().stream().anyMatch(k -> k.startsWith("cauldron")));
+                if (regionShot.equals("cauldron-input") || regionShot.equals("kitstones-input")) {
+                    boolean portable = regionShot.equals("kitstones-input");
+                    await(() -> frame().dungeon.offered && frame().image.rows.keySet().stream().anyMatch(k -> k.startsWith(portable ? "kitenergy" : "cauldron")));
                     PublicDungeon view = frame().dungeon;
-                    int cell = Integer.parseInt(view.source.rows.keySet().stream().filter(k -> k.startsWith("cauldron"))
+                    int cell = portable ? -1 : Integer.parseInt(view.source.rows.keySet().stream().filter(k -> k.startsWith("cauldron"))
                             .findFirst().get().substring("cauldron".length()));
                     long scroll = view.belongings.stream().filter(i -> view.source.rows.containsKey("brew" + i.id)).findFirst().get().id;
                     for (boolean craft : new boolean[]{false, true}) {
-                        press(mapPoint(view, cell));
+                        if (portable) {
+                            bagAction("ALCHEMY_KIT", "portable_brew");
+                            await(() -> selectorOpen());
+                        } else press(mapPoint(view, cell));
                         press(inventoryPoint(scroll));
                         String choice = Messages.get(com.shatteredpixel.shatteredpixeldungeon.scenes.AlchemyScene.class, craft ? "craft" : "cancel");
                         shot(craft ? "cauldron-confirm" : "cauldron-preview");
@@ -1439,7 +1448,7 @@ public final class CoopRenderSmoke {
                             com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet.STONE_SLEEP && i.quantity == 2))
                         throw new AssertionError("Missing two crafted runestones");
                     shot("cauldron-result");
-                    System.out.println("PASS real cauldron, ingredient choice, cancellation, brew and two runestones");
+                    System.out.println("PASS " + (portable ? "equipped toolkit" : "adjacent cauldron") + ", ingredient choice, cancellation, brew and two runestones");
                     return;
                 }
                 if (regionShot.equals("scroll-enchant-input")) { enchantScrollInput(); return; }

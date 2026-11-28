@@ -476,7 +476,7 @@ public class CoopScene extends PixelScene {
         boolean missile=view.source.rows.containsKey("potionthrow"+targetStaff.id) || PublicDungeon.isMissileKind(targetStaff.kind) || targetStaff.kind.equals("FOOD") || targetStaff.kind.equals("SLEEP_STONE") || targetStaff.kind.equals("THROW_STONE");
         boolean areaWand = view.source.rows.containsKey("areawand"+targetStaff.id) || (targetStaff.kind.equals("WAND") || targetStaff.kind.equals("UNIDENTIFIED_WAND")) && (targetStaff.sprite == ItemSpriteSheet.WAND_CORRUPTION || targetStaff.sprite == ItemSpriteSheet.WAND_TRANSFUSION || targetStaff.sprite == ItemSpriteSheet.WAND_LIGHTNING || targetStaff.sprite == ItemSpriteSheet.WAND_FROST || targetStaff.sprite == ItemSpriteSheet.WAND_BLAST_WAVE
                 || targetStaff.sprite == ItemSpriteSheet.WAND_FIREBOLT || targetStaff.sprite == ItemSpriteSheet.WAND_REGROWTH
-                || targetStaff.sprite == ItemSpriteSheet.WAND_WARDING);
+                || targetStaff.sprite == ItemSpriteSheet.WAND_WARDING || targetStaff.sprite == ItemSpriteSheet.WAND_LIVING_EARTH);
         boolean selfBattery = !missile && !bow && cell == view.pos && view.source.rows.containsKey("talent"+Talent.SHIELD_BATTERY.ordinal());
         if (targetView==view && (selfBattery || enemy || ((missile || areaWand || bow && view.source.rows.containsKey("talent"+Talent.SEER_SHOT.ordinal())) && actor==null && view.visible(cell)) || (!missile && !bow && view.chest(cell)))
                 && controller.act(view.source,missile?"THROW":bow?"SHOOT":"ZAP",cell,targetStaff.id)) cancelAim();

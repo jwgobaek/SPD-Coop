@@ -23,6 +23,7 @@ public class CorrosionLifecycle extends HeadlessDungeon {
                 trial.followCloud(seat, false);
                 trial.afterCasterDeath(seat);
                 trial.peerEntersExistingGas(seat);
+                trial.existingDamageAcrossSourceChanges(seat);
             }
         } finally {
             trial.stopBackend();
@@ -121,6 +122,40 @@ public class CorrosionLifecycle extends HeadlessDungeon {
             assertNotNull(effect);
             assertSame(caster, effect.caster());
             System.out.println("PASS peer entered existing player gas seat=" + peerSeat + " HP " + before + "->" + peer.HP);
+        }
+    }
+
+    private void existingDamageAcrossSourceChanges(int seat) {
+        try (CoopSession game = CoopSession.open(572, 11, HeroClass.MAGE)) {
+            game.join(22, HeroClass.MAGE);
+            CoopMageTest.encounter(game, seat);
+            Hero first = game.hero(seat), peer = game.hero(1-seat);
+            WandOfCorrosion wand = new WandOfCorrosion();
+            wand.onZap(first, new Ballistica(first.pos, peer.pos, Ballistica.STOP_TARGET));
+            CorrosiveGas cloud = gas();
+            cloud.act();
+            Corrosion dot = peer.buff(Corrosion.class);
+            assertNotNull(dot);
+            assertSame(first, dot.caster());
+            int id = dot.id();
+            wand.upgrade(2);
+            wand.onZap(peer, new Ballistica(peer.pos, peer.pos, Ballistica.STOP_TARGET));
+            assertEquals(peer.id(), state(cloud).getInt("coop_caster"));
+            assertSame(first, dot.caster());
+            int hp = peer.HP;
+            dot.act();
+            assertTrue(peer.HP < hp);
+            assertSame(first, dot.caster());
+            cloud.act();
+            assertSame(dot, peer.buff(Corrosion.class));
+            assertSame(peer, dot.caster());
+            cloud.setStrength(8, com.shatteredpixel.shatteredpixeldungeon.levels.traps.CorrosionTrap.class);
+            assertSame(peer, dot.caster());
+            cloud.act();
+            assertEquals(id, peer.buff(Corrosion.class).id());
+            assertNull(dot.caster());
+            System.out.printf("PASS seat=%d DOT=%d HP=%d->%d retains old caster until re-exposure; environment clears it%n",
+                    seat, id, hp, peer.HP);
         }
     }
 
