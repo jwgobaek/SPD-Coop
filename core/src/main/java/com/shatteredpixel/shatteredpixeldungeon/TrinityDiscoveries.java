@@ -5,7 +5,13 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Swiftness;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAccuracy;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEvasion;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTenacity;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing;
@@ -36,7 +42,12 @@ public final class TrinityDiscoveries {
         BLOOMING(-111, Talent.BODY_FORM, com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blooming.class),
         DISINTEGRATION(-112, Talent.MIND_FORM, com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration.class),
         TRANSFUSION(-113, Talent.MIND_FORM, com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTransfusion.class),
-        CORRUPTION(-114, Talent.MIND_FORM, com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorruption.class);
+        CORRUPTION(-114, Talent.MIND_FORM, com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorruption.class),
+        ACCURACY(-115, Talent.SPIRIT_FORM, RingOfAccuracy.class),
+        EVASION(-116, Talent.SPIRIT_FORM, RingOfEvasion.class),
+        ENERGY(-117, Talent.SPIRIT_FORM, RingOfEnergy.class),
+        FUROR(-118, Talent.SPIRIT_FORM, RingOfFuror.class),
+        TENACITY(-119, Talent.SPIRIT_FORM, RingOfTenacity.class);
 
         public final int target;
         public final Talent form;
@@ -61,6 +72,13 @@ public final class TrinityDiscoveries {
                 Catalog.THROWN_WEAPONS, Catalog.TIPPED_DARTS, Catalog.RINGS, Catalog.ARTIFACTS)) {
             for (Class<?> type : group.items()) if (type != HolyTome.class) NATIVE_TYPES.add(type.getName());
         }
+    }
+
+    public static boolean supportsSpiritRing(Ring ring) {
+        for (Choice choice : Choice.values()) {
+            if (choice.form == Talent.SPIRIT_FORM && choice.effect == ring.getClass()) return true;
+        }
+        return false;
     }
 
     private final Set<String> seen = new TreeSet<>();

@@ -58,7 +58,9 @@ public class SealArtsTest extends HeadlessDungeon {
                 break;
             case "spirit":
                 talent = Talent.SPIRIT_FORM;
-                reference = new com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste();
+                TrinityDiscoveries.Choice choice = TrinityDiscoveries.Choice.valueOf(System.getProperty("spd.selector.spirit", "HASTE"));
+                assertEquals(talent, choice.form);
+                reference = (Item)com.watabou.utils.Reflection.newInstance(choice.effect);
                 break;
             default: throw new IllegalArgumentException("Unknown selector " + kind);
             }

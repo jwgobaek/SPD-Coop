@@ -151,7 +151,7 @@ public class Trinity extends ArmorAbility {
     }
 
     public boolean useSpirit(Hero hero,ClassArmor armor) {
-        if (!(spiritForm instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste) || hero.buff(MagicImmune.class)!=null) return false;
+        if (!(spiritForm instanceof Ring) || !TrinityDiscoveries.supportsSpiritRing((Ring)spiritForm) || hero.buff(MagicImmune.class)!=null) return false;
         float cost=trinityChargeUsePerEffect(hero,spiritForm.getClass());
         if (armor.charge<cost || hero.belongings.ring()!=null && hero.belongings.ring().getClass()==spiritForm.getClass()
                 || hero.belongings.misc()!=null && hero.belongings.misc().getClass()==spiritForm.getClass()) return false;

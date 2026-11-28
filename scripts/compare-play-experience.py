@@ -19,6 +19,7 @@ parser.add_argument('--stair-strategy', choices=('scout', 'wait', 'meet'),
 parser.add_argument('--avoid-outnumbered', action='store_true',
                     help='Withdraw from multiple visible nearby enemies when hurt and separated.')
 parser.add_argument('--defensive-pair', action='store_true', help='Conserve the last cloak charge and keep the follower near its last directly observed partner.')
+parser.add_argument('--rest-together', action='store_true', help='Rest in sight of a living partner while fed and hurt, leaving as soon as an enemy appears.')
 parser.add_argument('--save-floors', type=Path, help='Keep the first surviving arrival checkpoint on each new floor in this trial.')
 parser.add_argument('--trace-stairs', action='store_true',
                     help='Record each active seat’s public stair observations after the first floor or at low health.')
@@ -52,6 +53,8 @@ with TemporaryDirectory() as tmp:
         guide_options.append('-Dtrial.avoidOutnumbered=true')
     if args.defensive_pair:
         guide_options.append('-Dtrial.defensivePair=true')
+    if args.rest_together:
+        guide_options.append('-Dtrial.restTogether=true')
     if args.save_floors:
         args.save_floors.mkdir(parents=True, exist_ok=True)
         guide_options.append('-Dtrial.saveFloors='+str(args.save_floors.resolve()))

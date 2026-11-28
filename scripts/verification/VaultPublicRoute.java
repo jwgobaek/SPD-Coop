@@ -447,6 +447,15 @@ public final class VaultPublicRoute {
                 int cover = retreat(v);
                 if (cover >= 0) return new Input("MOVE",cover,0);
             }
+            if (Boolean.getBoolean("trial.restTogether")) {
+                boolean onGuard = v.ally>=0 && lastAllyAlive && distance(v.pos,v.ally,v.width)<=4
+                        && !hungry && v.monsters.isEmpty() && !v.source.rows.containsKey("trap"+v.pos);
+                if (onGuard && v.hp*5<v.maxHp*4 && recoveryWaits<32) {
+                    recoveryWaits++;
+                    return new Input("WAIT",0,0);
+                }
+                if (!onGuard || v.hp*5>=v.maxHp*4) recoveryWaits=0;
+            }
             if (restUnderCover) {
                 if (!v.monsters.isEmpty()) recoveryWaits = 0;
                 if (!hungry && v.monsters.isEmpty() && recentShooters.isEmpty() && v.ally >= 0

@@ -134,6 +134,55 @@ public class PortableAlchemyTest extends HeadlessDungeon {
         }
     }
 
+    @Test public void twoWornKitsRecheckTheSharedBalanceAndKeepBothPhysicalCharges() {
+        for (int seat=0; seat<2; seat++) {
+            Bundle saved;
+            long ownerId,peerId;
+            try (CoopSession game=CoopSession.open(572,11,HeroClass.WARRIOR)) {
+                game.join(22,HeroClass.WARRIOR);
+                prepare(game,seat,2);
+                var owner=game.hero(seat);
+                var peer=game.hero(1-seat);
+                var first=CoopAlchemy.portable(game,owner);
+                var second=new AlchemistsToolkit();
+                MultiAlchemyTest.pick(game,1-seat,second);
+                second.charge(peer,12f);
+                assertTrue(CoopFloorsTest.step(game,EQUIP,0,second));
+                second.upgrade(10);
+                var ingredient=new ScrollOfUpgrade();
+                ingredient.identify(false);
+                MultiAlchemyTest.pick(game,1-seat,ingredient);
+                ownerId=game.ownership.identity(first);
+                peerId=game.ownership.identity(second);
+                assertNotEquals(ownerId,peerId);
+                assertEquals(3,second.availableEnergy());
+                assertEquals(6,Dungeon.energy);
+                SewerBeeTest.offer(game,seat);
+                assertTrue(CoopFloorsTest.step(game,BREW_ENCHANTMENT,CoopAlchemy.PORTABLE,
+                        owner.belongings.getItem(ScrollOfUpgrade.class)));
+                assertEquals(0,first.availableEnergy());
+                assertEquals(2,Dungeon.energy);
+                SewerBeeTest.offer(game,1-seat);
+                assertFalse(CoopFloorsTest.step(game,BREW_ENCHANTMENT,CoopAlchemy.PORTABLE,ingredient));
+                assertSame(ingredient,peer.belongings.getItem(ScrollOfUpgrade.class));
+                assertEquals(3,second.availableEnergy());
+                assertEquals(2,Dungeon.energy);
+                saved=game.checkpoint();
+            }
+            try (CoopSession game=CoopSession.restore(saved)) {
+                var first=CoopAlchemy.portable(game,game.hero(seat));
+                var second=CoopAlchemy.portable(game,game.hero(1-seat));
+                assertEquals(ownerId,game.ownership.identity(first));
+                assertEquals(peerId,game.ownership.identity(second));
+                assertEquals(0,first.availableEnergy());
+                assertEquals(3,second.availableEnergy());
+                assertEquals(2,Dungeon.energy);
+                assertNotNull(game.hero(seat).belongings.getItem(ScrollOfEnchantment.class));
+                assertNull(game.hero(1-seat).belongings.getItem(ScrollOfEnchantment.class));
+            }
+        }
+    }
+
     @Test public void originalCostsConsumeOnlyOwnersEquippedToolkitAndRestore() throws Exception {
         for (int seat=0;seat<2;seat++) for (int stored:new int[]{0,2,6,9}) {
             Bundle saved;
