@@ -1,0 +1,401 @@
+{
+  "build_commit": "6200b55b3d2e6c9a23a076a124b4f19168db3829",
+  "apk_sha256": "d46f64e1523b9d7ec667035f793b20472dc48ab98defd08f0d323a9217de6f89",
+  "bytes": 35410029,
+  "scenarios": {
+    "HolyIntuition": {
+      "action": "HOLY_INTUITION",
+      "outcome": "APPLIED"
+    },
+    "RecallInscription": {
+      "action": "RECALL_INSCRIPTION",
+      "outcome": "APPLIED"
+    },
+    "BodyForm": {
+      "action": "BODY_FORM",
+      "outcome": "APPLIED"
+    },
+    "MindForm": {
+      "action": "MIND_FORM",
+      "outcome": "APPLIED"
+    },
+    "SpiritForm": {
+      "action": "SPIRIT_FORM",
+      "outcome": "APPLIED"
+    },
+    "scroll-pickup": {
+      "action": "PICK_UP",
+      "outcome": "APPLIED"
+    },
+    "read-unknown": {
+      "action": "READ_SCROLL",
+      "outcome": "APPLIED"
+    },
+    "read-known": {
+      "action": "READ_SCROLL",
+      "outcome": "APPLIED"
+    },
+    "cancel-before-target": {
+      "action": "ENCHANT_CANCEL",
+      "outcome": "APPLIED"
+    },
+    "cancel-after-draw": {
+      "action": "ENCHANT_CANCEL",
+      "outcome": "APPLIED"
+    },
+    "bow": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "bag-weapon": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "worn-weapon": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "worn-armor": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "sealed-armor": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "restart-three-options": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "APPLIED"
+    },
+    "private-options": {
+      "action": "ENCHANT_TARGET",
+      "outcome": "APPLIED"
+    },
+    "stale-selection": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "REJECT_VERSION"
+    },
+    "duplicate-selection": {
+      "action": "ENCHANT_CHOOSE",
+      "outcome": "REPLAY"
+    },
+    "stasis-store": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-manual-release": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-reauth-held-menu": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-release-clears-held": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-private-while-peer-active": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-dual-held-independent-release": {
+      "action": "STASIS",
+      "outcome": "APPLIED"
+    },
+    "stasis-blocked-release": {
+      "action": "STASIS",
+      "outcome": "REJECT_INVALID"
+    },
+    "stasis-expiry-retry": {
+      "action": "WAIT",
+      "outcome": "APPLIED"
+    },
+    "stasis-expiry-clears-held": {
+      "action": "WAIT",
+      "outcome": "APPLIED"
+    },
+    "stasis-duplicate-release": {
+      "action": "STASIS",
+      "outcome": "REPLAY"
+    },
+    "stasis-held-floor-restore": {
+      "action": "CONSENT",
+      "outcome": "APPLIED"
+    },
+    "cauldron-visible-station": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-own-ingredient": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-unknown-lullaby": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-hidden-preview": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-cancel-preview": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-reselect": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-craft": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-consume-one": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-two-stone-stack": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-bound-owner": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-full-bag": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "cauldron-recover-floor": {
+      "action": "PICK_UP",
+      "outcome": "APPLIED"
+    },
+    "cauldron-duplicate": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "REPLAY"
+    },
+    "cauldron-stale": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "REJECT_VERSION"
+    },
+    "cauldron-foreign-ingredient": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "REJECT_ITEM"
+    },
+    "cauldron-reconnect-next": {
+      "action": "BREW_RUNESTONES",
+      "outcome": "APPLIED"
+    },
+    "private-lullaby": {
+      "action": "READ_SCROLL",
+      "outcome": "APPLIED",
+      "observations": [
+        "unknown type and effect hidden in ordinary detail, inventory and quickslot",
+        "appearance and pickup text only",
+        "ingredient selection and unknown rune preview",
+        "no identifying fields in full or delta before or after reconnect",
+        "native read, identification, remaining stack, identified detail on the same device"
+      ]
+    },
+    "private-recharging": {
+      "action": "READ_SCROLL",
+      "outcome": "APPLIED",
+      "observations": [
+        "unknown type and effect hidden in ordinary detail, inventory and quickslot",
+        "appearance and pickup text only",
+        "ingredient selection and unknown rune preview",
+        "no identifying fields in full or delta before or after reconnect",
+        "native read, identification, remaining stack, identified detail on the same device"
+      ]
+    },
+    "seed-slots": {
+      "action": "BREW_SEEDS",
+      "outcome": "APPLIED",
+      "observations": [
+        "visible adjacent station",
+        "three slots selecting the same owned stack",
+        "cancel and reselect",
+        "generic potion preview"
+      ]
+    },
+    "seed-brew": {
+      "action": "BREW_SEEDS",
+      "outcome": "APPLIED",
+      "observations": [
+        "three positive handles separated by underscores on wire",
+        "three units consumed, energy zero",
+        "one identified liquid flame result and owner"
+      ]
+    },
+    "seed-quantity": {
+      "action": "BREW_SEEDS",
+      "outcome": "REJECT_INVALID",
+      "observations": [
+        "sum of three selected units exceeds available stack",
+        "unchanged quantity and output"
+      ]
+    },
+    "seed-foreign": {
+      "action": "BREW_SEEDS",
+      "outcome": "REJECT_ITEM",
+      "observations": [
+        "foreign handle refused"
+      ]
+    },
+    "seed-replay": {
+      "action": "BREW_SEEDS",
+      "outcome": "REPLAY",
+      "observations": [
+        "same durable receipt, no additional consumption"
+      ]
+    },
+    "seed-packed": {
+      "action": "BREW_SEEDS",
+      "outcome": "APPLIED",
+      "observations": [
+        "full backpack, physical output on owner-bound floor"
+      ]
+    },
+    "seed-collect": {
+      "action": "PICK_UP",
+      "outcome": "APPLIED",
+      "observations": [
+        "both apps restarted",
+        "same output ID collected by owner",
+        "next action and head"
+      ]
+    },
+    "paid-brew": {
+      "action": "BREW_ENCHANTMENT",
+      "outcome": "APPLIED",
+      "observations": [
+        "identified upgrade scroll consumed",
+        "party energy 6 to 0",
+        "one owned enchantment scroll"
+      ]
+    },
+    "paid-stale": {
+      "action": "BREW_ENCHANTMENT",
+      "outcome": "REJECT_VERSION",
+      "observations": [
+        "same initial balance seen by peer",
+        "stale second spend refused"
+      ]
+    },
+    "blood-charm": {
+      "action": "ZAP",
+      "outcome": "APPLIED",
+      "observations": [
+        "caster-specific charm",
+        "caster barrier",
+        "physical wand charge consumed",
+        "reconnect and next action"
+      ]
+    },
+    "blood-ally": {
+      "action": "ZAP",
+      "outcome": "APPLIED",
+      "observations": [
+        "owned summon healed with overflow barrier",
+        "caster pays rounded five percent maximum HP",
+        "actual wand charge consumed"
+      ]
+    },
+    "stone-fear": {
+      "action": "THROW",
+      "outcome": "APPLIED"
+    },
+    "stone-blink": {
+      "action": "THROW",
+      "outcome": "APPLIED"
+    },
+    "stone-clairvoyance": {
+      "action": "THROW",
+      "outcome": "APPLIED"
+    },
+    "stone-shock": {
+      "action": "THROW",
+      "outcome": "APPLIED"
+    },
+    "stone-aggression": {
+      "action": "THROW",
+      "outcome": "APPLIED"
+    },
+    "stone-flock": {
+      "action": "THROW",
+      "outcome": "APPLIED"
+    },
+    "stone-blast": {
+      "action": "THROW",
+      "outcome": "APPLIED"
+    },
+    "potion-purity-shatter": {
+      "action": "THROW",
+      "outcome": "APPLIED"
+    },
+    "stone-worn-augmentation": {
+      "action": "AUGMENT_GEAR",
+      "outcome": "APPLIED"
+    },
+    "stone-pack-enchantment": {
+      "action": "ENCHANT_BOW",
+      "outcome": "APPLIED"
+    },
+    "potion-mindvision": {
+      "action": "DRINK",
+      "outcome": "APPLIED"
+    },
+    "potion-known-drink": {
+      "action": "DRINK",
+      "outcome": "APPLIED"
+    },
+    "corruption-conversion": {
+      "action": "ZAP",
+      "outcome": "APPLIED"
+    },
+    "corruption-imbue": {
+      "action": "IMBUE",
+      "outcome": "APPLIED"
+    },
+    "exotic-mindvision-four": {
+      "action": "BREW_EXOTIC",
+      "outcome": "APPLIED"
+    },
+    "exotic-terror-six": {
+      "action": "BREW_EXOTIC",
+      "outcome": "APPLIED"
+    },
+    "read-mapping": {
+      "action": "READ_SCROLL",
+      "outcome": "APPLIED"
+    },
+    "recall-mapping": {
+      "action": "RECALL_INSCRIPTION",
+      "outcome": "APPLIED"
+    },
+    "corruption-memory": {
+      "action": "MIND_FORM",
+      "outcome": "APPLIED"
+    },
+    "corruption-form-cast": {
+      "action": "TRINITY_MIND",
+      "outcome": "APPLIED"
+    },
+    "previous-sync41-room": {
+      "action": "WAIT",
+      "outcome": "APPLIED"
+    }
+  },
+  "additional": [
+    "undead damage",
+    "Battlemage staff proc, freeCharge and next HP waiver while still spending wand charge",
+    "downing and Ankh resurrection",
+    "other hidden scroll or potion types"
+  ],
+  "additional_observations": [
+    "transfusion-undead",
+    "transfusion-staff-waiver",
+    "transfusion-ankh"
+  ]
+}
