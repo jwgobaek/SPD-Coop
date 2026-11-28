@@ -2,7 +2,9 @@
 
 ## SYNC46–47 소환수·반지와 정상 시작 5층
 
-도적·성직자 1105가 실제 계단 동의로 5층에 함께 도착했다. HP 30/15의 저장을 보존했다. 후속 Cloud APK는 e15062d이고 전체 JUnit 427/427을 통과했다. [검증 범위와 실제 저장](docs/coop/powered-summon-results.md)
+SYNC42 인수는 방장 49건·게스트 44건으로 총 93/160이다. 게스트가 다음 시험방에 들어가기 전 가용 RAM이 488 MiB로 떨어져 저장 후 중단했다. [Android 관측](docs/coop/rune-effects-android-progress.md)
+
+도적·성직자 1105가 실제 계단 동의로 5층에 함께 도착했다. 첫 HP 30/15 저장과, 4층 게·파리떼 교전의 실제 입력을 바꾼 HP 30/30 저장을 각각 보존했다. 후속 Cloud APK는 e15062d이고 전체 JUnit 427/427을 통과했다. [검증 범위와 실제 저장](docs/coop/powered-summon-results.md)
 
 ## 2026-11-28 SYNC42 Android 재개 및 SYNC45 Cloud
 

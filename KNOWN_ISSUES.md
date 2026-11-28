@@ -2,7 +2,7 @@
 
 ## SYNC42 잔여 인수와 정상 Goo 전투
 
-SYNC42 필수 Android 인수가 진행 중이다. 도적·성직자 5층 도착 이후 정상 Goo 처치와 가면 획득은 미달이다. 기존 시드 575 및 요그 출구의 초기 실패 원인은 미확정이다. [검증 범위와 실제 저장](docs/coop/powered-summon-results.md)
+SYNC42는 93/160이다. 게스트의 새 시험 묶음 전에 GB2 가용 RAM이 488 MiB로 떨어져 정상 저장 후 중단했다. 도적·성직자 5층 도착 이후 정상 Goo 처치와 가면 획득은 미달이다. 기존 시드 575 및 요그 출구의 초기 실패 원인은 미확정이다. [검증 범위와 실제 저장](docs/coop/powered-summon-results.md)
 
 ## 2026-11-28 SYNC42 Android 재개 및 SYNC45 Cloud
 

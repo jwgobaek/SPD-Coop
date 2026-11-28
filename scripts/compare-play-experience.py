@@ -23,6 +23,9 @@ parser.add_argument('--wash-ooze', action='store_true', help='Use visible adjace
 parser.add_argument('--camp-goo', action='store_true', help='Spend up to 60 safe turns per seat recovering together before the sewer boss.')
 parser.add_argument('--lure-goo', action='store_true', help='Draw visible Goo off healing water before returning to melee.')
 parser.add_argument('--face-goo', action='store_true', help='Close on visible Goo for a melee attack and withdraw from its public charge warning.')
+parser.add_argument('--screen-wounded', action='store_true', help='Withdraw a wounded hero behind a directly visible living partner during the Goo fight.')
+parser.add_argument('--approach-goo-together', action='store_true', help='Stay close to a directly visible partner while approaching the sewer boss.')
+parser.add_argument('--focus-swarm', action='store_true', help='Finish adjacent threats before splitting another visible swarm with a melee attack.')
 parser.add_argument('--hold-known-exit', action='store_true', help='Keep a personally observed exit as the destination while hungry, after handling food and enemies.')
 parser.add_argument('--rest-together', action='store_true', help='Rest in sight of a living partner while fed and hurt, leaving as soon as an enemy appears.')
 parser.add_argument('--save-floors', type=Path, help='Keep the first surviving arrival checkpoint on each new floor in this trial.')
@@ -64,7 +67,13 @@ with TemporaryDirectory() as tmp:
         guide_options.append('-Dtrial.campGoo=true')
     if args.lure_goo:
         guide_options.append('-Dtrial.lureGoo=true')
-    if args.face_goo or args.lure_goo or args.camp_goo or args.wash_ooze:
+    if args.screen_wounded:
+        guide_options.append('-Dtrial.screenWounded=true')
+    if args.approach_goo_together:
+        guide_options.append('-Dtrial.approachTogether=true')
+    if args.focus_swarm:
+        guide_options.append('-Dtrial.focusSwarm=true')
+    if args.face_goo or args.lure_goo or args.camp_goo or args.wash_ooze or args.screen_wounded:
         guide_options.append('-Dtrial.faceGoo=true')
     if args.hold_known_exit:
         guide_options.append('-Dtrial.holdKnownExit=true')

@@ -41,6 +41,7 @@ public final class VaultPublicRoute {
         final boolean campaignGuide=Boolean.getBoolean("trial.campaignGuide");
         int exitWaits, waitingAtExit, scoutingTurns;
         int bossCampTurns;
+        int bossPairWaits;
         final boolean rendezvousAtStairs=Boolean.getBoolean("trial.stairRendezvous");
         final boolean waitAtVisibleExit=Boolean.getBoolean("trial.waitAtVisibleExit");
         final boolean meetOnStair=Boolean.getBoolean("trial.meetOnStair");
@@ -163,7 +164,9 @@ public final class VaultPublicRoute {
                 int current = distance(view.pos,boss,view.width);
                 boolean charging = view.source.rows.containsKey("charge"+boss);
                 boolean lure = Boolean.getBoolean("trial.lureGoo") && view.terrain(boss)==Terrain.WATER;
-                boolean withdraw = charging || lure;
+                boolean screen = Boolean.getBoolean("trial.screenWounded") && view.hp*2<view.maxHp
+                        && view.ally>=0 && lastAllyAlive && view.visible(view.ally);
+                boolean withdraw = charging || lure || screen;
                 if (Boolean.getBoolean("trial.washOoze") && view.terrain(view.pos)!=Terrain.WATER
                         && view.source.rows.entrySet().stream().anyMatch(e -> e.getKey().matches("b[0-9]+")
                         && e.getValue().startsWith(BuffIndicator.OOZE+","))) {
@@ -185,6 +188,8 @@ public final class VaultPublicRoute {
                 if (!charging && !(choice.action.equals("MOVE") || choice.action.equals("ATTACK")
                         || choice.action.equals("WAIT"))) return choice;
                 if (charging && current>2) return new Input("WAIT",view.pos,0);
+                if (screen && !charging && current>=2 && distance(view.ally,boss,view.width)<current)
+                    return new Input("WAIT",view.pos,0);
                 if (!withdraw && current==1) return new Input("ATTACK",boss,0);
                 int best = -1, score = Integer.MIN_VALUE;
                 for (int dy=-1;dy<=1;dy++) for (int dx=-1;dx<=1;dx++) {
@@ -198,6 +203,7 @@ public final class VaultPublicRoute {
                     int gap=distance(cell,boss,view.width);
                     if (withdraw ? gap<=current : gap>=current) continue;
                     int value=(withdraw ? 20 : -20)*gap;
+                    if (screen) value-=12*distance(cell,view.ally,view.width);
                     if (view.ally>=0) value-=distance(cell,view.ally,view.width);
                     if (tile==Terrain.WATER) value-=lure ? 8 : 1;
                     if (value>score) { score=value; best=cell; }
@@ -207,6 +213,55 @@ public final class VaultPublicRoute {
                     return new Input("WAIT",view.pos,0);
             }
             return choice;
+        }
+
+        Input approachBossTogether(PublicDungeon view, int seat, Input choice) {
+            if (!Boolean.getBoolean("trial.approachTogether") || view.depth!=5
+                    || !choice.action.equals("MOVE") || view.ally<0 || !lastAllyAlive
+                    || !view.visible(view.ally) || !view.monsters.isEmpty()) return choice;
+            int gap=distance(view.pos,view.ally,view.width);
+            if (seat==1 && gap>1) {
+                int step=-1, best=gap;
+                for (int dy=-1;dy<=1;dy++) for (int dx=-1;dx<=1;dx++) {
+                    int x=view.pos%view.width+dx, y=view.pos/view.width+dy;
+                    if (x<0 || x>=view.width || y<0 || y>=view.height) continue;
+                    int cell=y*view.width+x, tile=view.terrain(cell);
+                    if (tile<0 || !view.visible(cell) || cell==view.ally || blocked.contains(cell)
+                            || (Terrain.flags[tile]&Terrain.PASSABLE)==0 || view.source.rows.containsKey("trap"+cell)
+                            || view.source.rows.containsKey("aim"+cell)) continue;
+                    int separation=distance(cell,view.ally,view.width);
+                    if (separation<best || separation==best && separation<gap && cell==choice.cell) {
+                        step=cell;
+                        best=separation;
+                    }
+                }
+                if (step>=0) { bossPairWaits=0; return new Input("MOVE",step,0); }
+            }
+            if (distance(choice.cell,view.ally,view.width)>2 && bossPairWaits<2) {
+                bossPairWaits++;
+                return new Input("WAIT",view.pos,0);
+            }
+            bossPairWaits=0;
+            return choice;
+        }
+
+        Input selectSwarmOpponent(PublicDungeon view, Input choice) {
+            if (!Boolean.getBoolean("trial.focusSwarm") || !choice.action.equals("ATTACK")
+                    || !"Swarm".equals(view.monsters.get(choice.cell))) return choice;
+            int target=choice.cell, lowestHp=Integer.MAX_VALUE;
+            for (Map.Entry<String,String> row : view.source.rows.entrySet()) {
+                if (!row.getKey().matches("m[0-9]+")) continue;
+                String[] mob=row.getValue().split(",");
+                if (!mob[1].equals("Crab")) continue;
+                int cell=Integer.parseInt(mob[0]);
+                if (!view.visible(cell) || !adjacent(view.pos,cell,view.width)) continue;
+                int hp=Integer.parseInt(mob[2]);
+                if (hp<lowestHp) {
+                    target=cell;
+                    lowestHp=hp;
+                }
+            }
+            return target==choice.cell ? choice : new Input("ATTACK",target,0);
         }
 
         Input followVisiblePartner(PublicDungeon v, Input choice) {

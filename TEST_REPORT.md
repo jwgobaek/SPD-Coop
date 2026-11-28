@@ -2,7 +2,7 @@
 
 ## SYNC47 Cloud 재검증
 
-새로 컴파일한 427개 전체 시험, 소환 보관·해제 응답 유실 8건, Trinity 반지 기억 응답 유실 10건과 이전 스키마 이행 16건을 검증했다. [검증 범위와 실제 저장](docs/coop/powered-summon-results.md)
+새로 컴파일한 427개 전체 시험, 소환 보관·해제 응답 유실 8건, Trinity 반지 기억 응답 유실 10건과 이전 스키마 이행 16건을 검증했다. 최신 혼합은 14방·250확정·28재접속이다. SYNC42 실기 누적은 93/160이며 후속 SYNC47 APK의 Android 인수는 미실행이다. [검증 범위와 실제 저장](docs/coop/powered-summon-results.md)
 
 ## 2026-11-28 SYNC42 Android 재개 및 SYNC45 Cloud
 

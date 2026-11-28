@@ -161,6 +161,8 @@ public final class ExperienceProgress {
                         }
                     }
                 }
+                input=guides[seat].selectSwarmOpponent(v,input);
+                input=guides[seat].approachBossTogether(v,seat,input);
                 input=guides[seat].respondToVisibleGoo(v,input);
                 if (v.stair>=0 && v.terrain(v.stair)==Terrain.EXIT) {
                     PublicDungeon other=view(clients[1-seat],room,1-seat);

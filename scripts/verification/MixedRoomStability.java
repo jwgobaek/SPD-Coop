@@ -87,7 +87,8 @@ public final class MixedRoomStability {
             "packedcloak0","packedcloak1","bookward0","bookward1","spark0","monkfocus1","poisontip0","elestrike1","food","dart","floor","mine"};
 
     static final String[] SUMMONS_AND_RINGS = {"earthhold0","wardhold1","earthfree1","wardfree0",
-            "ringenergy","ringaccuracy","kitbrew0","kitvision1","visiondrink1","healing","floor","mine"};
+            "ringenergy","ringaccuracy","kitbrew0","kitvision1","visiondrink1","healing","floor","mine",
+            "trinityspirithistory0","trinityspirithistory1"};
     static final String[] WAND_GARDEN = {"regrowth0","wardzap1","kitbrew1","guessstone0","seedbrew0",
             "regrowth1","wardzap0","earthheal0","visiondrink1","kitbrew0","floor","mine",
             "earthtrap0","kitstones1","kitseeds0","kitvision1","earthtrap1"};

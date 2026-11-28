@@ -2,7 +2,7 @@
 
 ## 다음 시험의 실제 시작점
 
-SYNC42 인수는 역할별 required-status.tsv와 실제 부팅을 대조해 재개한다. 정상 캠페인은 저장된 시드 1105의 5층 HP 30/15에서 이어간다. [검증 범위와 실제 저장](docs/coop/powered-summon-results.md)
+SYNC42 인수는 93건의 체크섬과 두 부팅을 대조한 뒤 게스트의 가방 초과·소유권·재인증 후 씨앗 결과 회수부터 재개한다. 정상 캠페인은 저장된 시드 1105의 새 5층 HP 30/30 저장에서 두 영웅이 Goo를 처음 마주칠 때의 거리와 공개된 충전 신호를 대조한다. HP 30/15 저장은 별도 비교 출발점이다. [검증 범위와 실제 저장](docs/coop/powered-summon-results.md)
 
 ## 2026-11-28 SYNC42 Android 재개 및 SYNC45 Cloud
 
