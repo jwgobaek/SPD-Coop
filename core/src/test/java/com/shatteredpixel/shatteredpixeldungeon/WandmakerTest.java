@@ -24,8 +24,16 @@ public class WandmakerTest extends HeadlessDungeon {
 
     static void offered(CoopSession game, int seat) {
         while (game.activeSeat() != seat) {
-            assertTrue("Lost quest input offer: " + game.stopReason() + " life=" + game.life(0) + "/" + game.life(1),
-                    game.activeSeat() >= 0 && game.life(seat) == CoopSession.Life.ALIVE);
+            boolean available = game.activeSeat() >= 0 && game.life(seat) == CoopSession.Life.ALIVE;
+            if (!available || Boolean.getBoolean("trial.traceWandmakerOffers")) {
+                String state = "wanted=" + seat + " active=" + game.activeSeat() + " turn=" + game.turn()
+                        + " clock=" + Actor.now() + " depth=" + Dungeon.depth
+                        + " life=" + game.life(0) + "/" + game.life(1)
+                        + " HP=" + game.hero(0).HP + "/" + game.hero(1).HP
+                        + " mobs=" + Dungeon.level.mobs.size() + " stop=" + game.stopReason();
+                if (!available) fail("Lost quest input offer: " + state);
+                System.out.println("WANDMAKER_OFFER " + state);
+            }
             SewerSpecialActorTest.waitOne(game);
         }
     }

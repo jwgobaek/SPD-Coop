@@ -197,6 +197,37 @@ public final class VaultPublicRoute {
             investigated.addAll(walls);
             return !walls.isEmpty();
         }
+        private Input seekVisibleWeapon(PublicDungeon v) {
+            boolean weaponInSight=v.floor.entrySet().stream().anyMatch(e -> v.visible(e.getKey())
+                    && "MELEE".equals(e.getValue().kind) && !rejectedItems.contains(e.getValue().id));
+            if (!weaponInSight) return null;
+            int[] first=new int[v.width*v.height];
+            Arrays.fill(first,-1);
+            first[v.pos]=v.pos;
+            ArrayDeque<Integer> queue=new ArrayDeque<>();
+            queue.add(v.pos);
+            while (!queue.isEmpty()) {
+                int cell=queue.remove();
+                var item=v.floor.get(cell);
+                if (item!=null && "MELEE".equals(item.kind) && !rejectedItems.contains(item.id) && !v.chest(cell)) {
+                    return cell==v.pos ? new Input("PICK_UP",cell,item.id) : new Input("MOVE",first[cell],0);
+                }
+                for (int y=Math.max(0,cell/v.width-1); y<=Math.min(v.height-1,cell/v.width+1); y++) {
+                    for (int x=Math.max(0,cell%v.width-1); x<=Math.min(v.width-1,cell%v.width+1); x++) {
+                        int next=y*v.width+x;
+                        if (first[next]>=0 || !v.visible(next) || blocked.contains(next) || next==v.ally
+                                || v.monsters.containsKey(next) || v.source.rows.containsKey("trap"+next)
+                                || v.source.rows.containsKey("aim"+next) || v.terrain(next)<0
+                                || (Terrain.flags[v.terrain(next)] & Terrain.PASSABLE)==0
+                                || dangerDistance(v,next)<2 || exposedTo(v,next)>exposedTo(v,v.pos)) continue;
+                        first[next]=cell==v.pos ? next : first[cell];
+                        queue.add(next);
+                    }
+                }
+            }
+            return null;
+        }
+
         Input choose(PublicDungeon v) {
             visits.merge(v.pos, 1, Integer::sum);
             boolean avoidGolem=avoidUnarmedGolem && v.branch!=0 && v.belongings.stream().noneMatch(it -> it.slot.equals("WEAPON"));
@@ -306,6 +337,10 @@ public final class VaultPublicRoute {
                 if (!rejectedItems.contains(i.id) && v.actions(i).contains("EQUIP")
                         && (i.kind.equals("MELEE") || i.kind.equals("ARMOR"))
                         && v.belongings.stream().noneMatch(e -> e.slot.equals(i.kind.equals("MELEE")?"WEAPON":"ARMOR"))) return new Input("EQUIP",0,i.id);
+            }
+            if (avoidGolem && Boolean.getBoolean("vault.guide.seekVisibleWeapon")) {
+                Input pickup=seekVisibleWeapon(v);
+                if (pickup!=null) return pickup;
             }
             int retreatFrom = golemAge == 0 ? golemCell : -1;
             if (avoidGolem && Boolean.getBoolean("vault.guide.avoidUnarmedSkeleton")) {
@@ -501,6 +536,9 @@ public final class VaultPublicRoute {
                             && rememberedExposure(v,first[c]) <= rememberedExposure(v,best);
                     if (seekStairs) {
                         if (Boolean.getBoolean("trial.retracePartner") && v.ally < 0 && lastAlly >= 0
+                                && (!Boolean.getBoolean("trial.safeRetrace") || v.hp*3>=v.maxHp*2
+                                && dangerDistance(v,first[c])>2 && exposedTo(v,first[c])==0
+                                && v.monsters.values().stream().noneMatch(kind -> hostile(kind)))
                                 && missingTurns < 12 && v.pos != lastAlly && c == lastAlly && !v.visible(c))
                             value += 320 / (1 + visits.getOrDefault(first[c],0));
                         if (lookingForPartner) {

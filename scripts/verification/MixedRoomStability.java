@@ -86,6 +86,8 @@ public final class MixedRoomStability {
             "wall0","wall1","warpwraith0","warpwraith1","hornhit0","hornhit1","cloakring0","cloakring1",
             "packedcloak0","packedcloak1","bookward0","bookward1","spark0","monkfocus1","poisontip0","elestrike1","food","dart","floor","mine"};
 
+    static final String[] EARTH_ALCHEMY = {"earthheal0","kitbrew1","detectstone0","guessstone1","seedbrew0",
+            "earthheal1","kitbrew0","visiondrink1","mapread0","wornaugment1","floor","mine"};
     static final String[] RUNE_READING = {"detectstone0","guessstone1","fearstone0","seedbrew1","mapread0","cauldron1",
             "detectstone1","guessstone0","visiondrink1","bloodzap0","wornaugment1","maprecall0","floor","mine"};
     static final String[] RUNE_EFFECTS = {"fearstone0","fearstone1","visiondrink0","visiondrink1",
@@ -424,6 +426,7 @@ public final class MixedRoomStability {
                 if (Boolean.getBoolean("stability.originalItems")) stage = ORIGINAL_ITEMS[i % ORIGINAL_ITEMS.length];
                 if (Boolean.getBoolean("stability.stasisWarp")) stage = STASIS_WARP[i % STASIS_WARP.length];
                 if (Boolean.getBoolean("stability.paidRace")) stage = "paired-exotic"+(i%2);
+                if (Boolean.getBoolean("stability.earthAlchemy")) stage = EARTH_ALCHEMY[i % EARTH_ALCHEMY.length];
                 if (Boolean.getBoolean("stability.runeReading")) stage = RUNE_READING[i % RUNE_READING.length];
                 if (Boolean.getBoolean("stability.runeEffects")) stage = RUNE_EFFECTS[i % RUNE_EFFECTS.length];
                 if (Boolean.getBoolean("stability.seedAlchemy")) stage = SEED_ALCHEMY[i % SEED_ALCHEMY.length];
