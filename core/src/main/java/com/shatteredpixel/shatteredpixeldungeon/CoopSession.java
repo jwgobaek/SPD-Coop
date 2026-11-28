@@ -231,9 +231,9 @@ import com.watabou.utils.Random;
 /** A first-floor engine session. All commands and actor steps run on its creating thread. */
 public final class CoopSession implements AutoCloseable {
 
-    public enum Action { AUGMENT_GEAR, BREW_EXOTIC, BREW_ENCHANTMENT, BREW_SEEDS, LIFE_LINK, BEAMING_RAY, DIVINE_INTERVENTION, JUDGEMENT, FLASH, READ_SCROLL, ENCHANT_TARGET, ENCHANT_CHOOSE, ENCHANT_CANCEL, TRINITY_MIND, TRINITY_SPIRIT, RECALL_INSCRIPTION, MIND_FORM, SPIRIT_FORM, BODY_FORM, HOLY_INTUITION, BLESS, DETACH_SEAL, AFFIX_SEAL, KEEP_ARMOR_GLYPH, TRANSFER_SEAL_GLYPH, READ_RECHARGING, EQUIP_SECOND, SWAP_WEAPONS, MONK_FLURRY, MONK_DASH, MONK_DRAGONKICK, MONK_MEDITATE, MONK_FOCUS, RADIANCE, SMITE, ASSASSINATE, FREERUN, DIVINE_SENSE, SUNRAY, SHIELD_OF_LIGHT, GUIDING_LIGHT, HOLY_WEAPON, HOLY_WARD, WEAPON_ABILITY, IMBUE, CLOAK, USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT, CLEANSE, HOLY_LANCE, ENCHANT_BOW, LAY_ON_HANDS, AURA_OF_PROTECTION, ALLY_WARP, MNEMONIC_PRAYER, HALLOWED_GROUND, WALL_OF_LIGHT, STASIS, READ_LULLABY, BREW_RUNESTONES;
+    public enum Action { DETECT_MAGIC, GUESS_ITEM, AUGMENT_GEAR, BREW_EXOTIC, BREW_ENCHANTMENT, BREW_SEEDS, LIFE_LINK, BEAMING_RAY, DIVINE_INTERVENTION, JUDGEMENT, FLASH, READ_SCROLL, ENCHANT_TARGET, ENCHANT_CHOOSE, ENCHANT_CANCEL, TRINITY_MIND, TRINITY_SPIRIT, RECALL_INSCRIPTION, MIND_FORM, SPIRIT_FORM, BODY_FORM, HOLY_INTUITION, BLESS, DETACH_SEAL, AFFIX_SEAL, KEEP_ARMOR_GLYPH, TRANSFER_SEAL_GLYPH, READ_RECHARGING, EQUIP_SECOND, SWAP_WEAPONS, MONK_FLURRY, MONK_DASH, MONK_DRAGONKICK, MONK_MEDITATE, MONK_FOCUS, RADIANCE, SMITE, ASSASSINATE, FREERUN, DIVINE_SENSE, SUNRAY, SHIELD_OF_LIGHT, GUIDING_LIGHT, HOLY_WEAPON, HOLY_WARD, WEAPON_ABILITY, IMBUE, CLOAK, USE_CROWN, CLAIM_ARMOR, ARMOR_ABILITY, CLOBBER, SLAM, PARRY, CRUSH, FURY, BERSERK, SNIPER_SHOT, USE_MASK, CLAIM_SUBCLASS, INVEST_TALENT, VAULT_RECALL, VAULT_INTERACT, VAULT_REWARD, ACCEPT_IMP, SMITH_PICK, SMITH_CASH, SMITH_HARDEN, SMITH_UPGRADE, SMITH_REFORGE, SMITH_ORDER, SMITH_CLAIM, MINE, ACCEPT_BLACKSMITH, ACCEPT_WANDMAKER, WAND_FIRST, WAND_SECOND, BUY, SELL, SELL_ONE, BUYBACK, THROW, UPGRADE, IDENTIFY, WAIT, MOVE, ATTACK, PICK_UP, EAT, EQUIP, DROP, UNEQUIP, REVIVE, ZAP, SEARCH, CONSENT, CANCEL_TRAVEL, TRAVEL, ACCEPT_GHOST, GHOST_WEAPON, GHOST_ARMOR, SHATTER, OPEN, UNLOCK, GREET, DRINK, SHOOT, CLEANSE, HOLY_LANCE, ENCHANT_BOW, LAY_ON_HANDS, AURA_OF_PROTECTION, ALLY_WARP, MNEMONIC_PRAYER, HALLOWED_GROUND, WALL_OF_LIGHT, STASIS, READ_LULLABY, BREW_RUNESTONES;
         public boolean requiresItem() {
-            return this==AUGMENT_GEAR || this==BREW_EXOTIC || this==BREW_ENCHANTMENT || this==BREW_SEEDS || this==BREW_RUNESTONES || this==STASIS || this==LIFE_LINK || this==BEAMING_RAY || this==DIVINE_INTERVENTION || this==JUDGEMENT || this==FLASH || this==READ_SCROLL || this==ENCHANT_TARGET || this==HALLOWED_GROUND || this==WALL_OF_LIGHT || this==MNEMONIC_PRAYER || this==LAY_ON_HANDS || this==AURA_OF_PROTECTION || this==ENCHANT_BOW || this==HOLY_LANCE || this==CLEANSE || this==READ_RECHARGING || this==READ_LULLABY || this==TRINITY_MIND || this==TRINITY_SPIRIT || this==RECALL_INSCRIPTION || this==MIND_FORM || this==SPIRIT_FORM || this==BODY_FORM || this==HOLY_INTUITION || this==BLESS || this==DETACH_SEAL || this==AFFIX_SEAL || this==KEEP_ARMOR_GLYPH || this==TRANSFER_SEAL_GLYPH || this==EQUIP_SECOND || this==RADIANCE || this==SMITE || this==DIVINE_SENSE || this==SUNRAY || this==SHIELD_OF_LIGHT || this==GUIDING_LIGHT || this==HOLY_WEAPON || this==HOLY_WARD || this==WEAPON_ABILITY || this==IMBUE || this==CLOAK || this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
+            return this==DETECT_MAGIC || this==GUESS_ITEM || this==AUGMENT_GEAR || this==BREW_EXOTIC || this==BREW_ENCHANTMENT || this==BREW_SEEDS || this==BREW_RUNESTONES || this==STASIS || this==LIFE_LINK || this==BEAMING_RAY || this==DIVINE_INTERVENTION || this==JUDGEMENT || this==FLASH || this==READ_SCROLL || this==ENCHANT_TARGET || this==HALLOWED_GROUND || this==WALL_OF_LIGHT || this==MNEMONIC_PRAYER || this==LAY_ON_HANDS || this==AURA_OF_PROTECTION || this==ENCHANT_BOW || this==HOLY_LANCE || this==CLEANSE || this==READ_RECHARGING || this==READ_LULLABY || this==TRINITY_MIND || this==TRINITY_SPIRIT || this==RECALL_INSCRIPTION || this==MIND_FORM || this==SPIRIT_FORM || this==BODY_FORM || this==HOLY_INTUITION || this==BLESS || this==DETACH_SEAL || this==AFFIX_SEAL || this==KEEP_ARMOR_GLYPH || this==TRANSFER_SEAL_GLYPH || this==EQUIP_SECOND || this==RADIANCE || this==SMITE || this==DIVINE_SENSE || this==SUNRAY || this==SHIELD_OF_LIGHT || this==GUIDING_LIGHT || this==HOLY_WEAPON || this==HOLY_WARD || this==WEAPON_ABILITY || this==IMBUE || this==CLOAK || this==USE_CROWN || this==ARMOR_ABILITY || this==USE_MASK || this==VAULT_RECALL || this==VAULT_REWARD || this==SMITH_HARDEN || this==SMITH_UPGRADE || this==SMITH_REFORGE || this==BUY || this==SELL || this==SELL_ONE || this==BUYBACK || this == THROW || this == UPGRADE || this == IDENTIFY || this == PICK_UP || this == EAT || this == EQUIP || this == DROP || this == UNEQUIP || this == ZAP || this == SHATTER || this == DRINK || this == SHOOT;
         }
     }
 
@@ -458,13 +458,27 @@ public final class CoopSession implements AutoCloseable {
     }
 
     private boolean corrosionFormat;
+    private final String[] runeReading = new String[2];
+
+    public String runeReading(int seat) {
+        return runeReading[seat];
+    }
+
+    private static int innerRuneSchema(Bundle state) {
+        int schema = state.getInt("schema");
+        if (schema != 28) return schema;
+        int inner = state.getInt("rune_schema");
+        if (inner < 1 || inner > 27 || !(state.contains("rune0") || state.contains("rune1")))
+            throw new IllegalArgumentException("Invalid runestone envelope");
+        return inner;
+    }
 
     public void requireCorrosionFormat() {
         corrosionFormat = true;
     }
 
     static int warpSchema(Bundle state) {
-        int schema = state.getInt("schema");
+        int schema = innerRuneSchema(state);
         if (schema != 27) return schema;
         int inner = state.getInt("corrosion_schema");
         if (inner < 1 || inner > 26) throw new IllegalArgumentException("Invalid corrosion envelope");
@@ -1909,6 +1923,13 @@ public final class CoopSession implements AutoCloseable {
                     if (!pending.chargesTimeOnCancel()) return true;
                     hero.spendAndNext(Actor.TICK);
                     break;
+                case DETECT_MAGIC:
+                case GUESS_ITEM: {
+                    String result = CoopRuneStones.use(this, hero, item, cell, action == Action.GUESS_ITEM);
+                    if (result == null) return false;
+                    runeReading[activeSeat] = turn + "," + result;
+                    break;
+                }
                 case AUGMENT_GEAR:
                 case ENCHANT_BOW: {
                     boolean augment = action == Action.AUGMENT_GEAR;
@@ -2165,6 +2186,12 @@ public final class CoopSession implements AutoCloseable {
             b.put("corrosion_schema", b.getInt("schema"));
             b.put("schema", 27);
         }
+        if (runeReading[0] != null || runeReading[1] != null) {
+            b.put("rune_schema", b.getInt("schema"));
+            b.put("schema", 28);
+            for (int seat = 0; seat < heroes.length; seat++)
+                if (runeReading[seat] != null) b.put("rune"+seat, runeReading[seat]);
+        }
         b.put("world",Dungeon.worldState());
         b.put("documents",Document.coopState());
         b.put("guest",heroes[1]);
@@ -2402,8 +2429,15 @@ public final class CoopSession implements AutoCloseable {
         CoopSession s=new CoopSession();
         Dungeon.coop=s;
         s.restoring=true;
-        s.corrosionFormat = b.getInt("schema") == 27;
         try {
+            s.corrosionFormat = innerRuneSchema(b) == 27;
+            if (b.getInt("schema") == 28) for (int seat=0; seat<2; seat++) {
+                if (!b.contains("rune"+seat)) continue;
+                String reading = b.getString("rune"+seat);
+                if (!reading.matches("[1-9][0-9]{0,18},(NONE|GOOD|BAD|BOTH|CORRECT|INCORRECT)"))
+                    throw new IllegalArgumentException("Invalid private runestone finding");
+                s.runeReading[seat] = reading;
+            }
             s.load(b,world);
             boolean holding = s.heroes[0].buff(Stasis.StasisBuff.class) != null || s.heroes[1].buff(Stasis.StasisBuff.class) != null;
             if (holding != (stasisSchema(b) == 25)) throw new IllegalArgumentException("Missing stasis envelope");

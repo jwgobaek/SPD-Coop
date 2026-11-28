@@ -110,6 +110,9 @@ public class CoopScene extends PixelScene {
             case "SELL": case "SELL_ONE":
                 WndSeatTrade.sell(this,view,item,action,controller);
                 break;
+            case "DETECT_MAGIC": case "GUESS_ITEM":
+                chooseRuneTarget(view,item,action);
+                break;
             case "AUGMENT_GEAR":
                 chooseAugment(view,item);
                 break;
@@ -247,6 +250,55 @@ public class CoopScene extends PixelScene {
                 });
             }
         }));
+    }
+
+    private void chooseRuneTarget(PublicDungeon view, PublicDungeon.Loot stone, String action) {
+        boolean guess = action.equals("GUESS_ITEM");
+        String prefix = guess ? "guessgear" : "detectgear";
+        add(WndSeatInventory.select(view, controller, new WndSeatInventory.Selection() {
+            public boolean accepts(PublicDungeon.Loot target) {
+                return view.source.rows.containsKey(prefix+target.id);
+            }
+            public void select(PublicDungeon.Loot target) {
+                if (controller.frame().image != view.source || !accepts(target)) return;
+                String[] selection = view.source.rows.get(prefix+target.id).split(",");
+                int index = Integer.parseInt(selection[0]);
+                if (guess) guessPage(view,stone,index,selection[1],0);
+                else controller.act(view.source,action,index,stone.id);
+            }
+        }));
+    }
+
+    private void guessPage(PublicDungeon view, PublicDungeon.Loot stone, int index, String family, int first) {
+        String prefix = "guess"+family;
+        java.util.ArrayList<String> labels = new java.util.ArrayList<>();
+        while (labels.size()<5) {
+            String key = view.source.rows.get(prefix+(first+labels.size()));
+            if (key==null) break;
+            labels.add(Messages.titleCase(Messages.get(key+".name")));
+        }
+        final int count = labels.size();
+        final boolean next = view.source.rows.containsKey(prefix+(first+count));
+        if (next) labels.add(msg("rune_next"));
+        if (first>0) labels.add(msg("rune_previous"));
+        labels.add(Messages.get("items.stones.stoneofaugmentation$wndaugment.cancel"));
+        add(new WndOptions(Messages.get("items.stones.stoneofintuition.name"),
+                Messages.get("items.stones.stoneofintuition$wndguess.text"),labels.toArray(new String[0])) {
+            protected void onSelect(int n) {
+                if (controller.frame().image!=view.source || n<0) return;
+                if (n<count) {
+                    String chosen=labels.get(n);
+                    CoopScene.this.add(new WndOptions(Messages.get("items.stones.stoneofintuition.name"),
+                            msg("rune_guess_confirm",chosen),chosen,Messages.get("items.stones.stoneofaugmentation$wndaugment.cancel")) {
+                        protected void onSelect(int option) {
+                            if (option==0 && controller.frame().image==view.source)
+                                controller.act(view.source,"GUESS_ITEM",index*com.shatteredpixel.shatteredpixeldungeon.CoopRuneStones.OPTIONS_PER_ITEM+first+n,stone.id);
+                        }
+                    });
+                } else if (next && n==count) guessPage(view,stone,index,family,first+count);
+                else if (first>0 && n==count+(next?1:0)) guessPage(view,stone,index,family,first-5);
+            }
+        });
     }
 
     private void chooseAugment(PublicDungeon view, PublicDungeon.Loot stone) {
@@ -809,6 +861,7 @@ public class CoopScene extends PixelScene {
         add(new com.shatteredpixel.shatteredpixeldungeon.windows.WndSeatInventory(view,controller));
     }
     private String lastEnding = "";
+    private String lastRuneReading;
 
     private void ascentWindow(CoopController.Frame f) {
         Class<?> amulet=com.shatteredpixel.shatteredpixeldungeon.items.Amulet.class;
@@ -994,6 +1047,14 @@ public class CoopScene extends PixelScene {
             label(status(f.image.rows.get("status")),10,Window.TITLE_COLOR);
             if(f.image.rows.containsKey("reason")) label(status(f.image.rows.get("reason")),8,0xF6BD89);
             button(msg("menu"),this::gameMenu); return;
+        }
+        String reading = f.image.rows.get("runereading");
+        if (reading != null && !(f.session+"/"+reading).equals(lastRuneReading)) {
+            lastRuneReading = f.session+"/"+reading;
+            String outcome = reading.substring(reading.indexOf(',')+1).toLowerCase(java.util.Locale.ROOT);
+            String key = outcome.equals("correct") || outcome.equals("incorrect")
+                    ? "items.stones.stoneofintuition$wndguess."+outcome : "items.stones.stoneofdetectmagic.detected_"+outcome;
+            add(new com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage(Messages.get(key)));
         }
         String ending=f.image.rows.get("ending");
         if (ending!=null && ("OFFER".equals(ending) || "PROPOSED".equals(ending) || "ASCENT_PROPOSED".equals(ending))

@@ -181,7 +181,7 @@ public final class RestartClient {
                     if (mode.matches(".*-(monkflurry|monkdash|monkmeditate|monkdragonkick|strikeshock|strikeblock|strikevenom|strikekinetic|strikebloom|heroicenergy|challenge|elestrike|feint|swap|monkfocus|guardshield|stance|lunge|spike|charged)[01]")) character="DUELIST";
                     if (mode.matches(".*-(cacheinvest|cachepickup)[01]")) character=i==mode.charAt(mode.length()-1)-'0'?"ROGUE":"MAGE";
                     if (mode.matches(".*-(ninjalog|cloakring|packedcloak|markdeath|clone|orderclone|cloak|ambush|freerun|smoke)[01]")) character="ROGUE";
-                    if (mode.matches(".*-(exoticvision|exoticterror|wornaugment|visiondrink|fearstone|corruptzap|seedbrew|exoticbrew|bloodzap|unknownread|cauldron|holdfast|deathlesswait|deathlesstrap|strongman|endless_rage|sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
+                    if (mode.matches(".*-(detectstone|guessstone|exoticvision|exoticterror|wornaugment|visiondrink|fearstone|corruptzap|seedbrew|exoticbrew|bloodzap|unknownread|cauldron|holdfast|deathlesswait|deathlesstrap|strongman|endless_rage|sealdetach|sealattach|sealkeep|sealtransfer|rationthrow|leaptrap|doubleparry|parryready|lethal|enhanced|endure|third|shock|clobber|slam|crush|fury|parry|riposte|rage|leap|crown|armorright)[01]")) character="WARRIOR";
                     if (mode.matches(".*-(scrollread|scrolltarget|scrollapply|scrollabort|eagleview|bowstone|bowrank|bowthrow(?:Blooming|Elastic|Lucky|Unstable|Corrupting|Grim)?|poisontip|scoutshot|point_blank|hawk|direct|blades|sniper|nature)[01]")) character="HUNTRESS";
                     if (mode.matches(".*-(remoteplace|rayblast|warpwraith|hornhit|desperate_power|prismmelee|prismimbue|prismzap|prismblast|prismvolley|spark|sparkimbue|sparkblast|sparkvolley|ice|iceimbue|iceblast|icevolley|imbue|volley|battery|recall|beacon|meal|blast|warlock|battlemage|soul)[01]")) character="MAGE";
                 }
@@ -594,6 +594,8 @@ public final class RestartClient {
                     assertEquals(cell,view.scrollTarget(bow,verb));
                     handle=stone.id;
                 }
+                if (growth && (verb.equals("DETECT_MAGIC") || verb.equals("GUESS_ITEM")))
+                    handle = item(seat, "BAG", verb);
                 if (growth && verb.equals("ZAP")) handle=(boundary.startsWith("growth-bloodzap") || boundary.startsWith("growth-corruptzap"))
                         ? item(seat,"BAG","WAND") : item(seat,"WEAPON","STAFF");
                 if (verb.equals("DRINK") && boundary.startsWith("growth-visiondrink"))

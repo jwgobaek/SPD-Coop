@@ -86,6 +86,8 @@ public final class MixedRoomStability {
             "wall0","wall1","warpwraith0","warpwraith1","hornhit0","hornhit1","cloakring0","cloakring1",
             "packedcloak0","packedcloak1","bookward0","bookward1","spark0","monkfocus1","poisontip0","elestrike1","food","dart","floor","mine"};
 
+    static final String[] RUNE_READING = {"detectstone0","guessstone1","fearstone0","seedbrew1","mapread0","cauldron1",
+            "detectstone1","guessstone0","visiondrink1","bloodzap0","wornaugment1","maprecall0"};
     static final String[] RUNE_EFFECTS = {"fearstone0","fearstone1","visiondrink0","visiondrink1",
             "corruptzap0","corruptzap1","maprecall0","mapread1","seedbrew1","exoticbrew0","floor","mine"};
     static final String[] SEED_ALCHEMY = {"seedbrew0","seedbrew1","exoticbrew0","exoticbrew1","bloodzap0","bloodzap1",
@@ -207,7 +209,7 @@ public final class MixedRoomStability {
             String visible=verb.equals("DETACH_SEAL") ? verb : "AFFIX_SEAL";
             item=view.belongings.stream().filter(it->view.actions(it).contains(visible)).findFirst().get().id;
         }
-        if(Arrays.asList("ENCHANT_BOW","READ_RECHARGING","READ_LULLABY","WEAPON_ABILITY","IMBUE","THROW","EAT","DRINK","ZAP","USE_CROWN","CLOAK","ARMOR_ABILITY").contains(verb)) {
+        if(Arrays.asList("DETECT_MAGIC","GUESS_ITEM","ENCHANT_BOW","READ_RECHARGING","READ_LULLABY","WEAPON_ABILITY","IMBUE","THROW","EAT","DRINK","ZAP","USE_CROWN","CLOAK","ARMOR_ABILITY").contains(verb)) {
             item=view.belongings.stream().filter(it->view.actions(it).contains(verb))
                     .filter(it->!verb.equals("THROW") || it.kind.equals("THROW_STONE") || it.kind.equals("DART") || it.kind.equals("SPIKE") || it.kind.equals("STONE") || it.kind.equals("FOOD") && view.heroClass.equals("WARRIOR"))
                     .findFirst().orElseThrow(()->new AssertionError("missing public action "+verb)).id;
@@ -422,6 +424,7 @@ public final class MixedRoomStability {
                 if (Boolean.getBoolean("stability.originalItems")) stage = ORIGINAL_ITEMS[i % ORIGINAL_ITEMS.length];
                 if (Boolean.getBoolean("stability.stasisWarp")) stage = STASIS_WARP[i % STASIS_WARP.length];
                 if (Boolean.getBoolean("stability.paidRace")) stage = "paired-exotic"+(i%2);
+                if (Boolean.getBoolean("stability.runeReading")) stage = RUNE_READING[i % RUNE_READING.length];
                 if (Boolean.getBoolean("stability.runeEffects")) stage = RUNE_EFFECTS[i % RUNE_EFFECTS.length];
                 if (Boolean.getBoolean("stability.seedAlchemy")) stage = SEED_ALCHEMY[i % SEED_ALCHEMY.length];
                 if (Boolean.getBoolean("stability.cauldron")) stage = CAULDRON[i % CAULDRON.length];

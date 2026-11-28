@@ -37,7 +37,7 @@ public final class CoopRenderSmoke {
             return;
         }
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|fearstone-input|visiondrink-input|corruptzap-input|seedbrew-input|cauldron-input|eagle-input|stasis-input|beacon-vote-input|strength-input|recharging-input|lullaby-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|detectstone-input|guessstone-input|fearstone-input|visiondrink-input|corruptzap-input|seedbrew-input|cauldron-input|eagle-input|stasis-input|beacon-vote-input|strength-input|recharging-input|lullaby-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -1288,6 +1288,45 @@ public final class CoopRenderSmoke {
                     await(() -> frame().dungeon.offered && frame().image.rows.containsKey("learn"+talent.ordinal())
                             && Integer.parseInt(frame().image.rows.get("freepoints"+(cache ? 1 : 3))) > 0);
                     investVisibleTalent(talent,cache ? 1 : 3);
+                    return;
+                }
+                if (regionShot.equals("detectstone-input") || regionShot.equals("guessstone-input")) {
+                    boolean guess=regionShot.equals("guessstone-input");
+                    String action=guess?"GUESS_ITEM":"DETECT_MAGIC";
+                    await(() -> frame().dungeon.offered && frame().dungeon.belongings.stream().anyMatch(i -> action.equals(i.kind)));
+                    PublicDungeon view=frame().dungeon;
+                    var stone=view.belongings.stream().filter(i -> i.kind.equals(action)).findFirst().get();
+                    var target=view.belongings.stream().filter(i -> guess
+                            ? view.source.rows.getOrDefault("guessgear"+i.id,"").endsWith(",ring")
+                            : i.slot.equals("ARMOR") && view.source.rows.containsKey("detectgear"+i.id)).findFirst().get();
+                    for (int pass=0;pass<2;pass++) {
+                        click("bag"); await(() -> selectorOpen());
+                        openInventoryTab(stone.bagIndex); press(inventoryPoint(stone.id));
+                        click("#"+CoopScene.msg(action.toLowerCase(java.util.Locale.ROOT)));
+                        if (pass==0) {
+                            shot("stone-cancel");
+                            java.awt.Robot keyboard=new java.awt.Robot();
+                            keyboard.keyPress(java.awt.event.KeyEvent.VK_ESCAPE);
+                            keyboard.keyRelease(java.awt.event.KeyEvent.VK_ESCAPE);
+                            await(() -> !selectorOpen());
+                            if (frame().image!=view.source) throw new AssertionError("Cancelled selection spent an action");
+                            continue;
+                        }
+                        press(inventoryPoint(target.id));
+                        if (guess) {
+                            int index=0;
+                            while (!"items.rings.ringofhaste".equals(view.source.rows.get("guessring"+index))) {
+                                if (!view.source.rows.containsKey("guessring"+index)) throw new AssertionError("Missing Haste guess");
+                                index++;
+                            }
+                            for (int page=0;page<index/5;page++) click("#"+CoopScene.msg("rune_next"));
+                            String name=Messages.titleCase(Messages.get("items.rings.ringofhaste.name"));
+                            shot("stone-candidates"); click("#"+name); click("#"+name);
+                        }
+                    }
+                    await(() -> frame().pending==0 && frame().image.rows.getOrDefault("runereading","").endsWith(guess?",CORRECT":",BOTH"));
+                    shot("stone-owner-result");
+                    System.out.println("PASS native equipment selection, cancellation, original private result");
                     return;
                 }
                 if (regionShot.equals("fearstone-input") || regionShot.equals("visiondrink-input")

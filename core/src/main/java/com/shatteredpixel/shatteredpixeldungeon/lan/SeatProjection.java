@@ -451,10 +451,15 @@ final class SeatProjection {
                     if (!enchant.available(game,hero,i)) rows.put("enchantlimited"+i,"1");
                 }
             }
+            String reading = game.runeReading(seat);
+            if (reading != null) rows.put("runereading", reading);
+            boolean guessing = hero.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfIntuition.class) != null;
+            boolean detecting = hero.belongings.getItem(com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfDetectMagic.class) != null;
             int selection=0;
             for (Item item : hero.belongings) {
                 selection++;
                 putItem(rows,visibleItems,item,slot(hero.belongings,item));
+                com.shatteredpixel.shatteredpixeldungeon.CoopRuneStones.project(rows, hero, item, ids.get(item), selection, guessing, detecting);
                 if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows
                         && item.actions(hero).contains(com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows.AC_STEALTH))
                     {
@@ -645,6 +650,8 @@ final class SeatProjection {
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHaste
                 && ((com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion)item).isKnown()) kind="HASTE_POTION";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment) kind="ENCHANT_BOW";
+        if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfDetectMagic) kind="DETECT_MAGIC";
+        if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfIntuition) kind="GUESS_ITEM";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfAugmentation) kind="AUGMENT_GEAR";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor) kind="CLASS_ARMOR";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.VaultBeacon) kind="VAULT_BEACON";
@@ -695,13 +702,11 @@ final class SeatProjection {
                 if (!(wand instanceof WandOfMagicMissile)) rows.put("areawand"+id,"1");
             }
         }
-        if (!slot.startsWith("F") && !kind.equals("OTHER") && item.getClass().getEnclosingClass()==null
-                && (!(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll)
-                || ((com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll)item).isKnown())) {
-            String label=item.getClass().getName();
-            String prefix="com.shatteredpixel.shatteredpixeldungeon.";
-            if (label.startsWith(prefix+"items."))
-                rows.put("label"+id,label.substring(prefix.length()).toLowerCase(Locale.ROOT));
+        boolean knownRing = item instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring
+                && ((com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring)item).isKnown();
+        if (!slot.startsWith("F") && (knownRing || !kind.equals("OTHER"))) {
+            String label = CoopTrade.label(item);
+            if (!label.isEmpty()) rows.put("label"+id,label);
         }
         rows.put("i"+id,slot+","+kind+","+item.image()+","+item.quantity()+","+
                 (item.levelKnown ? item.visiblyUpgraded() : "NA")+charges);

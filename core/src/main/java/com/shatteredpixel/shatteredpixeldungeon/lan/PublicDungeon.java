@@ -158,7 +158,7 @@ public final class PublicDungeon {
         if (source.rows.containsKey("ability"+item.id)) verbs.add("ARMOR_ABILITY");
         if(item.slot.equals("BAG")) {
             if (source.rows.containsKey("crown"+item.id)) verbs.add("USE_CROWN");
-            if(item.kind.equals("AUGMENT_GEAR") || item.kind.equals("ENCHANT_BOW") || item.kind.equals("UPGRADE") || item.kind.equals("IDENTIFY")) verbs.add(item.kind);
+            if(item.kind.equals("DETECT_MAGIC") || item.kind.equals("GUESS_ITEM") || item.kind.equals("AUGMENT_GEAR") || item.kind.equals("ENCHANT_BOW") || item.kind.equals("UPGRADE") || item.kind.equals("IDENTIFY")) verbs.add(item.kind);
             if(item.kind.equals("READ_SCROLL")) verbs.add("READ_SCROLL");
             if(item.kind.equals("LULLABY_SCROLL")) verbs.add("READ_LULLABY");
             if(item.kind.equals("RECHARGING_SCROLL")) verbs.add("READ_RECHARGING");

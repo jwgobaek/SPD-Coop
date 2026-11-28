@@ -160,6 +160,8 @@ public final class WndSeatInventory extends WndTabbed {
         String description=key==null ? Messages.NO_TEXT_FOUND : Messages.get(key+".desc");
         String info=msg("quantity",item.quantity);
         if (!item.upgrade.equals("NA") && !item.upgrade.equals("0")) info+="  "+(item.upgrade.startsWith("-")?"":"+")+item.upgrade;
+        String curse = view.source.rows.get("curseknown"+item.id);
+        if (curse != null) info+="\n"+CoopScene.msg(curse.equals("1")?"rune_cursed":"rune_uncursed");
         if (item.showsCharges()) info+="  "+msg("charges",item.charges,item.capacity);
         if (!Messages.NO_TEXT_FOUND.equals(description)) info=description+"\n\n"+info;
         String enchantment = view.source.rows.get("bowenchant"+item.id);

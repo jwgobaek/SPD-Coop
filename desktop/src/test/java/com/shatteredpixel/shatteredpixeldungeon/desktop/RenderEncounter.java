@@ -80,7 +80,7 @@ final class RenderEncounter {
                 game.observe(0);
             } else if (destination.equals("cache-input")) {
                 game.hero(0).lvl=5;
-            } else if (destination.equals("fearstone-input") || destination.equals("visiondrink-input")
+            } else if (destination.equals("detectstone-input") || destination.equals("guessstone-input") || destination.equals("fearstone-input") || destination.equals("visiondrink-input")
                     || destination.equals("corruptzap-input")) {
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game, destination.replace("-input","0"));
             } else if (destination.equals("seedbrew-input")) {

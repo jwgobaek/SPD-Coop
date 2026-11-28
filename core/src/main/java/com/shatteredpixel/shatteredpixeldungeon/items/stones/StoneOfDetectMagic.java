@@ -43,15 +43,18 @@ public class StoneOfDetectMagic extends InventoryStone {
 
 	@Override
 	public boolean usableOnItem(Item item){
+		return canDetect(item);
+	}
+
+	public static boolean canDetect(Item item) {
 		return (item instanceof EquipableItem || item instanceof Wand)
 				&& (!item.isIdentified() || !item.cursedKnown);
 	}
 
-	@Override
-	protected void onItemSelected(Item item) {
+	public enum Finding { NONE, GOOD, BAD, BOTH }
 
+	public static Finding detect(Item item) {
 		item.cursedKnown = true;
-		useAnimation();
 
 		boolean negativeMagic = false;
 		boolean positiveMagic = false;
@@ -74,14 +77,20 @@ public class StoneOfDetectMagic extends InventoryStone {
 			}
 		}
 
-		if (!positiveMagic && !negativeMagic){
-			GLog.i(Messages.get(this, "detected_none"));
-		} else if (positiveMagic && negativeMagic) {
-			GLog.h(Messages.get(this, "detected_both"));
-		} else if (positiveMagic){
-			GLog.p(Messages.get(this, "detected_good"));
-		} else if (negativeMagic){
-			GLog.w(Messages.get(this, "detected_bad"));
+		if (negativeMagic) return positiveMagic ? Finding.BOTH : Finding.BAD;
+		return positiveMagic ? Finding.GOOD : Finding.NONE;
+	}
+
+	@Override
+	protected void onItemSelected(Item item) {
+		Finding finding = detect(item);
+		useAnimation();
+		String result = Messages.get(this, "detected_" + finding.name().toLowerCase(java.util.Locale.ROOT));
+		switch (finding) {
+			case BOTH: GLog.h(result); break;
+			case GOOD: GLog.p(result); break;
+			case BAD: GLog.w(result); break;
+			default: GLog.i(result);
 		}
 
 		if (!anonymous) {

@@ -56,7 +56,11 @@ public class StoneOfIntuition extends InventoryStone {
 	}
 
 	@Override
-	protected boolean usableOnItem(Item item) {
+	public boolean usableOnItem(Item item) {
+		return canGuess(item);
+	}
+
+	public static boolean canGuess(Item item) {
 		if (item instanceof Ring){
 			return !((Ring) item).isKnown();
 		} else if (item instanceof Potion){
@@ -85,6 +89,30 @@ public class StoneOfIntuition extends InventoryStone {
 			}
 		}
 		return text;
+	}
+
+	public static ArrayList<Class<? extends Item>> unknownCandidates(Item item) {
+		ArrayList<Class<? extends Item>> candidates = new ArrayList<>();
+		if (item instanceof Potion){
+			if (item instanceof ExoticPotion) {
+				for (Class<?extends Item> i : Potion.getUnknown()){
+					candidates.add(ExoticPotion.regToExo.get(i));
+				}
+			} else {
+				candidates.addAll(Potion.getUnknown());
+			}
+		} else if (item instanceof Scroll){
+			if (item instanceof ExoticScroll) {
+				for (Class<?extends Item> i : Scroll.getUnknown()){
+					candidates.add(ExoticScroll.regToExo.get(i));
+				}
+			} else {
+				candidates.addAll(Scroll.getUnknown());
+			}
+		} else if (item instanceof Ring) {
+			candidates.addAll(Ring.getUnknown());
+		}
+		return candidates;
 	}
 
 	public static class IntuitionUseTracker extends Buff {{ revivePersists = true; }};
@@ -152,33 +180,12 @@ public class StoneOfIntuition extends InventoryStone {
 			int rows;
 			int placed = 0;
 			
-			final ArrayList<Class<?extends Item>> unIDed = new ArrayList<>();
-			if (item.isIdentified()){
-				hide();
-				return;
-			} else if (item instanceof Potion){
-				if (item instanceof ExoticPotion) {
-					for (Class<?extends Item> i : Potion.getUnknown()){
-						unIDed.add(ExoticPotion.regToExo.get(i));
-					}
-				} else {
-					unIDed.addAll(Potion.getUnknown());
-				}
-			} else if (item instanceof Scroll){
-				if (item instanceof ExoticScroll) {
-					for (Class<?extends Item> i : Scroll.getUnknown()){
-						unIDed.add(ExoticScroll.regToExo.get(i));
-					}
-				} else {
-					unIDed.addAll(Scroll.getUnknown());
-				}
-			} else if (item instanceof Ring) {
-				unIDed.addAll(Ring.getUnknown());
-			} else {
+			if (item.isIdentified()) {
 				hide();
 				return;
 			}
-			
+			final ArrayList<Class<? extends Item>> unIDed = unknownCandidates(item);
+
 			if (unIDed.size() <= 5){
 				rows = 1;
 				top += BTN_SIZE/2f;
