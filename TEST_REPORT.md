@@ -1,5 +1,9 @@
 # SPD-Coop 클라우드 실행 보고
 
+## 2026-11-28 SYNC42 Android 재개 및 SYNC45 Cloud
+
+SYNC42 Android 실제 누적은 84/160이다. 검사기 단위 시험 7개가 통과했고, 실제 68행과 신규 16행을 따로 읽은 재개 검사도 누락 76개를 보고했다. SYNC45 최종 소스의 새 클래스 경로에서 JUnit 422/422, 건너뜀 0개를 확인했다. 두 신규 지팡이, 휴대 조합, 두 좌석 장애 복구와 정상 캠페인 결과를 기록했다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 검증](docs/coop/regrowth-warding-results.md)
+
 ## 2026-11-28 SYNC42 Android 및 SYNC44 Cloud
 
 SYNC42 Android 68/160개를 실제 대조했다. Cloud 전체 JUnit은 SYNC42 405/405, 최종 SYNC44 412/412였다. 중간 SYNC43의 최초 결과는 407/408이었다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 개발 및 회귀](docs/coop/earth-guardian-results.md)

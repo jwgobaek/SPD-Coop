@@ -86,6 +86,27 @@ class AndroidGateTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "authoritative state version"):
             self.check(rows)
 
+    def test_resumed_batches_keep_boots_unique_and_reject_overlapping_rows(self):
+        def batch(name, rows):
+            path = self.output.with_name(name)
+            with path.open("w", newline="") as f:
+                w = csv.DictWriter(f, fieldnames=columns, delimiter="\t")
+                w.writeheader()
+                w.writerows(rows)
+            return path
+
+        first = batch("first.tsv", self.rows[:1])
+        rest = batch("rest.tsv", self.rows[1:])
+        inspect = mod["inspect_android_batches"]
+        missing, total, _, _ = inspect(self.apk, self.manifest, [first])
+        self.assertEqual(total-1, len(missing))
+        self.assertEqual(set(), inspect(self.apk, self.manifest, [first, rest])[0])
+        with self.assertRaisesRegex(ValueError, "duplicate"):
+            inspect(self.apk, self.manifest, [first, first])
+        changed = batch("changed.tsv", [dict(self.rows[1], boot_id=str(uuid.uuid4()))])
+        with self.assertRaisesRegex(ValueError, "boot changed"):
+            inspect(self.apk, self.manifest, [first, changed])
+
     def test_independent_boots_and_content(self):
         with self.assertRaises(ValueError):
             self.check([dict(row, boot_id=self.rows[0]["boot_id"]) for row in self.rows])

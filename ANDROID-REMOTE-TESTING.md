@@ -1,5 +1,11 @@
 # GB2 원격 Android 시험
 
+## SYNC42 재개용 관측 검사
+
+`python3 scripts/verify-final-deliverables.py --android-progress 후보.apk 명세.json 이전.tsv 새묶음.tsv`는 각 파일 옆의 captures 디렉터리에서 실제 증거 해시를 검증한다. 역할별 동일 부팅, 동일 APK, 시나리오·영수증·후속 행동 조건은 발행 검사기와 공유한다. 각 TSV에는 중복되지 않는 실제 행만 넣는다. 이미 합친 표는 한 번만 넘긴다.
+
+표준 출력에 아직 필요한 역할과 시나리오가 나오며 미완료는 종료 코드 2다. 잘못된 증거는 오류로 종료한다. 현재 필수 160개 중 84개를 확인했다. 전체 인수 후 발행할 때는 통합 observations.tsv와 기존 --android-candidate 검사를 사용한다. [현재 Android 증거](docs/coop/rune-effects-android-progress.md)
+
 ## 2026-11-28 SYNC42 Android 및 SYNC44 Cloud
 
 두 Android 부팅의 SYNC42 설치본을 확인했다. 사전 고정한 160행 중 68개에 실제 화면·영수증·다음 행동이 연결됐다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 개발 및 회귀](docs/coop/earth-guardian-results.md)

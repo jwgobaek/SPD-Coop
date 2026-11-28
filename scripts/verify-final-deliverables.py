@@ -84,7 +84,7 @@ def parse_receipt(value, seat, outcome):
     return action_id, actor, version
 
 
-def verify_android_candidate(apk, manifest, observations):
+def inspect_android_batches(apk, manifest, batches):
     plan = json.loads(manifest.read_text(encoding="utf-8"))
     commit = plan["build_commit"]
     with apk.open("rb") as f:
@@ -100,7 +100,15 @@ def verify_android_candidate(apk, manifest, observations):
     if not cases or any(spec["outcome"] not in ("APPLIED", "REJECT_VERSION", "REJECT_INVALID", "REJECT_ITEM", "REPLAY")
                         or not spec["action"] for spec in expected.values()):
         raise ValueError("Incomplete Android acceptance manifest")
-    boots, seen = {}, set()
+    boots, seen, verified_captures = {}, set(), set()
+    for observations in batches:
+        inspect_android_rows(observations, expected, seen, boots, verified_captures, actual, commit)
+    if len(boots) != len(set(boots.values())):
+        raise ValueError("Android host and guest share a boot ID")
+    return set(expected) - seen, len(expected), actual, commit
+
+
+def inspect_android_rows(observations, expected, seen, boots, verified_captures, actual, commit):
     with observations.open(encoding="utf-8", newline="") as f:
         rows = csv.DictReader(f, delimiter="\t")
         if rows.fieldnames != ANDROID_COLUMNS:
@@ -133,15 +141,22 @@ def verify_android_candidate(apk, manifest, observations):
             key = r["evidence_sha256"]
             if not re.fullmatch("[0-9a-f]{64}", key):
                 raise ValueError(f"Invalid capture digest for {pair}")
-            with (observations.parent / "captures" / key).open("rb") as capture:
-                if not capture.read(1):
-                    raise ValueError(f"Empty capture for {pair}")
-                capture.seek(0)
-                if digest(capture) != key:
-                    raise ValueError(f"Capture checksum mismatch for {pair}")
-    if seen != set(expected) or len(set(boots.values())) != 2:
-        raise ValueError(f"Missing trials or independent devices: {sorted(set(expected) - seen)}")
-    print(f"PASS {len(seen)} required Android trials for {commit} and APK {actual}")
+            capture_file = observations.parent / "captures" / key
+            if capture_file not in verified_captures:
+                with capture_file.open("rb") as capture:
+                    if not capture.read(1):
+                        raise ValueError(f"Empty capture for {pair}")
+                    capture.seek(0)
+                    if digest(capture) != key:
+                        raise ValueError(f"Capture checksum mismatch for {pair}")
+                verified_captures.add(capture_file)
+
+
+def verify_android_candidate(apk, manifest, observations):
+    missing, total, actual, commit = inspect_android_batches(apk, manifest, [observations])
+    if missing:
+        raise ValueError(f"Missing trials or independent devices: {sorted(missing)}")
+    print(f"PASS {total} required Android trials for {commit} and APK {actual}")
 
 
 def verify(directory, commit):
@@ -192,6 +207,16 @@ def verify(directory, commit):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) >= 5 and sys.argv[1] == "--android-progress":
+        try:
+            missing, total, actual, commit = inspect_android_batches(
+                Path(sys.argv[2]), Path(sys.argv[3]), [Path(value) for value in sys.argv[4:]])
+            print(f"Android observations {total-len(missing)}/{total} for {commit} and APK {actual}")
+            for role, scenario in sorted(missing):
+                print(f"{role}\t{scenario}\tNOT RUN")
+        except (OSError, ValueError, KeyError) as error:
+            sys.exit(f"Invalid Android evidence: {error}")
+        sys.exit(2 if missing else 0)
     if len(sys.argv) == 5 and sys.argv[1] == "--android-candidate":
         try:
             verify_android_candidate(*map(Path, sys.argv[2:]))
@@ -206,5 +231,6 @@ if __name__ == "__main__":
         verify(Path(sys.argv[1]), sys.argv[2])
     else:
         sys.exit("Usage: verify-final-deliverables.py DIRECTORY FULL_APK_COMMIT\n"
+                 "   or: verify-final-deliverables.py --android-progress APK MANIFEST.json BATCH.tsv [BATCH.tsv ...]\n"
                  "   or: verify-final-deliverables.py --android-candidate APK MANIFEST.json OBSERVATIONS.tsv\n"
                  "   or: verify-final-deliverables.py --selector-candidate APK ANDROID_OBSERVATIONS.tsv")

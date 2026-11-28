@@ -14,7 +14,17 @@ parser.add_argument('--front', choices=('WARRIOR','MAGE','HUNTRESS','ROGUE','DUE
 parser.add_argument('--partner', choices=('WARRIOR','MAGE','HUNTRESS','ROGUE','DUELIST','CLERIC'), default='HUNTRESS')
 parser.add_argument('--policies', nargs='+', choices=('last','split','each'), default=['last','split','each'])
 parser.add_argument('--campaign-guide', action='store_true', help='Preserve food and close on visible partners near known exits')
+parser.add_argument('--stair-strategy', choices=('scout', 'wait', 'meet'),
+                    help='Use known stairs and public frontiers. Wait extends safe pauses. Meet commits to the known stair.')
+parser.add_argument('--avoid-outnumbered', action='store_true',
+                    help='Withdraw from multiple visible nearby enemies when hurt and separated.')
+parser.add_argument('--trace-stairs', action='store_true',
+                    help='Record each active seat’s public stair observations after the first floor or at low health.')
+parser.add_argument('--save-game', type=Path, help='Write one new isolated native game checkpoint after the trial.')
+parser.add_argument('--resume-game', type=Path, help='Read a matching isolated native game checkpoint in a fresh JVM.')
 args=parser.parse_args()
+if (args.save_game or args.resume_game) and (len(args.seeds)!=1 or args.policies!=['last']):
+    parser.error('A campaign checkpoint requires a single seed and the last-hit policy.')
 root=Path(__file__).resolve().parents[1]
 java_bin=Path(os.environ['JAVA_HOME'])/'bin'
 trial='com.shatteredpixel.shatteredpixeldungeon.lan.ExperienceProgress'
@@ -29,7 +39,22 @@ with TemporaryDirectory() as tmp:
     verify=root/'scripts/verification'
     subprocess.run([java_bin/'javac','-cp',args.core_test_classpath,'-d',tmp,source,
                     verify/'VaultPublicRoute.java',verify/'ExperienceProgress.java'],check=True)
+    guide_options = []
+    if args.stair_strategy is not None:
+        guide_options.extend(('-Dtrial.stairRendezvous=true', '-Dtrial.frontierGuide=true'))
+        if args.stair_strategy in ('wait', 'meet'):
+            guide_options.append('-Dtrial.waitAtVisibleExit=true')
+        if args.stair_strategy == 'meet':
+            guide_options.append('-Dtrial.meetOnStair=true')
+    if args.avoid_outnumbered:
+        guide_options.append('-Dtrial.avoidOutnumbered=true')
+    if args.trace_stairs:
+        guide_options.extend(('-Dtrial.traceRecovery=true', '-Dtrial.traceStairs=true'))
+    if args.resume_game:
+        guide_options.append('-Dtrial.resumeGame='+str(args.resume_game.resolve()))
+    if args.save_game:
+        guide_options.append('-Dtrial.saveGame='+str(args.save_game.resolve()))
     for seed in args.seeds:
         for policy in args.policies:
-            subprocess.run([java_bin/'java','-Xmx384m','-Dtrial.campaignGuide='+str(args.campaign_guide).lower(),'-Dtrial.front='+args.front,'-Dtrial.partner='+args.partner,'-cp',tmp+os.pathsep+args.core_test_classpath,
+            subprocess.run([java_bin/'java','-Xmx384m',*guide_options,'-Dtrial.campaignGuide='+str(args.campaign_guide or args.stair_strategy is not None).lower(),'-Dtrial.front='+args.front,'-Dtrial.partner='+args.partner,'-cp',tmp+os.pathsep+args.core_test_classpath,
                             trial,policy,str(seed),str(args.budget)],cwd=root/'core/src/main/assets',check=True)

@@ -1,5 +1,11 @@
 # SPD-Coop 개발 진행 기록
 
+## 2026-11-28 SYNC42 Android 재개 및 SYNC45 Cloud
+
+SYNC42 Android는 동일 설치 및 부팅에서 84/160개를 확인했다. 후속 SYNC45에서는 재성장·수호 지팡이의 다섯 경로를 연결해 12/13종이 됐다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 검증](docs/coop/regrowth-warding-results.md)
+
+SYNC45 최종 게임 소스는 `d3267bc`이며 전체 JUnit 422/422다. 정상 도적·성직자 1105의 두 영웅이 3층에 생존 도착했고, 실제 저장에서 새 JVM으로 재개해 4층 HP 30/25에 도달했다. 별도 후속 표본은 4층에서 전멸했고 생존 저장을 보존했다.
+
 ## 2026-11-28 SYNC42 Android 및 SYNC44 Cloud
 
 SYNC42의 기존 APK를 한 번 갱신하고 두 Android 설치본을 대조했다. 필수 68/160개에 실측 증거가 있고 대응 ZIP은 SYNC41에 있다. 후속 개발판은 두 선택형 룬석, 소환자별 대지 수호자와 휴대 조합을 구현했다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 개발 및 회귀](docs/coop/earth-guardian-results.md)

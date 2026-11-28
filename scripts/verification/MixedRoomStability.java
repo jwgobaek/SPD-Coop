@@ -87,7 +87,8 @@ public final class MixedRoomStability {
             "packedcloak0","packedcloak1","bookward0","bookward1","spark0","monkfocus1","poisontip0","elestrike1","food","dart","floor","mine"};
 
     static final String[] WAND_GARDEN = {"regrowth0","wardzap1","kitbrew1","guessstone0","seedbrew0",
-            "regrowth1","wardzap0","earthheal0","visiondrink1","kitbrew0","floor","mine"};
+            "regrowth1","wardzap0","earthheal0","visiondrink1","kitbrew0","floor","mine",
+            "earthtrap0","kitstones1","kitseeds0","kitvision1","earthtrap1"};
     static final String[] EARTH_ALCHEMY = {"earthheal0","kitbrew1","detectstone0","guessstone1","seedbrew0",
             "earthheal1","kitbrew0","visiondrink1","mapread0","wornaugment1","floor","mine"};
     static final String[] RUNE_READING = {"detectstone0","guessstone1","fearstone0","seedbrew1","mapread0","cauldron1",
@@ -201,6 +202,8 @@ public final class MixedRoomStability {
             String key=verb.equals("BREW_SEEDS") ? "brewseed" : "brewexotic";
             item=view.belongings.stream().filter(it->view.source.rows.containsKey(key+it.id)).findFirst().get().id;
         }
+        if (verb.equals("BREW_EXOTIC")) item=view.belongings.stream()
+                .filter(it->view.source.rows.containsKey("exoticrecipe"+it.id)).findFirst().get().id;
         if (verb.equals("BREW_RUNESTONES")) item=view.belongings.stream()
                 .filter(it->view.source.rows.containsKey("brew"+it.id)).findFirst().get().id;
         if (verb.equals("READ_SCROLL")) item=view.belongings.stream().filter(it->view.actions(it).contains(verb)).findFirst().get().id;

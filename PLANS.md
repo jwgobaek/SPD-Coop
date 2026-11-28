@@ -1,5 +1,9 @@
 # 단계와 다음 작업
 
+## 2026-11-28 SYNC42 Android 재개 및 SYNC45 Cloud
+
+Android는 보존된 84개 행에서 미감정 자장가·재충전의 퀵슬롯과 전체·델타 전송 검사를 재개한다. Cloud는 현재 PowerOfMany가 거부하는 EarthGuardian·Ward의 보관 적격 조건을 원본과 대조하고, 정상 시드 1105의 양쪽 HP 30/25인 4층 저장에서 입력 478 직전의 슬라임, 721 직전의 파리떼, 각 좌석의 회복·합류와 Tengu 보상까지 추적한다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 검증](docs/coop/regrowth-warding-results.md)
+
 ## 2026-11-28 SYNC42 Android 및 SYNC44 Cloud
 
 다음 Android 시험은 미감정 주문서 두 종류를 양쪽 좌석에서 감정 전후로 열고, 남은 사전 고정 시나리오의 영수증과 다음 행동을 연결한다. Cloud는 위험 물약의 미감정 직접 사용과 수호자 사망·부활 경계에서 재개한다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 개발 및 회귀](docs/coop/earth-guardian-results.md)

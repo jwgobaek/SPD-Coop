@@ -41,6 +41,8 @@ public final class VaultPublicRoute {
         final boolean campaignGuide=Boolean.getBoolean("trial.campaignGuide");
         int exitWaits, waitingAtExit, scoutingTurns;
         final boolean rendezvousAtStairs=Boolean.getBoolean("trial.stairRendezvous");
+        final boolean waitAtVisibleExit=Boolean.getBoolean("trial.waitAtVisibleExit");
+        final boolean meetOnStair=Boolean.getBoolean("trial.meetOnStair");
         private boolean escortCover() { return regroup.equals("escortfire"); }
         private boolean doorCover() { return escortCover() || regroup.equals("doorcover"); }
         private boolean coveredByAlly(PublicDungeon v,int to) {
@@ -133,8 +135,14 @@ public final class VaultPublicRoute {
             }
             return false;
         }
+        boolean isolatedAndOutnumbered(PublicDungeon v) {
+            if (!Boolean.getBoolean("trial.avoidOutnumbered") || v.ally>=0 || v.hp*3>v.maxHp*2) return false;
+            return v.monsters.entrySet().stream().filter(m -> hostile(m.getValue()) && v.visible(m.getKey())
+                    && distance(v.pos,m.getKey(),v.width)<=4).limit(2).count()==2;
+        }
+
         private int retreat(PublicDungeon v) {
-            if (!team) return -1;
+            if (!team && !isolatedAndOutnumbered(v)) return -1;
             int exposed=exposedTo(v,v.pos);
             if (exposed==0 && (v.hp*3>v.maxHp*2 || dangerDistance(v,v.pos)>2)) return -1;
             int best=-1,score=Integer.MIN_VALUE;
@@ -442,13 +450,20 @@ public final class VaultPublicRoute {
             if (escort && escortFollower && v.ally>=0 && !returning && v.monsters.isEmpty() && v.floor.isEmpty())
                 return new Input("WAIT",0,0);
             if (returning && v.pos==meetingCell && v.monsters.isEmpty()) return new Input("WAIT",0,0);
-            boolean seekStairs=rendezvousAtStairs && campaignGuide && v.branch==0 && v.monsters.isEmpty();
+            boolean seekStairs=rendezvousAtStairs && campaignGuide && v.branch==0
+                    && (waitAtVisibleExit ? v.monsters.values().stream().noneMatch(Guide::hostile) : v.monsters.isEmpty());
+            if (seekStairs && meetOnStair && knownExit>=0 && v.visible(knownExit)
+                    && distance(v.pos,knownExit,v.width)<=1 && !hungry) {
+                return new Input("WAIT",v.pos,0);
+            }
             if (seekStairs && v.ally>=0 && knownExit>=0 && distance(v.ally,knownExit,v.width)<=2) {
                 scoutingTurns=0;
                 waitingAtExit=0;
             }
             if (seekStairs && scoutingTurns==0 && knownExit>=0 && distance(v.pos,knownExit,v.width)<=1) {
-                if (++waitingAtExit<=4) return new Input("WAIT",v.pos,0);
+                // Both players must see the stair. A healthy seat can wait there for its partner.
+                int waitLimit=waitAtVisibleExit && v.visible(knownExit) && !hungry && v.hp*3>=v.maxHp*2 ? 32 : 4;
+                if (++waitingAtExit<=waitLimit) return new Input("WAIT",v.pos,0);
                 // Retrace a public sighting or explore a frontier, then return to our own known stair.
                 scoutingTurns=12;
                 waitingAtExit=0;
@@ -558,6 +573,12 @@ public final class VaultPublicRoute {
                     if (avoidGolem && golemCell>=0) {
                         value-=500*Math.max(0,3-distance(first[c],golemCell,v.width));
                         value-=100*Math.max(0,4-distance(c,golemCell,v.width));
+                    }
+                    // Once both have independently discovered the stair, visit counts should not
+                    // drive a healthy player away from it just because they have crossed this hall before.
+                    if (seekStairs && meetOnStair && !hungry && knownExit>=0
+                            && (c==knownExit || adjacent(c,knownExit,v.width))) {
+                        value=10000-dist[c];
                     }
                     if (value>high || forwardTie) {best=first[c]; bestCell=c; high=value;}
                 }

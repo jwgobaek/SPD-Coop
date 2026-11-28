@@ -1,5 +1,9 @@
 # 미해결 문제
 
+## 2026-11-28 SYNC42 Android 재개 및 SYNC45 Cloud
+
+SYNC42 Android 필수 76개가 남아 ZIP 발행이 대기 중이다. SYNC45의 재성장·수호 지팡이는 Cloud 검증 단계이며 부식 지팡이의 아군 피해 규칙은 미확정이다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 검증](docs/coop/regrowth-warding-results.md)
+
 ## 2026-11-28 SYNC42 Android 및 SYNC44 Cloud
 
 SYNC42 필수 인수 92개가 남아 APK와 ZIP의 대응 소스가 다르다. 후속 개발판의 PartyAscentTest 최초 실패 원인도 미확정이다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 개발 및 회귀](docs/coop/earth-guardian-results.md)

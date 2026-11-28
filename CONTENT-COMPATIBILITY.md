@@ -1,5 +1,9 @@
 # 협동 콘텐츠 지원표
 
+## 2026-11-28 SYNC42 Android 재개 및 SYNC45 Cloud
+
+원본 소스 399행 중 native_use에 개별 근거가 있는 항목은 111행이다. 재성장·수호 지팡이와 기존 신속 반지의 실제 효과 근거를 연결했다. 이전 VERIFIED/PARTIAL 95행의 분류는 보존했다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 검증](docs/coop/regrowth-warding-results.md)
+
 ## SYNC41 Android와 SYNC42 원본 콘텐츠
 
 원본 399행 중 106행에 개별 사용 또는 조합 근거를 연결했다. 휴대형 도구 1행에는 별도로 원본 에너지 계산·복원 근거만 연결했다. 타락 포함 지팡이 다섯 경로 9/13, Trinity 14/113, 지도 포함 각인 회수는 5종이다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)

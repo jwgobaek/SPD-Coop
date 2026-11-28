@@ -11,6 +11,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.watabou.utils.Random;
 import java.util.UUID;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import com.watabou.utils.Bundle;
 
 /** Test classpath only. The input chooser sees the same seat projection as an ordinary client. */
 public final class ExperienceProgress {
@@ -60,9 +64,24 @@ public final class ExperienceProgress {
 
     private static void play(int seed,int budget) throws Exception {
         HeroClass front=HeroClass.valueOf(System.getProperty("trial.front","WARRIOR"));
-        try (CoopSession game=CoopSession.open(seed,1,front)) {
-            game.join(2,HeroClass.valueOf(System.getProperty("trial.partner","HUNTRESS")));
-            Random.pushGenerator(seed);
+        HeroClass partner=HeroClass.valueOf(System.getProperty("trial.partner","HUNTRESS"));
+        String prior=System.getProperty("trial.resumeGame");
+        CoopSession initial;
+        if (prior==null) {
+            initial=CoopSession.open(seed,1,front);
+        } else {
+            try (var stream=Files.newInputStream(Path.of(prior))) {
+                initial=CoopSession.restore(Bundle.read(stream));
+            }
+        }
+        try (CoopSession game=initial) {
+            if (prior==null) {
+                game.join(2,partner);
+                Random.pushGenerator(seed);
+            } else if (Dungeon.seed!=seed || Dungeon.branch!=0 || game.hero(0).heroClass!=front
+                    || game.hero(1).heroClass!=partner || !"last".equals(policy)) {
+                throw new IllegalArgumentException("Expected the same normal seed, classes, and last-hit XP policy");
+            }
             UUID uuid=UUID.randomUUID();
             RoomSync room=new RoomSync(uuid,game);
             DisplayReplica[] clients={new DisplayReplica(uuid,0),new DisplayReplica(uuid,1)};
@@ -76,18 +95,21 @@ public final class ExperienceProgress {
             int[] moveTotals=new int[2], repeats=new int[2], firstExit={-1,-1}, gateSignals=new int[2], firstPoints={-1,-1}, frontiers=new int[2], exitSeen={-1,-1};
             java.util.List<java.util.Set<String>> walked=java.util.Arrays.asList(new java.util.HashSet<>(),new java.util.HashSet<>());
             boolean[] wasDown={false,false};
+            PublicDungeon[] lastObservation=new PublicDungeon[2];
             String result="budget";
             for (int n=0;n<budget;++n) {
                 if (game.activeSeat()<0) {result=game.defeated()?"defeat":"stopped"; break;}
                 int seat=game.activeSeat();
                 PublicDungeon v=view(clients[seat],room,seat);
+                lastObservation[seat]=v;
                 if (depth!=v.depth) {
                     depth=v.depth;
                     guides[0]=new VaultPublicRoute.Guide();
                     guides[1]=new VaultPublicRoute.Guide();
                 }
                 VaultPublicRoute.Input input=guides[seat].choose(v);
-                boolean keepRecovery = input.action.equals("REVIVE") || input.action.equals("DRINK") || input.action.equals("EAT");
+                boolean keepRecovery = input.action.equals("REVIVE") || input.action.equals("DRINK") || input.action.equals("EAT")
+                        || input.action.equals("MOVE") && guides[seat].isolatedAndOutnumbered(v);
                 if (v.offered && !keepRecovery && (v.heroClass.equals("CLERIC") || v.heroClass.equals("DUELIST"))) {
                     var targets = visibleAttackTargets(v);
                     for (PublicDungeon.Loot tool : v.belongings) {
@@ -138,6 +160,13 @@ public final class ExperienceProgress {
                             .map(it -> it.kind+"="+it.quantity+(it.showsCharges()?"/"+it.charges:"")).collect(java.util.stream.Collectors.joining(","));
                     System.out.printf("RECOVERY %d depth=%d seat=%d pos=%d hp=%d ally=%d life=%s mobs=%s supplies=%s action=%s target=%d%n",
                             n,v.depth,seat,v.pos,v.hp,v.ally,v.source.rows.get("life"),v.monsters,supplies,input.action,input.cell);
+                    if (Boolean.getBoolean("trial.traceStairs")) {
+                        int known=guides[seat].knownExit;
+                        System.out.printf("EXIT_VIEW n=%d depth=%d seat=%d pos=%d known=%d visible=%b near=%b ally=%d stair=%d%n",
+                                n,v.depth,seat,v.pos,known,known>=0 && v.visible(known),
+                                known>=0 && Math.max(Math.abs(v.pos%v.width-known%v.width),
+                                        Math.abs(v.pos/v.width-known/v.width))<=1,v.ally,v.stair);
+                    }
                 }
                 String status=send(room,v,seat,game.player(seat),++seq[seat],input);
                 if (input.action.equals("WEAPON_ABILITY") || input.action.equals("GUIDING_LIGHT") || input.action.equals("CLOAK")) {
@@ -165,8 +194,25 @@ public final class ExperienceProgress {
                 else {result=input.action+"/"+status;break;}
                 for (int s=0;s<2;s++) {
                     boolean fallen=game.life(s)!=CoopSession.Life.ALIVE;
-                    if (fallen && !wasDown[s]) down++;
+                    if (fallen && !wasDown[s]) {
+                        down++;
+                        if (Boolean.getBoolean("trial.traceStairs") && lastObservation[s]!=null) {
+                            PublicDungeon observed=lastObservation[s];
+                            String supplies=observed.belongings.stream()
+                                    .map(i -> i.kind+"="+i.quantity+(i.showsCharges()?"/"+i.charges:""))
+                                    .collect(java.util.stream.Collectors.joining(","));
+                            System.out.printf("FALL n=%d seat=%d depth=%d lastPos=%d hpBefore=%d allyVisibleAt=%d publicMobs=%s ownItems=%s actingSeat=%d action=%s target=%d result=%s%n",
+                                    n,s,observed.depth,observed.pos,observed.hp,observed.ally,observed.monsters,
+                                    supplies,seat,input.action,input.cell,status);
+                        }
+                    }
                     wasDown[s]=fallen;
+                }
+            }
+            String destination=System.getProperty("trial.saveGame");
+            if (destination!=null) {
+                try (var stream=Files.newOutputStream(Path.of(destination),StandardOpenOption.CREATE_NEW)) {
+                    if (!Bundle.write(game.checkpoint(),stream)) throw new java.io.IOException("Could not write campaign checkpoint");
                 }
             }
             if (!abilityUse.isEmpty()) System.out.println("NATIVE_ABILITIES "+seed+" "+policy+" "+abilityUse);

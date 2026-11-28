@@ -1,5 +1,9 @@
 # 최종 검증판 발행
 
+## 2026-11-28 SYNC42 Android 재개 및 SYNC45 Cloud
+
+기존 파일을 비로그인으로 내려받아 APK 35,410,029바이트(SYNC42, 6200b55), ZIP 77,693,505바이트(SYNC41, 7ba9bb3)의 SHA-256을 확인했다. 이번 각 파일의 갱신은 0회다. 누적 APK 1회, ZIP 0회, 신규 파일 0개다. ZIP 발행 조건은 SYNC42의 160개 필수 관측 통과다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 검증](docs/coop/regrowth-warding-results.md)
+
 ## 2026-11-28 SYNC42 Android 및 SYNC44 Cloud
 
 기존 APK 1회, ZIP 0회, 신규 파일 0개다. Drive APK는 6200b55, 기존 ZIP은 7ba9bb3에 대응한다. 남은 필수 Android 인수가 완료된 뒤 6200b55의 대응 ZIP을 구성한다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 개발 및 회귀](docs/coop/earth-guardian-results.md)
