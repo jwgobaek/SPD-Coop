@@ -3,6 +3,8 @@ package com.shatteredpixel.shatteredpixeldungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.DirectableAlly;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLivingEarth.EarthGuardian;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Stasis;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.PowerOfMany;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe;
@@ -165,6 +167,19 @@ public final class CoopFloors {
         return false;
     }
 
+    public boolean hasParkedPower(Hero owner) {
+        for (Bundle floor : dormant.values()) {
+            for (Bundle mob : floor.getBundle("level").getBundleArray("mobs")) {
+                if (mob.getInt("summoner") != owner.id()) continue;
+                for (Bundle buff : mob.getBundleArray("buffs")) {
+                    if (PowerOfMany.PowerBuff.class.getName().equals(buff.getString("__className"))
+                            && buff.getInt("summoner") == owner.id()) return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public boolean hasParkedFloor() { return !dormant.isEmpty(); }
 
     public boolean warpPending() { return warpSeat >= 0; }
@@ -249,6 +264,8 @@ public final class CoopFloors {
     boolean travel(int seat,int cell,Item chosen) {
         if (seat!=game.activeSeat() || cell!=votedCell || !agreed()) return false;
         Level old=Dungeon.level;
+        Stasis.DepartingSummons summons = new Stasis.DepartingSummons(game.hero(0), game.hero(1));
+        if (!summons.ready()) return false;
         if (warpPending()) {
             if (chosen!=null) return false;
             Hero mage=game.hero(seat);
@@ -256,6 +273,7 @@ public final class CoopFloors {
             ClassArmor armor=(ClassArmor)mage.belongings.armor();
             armor.charge-=((WarpBeacon)mage.armorAbility).recallCost(mage,mark);
             armor.updateQuickslot();
+            summons.release();
             return switchFloor(seat,mark.depth,mark.branch,null,mark.pos,null);
         }
         LevelTransition transition;
@@ -297,6 +315,7 @@ public final class CoopFloors {
             if (Dungeon.branch==0) Blacksmith.Quest.start();
             else Blacksmith.Quest.completeFor(miner(),game.hero(0),game.hero(1));
         }
+        summons.release();
         return switchFloor(seat,transition.destDepth,transition.destBranch,transition.destType,-1,reward);
     }
 

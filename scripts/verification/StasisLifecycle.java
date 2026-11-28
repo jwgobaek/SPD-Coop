@@ -55,13 +55,21 @@ public class StasisLifecycle extends HeadlessDungeon {
         }
     }
 
+    private static int hold(CoopSession game, int seat, String summon) {
+        if (summon.equals("light")) return hold(game, seat);
+        var ally = PoweredWandSummonTest.conjure(game, seat, summon.equals("ward"));
+        PoweredWandSummonTest.empower(game, seat, ally);
+        PoweredWandSummonTest.hold(game, seat, ally);
+        return ally.id();
+    }
+
     @Test public void lethalHitsFreezeDownedPocketsAndDiscardFinalCasualties() {
-        for (int seat=0; seat<2; seat++) for (boolean revive:new boolean[]{false,true}) {
+        for (String summon : new String[]{"light","earth","ward"}) for (int seat=0; seat<2; seat++) for (boolean revive:new boolean[]{false,true}) {
             Bundle saved;
             int id;
             try (CoopSession game=CoopSession.open(572,11,HeroClass.CLERIC)) {
                 game.join(22,HeroClass.CLERIC);
-                id=hold(game,seat);
+                id=hold(game,seat,summon);
                 Hero hero=game.hero(seat);
                 if (revive) assertTrue(new Ankh().collect(hero.belongings.backpack));
                 hero.HP=17;
@@ -88,10 +96,10 @@ public class StasisLifecycle extends HeadlessDungeon {
     }
 
     @Test public void nativeScheduledExpiryReturnsOneAllyWithoutAManualCast() {
-        for (int seat=0; seat<2; seat++) {
+        for (String summon : new String[]{"light","earth","ward"}) for (int seat=0; seat<2; seat++) {
             try (CoopSession game=CoopSession.open(572,11,HeroClass.CLERIC)) {
                 game.join(22,HeroClass.CLERIC);
-                int id=hold(game,seat);
+                int id=hold(game,seat,summon);
                 Hero hero=game.hero(seat);
                 for (Hero h:new Hero[]{hero,game.hero(1-seat)}) h.HP=h.HT=400;
                 int requests=0;

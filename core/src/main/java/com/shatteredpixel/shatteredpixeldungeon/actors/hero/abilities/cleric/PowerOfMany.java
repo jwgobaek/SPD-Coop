@@ -22,6 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.CoopSession;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -123,7 +124,7 @@ public class PowerOfMany extends ArmorAbility {
 			allyExists = true;
 		}
 
-		if (Stasis.getStasisAlly(hero) != null){
+		if (Stasis.getStasisAlly(hero) != null || Dungeon.coop != null && Dungeon.coop.stairs.hasParkedPower(hero)){
 			allyExists = true;
 		}
 
@@ -151,7 +152,7 @@ public class PowerOfMany extends ArmorAbility {
 
 			Char ch = Actor.findChar(target);
 			if (ch != null){
-				if (ch.alignment != Char.Alignment.ALLY || ch == hero || Dungeon.coop!=null && (!(ch instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkAlly || ch instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.ShadowClone.ShadowAlly) || ((DirectableAlly)ch).commander()!=hero || ch.buff(PowerBuff.class)!=null)){
+				if (ch.alignment != Char.Alignment.ALLY || ch == hero || Dungeon.coop!=null && (!CoopSession.ownedPowerTarget(hero, ch) || ch.buff(PowerBuff.class) != null)){
 					GLog.w(Messages.get(this, "only_allies"));
 					return false;
 				}
@@ -169,7 +170,7 @@ public class PowerOfMany extends ArmorAbility {
 				if (Dungeon.coop==null) ScrollOfTeleportation.appear(ch, ch.pos);
 			}
 
-			Buff.affect(ch, PowerBuff.class, 100f).ownerId=hero.id();
+			PowerBuff.apply(ch, hero, PowerBuff.DURATION);
 			Buff.affect(ch, Barrier.class).setShield(25);
 
 			armor.charge -= chargeUse;
@@ -218,7 +219,11 @@ public class PowerOfMany extends ArmorAbility {
 	public static class PowerBuff extends FlavourBuff {
         public boolean belongsTo(Hero hero) { return Dungeon.coop==null || ownerId==hero.id(); }
 
-		private int ownerId;
+		public static void apply(Char ally, Hero caster, float duration) {
+            Buff.affect(ally, PowerBuff.class, duration).ownerId = caster.id();
+        }
+
+        private int ownerId;
 		@Override public void storeInBundle(Bundle b) {
 			super.storeInBundle(b);
 			if (Dungeon.coop!=null) b.put("summoner",ownerId);

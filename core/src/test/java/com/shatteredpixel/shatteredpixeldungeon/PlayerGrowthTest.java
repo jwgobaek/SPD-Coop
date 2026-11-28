@@ -172,6 +172,7 @@ public class PlayerGrowthTest extends HeadlessDungeon {
         int seat=stage.endsWith("1")?1:0;
         if (stage.matches("kitbrew[01]")) return PortableAlchemyTest.prepare(g,seat,2);
         if (stage.matches("kit(stones|seeds|vision)[01]")) return PortableAlchemyTest.prepareRecipe(g, seat, 2, stage.substring(0, stage.length()-1));
+        if (stage.matches("(earth|ward)(hold|free)[01]")) return PoweredWandSummonTest.prepare(g,seat,stage);
         if (stage.matches("wardzap[01]")) return WardingTest.prepare(g,seat);
         if (stage.matches("regrowth[01]")) return RegrowthTest.prepare(g,seat);
         if (stage.matches("earthtrap[01]")) return LivingEarthTest.prepareTrap(g,seat);
@@ -206,6 +207,7 @@ public class PlayerGrowthTest extends HeadlessDungeon {
         int seat=stage.endsWith("1")?1:0;
         if (stage.matches("kitbrew[01]")) return PortableAlchemyTest.published(g,seat);
         if (stage.matches("kit(stones|seeds|vision)[01]")) return PortableAlchemyTest.recipePublished(g, seat, stage.substring(0, stage.length()-1));
+        if (stage.matches("(earth|ward)(hold|free)[01]")) return PoweredWandSummonTest.published(g,seat,stage);
         if (stage.matches("wardzap[01]")) return WardingTest.published(g,seat);
         if (stage.matches("regrowth[01]")) return RegrowthTest.published(g,seat);
         if (stage.matches("earthtrap[01]")) return LivingEarthTest.trapPublished(g,seat);

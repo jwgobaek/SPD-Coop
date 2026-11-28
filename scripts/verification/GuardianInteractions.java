@@ -43,17 +43,18 @@ public class GuardianInteractions extends HeadlessDungeon {
             game.observe(seat);
             int tomeCharges = tome.charges();
             float armorCharge = armor.charge;
-            assertFalse(CoopFloorsTest.step(game, ARMOR_ABILITY, guardians[seat].pos, armor));
+            assertFalse(CoopFloorsTest.step(game, ARMOR_ABILITY, guardians[1-seat].pos, armor));
             assertNull(PowerOfMany.getPoweredAlly(owner));
             assertFalse(CoopFloorsTest.step(game, STASIS, owner.pos, tome));
             assertNull(Stasis.getStasisAlly(owner));
             assertEquals(tomeCharges, tome.charges());
             assertEquals(armorCharge, armor.charge, 0);
+            assertTrue(CoopFloorsTest.step(game, ARMOR_ABILITY, guardians[seat].pos, armor));
             int oldId = guardians[seat].id();
             assertTrue(guardians[seat].WANDERING.act(false, false));
             assertNull(Actor.findById(oldId));
             assertNull(WandOfLivingEarth.activeGuardian(owner));
-            assertNotNull(owner.buff(RockArmor.class));
+            assertTrue(owner.buff(RockArmor.class).isEmpowered());
             assertNull(peer.buff(RockArmor.class));
             assertSame(guardians[1-seat], WandOfLivingEarth.activeGuardian(peer));
             save = game.checkpoint();
@@ -64,7 +65,7 @@ public class GuardianInteractions extends HeadlessDungeon {
             assertEquals(peerGuardian, other.id());
             assertSame(game.hero(1-seat), other.owner());
             assertNull(WandOfLivingEarth.activeGuardian(game.hero(seat)));
-            System.out.println("PASS guardian seat=" + seat + " Power/STASIS restrictions, native wandering return, peer retained");
+            System.out.println("PASS guardian seat=" + seat + " peer refused, owned Power, native wandering return, peer retained");
         }
     }
 

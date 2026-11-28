@@ -86,6 +86,8 @@ public final class MixedRoomStability {
             "wall0","wall1","warpwraith0","warpwraith1","hornhit0","hornhit1","cloakring0","cloakring1",
             "packedcloak0","packedcloak1","bookward0","bookward1","spark0","monkfocus1","poisontip0","elestrike1","food","dart","floor","mine"};
 
+    static final String[] SUMMONS_AND_RINGS = {"earthhold0","wardhold1","earthfree1","wardfree0",
+            "ringenergy","ringaccuracy","kitbrew0","kitvision1","visiondrink1","healing","floor","mine"};
     static final String[] WAND_GARDEN = {"regrowth0","wardzap1","kitbrew1","guessstone0","seedbrew0",
             "regrowth1","wardzap0","earthheal0","visiondrink1","kitbrew0","floor","mine",
             "earthtrap0","kitstones1","kitseeds0","kitvision1","earthtrap1"};
@@ -130,6 +132,7 @@ public final class MixedRoomStability {
         if (com.shatteredpixel.shatteredpixeldungeon.BowEffectsTest.isThrowFixture(stage)) return "HUNTRESS";
         if (stage.matches("(readlullaby|recalllullaby|trinitybloomhistory)[01]")) return "CLERIC";
         if (stage.startsWith("mapread") || stage.startsWith("maprecall")) return "CLERIC";
+        if (stage.matches("(earthhold|earthfree|wardhold|wardfree)[01]")) return "CLERIC";
         if (stage.startsWith("stasis") || stage.startsWith("trinitymindray")) return "CLERIC";
         if (stage.startsWith("warppropose") || stage.startsWith("warpreturn")) return "MAGE";
         if (stage.startsWith("ninjalog")) return "ROGUE";
@@ -166,6 +169,14 @@ public final class MixedRoomStability {
             cell=MiningBranchTest.prepareBoundary(room,"gnoll-enter");
             verb="TRAVEL";
             break;
+        case "ringenergy": case "ringaccuracy":
+            CoopMageTest.encounter(room, room.activeSeat());
+            Item ring=stage.equals("ringenergy") ? new com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy()
+                    : new com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAccuracy();
+            ring.upgrade().identify(false);
+            com.shatteredpixel.shatteredpixeldungeon.MultiAlchemyTest.pick(room,room.activeSeat(),ring);
+            verb="EQUIP"; cell=0;
+            break;
         case "dart": case "healing": case "food":
             cell=CoopMageTest.encounter(room,room.activeSeat()).pos;
             if (!stage.equals("food")) {
@@ -198,6 +209,8 @@ public final class MixedRoomStability {
     static VaultPublicRoute.Input fromView(PublicDungeon view,VaultPublicRoute.Input staged) {
         String verb=staged.action;
         long item=0;
+        if (verb.equals("EQUIP")) item=view.belongings.stream()
+                .filter(it->it.kind.equals("RING") && view.actions(it).contains(verb)).findFirst().orElseThrow().id;
         if (verb.equals("BREW_SEEDS") || verb.equals("BREW_ENCHANTMENT")) {
             String key=verb.equals("BREW_SEEDS") ? "brewseed" : "brewexotic";
             item=view.belongings.stream().filter(it->view.source.rows.containsKey(key+it.id)).findFirst().get().id;
@@ -431,6 +444,7 @@ public final class MixedRoomStability {
                 if (Boolean.getBoolean("stability.originalItems")) stage = ORIGINAL_ITEMS[i % ORIGINAL_ITEMS.length];
                 if (Boolean.getBoolean("stability.stasisWarp")) stage = STASIS_WARP[i % STASIS_WARP.length];
                 if (Boolean.getBoolean("stability.paidRace")) stage = "paired-exotic"+(i%2);
+                if (Boolean.getBoolean("stability.poweredSummons")) stage=SUMMONS_AND_RINGS[i % SUMMONS_AND_RINGS.length];
                 if (Boolean.getBoolean("stability.wandGarden")) stage = WAND_GARDEN[i % WAND_GARDEN.length];
                 if (Boolean.getBoolean("stability.earthAlchemy")) stage = EARTH_ALCHEMY[i % EARTH_ALCHEMY.length];
                 if (Boolean.getBoolean("stability.runeReading")) stage = RUNE_READING[i % RUNE_READING.length];

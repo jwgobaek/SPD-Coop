@@ -29,7 +29,7 @@ public class MultiAlchemyTest extends HeadlessDungeon {
         return cell;
     }
 
-    static void pick(CoopSession game, int seat, Item item) {
+    public static void pick(CoopSession game, int seat, Item item) {
         Hero hero = game.hero(seat);
         Dungeon.level.drop(item, hero.pos);
         SewerBeeTest.offer(game, seat);

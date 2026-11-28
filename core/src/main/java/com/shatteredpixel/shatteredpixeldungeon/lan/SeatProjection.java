@@ -676,7 +676,8 @@ final class SeatProjection {
                 || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping
                 || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfEnchantment)) kind="READ_SCROLL";
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle) kind="CANDLE";
-        if (!slot.startsWith("F") && item.isIdentified() && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste) kind="HASTE_RING";
+        if (!slot.startsWith("F") && item.isIdentified() && CoopSession.supportedWearableRing(item))
+            kind = item instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste ? "HASTE_RING" : "RING";
         String charges="";
         if (!slot.startsWith("F") && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit) kind="ALCHEMY_KIT";
         if (!slot.startsWith("F") && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty) {

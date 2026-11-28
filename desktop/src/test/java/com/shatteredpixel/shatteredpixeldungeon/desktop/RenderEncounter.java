@@ -89,6 +89,8 @@ final class RenderEncounter {
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game, "cauldron0");
             } else if (destination.equals("scroll-enchant-input")) {
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,"scrollread0");
+            } else if (destination.matches("(earthhold|wardhold)-input")) {
+                com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game, destination.replace("-input","0"));
             } else if (destination.equals("stasis-input") || destination.equals("beacon-vote-input")){
                 com.shatteredpixel.shatteredpixeldungeon.PlayerGrowthTest.stage(game,destination.equals("stasis-input")?"stasishold0":"warppropose0");
             } else if (destination.equals("eagle-input")) {

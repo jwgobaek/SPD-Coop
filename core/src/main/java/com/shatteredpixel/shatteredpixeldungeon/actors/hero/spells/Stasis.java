@@ -68,8 +68,7 @@ public class Stasis extends ClericSpell {
 		if (!super.canCast(hero) || !hero.hasTalent(Talent.STASIS)) return false;
 		if (hero.buff(StasisBuff.class) != null) return true;
 		Char ally = PowerOfMany.getPoweredAlly(hero);
-		return Dungeon.coop == null ? ally != null : ally instanceof PowerOfMany.LightAlly
-				&& ((PowerOfMany.LightAlly) ally).belongsTo(hero);
+		return Dungeon.coop == null ? ally != null : CoopSession.ownedPowerTarget(hero, ally);
 	}
 
 	@Override
@@ -135,6 +134,38 @@ public class Stasis extends ClericSpell {
 		}
 		return null;
 	}
+
+    // Native immovable summons stay on the departing floor. Find distinct legal cells
+    // before the party spends a charge or commits any part of its transition.
+    public static class DepartingSummons {
+        private final StasisBuff first, second;
+        private final boolean ready;
+
+        public DepartingSummons(Hero host, Hero guest) {
+            StasisBuff a = stationary(host), b = stationary(guest);
+            ArrayList<Integer> aCells = a == null ? new ArrayList<>() : a.landings();
+            ArrayList<Integer> bCells = b == null ? new ArrayList<>() : b.landings();
+            ready = (a == null || !aCells.isEmpty()) && (b == null || !bCells.isEmpty())
+                    && !(aCells.size() == 1 && aCells.equals(bCells));
+            // A summon with only one landing must place first if its peer can choose.
+            boolean guestFirst = bCells.size() == 1 && aCells.size() > 1;
+            first = guestFirst ? b : a;
+            second = guestFirst ? a : b;
+        }
+
+        private static StasisBuff stationary(Hero hero) {
+            Mob held = getStasisAlly(hero);
+            return held != null && Char.hasProp(held, Char.Property.IMMOVABLE) ? hero.buff(StasisBuff.class) : null;
+        }
+
+        public boolean ready() { return ready; }
+
+        public void release() {
+            if (!ready) throw new IllegalStateException("Stationary summons need separate landings");
+            if (first != null) first.act();
+            if (second != null) second.act();
+        }
+    }
 
 	public static class StasisBuff extends FlavourBuff {
 

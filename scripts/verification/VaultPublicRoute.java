@@ -80,6 +80,8 @@ public final class VaultPublicRoute {
         boolean escortFollower;
         int reunions;
         int lastAlly=-1;
+        boolean lastAllyAlive;
+        final Set<Long> healingGuesses = new HashSet<>();
         int destination=-1;
         final Set<String> blockedShots=new HashSet<>();
 
@@ -136,9 +138,32 @@ public final class VaultPublicRoute {
             return false;
         }
         boolean isolatedAndOutnumbered(PublicDungeon v) {
+            if (Boolean.getBoolean("trial.defensivePair") && v.hp*2<=v.maxHp && dangerDistance(v,v.pos)<=2
+                    && (v.ally<0 || !lastAllyAlive || distance(v.pos,v.ally,v.width)>2)) return true;
             if (!Boolean.getBoolean("trial.avoidOutnumbered") || v.ally>=0 || v.hp*3>v.maxHp*2) return false;
             return v.monsters.entrySet().stream().filter(m -> hostile(m.getValue()) && v.visible(m.getKey())
                     && distance(v.pos,m.getKey(),v.width)<=4).limit(2).count()==2;
+        }
+
+        Input followVisiblePartner(PublicDungeon v, Input choice) {
+            if (!choice.action.equals("MOVE") || knownExit >= 0 || v.stair >= 0) return choice;
+            if (!lastAllyAlive || lastAlly < 0 || missingTurns > 4 || distance(v.pos,lastAlly,v.width) < 3) return choice;
+            int currentGap = distance(v.pos, lastAlly, v.width);
+            int currentDanger = dangerDistance(v, v.pos);
+            int best = -1, bestScore = Integer.MIN_VALUE;
+            for (int dy=-1; dy<=1; dy++) for (int dx=-1; dx<=1; dx++) {
+                int x=v.pos%v.width+dx, y=v.pos/v.width+dy;
+                if (x<0 || y<0 || x>=v.width || y>=v.height) continue;
+                int c=y*v.width+x, terrain=v.terrain(c);
+                if (c==v.ally || !v.visible(c) || terrain<0 || (Terrain.flags[terrain]&Terrain.PASSABLE)==0
+                        || blocked.contains(c) || v.monsters.containsKey(c) || v.source.rows.containsKey("trap"+c)
+                        || v.source.rows.containsKey("aim"+c)) continue;
+                int gap=distance(c,lastAlly,v.width), danger=dangerDistance(v,c);
+                if (gap>=currentGap || danger<Math.min(3,currentDanger)) continue;
+                int score=10*Math.min(4,danger)-visits.getOrDefault(c,0);
+                if (score>bestScore) { best=c; bestScore=score; }
+            }
+            return best<0 ? choice : new Input("MOVE",best,0);
         }
 
         private int retreat(PublicDungeon v) {
@@ -252,6 +277,7 @@ public final class VaultPublicRoute {
                 if (missingTurns>0) reunions++;
                 missingTurns=0;
                 lastAlly=v.ally;
+                lastAllyAlive="ALIVE".equals(v.source.rows.get("allylife"));
                 if (adjacent(v.pos,v.ally,v.width) && exposedTo(v,v.pos)==0 && exposedTo(v,v.ally)==0)
                     rendezvous=Math.min(v.pos,v.ally);
             } else missingTurns++;
@@ -341,10 +367,26 @@ public final class VaultPublicRoute {
             for (PublicDungeon.Loot i : v.belongings) {
                 if (hungry && v.monsters.isEmpty() && v.actions(i).contains("EAT")) return new Input("EAT",0,i.id);
                 if (v.hp * 3 < v.maxHp && !v.monsters.isEmpty() && !rejectedItems.contains(i.id) && v.actions(i).contains("VAULT_RECALL")) return new Input("VAULT_RECALL",0,i.id);
-                if (v.hp * 2 < v.maxHp && v.actions(i).contains("DRINK")) return new Input("DRINK", 0, i.id);
+                if (v.hp * 2 < v.maxHp && v.actions(i).contains("DRINK") && (!Boolean.getBoolean("trial.defensivePair") || i.kind.equals("HEALING"))) return new Input("DRINK", 0, i.id);
                 if (!rejectedItems.contains(i.id) && v.actions(i).contains("EQUIP")
                         && (i.kind.equals("MELEE") || i.kind.equals("ARMOR"))
                         && v.belongings.stream().noneMatch(e -> e.slot.equals(i.kind.equals("MELEE")?"WEAPON":"ARMOR"))) return new Input("EQUIP",0,i.id);
+            }
+            if (Boolean.getBoolean("trial.defensivePair") && v.monsters.isEmpty()) {
+                for (PublicDungeon.Loot stone : v.belongings) {
+                    if (!v.actions(stone).contains("GUESS_ITEM") || rejectedItems.contains(stone.id)) continue;
+                    for (PublicDungeon.Loot bottle : v.belongings) {
+                        String selection=v.source.rows.get("guessgear"+bottle.id);
+                        if (selection==null || !selection.endsWith(",potion") || healingGuesses.contains(bottle.id)) continue;
+                        for (int i=0; v.source.rows.containsKey("guesspotion"+i); i++) {
+                            if ("items.potions.potionofhealing".equals(v.source.rows.get("guesspotion"+i))) {
+                                healingGuesses.add(bottle.id);
+                                int slot=Integer.parseInt(selection.substring(0,selection.indexOf(',')));
+                                return new Input("GUESS_ITEM", slot*com.shatteredpixel.shatteredpixeldungeon.CoopRuneStones.OPTIONS_PER_ITEM+i, stone.id);
+                            }
+                        }
+                    }
+                }
             }
             if (avoidGolem && Boolean.getBoolean("vault.guide.seekVisibleWeapon")) {
                 if (Boolean.getBoolean("vault.guide.seekHealing") && v.hp<v.maxHp) {

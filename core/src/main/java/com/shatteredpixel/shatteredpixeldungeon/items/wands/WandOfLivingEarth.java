@@ -134,7 +134,7 @@ public class WandOfLivingEarth extends DamageWand {
 			guardian.setInfo(caster, buffedLvl(), buff.armor);
 
 			if (buff.powerOfManyTurns > 0){
-				Buff.affect(guardian, PowerOfMany.PowerBuff.class, buff.powerOfManyTurns);
+				PowerOfMany.PowerBuff.apply(guardian, caster, buff.powerOfManyTurns);
 			}
 
 			//if the collision pos is occupied (likely will be), then spawn the guardian in the

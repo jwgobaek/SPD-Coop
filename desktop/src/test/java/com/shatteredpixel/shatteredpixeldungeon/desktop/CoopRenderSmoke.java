@@ -37,7 +37,7 @@ public final class CoopRenderSmoke {
             return;
         }
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|detectstone-input|guessstone-input|kit(brew|vision|stones|seeds)-input|fearstone-input|visiondrink-input|corruptzap-input|regrowth-input|earthtrap-input|wardzap-input|seedbrew-input|cauldron-input|eagle-input|stasis-input|beacon-vote-input|strength-input|recharging-input|lullaby-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|detectstone-input|guessstone-input|kit(brew|vision|stones|seeds)-input|fearstone-input|visiondrink-input|corruptzap-input|regrowth-input|earthtrap-input|wardzap-input|seedbrew-input|cauldron-input|eagle-input|(stasis|earthhold|wardhold)-input|beacon-vote-input|strength-input|recharging-input|lullaby-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -1264,7 +1264,7 @@ public final class CoopRenderSmoke {
                     break;
                 }
             }
-        } else click(regionShot.equals("cache-input")?"rogueClass":regionShot.equals("lunge-input")?"duelistClass":(regionShot.equals("stasis-input") || regionShot.equals("tome-input") || regionShot.equals("recharging-input") || regionShot.equals("lullaby-input") || regionShot.startsWith("selector-") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("scroll-enchant-input") || regionShot.equals("eagle-input") || regionShot.equals("bow-enchant-input") || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
+        } else click(regionShot.equals("cache-input")?"rogueClass":regionShot.equals("lunge-input")?"duelistClass":(regionShot.matches("(stasis|earthhold|wardhold)-input") || regionShot.equals("tome-input") || regionShot.equals("recharging-input") || regionShot.equals("lullaby-input") || regionShot.startsWith("selector-") || regionShot.equals("intuition-input") || regionShot.equals("sunray-input"))?"clericClass":kit || regionShot.equals("scroll-enchant-input") || regionShot.equals("eagle-input") || regionShot.equals("bow-enchant-input") || regionShot.equals("hawk-input")?"huntressClass":mage?"mageClass":"warriorClass");
         if(mage) shot("mage-selected");
         File root=java.nio.file.Files.createTempDirectory("spd-render-seat").toFile();
         java.nio.file.Files.writeString(new File(root,"port").toPath(),Integer.toString(testPort));
@@ -1452,7 +1452,7 @@ public final class CoopRenderSmoke {
                     return;
                 }
                 if (regionShot.equals("scroll-enchant-input")) { enchantScrollInput(); return; }
-                if (regionShot.equals("stasis-input")) {
+                if (regionShot.matches("(stasis|earthhold|wardhold)-input")) {
                     await(()->frame().dungeon.offered && ownTome()!=null && frame().image.rows.containsKey("poweredspells"));
                     int charges=ownTome().charges;
                     openSpellPicker(ownTome().id,com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.Stasis.INSTANCE.name());

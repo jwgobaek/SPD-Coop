@@ -18,12 +18,14 @@ parser.add_argument('--stair-strategy', choices=('scout', 'wait', 'meet'),
                     help='Use known stairs and public frontiers. Wait extends safe pauses. Meet commits to the known stair.')
 parser.add_argument('--avoid-outnumbered', action='store_true',
                     help='Withdraw from multiple visible nearby enemies when hurt and separated.')
+parser.add_argument('--defensive-pair', action='store_true', help='Conserve the last cloak charge and keep the follower near its last directly observed partner.')
+parser.add_argument('--save-floors', type=Path, help='Keep the first surviving arrival checkpoint on each new floor in this trial.')
 parser.add_argument('--trace-stairs', action='store_true',
                     help='Record each active seat’s public stair observations after the first floor or at low health.')
 parser.add_argument('--save-game', type=Path, help='Write one new isolated native game checkpoint after the trial.')
 parser.add_argument('--resume-game', type=Path, help='Read a matching isolated native game checkpoint in a fresh JVM.')
 args=parser.parse_args()
-if (args.save_game or args.resume_game) and (len(args.seeds)!=1 or args.policies!=['last']):
+if (args.save_game or args.resume_game or args.save_floors) and (len(args.seeds)!=1 or args.policies!=['last']):
     parser.error('A campaign checkpoint requires a single seed and the last-hit policy.')
 root=Path(__file__).resolve().parents[1]
 java_bin=Path(os.environ['JAVA_HOME'])/'bin'
@@ -48,6 +50,11 @@ with TemporaryDirectory() as tmp:
             guide_options.append('-Dtrial.meetOnStair=true')
     if args.avoid_outnumbered:
         guide_options.append('-Dtrial.avoidOutnumbered=true')
+    if args.defensive_pair:
+        guide_options.append('-Dtrial.defensivePair=true')
+    if args.save_floors:
+        args.save_floors.mkdir(parents=True, exist_ok=True)
+        guide_options.append('-Dtrial.saveFloors='+str(args.save_floors.resolve()))
     if args.trace_stairs:
         guide_options.extend(('-Dtrial.traceRecovery=true', '-Dtrial.traceStairs=true'))
     if args.resume_game:

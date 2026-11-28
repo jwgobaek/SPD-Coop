@@ -63,6 +63,12 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMight;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAccuracy;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEvasion;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTenacity;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.ClericSpell;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.GuidingLight;
@@ -255,6 +261,19 @@ public final class CoopSession implements AutoCloseable {
                 || Char.hasProp(hero, Char.Property.LARGE) && !level.openSpace[ally.pos]) return false;
         com.watabou.utils.PathFinder.buildDistanceMap(hero.pos, com.watabou.utils.BArray.or(level.passable, level.avoid, null));
         return com.watabou.utils.PathFinder.distance[ally.pos] != Integer.MAX_VALUE;
+    }
+
+    public static boolean supportedWearableRing(Item item) {
+        return item instanceof RingOfHaste || item instanceof RingOfMight || item instanceof RingOfAccuracy
+                || item instanceof RingOfEvasion || item instanceof RingOfFuror
+                || item instanceof RingOfEnergy || item instanceof RingOfTenacity;
+    }
+
+    public static boolean ownedPowerTarget(Hero owner, Char ally) {
+        return ally != null && ally.alignment == Char.Alignment.ALLY
+                && (ally instanceof PowerOfMany.LightAlly || ally instanceof SpiritHawk.HawkAlly
+                || ally instanceof ShadowClone.ShadowAlly || ally instanceof WandOfLivingEarth.EarthGuardian
+                || ally instanceof WandOfWarding.Ward) && summonerOf(ally) == owner;
     }
 
     public static Hero summonerOf(Char ally) {
@@ -2052,7 +2071,7 @@ public final class CoopSession implements AutoCloseable {
                     break;
                 }
                 case EQUIP:
-                    if (item instanceof RingOfHaste) {
+                    if (supportedWearableRing(item)) {
                         if (!item.isIdentified() || ownership.owner(item) != player || !hero.belongings.backpack.contains(item)
                                 || hero.belongings.ring != null && hero.belongings.misc != null
                                 || !((Ring)item).doEquip(hero)) return false;
@@ -2079,7 +2098,7 @@ public final class CoopSession implements AutoCloseable {
                     if (!revive(hero, cell)) return false;
                     break;
                 case UNEQUIP:
-                    if (item instanceof RingOfHaste) {
+                    if (supportedWearableRing(item)) {
                         if (ownership.owner(item) != player || !item.isEquipped(hero) || item.cursed
                                 || !hero.belongings.backpack.canHold(item) || !((Ring)item).doUnequip(hero,true)) return false;
                         break;
@@ -2245,7 +2264,15 @@ public final class CoopSession implements AutoCloseable {
         persistent.add(heroes[0]); persistent.add(heroes[1]);
         HashSet<Integer> summoners=new HashSet<>();
         HashSet<Hero> earthOwners=new HashSet<>();
+        HashSet<Hero> poweredOwners = new HashSet<>();
         for (Mob mob:Dungeon.level.mobs) {
+            PowerOfMany.PowerBuff power = mob.buff(PowerOfMany.PowerBuff.class);
+            if (power != null) {
+                Hero owner = summonerOf(mob);
+                if (owner == null || !ownedPowerTarget(owner, mob) || !power.belongsTo(owner)
+                        || !poweredOwners.add(owner) || stairs.hasParkedPower(owner))
+                    throw new IllegalStateException("Invalid powered companion owner");
+            }
             if (mob instanceof WandOfWarding.Ward && summonerOf(mob)==null)
                 throw new IllegalStateException("Invalid ward owner");
             if (mob instanceof WandOfRegrowth.Lotus && !((WandOfRegrowth.Lotus)mob).belongsTo(heroes[0])
@@ -2282,10 +2309,12 @@ public final class CoopSession implements AutoCloseable {
             Hero owner = heroes[seat];
             if (owner.buff(Stasis.StasisBuff.class) == null) continue;
             Mob held = Stasis.getStasisAlly(owner);
-            if (!(held instanceof PowerOfMany.LightAlly) || !((PowerOfMany.LightAlly)held).belongsTo(owner)
+            if (!ownedPowerTarget(owner, held) || !poweredOwners.add(owner) || stairs.hasParkedPower(owner)
+                    || held instanceof WandOfLivingEarth.EarthGuardian && (!earthOwners.add(owner) || stairs.hasParkedGuardian(owner))
                     || !(owner.armorAbility instanceof PowerOfMany) || !owner.hasTalent(Talent.STASIS)
                     || held.HP <= 0 || held.buff(PowerOfMany.PowerBuff.class) == null
-                    || !held.buff(PowerOfMany.PowerBuff.class).belongsTo(owner) || !summoners.add(seat))
+                    || !held.buff(PowerOfMany.PowerBuff.class).belongsTo(owner)
+                    || held instanceof PowerOfMany.LightAlly && !summoners.add(seat))
                 throw new IllegalStateException("Invalid held ally");
             checkHeldId(held, heldIds);
             for (Buff buff : held.buffs()) checkHeldId(buff, heldIds);

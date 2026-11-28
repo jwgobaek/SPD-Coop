@@ -97,6 +97,8 @@ public final class ExperienceProgress {
             boolean[] wasDown={false,false};
             PublicDungeon[] lastObservation=new PublicDungeon[2];
             String result="budget";
+            boolean defensivePair=Boolean.getBoolean("trial.defensivePair");
+            int highestArrival=Dungeon.depth;
             for (int n=0;n<budget;++n) {
                 if (game.activeSeat()<0) {result=game.defeated()?"defeat":"stopped"; break;}
                 int seat=game.activeSeat();
@@ -104,10 +106,23 @@ public final class ExperienceProgress {
                 lastObservation[seat]=v;
                 if (depth!=v.depth) {
                     depth=v.depth;
+                    if (depth>highestArrival && game.life(0)==CoopSession.Life.ALIVE && game.life(1)==CoopSession.Life.ALIVE) {
+                        highestArrival=depth;
+                        String directory=System.getProperty("trial.saveFloors");
+                        if (directory!=null) {
+                            Path out=Path.of(directory,"normal-"+seed+"-depth"+depth+".bundle");
+                            try (var stream=Files.newOutputStream(out,StandardOpenOption.CREATE_NEW)) {
+                                if (!Bundle.write(game.checkpoint(),stream)) throw new java.io.IOException("Could not save arrival");
+                            }
+                            System.out.printf("SURVIVING_ARRIVAL depth=%d input=%d confirmed=%d hp=%d/%d%n",
+                                    depth,n,acted,game.hero(0).HP,game.hero(1).HP);
+                        }
+                    }
                     guides[0]=new VaultPublicRoute.Guide();
                     guides[1]=new VaultPublicRoute.Guide();
                 }
                 VaultPublicRoute.Input input=guides[seat].choose(v);
+                if (defensivePair && seat==1) input=guides[seat].followVisiblePartner(v,input);
                 boolean keepRecovery = input.action.equals("REVIVE") || input.action.equals("DRINK") || input.action.equals("EAT")
                         || input.action.equals("MOVE") && guides[seat].isolatedAndOutnumbered(v);
                 if (v.offered && !keepRecovery && (v.heroClass.equals("CLERIC") || v.heroClass.equals("DUELIST"))) {
@@ -129,6 +144,7 @@ public final class ExperienceProgress {
                         && (input.action.equals("ATTACK") || input.action.equals("THROW"))) {
                     for (PublicDungeon.Loot cloak : v.belongings) {
                         if (v.actions(cloak).contains("CLOAK") && cloak.charges>0
+                                && (!defensivePair || cloak.charges>1 || v.hp*3<=v.maxHp*2)
                                 && !v.source.rows.containsKey("cloaked"+cloak.id)) {
                             input=new VaultPublicRoute.Input("CLOAK",0,cloak.id);
                             break;

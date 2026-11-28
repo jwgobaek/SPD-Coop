@@ -122,7 +122,7 @@ public final class PublicDungeon {
             case "TOME": return item.slot.equals("BAG") && !item.usableFromPack ? "EQUIP" : "CAST";
             case "CLOAK": return item.slot.equals("BAG") && !item.usableFromPack ? "EQUIP" : "CLOAK";
             case "STAFF": return item.slot.equals("WEAPON") ? "ZAP" : "EQUIP";
-            case "HASTE_RING": case "MELEE": case "CLASS_ARMOR": case "ARMOR": return item.slot.equals("BAG") ? "EQUIP" : "UNEQUIP";
+            case "HASTE_RING": case "RING": case "MELEE": case "CLASS_ARMOR": case "ARMOR": return item.slot.equals("BAG") ? "EQUIP" : "UNEQUIP";
             case "HONEYPOT": return "SHATTER";
             default: return "";
         }
@@ -170,10 +170,10 @@ public final class PublicDungeon {
             if(item.kind.equals("BOW")) verbs.add("SHOOT");
             if(item.kind.equals("FOOD")) verbs.add("EAT");
             if(inVault() && item.kind.equals("VAULT_BEACON")) verbs.add("VAULT_RECALL");
-            if(weapon || item.kind.equals("HASTE_RING") || item.kind.equals("TOME") || item.kind.equals("CLOAK") || item.kind.equals("HORN") || item.kind.equals("ALCHEMY_KIT") || item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")) verbs.add("EQUIP");
+            if(weapon || item.kind.equals("HASTE_RING") || item.kind.equals("RING") || item.kind.equals("TOME") || item.kind.equals("CLOAK") || item.kind.equals("HORN") || item.kind.equals("ALCHEMY_KIT") || item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")) verbs.add("EQUIP");
             if(item.kind.equals("HONEYPOT")) verbs.add("SHATTER");
             if(item.kind.equals("CANDLE") || item.kind.equals("FOOD") || weapon || item.kind.equals("ARMOR") || item.kind.equals("INSCRIBED") || item.kind.equals("HONEYPOT") || item.kind.equals("SHELL")) verbs.add("DROP");
-        } else if(item.kind.equals("HASTE_RING") || item.kind.equals("TOME") || item.kind.equals("CLOAK") || item.kind.equals("HORN") || item.kind.equals("ALCHEMY_KIT") || (item.slot.equals("WEAPON") && weapon) || (item.slot.equals("ARMOR") && (item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")))) verbs.add("UNEQUIP");
+        } else if(item.kind.equals("HASTE_RING") || item.kind.equals("RING") || item.kind.equals("TOME") || item.kind.equals("CLOAK") || item.kind.equals("HORN") || item.kind.equals("ALCHEMY_KIT") || (item.slot.equals("WEAPON") && weapon) || (item.slot.equals("ARMOR") && (item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")))) verbs.add("UNEQUIP");
         return verbs;
     }
     public boolean use(CoopController c,Loot item,String verb) {
