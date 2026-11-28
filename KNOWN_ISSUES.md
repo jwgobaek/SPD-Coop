@@ -1,5 +1,9 @@
 # 미해결 문제
 
+## 2026-11-28 SYNC42 Android 및 SYNC44 Cloud
+
+SYNC42 필수 인수 92개가 남아 APK와 ZIP의 대응 소스가 다르다. 후속 개발판의 PartyAscentTest 최초 실패 원인도 미확정이다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 개발 및 회귀](docs/coop/earth-guardian-results.md)
+
 ## SYNC41 Android와 SYNC42 원본 콘텐츠
 
 두 장비 선택형 룬석의 원본 추측·탐지, 위험한 복합 파쇄와 착지, 부식의 동료 피해 정책이 남아 있다. 시드 575의 최초 전투 제안 소실 원인도 미확정이다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)

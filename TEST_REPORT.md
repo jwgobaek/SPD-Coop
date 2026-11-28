@@ -1,5 +1,9 @@
 # SPD-Coop 클라우드 실행 보고
 
+## 2026-11-28 SYNC42 Android 및 SYNC44 Cloud
+
+SYNC42 Android 68/160개를 실제 대조했다. Cloud 전체 JUnit은 SYNC42 405/405, 최종 SYNC44 412/412였다. 중간 SYNC43의 최초 결과는 407/408이었다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 개발 및 회귀](docs/coop/earth-guardian-results.md)
+
 ## SYNC41 Android와 SYNC42 원본 콘텐츠
 
 SYNC41의 두 MuMu에서 필수 118/118과 별도 수혈 6/6을 통과했다. SYNC41 기준 JUnit 394/394, 후속 최종 405/405와 한국어·영어 화면 6/6, 두 좌석의 호스트 종료 16/16을 확인했다. 후속 중간 실행은 399/400이었다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)

@@ -1,5 +1,9 @@
 # GB2 원격 Android 시험
 
+## 2026-11-28 SYNC42 Android 및 SYNC44 Cloud
+
+두 Android 부팅의 SYNC42 설치본을 확인했다. 사전 고정한 160행 중 68개에 실제 화면·영수증·다음 행동이 연결됐다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 개발 및 회귀](docs/coop/earth-guardian-results.md)
+
 ## SYNC41 Android와 SYNC42 원본 콘텐츠
 
 SYNC41에는 기존 92건에 미감정 주문서, 세 재료·유료 조합 및 수혈 26건이 추가됐다. 설치 전 고정한 118건에서 소유 좌석의 가방·공개 전송·원래 영수증과 재인증 뒤 후속 행동을 대조했다. 추가 수혈 6/6도 통과했다. main 로그에는 순환 버퍼로 인한 기록 범위 제한이 있었다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)

@@ -1,5 +1,9 @@
 # SPD-Coop 개발 진행 기록
 
+## 2026-11-28 SYNC42 Android 및 SYNC44 Cloud
+
+SYNC42의 기존 APK를 한 번 갱신하고 두 Android 설치본을 대조했다. 필수 68/160개에 실측 증거가 있고 대응 ZIP은 SYNC41에 있다. 후속 개발판은 두 선택형 룬석, 소환자별 대지 수호자와 휴대 조합을 구현했다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 개발 및 회귀](docs/coop/earth-guardian-results.md)
+
 ## SYNC41 Android와 SYNC42 원본 콘텐츠
 
 SYNC42의 실제 룬석·물약·타락 지팡이, 지도 각인 회수와 유료 레시피를 구현했다. SYNC41은 두 Android에서 필수 118/118과 별도 수혈 6/6을 통과했다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)

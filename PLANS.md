@@ -1,5 +1,9 @@
 # 단계와 다음 작업
 
+## 2026-11-28 SYNC42 Android 및 SYNC44 Cloud
+
+다음 Android 시험은 미감정 주문서 두 종류를 양쪽 좌석에서 감정 전후로 열고, 남은 사전 고정 시나리오의 영수증과 다음 행동을 연결한다. Cloud는 위험 물약의 미감정 직접 사용과 수호자 사망·부활 경계에서 재개한다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 개발 및 회귀](docs/coop/earth-guardian-results.md)
+
 ## SYNC41 Android와 SYNC42 원본 콘텐츠
 
 SYNC41의 역할별 59개 필수 Android 인수를 완료했다. 다음 개발은 탐지의 돌에서 자기 장비의 cursedKnown과 원본 네 가지 결과를 소유 좌석에 전달하는 것이다. 직감의 돌은 식별 지식으로 만든 후보와 좌석별 2회 사용 추적기를 검증한다. 이어서 복합 환경 물약과 소환자별 대지 수호자를 다룬다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)

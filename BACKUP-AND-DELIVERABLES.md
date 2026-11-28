@@ -1,5 +1,9 @@
 # 최종 검증판 발행
 
+## 2026-11-28 SYNC42 Android 및 SYNC44 Cloud
+
+기존 APK 1회, ZIP 0회, 신규 파일 0개다. Drive APK는 6200b55, 기존 ZIP은 7ba9bb3에 대응한다. 남은 필수 Android 인수가 완료된 뒤 6200b55의 대응 ZIP을 구성한다. [Android 관측](docs/coop/rune-effects-android-progress.md) [Cloud 개발 및 회귀](docs/coop/earth-guardian-results.md)
+
 ## SYNC41 Android와 SYNC42 원본 콘텐츠
 
 SYNC41의 APK 승인 범위는 7ba9bb3의 지정 해시 한 개다. 대응 ZIP에는 실제 두 기기의 필수 118건, 같은 빌드 소스와 JUnit XML을 대조한다. [후속 기능 검증](docs/coop/rune-effects-results.md) [Android 인수](docs/coop/seed-alchemy-android-acceptance.md)
