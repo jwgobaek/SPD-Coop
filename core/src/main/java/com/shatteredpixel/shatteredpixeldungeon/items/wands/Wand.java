@@ -147,7 +147,11 @@ public abstract class Wand extends Item {
 	}
 
 	public final boolean cast(Hero caster, Ballistica bolt) {
-		if (caster != chargingHero() || !tryToZap(caster, bolt.collisionPos)) return false;
+		return cast(caster, bolt, bolt.collisionPos);
+	}
+
+	public final boolean cast(Hero caster, Ballistica bolt, int selectedCell) {
+		if (caster != chargingHero() || !tryToZap(caster, selectedCell)) return false;
 		caster.busy();
 		applyBackupBarrier(caster);
 		onZap(caster, bolt);

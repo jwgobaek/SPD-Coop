@@ -36,6 +36,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC;
 import com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
+import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
@@ -75,6 +76,7 @@ public class WandOfRegrowth extends Wand {
 
 	@Override
 	public boolean tryToZap(Hero owner, int target) {
+		if (Dungeon.coop != null && !safeCone(owner, target, chargesPerCast())) return false;
 		if (super.tryToZap(owner, target)){
 			this.target = target;
 			return true;
@@ -85,11 +87,17 @@ public class WandOfRegrowth extends Wand {
 
 	@Override
 	public void onZap(Ballistica bolt) {
+		onZap(Dungeon.hero, bolt);
+	}
+
+	@Override
+	public void onZap(Hero caster, Ballistica bolt) {
+		if (Dungeon.coop != null) cone = spread(bolt, chargesPerCast());
 
 		ArrayList<Integer> cells = new ArrayList<>(cone.cells);
 
 		float furrowedChance = 0;
-		if (totChrgUsed >= chargeLimit(Dungeon.hero.lvl)){
+		if (totChrgUsed >= chargeLimit(caster.lvl)){
 			furrowedChance = (chargesOverLimit+1)/5f;
 		}
 
@@ -117,7 +125,7 @@ public class WandOfRegrowth extends Wand {
 					if (ch instanceof DwarfKing){
 						Statistics.qualifiedForBossChallengeBadge = false;
 					}
-					wandProc(ch, chargesPerCast());
+					wandProc(caster, ch, buffedLvl(), chrgUsed);
 					Buff.prolong( ch, Roots.class, 4f * chrgUsed );
 				}
 			}
@@ -128,6 +136,7 @@ public class WandOfRegrowth extends Wand {
 		if (chargesPerCast() >= 3){
 			Lotus l = new Lotus();
 			l.setLevel(buffedLvl());
+			if (Dungeon.coop != null) l.summoner = caster.id();
 			if (cells.contains(target) && Actor.findChar(target) == null){
 				cells.remove((Integer)target);
 				l.pos = target;
@@ -187,12 +196,12 @@ public class WandOfRegrowth extends Wand {
 			grassToPlace--;
 		}
 
-		if (totChrgUsed < chargeLimit(Dungeon.hero.lvl)) {
+		if (totChrgUsed < chargeLimit(caster.lvl)) {
 			chargesOverLimit = 0;
 			totChrgUsed += chrgUsed;
-			if (totChrgUsed > chargeLimit(Dungeon.hero.lvl)){
-				chargesOverLimit = totChrgUsed - chargeLimit(Dungeon.hero.lvl);
-				totChrgUsed = chargeLimit(Dungeon.hero.lvl);
+			if (totChrgUsed > chargeLimit(caster.lvl)){
+				chargesOverLimit = totChrgUsed - chargeLimit(caster.lvl);
+				totChrgUsed = chargeLimit(caster.lvl);
 			}
 		} else {
 			chargesOverLimit += chrgUsed;
@@ -241,15 +250,20 @@ public class WandOfRegrowth extends Wand {
 
 	}
 
-	public void fx(Ballistica bolt, Callback callback) {
-
-		// 4/6/8 distance
-		int maxDist = 2 + 2*chargesPerCast();
-
-		cone = new ConeAOE( bolt,
-				maxDist,
-				20 + 10*chargesPerCast(),
+	private static ConeAOE spread(Ballistica bolt, int charges) {
+		return new ConeAOE(bolt, 2 + 2 * charges, 20 + 10 * charges,
 				Ballistica.STOP_SOLID | Ballistica.STOP_TARGET);
+	}
+
+	/** Reject the cast before spending a charge if it would root the other player. */
+	public boolean safeCone(Hero caster, int cell, int charges) {
+		Ballistica aim = new Ballistica(caster.pos, cell, collisionProperties(cell));
+		Hero peer = Dungeon.coop.hero(Dungeon.coop.hero(0) == caster ? 1 : 0);
+		return peer == null || !peer.isAlive() || !spread(aim, charges).cells.contains(peer.pos);
+	}
+
+	public void fx(Ballistica bolt, Callback callback) {
+		cone = spread(bolt, chargesPerCast());
 
 		//cast to cells at the tip, rather than all cells, better performance.
 		Ballistica longestRay = null;
@@ -287,8 +301,9 @@ public class WandOfRegrowth extends Wand {
 	@Override
 	public String statsDesc() {
 		String desc = Messages.get(this, "stats_desc", chargesPerCast());
-		if (isIdentified()){
-			int chargeLeft = chargeLimit(Dungeon.hero.lvl) - totChrgUsed;
+		Hero owner = Dungeon.coop == null ? Dungeon.hero : chargingHero();
+		if (isIdentified() && owner != null){
+			int chargeLeft = chargeLimit(owner.lvl) - totChrgUsed;
 			if (chargeLeft < 10000) desc += " " + Messages.get(this, "degradation", Math.max(chargeLeft, 0));
 		}
 		return desc;
@@ -304,7 +319,8 @@ public class WandOfRegrowth extends Wand {
 		if (level >= 10){
 			return "∞";
 		} else {
-			return Integer.toString(chargeLimit(Dungeon.hero.lvl, level));
+			Hero owner = Dungeon.coop == null ? Dungeon.hero : chargingHero();
+			return owner == null ? "?" : Integer.toString(chargeLimit(owner.lvl, level));
 		}
 	}
 
@@ -359,11 +375,9 @@ public class WandOfRegrowth extends Wand {
 
 			for (int i = 0; i < nDrops && !candidates.isEmpty(); i++){
 				Integer c = Random.element(candidates);
-				if (Dungeon.level.heaps.get(c) == null) {
-					Dungeon.level.drop(new Dewdrop(), c).sprite.drop(pos);
-				} else {
-					Dungeon.level.drop(new Dewdrop(), c).sprite.drop(c);
-				}
+				int origin = Dungeon.level.heaps.get(c) == null ? pos : c;
+				Heap heap = Dungeon.level.drop(new Dewdrop(), c);
+				if (heap.sprite != null) heap.sprite.drop(origin);
 				candidates.remove(c);
 			}
 
@@ -399,7 +413,8 @@ public class WandOfRegrowth extends Wand {
 
 			for (int i = 0; i < nSeeds && !candidates.isEmpty(); i++){
 				Integer c = Random.element(candidates);
-				Dungeon.level.drop(Generator.randomUsingDefaults(Generator.Category.SEED), c).sprite.drop(pos);
+				Heap heap = Dungeon.level.drop(Generator.randomUsingDefaults(Generator.Category.SEED), c);
+				if (heap.sprite != null) heap.sprite.drop(pos);
 				candidates.remove(c);
 			}
 
@@ -427,6 +442,11 @@ public class WandOfRegrowth extends Wand {
 		}
 
 		private int wandLvl = 0;
+		private int summoner;
+
+		public boolean belongsTo(Hero hero) {
+			return Dungeon.coop == null || hero.id() == summoner;
+		}
 
 		private void setLevel( int lvl ){
 			wandLvl = lvl;
@@ -452,7 +472,7 @@ public class WandOfRegrowth extends Wand {
 
 			if (--HP <= 0){
 				destroy();
-				sprite.die();
+				if (sprite != null) sprite.die();
 			}
 
 			return true;
@@ -471,6 +491,7 @@ public class WandOfRegrowth extends Wand {
 		@Override
 		public void destroy() {
 			super.destroy();
+			if (Dungeon.coop != null) return; // Seat views are refreshed after the authoritative action.
 			Dungeon.observe();
 			GameScene.updateFog(pos, viewDistance+1);
 		}
@@ -500,12 +521,14 @@ public class WandOfRegrowth extends Wand {
 		public void storeInBundle(Bundle bundle) {
 			super.storeInBundle(bundle);
 			bundle.put(WAND_LVL, wandLvl);
+			if (summoner != 0) bundle.put("summoner", summoner);
 		}
 
 		@Override
 		public void restoreFromBundle(Bundle bundle) {
 			super.restoreFromBundle(bundle);
 			wandLvl = bundle.getInt(WAND_LVL);
+			summoner = bundle.getInt("summoner");
 		}
 	}
 

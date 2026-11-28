@@ -58,7 +58,8 @@ public abstract class Plant implements Bundlable {
 	protected Class<? extends Plant.Seed> seedClass;
 
     public boolean supportsCoopLanding() {
-        return this instanceof Fadeleaf || this instanceof Earthroot
+        return this instanceof WandOfRegrowth.Seedpod || this instanceof WandOfRegrowth.Dewcatcher
+                || this instanceof Fadeleaf || this instanceof Earthroot
                 || this instanceof Starflower || this instanceof Sorrowmoss
                 || this instanceof Blindweed || this instanceof Mageroyal || this instanceof Stormvine
                 || this instanceof Sungrass || this instanceof Swiftthistle
@@ -117,7 +118,8 @@ public abstract class Plant implements Bundlable {
 
 		if (Random.Float() < seedChance){
 			if (seedClass != null && seedClass != Rotberry.Seed.class) {
-				Dungeon.level.drop(Reflection.newInstance(seedClass), pos).sprite.drop();
+				com.shatteredpixel.shatteredpixeldungeon.items.Heap heap = Dungeon.level.drop(Reflection.newInstance(seedClass), pos);
+				if (heap.sprite != null) heap.sprite.drop();
 			}
 		}
 		

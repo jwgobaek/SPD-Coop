@@ -360,6 +360,8 @@ final class SeatProjection {
                     String kind=mob.getClass().getSimpleName();
                     if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultElemental.Fire
                             || mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultElemental.Frost) kind="Vault"+kind;
+                    if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfWarding.Ward)
+                        rows.put("wardtier"+mob.id(), Integer.toString(((com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfWarding.Ward)mob).tier));
                     rows.put("m"+mob.id(),mob.pos+","+kind+","+mob.HP+","+mob.HT);
                     if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Eye && ((com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Eye)mob).beamCharged)
                         rows.put("charge"+mob.pos,"1");

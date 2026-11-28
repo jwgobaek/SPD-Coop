@@ -244,8 +244,7 @@ final class RoomSync {
                 && seats[seat].view.current.rows.containsKey("t"+cell)
                 && game.knowledge(game.hero(seat)).visible(cell);
         boolean openWandTarget = action == CoopSession.Action.ZAP && target == null
-                && (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTransfusion
-                    || item instanceof com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff && ((com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff)item).imbuedWand() instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTransfusion)
+                && CoopSession.canAimWandAtGround(game.hero(seat),item)
                 && seats[seat].view.current.rows.containsKey("t"+cell) && game.knowledge(game.hero(seat)).visible(cell);
         if (targeted && !openWandTarget && !scouting && !aimingAtChest && !selfBattery && (target==null || !seats[seat].view.current.rows.containsKey("m"+target.id())))
             return "REJECT_INVALID";

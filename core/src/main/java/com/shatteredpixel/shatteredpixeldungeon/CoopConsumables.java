@@ -13,7 +13,14 @@ public final class CoopConsumables {
     private CoopConsumables() {}
 
     public static boolean drinkable(Item item) {
-        if (!(item instanceof Potion) || !((Potion)item).isKnown()) return false;
+        if (!(item instanceof Potion)) return false;
+        if (!((Potion)item).isKnown()) {
+            // Use only party identification knowledge to decide an unknown regular bottle's menu.
+            java.util.Set<Class<? extends Potion>> unknown = Potion.getUnknown();
+            if (unknown.contains(PotionOfLiquidFlame.class) || unknown.contains(PotionOfFrost.class)
+                    || unknown.contains(PotionOfToxicGas.class) || unknown.contains(PotionOfParalyticGas.class))
+                return false;
+        }
         return item instanceof PotionOfHealing || item instanceof PotionOfHaste
                 || item instanceof PotionOfInvisibility || item instanceof PotionOfPurity
                 || item instanceof PotionOfLevitation || item instanceof PotionOfMindVision
@@ -21,7 +28,7 @@ public final class CoopConsumables {
     }
 
     public static boolean throwablePotion(Item item) {
-        return drinkable(item) && !(item instanceof PotionOfLevitation);
+        return item instanceof Potion && ((Potion)item).isKnown() && drinkable(item) && !(item instanceof PotionOfLevitation);
     }
 
     public static boolean canEnchantFromPack(com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero hero, Item item) {

@@ -140,8 +140,9 @@ final class CoopBoard extends Group {
                 boolean charged=view.source.rows.containsKey("charge"+cell);
                 boolean bossForm=charged && ("Pylon".equals(mob[1]) || "DM300".equals(mob[1]));
                 String form=view.source.rows.get("element"+cell);
-                Image sprite=object(keep, key+":"+mob[1]+(bossForm?":active":"")+(form==null?"":form),cell,()->{
-                    Image result=monster(mob[1], view.source.rows.get("minesprite"+key.substring(1)));
+                String wardTier=view.source.rows.get("wardtier"+key.substring(1));
+                Image sprite=object(keep, key+":"+mob[1]+(wardTier==null?"":":"+wardTier)+(bossForm?":active":"")+(form==null?"":form),cell,()->{
+                    Image result=monster(mob[1], view.source.rows.get("minesprite"+key.substring(1)), wardTier);
                     if (result instanceof VaultBossElementalSprite && form!=null)
                         ((VaultBossElementalSprite)result).setForm(com.shatteredpixel.shatteredpixeldungeon.actors.mobs.quest.vault.VaultBossElemental.ElementalForm.valueOf(form));
                     if ("ArmoredStatue".equals(mob[1])) {
@@ -300,7 +301,7 @@ final class CoopBoard extends Group {
         super.destroy();
     }
 
-    private static Image monster(String monster, String color) {
+    private static Image monster(String monster, String color, String wardTier) {
                 Image sprite;
                 switch(monster) {
                     case "VaultDM100": sprite=new DM100Sprite.Vault();break;
@@ -389,6 +390,12 @@ final class CoopBoard extends Group {
                     case "GoldenMimic": sprite=new MimicSprite.Golden();break;
                     case "CrystalMimic": sprite=new MimicSprite.Crystal();break;
                     case "Mimic": sprite=new MimicSprite();break;
+                    case "Ward":
+                        WardSprite ward=new WardSprite();
+                        ward.updateTier(Integer.parseInt(wardTier));
+                        sprite=ward;
+                        break;
+                    case "Lotus": sprite=new LotusSprite();break;
                     case "EarthGuardian": sprite=new com.shatteredpixel.shatteredpixeldungeon.sprites.EarthGuardianSprite();break;
                     case "NinjaLog": sprite=new com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.SmokeBomb.NinjaLogSprite();break;
                     case "AfterImage": sprite=new com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.duelist.Feint.AfterImage.AfterImageSprite();break;

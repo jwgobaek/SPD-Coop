@@ -38,6 +38,98 @@ public class LivingEarthTest extends HeadlessDungeon {
                 && wand.curCharges==wand.maxCharges-1 && game.ownership.owner(wand)==game.player(seat);
     }
 
+    @Test public void originalGuardianRemainsBoundAcrossCasualtyAndAnkhRevival() throws Exception {
+        for (int seat=0; seat<2; seat++) for (boolean hasAnkh : new boolean[]{true,false}) {
+            Bundle image;
+            int[] ids = new int[2];
+            int[] hp = new int[2];
+            try(CoopSession game=CoopSession.open(572,11,HeroClass.MAGE)) {
+                game.join(22,HeroClass.MAGE);
+                CoopMageTest.encounter(game,seat);
+                for (int s=0;s<2;s++) {
+                    Hero owner=game.hero(s);
+                    EarthGuardian g=new EarthGuardian();
+                    g.setInfo(owner,s+1,7+s);
+                    g.pos=owner.pos-1;
+                    GameScene.add(g,100);
+                    ids[s]=g.id();
+                    hp[s]=g.HP;
+                }
+                Hero fallen=game.hero(seat);
+                if (hasAnkh) MultiAlchemyTest.pick(game,seat,new com.shatteredpixel.shatteredpixeldungeon.items.Ankh());
+                fallen.damage(fallen.HP+fallen.shielding()+20, new Rat());
+                game.finishEffects();
+                assertEquals(hasAnkh ? CoopSession.Life.DOWNED : CoopSession.Life.DEAD,game.life(seat));
+                image=game.checkpoint();
+            }
+            try(CoopSession game=CoopSession.restore(image)) {
+                Hero fallen=game.hero(seat);
+                SewerBeeTest.offer(game,1-seat);
+                int before=game.preDeathHP(seat);
+                assertEquals(hasAnkh, CoopFloorsTest.step(game,REVIVE,fallen.pos,null));
+                assertEquals(hasAnkh ? CoopSession.reviveHP(before,fallen.HT) : 0,fallen.HP);
+                for(int s=0;s<2;s++) {
+                    EarthGuardian guardian=WandOfLivingEarth.activeGuardian(game.hero(s));
+                    assertSame(Actor.findById(ids[s]),guardian);
+                    assertSame(game.hero(s),guardian.owner());
+                    assertEquals(hp[s],guardian.HP);
+                }
+                game.validateActorGraph();
+            }
+        }
+    }
+
+    @Test public void distantGuardianPreventsASecondSummonUntilOriginalFloorReturns() throws Exception {
+        for (int seat=0;seat<2;seat++) {
+            Bundle image;
+            int id;
+            try(CoopSession game=CoopSession.open(572,11,HeroClass.MAGE)) {
+                game.join(22,HeroClass.MAGE);
+                WandArtsTest.give(game,seat,new WandOfLivingEarth());
+                SewerSpecialActorTest.atGate(game,Dungeon.level.exit());
+                Hero owner=game.hero(seat);
+                EarthGuardian guardian=new EarthGuardian();
+                guardian.setInfo(owner,2,11);
+                for(int c=0;c<Dungeon.level.length();c++) {
+                    if(Dungeon.level.passable[c] && Dungeon.level.distance(owner.pos,c)>5 && Actor.findChar(c)==null) {
+                        guardian.pos=c;
+                        break;
+                    }
+                }
+                assertTrue(Dungeon.level.distance(owner.pos,guardian.pos)>5);
+                GameScene.add(guardian,100);
+                id=guardian.id();
+                CoopFloorsTest.cross(game);
+                assertTrue(game.stairs.hasParkedGuardian(owner));
+                assertNull(Actor.findById(id));
+                image=game.checkpoint();
+            }
+            try(CoopSession game=CoopSession.restore(image)) {
+                Hero owner=game.hero(seat);
+                assertTrue(game.stairs.hasParkedGuardian(owner));
+                assertFalse(game.stairs.hasParkedGuardian(game.hero(1-seat)));
+                SewerBeeTest.offer(game,seat);
+                WandOfLivingEarth wand=owner.belongings.getItem(WandOfLivingEarth.class);
+                int charge=wand.curCharges;
+                int target=-1;
+                for(int dir:com.watabou.utils.PathFinder.NEIGHBOURS8) {
+                    int c=owner.pos+dir;
+                    if(Dungeon.level.passable[c] && game.knowledge(owner).visible(c) && Actor.findChar(c)==null) {target=c;break;}
+                }
+                assertTrue(target>=0);
+                assertFalse(CoopFloorsTest.step(game,ZAP,target,wand));
+                assertEquals(charge,wand.curCharges);
+                SewerSpecialActorTest.atGate(game,Dungeon.level.entrance());
+                CoopFloorsTest.cross(game);
+                assertEquals(1,Dungeon.depth);
+                EarthGuardian guardian=WandOfLivingEarth.activeGuardian(owner);
+                assertSame(Actor.findById(id),guardian);
+                assertEquals(11,guardian.HP);
+                assertFalse(game.stairs.hasParkedGuardian(owner));
+            }
+        }
+    }
+
     @Test public void nearGuardiansTravelAndReturnWithTheirOriginalOwners() throws Exception {
         int[] ids=new int[2];
         Bundle save;

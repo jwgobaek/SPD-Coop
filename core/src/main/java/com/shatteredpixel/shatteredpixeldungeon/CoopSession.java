@@ -215,6 +215,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorruption;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLivingEarth;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfRegrowth;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfWarding;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment;
@@ -264,7 +266,8 @@ public final class CoopSession implements AutoCloseable {
         for (int seat = 0; seat < 2; seat++) {
             Hero owner = Dungeon.coop.hero(seat);
             if (owner == null) continue;
-            if (ally instanceof WandOfLivingEarth.EarthGuardian && ((WandOfLivingEarth.EarthGuardian)ally).belongsTo(owner)
+            if (ally instanceof WandOfWarding.Ward && ((WandOfWarding.Ward)ally).belongsTo(owner)
+                    || ally instanceof WandOfLivingEarth.EarthGuardian && ((WandOfLivingEarth.EarthGuardian)ally).belongsTo(owner)
                     || ally instanceof PowerOfMany.LightAlly && ((PowerOfMany.LightAlly)ally).belongsTo(owner)
                     || ally instanceof SpiritHawk.HawkAlly && ((SpiritHawk.HawkAlly)ally).belongsTo(owner)
                     || ally instanceof ShadowClone.ShadowAlly && ((ShadowClone.ShadowAlly)ally).belongsTo(owner)) return owner;
@@ -908,7 +911,7 @@ public final class CoopSession implements AutoCloseable {
 
     public static boolean basicMob(Actor actor) {
         Class<?> type = actor.getClass();
-        if (type==WandOfLivingEarth.EarthGuardian.class || type==SmokeBomb.NinjaLog.class || type==Feint.AfterImage.class || type==PowerOfMany.LightAlly.class || type==ShadowClone.ShadowAlly.class || type==SpiritHawk.HawkAlly.class) return true;
+        if (type==WandOfWarding.Ward.class || type==WandOfRegrowth.Lotus.class || type==WandOfLivingEarth.EarthGuardian.class || type==SmokeBomb.NinjaLog.class || type==Feint.AfterImage.class || type==PowerOfMany.LightAlly.class || type==ShadowClone.ShadowAlly.class || type==SpiritHawk.HawkAlly.class) return true;
         if (Dungeon.branch==1 && CoopFloors.vaultDepth(Dungeon.depth)) return CoopVault.resident(actor.getClass());
         if (Dungeon.branch == 1) {
             return type == CrystalGuardian.class || type == CrystalSpire.class || type == CrystalWisp.class
@@ -1183,11 +1186,16 @@ public final class CoopSession implements AutoCloseable {
     }
 
     private static boolean supportedWandType(Item item) {
-        return item instanceof WandOfLivingEarth || item instanceof WandOfCorruption || item instanceof WandOfTransfusion || item instanceof WandOfPrismaticLight || item instanceof WandOfDisintegration || item instanceof WandOfMagicMissile || item instanceof WandOfBlastWave || item instanceof WandOfFireblast || item instanceof WandOfFrost || item instanceof WandOfLightning;
+        return item instanceof WandOfWarding || item instanceof WandOfRegrowth || item instanceof WandOfLivingEarth || item instanceof WandOfCorruption || item instanceof WandOfTransfusion || item instanceof WandOfPrismaticLight || item instanceof WandOfDisintegration || item instanceof WandOfMagicMissile || item instanceof WandOfBlastWave || item instanceof WandOfFireblast || item instanceof WandOfFrost || item instanceof WandOfLightning;
     }
 
     public static boolean supportedHandheldWand(Item item) {
         return supportedWandType(item) && item.cursedKnown && !item.cursed;
+    }
+
+    public static boolean canAimWandAtGround(Hero hero, Item item) {
+        Wand wand = wandFor(hero, item);
+        return wand instanceof WandOfTransfusion || wand instanceof WandOfRegrowth || wand instanceof WandOfWarding;
     }
 
     private static Wand wandFor(Hero hero, Item item) {
@@ -1849,17 +1857,17 @@ public final class CoopSession implements AutoCloseable {
                     if (wand instanceof WandOfLivingEarth && !WandOfLivingEarth.safeImpact(hero,bolt)) return false;
                     boolean rayWand = wand instanceof WandOfDisintegration;
                     if (rayWand && !((WandOfDisintegration)wand).safeBeam(hero,bolt,false)) return false;
-                    boolean ownWandAlly = (wand instanceof WandOfTransfusion || wand instanceof WandOfLivingEarth && victim instanceof WandOfLivingEarth.EarthGuardian) && victim instanceof Mob
+                    boolean ownWandAlly = (wand instanceof WandOfWarding && victim instanceof WandOfWarding.Ward || wand instanceof WandOfTransfusion || wand instanceof WandOfLivingEarth && victim instanceof WandOfLivingEarth.EarthGuardian) && victim instanceof Mob
                             && victim.isAlive() && victim.invisible == 0 && summonerOf(victim) == hero;
-                    boolean groundTarget = rayWand && victim==null || (wand instanceof WandOfLivingEarth || wand instanceof WandOfCorruption || wand instanceof WandOfTransfusion || wand instanceof WandOfPrismaticLight || wand instanceof WandOfBlastWave || wand instanceof WandOfFireblast || wand instanceof WandOfFrost || wand instanceof WandOfLightning) && victim == null && !level.solid[cell];
+                    boolean groundTarget = rayWand && victim==null || (wand instanceof WandOfWarding || wand instanceof WandOfRegrowth || wand instanceof WandOfLivingEarth || wand instanceof WandOfCorruption || wand instanceof WandOfTransfusion || wand instanceof WandOfPrismaticLight || wand instanceof WandOfBlastWave || wand instanceof WandOfFireblast || wand instanceof WandOfFrost || wand instanceof WandOfLightning) && victim == null && !level.solid[cell];
                     if (!eternalFire && !groundTarget && !chestTarget && !ownWandAlly && (!(victim instanceof Mob) || !basicMob(victim) || !victim.isAlive()
                             || (!disguised(victim) && victim.alignment!=Char.Alignment.ENEMY)
                             || victim.invisible>0 || hero.isCharmedBy(victim))) return false;
                     // Fireblast aims its cone along a WONT_STOP ray. Its own spread checks each obstruction.
-                    if (!rayWand && !(wand instanceof WandOfFireblast) && bolt.collisionPos != cell && !eternalFire) return false;
+                    if (!rayWand && !(wand instanceof WandOfFireblast) && !(wand instanceof WandOfRegrowth) && bolt.collisionPos != cell && !eternalFire) return false;
                     if (wand instanceof WandOfFrost && !WandOfFrost.safeImpact(bolt.collisionPos)) return false;
                     int castingSeat=activeSeat;
-                    if (!wand.cast(hero,bolt)) return false;
+                    if (!wand.cast(hero,bolt,cell)) return false;
                     if (lives[castingSeat] == Life.ALIVE && victim instanceof Mob && victim.alignment == Char.Alignment.ENEMY) {
                         lastOpponent[castingSeat]=(Mob)victim;
                         attackTurn[castingSeat]=turn;
@@ -2237,6 +2245,11 @@ public final class CoopSession implements AutoCloseable {
         HashSet<Integer> summoners=new HashSet<>();
         HashSet<Hero> earthOwners=new HashSet<>();
         for (Mob mob:Dungeon.level.mobs) {
+            if (mob instanceof WandOfWarding.Ward && summonerOf(mob)==null)
+                throw new IllegalStateException("Invalid ward owner");
+            if (mob instanceof WandOfRegrowth.Lotus && !((WandOfRegrowth.Lotus)mob).belongsTo(heroes[0])
+                    && !((WandOfRegrowth.Lotus)mob).belongsTo(heroes[1]))
+                throw new IllegalStateException("Invalid lotus owner");
             if (mob instanceof WandOfLivingEarth.EarthGuardian) {
                 Hero owner = ((WandOfLivingEarth.EarthGuardian)mob).owner();
                 if (owner == null || !earthOwners.add(owner)) throw new IllegalStateException("Invalid earth guardian owner");

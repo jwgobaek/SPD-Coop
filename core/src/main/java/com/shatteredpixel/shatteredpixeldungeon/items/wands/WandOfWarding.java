@@ -63,9 +63,11 @@ public class WandOfWarding extends Wand {
 
 	@Override
 	public int collisionProperties(int target) {
-		if (cursed)                                 return super.collisionProperties(target);
-		else if (!Dungeon.level.heroFOV[target])    return Ballistica.PROJECTILE;
-		else                                        return Ballistica.STOP_TARGET;
+		if (cursed) return super.collisionProperties(target);
+		Hero owner = chargingHero();
+		boolean visible = Dungeon.coop != null && owner != null
+				? Dungeon.coop.knowledge(owner).visible(target) : Dungeon.level.heroFOV[target];
+		return visible ? Ballistica.STOP_TARGET : Ballistica.PROJECTILE;
 	}
 
 	@Override
@@ -86,17 +88,18 @@ public class WandOfWarding extends Wand {
 
 		int currentWardEnergy = 0;
 		for (Char ch : Actor.chars()){
-			if (ch instanceof Ward){
+			if (ch instanceof Ward && ((Ward)ch).belongsTo(owner)){
 				currentWardEnergy += ((Ward) ch).tier;
 			}
 		}
 
-		if (Stasis.getStasisAlly() instanceof Ward){
-			currentWardEnergy += ((Ward) Stasis.getStasisAlly()).tier;
+		Char held = Stasis.getStasisAlly(owner);
+		if (held instanceof Ward && ((Ward)held).belongsTo(owner)){
+			currentWardEnergy += ((Ward)held).tier;
 		}
 		
 		int maxWardEnergy = 0;
-		for (Buff buff : curUser.buffs()){
+		for (Buff buff : owner.buffs()){
 			if (buff instanceof Wand.Charger){
 				if (((Charger) buff).wand() instanceof WandOfWarding){
 					maxWardEnergy += 2 + ((Charger) buff).wand().level();
@@ -106,6 +109,10 @@ public class WandOfWarding extends Wand {
 		
 		wardAvailable = (currentWardEnergy < maxWardEnergy);
 		
+		if (Dungeon.coop != null) {
+			Ballistica bolt = new Ballistica(owner.pos, target, collisionProperties(target));
+			if (!safeImpact(owner, bolt)) return false;
+		}
 		Char ch = Actor.findChar(target);
 		if (ch instanceof Ward){
 			if (!wardAvailable && ((Ward) ch).tier <= 3){
@@ -122,8 +129,24 @@ public class WandOfWarding extends Wand {
 		return super.tryToZap(owner, target);
 	}
 	
+	/** Only the original landing cell may receive a ward, without targeting a teammate or their wards. */
+	public boolean safeImpact(Hero owner, Ballistica bolt) {
+		int cell = bolt.collisionPos;
+		Char hit = Actor.findChar(cell);
+		if (hit instanceof Hero || hit != null && hit.alignment == Char.Alignment.ALLY && !(hit instanceof Ward)) return false;
+		if (hit != null && !(hit instanceof Ward) && bolt.dist > 1) cell = bolt.path.get(bolt.dist-1);
+		Char occupant = Actor.findChar(cell);
+		return Dungeon.level.passable[cell] && com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(cell)
+				&& (occupant == null || occupant instanceof Ward && ((Ward)occupant).belongsTo(owner));
+	}
+
 	@Override
 	public void onZap(Ballistica bolt) {
+		onZap(curUser, bolt);
+	}
+
+	@Override
+	public void onZap(Hero caster, Ballistica bolt) {
 
 		int target = bolt.collisionPos;
 		Char ch = Actor.findChar(target);
@@ -145,7 +168,7 @@ public class WandOfWarding extends Wand {
 				} else {
 					((Ward) ch).wandHeal( buffedLvl() );
 				}
-				ch.sprite.emitter().burst(MagicMissile.WardParticle.UP, ((Ward) ch).tier);
+				if (Dungeon.coop == null) ch.sprite.emitter().burst(MagicMissile.WardParticle.UP, ((Ward) ch).tier);
 			} else {
 				GLog.w( Messages.get(this, "bad_location"));
 				Dungeon.level.pressCell(target);
@@ -159,9 +182,10 @@ public class WandOfWarding extends Wand {
 			Ward ward = new Ward();
 			ward.pos = target;
 			ward.wandLevel = buffedLvl();
+			if (Dungeon.coop != null) ward.summoner = caster.id();
 			GameScene.add(ward, 1f);
 			Dungeon.level.occupyCell(ward);
-			ward.sprite.emitter().burst(MagicMissile.WardParticle.UP, ward.tier);
+			if (Dungeon.coop == null) ward.sprite.emitter().burst(MagicMissile.WardParticle.UP, ward.tier);
 			Dungeon.level.pressCell(target);
 
 		}
@@ -194,9 +218,9 @@ public class WandOfWarding extends Wand {
 			float powerMulti = Math.max(1f, procChance);
 
 			for (Char ch : Actor.chars()){
-				if (ch instanceof Ward){
+				if (ch instanceof Ward && (Dungeon.coop == null || attacker instanceof Hero && ((Ward)ch).belongsTo((Hero)attacker))){
 					((Ward) ch).wandHeal(staff.buffedLvl(), powerMulti);
-					ch.sprite.emitter().burst(MagicMissile.WardParticle.UP, ((Ward) ch).tier);
+					if (Dungeon.coop == null) ch.sprite.emitter().burst(MagicMissile.WardParticle.UP, ((Ward) ch).tier);
 				}
 			}
 		}
@@ -234,6 +258,20 @@ public class WandOfWarding extends Wand {
 
 		public int tier = 1;
 		private int wandLevel = 1;
+		private int summoner;
+
+		public boolean belongsTo(Hero hero) {
+			return Dungeon.coop == null || hero != null && hero.id() == summoner;
+		}
+
+		private Hero owner() {
+			if (Dungeon.coop == null) return Dungeon.hero;
+			Hero host = Dungeon.coop.hero(0);
+			if (belongsTo(host)) return host;
+			Hero guest = Dungeon.coop.hero(1);
+			if (belongsTo(guest)) return guest;
+			throw new IllegalStateException("Unregistered ward owner");
+		}
 
 		public int totalZaps = 0;
 
@@ -286,7 +324,7 @@ public class WandOfWarding extends Wand {
 			if (tier < 6){
 				tier++;
 				viewDistance++;
-				if (sprite != null){
+				if (sprite instanceof WardSprite){
 					((WardSprite)sprite).updateTier(tier);
 					sprite.place(pos);
 				}
@@ -357,12 +395,13 @@ public class WandOfWarding extends Wand {
 
 		@Override
 		protected boolean canAttack( Char enemy ) {
-			return new Ballistica( pos, enemy.pos, Ballistica.MAGIC_BOLT).collisionPos == enemy.pos;
+			return (Dungeon.coop == null || !(enemy instanceof Hero))
+					&& new Ballistica( pos, enemy.pos, Ballistica.MAGIC_BOLT).collisionPos == enemy.pos;
 		}
 
 		@Override
 		protected boolean doAttack(Char enemy) {
-			boolean visible = fieldOfView[pos] || fieldOfView[enemy.pos];
+			boolean visible = Dungeon.coop == null && (fieldOfView[pos] || fieldOfView[enemy.pos]);
 			if (visible) {
 				sprite.zap( enemy.pos );
 			} else {
@@ -376,14 +415,14 @@ public class WandOfWarding extends Wand {
 			spend( 1f );
 
 			//always hits
-			int dmg = Hero.heroDamageIntRange( 2 + wandLevel, 8 + 4*wandLevel );
+			int dmg = Hero.heroDamageIntRange(owner(), 2 + wandLevel, 8 + 4*wandLevel);
 			Char enemy = this.enemy;
 			enemy.damage( dmg, this );
 			if (enemy.isAlive()){
-				Wand.wandProc(enemy, wandLevel, 1);
+				Wand.wandProc(owner(), enemy, wandLevel, 1);
 			}
 
-			if (!enemy.isAlive() && enemy == Dungeon.hero) {
+			if (Dungeon.coop == null && !enemy.isAlive() && enemy == Dungeon.hero) {
 				Badges.validateDeathFromFriendlyMagic();
 				GLog.n(Messages.capitalize(Messages.get( this, "kill", name() )));
 				Dungeon.fail( WandOfWarding.class );
@@ -433,6 +472,7 @@ public class WandOfWarding extends Wand {
 		@Override
 		public void updateSpriteState() {
 			super.updateSpriteState();
+			if (!(sprite instanceof WardSprite)) return;
 			((WardSprite)sprite).updateTier(tier);
 			sprite.place(pos);
 		}
@@ -440,6 +480,7 @@ public class WandOfWarding extends Wand {
 		@Override
 		public void destroy() {
 			super.destroy();
+			if (Dungeon.coop != null) return;
 			Dungeon.observe();
 			GameScene.updateFog(pos, viewDistance+1);
 		}
@@ -504,6 +545,7 @@ public class WandOfWarding extends Wand {
 		public void storeInBundle(Bundle bundle) {
 			super.storeInBundle(bundle);
 			bundle.put(TIER, tier);
+			if (summoner != 0) bundle.put("summoner", summoner);
 			bundle.put(WAND_LEVEL, wandLevel);
 			bundle.put(TOTAL_ZAPS, totalZaps);
 		}
@@ -512,6 +554,7 @@ public class WandOfWarding extends Wand {
 		public void restoreFromBundle(Bundle bundle) {
 			super.restoreFromBundle(bundle);
 			tier = bundle.getInt(TIER);
+			summoner = bundle.getInt("summoner");
 			viewDistance = 3 + tier;
 			wandLevel = bundle.getInt(WAND_LEVEL);
 			totalZaps = bundle.getInt(TOTAL_ZAPS);

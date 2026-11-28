@@ -12,6 +12,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.DivineSense;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TalismanOfForesight;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfRegrowth.Lotus;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfWarding.Ward;
 import com.watabou.utils.PathFinder;
 
 /** One seat's observations of one branch/depth. This contains no entity history. */
@@ -38,7 +40,12 @@ public final class FloorKnowledge {
                     if (hawkSight == null) hawkSight = new boolean[visible.length];
                     level.updateHawkSight(hawk, hawkSight);
                     for (int cell = 0; cell < visible.length; cell++) visible[cell] |= hawkSight[cell];
-                    break;
+                } else if (mob instanceof Lotus && ((Lotus)mob).belongsTo(observer)
+                        || mob instanceof Ward && ((Ward)mob).belongsTo(observer)) {
+                    if (mob.fieldOfView == null || mob.fieldOfView.length != visible.length)
+                        mob.fieldOfView = new boolean[visible.length];
+                    level.updateDirectSight(mob, mob.fieldOfView);
+                    for (int cell = 0; cell < visible.length; cell++) visible[cell] |= mob.fieldOfView[cell];
                 }
             }
         }

@@ -197,10 +197,10 @@ public final class VaultPublicRoute {
             investigated.addAll(walls);
             return !walls.isEmpty();
         }
-        private Input seekVisibleWeapon(PublicDungeon v) {
-            boolean weaponInSight=v.floor.entrySet().stream().anyMatch(e -> v.visible(e.getKey())
-                    && "MELEE".equals(e.getValue().kind) && !rejectedItems.contains(e.getValue().id));
-            if (!weaponInSight) return null;
+        private Input seekVisibleSupply(PublicDungeon v, String kind) {
+            boolean supplyInSight=v.floor.entrySet().stream().anyMatch(e -> v.visible(e.getKey())
+                    && kind.equals(e.getValue().kind) && !rejectedItems.contains(e.getValue().id));
+            if (!supplyInSight) return null;
             int[] first=new int[v.width*v.height];
             Arrays.fill(first,-1);
             first[v.pos]=v.pos;
@@ -209,7 +209,7 @@ public final class VaultPublicRoute {
             while (!queue.isEmpty()) {
                 int cell=queue.remove();
                 var item=v.floor.get(cell);
-                if (item!=null && "MELEE".equals(item.kind) && !rejectedItems.contains(item.id) && !v.chest(cell)) {
+                if (item!=null && kind.equals(item.kind) && !rejectedItems.contains(item.id) && !v.chest(cell)) {
                     return cell==v.pos ? new Input("PICK_UP",cell,item.id) : new Input("MOVE",first[cell],0);
                 }
                 for (int y=Math.max(0,cell/v.width-1); y<=Math.min(v.height-1,cell/v.width+1); y++) {
@@ -339,7 +339,11 @@ public final class VaultPublicRoute {
                         && v.belongings.stream().noneMatch(e -> e.slot.equals(i.kind.equals("MELEE")?"WEAPON":"ARMOR"))) return new Input("EQUIP",0,i.id);
             }
             if (avoidGolem && Boolean.getBoolean("vault.guide.seekVisibleWeapon")) {
-                Input pickup=seekVisibleWeapon(v);
+                if (Boolean.getBoolean("vault.guide.seekHealing") && v.hp<v.maxHp) {
+                    Input healing=seekVisibleSupply(v,"HEALING");
+                    if (healing!=null) return healing;
+                }
+                Input pickup=seekVisibleSupply(v,"MELEE");
                 if (pickup!=null) return pickup;
             }
             int retreatFrom = golemAge == 0 ? golemCell : -1;

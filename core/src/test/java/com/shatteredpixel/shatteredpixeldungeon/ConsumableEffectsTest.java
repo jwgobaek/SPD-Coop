@@ -14,6 +14,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome;
 import com.watabou.utils.Bundle;
+import com.shatteredpixel.shatteredpixeldungeon.lan.ProjectionChecks;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import static com.shatteredpixel.shatteredpixeldungeon.CoopSession.Action.*;
@@ -278,6 +279,47 @@ public class ConsumableEffectsTest extends HeadlessDungeon {
             assertEquals(0,gas.cur[rat.pos]);
             assertFalse(game.hero(seat).belongings.contains(potion));
             assertNull(game.hero(seat).buff(BlobImmunity.class));
+        }
+    }
+
+    @Test public void unknownDrinkingUsesOnlySharedKnowledgeUntilTheCommittedSip() throws Exception {
+        for(int seat=0;seat<2;seat++) for(Potion sample : new Potion[]{new PotionOfHealing(),new PotionOfHaste(),
+                new PotionOfInvisibility(),new PotionOfLevitation(),new PotionOfMindVision(),new PotionOfPurity(),
+                new PotionOfStrength(),new PotionOfExperience()}) {
+            try(CoopSession game=CoopSession.open(572,11,HeroClass.MAGE)) {
+                game.join(22,HeroClass.MAGE);
+                Hero owner=game.hero(seat);
+                CoopMageTest.encounter(game,seat);
+                // Instantiate after the session initializes the original appearance and identity tables.
+                Potion bottle=com.watabou.utils.Reflection.newInstance(sample.getClass());
+                assertFalse(bottle.isKnown());
+                MultiAlchemyTest.pick(game,seat,bottle.quantity(2));
+                int before=bottle.quantity();
+                assertFalse(CoopConsumables.drinkable(bottle));
+                assertFalse(CoopFloorsTest.step(game,DRINK,0,bottle));
+                assertEquals(before,bottle.quantity());
+                for(Potion known : new Potion[]{new PotionOfLiquidFlame(),new PotionOfFrost(),new PotionOfToxicGas()})
+                    known.identify(false);
+                assertFalse(CoopConsumables.drinkable(bottle));
+                new PotionOfParalyticGas().identify(false);
+                assertTrue(CoopConsumables.drinkable(bottle));
+                assertFalse(CoopConsumables.throwablePotion(bottle));
+                assertEquals("",CoopTrade.label(bottle));
+                var view=ProjectionChecks.decodedSeat(game,seat);
+                var visible=view.belongings.stream().filter(it->"POTION".equals(it.kind)).findFirst().get();
+                assertTrue(view.actions(visible).contains("DRINK"));
+                assertFalse(view.actions(visible).contains("THROW"));
+                assertFalse(view.source.rows.containsKey("label"+visible.id));
+                int strength=owner.STR, level=owner.lvl;
+                owner.HP=owner.HT/2;
+                assertTrue(CoopFloorsTest.step(game,DRINK,0,bottle));
+                assertEquals(1,bottle.quantity());
+                assertTrue(bottle.isKnown());
+                assertEquals(game.player(seat),game.ownership.owner(bottle));
+                if(bottle instanceof PotionOfStrength) assertEquals(strength+1,owner.STR);
+                if(bottle instanceof PotionOfExperience) assertTrue(owner.lvl>level);
+                assertNotNull(game.checkpoint());
+            }
         }
     }
 

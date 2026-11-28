@@ -351,7 +351,7 @@ public class ElementalBlast extends ArmorAbility {
 
 								//*** Wand of Warding ***
 								} else if (finalWandCls == WandOfWarding.class){
-									if (mob instanceof WandOfWarding.Ward){
+									if (mob instanceof WandOfWarding.Ward && ((WandOfWarding.Ward)mob).belongsTo(hero)){
 										((WandOfWarding.Ward) mob).wandHeal(0, effectMulti);
 										charsHit++;
 									}

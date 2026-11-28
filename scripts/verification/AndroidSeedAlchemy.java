@@ -14,6 +14,11 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.*;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.*;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfPurity;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHaste;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTransfusion;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.lan.AndroidTrialTickets;
@@ -47,6 +52,27 @@ public final class AndroidSeedAlchemy extends HeadlessDungeon {
                 assertFalse(scroll.isKnown());
                 Dungeon.level.drop(scroll.quantity(2), hero.pos);
                 break;
+            case "blink": case "clairvoyance": case "shock": case "aggression":
+            case "flock": case "blast": case "purity": case "haste": {
+                Rat target = CoopMageTest.encounter(game, seat);
+                Item item;
+                switch (mode) {
+                case "blink": item = new StoneOfBlink(); break;
+                case "clairvoyance": item = new StoneOfClairvoyance(); break;
+                case "shock": item = new StoneOfShock(); break;
+                case "aggression": item = new StoneOfAggression(); break;
+                case "flock": item = new StoneOfFlock(); break;
+                case "blast": target.HP = 1; item = new StoneOfBlast(); break;
+                case "purity":
+                    GameScene.add(Blob.seed(target.pos, 100, ToxicGas.class));
+                    item = new PotionOfPurity();
+                    break;
+                default: item = new PotionOfHaste();
+                }
+                item.identify(false);
+                MultiAlchemyTest.pick(game, seat, item);
+                break;
+            }
             case "seeds":
             case "seedpack":
                 MultiAlchemyTest.station(game, seat);

@@ -1516,8 +1516,8 @@ public abstract class Level implements Bundlable {
 			}
 
 			for (Mob m : mobs){
-				if (m instanceof WandOfWarding.Ward
-						|| m instanceof WandOfRegrowth.Lotus
+				if (m instanceof WandOfWarding.Ward && ((WandOfWarding.Ward)m).belongsTo((Hero)c)
+						|| m instanceof WandOfRegrowth.Lotus && ((WandOfRegrowth.Lotus)m).belongsTo((Hero)c)
 						|| m instanceof SpiritHawk.HawkAlly && ((SpiritHawk.HawkAlly)m).belongsTo((Hero)c)
 						|| m.buff(PowerOfMany.PowerBuff.class) != null && m.buff(PowerOfMany.PowerBuff.class).belongsTo((Hero)c)){
 					if (m.fieldOfView == null || m.fieldOfView.length != length()){

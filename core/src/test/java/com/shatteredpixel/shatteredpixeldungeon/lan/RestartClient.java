@@ -596,7 +596,7 @@ public final class RestartClient {
                 }
                 if (growth && (verb.equals("DETECT_MAGIC") || verb.equals("GUESS_ITEM")))
                     handle = item(seat, "BAG", verb);
-                if (growth && verb.equals("ZAP")) handle=(boundary.startsWith("growth-earthheal") || boundary.startsWith("growth-bloodzap") || boundary.startsWith("growth-corruptzap"))
+                if (growth && verb.equals("ZAP")) handle=(boundary.startsWith("growth-wardzap") || boundary.startsWith("growth-regrowth") || boundary.startsWith("growth-earthheal") || boundary.startsWith("growth-bloodzap") || boundary.startsWith("growth-corruptzap"))
                         ? item(seat,"BAG","WAND") : item(seat,"WEAPON","STAFF");
                 if (verb.equals("DRINK") && boundary.startsWith("growth-visiondrink"))
                     handle=item(seat,"BAG","POTION");

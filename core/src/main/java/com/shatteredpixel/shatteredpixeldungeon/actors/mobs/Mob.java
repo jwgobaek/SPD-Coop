@@ -1079,6 +1079,8 @@ public abstract class Mob extends Char {
 	public void die( Object cause ) {
 		if (Dungeon.coop != null) {
 			rewardOwner = cause instanceof Hero ? (Hero)cause : null;
+			if (cause instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfWarding.Ward)
+				rewardOwner = com.shatteredpixel.shatteredpixeldungeon.CoopSession.summonerOf((Char)cause);
             if (cause instanceof com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb.ConjuredBomb)
                 rewardOwner = ((com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb.ConjuredBomb)cause).thrower;
 			if (cause instanceof com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corrosion)

@@ -35,6 +35,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.WondrousResin;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.CursedWand;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfRegrowth;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfWarding;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.HeroIcon;
@@ -148,6 +150,8 @@ public class WildMagic extends ArmorAbility {
 			if (!com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedHandheldWand(wand)
 					|| Dungeon.coop.ownership.owner(wand) != Dungeon.coop.playerOf(hero)
 					|| wand.chargingHero() != hero) return false;
+			if (wand instanceof WandOfWarding && !((WandOfWarding)wand).safeImpact(hero, new Ballistica(hero.pos, cell, wand.collisionProperties(cell)))) return false;
+			if (wand instanceof WandOfRegrowth && !((WandOfRegrowth)wand).safeCone(hero, cell, 1)) return false;
 			if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLivingEarth
                     && !com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLivingEarth.safeImpact(hero,new Ballistica(hero.pos,cell,wand.collisionProperties(cell)))) return false;
             if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration
