@@ -170,6 +170,8 @@ public class PlayerGrowthTest extends HeadlessDungeon {
     // Replay the same public investment or mask choice through two authenticated TCP clients.
     public static StagedInput stage(CoopSession g,String stage) {
         int seat=stage.endsWith("1")?1:0;
+        if (stage.matches("kitbrew[01]")) return PortableAlchemyTest.prepare(g,seat,2);
+        if (stage.matches("earthheal[01]")) return LivingEarthTest.prepare(g,seat);
         if (stage.matches("(detectstone|guessstone)[01]")) return RuneReadingTest.prepare(g, seat, stage);
         if (stage.matches("(exoticvision|exoticterror|wornaugment|visiondrink|fearstone|corruptzap|mapread|maprecall)[01]")) return ConsumableEffectsTest.prepare(g, seat, stage);
         if (stage.matches("unknownread[01]")) return CauldronTest.unknownScroll(g, seat);
@@ -198,6 +200,8 @@ public class PlayerGrowthTest extends HeadlessDungeon {
     public static boolean published(String stage) {
         CoopSession g=Dungeon.coop;
         int seat=stage.endsWith("1")?1:0;
+        if (stage.matches("kitbrew[01]")) return PortableAlchemyTest.published(g,seat);
+        if (stage.matches("earthheal[01]")) return LivingEarthTest.published(g,seat);
         if (stage.matches("(detectstone|guessstone)[01]")) return RuneReadingTest.published(g, seat, stage);
         if (stage.matches("(exoticvision|exoticterror|wornaugment|visiondrink|fearstone|corruptzap|mapread|maprecall)[01]")) return ConsumableEffectsTest.published(g, seat, stage);
         if (stage.matches("unknownread[01]")) return CauldronTest.readUnknown(g, seat);

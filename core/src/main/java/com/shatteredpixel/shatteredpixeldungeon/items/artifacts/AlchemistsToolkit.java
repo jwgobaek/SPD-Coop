@@ -58,6 +58,7 @@ public class AlchemistsToolkit extends Artifact {
 	public static final String AC_ENERGIZE = "ENERGIZE";
 
 	private float warmUpDelay;
+	private Bundle savedCharger;
 
 	@Override
 	public ArrayList<String> actions( Hero hero ) {
@@ -155,7 +156,12 @@ public class AlchemistsToolkit extends Artifact {
 
 	@Override
 	protected ArtifactBuff passiveBuff() {
-		return new kitEnergy();
+		kitEnergy charger = new kitEnergy();
+		if (savedCharger != null) {
+			charger.restoreFromBundle(savedCharger);
+			savedCharger = null;
+		}
+		return charger;
 	}
 	
 	@Override
@@ -169,14 +175,22 @@ public class AlchemistsToolkit extends Artifact {
 		}
 	}
 
+	public boolean readyToBrew(Hero owner) {
+		return isEquipped(owner) && !cursed && warmUpDelay <= 0 && owner.buff(MagicImmune.class) == null;
+	}
+
 	public int availableEnergy(){
 		return charge;
 	}
 
 	public int consumeEnergy(int amount){
+		return consumeEnergy(Dungeon.hero, amount);
+	}
+
+	public int consumeEnergy(Hero owner, int amount){
 		int result = amount - charge;
 		charge = Math.max(0, charge - amount);
-		Talent.onArtifactUsed(Dungeon.hero);
+		Talent.onArtifactUsed(owner);
 		return Math.max(0, result);
 	}
 
@@ -209,12 +223,18 @@ public class AlchemistsToolkit extends Artifact {
 	public void storeInBundle(Bundle bundle) {
 		super.storeInBundle(bundle);
 		bundle.put(WARM_UP, warmUpDelay);
+		if (Dungeon.coop != null && passiveBuff != null && passiveBuff.target != null) {
+			Bundle state = new Bundle();
+			passiveBuff.storeInBundle(state);
+			bundle.put("coop_recharge", state);
+		}
 	}
 	
 	@Override
 	public void restoreFromBundle(Bundle bundle) {
 		super.restoreFromBundle(bundle);
 		warmUpDelay = bundle.getFloat(WARM_UP);
+		if (Dungeon.coop != null && bundle.contains("coop_recharge")) savedCharger = bundle.getBundle("coop_recharge");
 	}
 	
 	public class kitEnergy extends ArtifactBuff {

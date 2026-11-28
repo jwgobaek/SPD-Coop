@@ -37,7 +37,7 @@ public final class CoopRenderSmoke {
             return;
         }
         if(args[0].equals("guest")) { guest(new File(args[1]),args.length>2); return; }
-        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|detectstone-input|guessstone-input|fearstone-input|visiondrink-input|corruptzap-input|seedbrew-input|cauldron-input|eagle-input|stasis-input|beacon-vote-input|strength-input|recharging-input|lullaby-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
+        if(args.length>1 && args[1].matches("selector-(intuition|recall|body|mind|spirit)|cache-input|bow-enchant-input|scroll-enchant-input|detectstone-input|guessstone-input|kitbrew-input|fearstone-input|visiondrink-input|corruptzap-input|seedbrew-input|cauldron-input|eagle-input|stasis-input|beacon-vote-input|strength-input|recharging-input|lullaby-input|intuition-input|seal-input|ration-input|frost-input|sunray-input|lunge-input|tome-input|volley-input|hawk-input|wand-input|upper-input|combo-input|crown-input|vault-dart|growth-input|ascent-vote|ascent-surface|vault-warning|vault-elemental|yog-warning|yog-first|yog-amulet|yog-finish|imp-vault|halls-21|mine-crystal|mine-gnoll|smith-services|city-market|king-shield|king-crown")) regionShot=args[1];
         knife=args.length>1 && args[1].equals("knife");
         scribe=knife || args.length>1 && args[1].equals("scrolls");
         market=args.length>1 && args[1].equals("market");
@@ -1361,6 +1361,30 @@ public final class CoopRenderSmoke {
                         throw new AssertionError("Physical item cost disagrees with receipt");
                     shot("native-"+verb+"-receipt");
                     System.out.println("PASS native inventory "+verb+" and confirmed item cost");
+                    return;
+                }
+                if (regionShot.equals("kitbrew-input")) {
+                    await(() -> frame().dungeon.offered && frame().image.rows.keySet().stream().anyMatch(k -> k.startsWith("kitenergy")));
+                    PublicDungeon view=frame().dungeon;
+                    var ingredient=view.belongings.stream().filter(i -> view.source.rows.containsKey("brewexotic"+i.id)).findFirst().get();
+                    for (boolean confirm : new boolean[]{false,true}) {
+                        bagAction("ALCHEMY_KIT","portable_brew");
+                        await(() -> selectorOpen());
+                        openInventoryTab(ingredient.bagIndex);
+                        press(inventoryPoint(ingredient.id));
+                        String[] mixture=view.source.rows.get("exoticrecipe"+ingredient.id).split(",");
+                        String label=Messages.titleCase(Messages.get(mixture[0]+".name"))+" ("+
+                                Messages.get(com.shatteredpixel.shatteredpixeldungeon.scenes.AlchemyScene.class,"energy")+" "+mixture[2]+")";
+                        await(() -> button("#"+label)!=null);
+                        shot(confirm?"portable-confirm":"portable-preview");
+                        click("#"+(confirm?label:Messages.get(com.shatteredpixel.shatteredpixeldungeon.scenes.AlchemyScene.class,"cancel")));
+                        if (!confirm && frame().image!=view.source) throw new AssertionError("Cancelled portable brew spent resources");
+                    }
+                    await(() -> frame().image.version>view.source.version && !frame().image.rows.containsKey("brewexotic"+ingredient.id));
+                    PublicDungeon after=frame().dungeon;
+                    if (!after.belongings.stream().anyMatch(i -> "0".equals(after.source.rows.get("kitenergy"+i.id))))
+                        throw new AssertionError("Tool balance after portable brew");
+                    System.out.println("PASS native portable toolkit preview, cancel, craft and original owner charge");
                     return;
                 }
                 if (regionShot.equals("seedbrew-input")) {

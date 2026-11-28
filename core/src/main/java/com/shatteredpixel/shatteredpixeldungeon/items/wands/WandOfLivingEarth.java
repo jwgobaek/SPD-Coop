@@ -71,23 +71,40 @@ public class WandOfLivingEarth extends DamageWand {
 	
 	@Override
 	public void onZap(Ballistica bolt) {
+		onZap(curUser, bolt);
+	}
+
+	// A distant guardian can remain on an inactive floor. Never create a second copy there or here.
+	public static boolean safeImpact(Hero caster, Ballistica beam) {
+		int cell = beam.collisionPos;
+		if (Dungeon.coop.stairs.hasParkedGuardian(caster)) return false;
+		if (!com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(cell)) return false;
+		Char ch = Actor.findChar(cell);
+		if (ch instanceof Hero) return false;
+		return ch == null || ch.alignment != Char.Alignment.ALLY || ch == activeGuardian(caster);
+	}
+
+	public static EarthGuardian activeGuardian(Hero caster) {
+		for (Mob mob : Dungeon.level.mobs) {
+			if (mob instanceof EarthGuardian && ((EarthGuardian)mob).belongsTo(caster)) return (EarthGuardian)mob;
+		}
+		return null;
+	}
+
+	private static void particles(Char ch, com.watabou.noosa.particles.Emitter.Factory particle, int count) {
+		if (Dungeon.coop == null && ch.sprite != null) ch.sprite.centerEmitter().burst(particle, count);
+	}
+
+	@Override
+	public void onZap(Hero caster, Ballistica bolt) {
 		Char ch = Actor.findChar(bolt.collisionPos);
-		int damage = damageRoll();
+		int damage = damageRoll(caster, buffedLvl());
 		int armorToAdd = damage;
+		EarthGuardian guardian = activeGuardian(caster);
+		Mob held = Stasis.getStasisAlly(caster);
+		if (held instanceof EarthGuardian && ((EarthGuardian)held).belongsTo(caster)) guardian = (EarthGuardian)held;
 
-		EarthGuardian guardian = null;
-		for (Mob m : Dungeon.level.mobs){
-			if (m instanceof EarthGuardian){
-				guardian = (EarthGuardian) m;
-				break;
-			}
-		}
-
-		if (Stasis.getStasisAlly() instanceof EarthGuardian){
-			guardian = (EarthGuardian)Stasis.getStasisAlly();
-		}
-
-		RockArmor buff = curUser.buff(RockArmor.class);
+		RockArmor buff = caster.buff(RockArmor.class);
 		//only grant armor if we are shooting at an enemy, a hiding mimic, or the guardian
 		if ((guardian == null || ch != guardian) && (ch == null
 				|| ch.alignment == Char.Alignment.ALLY
@@ -95,7 +112,7 @@ public class WandOfLivingEarth extends DamageWand {
 			armorToAdd = 0;
 		} else {
 			if (buff == null && guardian == null) {
-				buff = Buff.affect(curUser, RockArmor.class);
+				buff = Buff.affect(caster, RockArmor.class);
 			}
 			if (buff != null) {
 				buff.addArmor( buffedLvl(), armorToAdd);
@@ -104,9 +121,9 @@ public class WandOfLivingEarth extends DamageWand {
 
 		//shooting at the guardian
 		if (guardian != null && guardian == ch){
-			guardian.sprite.centerEmitter().burst(MagicMissile.EarthParticle.ATTRACT, 8 + buffedLvl() / 2);
-			guardian.setInfo(curUser, buffedLvl(), armorToAdd);
-			wandProc(guardian, chargesPerCast());
+			particles(guardian, MagicMissile.EarthParticle.ATTRACT, 8 + buffedLvl() / 2);
+			guardian.setInfo(caster, buffedLvl(), armorToAdd);
+			wandProc(caster, guardian, buffedLvl(), chargesPerCast());
 			Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, 0.9f * Random.Float(0.87f, 1.15f) );
 
 		//shooting the guardian at a location
@@ -114,7 +131,7 @@ public class WandOfLivingEarth extends DamageWand {
 
 			//create a new guardian
 			guardian = new EarthGuardian();
-			guardian.setInfo(curUser, buffedLvl(), buff.armor);
+			guardian.setInfo(caster, buffedLvl(), buff.armor);
 
 			if (buff.powerOfManyTurns > 0){
 				Buff.affect(guardian, PowerOfMany.PowerBuff.class, buff.powerOfManyTurns);
@@ -124,9 +141,9 @@ public class WandOfLivingEarth extends DamageWand {
 			//adjacent cell which is closes to the user of the wand.
 			if (ch != null){
 
-				ch.sprite.centerEmitter().burst(MagicMissile.EarthParticle.BURST, 5 + buffedLvl()/2);
+				particles(ch, MagicMissile.EarthParticle.BURST, 5 + buffedLvl()/2);
 
-				wandProc(ch, chargesPerCast());
+				wandProc(caster, ch, buffedLvl(), chargesPerCast());
 				ch.damage(damage, this);
 
 				int closest = -1;
@@ -134,15 +151,15 @@ public class WandOfLivingEarth extends DamageWand {
 
 				for (int n : PathFinder.NEIGHBOURS9) {
 					int c = bolt.collisionPos + n;
-					if (passable[c] && Actor.findChar( c ) == null
-						&& (closest == -1 || (Dungeon.level.trueDistance(c, curUser.pos) < (Dungeon.level.trueDistance(closest, curUser.pos))))) {
+					if (passable[c] && (Dungeon.coop == null || com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedLanding(c)) && Actor.findChar( c ) == null
+						&& (closest == -1 || (Dungeon.level.trueDistance(c, caster.pos) < (Dungeon.level.trueDistance(closest, caster.pos))))) {
 						closest = c;
 					}
 				}
 
 				if (closest == -1){
 					if (armorToAdd > 0) {
-						curUser.sprite.centerEmitter().burst(MagicMissile.EarthParticle.ATTRACT, 8 + buffedLvl() / 2);
+						particles(caster, MagicMissile.EarthParticle.ATTRACT, 8 + buffedLvl() / 2);
 					}
 					return; //do not spawn guardian or detach buff
 				} else {
@@ -161,7 +178,7 @@ public class WandOfLivingEarth extends DamageWand {
 				Dungeon.level.occupyCell(guardian);
 			}
 
-			guardian.sprite.centerEmitter().burst(MagicMissile.EarthParticle.ATTRACT, 8 + buffedLvl()/2);
+			particles(guardian, MagicMissile.EarthParticle.ATTRACT, 8 + buffedLvl()/2);
 			buff.detach();
 			Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, 0.9f * Random.Float(0.87f, 1.15f) );
 
@@ -170,21 +187,21 @@ public class WandOfLivingEarth extends DamageWand {
 
 			if (ch != null) {
 
-				ch.sprite.centerEmitter().burst(MagicMissile.EarthParticle.BURST, 5 + buffedLvl() / 2);
+				particles(ch, MagicMissile.EarthParticle.BURST, 5 + buffedLvl() / 2);
 
-				wandProc(ch, chargesPerCast());
+				wandProc(caster, ch, buffedLvl(), chargesPerCast());
 				ch.damage(damage, this);
 				Sample.INSTANCE.play( Assets.Sounds.HIT_MAGIC, 1, 0.8f * Random.Float(0.87f, 1.15f) );
 				
 				if (guardian == null) {
 					if (armorToAdd > 0) {
-						curUser.sprite.centerEmitter().burst(MagicMissile.EarthParticle.ATTRACT, 8 + buffedLvl() / 2);
+						particles(caster, MagicMissile.EarthParticle.ATTRACT, 8 + buffedLvl() / 2);
 					}
 				} else {
 					if (guardian.sprite != null) { //may be in stasis
-						guardian.sprite.centerEmitter().burst(MagicMissile.EarthParticle.ATTRACT, 8 + buffedLvl() / 2);
+						particles(guardian, MagicMissile.EarthParticle.ATTRACT, 8 + buffedLvl() / 2);
 					}
-					guardian.setInfo(curUser, buffedLvl(), armorToAdd);
+					guardian.setInfo(caster, buffedLvl(), armorToAdd);
 					if (ch.alignment == Char.Alignment.ENEMY || ch.buff(Amok.class) != null) {
 						guardian.aggro(ch);
 					}
@@ -223,21 +240,15 @@ public class WandOfLivingEarth extends DamageWand {
 	
 	@Override
 	public void onHit(MagesStaff staff, Char attacker, Char defender, int damage) {
-		EarthGuardian guardian = null;
-		for (Mob m : Dungeon.level.mobs){
-			if (m instanceof EarthGuardian){
-				guardian = (EarthGuardian) m;
-				break;
-			}
-		}
-		
+		Hero caster = attacker instanceof Hero ? (Hero)attacker : Dungeon.hero;
+		EarthGuardian guardian = activeGuardian(caster);
 		int armor = Math.round(damage*0.33f*procChanceMultiplier(attacker));
 
 		if (guardian != null){
-			guardian.sprite.centerEmitter().burst(MagicMissile.EarthParticle.ATTRACT, 8 + buffedLvl() / 2);
-			guardian.setInfo(Dungeon.hero, buffedLvl(), armor);
+			particles(guardian, MagicMissile.EarthParticle.ATTRACT, 8 + buffedLvl() / 2);
+			guardian.setInfo(caster, buffedLvl(), armor);
 		} else {
-			attacker.sprite.centerEmitter().burst(MagicMissile.EarthParticle.ATTRACT, 8 + buffedLvl() / 2);
+			particles(attacker, MagicMissile.EarthParticle.ATTRACT, 8 + buffedLvl() / 2);
 			Buff.affect(attacker, RockArmor.class).addArmor( buffedLvl(), armor);
 		}
 	}
@@ -382,13 +393,31 @@ public class WandOfLivingEarth extends DamageWand {
 		}
 
 		private int wandLevel = -1;
+		private int summoner;
+
+		public boolean belongsTo(Hero hero) {
+			return hero != null && (Dungeon.coop == null || summoner == hero.id());
+		}
+
+		public Hero owner() {
+			if (Dungeon.coop == null) return Dungeon.hero;
+			for (int seat = 0; seat < 2; seat++) {
+				Hero hero = Dungeon.coop.hero(seat);
+				if (belongsTo(hero)) return hero;
+			}
+			return null;
+		}
 
 		public void setInfo(Hero hero, int wandLevel, int healthToAdd){
+			if (Dungeon.coop != null) {
+				if (summoner != 0 && !belongsTo(hero)) throw new IllegalArgumentException("Guardian owner changed");
+				summoner = hero.id();
+			}
 			if (wandLevel > this.wandLevel) {
 				this.wandLevel = wandLevel;
 				HT = 16 + 8 * wandLevel;
 			}
-			if (HP != 0 && sprite != null){
+			if (Dungeon.coop == null && HP != 0 && sprite != null){
 				sprite.showStatusWithIcon(CharSprite.POSITIVE, Integer.toString(healthToAdd), FloatingText.HEALING);
 			}
 			HP = Math.min(HT, HP + healthToAdd);
@@ -449,6 +478,7 @@ public class WandOfLivingEarth extends DamageWand {
 		@Override
 		public void storeInBundle(Bundle bundle) {
 			super.storeInBundle(bundle);
+			if (summoner != 0) bundle.put("summoner", summoner);
 			bundle.put(DEFENSE, defenseSkill);
 			bundle.put(WAND_LEVEL, wandLevel);
 		}
@@ -456,6 +486,7 @@ public class WandOfLivingEarth extends DamageWand {
 		@Override
 		public void restoreFromBundle(Bundle bundle) {
 			super.restoreFromBundle(bundle);
+			summoner = bundle.getInt("summoner");
 			defenseSkill = bundle.getInt(DEFENSE);
 			wandLevel = bundle.getInt(WAND_LEVEL);
 		}
@@ -464,14 +495,15 @@ public class WandOfLivingEarth extends DamageWand {
 
 			@Override
 			public boolean act(boolean enemyInFOV, boolean justAlerted) {
-				if (!enemyInFOV){
-					Buff.affect(Dungeon.hero, RockArmor.class).addArmor(wandLevel, HP);
+				Hero caster = owner();
+				if (!enemyInFOV && caster != null && (Dungeon.coop == null || caster.isAlive())){
+					Buff.affect(caster, RockArmor.class).addArmor(wandLevel, HP);
 					if (buff(PowerOfMany.PowerBuff.class) != null){
-						Buff.affect(Dungeon.hero, RockArmor.class).powerOfManyTurns = buff(PowerOfMany.PowerBuff.class).cooldown()+1;
+						Buff.affect(caster, RockArmor.class).powerOfManyTurns = buff(PowerOfMany.PowerBuff.class).cooldown()+1;
 					}
-					Dungeon.hero.sprite.centerEmitter().burst(MagicMissile.EarthParticle.ATTRACT, 8 + wandLevel/2);
+					particles(caster, MagicMissile.EarthParticle.ATTRACT, 8 + wandLevel/2);
 					destroy();
-					sprite.die();
+					if (Dungeon.coop == null) sprite.die();
 					return true;
 				} else {
 					return super.act(enemyInFOV, justAlerted);

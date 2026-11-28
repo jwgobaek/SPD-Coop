@@ -19,6 +19,34 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.ExoticPotio
 public final class CoopAlchemy {
     private CoopAlchemy() {}
 
+    /** No map cell has this index. The accepted state version binds the equipped kit to the offer. */
+    public static final int PORTABLE = -1;
+
+    public static AlchemistsToolkit portable(CoopSession game, Hero hero) {
+        for (Item equipped : new Item[]{hero.belongings.artifact, hero.belongings.misc}) {
+            if (equipped instanceof AlchemistsToolkit && game.ownership.owner(equipped) == game.playerOf(hero)) {
+                AlchemistsToolkit kit = (AlchemistsToolkit)equipped;
+                if (kit.readyToBrew(hero)) return kit;
+            }
+        }
+        return null;
+    }
+
+    private static boolean accessible(CoopSession game, Hero hero, int cell, AlchemistsToolkit kit) {
+        return cell == PORTABLE ? kit != null : atStation(game, hero, cell);
+    }
+
+    private static boolean funded(AlchemistsToolkit kit, int cost) {
+        return cost >= 0 && Math.max(0, cost - (kit == null ? 0 : kit.availableEnergy())) <= Dungeon.energy;
+    }
+
+    private static void pay(Hero hero, AlchemistsToolkit kit, int cost) {
+        int shared = kit == null ? cost : kit.consumeEnergy(hero, cost);
+        com.shatteredpixel.shatteredpixeldungeon.journal.Catalog.countUses(
+                com.shatteredpixel.shatteredpixeldungeon.items.EnergyCrystal.class, shared);
+        Dungeon.energy -= shared;
+    }
+
     public static boolean atStation(CoopSession game, Hero hero, int cell) {
         if (!Dungeon.level.insideMap(cell) || Dungeon.level.map[cell] != Terrain.ALCHEMY
                 || Dungeon.level.distance(hero.pos, cell) > 1 || !game.knowledge(hero).visible(cell)) return false;
@@ -54,7 +82,8 @@ public final class CoopAlchemy {
     }
 
     static boolean brewSeeds(CoopSession game, Hero hero, int cell, Item[] selected) {
-        if (selected == null || selected.length != 3 || !atStation(game, hero, cell)) return false;
+        AlchemistsToolkit kit = cell == PORTABLE ? portable(game,hero) : null;
+        if (selected == null || selected.length != 3 || !accessible(game, hero, cell, kit)) return false;
         Map<Item, Integer> counts = new IdentityHashMap<>();
         ArrayList<Item> units = new ArrayList<>(3);
         for (Item seed : selected) {
@@ -64,7 +93,7 @@ public final class CoopAlchemy {
         }
         for (Item seed : selected) units.add(seed.duplicate().quantity(1));
         Potion.SeedToPotion recipe = new Potion.SeedToPotion();
-        if (!recipe.testIngredients(units) || Dungeon.energy < recipe.cost(units)) return false;
+        if (!recipe.testIngredients(units) || !funded(kit, recipe.cost(units))) return false;
         int cost = recipe.cost(units);
         Item result = recipe.brew(units);
         if (result == null) throw new IllegalStateException("Seed recipe yielded no output");
@@ -74,7 +103,7 @@ public final class CoopAlchemy {
             seed.quantity(seed.quantity() - count);
             if (seed.quantity() == 0) seed.detachAll(hero.belongings.backpack);
         }
-        Dungeon.energy -= cost;
+        pay(hero, kit, cost);
         collectResult(game, hero, result);
         return true;
     }
@@ -117,16 +146,17 @@ public final class CoopAlchemy {
     }
 
     private static boolean craft(CoopSession game, Hero hero, int cell, Item item, Recipe recipe) {
-        if (recipe == null || item == null || item.quantity() <= 0 || !atStation(game, hero, cell)
+        AlchemistsToolkit kit = cell == PORTABLE ? portable(game,hero) : null;
+        if (recipe == null || item == null || item.quantity() <= 0 || !accessible(game, hero, cell, kit)
                 || !Recipe.usableInRecipe(item) || !hero.belongings.backpack.contains(item)
                 || game.ownership.owner(item) != game.playerOf(hero)) return false;
         ArrayList<Item> input = ingredients(item);
         if (!recipe.testIngredients(input)) return false;
         int cost = recipe.cost(input);
-        if (cost > Dungeon.energy) return false;
+        if (!funded(kit, cost)) return false;
         Item output = recipe.brew(input);
         if (output == null) throw new IllegalStateException("Accepted alchemy recipe yielded no output");
-        Dungeon.energy -= cost;
+        pay(hero, kit, cost);
         if (item.quantity() == 0) item.detachAll(hero.belongings.backpack);
         collectResult(game, hero, output);
         return true;

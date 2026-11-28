@@ -148,7 +148,9 @@ public class WildMagic extends ArmorAbility {
 			if (!com.shatteredpixel.shatteredpixeldungeon.CoopSession.supportedHandheldWand(wand)
 					|| Dungeon.coop.ownership.owner(wand) != Dungeon.coop.playerOf(hero)
 					|| wand.chargingHero() != hero) return false;
-			if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration
+			if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLivingEarth
+                    && !com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLivingEarth.safeImpact(hero,new Ballistica(hero.pos,cell,wand.collisionProperties(cell)))) return false;
+            if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration
                     && !((com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration)wand).safeBeam(
                             hero,new Ballistica(hero.pos,cell,Ballistica.WONT_STOP),true)) return false;
             if (wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost) {
@@ -172,7 +174,8 @@ public class WildMagic extends ArmorAbility {
 		armor.updateQuickslot();
 		for (Wand wand : shots) {
 			Ballistica aim = new Ballistica(hero.pos, cell, wand.collisionProperties(cell));
-			if (wand.tryToZap(hero,cell)) {
+			if (wand.tryToZap(hero,cell) && (!(wand instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLivingEarth)
+                    || com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLivingEarth.safeImpact(hero,aim))) {
 				wand.onZap(hero,aim);
 				Random.Float(); // Native extra curse check, with no Wondrous Resin equipped.
 			}

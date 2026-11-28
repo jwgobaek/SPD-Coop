@@ -81,7 +81,7 @@ public final class PublicDungeon {
                 break;
             case 'm':
                 String[] mob=value.split(",");
-                if(!mob[1].matches("NinjaLog|AfterImage|LightAlly|ShadowAlly|HawkAlly|Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Sheep|Statue|ArmoredStatue|GnollExile|PhantomPiranha|Crab|HermitCrab|Swarm|Slime|CausticSlime|Thief|GnollTrickster|GreatCrab|RatKing|Goo|Tengu|Brute|ArmoredBrute|RedShaman|BlueShaman|PurpleShaman|Spinner|Blacksmith|DM200|DM201|DM300|Pylon|Succubus|DemonSpawner|YogDzewa|BurningFist|SoiledFist|RottingFist|RustedFist|BrightFist|DarkFist|Larva|YogRipper|RipperDemon|Eye|Scorpio|Acidic|VaultShaman|VaultFire|VaultFrost|VaultBossElemental|VaultDM100|VaultDM200|VaultGhoul|VaultGolem|VaultLaser|VaultMirror|VaultSentry|VaultSkeleton|VaultTokenDoor|DwarfKing|DKGhoul|DKMonk|DKWarlock|DKGolem|Monk|Golem|Imp|FireElemental|ShockElemental|Ghoul|Warlock|FrostElemental|GnollGeomancer|GnollSapper|GnollGuard|CrystalSpire|CrystalWisp|CrystalGuardian|Skeleton|Necromancer|NecroSkeleton|SpectralNecromancer|Bat|DM100|Guard|Shopkeeper|RotHeart|RotLasher|Wandmaker|DustWraith|Wraith|TormentedSpirit|NewbornFireElemental")) throw new IllegalArgumentException("Monster");
+                if(!mob[1].matches("EarthGuardian|NinjaLog|AfterImage|LightAlly|ShadowAlly|HawkAlly|Rat|Albino|Snake|Gnoll|Sentry|Piranha|Ghost|FetidRat|Bee|Mimic|CrystalMimic|GoldenMimic|Sheep|Statue|ArmoredStatue|GnollExile|PhantomPiranha|Crab|HermitCrab|Swarm|Slime|CausticSlime|Thief|GnollTrickster|GreatCrab|RatKing|Goo|Tengu|Brute|ArmoredBrute|RedShaman|BlueShaman|PurpleShaman|Spinner|Blacksmith|DM200|DM201|DM300|Pylon|Succubus|DemonSpawner|YogDzewa|BurningFist|SoiledFist|RottingFist|RustedFist|BrightFist|DarkFist|Larva|YogRipper|RipperDemon|Eye|Scorpio|Acidic|VaultShaman|VaultFire|VaultFrost|VaultBossElemental|VaultDM100|VaultDM200|VaultGhoul|VaultGolem|VaultLaser|VaultMirror|VaultSentry|VaultSkeleton|VaultTokenDoor|DwarfKing|DKGhoul|DKMonk|DKWarlock|DKGolem|Monk|Golem|Imp|FireElemental|ShockElemental|Ghoul|Warlock|FrostElemental|GnollGeomancer|GnollSapper|GnollGuard|CrystalSpire|CrystalWisp|CrystalGuardian|Skeleton|Necromancer|NecroSkeleton|SpectralNecromancer|Bat|DM100|Guard|Shopkeeper|RotHeart|RotLasher|Wandmaker|DustWraith|Wraith|TormentedSpirit|NewbornFireElemental")) throw new IllegalArgumentException("Monster");
                 enemies.put(number(mob[0],0,65535),mob[1]); break;
             case 'b': effects.add(number(value.split(",")[0],0,255)); break;
             case 't': number(value,0,63); break;
@@ -148,6 +148,7 @@ public final class PublicDungeon {
         boolean weapon=item.kind.equals("MELEE") || item.kind.equals("STAFF");
         if(item.kind.equals("UNIDENTIFIED_WAND") || (item.slot.equals("WEAPON") || item.kind.equals("WAND")) && item.charges>0) verbs.add("ZAP");
         if (weapon && item.slot.equals("BAG") && "CHAMPION".equals(source.rows.get("subclass"))) verbs.add("EQUIP_SECOND");
+        if (item.kind.equals("ALCHEMY_KIT") && source.rows.containsKey("kitenergy"+item.id)) verbs.add("PORTABLE_BREW");
         if (item.kind.equals("HORN") && !item.slot.equals("BAG") && item.charges>0) verbs.add("EAT");
         if (source.rows.containsKey("spells"+item.id)) verbs.add("CAST");
         if (source.rows.containsKey("weaponpool"+item.id)) verbs.add("WEAPON_ABILITY");
@@ -168,10 +169,10 @@ public final class PublicDungeon {
             if(item.kind.equals("BOW")) verbs.add("SHOOT");
             if(item.kind.equals("FOOD")) verbs.add("EAT");
             if(inVault() && item.kind.equals("VAULT_BEACON")) verbs.add("VAULT_RECALL");
-            if(weapon || item.kind.equals("HASTE_RING") || item.kind.equals("TOME") || item.kind.equals("CLOAK") || item.kind.equals("HORN") || item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")) verbs.add("EQUIP");
+            if(weapon || item.kind.equals("HASTE_RING") || item.kind.equals("TOME") || item.kind.equals("CLOAK") || item.kind.equals("HORN") || item.kind.equals("ALCHEMY_KIT") || item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")) verbs.add("EQUIP");
             if(item.kind.equals("HONEYPOT")) verbs.add("SHATTER");
             if(item.kind.equals("CANDLE") || item.kind.equals("FOOD") || weapon || item.kind.equals("ARMOR") || item.kind.equals("INSCRIBED") || item.kind.equals("HONEYPOT") || item.kind.equals("SHELL")) verbs.add("DROP");
-        } else if(item.kind.equals("HASTE_RING") || item.kind.equals("TOME") || item.kind.equals("CLOAK") || item.kind.equals("HORN") || (item.slot.equals("WEAPON") && weapon) || (item.slot.equals("ARMOR") && (item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")))) verbs.add("UNEQUIP");
+        } else if(item.kind.equals("HASTE_RING") || item.kind.equals("TOME") || item.kind.equals("CLOAK") || item.kind.equals("HORN") || item.kind.equals("ALCHEMY_KIT") || (item.slot.equals("WEAPON") && weapon) || (item.slot.equals("ARMOR") && (item.kind.equals("ARMOR") || item.kind.equals("CLASS_ARMOR")))) verbs.add("UNEQUIP");
         return verbs;
     }
     public boolean use(CoopController c,Loot item,String verb) {

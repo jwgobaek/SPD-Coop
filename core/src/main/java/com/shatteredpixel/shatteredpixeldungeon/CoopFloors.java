@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.DirectableAlly;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLivingEarth.EarthGuardian;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith;
@@ -154,6 +155,16 @@ public final class CoopFloors {
         if (!blockers.isEmpty()) throw new UnsupportedDestination(blockers.toString());
     }
 
+    public boolean hasParkedGuardian(Hero owner) {
+        for (Bundle floor : dormant.values()) {
+            for (Bundle mob : floor.getBundle("level").getBundleArray("mobs")) {
+                if (EarthGuardian.class.getName().equals(mob.getString("__className"))
+                        && mob.getInt("summoner") == owner.id()) return true;
+            }
+        }
+        return false;
+    }
+
     public boolean hasParkedFloor() { return !dormant.isEmpty(); }
 
     public boolean warpPending() { return warpSeat >= 0; }
@@ -291,12 +302,18 @@ public final class CoopFloors {
 
     private boolean switchFloor(int seat,int depth,int branch,LevelTransition.Type arrivalType,int beacon,Item reward) {
         Level old=Dungeon.level;
-        java.util.ArrayList<DirectableAlly> companions=new java.util.ArrayList<>();
+        java.util.ArrayList<Mob> companions=new java.util.ArrayList<>();
         for (Mob mob : new java.util.ArrayList<>(old.mobs)) {
             if (mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.cleric.PowerOfMany.LightAlly || mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.huntress.SpiritHawk.HawkAlly || mob instanceof com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.ShadowClone.ShadowAlly) {
                 ((DirectableAlly)mob).followHero();
                 old.mobs.remove(mob);
-                companions.add((DirectableAlly)mob);
+                companions.add(mob);
+            } else if (mob instanceof EarthGuardian) {
+                Hero owner = ((EarthGuardian)mob).owner();
+                if (owner != null && old.distance(owner.pos, mob.pos) <= 5) {
+                    old.mobs.remove(mob);
+                    companions.add(mob);
+                }
             }
         }
         game.leaveFloor();
@@ -363,8 +380,8 @@ public final class CoopFloors {
             if (arrivalType==null) throw new UnsupportedDestination("No safe beacon arrival pair");
             throw new IllegalStateException("No safe arrival pair");
         }
-        for (DirectableAlly ally : companions) {
-            Hero owner=ally.commander();
+        for (Mob ally : companions) {
+            Hero owner = ally instanceof EarthGuardian ? ((EarthGuardian)ally).owner() : ((DirectableAlly)ally).commander();
             java.util.ArrayList<Integer> free=new java.util.ArrayList<>();
             for (int offset:PathFinder.NEIGHBOURS8) {
                 int candidate=owner.pos+offset;

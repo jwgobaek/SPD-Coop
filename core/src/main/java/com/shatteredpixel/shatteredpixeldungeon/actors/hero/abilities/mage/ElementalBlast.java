@@ -419,12 +419,10 @@ public class ElementalBlast extends ArmorAbility {
 
 						//*** Wand of Living Earth ***
 						} else if (finalWandCls == WandOfLivingEarth.class && charsHit > 0){
-							for (Mob m : Dungeon.level.mobs){
-								if (m instanceof WandOfLivingEarth.EarthGuardian){
-									((WandOfLivingEarth.EarthGuardian) m).setInfo(hero, 0, Math.round(effectMulti*charsHit*5));
-									m.sprite.centerEmitter().burst(MagicMissile.EarthParticle.ATTRACT, 8 + charsHit);
-									break;
-								}
+							WandOfLivingEarth.EarthGuardian guardian = WandOfLivingEarth.activeGuardian(hero);
+							if (guardian != null) {
+								guardian.setInfo(hero, 0, Math.round(effectMulti*charsHit*5));
+								if (Dungeon.coop == null) guardian.sprite.centerEmitter().burst(MagicMissile.EarthParticle.ATTRACT, 8 + charsHit);
 							}
 
 						//*** Wand of Frost ***

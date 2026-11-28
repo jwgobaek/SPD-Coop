@@ -294,6 +294,8 @@ final class SeatProjection {
             if (hero.hasTalent(Talent.WALL_OF_LIGHT) && com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.WallOfLight.INSTANCE.chargeUse(hero)==0)
                 rows.put("endlightwall","1");
             StenchGas stench = (StenchGas)level.blobs.get(StenchGas.class);
+            com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit portable =
+                    com.shatteredpixel.shatteredpixeldungeon.CoopAlchemy.portable(game,hero);
             boolean atCauldron = false;
             for (int cell=0;cell<sight.length();cell++) {
                 if (sight.sensed(cell)) rows.put("sense"+cell, sight.sensedMob(cell) ? "mob" : "terrain");
@@ -468,7 +470,8 @@ final class SeatProjection {
                         rows.put("cloaked"+ids.get(item), "1");
                 }
                 if (game.ownership.owner(item)==game.player(seat)) {
-                    if (atCauldron && hero.belongings.backpack.contains(item)) {
+                    if (item == portable) rows.put("kitenergy"+ids.get(item), Integer.toString(portable.availableEnergy()));
+                    if ((atCauldron || portable != null) && hero.belongings.backpack.contains(item)) {
                         String preview = com.shatteredpixel.shatteredpixeldungeon.CoopAlchemy.preview(item);
                         if (com.shatteredpixel.shatteredpixeldungeon.CoopAlchemy.isSeed(item)) rows.put("brewseed" + ids.get(item), "1");
                         if (com.shatteredpixel.shatteredpixeldungeon.CoopAlchemy.canBrewEnchantment(item))
@@ -673,6 +676,7 @@ final class SeatProjection {
         if (item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle) kind="CANDLE";
         if (!slot.startsWith("F") && item.isIdentified() && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste) kind="HASTE_RING";
         String charges="";
+        if (!slot.startsWith("F") && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit) kind="ALCHEMY_KIT";
         if (!slot.startsWith("F") && item instanceof com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty) {
             com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty horn=(com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty)item;
             kind="HORN";

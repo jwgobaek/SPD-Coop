@@ -54,6 +54,9 @@ public class CoopScene extends PixelScene {
     public void useItem(PublicDungeon view, PublicDungeon.Loot item, String action) {
         if (controller.frame().image!=view.source || !view.actions(item).contains(action)) return;
         switch (action) {
+            case "PORTABLE_BREW":
+                openCauldron(view,com.shatteredpixel.shatteredpixeldungeon.CoopAlchemy.PORTABLE);
+                break;
             case "CAST":
                 showSpells(view,item);
                 break;

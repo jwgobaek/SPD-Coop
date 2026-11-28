@@ -61,6 +61,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.En
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.spells.ClericSpell;
@@ -213,6 +214,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTransfusion;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorruption;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLivingEarth;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment;
@@ -262,7 +264,8 @@ public final class CoopSession implements AutoCloseable {
         for (int seat = 0; seat < 2; seat++) {
             Hero owner = Dungeon.coop.hero(seat);
             if (owner == null) continue;
-            if (ally instanceof PowerOfMany.LightAlly && ((PowerOfMany.LightAlly)ally).belongsTo(owner)
+            if (ally instanceof WandOfLivingEarth.EarthGuardian && ((WandOfLivingEarth.EarthGuardian)ally).belongsTo(owner)
+                    || ally instanceof PowerOfMany.LightAlly && ((PowerOfMany.LightAlly)ally).belongsTo(owner)
                     || ally instanceof SpiritHawk.HawkAlly && ((SpiritHawk.HawkAlly)ally).belongsTo(owner)
                     || ally instanceof ShadowClone.ShadowAlly && ((ShadowClone.ShadowAlly)ally).belongsTo(owner)) return owner;
         }
@@ -905,7 +908,7 @@ public final class CoopSession implements AutoCloseable {
 
     public static boolean basicMob(Actor actor) {
         Class<?> type = actor.getClass();
-        if (type==SmokeBomb.NinjaLog.class || type==Feint.AfterImage.class || type==PowerOfMany.LightAlly.class || type==ShadowClone.ShadowAlly.class || type==SpiritHawk.HawkAlly.class) return true;
+        if (type==WandOfLivingEarth.EarthGuardian.class || type==SmokeBomb.NinjaLog.class || type==Feint.AfterImage.class || type==PowerOfMany.LightAlly.class || type==ShadowClone.ShadowAlly.class || type==SpiritHawk.HawkAlly.class) return true;
         if (Dungeon.branch==1 && CoopFloors.vaultDepth(Dungeon.depth)) return CoopVault.resident(actor.getClass());
         if (Dungeon.branch == 1) {
             return type == CrystalGuardian.class || type == CrystalSpire.class || type == CrystalWisp.class
@@ -1180,7 +1183,7 @@ public final class CoopSession implements AutoCloseable {
     }
 
     private static boolean supportedWandType(Item item) {
-        return item instanceof WandOfCorruption || item instanceof WandOfTransfusion || item instanceof WandOfPrismaticLight || item instanceof WandOfDisintegration || item instanceof WandOfMagicMissile || item instanceof WandOfBlastWave || item instanceof WandOfFireblast || item instanceof WandOfFrost || item instanceof WandOfLightning;
+        return item instanceof WandOfLivingEarth || item instanceof WandOfCorruption || item instanceof WandOfTransfusion || item instanceof WandOfPrismaticLight || item instanceof WandOfDisintegration || item instanceof WandOfMagicMissile || item instanceof WandOfBlastWave || item instanceof WandOfFireblast || item instanceof WandOfFrost || item instanceof WandOfLightning;
     }
 
     public static boolean supportedHandheldWand(Item item) {
@@ -1843,12 +1846,13 @@ public final class CoopSession implements AutoCloseable {
                             && bolt.path.size() > bolt.dist+1 && bolt.path.get(bolt.dist+1) == cell
                             && com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob.volumeAt(cell,
                                     com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.MagicalFireRoom.EternalFire.class) > 0;
+                    if (wand instanceof WandOfLivingEarth && !WandOfLivingEarth.safeImpact(hero,bolt)) return false;
                     boolean rayWand = wand instanceof WandOfDisintegration;
                     if (rayWand && !((WandOfDisintegration)wand).safeBeam(hero,bolt,false)) return false;
-                    boolean ownTransfusionAlly = wand instanceof WandOfTransfusion && victim instanceof Mob
+                    boolean ownWandAlly = (wand instanceof WandOfTransfusion || wand instanceof WandOfLivingEarth && victim instanceof WandOfLivingEarth.EarthGuardian) && victim instanceof Mob
                             && victim.isAlive() && victim.invisible == 0 && summonerOf(victim) == hero;
-                    boolean groundTarget = rayWand && victim==null || (wand instanceof WandOfCorruption || wand instanceof WandOfTransfusion || wand instanceof WandOfPrismaticLight || wand instanceof WandOfBlastWave || wand instanceof WandOfFireblast || wand instanceof WandOfFrost || wand instanceof WandOfLightning) && victim == null && !level.solid[cell];
-                    if (!eternalFire && !groundTarget && !chestTarget && !ownTransfusionAlly && (!(victim instanceof Mob) || !basicMob(victim) || !victim.isAlive()
+                    boolean groundTarget = rayWand && victim==null || (wand instanceof WandOfLivingEarth || wand instanceof WandOfCorruption || wand instanceof WandOfTransfusion || wand instanceof WandOfPrismaticLight || wand instanceof WandOfBlastWave || wand instanceof WandOfFireblast || wand instanceof WandOfFrost || wand instanceof WandOfLightning) && victim == null && !level.solid[cell];
+                    if (!eternalFire && !groundTarget && !chestTarget && !ownWandAlly && (!(victim instanceof Mob) || !basicMob(victim) || !victim.isAlive()
                             || (!disguised(victim) && victim.alignment!=Char.Alignment.ENEMY)
                             || victim.invisible>0 || hero.isCharmedBy(victim))) return false;
                     // Fireblast aims its cone along a WONT_STOP ray. Its own spread checks each obstruction.
@@ -1867,7 +1871,7 @@ public final class CoopSession implements AutoCloseable {
                     Heap heap = level.heaps.get(hero.pos);
                     if (cell != hero.pos || heap == null || heap.hidden || heap.type != Heap.Type.HEAP || item == null || heap.peek() != item
                             || (item instanceof Dewdrop && !Dewdrop.canCollect(hero,cell))
-                            || (!(item instanceof Dewdrop) && !(item instanceof BrokenSeal && ownership.owner(item)==player) && !CoopVault.questPickup(item,cell) && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.EnergyCrystal) && item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && item.getClass()!=GooBlob.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.quest.MetalShard.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.TengusMask.class && !(Dungeon.depth==26 && item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.Amulet.class && !Statistics.amuletObtained) && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.KingsCrown.class && !supportedWandType(item) && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand && ownership.owner(item)==player) && !(item instanceof CorpseDust || item instanceof Embers || item instanceof CeremonialCandle || item instanceof Rotberry.Seed) && !(item instanceof Potion) && !(item instanceof Ring || item instanceof StoneOfEnchantment || item instanceof HornOfPlenty) && !supportedScroll(item) && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ExoticScroll && ownership.owner(item)==player) && !CoopAlchemy.isSeed(item) && !Scroll.ScrollToStone.isIngredient(item) && !Scroll.ScrollToStone.isResult(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
+                            || (!(item instanceof Dewdrop) && !(item instanceof BrokenSeal && ownership.owner(item)==player) && !CoopVault.questPickup(item,cell) && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.EnergyCrystal) && item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && item.getClass()!=GooBlob.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.quest.MetalShard.class && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.TengusMask.class && !(Dungeon.depth==26 && item.getClass()==com.shatteredpixel.shatteredpixeldungeon.items.Amulet.class && !Statistics.amuletObtained) && item.getClass()!=com.shatteredpixel.shatteredpixeldungeon.items.KingsCrown.class && !supportedWandType(item) && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand && ownership.owner(item)==player) && !(item instanceof CorpseDust || item instanceof Embers || item instanceof CeremonialCandle || item instanceof Rotberry.Seed) && !(item instanceof Potion) && !(item instanceof Ring || item instanceof StoneOfEnchantment || item instanceof HornOfPlenty || item instanceof AlchemistsToolkit) && !supportedScroll(item) && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ExoticScroll && ownership.owner(item)==player) && !CoopAlchemy.isSeed(item) && !Scroll.ScrollToStone.isIngredient(item) && !Scroll.ScrollToStone.isResult(item) && !basicMissile(item) && !basicArmorType(item) && !statueWeapon(item) && !basicFood(item) && !(item instanceof Honeypot || item instanceof Honeypot.ShatteredPot) && item.getClass() != Ankh.class && !basicWeapon(item))
                             || (!(item instanceof Dewdrop) && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.EnergyCrystal) && item.getClass()!=Gold.class && item.getClass()!=IronKey.class && item.getClass()!=WornKey.class && !(item instanceof com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe && ownership.owner(item)==player) && !hero.belongings.backpack.canHold(item))) return false;
                     hero.checkVisibleMobs();
                     if (!hero.handle(hero.pos) || !(hero.curAction instanceof HeroAction.PickUp)) throw new IllegalStateException("Unexpected pickup action");
@@ -2045,7 +2049,7 @@ public final class CoopSession implements AutoCloseable {
                                 || !((Ring)item).doEquip(hero)) return false;
                         break;
                     }
-                    if (item instanceof CloakOfShadows || item instanceof HolyTome || item instanceof HornOfPlenty) {
+                    if (item instanceof CloakOfShadows || item instanceof HolyTome || item instanceof HornOfPlenty || item instanceof AlchemistsToolkit) {
                         if (ownership.owner(item) != player || !hero.belongings.backpack.contains(item)
                                 || hero.belongings.artifact != null && hero.belongings.misc != null
                                 || !((com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact)item).doEquip(hero)) return false;
@@ -2071,7 +2075,7 @@ public final class CoopSession implements AutoCloseable {
                                 || !hero.belongings.backpack.canHold(item) || !((Ring)item).doUnequip(hero,true)) return false;
                         break;
                     }
-                    if (item instanceof CloakOfShadows || item instanceof HolyTome || item instanceof HornOfPlenty) {
+                    if (item instanceof CloakOfShadows || item instanceof HolyTome || item instanceof HornOfPlenty || item instanceof AlchemistsToolkit) {
                         if (ownership.owner(item) != player || !item.isEquipped(hero) || item.cursed
                                 || !hero.belongings.backpack.canHold(item) || !((com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact)item).doUnequip(hero,true)) return false;
                         break;
@@ -2231,7 +2235,12 @@ public final class CoopSession implements AutoCloseable {
         HashSet<Actor> persistent = new HashSet<>();
         persistent.add(heroes[0]); persistent.add(heroes[1]);
         HashSet<Integer> summoners=new HashSet<>();
+        HashSet<Hero> earthOwners=new HashSet<>();
         for (Mob mob:Dungeon.level.mobs) {
+            if (mob instanceof WandOfLivingEarth.EarthGuardian) {
+                Hero owner = ((WandOfLivingEarth.EarthGuardian)mob).owner();
+                if (owner == null || !earthOwners.add(owner)) throw new IllegalStateException("Invalid earth guardian owner");
+            }
             if (mob instanceof SmokeBomb.NinjaLog && !(((SmokeBomb.NinjaLog)mob).owner().armorAbility instanceof SmokeBomb))
                 throw new IllegalArgumentException("Invalid smoke bomb summoner");
             if (mob instanceof Feint.AfterImage && !(((Feint.AfterImage)mob).owner().armorAbility instanceof Feint))
